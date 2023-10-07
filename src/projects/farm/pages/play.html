@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Three.js M3U8 Video as Texture with Cross-origin</title>
+  <style>
+    body { margin: 0; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+<video id="video" crossorigin="anonymous" muted playsinline></video>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.0.7/hls.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/vConsole/3.9.1/vconsole.min.js"></script>
+<script>
+  // Set up Three.js scene, camera and renderer
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  // Create video element and video texture
+  const video = document.getElementById('video');
+  const texture = new THREE.VideoTexture(video);
+
+  // Load M3U8 file with hls.js
+  const hls = new Hls();
+  hls.loadSource('https://zavatarpull.aicgworld.com/appzg/0000.m3u8');
+  hls.attachMedia(video);
+  hls.on(Hls.Events.MANIFEST_PARSED, function () {
+    video.play();
+  });
+
+  // Create material, geometry and mesh
+  const material = new THREE.MeshBasicMaterial({ map: texture });
+  const geometry = new THREE.PlaneGeometry(16, 9);
+  const mesh = new THREE.Mesh(geometry, material);
+  scene.add(mesh);
+
+  // Set up camera position
+  camera.position.z = 20;
+
+  // Animation loop
+  function animate() {
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+  }
+
+  animate();
+  
+  // Fix for WeChat browser
+  document.addEventListener('WeixinJSBridgeReady', function () {
+    video.play();
+  }, false);
+  
+  // Add vConsole for debugging
+  var vConsole = new VConsole();
+</script>
+</body>
+</html>

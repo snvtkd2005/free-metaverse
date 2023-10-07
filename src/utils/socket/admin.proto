@@ -1,0 +1,329 @@
+syntax = "proto3";
+
+package protocol.admin;
+
+// 重要，不然可能会生成失败
+option go_package = "./;admin";
+
+
+// 登录req @path=/admin/login
+message LoginReq {
+  string Username = 1; // 用户名
+  string Password = 2; // 密码
+}
+// 登录rsp
+message LoginRsp {
+  string Token = 1; // token 后续请求都需要携带
+  string Username = 2; // 登录用户名
+}
+
+// 退出登录req @path=/admin/logout
+message LogoutReq {
+  string Username = 1;
+}
+
+message LogoutRsp {
+}
+
+// 检查登录token（后台使用）
+message CheckTokenReq {
+  string Token = 1;
+}
+message CheckTokenRsp {
+}
+
+// 获取形象分类定义 @path=/admin/asset/category/define
+message GetCategoryDefineReq {
+  int64 PageCode = 1; // 1：形象管理页 2：服装管理页（具体数值再定）
+}
+message GetCategoryDefineRsp {
+  map<uint64, string> CategoryID2Name = 1; // 例如： 102：眼睛 103:鼻子…
+}
+
+
+// 获取形象列表 @path=/admin/asset/profile/list
+message GetAssetListReq {
+  int64 PageCode = 1; // 1：形象管理页 2：服装管理页（必填）
+  uint64 AssetID = 2; // 形象/服装资产ID（搜索条件，可为空）
+  string AssetName = 3; // 形象/服装资产名（搜索条件，可为空）
+  int32 Gender = 4; // 性别（搜索条件，可为空）
+  uint64 CategoryID = 5; // 形象/服装分类（搜索条件，可为空）
+  int32 Page = 6; // 分页（搜索条件，可为空）
+  int32 Limit = 7; // 每一页的数量（搜索条件，可为空）
+}
+// 获取形象列表
+message GetAssetListRsp {
+  repeated Asset AssetList = 1; // 形象资产列表
+  uint64 Total = 2; // 总数
+}
+
+// 形象/服装资产
+message Asset {
+  uint64 ID = 1; // 序号
+  uint64 AssetID = 2; // 形象/服装ID
+  string AssetName = 3; // 形象名
+  uint64 CategoryID = 4; // 形象/服装分类
+  int32 Gender = 5; // 性别
+  string IconURL = 6; // 形象/服装图标
+  uint64 DisplayOrder = 7; // 排序
+  uint64 AssetStatus = 8; // 资产状态，0：新增，1：上线，2：下线，3：删除',
+  uint64 SelleStatus = 9; // 销售状态 1:可售卖 2：不可售卖
+  int32 ChargeType = 10; // 资产类型   0：免费，1：积分兑换，2：任务获得；3：付费购买
+  int32 ChargeValue = 11; // 资产类型对应的数值
+  uint64 CreateTime = 12; // 创建时间
+  string AssetURL = 13; // 资产文件
+  string AssetDesc = 14; // 资产描述
+}
+
+// 更新形象/服装资产的销售状态 @path=/admin/asset/sell_status/update
+message UpdateAssetSellStatusReq {
+  int64 PageCode = 1;
+  uint64 AssetID = 2; // 形象资产ID
+  uint64 SellStatus = 3; // 希望变更的状态 1:可售卖 2：不可售卖
+}
+message UpdateAssetSellStatusRsp {
+}
+
+// 更新形象/服装资产的状态 @path=/admin/asset/status/update
+message UpdateAssetStatusReq {
+  int64 PageCode = 1;
+  uint64 AssetID = 2;
+  uint64 AssetStatus = 3; // 0：新增，1：上线，2：下线，3：删除
+  uint64 SellStatus = 4; // 希望变更的状态 1:可售卖 2：不可售卖
+  uint64 DisplayOrder = 5; // 排序
+}
+message UpdateAssetStatusRsp {
+}
+
+// 更新形象/服装资产 @path=/admin/asset/update
+message UpdateAssetReq {
+  uint64 AssetID = 1; // 资产ID
+  string AssetName = 2; // 资产名
+  string AssetDesc = 3; // 描述
+  int32 Gender = 4; // 性别 ? 可以修改？
+  uint64 CategoryID = 5; // 形象类型
+  uint64 ChargeType = 6; // 资产类型
+  uint64 DisplayOrder = 7; // 排序
+  string IconURL = 8; // 图标地址
+  string AssetURL = 9; // 资产文件
+}
+message UpdateAssetRsp {
+}
+
+// 新增形象/服装资产 @path=/admin/asset/add
+message AddAssetReq {
+  string AssetName = 1; // 资产名
+  string AssetDesc = 2; // 描述
+  int32 Gender = 3; // 性别
+  uint64 CategoryID = 4; // 形象类型
+  uint64 ChargeType = 5; // 资产类型
+  uint64 DisplayOrder = 6; // 排序
+  string IconURL = 7; // 图标地址
+  string AssetURL = 8; // 资产文件
+}
+message AddAssetRsp {
+}
+
+// 生成上传图片签名 @path/admin/upload/file
+message UploadFileReq {
+  string FileName = 1; // 文件名，带上文件后缀名
+  bytes File = 2; // 文件二进制流
+}
+message UploadFileRsp {
+  string FileOssURL = 1; // 文件上传至oss的地址，作为参数给回后台
+  string WebpURL = 2; //webpurl 如果是zip格式必返回
+}
+
+// Test：为指定用户授权资产（仅在测试时使用） @path=/admin/test/auth/asset 需要去除
+message TestAuthAssetReq {
+  string UID = 1;
+  int32 Gender = 2; // 性别 1：男 2：女
+  repeated uint64 AssetID = 3;
+}
+message TestAuthAssetRsp {
+}
+
+// 活动
+message Activity {
+  uint32 ActType = 1; // 活动类型 1：会议 2：演唱会
+  string ActID = 2; // 活动ID
+  string ActName = 3; // 活动名称
+  int64 BeginTime = 4; // 开始时间
+  int64 EndTime = 5; // 结束时间
+  uint32 NormalLimit = 6; // 普通用户数限制
+  uint32 VipLimit = 7; // 白名单用户数限制
+  uint32 ActStatus = 8; // 活动状态 0：初始化 1：上线 2：下线 3：删除
+  int64 CreateTime = 9; // 创建时间
+  int64 UpdateTime = 10; // 更新时间
+}
+
+message AddActivityReq {
+  Activity Act = 1;
+}
+
+message AddActivityRsp {
+}
+
+message UpdateActivityStatusReq {
+  string ActID = 1; // 活动ID
+  uint32 ActStatus = 2; // 活动状态 0：初始化 1：上线 2：下线 3：删除
+}
+
+message UpdateActivityStatusRsp {
+}
+
+message UpdateActivityReq {
+  string ActID = 1;
+  string ActName = 2; // 活动名称
+  int64 BeginTime = 3; // 开始时间
+  int64 EndTime = 4; // 结束时间
+  uint32 NormalLimit = 5; // 普通用户数限制
+  uint32 VipLimit = 6; // 白名单用户数限制
+}
+
+message UpdateActivityRsp {
+}
+
+message QueryActivityListReq {
+}
+
+message QueryActivityListRsp {
+  repeated Activity RetList = 1;
+}
+
+// 活动位
+message ActPosition {
+  uint64 ID = 1; // 活动位ID，主键
+  string ActID = 2; // 活动ID
+  uint32 PosType = 3; // 位置类型 1~8：展位 9：大屏幕
+  uint32 ContentType = 4; // 内容类型 1：图片 2：视频 3：直播
+  string PosContent = 5; // 内容（URL）
+  uint32 PosStatus = 6; // 活动位状态 0：初始化 1：上线 2：下线 3：删除
+  int64 CreateTime = 7; // 创建时间
+  int64 UpdateTime = 8; // 更新时间
+}
+
+message AddActPositionReq {
+  ActPosition ActPos = 1;
+}
+
+message AddActPositionRsp {
+}
+
+message UpdateActPositionStatusReq {
+  uint64 ID = 1; // 活动位ID，主键
+  uint32 PosStatus = 6; // 活动位状态 0：初始化 1：上线 2：下线 3：删除
+}
+
+message UpdateActPositionStatusRsp {
+}
+
+message UpdateActPositionReq {
+  ActPosition ActPos = 1;
+}
+
+message UpdateActPositionRsp {
+}
+
+message QueryActPositionListReq {
+  string ActID = 1; // 活动ID
+}
+
+message QueryActPositionListRsp {
+  repeated ActPosition RetList = 1;
+}
+
+// 活动特效
+message ActEffect {
+  uint64 ID = 1; // 主键id
+  string ActID = 2; // 活动ID
+  uint32 EffectType = 3; // 特效类型 1：气球雨 2：全体鼓掌 3：全体挥舞荧光棒 4：就座
+  uint32 EffectStatus = 4; // 特效状态 0：初始化 1：暂停 2：进行中 3：删除
+  int64 CreateTime = 7; // 创建时间
+  int64 UpdateTime = 8; // 更新时间
+}
+
+message QueryActEffectListReq {
+  string ActID = 1; // 活动ID
+}
+
+message QueryActEffectListRsp {
+  repeated ActEffect RetList = 1;
+}
+
+message PublishActEffectReq {
+  uint64 ID = 1; // 主键id
+  string ActID = 2; // 活动ID
+  uint32 EffectType = 3; // 特效类型 1：气球雨 2：全体鼓掌 3：全体挥舞荧光棒 4：就座
+  uint32 EffectStatus = 4; // 特效状态 0：初始化 1：暂停 2：进行中
+  string RenderData = 5; // 特效渲染数据
+}
+
+message PublishActEffectRsp {
+}
+
+service AdminSvr {
+  // ------------------------ 会议室演唱会管理系统 begin -----------------------------------
+  // 新增活动（会议、演唱会、放映厅） @path=/admin/activity/add
+  rpc AddActivity(AddActivityReq) returns (AddActivityRsp);
+  // 更新活动状态 @path=/admin/activity/status/update
+  rpc UpdateActivityStatus(UpdateActivityStatusReq) returns (UpdateActivityStatusRsp);
+  // 更新活动 @path=/admin/activity/update
+  rpc UpdateActivity(UpdateActivityReq) returns (UpdateActivityRsp);
+  // 查询活动列表 @path=/admin/activity/list
+  rpc QueryActivityList(QueryActivityListReq) returns (QueryActivityListRsp);
+
+  // 新增活动位 @path=/admin/act_position/add
+  rpc AddActPosition(AddActPositionReq) returns (AddActPositionRsp);
+  // 更新活动位状态 @path=/admin/act_position/status/update
+  rpc UpdateActPositionStatus(UpdateActPositionStatusReq) returns (UpdateActPositionStatusRsp);
+  // 更新活动位 @path=/admin/act_position/update
+  rpc UpdateActPosition(UpdateActPositionReq) returns (UpdateActPositionRsp);
+  // 查询活动位列表 @path=/admin/act_position/query
+  rpc QueryActPositionList(QueryActPositionListReq) returns (QueryActPositionListRsp);
+
+  // 增删改查活动特效
+//  rpc AddActEffect(AddActEffectReq) returns (AddActEffectRsp);
+//  rpc DelActEffect(DelActEffectReq) returns (DelActEffectRsp);
+//  rpc UpdateActEffect(UpdateActEffectReq) returns (UpdateActEffectRsp);
+  // 查询活动特效列表 @path=/admin/act_effect/list
+  rpc QueryActEffectList(QueryActEffectListReq) returns (QueryActEffectListRsp);
+  // 向指定活动发布特效 @path=/admin/act_effect/publish
+  rpc PublishActEffect(PublishActEffectReq) returns (PublishActEffectRsp);
+  // ------------------------ 会议室演唱会管理系统 end -----------------------------------
+
+  // ------------------------ 虚拟人资产管理系统 begin -----------------------------------
+  // 登录  @path=/admin/login
+  rpc Login(LoginReq) returns (LoginRsp);
+
+  // 退出登录 @path=/admin/logout
+  rpc Logout(LogoutReq) returns(LogoutRsp);
+
+  // 检查登录状态（后台使用，前端同学可以不用关注）
+  rpc CheckToken(CheckTokenReq) returns (CheckTokenRsp);
+
+  // 获取形象分类定义 @path=/admin/asset/category/define
+  rpc GetCategoryDefine(GetCategoryDefineReq) returns (GetCategoryDefineRsp);
+
+  // 获取形象列表 @path=/admin/asset/profile/list
+  rpc GetAssetList(GetAssetListReq) returns (GetAssetListRsp);
+
+  // 更新形象/服装资产的售卖状态 @path=/admin/asset/sell_status/update
+  rpc UpdateAssetSellStatus(UpdateAssetSellStatusReq) returns (UpdateAssetSellStatusRsp);
+
+  // 更新形象/服装资产的状态、售卖状态、排序 @path=/admin/asset/status/update
+  rpc UpdateAssetStatus (UpdateAssetStatusReq) returns (UpdateAssetStatusRsp);
+
+  // 更新形象/服装资产 @path=/admin/asset/update
+  rpc UpdateAsset(UpdateAssetReq) returns (UpdateAssetRsp);
+
+  // 新增形象/服装资产 @path=/admin/asset/add
+  rpc AddAsset(AddAssetReq) returns (AddAssetRsp);
+
+  // 上传图片 @path/admin/upload/file
+  rpc UploadFile(UploadFileReq) returns (UploadFileRsp);
+
+  // Test：为指定用户授权资产（仅在测试时使用） @path=/admin/test/auth/asset
+  rpc TestAuthAsset(TestAuthAssetReq) returns (TestAuthAssetRsp);
+  // ------------------------ 虚拟人资产管理系统 end -----------------------------------
+}

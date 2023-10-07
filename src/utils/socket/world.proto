@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package protocol.world;
+
+// 重要，不然可能会生成失败
+option go_package = "./;world";
+
+message ActivityInfo {
+  uint32 ActType = 1; // 活动类型 1：会议 2：演唱会
+  string ActID = 2; // 活动ID
+  string ActName = 3; // 活动名称
+  repeated ActPosition ActPosList = 4;
+  repeated ActEffect ActEffectList = 5;
+}
+
+// 活动位
+message ActPosition {
+  uint64 ID = 1; // 活动位ID，主键
+  string ActID = 2; // 活动ID
+  uint32 PosType = 3; // 位置类型 1~8：展位 9：大屏幕
+  uint32 ContentType = 4; // 内容类型 1：图片 2：视频 3：直播
+  string PosContent = 5; // 内容（URL）
+  uint32 PosStatus = 6; // 活动位状态 0：初始化 1：上线 2：下线 3：删除
+}
+
+// 活动特效
+message ActEffect {
+  uint64 ID = 1; // 主键id
+  string ActID = 2; // 活动ID
+  uint32 EffectType = 3; // 特效类型 1：气球雨 2：全体鼓掌 3：全体挥舞荧光棒 4：就座
+  uint32 EffectStatus = 4; // 特效状态 0：初始化 1：暂停 2：进行中 3：删除
+}
+
+message GetActivityReq {
+  string ActID = 1; // 活动ID
+}
+
+message GetActivityRsp {
+    ActivityInfo ActInfo = 1;
+}
+
+service WorldSvr {
+  // 获取活动配置 @path=/world/activity/get
+  rpc GetActivity(GetActivityReq) returns (GetActivityRsp);
+}

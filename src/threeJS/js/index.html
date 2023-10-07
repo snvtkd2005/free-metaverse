@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+	<head>
+		<title></title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+        <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;"/>-->
+
+		<style>
+		body {
+			/*font-family: Helvetica, Arial, sans-serif;*/
+			/*font-size: 12px;*/
+			background-color: #000;/* 设置背景颜色，背景图加载过程中会显示背景色 */
+			margin: 0px;
+            /* 溢出隐藏 禁止滚动*/
+			overflow: hidden;
+            /*按需要显示*/
+            /*overflow-y: hidden;*/
+            /*始终不显示x方向的滚动条*/
+            /*overflow-x: hidden;*/
+
+            position: fixed;
+            top:0px;
+            /*top: 0px;*/
+            left: 0px;
+            /*bottom: 0px;*/
+            width:100%;
+            height:100%;
+            background-attachment: fixed;
+ 
+            /*背景图不平铺*/
+            background-repeat:no-repeat;
+            /*-webkit-background-size: cover;*/
+            /*让背景图基于容器大小伸缩 background-size:100% 100%;*/
+            background-size: cover;
+
+        }
+
+        </style>
+        <script type="text/javascript" src="js/jquery.js"></script>
+
+
+        <script type="text/javascript" src="js/three/three.js"></script>
+        <!--<script type="text/javascript"  src="js/three/FBXLoader.js"></script>-->
+        <script type="text/javascript"  src="js/three/FBXLoader2.js"></script>
+
+        <script type="text/javascript"  src="js/three/OBJLoader.js"></script>
+        <script type="text/javascript"  src="js/three/MTLLoader.js"></script>
+        <script src="js/draco/DRACOLoader.js"></script>
+
+        <script type="text/javascript"  src="js/three/OrbitControls.js"></script>
+        <script type="text/javascript"  src="js/three/FirstPersonControls.js"></script>
+
+        <script type="text/javascript"  src="js/YJloadObjControll.js"></script>
+        <script type="text/javascript"  src="js/YJ_Function.js"></script>
+        <script type="text/javascript"  src="js/YJ_CheckPoint.js"></script>
+        <script type="text/javascript"  src="js/YJ_SelectModel.js"></script>
+        <script type="text/javascript"  src="js/YJ_DragModel.js"></script>
+        <script type="text/javascript"  src="js/YJ_SceneModelCtrl.js"></script>
+
+
+        <script src="js/three/Detector.js"></script>
+        <script src="js/three/shaders/CopyShader.js"></script>
+        <script src="js/three/shaders/FXAAShader.js"></script>
+        <script src="js/three/postprocessing/EffectComposer.js"></script>
+        <script src="js/three/postprocessing/RenderPass.js"></script>
+        <script src="js/three/postprocessing/ShaderPass.js"></script>
+        <script src="js/three/postprocessing/OutlinePass.js"></script>
+
+ 
+
+        <script type="text/javascript"  src="js/CameraControll.js"></script>
+
+
+        <script type="text/javascript" src="js/three/three.min.js"></script>
+        <script src="js/three/stats.min.js"></script>
+
+        <script src="js/three/app.js"></script>
+
+        <script type="x-shader/x-vertex" id="vertexShader">
+
+			varying vec3 vWorldPosition;
+
+			void main() {
+
+				vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
+				vWorldPosition = worldPosition.xyz;
+
+				gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+			}
+
+		</script>
+
+        <script type="x-shader/x-fragment" id="fragmentShader">
+
+			uniform vec3 topColor;
+			uniform vec3 bottomColor;
+			uniform float offset;
+			uniform float exponent;
+
+			varying vec3 vWorldPosition;
+
+			void main() {
+
+				float h = normalize( vWorldPosition + offset ).y;
+				gl_FragColor = vec4( mix( bottomColor, topColor, max( pow( max( h , 0.0), exponent ), 0.0 ) ), 1.0 );
+
+			}
+
+		</script>
+
+        <script type="text/javascript" >
+
+            var container,stats;
+
+            var mesh = null;
+            var scene =  new THREE.Scene();
+            var camera = null;
+            var  renderer  ;
+            var id = null;
+            var camParent= null; //摄像机的父物体
+            var camTarget ;
+            var controls;
+            var camBackground;
+            var camDefaultDistance = 80;
+
+            var SCREEN_WIDTH ;
+            var SCREEN_HEIGHT ;
+
+            //是否显示状态监听
+//            var displayState = true;
+            var displayState = false;
+            //所有热点的父物体
+            var pointsParent; // = new THREE.Group();
+
+
+            THREE.DRACOLoader.setDecoderPath('js/draco/');
+            THREE.DRACOLoader.setDecoderConfig({type: 'js'});
+            var dracoLoader = new THREE.DRACOLoader();
+ 
+            function init(){
+
+                //长宽比自适应屏幕
+                SCREEN_WIDTH = window.innerWidth;
+                SCREEN_HEIGHT = window.innerHeight;
+
+                //渲染器初始化。 开启抗锯齿 开启透明
+                renderer = new THREE.WebGLRenderer( { antialias: true,alpha:true } );
+
+//                renderer.shadowMap.enabled = true;
+//                renderer.shadowMapType = THREE.PCFSoftShadowMap;
+                renderer.setPixelRatio(2); //推荐
+//                renderer.setPixelRatio(window.devicePixelRatio); // 不推荐
+
+                //背景透明
+//                renderer.setClearAlpha(0);
+
+                //添加组
+                pointsParent = new THREE.Group();
+                pointsParent.name  = 'pointsParent' ;
+                scene.add(pointsParent);
+
+
+                container = document.getElementById( 'container' ); 
+                container.style.width=SCREEN_WIDTH+"px";
+                container.style.height=SCREEN_HEIGHT+"px";
+
+                container.appendChild( renderer.domElement );
+
+                camera = new THREE.PerspectiveCamera(60,SCREEN_WIDTH/SCREEN_HEIGHT,0.1,5000);
+                scene.add(camera);
+
+
+                //body 禁止滑动 缩放
+                document.body.addEventListener('touchmove' , function(e){
+                    e.preventDefault();
+                },{passive:false});
+
+
+
+                /*
+                //方向光
+                var light = new THREE.DirectionalLight(0xffffff);//光源颜色
+//                var light = new THREE.DirectionalLight(0x666666);//光源颜色
+//                light.position.set(50, 50, 50);//光源位置
+//                light.position.set(0, 0, 0);//光源位置
+//                light.position.set(10, 10, 10);//光源位置
+
+//                light.shadowMapWidth = 1024; //默认为512
+//                light.shadowMapHeight = 1024; //缺省值为512
+                light.shadowMapWidth = 2048; //默认为512
+                light.shadowMapHeight = 2048; //缺省值为512
+
+                scene.add(light);//光源添加到场景中
+               // */
+
+                //*
+                //环境光
+               // var ambient = new THREE.AmbientLight(0xffffff);//添加环境光
+                var ambient = new THREE.AmbientLight(0x666666);//添加环境光
+                scene.add(ambient);//光源添加到场景中
+//*/
+
+
+
+                renderer.setSize(SCREEN_WIDTH,SCREEN_HEIGHT);
+
+                camera.aspect = SCREEN_WIDTH/SCREEN_HEIGHT ;
+                camera.updateProjectionMatrix();
+
+
+                /*
+                var geometry = new THREE.BoxGeometry(1, 1, 1); 
+                var material = new THREE.MeshBasicMaterial({
+                    map: THREE.ImageUtils.loadTexture("images/housetype_bg.jpg"),
+//                    depthTest: false,
+                    color: 0x0000ff
+                });
+                cubeBox = new THREE.Mesh(geometry, material);
+//                mesh.material.color.setHex(0x666666);
+                cubeBox.position.set(0, 0, 0);//光源位置
+                cubeBox.name = "hahaha";
+                scene.add(cubeBox);
+                cubeBox.visible = false;
+                //*/
+
+
+                initControls();
+                InitFirstPersonControls();
+
+                initDragControls();
+
+                ChangeToNiaokanViewDefault();
+
+                CreateCheckPoint();
+                Init_BGPlane();
+
+                init_outline_local();
+
+
+                if(displayState){
+                    stats = new Stats();
+                    stats.setMode(2);
+                    container.appendChild( stats.dom );
+                }
+
+                animate();
+
+                setTimeout("LoadModels()",1000);
+
+                //该index.html 作为iframe嵌入到其他页面。 由父页面调用 postMessage传值
+                //作为子页面的index.html 在此监听
+                window.addEventListener('message',function(event){
+                    // console.log(" 子页面接收 消息 " + event); 
+                    // console.log(event); 
+                    var msg = event.data;
+
+
+                    if(event.data.indexOf("隐藏菜单选择")>-1){
+                        // console.log("进入 隐藏菜单选择 "); 
+                        var child = event.data.split('|');
+                        // console.log(child); 
+                        var children = [];
+                        var visible = child[child.length-1]=='true';
+                        for(i=1;i<child.length-1;i++){
+                            children.push(child[i]);
+                        }
+
+                         HideByModelNameFn(children,visible);
+                        return;
+                    }
+                    
+
+                    if(msg.indexOf("加载模型")>-1){
+                        console.log("接收消息 "+ msg); 
+                        var child = event.data.split('|'); 
+                        LoadModel_Drc("models",child[1]);
+                        return;
+                    }
+                    
+
+                    if(msg.indexOf("截屏")>-1){
+                        console.log("接收消息 "+ msg); 
+                        var child = msg.split('|');
+                        let canvas=renderer.domElement
+                        renderer.render(scene, camera)
+                        // var imgUri = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream"); // 获取生成的图片的url
+                        // window.location.href= imgUri // 下载图片 
+                        window.parent.postMessage(canvas.toDataURL("image/jpeg"),"*");
+                        return;
+                        
+                        //如果你需要下载截图，可以使用a标签进行下载
+                        let a = document.createElement("a");
+                        a.href = canvas.toDataURL("image/jpeg");
+                        a.download = child[1];
+                        a.click();
+                        a.remove();
+                        return;
+                    }
+
+                    
+                    if(msg.indexOf("连续点击隐藏")>-1){
+                        console.log("接收消息 "+ msg); 
+                        var child = event.data.split('|'); 
+                        SetMuiltHidden(child[1]);
+                        // SelectModelByName(child[1]);
+                        return;
+                    }
+
+
+                    if(msg.indexOf("选择模型")>-1){
+                        console.log("接收消息 "+ msg); 
+                        var child = event.data.split('|'); 
+                        SelectModelByName(child[1]);
+                        return;
+                    }
+
+
+                    if(event.data=="隐藏选择"){
+                        HideFn(1);
+                        return;
+                    }
+                    if(event.data=="隐藏未选择"){
+                        HideFn(2);
+                        return;
+                    }
+                    if(event.data=="全部取消隐藏"){
+                        HideFn(3);
+                        return;
+                    }
+                    if(event.data=="透明选择"){
+                        TransparentFn(1);
+                        return;
+                    }
+                    if(event.data=="透明未选择"){
+                        TransparentFn(2);
+                        return;
+                    }
+                    if(event.data=="全部取消透明"){
+                        TransparentFn(3);
+                        return;
+                    }
+                    if(event.data=="撤销"){
+                        Prev();
+                        return;
+                    }
+                    if(event.data=="全部还原"){
+                        ResetAll();
+                        return;
+                    }
+                })
+            }
+
+            var cubeBox;
+
+            //
+            var  dirLight, dirLightHeper, hemiLight, hemiLightHelper;
+
+            function InitSceneBackground(){
+
+                // LIGHTS
+
+                hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+                hemiLight.color.setHSL( 0.6, 1, 0.6 );
+                hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+                hemiLight.position.set( 0, 50, 0 );
+                scene.add( hemiLight );
+
+                hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 10 );
+                scene.add( hemiLightHelper );
+
+                //
+
+                dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+                dirLight.color.setHSL( 0.1, 1, 0.95 );
+                dirLight.position.set( -1, 1.75, 1 );
+                dirLight.position.multiplyScalar( 30 );
+                scene.add( dirLight );
+
+                dirLight.castShadow = true;
+
+                dirLight.shadow.mapSize.width = 2048;
+                dirLight.shadow.mapSize.height = 2048;
+
+                var d = 50;
+
+                dirLight.shadow.camera.left = -d;
+                dirLight.shadow.camera.right = d;
+                dirLight.shadow.camera.top = d;
+                dirLight.shadow.camera.bottom = -d;
+
+                dirLight.shadow.camera.far = 3500;
+                dirLight.shadow.bias = -0.0001;
+
+                dirLightHeper = new THREE.DirectionalLightHelper( dirLight, 10 )
+                scene.add( dirLightHeper );
+
+                // GROUND
+
+                var groundGeo = new THREE.PlaneBufferGeometry( 10000, 10000 );
+                var groundMat = new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x050505 } );
+                groundMat.color.setHSL( 0.095, 1, 0.75 );
+
+                var ground = new THREE.Mesh( groundGeo, groundMat );
+                ground.rotation.x = -Math.PI/2;
+                ground.position.y = -33;
+                scene.add( ground );
+
+                ground.receiveShadow = true;
+
+                // SKYDOME
+
+                var vertexShader = document.getElementById( 'vertexShader' ).textContent;
+                var fragmentShader = document.getElementById( 'fragmentShader' ).textContent;
+                var uniforms = {
+                    topColor:    { value: new THREE.Color( 0x0077ff ) },
+                    bottomColor: { value: new THREE.Color( 0xffffff ) },
+                    offset:      { value: 33 },
+                    exponent:    { value: 0.6 }
+                };
+                uniforms.topColor.value.copy( hemiLight.color );
+
+                scene.fog.color.copy( uniforms.bottomColor.value );
+
+                var skyGeo = new THREE.SphereGeometry( 4000, 32, 15 );
+                var skyMat = new THREE.ShaderMaterial( { vertexShader: vertexShader, fragmentShader: fragmentShader, uniforms: uniforms, side: THREE.BackSide } );
+
+                var sky = new THREE.Mesh( skyGeo, skyMat );
+                scene.add( sky );
+
+            }
+            
+            // function getUrlParam(name) { //封装方法
+            //     var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+            //     var r = window.location.search.substr(1).match(reg); //匹配目标参数
+            //     if(r != null) return unescape(r[2]);
+            //     return null; //返回参数值
+            // }
+            // var groupName = getUrlParam("groupName");
+
+
+            var groupName;
+            // function SetGroupName(e){
+            //     console.log(" 子页面接收 " + e);
+            //     groupName = e;
+            // }
+
+            // window.addEventListener('message',(e)=>{
+            //     console.log(" 子页面接收 " + e);
+            //     groupName = e;
+            // });
+            function getUrlParam(name) { //封装方法
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+                var r = window.location.search.substr(1).match(reg); //匹配目标参数
+                if(r != null) return unescape(r[2]);
+                return null; //返回参数值
+            }
+            function LoadModels(){
+
+                window.parent.postMessage("threeJS初始化完成","*");
+                return;
+                
+                groupName = getUrlParam("groupName");
+                if(groupName == null){
+                    groupName= window.parent.getUrl();
+                    console.log(" 子页面接收 111 " + groupName);
+                }
+                // 
+                console.log(" 子页面接收 222 " + groupName);
+
+              // LoadModel_Drc("models/drc/南方上肢");
+            //    LoadModel_Drc("models","运动系统");
+               LoadModel_Drc("models",groupName);
+                // LoadModel_Drc("models/drc/心脏");
+            }
+ 
+            var sceneBG,cameraBG;
+            function Init_sceneBG(){
+
+                // Load the background texture
+                var texture = THREE.ImageUtils.loadTexture('images/black_bg.jpg');
+                var backgroundMesh = new THREE.Mesh(
+                        new THREE.PlaneGeometry(2, 2, 0),
+                        new THREE.MeshBasicMaterial({
+                            map: texture
+                        }));
+
+                backgroundMesh.material.depthTest = false;
+                backgroundMesh.material.depthWrite = false;
+
+                // Create your background scene
+                 sceneBG = new THREE.Scene();
+                 cameraBG = new THREE.Camera();
+                sceneBG.add(cameraBG);
+                sceneBG.add(backgroundMesh);
+
+            }
+ 
+            function Init_BGPlane(){
+
+                //*
+               var light = new THREE.DirectionalLight(0x333333);//光源颜色
+                // var light = new THREE.PointLight(0xFFFFFF,0.2,1000);//光源颜色
+                var light2 = new THREE.PointLight(0x666666,5,1000);//光源颜色
+                light2.position.set(0, 0, -500);//光源位置
+                camera.add(light2);//光源添加到场景中 
+                camera.add(light);//光源添加到场景中
+                //return;
+                var materialColor = new THREE.MeshBasicMaterial({
+                    map: THREE.ImageUtils.loadTexture("images/bg.jpg"),
+                    color:0xffffff, 
+                    depthTest: true
+                });
+                var bgPlane = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), materialColor);
+                bgPlane.position.z = -1000;
+                bgPlane.scale.set(window.innerWidth * 2, window.innerHeight * 2, 1);
+                camera.add(bgPlane);
+                return;
+
+//                scene.add(bgPlane);
+                var materialColor_alpha = new THREE.MeshBasicMaterial({
+                    map: THREE.ImageUtils.loadTexture("images/bg_002.png"),
+                    opacity: 0.8,
+                    color:0xffffff,
+                    transparent: true,
+                    depthTest: true
+                });
+
+                var bgPlane2 = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), materialColor_alpha);
+                bgPlane2.position.z = -900;
+                bgPlane2.scale.set(window.innerWidth * 2, window.innerHeight * 2, 1);
+                camera.add(bgPlane2);
+
+            }
+
+            //切换到鸟瞰视角，设置控制器 和 摄像机的初始位置
+            function ChangeToNiaokanViewDefault(){
+
+                camera.position.set(14,24,-83);
+                lookAtPos = new THREE.Vector3(23.9,21.8,1.4);
+
+                camera.lookAt(lookAtPos);
+
+                controlsTargetPos=lookAtPos;
+                controls.target=(controlsTargetPos);
+
+                controls.rotateSpeed = 1;
+                controls.enabled = true;
+            }
+            function SetContrlsAndCameraPos(centerPos){
+                lookAtPos = new THREE.Vector3(centerPos.x,centerPos.y,centerPos.z);
+                camera.lookAt(lookAtPos);
+
+                controlsTargetPos=lookAtPos;
+                controls.target=(controlsTargetPos);
+                console.log(" 重新设置控制器位置到模型中心位置   ！！！！！！！ " );
+
+            }
+            function SetDefaultPos(){
+                GetCenterFromAllModel();
+            }
+
+            var cameraOldPos=new THREE.Vector3(0,0,0);
+            var cameraOldPosX,cameraOldPosY,cameraOldPosZ;
+            var controlsOldTarget=new THREE.Vector3(0,0,0);
+            function getCameraPos(){
+
+                if(V3equelV3(cameraOldPos,camera.position)  && V3equelV3(controlsOldTarget,controls.target)  )
+                {
+//                    console.log(" 获取摄像机位置  相等 " );
+                    return;
+                }
+
+                DrawLineFromScreenToModel();
+                cameraOldPos.set(camera.position.x ,camera.position.y ,camera.position.z )  ;
+                controlsOldTarget.set(controls.target.x ,controls.target.y ,controls.target.z )  ;
+
+            }
+            function V3equelV3(v1,v2) {
+//                console.log(" 前后数值 "+ posToString(v1) +  "  "+ posToString(v2));
+
+                return (v1.x == v2.x && v1.y == v2.y && v1.z == v2.z );
+            }
+            function V3equelV32(X,Y,Z,v2) {
+
+                return (X == v2.x && Y == v2.y && Z == v2.z );
+            }
+            function posToString(v){
+
+                return v.x  +  "  "+ v.y+  "  "+ v.z;
+            }
+
+            //切换到鸟瞰视角
+            function ChangeToNiaokanView(){
+                console.log(" in ChangeToNiaokanView ");
+
+                currentTargetPos.x = camera.position.x;
+                currentTargetPos.y = camera.position.y;
+                currentTargetPos.z = camera.position.z;
+
+                camTargetPos = new THREE.Vector3(1000,800,1000);
+                lookAtPos = new THREE.Vector3(-200,100,200);
+
+                controlsTargetPos=lookAtPos;
+                controls.target=(controlsTargetPos);
+
+
+                //缩放开关
+                controls.enableZoom = true;
+                //平移开关
+                controls.enablePan = true;
+                //限制向下看角度
+                controls.minPolarAngle = 0;
+                //限制向上看角度
+                controls.maxPolarAngle = 1.5;
+
+
+                b_lerpChangeView = true;
+                lerpLength=0;
+                b_humanView = false;
+                controls.rotateSpeed = 1;
+
+                controls.enabled = true;
+                if(firstPersonControls  != null){
+                    firstPersonControls.enabled = false;
+                }
+
+            }
+            //切换到人视角
+            function ChangeToHumanView(){
+                console.log(" in ChangeToHumanView ");
+                if(firstPersonControls  == null){
+                    InitFirstPersonControls();
+                }
+                currentTargetPos.x = camera.position.x;
+                currentTargetPos.y = camera.position.y;
+                currentTargetPos.z = camera.position.z;
+
+                camTargetPos = new THREE.Vector3(0,120,0);
+
+                //注视目标点设置为摄像机坐标的0.01半径范围内，指定角度的位置
+                 jiaodu = JiaoduPos(0); 
+
+                //摄像机看向目标点的前方，可以让视角快速转到目标
+                lookAtPos=new THREE.Vector3(jiaodu.x*5000,120,jiaodu.y*5000);
+
+                //controls 的焦点只能在摄像机位置的半径0.01范围内
+                controlsTargetPos = new THREE.Vector3(jiaodu.x,120,jiaodu.y);
+
+//                controls.target=(controlsTargetPos);
+
+
+                b_lerpChangeView = true;
+                lerpLength=0;
+                b_humanView = true;
+
+                controls.enabled = false;
+                firstPersonControls.enabled = true;
+
+
+            }
+            function ChangeToHumanView2(x,z){
+                console.log(" in ChangeToHumanView2 ");
+                if(firstPersonControls  == null){
+                    InitFirstPersonControls();
+                }
+                currentTargetPos.x = camera.position.x;
+                currentTargetPos.y = camera.position.y;
+                currentTargetPos.z = camera.position.z;
+
+                camTargetPos = new THREE.Vector3(x,120,z);
+                b_lerpChangeView = true;
+                lerpLength=0;
+                b_humanView = true;
+
+
+
+            }
+
+
+            var b_lerpChangeView = false; //是否开始平滑过渡
+            var camTargetPos  = new THREE.Vector3();  //摄像机切换的目标坐标
+            var lerpLength = 0;  //平滑过渡值，取值范围 0 - 1
+            var currentTargetPos = new THREE.Vector3();  //平滑过渡时使用的变量
+            var lookAtPos = new THREE.Vector3();         //摄像机注视坐标
+            var controlsTargetPos = new THREE.Vector3(); //控制器焦点坐标
+            var jiaodu = new THREE.Vector2(); //控制器焦点在人视角的默认角度（位置）
+            var b_humanView = false;//是否在人视角
+            //平滑移动到目标视角
+            function ChangeView(){
+                if(b_lerpChangeView){
+
+                    lerpLength += 0.02;
+                    currentTargetPos.lerp(camTargetPos,lerpLength);
+
+                    camera.position.set(currentTargetPos.x,currentTargetPos.y,currentTargetPos.z);
+                    camera.lookAt(lookAtPos);
+                    if(parseInt(camTargetPos.y) == parseInt(currentTargetPos.y) && parseInt(camTargetPos.x) == parseInt(currentTargetPos.x)){
+                        b_lerpChangeView = false;
+                    }
+                }
+            }
+
+            //绕原点旋转，官方脚本
+            function initControls(){
+
+                //camera不可add到scene,让controls去控制，controls自动把camera加入场景。
+                //否则旋转scene的时候，camera也跟着一起动，画面就没变化
+                //绕原点旋转，官方脚本
+                controls = new THREE.OrbitControls(camera, renderer.domElement);    //只能是摄像机，只能滑动
+//                controls = new THREE.DeviceAndOrbitControls(camera,renderer.domElement ); //陀螺仪+滑动
+
+                //设置在电脑和手机端不同的控制速度。上下左右旋转速度
+                controls.rotateSpeed = -1;
+
+                //自动旋转
+                //   controls.autoRotate = true;
+                //   controls.autoRotateSpeed = 1;
+                //缩放开关
+                controls.enableZoom = true;
+                //平移开关
+                controls.enablePan = true;
+                //是否有惯性
+              //  controls.enableDamping = true;
+                //阻尼，鼠标拖拽旋转灵敏度
+              //  controls.dampingFactor = 0.15;
+                //限制垂直向上看的最大角度 3.14 = 180
+//                controls.maxPolarAngle = 1.5;
+//                controls.maxPolarAngle = 1.5;
+                // YJdebug(controls.maxPolarAngle);
+
+               // controls.target.set(0,0,0.1);
+               // controls.target.set(0,camera.position.y-1,0);
+
+//                controls.addEventListener('change',update);
+//                controls.enabled = false;
+
+            }
+
+
+            //初始化第一人称控制器
+            var firstPersonControls  = null;
+            function InitFirstPersonControls(){
+                firstPersonControls = new THREE.FirstPersonControls(camera);    //只能是摄像机，只能滑动
+
+                firstPersonControls.lookSpeed = 0.000; //鼠标移动查看的速度
+
+                firstPersonControls.movementSpeed = 200; //相机移动速度
+
+                firstPersonControls.noFly = true;
+
+                firstPersonControls.constrainVertical = true; //约束垂直
+
+                firstPersonControls.verticalMin = 1.0; //垂直向上最大角度 0-3.14
+
+                firstPersonControls.verticalMax = 2.0;//垂直向下最大角度 0-3.14
+
+                firstPersonControls.lon = -100; //进入初始视角x轴的角度
+
+                firstPersonControls.lat = 0; //初始视角进入后y轴的角度
+
+                firstPersonControls.lat = 0; //初始视角进入后y轴的角度
+
+                firstPersonControls.mouseDragOn = false;
+
+                firstPersonControls.enabled = false;
+
+
+            }
+
+
+            //外轮廓高亮
+            var composer, effectFXAA, outlinePass,renderPass;
+            var saoPass;
+            var selectedObjects = [];
+            function init_outline_local(){
+                // postprocessing
+                console.log(" in local outline " );
+
+                //*
+                composer = new THREE.EffectComposer( renderer );
+                renderPass = new THREE.RenderPass( scene, camera );
+                composer.addPass( renderPass );
+
+                outlinePass = new THREE.OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), scene, camera );
+                outlinePass.renderToScreen = true;
+                outlinePass.selectedObjects = selectedObjects;
+
+                outlinePass.visibleEdgeColor.set( 0xffffff ); //外轮廓颜色
+                outlinePass.hiddenEdgeColor.set( 0xffffff ); //外轮廓颜色
+
+//                outlinePass.visibleEdgeColor.set( 0x0000ff ); //外轮廓颜色
+//                outlinePass.hiddenEdgeColor.set( 0x0000ff ); //外轮廓颜色
+                outlinePass.edgeStrength = 10.0;        //外轮廓厚度
+
+                composer.addPass( outlinePass );
+                //*/
+
+                /*
+                var onLoad = function ( texture ) {
+                    outlinePass.patternTexture = texture;
+                    texture.wrapS = THREE.RepeatWrapping;
+                    texture.wrapT = THREE.RepeatWrapping;
+                };
+                var loader = new THREE.TextureLoader();
+                loader.load( 'images/tri_pattern.jpg', onLoad );
+                 //*/
+
+                //*
+                effectFXAA = new THREE.ShaderPass( THREE.FXAAShader ); //SMAAShader FXAAShader
+//                effectFXAA.uniforms[ 'resolution' ].value.set( 1 / window.innerWidth, 1 / window.innerHeight );
+                effectFXAA.uniforms[ 'resolution' ].value.set( 0 / window.innerWidth, 0 / window.innerHeight );
+                effectFXAA.renderToScreen = true;
+                composer.addPass( effectFXAA );
+                //*/
+
+
+//                composer.render(scene, camera);
+
+//*
+                window.addEventListener( 'mousemove', onMouseMove );
+                window.addEventListener( 'touchmove', onTouchMove );
+
+
+                animate_outline();
+
+
+                function onMouseMove( event ) {
+//                    document.getElementById("log").innerText= "正在222移动点";
+
+                    var x, y;
+
+                    if ( event.changedTouches ) {
+
+                        x = event.changedTouches[ 0 ].pageX;
+                        y = event.changedTouches[ 0 ].pageY;
+
+                    } else {
+
+                        x = event.clientX;
+                        y = event.clientY;
+
+                    }
+
+                    mouse.x = ( x / window.innerWidth ) * 2 - 1;
+                    mouse.y = - ( y / window.innerHeight ) * 2 + 1;
+
+                    checkIntersection();
+
+                }
+                function onTouchMove( event ) {
+//                    document.getElementById("log").innerText= "正在222移动点";
+                    return;
+                    var x, y;
+
+                    if ( event.changedTouches ) {
+
+                        x = event.changedTouches[ 0 ].pageX;
+                        y = event.changedTouches[ 0 ].pageY;
+
+                    } else {
+
+                        x = event.clientX;
+                        y = event.clientY;
+
+                    }
+
+                    mouse.x = ( x / window.innerWidth ) * 2 - 1;
+                    mouse.y = - ( y / window.innerHeight ) * 2 + 1;
+
+                    checkIntersection();
+
+                }
+                function addSelectedObject( object ) {
+//                    document.getElementById("log").innerText= " 加入高亮模型数组 ";
+
+                    if(drag_objects.length == 0 ){
+
+                        selectedObjects = [];
+                        selectedObjects.push( object );
+                        return;
+                    }
+                    //当拖拽的模型高亮时，要不删除拖拽模型的高亮添加行的。所以是把数组里索引1的删除
+                    selectedObjects.splice(1,selectedObjects.length);//清空数组
+                    selectedObjects.push( object );
+
+                }
+                function checkIntersection() {
+
+                    raycaster.setFromCamera( mouse, camera );
+
+//                    var intersects = raycaster.intersectObjects( [ scene ], true );
+                    var intersects = raycaster.intersectObjects( scene.getObjectByName('pointsParent').children,true);
+
+                    if ( intersects.length > 0 ) {
+
+                        var selectedObject = intersects[ 0 ].object;
+                        addSelectedObject( selectedObject );
+                        outlinePass.selectedObjects = selectedObjects;
+
+                        inOutLine = true;
+
+                    } else {
+                        //拖拽模型高亮。
+                        // 点击空白区域，没有拖拽模型时，全部取消高亮
+                        if(drag_objects.length == 0 ){
+                            outlinePass.selectedObjects = [];
+                            inOutLine = false;
+
+                        }
+                        //点击空白区域，有拖拽模型时，取消不是拖拽模型的高亮
+                        if(selectedObjects.length > 1 ){
+                            selectedObjects.splice(1,selectedObjects.length);//清空数组
+                            outlinePass.selectedObjects = selectedObjects;
+                        }
+                        if(selectedObjects.length == 0){
+                            inOutLine = false;
+                        }
+                    }
+
+                }
+
+//*/
+            }
+            var inOutLine = false;
+            function animate_outline() {
+                if(!inOutLine){
+                    return;
+                }
+                composer.render();
+            }
+
+            var clock = new THREE.Clock();//时间跟踪
+            function animate(){
+
+
+                renderer.render(scene, camera);
+
+                if(displayState){
+                    stats.update();
+                }
+
+
+                ChangeView();
+                getCameraPos();
+
+                animate_outline();
+
+
+                //如果开启控制器的缓动插值效果，则需要每帧执行 controls.update()
+                // controls.update();
+                //更新控制器
+                if(b_humanView){
+                    firstPersonControls.update(clock.getDelta());
+                }
+                requestAnimationFrame( animate );
+
+            }
+
+
+            function render() {
+                requestAnimationFrame( render );
+            }
+            
+        </script>
+
+        <!-- <script>
+            //禁用F12
+            document.onkeydown=function(e){
+                var currKey= 0,evt=e||window.event;
+                currKey=evt.keyCode||evt.which||evt.charCode;
+                if(currKey==123){
+                    window.event.cancelBubble=true;
+                    window.event.returnValue=false;
+                }
+
+            };
+            //无限debugger 防止F12
+            setInterval(function() {
+                check();
+            }, 2000);
+            var check = function() {
+                function doCheck(a) {
+                    if (('' + a / a)['length'] !== 1 || a % 20 === 0) {
+                        (function() {}['constructor']('debugger')());
+                    } else {
+                        (function() {}['constructor']('debugger')());
+                    }
+                    doCheck(++a);
+                }
+                try {
+                    doCheck(0);
+                } catch (err) {}
+            };
+            check();
+        </script> -->
+
+    </head>
+	<body onload="init()" >
+        <div id="waitScreen"  >    </div>
+        
+        <div id="container"  ></div>  
+
+	</body>
+</html>

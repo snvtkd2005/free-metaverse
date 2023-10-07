@@ -1,0 +1,1014 @@
+
+<!-- // 场景编辑UI -->
+<template>
+  <div class="absolute left-0 top-0 z-999 w-full h-full ">
+    <!-- 中部 -->
+    <div class="flex absolute left-0 top-0 mt-0 w-full  bg-gray-100 ">
+      <!-- 右 -->
+      <div class="flex-grow flex-col py-10 xl:px-20 md:px-5 mx-auto ">
+        <div class="flex h-20 justify-between">
+          <div class="w-auto text-3xl text-black font-bold self-center">
+            {{ title }}
+          </div>
+        </div>
+
+        <div class="flex text-lg mb-10">
+          <!-- 选择列表 -->
+          <div v-for="(item, i) in tableList" :key="i" class="self-center w-40 h-auto relative">
+            <div class="w-40 h-10 self-center flex cursor-pointer" :class="currentTable == item.content ? ' bg-gray-300' : ' bg-gray-100'
+              " @click="currentTable = item.content">
+              <div class="self-center mx-auto">{{ item.content }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 场景 -->
+        <div class="hidden flex justify-between">
+          <div class="w-auto h-12 text-xl text-left text-black font-bold">
+            场景
+          </div>
+        </div>
+
+        <div v-if="currentTable == tableList[0].content" class="flex gap-6">
+          <!-- 新建按钮 -->
+          <div class="self-center w-40 h-auto relative border-2">
+            <div class="w-40 h-40 self-center mx-auto cursor-pointer" @click="CreateNew(tableList[0].content)">
+              <!-- <img class=" w-full h-full    object-fill hover:opacity-70 " src="publicUrl + item.icon" /> -->
+            </div>
+            <div class="
+                absolute
+                left-0
+                top-0
+                w-full
+                h-full
+                flex
+                pointer-events-none
+              ">
+              <div class="self-center mx-auto">
+                {{ customPanel.createNewScene }}
+              </div>
+            </div>
+          </div>
+
+          <div class="gap-6 grid xl:grid-cols-7 md:grid-cols-5 flex-row-reverse">
+            <!-- 选择列表 -->
+            <div v-for="(item, i) in sceneList" :key="i" class="self-center w-40 h-auto relative">
+              <div class="w-40 h-28  bg-blue-200 rounded-lg  self-center mx-auto cursor-pointer"
+                @click="SelectScene(item)">
+                <img class="w-full h-full rounded-lg object-fill hover:opacity-70" :src="uploadSceneUrl + item.icon" />
+              </div>
+
+              <div class="mt-2 px-2 flex text-sm justify-between cursor-pointer">
+                <div>{{ item.name }}</div>
+              </div>
+
+              <div class="mt-2 px-2 flex text-sm justify-between ">
+                <text>{{ item.folderBase }}</text>
+              </div>
+              <div class=" hidden mt-2 px-2 flex text-xs justify-between">
+                <div>{{ base.good }} 158</div>
+                <div>{{ base.visite }} 177</div>
+              </div>
+              <div class="mt-2 px-2 flex text-xs justify-between">
+                <div class="cursor-pointer" @click="EditorScene(item)">
+                  {{ base.editor }}
+                </div>
+                <div class="cursor-pointer" @click="Delete(item)">
+                  {{ base.delete }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 单品 -->
+        <div class="hidden mt-10 flex justify-between">
+          <div class="w-auto h-12 text-xl text-left text-black font-bold">
+            单品
+          </div>
+        </div>
+
+        <div v-if="currentTable == tableList[1].content" class="relative flex gap-6">
+          <!-- 新建按钮 -->
+          <div class="absolute left-0 top-0 self-center w-40 h-40 border-2">
+            <div class="w-40 h-40 self-center mx-auto cursor-pointer" @click="CreateNew(tableList[1].content)">
+              <!-- <img class=" w-full h-full    object-fill hover:opacity-70 " src="publicUrl + item.icon" /> -->
+            </div>
+            <div class="
+                absolute
+                left-0
+                top-0
+                w-full
+                h-full
+                flex
+                pointer-events-none
+              ">
+              <div class="self-center mx-auto">
+                {{ customPanel.createNewSingle }}
+              </div>
+            </div>
+          </div>
+
+          <div class="
+              ml-44
+              h-710px
+              gap-6
+              grid
+              xl:grid-cols-7
+              md:grid-cols-5
+              grid-cols-3
+              flex-row-reverse 
+             overflow-y-scroll 
+            ">
+            <!-- 选择列表 -->
+            <div v-for="(item, i) in modelsList" :key="i" class="self-center  w-40 h-auto relative">
+              <div class="w-40 h-28 bg-blue-200 rounded-lg self-center mx-auto cursor-pointer" @click="SelectModel(item)">
+                <img class="w-full h-full rounded-lg object-fill hover:opacity-70" :src="uploadUrl + item.icon" />
+              </div>
+
+              <div class="mt-2 px-2 flex text-sm justify-between">
+                <div>{{ item.name }}</div>
+              </div>
+              <div class="mt-2 px-2 flex text-sm justify-between ">
+                <text>{{ item.folderBase }}</text>
+              </div>
+              <div class="mt-2 px-2 flex text-xs justify-between">
+                <div>{{ item.modelType }}</div>
+              </div>
+              <div class=" hidden mt-2 px-2 flex text-xs justify-between">
+                <div>{{ base.good }} 158</div>
+                <div>{{ base.visite }} 177</div>
+              </div>
+              <div class="mt-2 px-2 flex text-xs justify-between">
+                <div class="cursor-pointer" @click="Editor(item)">
+                  {{ base.editor }}
+                </div>
+                <div class="cursor-pointer" @click="Delete(item)">
+                  {{ base.delete }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HDR -->
+        <div class="hidden mt-10 flex justify-between">
+          <div class="w-auto h-12 text-xl text-left text-black font-bold">
+            HDR
+          </div>
+        </div>
+
+        <div v-if="currentTable == tableList[2].content" class="flex gap-6">
+          <!-- 新建按钮 -->
+          <div class="self-center w-40 h-auto relative border-2">
+            <div class="w-40 h-40 self-center mx-auto cursor-pointer" @click="CreateNew(tableList[2].content)">
+              <!-- <img class=" w-full h-full    object-fill hover:opacity-70 " src="publicUrl + item.icon" /> -->
+            </div>
+            <div class="
+                absolute
+                left-0
+                top-0
+                w-full
+                h-full
+                flex
+                pointer-events-none
+              ">
+              <div class="self-center mx-auto">
+                {{ customPanel.createNewHDR }}
+              </div>
+            </div>
+          </div>
+
+          <div class="gap-6 grid xl:grid-cols-7 md:grid-cols-5 flex-row-reverse">
+            <!-- 选择列表 -->
+            <div v-for="(item, i) in jpgList" :key="i" class="self-center w-40 h-auto relative">
+              <div class="w-40 h-20 self-center mx-auto cursor-pointer">
+                <img class="w-full h-full object-fill hover:opacity-70" :src="uploadHDRUrl + item" />
+              </div>
+
+              <div class="mt-2 w-28 truncate px-2 flex text-sm justify-between ">
+                <text>{{ item }}</text>
+              </div>
+              <div class=" hidden mt-2 px-2 flex text-xs justify-between">
+                <div>{{ base.good }} 158</div>
+                <div>{{ base.visite }} 177</div>
+              </div>
+              <div class="mt-2 px-2 flex text-xs justify-between">
+                <div class="cursor-pointer">{{ base.editor }}</div>
+                <div class="cursor-pointer">{{ base.delete }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- UV序列动画 -->
+        <div v-if="currentTable == tableList[3].content" class="flex gap-6">
+          <!-- 新建按钮 -->
+          <div class="self-center w-40 h-auto relative border-2">
+            <div class="w-40 h-40 self-center mx-auto cursor-pointer" @click="CreateNew('UVAnim')">
+              <!-- <img class=" w-full h-full    object-fill hover:opacity-70 " src="publicUrl + item.icon" /> -->
+            </div>
+            <div class="
+                absolute
+                left-0
+                top-0
+                w-full
+                h-full
+                flex
+                pointer-events-none
+              ">
+              <div class="self-center mx-auto">
+                {{ customPanel.createNewUVanim }}
+              </div>
+            </div>
+          </div>
+
+          <div class="gap-6 grid xl:grid-cols-7 md:grid-cols-5 flex-row-reverse">
+            <!-- 选择列表 -->
+            <div v-for="(item, i) in uvAnimList" :key="i" class="self-center w-40 h-auto relative">
+              <div class="
+                  w-40
+                  h-20
+                  self-center
+                  mx-auto
+                  overflow-hidden
+                  cursor-pointer
+                ">
+                <!-- :style="'--tw-scale-x:17'" -->
+                <img class="w-full h-full object-fill hover:opacity-70 transform" :src="uploadUVAnimUrl + item" />
+              </div>
+              <div class="mt-2 w-28 truncate px-2 flex text-sm justify-between ">
+                <text>{{ item }}</text>
+              </div>
+              <div class=" hidden mt-2 px-2 flex text-xs justify-between">
+                <div>{{ base.good }} 158</div>
+                <div>{{ base.visite }} 177</div>
+              </div>
+              <div class="mt-2 px-2 flex text-xs justify-between">
+                <div class="cursor-pointer">{{ base.editor }}</div>
+                <div class="cursor-pointer">{{ base.delete }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 立即进入 -->
+    <div v-if="infloating" class="absolute left-0 top-0 w-full h-full flex bg-black bg-opacity-60"
+      @click="infloating = false">
+      <div class=" w-11/12 h-11/12 md:w-1/2 md:h-1/2 self-center mx-auto bg-white rounded-xl">
+        <div class="p-4 w-full flex">
+          <div class="w-1/2 h-1/2">
+            <img class="w-full h-full object-fill hover:opacity-70" :src="uploadSceneUrl + currentSceneData.icon" />
+          </div>
+          <div class="relative flex-grow flex-col justify-between">
+            <div>{{ currentSceneData.name }}</div>
+            <div class="absolute bottom-4 w-full">
+              <div class="
+                  cursor-pointer
+                  inline-block
+                  px-4
+                  py-2
+                  bg-blue-200
+                  text-gray-600
+                  rounded-lg
+                  shadow-lg
+                " @click="EnterScene()">
+                立即进入
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="p-10 text-left">
+          <div class="text-xl">描述：</div>
+          <div class="mt-10">{{ currentSceneData.describe }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 新建对话框 -->
+    <div v-if="inCreateCallfloating" class="absolute z-10 left-0 top-0 w-full h-full flex">
+      <div class="absolute -z-10 left-0 top-0 w-full h-full bg-black bg-opacity-60" @click="inCreateCallfloating = false">
+      </div>
+      <div class="
+          w-1/2
+          h-auto
+          self-center
+          mx-auto
+          bg-white
+          rounded-xl
+          flex flex-col
+          justify-between
+          p-5
+        ">
+        <div class="text-3xl">
+          {{ base.create + createForm.title }}
+        </div>
+
+        <!-- 输入名称 -->
+        <div class="flex mt-2 h-10">
+          <div class="w-auto h-6 mt-1 mr-2">
+            {{ createForm.title }}{{ base.name }}
+          </div>
+          <input class="outline-none bg-transparent border placeholder-gray-400 p-1" type="text"
+            v-model="createForm.modelName" placeholder="" />
+        </div>
+
+        <div class="mt-4 text-left">{{ base.selectTemple }}</div>
+        <!-- 模板选择 单品 -->
+        <div v-if="createForm.title == tableList[1].content" class="mt-4 grid grid-cols-5 gap-4">
+          <div v-for="(item, i) in modelTemplate" :key="i" class="self-center w-auto h-auto relative">
+            <div class="w-32 h-32 self-center mx-auto cursor-pointer" @click="createForm.template = item.name">
+              <img class="w-full h-full object-fill hover:opacity-70" />
+            </div>
+            <div class="mt-2 px-2 flex text-sm justify-between cursor-pointer">
+              <div class="mx-auto">{{ item.name }}</div>
+            </div>
+
+            <div class="
+                hidden
+                mt-2
+                px-2
+                flex
+                text-sm
+                justify-between
+                cursor-pointer
+              ">
+              <div>{{ item.content }}</div>
+            </div>
+
+            <div v-if="createForm.template == item.name" class="absolute bottom-2 -right-2">
+              <img class="w-4 h-4 xl:w-full xl:h-full object-fill" :src="publicUrl + 'images/spUI/select.png'" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 模板选择 场景 -->
+        <div v-if="createForm.title == tableList[0].content" class="mt-4 flex gap-5">
+          <div v-for="(item, i) in sceneTemplate" :key="i" class="self-center w-auto h-auto relative">
+            <div class="w-32 h-32 self-center mx-auto cursor-pointer" @click="createForm.template = item.name">
+              <img class="w-full h-full object-fill hover:opacity-70" />
+            </div>
+            <div class="mt-2 px-2 flex text-sm justify-between cursor-pointer">
+              <div class="mx-auto">{{ item.name }}</div>
+            </div>
+
+            <div class="
+                hidden
+                mt-2
+                px-2
+                flex
+                text-sm
+                justify-between
+                cursor-pointer
+              ">
+              <div>{{ item.content }}</div>
+            </div>
+
+            <div v-if="createForm.template == item.name" class="absolute -bottom-2 -right-2">
+              <img class="w-4 h-4 xl:w-full xl:h-full object-fill" :src="publicUrl + 'images/spUI/select.png'" />
+            </div>
+          </div>
+        </div>
+
+        <div class="h-full"></div>
+        <div class="w-full h-12 text-xl flex">
+          <div class="
+              self-center
+              mx-auto
+              inline-block
+              p-3
+              bg-gray-300
+              rounded-lg
+              shadow-lg
+            " :class="createForm.modelName != ''
+              ? '  cursor-pointer pointer-events-auto  '
+              : ' pointer-events-none '
+              " @click="CreateNewOK()">
+            {{ base.ok }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 上传hdr对话框 -->
+    <div v-if="inUploadHDRfloating" class="absolute z-10 left-0 top-0 w-full h-full flex">
+      <div class="absolute -z-10 left-0 top-0 w-full h-full bg-black bg-opacity-60" @click="inUploadHDRfloating = false">
+      </div>
+      <div class="
+          w-1/2
+          h-1/2
+          self-center
+          mx-auto
+          bg-white
+          rounded-xl
+          flex flex-col
+          justify-between
+          p-5
+        ">
+        <div class="text-3xl">
+          {{ base.create + createForm.title }}
+        </div>
+
+        <el-upload class="bg-transparent w-48 mt-2" action="" multiple :before-upload="handleBeforeUpload"
+          :accept="accept" :show-file-list="false">
+          <div class="bg-gray-100 rounded-lg p-2 w-auto cursor-pointer">
+            {{ customPanel.hdrTip }}
+          </div>
+        </el-upload>
+
+        <div v-if="hdrUrl != ''">
+          <img class="w-96 h-48" :src="uploadUVAnimUrl + hdrUrl" alt="" />
+        </div>
+        <div class="h-full"></div>
+        <div class="w-full h-12 text-xl flex">
+          <div class="
+              self-center
+              mx-auto
+              inline-block
+              p-3
+              bg-gray-300
+              rounded-lg
+              shadow-lg
+            " :class="createForm.modelName != ''
+              ? '  cursor-pointer pointer-events-auto  '
+              : ' pointer-events-none '
+              " @click="CreateNewOK()">
+            {{ base.ok }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 上传UV序列图片对话框 -->
+    <div v-if="inUploadUVAnimfloating" class="absolute z-10 left-0 top-0 w-full h-full flex">
+      <div class="absolute -z-10 left-0 top-0 w-full h-full bg-black bg-opacity-60"
+        @click="inUploadUVAnimfloating = false"></div>
+      <div class="
+          w-1/2
+          h-1/2
+          self-center
+          mx-auto
+          bg-white
+          rounded-xl
+          flex flex-col
+          justify-between
+          p-5
+        ">
+        <div class="text-3xl">
+          {{ base.create + createForm.title }}
+        </div>
+
+        <el-upload class="bg-transparent w-48 mt-2" action="" :before-upload="handleBeforeUploadUVAnim" :accept="accept2"
+          :show-file-list="false">
+          <div class="bg-gray-100 rounded-lg p-2 w-auto cursor-pointer">
+            {{ customPanel.uvAnimTip }}
+          </div>
+        </el-upload>
+
+        <div v-if="uvAnimUrl != ''">
+          <img class="w-96 h-48" :src="uploadUVAnimUrl + uvAnimUrl" alt="" />
+        </div>
+        <div class="h-full"></div>
+        <div class="w-full h-12 text-xl flex">
+          <div class="
+              self-center
+              mx-auto
+              inline-block
+              p-3
+              bg-gray-300
+              rounded-lg
+              shadow-lg
+              cursor-pointer
+              pointer-events-auto
+            " @click="uploadOk('UVAnim')">
+            {{ base.ok }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import PlayerAnimData from "../../data/playerAnimSetting.js";
+
+import SceneData from "../../data/sceneData.js";
+
+import ModelListData from "../../data/modelData.js";
+import languageData from "../../data/zh_cn.js";
+
+import {
+  UploadFile,
+  UploadHDRFile,
+  UploadUVAnimFile,
+  GetAllModel,
+  GetAllScene,
+  GetAllHDR,
+  GetAllUVAnim,
+  UploadSceneFile,
+} from "../../js/uploadThreejs.js";
+
+export default {
+  name: "gameUI",
+  components: {},
+  data() {
+    return {
+      title: "",
+      hover: false,
+      infloating: false,
+      inCreateCallfloating: false,
+      inUploadHDRfloating: false,
+      inUploadUVAnimfloating: false,
+
+      createForm: {},
+      playerImg: "",
+      avatarName: "小孩",
+      playerName: "hhh",
+
+      projectionList: [],
+
+      // 上传模板
+      tableList: [],
+      currentTable: "场景",
+      createNewScene: "",
+      createNewSingle: "",
+      createNewHDR: "",
+      createNewUVanim: "",
+      customPanel: {},
+
+      base: {},
+      // 场景模板
+      sceneTemplate: [],
+
+      // 单品模板
+      modelTemplate: [],
+
+      sceneList: [],
+      modelsList: [],
+      hdrList: [],
+      jpgList: [],
+      uvAnimList: [],
+
+      selectSceneName: "scene1",
+      currentSceneData: null,
+      publicUrl: "",
+      uploadUrl: "",
+      uploadSceneUrl: "",
+      // 是否有目标，目标为npc、其他玩家
+      hasTarget: false,
+      accept: ".hdr,.HDR,.jpg,jpeg",
+      accept2: ".png,.jpg",
+      uploadHDRUrl:
+        "https://snvtkd2005.com/socketIoServer/socketIoServer/uploadsHDR/",
+      uploadUVAnimUrl:
+        "https://snvtkd2005.com/socketIoServer/socketIoServer/uploadsUVAnim/",
+      hdrUrl: "",
+      uvAnimUrl: "",
+
+      fileList: [],
+    };
+  },
+  created() {
+    this.avatarData = PlayerAnimData;
+    this.tableList = this.UIData.customPanel.tableList;
+    this.sceneTemplate = this.UIData.customPanel.sceneTemplate;
+    this.modelTemplate = this.UIData.customPanel.modelTemplate;
+    this.currentTable = this.UIData.customPanel.currentTable;
+    this.title = this.UIData.customPanel.title;
+    this.customPanel = this.UIData.customPanel;
+    this.base = this.UIData.base;
+    // this.modelsList = ModelListData.modelsList;
+  },
+  mounted() {
+    this.uploadUrl = this.$uploadUrl;
+    this.uploadSceneUrl = this.$uploadSceneUrl;
+    this.publicUrl = this.$publicUrl + this.avatarData.localPath;
+
+    // this.sceneList = SceneData.sceneList;
+
+    this.RequestGetAllModel();
+    this.RequestGetAllScene();
+    this.RequestGetAllHDR();
+    this.RequestGetAllUVAnim();
+  },
+  methods: {
+    uploadOk(e) {
+      if (e == "UVAnim") {
+        this.inUploadUVAnimfloating = false;
+        this.RequestGetAllUVAnim();
+      }
+    },
+    handleBeforeUploadUVAnim(file) {
+      this.fileList.push(file);
+      console.log(file);
+      if (this.loading) {
+        return;
+      }
+      this.UploadFilesUVAnim(this.fileList[0]);
+    },
+
+    async UploadFilesUVAnim(file) {
+      if (this.loading) {
+        return;
+      }
+      this.loading = true;
+
+      let fromData = new FormData();
+      //服务器中的本地地址
+      fromData.append("fileToUpload", file);
+      // 单个文件上传，可多选。上传后放在根目录
+      //模型或场景文件夹的根目录在创建时由服务器返回
+      fromData.append("folderBase", this.folderBase);
+
+      // const res = await this.$axios.post(
+      //   '/upload',
+      //   fromData
+      // );
+
+      // console.log("res", res);
+      // this.fileList.shift();
+      // this.loading = false;
+      // if (this.fileList.length > 0) {
+      //   this.UploadFiles(this.fileList[0]);
+      // }
+      // return;
+
+      this.modelName = file.name;
+
+      //上传到本地 或 0SS
+      UploadUVAnimFile(fromData).then((res) => {
+        console.log(" 上传文件 ", res);
+        if (res.data == "SUCCESS") {
+          this.fileList.shift();
+          this.loading = false;
+          this.uvAnimUrl = this.folderBase + "/" + this.modelName;
+        }
+      });
+    },
+
+    handleBeforeUpload(file) {
+      // if (this.fileSize) {
+      //   const isLt = file.size / 1024 / 1024 < this.fileSize;
+      //   if (!isLt) {
+      //     this.SetErrorTip(`上传文件大小不能超过 ${this.fileSize} MB!`);
+      //     return false;
+      //   }
+      // }
+      this.fileList.push(file);
+
+      console.log(file);
+
+      if (this.loading) {
+        return;
+      }
+      this.UploadFiles(this.fileList[0]);
+    },
+
+    async UploadFiles(file) {
+      if (this.loading) {
+        return;
+      }
+      this.loading = true;
+
+      let fromData = new FormData();
+      //服务器中的本地地址
+      fromData.append("fileToUpload", file);
+      // 单个文件上传，可多选。上传后放在根目录
+      //模型或场景文件夹的根目录在创建时由服务器返回
+      fromData.append("folderBase", this.folderBase);
+
+      // const res = await this.$axios.post(
+      //   '/upload',
+      //   fromData
+      // );
+
+      // console.log("res", res);
+      // this.fileList.shift();
+      // this.loading = false;
+      // if (this.fileList.length > 0) {
+      //   this.UploadFiles(this.fileList[0]);
+      // }
+      // return;
+
+      let fileName = file.name.toLowerCase();
+      if (fileName.indexOf(".jpg") > -1 || fileName.indexOf(".jpeg") > -1) {
+        this.modelName = file.name;
+      }
+
+      //上传到本地 或 0SS
+      UploadHDRFile(fromData).then((res) => {
+        console.log(" 上传文件 ", res);
+        if (res.data == "SUCCESS") {
+          this.fileList.shift();
+          this.loading = false;
+          if (this.fileList.length > 0) {
+            this.UploadFiles(this.fileList[0]);
+          } else {
+            this.hdrUrl = this.folderBase + "/" + this.modelName;
+          }
+          // this.modelData.modelPath = this.folderBase + "/" + this.modelName;
+          // this.updateModelTxtData();
+        }
+        // if (res.status == 200) {
+        // }
+        // //先记录旧照片
+        // console.log("上传文件后的返回值", url);
+      });
+    },
+
+    async RequestGetAllUVAnim() {
+      this.uvAnimList.splice(0, this.uvAnimList.length);
+      GetAllUVAnim().then((res) => {
+        //先记录旧照片
+        if (res.data.txtDataList) {
+          let txtDataList = res.data.txtDataList;
+          for (let i = 0; i < txtDataList.length; i++) {
+            const element = txtDataList[i];
+            this.uvAnimList.push(element);
+          }
+        }
+      });
+    },
+
+    async RequestGetAllHDR() {
+      GetAllHDR().then((res) => {
+        console.log("获取所有 hdr ", res);
+        //先记录旧照片
+        if (res.data.txtDataList) {
+          let txtDataList = res.data.txtDataList;
+          for (let i = 0; i < txtDataList.length; i++) {
+            const element = txtDataList[i];
+            if (element.includes("hdr")) {
+              this.hdrList.push(element);
+            } else {
+              this.jpgList.push(element);
+            }
+          }
+        }
+      });
+    },
+    async RequestGetAllScene() {
+      GetAllScene().then((res) => {
+        console.log("获取所有 场景 ", res);
+        //先记录旧照片
+        if (res.data.txtDataList) {
+          let txtDataList = res.data.txtDataList;
+          for (let i = 0; i < txtDataList.length; i++) {
+            const element = txtDataList[i];
+            this.sceneList.push(JSON.parse(element));
+          }
+        }
+      });
+    },
+    // 获取所有单品
+    async RequestGetAllModel() {
+      // const res = await this.$axios.get(
+      //   "/getAllModel"
+      // );
+      // console.log("获取所有模型 ", res);
+
+      // if (res.data.txtDataList) {
+      //   let txtDataList = res.data.txtDataList;
+      //   for (let i = 0; i < txtDataList.length; i++) {
+      //     const element = txtDataList[i];
+      //     this.modelsList.push(JSON.parse(element));
+      //   }
+      // }
+      // return;
+
+      GetAllModel().then((res) => {
+        console.log("获取所有单品模型 ", res);
+        //先记录旧照片
+        if (res.data.txtDataList) {
+          let txtDataList = res.data.txtDataList;
+          for (let i = 0; i < txtDataList.length; i++) {
+            let element = txtDataList[i];
+            try {
+              this.modelsList.push(JSON.parse(element));
+            } catch (error) {
+              element = element.substring(1);
+              this.modelsList.push(JSON.parse(element));
+            }
+          }
+        }
+      });
+    },
+
+    CreateNew(e) {
+      this.createForm.title = e;
+      this.createForm.modelName = "";
+      if (e == "HDR") {
+        this.inUploadHDRfloating = true;
+        this.folderBase = new Date().getTime();
+        return;
+      }
+      if (e == "UVAnim") {
+        this.createForm.title = "";
+        this.inUploadUVAnimfloating = true;
+        this.folderBase = new Date().getTime();
+        return;
+      }
+
+      this.inCreateCallfloating = true;
+
+      if (e == this.tableList[0].content) {
+        this.createForm.template = this.sceneTemplate[0].name;
+      }
+
+      if (e == this.tableList[1].content) {
+        this.createForm.template = this.modelTemplate[0].name;
+      }
+    },
+    CreateNewOK() {
+      this.inCreateCallfloating = false;
+
+      // console.log(" 开始创建 ",this.createForm.title,this.tableList[1].content);
+      // return;
+
+      // 创建单品
+      if (this.createForm.title == this.tableList[1].content) {
+
+        let folderBase = new Date().getTime();
+        let icon = folderBase + "/" + folderBase + "_thumb.png";
+        let modelData = {
+          name: this.createForm.modelName,
+          icon: icon,
+          modelType: this.createForm.template,
+          folderBase: folderBase,
+        }
+
+        this.modelsList.push(modelData);
+        //保存到后台
+        let s = JSON.stringify(modelData);
+        let fromData = new FormData();
+        //服务器中的本地地址
+        fromData.append(
+          "fileToUpload",
+          this.$stringtoBlob(s, folderBase + "_data.txt")
+        );
+        fromData.append("folderBase", folderBase);
+        this.$uploadFile(fromData).then((res) => {
+          //先记录旧照片
+          if (res.data == "SUCCESS") {
+            console.log(" 上传模型数据文件成功 ");
+          }
+        });
+
+        this.Editor(this.modelsList[this.modelsList.length - 1]);
+
+        return;
+      }
+
+      // 创建场景
+      if (this.createForm.title == this.tableList[0].content) {
+
+        let folderBase = new Date().getTime();
+        // let icon = folderBase + "/" + folderBase + "_thumb.jpg";
+        let sceneData = {
+          name: this.createForm.modelName,
+          // icon: icon,
+          modelType: this.createForm.template,
+          folderBase: folderBase,
+        }
+
+        //保存到后台
+        let s = JSON.stringify(sceneData);
+        let fromData = new FormData();
+        //服务器中的本地地址
+        fromData.append(
+          "fileToUpload",
+          this.$stringtoBlob(s, folderBase + "_data.txt")
+        );
+        fromData.append("folderBase", folderBase);
+        UploadSceneFile(fromData).then((res) => {
+          //先记录旧照片
+          if (res.data == "SUCCESS") {
+            console.log(" 上传 场景数据文件成功 ");
+          }
+        });
+
+
+        this.sceneList.push(sceneData);
+        this.EditorScene(this.sceneList[this.sceneList.length - 1]);
+        return;
+      }
+
+      return;
+      //
+      _Global.reloadTimes = 1;
+      this.$router.push({
+        path: "/editorScene",
+      });
+    },
+
+    // 编辑
+    Editor(item) {
+      console.log(" 编辑 ", item);
+
+      if (item.modelType == "Static Model") {
+        item.modelType = "静态模型";
+      }
+      if (item.modelType == "Animation Model") {
+        item.modelType = "动画模型";
+      }
+      if (item.modelType == "UV Animition Model") {
+        item.modelType = "uv模型";
+      }
+
+      localStorage.setItem("modelType", item.modelType);
+      localStorage.setItem("modelData", JSON.stringify(item));
+
+      let path = "/editorSingle";
+      if (item.modelType.includes("模型") || item.modelType.includes("Model")) {
+        path = "/editorSingle";
+      }
+      _Global.reloadTimes = 1;
+      // this.$router.push({
+      //   path: path,
+      // });
+
+      // 新窗口 新标签
+      let href = this.$router.resolve({
+        name: path.replace("/", ""),
+        query: {
+          folderBase: item.folderBase,
+        },
+      });
+      window.open(href.href, "_blank");
+    },
+    EditorScene(item) {
+      console.log(" 编辑 ", item);
+
+      // return;
+      localStorage.setItem("modelType", item.modelType);
+      localStorage.setItem("modelData", JSON.stringify(item));
+      let path = "/editorScene";
+      _Global.reloadTimes = 1;
+      // this.$router.push({
+      //   path: path,
+      // });
+
+      // 新窗口 新标签
+      let href = this.$router.resolve({
+        name: "editorScene",
+        query: {
+          folderBase: item.folderBase,
+        },
+      });
+      window.open(href.href, "_blank");
+    },
+
+    // 删除
+    Delete(item) { },
+
+    SelectScene(item) {
+      localStorage.setItem("modelType", item.modelType);
+      localStorage.setItem("modelData", JSON.stringify(item));
+      this.folderBase = item.folderBase;
+      this.selectSceneName = item.name;
+
+      for (let i = 0; i < this.sceneList.length; i++) {
+        const element = this.sceneList[i];
+        if (element.name == item.name) {
+          this.currentSceneData = element;
+        }
+      }
+      this.infloating = true;
+      return;
+    },
+    SelectModel(item) {
+      this.Editor(item);
+    },
+    EnterScene() {
+      // console.log("访问场景 ",localStorage.getItem("modelData"));
+      // return;
+      // 新窗口 新标签
+      let href = this.$router.resolve({
+        name: "editorVisit",
+        query: {
+          folderBase: this.folderBase,
+        },
+      });
+      window.open(href.href, "_blank");
+    },
+    ChangeScene(sceneName) { },
+  },
+};
+</script>
+ 
+
+<style scoped>
+.-z-10 {
+  z-index: -10;
+}
+
+.z-999 {
+  z-index: 999;
+}
+
+.bg-color {
+  background: #28cad9;
+}
+</style>

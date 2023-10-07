@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <!-- <link rel="icon" href="/favicon.ico" /> -->
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+
+  <!-- 引用物理模拟ammojs -->
+  <script src="./public/threeJS/ammo/ammo.wasm.js"></script>
+
+  <script src="./public/threeJS/hls.min.js"></script>
+
+  <!-- 引入sockjs -->
+  <!-- <script src="./public/threeJS/stomp.js"></script>
+  <script src="./public/threeJS/sockjs.js"></script> -->
+
+  <title></title>
+  <style>
+    @media (max-width: 768px) {
+      html {
+        /*防止页面在移动端上下滑动*/
+        overflow: hidden;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0px;
+        left: 0px;
+      }
+    }
+
+    /* 修改body 右侧滑块样式 */
+    body {
+      padding: 0;
+      margin: 0;
+
+      /* vue中如何将双击选中文字的默认事件取消 */
+      /* -moz-user-select: none; */
+      /*火狐*/
+      /* -webkit-user-select: none; */
+      /*webkit浏览器*/
+      /* -ms-user-select: none; */
+      /*IE10*/
+      /* -khtml-user-select: none; */
+      /*早期浏览器*/
+      /* user-select: none; */
+    }
+  </style>
+
+  <script>
+    var _Global = {};
+    var _YJGlobal = {};
+  </script>
+</head>
+
+<body>
+  <div id="app" class=" absolute left-0 top-0 z-30 w-full h-full"></div>
+  <script type="module" src="/src/projects/farm/main.js"></script>
+
+  <!-- 页面debug -->
+  <!-- <script  src="https://cdn.bootcdn.net/ajax/libs/vConsole/3.14.7/vconsole.min.js"></script>
+  <script>
+      new VConsole();
+  </script> -->
+
+</body>
+
+</html>

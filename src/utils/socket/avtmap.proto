@@ -1,0 +1,379 @@
+syntax = "proto3";
+package protocol.avtmap;
+
+option go_package = "./;avtmap";
+
+service ZZMap {
+  rpc GetRealTimeSurroundingAvatarMapInfos(MVPGetRealTimeSurroundingAvatarMapInfosReq) returns (MVPGetRealTimeSurroundingAvatarMapInfosRsp);
+  rpc UpsertAvatarMapInfo(UpsertAvatarMapInfoReq) returns (UpsertAvatarMapInfoRsp);
+  rpc DelAvatarMapInfo(DelAvatarMapInfoReq) returns (DelAvatarMapInfoRsp);
+  rpc GetAvatarMapInfo(GetAvatarMapInfoReq) returns (GetAvatarMapInfoRsp);
+  rpc AvatarNotify(AvatarNotifyReq) returns (AvatarNotifyRsp);
+}
+
+message AvatarNotifyReq {
+  // 使用 uint64 减少同步消息的大小
+  repeated string avatar_ids = 1;
+  repeated NotifyMsg notify_msgs = 2;
+}
+
+message AvatarNotifyRsp {}
+
+message GetAvatarMapInfoReq {
+  string avatar_id = 1;
+}
+
+message GetAvatarMapInfoRsp {
+  ExtensiveAvatarMapInfo extensive_avatar_map_info = 1;
+}
+
+message MVPGetRealTimeSurroundingAvatarMapInfosReq {
+  string avatar_id = 1;
+}
+
+message MVPGetRealTimeSurroundingAvatarMapInfosRsp {
+  repeated ExtensiveAvatarMapInfo extensive_avatar_map_infos = 1;
+}
+
+message UpsertAvatarMapInfoReq {
+  string prev_cube = 1; // 用户之前所在的cube
+  ExtensiveAvatarMapInfo curr_extensive_avatar_map_info = 2;
+}
+
+message UpsertAvatarMapInfoRsp {
+  // 如果avatar的格子变化了，则需要同步消失在范围内的avatar，以及新进入范围的avatar
+  repeated ExtensiveAvatarMapInfo enter_surrounding_extensive_avatar_map_infos = 1;
+  repeated string out_of_surrounding_avatar_ids = 2;
+}
+
+message DelAvatarMapInfoReq {
+  string avatar_id = 1;
+  int64 timestamp_msec = 2;
+}
+
+message DelAvatarMapInfoRsp {}
+
+// 除了最基本的地图信息外，还保存有 Avatar 的同步地址等信息，服务端自用
+message ExtensiveAvatarMapInfo {
+  AvatarMapInfo avatar_map_info = 1;
+  string avatar_sync_addr = 2; // ip://{ip}:{port} 可直接用trpc WithTarget 访问到具体实例
+}
+
+message AvatarMapInfo {
+  string avatar_id = 1;
+  MapPosition map_position = 2;
+  double direction = 3; // 方向 x轴正方向为0度 顺时针 0-359 之间
+  int64 timestamp_msec = 4; // 更新位置的时间
+  string avatar_render_data = 5; // avatar 渲染需要的数据，由客户端透传，目前暂时放在地图服务中，领域划分清晰，可这里移出
+  AvatarAdditionalData avatar_additional_data = 6; // avatar 附加的渲染数据，由客户端和服务端共同管理
+}
+
+message MapPosition {
+  double x = 1;
+  double y = 2;
+  double z = 3;
+  int32 venue_id = 4;
+  string world_id = 5;
+}
+
+// 地图上的可交互的简单物件, 不考虑多人并发操作的情况, 只关心最终状态
+message SimpleInteractiveMapItem {
+  uint64 ItemID = 1;
+  SimpleInteractiveMapItemType.Enum item_type = 2;
+  SimpleInteractiveMapItemState item_state = 3;
+  SimpleInteractiveMapItemDetail item_detail = 4;
+}
+
+message SimpleInteractiveMapItemDetail {
+  oneof detail_oneof {
+    PropInfo prop_info = 1;
+  }
+}
+
+// NextID: 2
+message SimpleInteractiveMapItemState {
+  oneof state_oneof {
+    LightItemState light_item_state = 1;
+  }
+}
+
+message LightItemState {
+  bool on = 1; // true 表示打开，false 表示关闭
+}
+
+message SimpleInteractiveMapItemType {
+  enum Enum {
+    // 默认值
+    UNKNOWN = 0;
+    // 灯
+    LIGHT = 1;
+    // 道具
+    PROP = 2;
+  }
+}
+
+// PropInfo 道具信息
+message PropInfo {
+  // PropID 道具ID
+  uint64 PropID = 1;
+  // PartID 部件ID，用于索引渲染信息
+  uint64 PartID = 2;
+  // Position 地图位置
+  MapPosition Position = 3;
+  // Direction 方向 x轴正方向为0度 顺时针 0-359 之间
+  double Direction = 4;
+}
+
+// AvatarAdditionalData avatar附加渲染数据
+message AvatarAdditionalData {
+  // Props avatar当前穿戴的道具
+  repeated PropInfo Props = 1;
+}
+
+message AvatarLoginAck {
+  AvatarMapInfo init_location = 1;  // 进入幻境后的初始位置
+  repeated AvatarMapInfo surrounding_avatar_locations = 2; // 周围Avatar的位置
+}
+
+message NotifyMsg {
+  NotifyMsgType.Enum msg_type = 1; // 注意，有些全局通知类型是没有 avatar 信息的
+  string avatar_id = 2;
+  ExtensiveAvatarMapInfo avatar_map_info = 3;
+  map<string, string> dist_avatar_map = 4;  // 如果已经有目标avatar，则赋值, key 为 avatar id，value 尚未启用
+  uint64 clientID = 5;
+  string world_id = 6; // 世界ID
+
+  oneof msg_oneof {
+    AvatarMoveNotifyMsg avatar_move_notify = 1001;
+    AvatarLoginNotifyMsg avatar_login_notify = 1003;
+    AvatarLogoutNotifyMsg avatar_logout_notify = 1004;
+    ActivityEffectNotifyMsg activity_effect_notify = 1005;
+  }
+}
+
+message ActivityEffectNotifyMsg {
+  ActivityEffect activity_effect = 1;
+}
+
+message AvatarLoginNotifyMsg {
+  AvatarLoginNotify avatar_login_notify = 1;
+}
+
+// 广播通知相关
+message AvatarLoginNotify {
+  AvatarMapInfo location = 1;
+}
+
+message NotifyMsgType {
+  enum Enum {
+    // 1-1000 avatar 消息类型
+    NOTIFY_UNKNOWN = 0;
+    NOTIFY_AVATAR_MOVE = 1;
+    NOTIFY_AVATAR_ACTION = 2;
+    NOTIFY_AVATAR_LOGIN = 3;
+    NOTIFY_AVATAR_LOGOUT = 4;
+    NOTIFY_AVATAR_TELEPORT_TO = 5;
+    NOTIFY_AVATAR_TELEPORT_AWAY = 6;
+    NOTIFY_AVATAR_REPEATED_LOGIN = 7; // 重复登录
+    NOTIFY_AVATAR_DIRECTED_ACTION = 8;
+    NOTIFY_AUDITED_AVATAR_INSTANT_MSG = 9;
+    // 1001-2000 地图展位消息
+    NOTIFY_DISPLAY_SPACE_CHANGE = 1001; // 展位信息变动
+    NOTIFY_PROP_EVENT = 1002; // 道具事件
+    NOTIFY_MEDIA_EVENT = 1003; // 媒体事件
+    NOTIFY_ACTIVITY_EFFECT = 1004; // 活动特效
+  }
+}
+
+// 服务端下发的消息
+// Next ID: 8
+message DownstreamMsg {
+  DownstreamMsgType.Enum msg_type = 1;
+  oneof msg_oneof {
+    HeartbeatAck heartbeat_ack = 2;
+    AvatarLoginAck avatar_login_ack = 3;
+    AvatarLogoutAck avatar_logout_ack = 4;
+    AvatarMove avatar_move = 5;
+    AvatarLoginNotify avatar_login_notify = 8;
+    AvatarLogoutNotify avatar_logout_notify = 9;
+    AvatarDisappear avatar_disappear = 11;
+    AvatarAppear avatar_appear = 12;
+    ActivityEffect activity_effect = 13;
+    ActivityPosition activity_position = 14;
+    ErrorInfo error_info = 15;
+  }
+}
+
+message DownstreamMsgType {
+  enum Enum {
+    // 1-1000基础消息号段
+    DOWNSTREAM_UNKNOWN = 0;
+    DOWNSTREAM_HEARTBEAT_ACK = 1;
+    DOWNSTREAM_AVATAR_LOGIN_ACK = 2;
+    DOWNSTREAM_AVATAR_LOGOUT_ACK = 3;
+    DOWNSTREAM_AVATAR_TELEPORT_ACK = 4;
+    DOWNSTREAM_AVATAR_RECOVER_ACK = 5;
+    DOWNSTREAM_ERROR_INFO = 6; // 错误信息，参见 ErrorInfo
+
+    // 角色移动与动作消息类型号段 1000-2000
+    DOWNSTREAM_AVATAR_MOVE = 1000; // 位置/方向变化
+    DOWNSTREAM_AVATAR_ACTION = 1001; // 动作
+    DOWNSTREAM_AVATAR_DISAPPEAR = 1002; // 角色消失(从范围内消失)
+    DOWNSTREAM_AVATAR_APPEAR = 1003; // 角色出现(从范围内出现)
+    DOWNSTREAM_AVATAR_TELEPORT_AWAY = 1004; // 角色消失(传送)
+    DOWNSTREAM_AVATAR_TELEPORT_To = 1005; // 角色出现(传送)
+    DOWNSTREAM_AVATAR_DIRECTED_ACTION = 1006; // 定向动作同步
+    DOWNSTREAM_AUDITED_AVATAR_INSTANT_MSG = 1007; // 即时消息
+    DOWNSTREAM_AVATAR_HISTORY_MSG = 1008; // 同步历史消息
+
+    // 地图物件状态变化消息类型号段 2000-3000
+    DOWNSTREAM_SIMPLE_INTERACTIVE_MAP_ITEM_STATE_CHANGE = 2000;
+    // 道具事件
+    DOWNSTREAM_PROP_EVENT = 2001;
+    // 媒体事件
+    DOWNSTREAM_MEDIA_EVENT = 2002;
+
+    // 广播类型消息通知 3000-3999
+    DOWNSTREAM_AVATAR_USER_LOGIN = 3000;
+    DOWNSTREAM_AVATAR_USER_LOGOUT = 3001;
+    DOWNSTREAM_VENUE_INSTANT_MSG = 3002; // 房间内公屏消息
+    DOWNSTREAM_ACTIVITY_EFFECT = 3003; // 活动特效，参见 ActivityEffect
+    DOWNSTREAM_ACTIVITY_POSITION = 3004; // 活动位，参见 ActPosition
+
+    // 展位信息相关 4000-4999
+    DOWNSTREAM_DISPLAY_SPACE_CHANGE = 4000;
+  }
+}
+
+// 客户端上报的消息
+// Next ID: 12
+message UpstreamMsg {
+  string avatar_id = 1;
+  UpstreamMsgType.Enum msg_type = 2; // 如果需要转成json使用，type字段容易判断消息类型
+  oneof msg_oneof {
+    Heartbeat heartbeat = 3;
+    AvatarLogin avatar_login = 4;
+    AvatarLogout avatar_logout = 5;
+    AvatarMove avatar_move = 6;
+  }
+}
+
+message UpstreamMsgType {
+  enum Enum {
+    // ---------------- 1-1000基础消息类型号段 ----------------
+    UPSTREAM_UNKNOWN = 0;
+    UPSTREAM_HEARTBEAT = 1;
+    UPSTREAM_AVATAR_LOGIN = 2;
+    UPSTREAM_AVATAR_LOGOUT = 3;
+    UPSTREAM_AVATAR_TELEPORT = 4; // 传送
+    UPSTREAM_AVATAR_RECOVER = 5;
+
+    // ---------------- 角色移动与动作消息类型号段 1000-1999 ----------------
+    UPSTREAM_AVATAR_MOVE = 1000; // 位置/方向变化
+    UPSTREAM_AVATAR_ACTION = 1001; // 动作
+    UPSTREAM_AVATAR_DIRECTED_ACTION = 1002; // 定向动作
+    UPSTREAM_AUDITED_AVATAR_INSTANT_MSG = 1003; // 即时消息
+    UPSTREAM_AUDITED_AVATAR_HISTORY_MSG = 1004; // 历史消息记录
+
+    // ---------------- 地图物件状态变化消息类型号段 2000-2999 ----------------
+    UPSTREAM_SIMPLE_INTERACTIVE_MAP_ITEM_STATE_CHANGE = 2000;
+    // 道具事件
+    UPSTREAM_PROP_EVENT = 2001;
+    // 媒体事件
+    UPSTREAM_MEDIA_EVENT = 2002;
+  }
+}
+
+message AvatarLogin {
+  int32 venue_id = 1;  // 场馆ID
+  // 渲染 Avatar 需要的数据，目前在 Login 的时候上报，在 Appear 的时候下发，由客户端自己维护
+  string avatar_render_data = 2;
+  string world_id = 3; // 世界ID
+  string act_id = 4; // 活动ID
+  string phone_no = 5; // 用户手机号
+  int32 hall_type = 6; // 0：签到厅 1：会议厅
+}
+
+// avatar 出现的消息，游戏端在获取到这消息后，才会渲染目标 avatar
+message AvatarAppear{
+  repeated AvatarMapInfo locations = 1;
+}
+
+// 人物消失
+message AvatarDisappear{
+  repeated string avatar_ids = 1;
+}
+
+// 移动动作相关
+message AvatarMove {
+  AvatarMapInfo location = 1;
+  double speed = 2;
+}
+
+message AvatarMoveNotifyMsg {
+  AvatarMove avatar_move = 1;
+}
+
+message Heartbeat {
+}
+
+message HeartbeatAck {
+  int64 server_timestamp_msec = 1;
+}
+
+message AvatarLogout {
+}
+
+message AvatarLogoutAck {
+}
+
+message AvatarLogoutNotify {
+  string avatar_id = 1;
+  int32 type = 2; // 0 用户主动下线（通知别人）， 1 多端设备登录导致被踢掉（通知自己）
+}
+
+message AvatarLogoutNotifyMsg {
+  AvatarLogoutNotify avatar_logout_notify = 1;
+}
+
+// ActivityEffectType 特效类型 1：气球雨 2：全体鼓掌 3：全体挥舞荧光棒 4：就座
+message ActivityEffectType {
+  enum Enum {
+    UNKNOWN = 0;
+    BALLOON_RAIN = 1; // 气球雨
+    HAND_CLAP = 2; // 全体鼓掌
+    LIGHT_STICK = 3; // 荧光棒
+    SIT_DOWN = 4; // 就座
+  }
+}
+
+// ActivityEffectStatus 特效状态 1：暂停 2：进行中
+message ActivityEffectStatus {
+  enum Enum {
+    UNKNOWN = 0;
+    PAUSE = 1; // 暂停（解除）
+    START = 2; // 开始
+  }
+}
+
+message ActivityEffect {
+  string ActID = 1; // 活动ID
+  ActivityEffectType.Enum EffectType = 2; // 特效类型
+  ActivityEffectStatus.Enum EffectStatus = 3; // 特效状态
+  string RenderData = 4; // 特效渲染数据
+}
+
+message ActivityPosition {
+  uint64 ID = 1; // 活动位ID，主键
+  string ActID = 2; // 活动ID
+  uint32 PosType = 3; // 位置类型 1~8：展位 9：大屏幕
+  uint32 ContentType = 4; // 内容类型 1：图片 2：视频 3：直播
+  string PosContent = 5; // 内容（URL）
+  uint32 PosStatus = 6; // 活动位状态 0：初始化 1：上线 2：下线 3：删除
+}
+
+// ErrorInfo 通用错误信息
+message ErrorInfo {
+  int32 ErrorCode = 1; // 错误码 1:非白名单用户人数已达上限 2:白名单用户人数已达上限
+  string ErrorMsg = 2; // 错误提示
+}

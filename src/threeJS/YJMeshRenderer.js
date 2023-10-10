@@ -80,7 +80,9 @@ class YJMeshRenderer {
 
           model = object;
           model.transform = owner;
+ 
 
+          animations =  model.animations ;
           let scale = 0.01;
           model.scale.set(1 * scale, 1 * scale, 1 * scale);
 

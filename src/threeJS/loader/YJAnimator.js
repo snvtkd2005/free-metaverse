@@ -20,6 +20,27 @@ class YJAnimator {
 
     let animCount = 0;
     let actions = [];
+
+
+    var updateId = null;
+    let currentTime = 0;
+
+
+    this.GetAnimation = function () {
+      return animations;
+    }
+
+    this.ChangeAnimByIndex = function (i, timeScale) {
+      console.log(animations,timeScale);
+      for (let i = 0; i < animations.length; i++) {
+        mixer.clipAction(animations[i]).stop();
+      }
+      let action = mixer.clipAction(animations[i]);
+      action.timeScale = timeScale;
+      action.play();//播放动画 
+      console.log("切换动画",animations[i]);
+
+    }
     // 获取当前动画播放帧
     this.GetCurrentTime = function () {
       return oneAction.time;
@@ -211,7 +232,7 @@ class YJAnimator {
     // 倒放
     this.RewindPlay = function () {
       for (let i = 0; i < animCount; i++) {
-        if(actions[i].scale>0){
+        if (actions[i].scale > 0) {
           actions[i].scale = -1 * actions[i].scale;
         }
         actions[i].action.paused = false;
@@ -219,17 +240,17 @@ class YJAnimator {
       RewindPlayActinByIndex(0);
     }
     this.ResetPlay = function () {
-      for (let i = 0; i < animCount; i++) { 
+      for (let i = 0; i < animCount; i++) {
 
         let action = actions[i];
-        if(action.scale<0){
+        if (action.scale < 0) {
           action.scale = -1 * actions[i].scale;
         }
 
         setWeight(action.action, action.weight, action.scale);
         action.action.reset();
         action.action.play();
-      } 
+      }
     }
 
     // 停止动画。scale设为0
@@ -404,11 +425,6 @@ class YJAnimator {
     }
 
 
-
-    var updateId = null;
-
-    let currentTime = 0;
-
     function update() {
       updateId = requestAnimationFrame(update);
 
@@ -417,8 +433,7 @@ class YJAnimator {
         // 更新混合器相关的时间
         mixer.update(clock.getDelta());
         // currentTime = mixer.time;
-        // currentTime = oneAction.time;
-        // oneAction.time
+        // currentTime = oneAction.time; 
         // console.log("执行模型动画 中 ",currentTime);
         // console.log("执行动画 中 ",mixer);
       }

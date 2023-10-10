@@ -30,7 +30,7 @@ class YJLoadUserModelManager {
   constructor(_this, scene, camera, callback) {
     let scope = this;
 
-    let uploadUrl = _this.$uploadUrl;  
+    let uploadUrl = _this.$uploadUrl;
 
     let loadIndex = 0;
     let allTransform = [];
@@ -266,13 +266,13 @@ class YJLoadUserModelManager {
 
       let object = new YJTransform(_this, scene, "", null, null, modelData.name);
       let modelPath = modelData.modelPath;
-      if(modelPath == undefined){
+      if (modelPath == undefined) {
         // if (callback) {
         //   callback(object);
         // } 
-      }else{
+      } else {
         if (modelData.modelPath.includes("http")) {
-        
+
         } else {
           modelPath = uploadUrl + modelData.modelPath;
         }
@@ -302,14 +302,25 @@ class YJLoadUserModelManager {
       let MeshRenderer = new YJMeshRenderer(_this, object.GetGroup(), object, false);
       object.AddComponent("MeshRenderer", MeshRenderer);
 
-      if (modelData.modelType == "动画模型") {
+      if (modelData.modelType == "动画模型" || "角色模型") {
         MeshRenderer.load(modelPath, (scope) => {
-          new YJAnimator(scope.GetModel(), scope.GetAnimations());
+          let component = new YJAnimator(scope.GetModel(), scope.GetAnimations());
+          object.AddComponent("Animator", component);
           if (callback) {
             callback(object);
           }
-        }, () => {
-          LoadError(uuid, callback);
+        }, (e) => {
+          LoadError(uuid, callback,e);
+        });
+      } else if (modelData.modelType == "角色模型") {
+        MeshRenderer.load(modelPath, (scope) => {
+          let component = new YJAnimator(scope.GetModel(), scope.GetAnimations());
+          object.AddComponent("Animator", component);
+          if (callback) {
+            callback(object);
+          }
+        }, (e) => {
+          LoadError(uuid, callback,e);
         });
       } else if (modelData.modelType == "uv模型") {
         MeshRenderer.load(modelPath, (scope) => {
@@ -354,7 +365,7 @@ class YJLoadUserModelManager {
         });
       } else if (modelData.modelType == "屏幕模型") {
         MeshRenderer.load(modelPath, (scope) => {
-          let _YJScreen = new YJScreen(_this, scope.GetModel(), "screen"+uuid);
+          let _YJScreen = new YJScreen(_this, scope.GetModel(), "screen" + uuid);
           object.AddComponent("Screen", _YJScreen);
           if (modelData.message != undefined) {
             _YJScreen.Init(modelData.message.data);
@@ -370,7 +381,7 @@ class YJLoadUserModelManager {
             data = (modelData.message.data);
           }
           // "particle"+uuid
-          let _YJParticle = new YJParticle(_this,  object.GetGroup(), object, data);
+          let _YJParticle = new YJParticle(_this, object.GetGroup(), object, data);
           object.AddComponent("Particle", _YJParticle);
 
           _this._YJSceneManager.AddNeedUpdateJS(_YJParticle);
@@ -532,8 +543,8 @@ class YJLoadUserModelManager {
       }
 
     }
-    function LoadError(uuid, callback) {
-      console.log("加载模型出错 22 " + uuid, allTransform);
+    function LoadError(uuid, callback,e) {
+      console.log("加载模型出错 22 " + uuid,e, allTransform);
 
       for (let i = allTransform.length - 1; i >= 0; i--) {
         const elment = allTransform[i].transform;

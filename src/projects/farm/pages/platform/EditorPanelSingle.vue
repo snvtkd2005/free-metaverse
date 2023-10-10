@@ -367,6 +367,14 @@ export default {
       if (this.modelData.modelType == "角色") {
         this.ChangePanel("player");
       }
+      
+      if (this.modelData.modelType == "角色模型") {
+        this.ChangePanel("avatar");
+        setTimeout(() => {
+          this.$refs.settingPanel_avatar.SetAvatar(this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetSingleModelTransform());
+        }, 3000);
+      }
+
       if (this.modelData.modelType == "屏幕模型") {
         this.ChangePanel("screen");
       }

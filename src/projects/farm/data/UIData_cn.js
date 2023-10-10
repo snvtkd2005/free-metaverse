@@ -54,6 +54,7 @@ export default {
       { id:5, templateType:"Model", name: "装备模型",panel:"weapon", content: "装备模型 。如武器" },
       { id:6, templateType:"Model", name: "屏幕模型",panel:"screen", content: "屏幕容器模型 。可以播放图片、视频、直播流" },
       { id:7, templateType:"Model", name: "粒子特效",panel:"particle", content: "粒子特效" },
+      { id:8,templateType:"Model",  name: "角色模型",panel:"avatar", content: "角色模型" },
     ],
     hdrTip:"上传hdr及其缩略图jpg",
     uvAnimTip:"上传图片",

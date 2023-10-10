@@ -78,6 +78,9 @@
         <settingPanel_particle ref="settingPanel_particle" />
       </div>
 
+      <div v-if="panelState.avatar" class=" mt-10  w-80 border-t max-w-md  ">
+        <settingPanel_avatar ref="settingPanel_avatar" />
+      </div>
       <!-- <div class=" mt-10 w-80 h-10 border-t text-white cursor-pointer " @click.stop="inAddComponent=true;">
         <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">Add Component</div>
       </div>
@@ -139,6 +142,8 @@ import settingPanel_weapon from "./settingPanel_weapon.vue";
 import settingPanel_player from "./settingPanel_player.vue";
 import settingPanel_screen from "./settingPanel_screen.vue";
 import settingPanel_particle from "./settingPanel_particle.vue";
+import settingPanel_avatar from "./settingPanel_avatar.vue";
+
 import addComponent from "./components/addComponent.vue";
 
 import { SceneManager } from "../../js/SceneManagerEditor.js";
@@ -157,6 +162,7 @@ export default {
     settingPanel_player,
     settingPanel_screen,
     settingPanel_particle,
+    settingPanel_avatar,
     addComponent,
     PanelCut,
   },
@@ -173,6 +179,7 @@ export default {
         player: false,
         screen: false,
         particle: false,
+        avatar:false,
       },
       hover: false,
       infloating: false,

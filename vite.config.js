@@ -20,6 +20,7 @@ module.exports = {
     "allowJs": true,
     "types": ["vite/client"]
   },
+  port: 8991, //指定端口
   // 是否自动在浏览器打开
   // open: true, 
   // 是否开启 https
@@ -28,35 +29,35 @@ module.exports = {
   //反向代理 解决跨域问题
   proxy: {
 
-    
-    '/getAllModel': { 
+
+    '/getAllModel': {
       target: 'https://192.168.0.63:3335/getAllModel', // 目标地址 --> 服务器地址
       // target: 'https://snvtkd2005.com:3335/upload', // 目标地址 --> 服务器地址
       changeOrigin: true,
-      secure:false,
-      ws:false,
-      rewrite: (path) => path.replace(/^\/getAllModel/, ''), 
-    },  
+      secure: false,
+      ws: false,
+      rewrite: (path) => path.replace(/^\/getAllModel/, ''),
+    },
 
 
 
     // nodejs 文件上传
-    '/upload': { 
+    '/upload': {
       // target: 'https://192.168.0.63:3335/upload', // 目标地址 --> 服务器地址
       target: 'https://snvtkd2005.com:3335/upload', // 目标地址 --> 服务器地址
       changeOrigin: true,
-      secure:false,
-      ws:false,
-      rewrite: (path) => path.replace(/^\/upload/, ''), 
-    },   
+      secure: false,
+      ws: false,
+      rewrite: (path) => path.replace(/^\/upload/, ''),
+    },
 
-    '/worldActivity': { 
+    '/worldActivity': {
       target: 'http://43.138.163.92:9090', // 目标地址 --> 服务器地址
       changeOrigin: true,
-      secure:false,
-      ws:false,
-      rewrite: (path) => path.replace(/^\/worldActivity/, ''), 
-    },   
+      secure: false,
+      ws: false,
+      rewrite: (path) => path.replace(/^\/worldActivity/, ''),
+    },
 
     '/chatgpt': {
       target: 'https://api.wwebjs.com/chatgpt/chat', // 目标地址 --> 服务器地址
@@ -120,13 +121,13 @@ module.exports = {
 
     proxy: {
 
-      '/worldActivity': { 
+      '/worldActivity': {
         target: 'http://43.138.163.92:9090', // 目标地址 --> 服务器地址
         changeOrigin: true,
         // secure:false,
         // ws:false,
-        rewrite: (path) => path.replace(/^\/worldActivity/, ''), 
-      },   
+        rewrite: (path) => path.replace(/^\/worldActivity/, ''),
+      },
 
       '/baidubce': {
         target: 'https://aip.baidubce.com', // 目标地址 --> 服务器地址

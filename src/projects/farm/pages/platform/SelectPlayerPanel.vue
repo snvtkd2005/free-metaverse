@@ -9,10 +9,7 @@
     </div>
 
 
-    <!-- 角色换装选择  -->
-    <div class="  absolute z-30 left-10 top-60 w-1/2 xl:w-1/2 h-full overflow-hidden pointer-events-none text-black ">
-      <SkinPanel class=" w-full h-full " ref="SkinPanel" :skinData="skinData"></SkinPanel>
-    </div>
+
 
     <!-- 角色选择 和 场景选择 -->
     <div class="absolute top-10 xl:top-20 left-10 xl:left-20 z-60 w-64 xl:w-auto h-auto  ">
@@ -32,13 +29,14 @@
         <!-- 列表 -->
         <div class="
    
-                                    flex 
+                                     
                                     w-full
                                    max-w-2xl
                                    h-16
                                    gap-3 xl:gap-10
                                     xl:h-2/3
                                    justify-items-start
+                                   grid grid-cols-4
                                   ">
           <div v-for="(item, i) in playerImgPath" :key="i" :index="item.img" class="
                                       w-16 h-16
@@ -52,8 +50,8 @@
                                      relative
                                     " :class="selectPlayerName == item.name ? ' ' : ' '"
             @click="SelectAvatar(item.name)">
-            <div class=" self-center mx-auto">
-              <img class=" w-full h-full object-fill" :src="publicUrl + item.img" />
+            <div class=" self-center mx-auto  w-full h-full rounded-full ">
+              <img class=" w-full h-full rounded-full " :src="item.img" />
             </div>
             <div v-if="selectPlayerName == item.name" class=" absolute bottom-0 right-0 ">
               <img class=" w-4 h-4 xl:w-full xl:h-full object-fill" :src="publicUrl + 'images/spUI/select.png'" />
@@ -68,13 +66,17 @@
     <!-- 右侧角色模型展示 -->
     <div class="   absolute z-20 right-0 top-0 w-full md:w-1/2 h-full overflow-hidden   ">
       <playerSelect3DPanel id="contain" class=" w-full h-full " ref="playerSelect3DPanel"></playerSelect3DPanel>
-      <YJinputPlayerName class="absolute bottom-16 md:bottom-6 xl:bottom-2 w-full h-16" :callback="ChangeNickName"/>
-      
+      <YJinputPlayerName class="absolute bottom-16 md:bottom-6 xl:bottom-2 w-full h-16" :callback="ChangeNickName" />
+      <!-- 角色换装选择  -->
+      <div class="  absolute z-30 left-10 top-10 w-1/2 xl:w-1/2 h-full overflow-hidden pointer-events-none text-black ">
+        <SkinPanel class=" w-full h-full " ref="SkinPanel" :skinData="skinData"></SkinPanel>
+      </div>
+
       <div v-if="needEnter" class=" absolute w-full bottom-4 mt-10 text-black ">
-        <div class=" px-2 inline-block rounded-lg shadow-md  bg-blue-100 "  @click="ClickeSelectOK()">
+        <div class=" px-2 inline-block rounded-lg shadow-md  bg-blue-100 " @click="ClickeSelectOK()">
           进入元宇宙
         </div>
-        
+
       </div>
 
     </div>
@@ -95,13 +97,16 @@
 
 
 //角色动作数据
-import PlayerAnimData from "../../data/playerAnimSetting.js";
+import PlayerAnimData from "../../data/platform/playerAnimSetting.js";
 
 import playerSelect3DPanel from "../playerSelect3DPanel.vue";
 import SkinPanel from "../SkinPanel2.vue";
 
 import YJinput_drop from "./components/YJinput_drop.vue";
 import YJinputPlayerName from "./components/YJinputPlayerName.vue";
+
+import { GetAllModel } from "../../js/uploadThreejs.js";
+
 export default {
   name: "index",
   props: ["userName"],
@@ -132,12 +137,11 @@ export default {
 
       // 角色选择界面的角色信息
       playerImgPath: [],
-      sceneImgPath: [],
 
       publicUrl: "./public/farm/",
       userName: "",
 
-      needEnter:false,
+      needEnter: false,
     };
   },
   created() {
@@ -148,8 +152,10 @@ export default {
 
   mounted() {
     this.playerImgPath = this.avatarData.playerImgPath;
-
-    this.sceneImgPath = this.avatarData.sceneList;
+    for (let i = 0; i < this.playerImgPath.length; i++) {
+      const element = this.playerImgPath[i];
+      element.img = this.publicUrl + element.img;
+    }
 
     if (localStorage.getItem("avatarName")) {
       this.selectPlayerName = localStorage.getItem("avatarName");
@@ -163,9 +169,8 @@ export default {
       this.needEnter = true;
     }
 
-    // if( this.selectPlayerName == undefined){
-    //   this.selectPlayerName = this.avatarData.defaultUser.avatarName;
-    // }
+      this.selectPlayerName = this.avatarData.defaultUser.avatarName;
+
 
     console.log("  this.selectPlayerName =  ", this.selectPlayerName);
 
@@ -192,9 +197,58 @@ export default {
 
 
     window.addEventListener('keydown', this._onKeyDown);
-
+    this.GetServerAvatar();
   },
   methods: {
+
+    GetServerAvatar() {
+      this.RequestModelByModelType("角色模型", (avatarList) => {
+        console.log(" 获取所有用户上传的角色模型 ", avatarList);
+        for (let i = 0; i < avatarList.length; i++) {
+          const element = avatarList[i];
+          // 加入到选中icon中，角色名、角色icon
+          this.playerImgPath.push({
+            name: element.name,
+            img: this.$uploadUrl + element.icon,
+          });
+          // 到角色数据中，模型路径、动画数据
+          let data = element.message.data;
+          data.modelPath = this.$uploadUrl + element.modelPath;
+          this.$refs.playerSelect3DPanel.AddAvatarData(data);
+        }
+      });
+    },
+
+    async RequestModelByModelType(modelType, callback) {
+      GetAllModel().then((res) => {
+        console.log("获取所有单品模型 ", res);
+        //先记录旧照片
+        if (res.data.txtDataList) {
+          let txtDataList = res.data.txtDataList;
+          let modelsList = [];
+          for (let i = 0; i < txtDataList.length; i++) {
+            let element = txtDataList[i];
+            try {
+              modelsList.push(JSON.parse(element));
+            } catch (error) {
+              element = element.substring(1);
+              modelsList.push(JSON.parse(element));
+            }
+          }
+          let temp = [];
+          for (let i = 0; i < modelsList.length; i++) {
+            const element = modelsList[i];
+            if (element.modelType == modelType) {
+              temp.push(element);
+            }
+          }
+          if (callback) {
+            callback(temp);
+          }
+        }
+      });
+    },
+
     ChangeNickName(e) {
       this.userName = e;
       localStorage.setItem("userName", this.userName);
@@ -365,12 +419,12 @@ export default {
       localStorage.removeItem("needEnter");
       localStorage.setItem("avatarName", this.selectPlayerName);
       localStorage.setItem("userName", this.userName);
-      
+
       localStorage.setItem("reloadTimes", 1);
       // 跳转页面
-      this.$router.replace("/editorVisit?folderBase="+ localStorage.getItem("visitfolderBase"));
+      this.$router.replace("/editorVisit?folderBase=" + localStorage.getItem("visitfolderBase"));
 
-    }, 
+    },
 
   },
 };

@@ -25,6 +25,7 @@ import { YJScreen } from "./components/YJScreen.js";
 import { YJCar } from "./model/YJCar.js";
 import { YJTrigger } from "./YJTrigger.js";
 import YJParticle from "./components/YJParticle";
+import { YJAvatar } from "./loader/YJAvatar";
 // 加载静态物体
 class YJLoadUserModelManager {
   constructor(_this, scene, camera, callback) {
@@ -302,7 +303,7 @@ class YJLoadUserModelManager {
       let MeshRenderer = new YJMeshRenderer(_this, object.GetGroup(), object, false);
       object.AddComponent("MeshRenderer", MeshRenderer);
 
-      if (modelData.modelType == "动画模型" || "角色模型") {
+      if (modelData.modelType == "动画模型") {
         MeshRenderer.load(modelPath, (scope) => {
           let component = new YJAnimator(scope.GetModel(), scope.GetAnimations());
           object.AddComponent("Animator", component);
@@ -310,17 +311,25 @@ class YJLoadUserModelManager {
             callback(object);
           }
         }, (e) => {
-          LoadError(uuid, callback,e);
+          LoadError(uuid, callback, e);
         });
       } else if (modelData.modelType == "角色模型") {
         MeshRenderer.load(modelPath, (scope) => {
           let component = new YJAnimator(scope.GetModel(), scope.GetAnimations());
           object.AddComponent("Animator", component);
+
+          let avatar = new YJAvatar(_this, object.GetGroup(), component);
+          object.AddComponent("Avatar", avatar);
+          if (modelData.message != undefined) {
+            if (modelData.message.pointType == "avatar") {
+              avatar.SetMessage(modelData.message.data);
+            }
+          }
           if (callback) {
             callback(object);
           }
         }, (e) => {
-          LoadError(uuid, callback,e);
+          LoadError(uuid, callback, e);
         });
       } else if (modelData.modelType == "uv模型") {
         MeshRenderer.load(modelPath, (scope) => {
@@ -543,8 +552,8 @@ class YJLoadUserModelManager {
       }
 
     }
-    function LoadError(uuid, callback,e) {
-      console.log("加载模型出错 22 " + uuid,e, allTransform);
+    function LoadError(uuid, callback, e) {
+      console.log("加载模型出错 22 " + uuid, e, allTransform);
 
       for (let i = allTransform.length - 1; i >= 0; i--) {
         const elment = allTransform[i].transform;

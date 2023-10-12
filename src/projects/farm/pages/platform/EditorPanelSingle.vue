@@ -106,7 +106,7 @@
     <div v-if="tipData.opening" class=" absolute left-0 top-10 w-full flex  ">
       <div class=" mx-auto flex w-auto  bg-blue-400 text-white text-xl rounded-lg h-10">
         <div class=" px-4  mx-auto self-center ">
-          {{ tipData.tipContent }} --- {{tipData.uploadProgress}}
+          {{ tipData.tipContent }} --- {{ tipData.uploadProgress }}
         </div>
       </div>
     </div>
@@ -126,7 +126,7 @@
 </template>
 
 <script>
-import PlayerAnimData from "../../data/playerAnimSkinSetting.js";
+import PlayerAnimData from "../../data/platform/playerAnimSetting.js";
 
 import AvatarData from "../../data/platform/sceneSetting_editor.js";
 
@@ -179,7 +179,7 @@ export default {
         player: false,
         screen: false,
         particle: false,
-        avatar:false,
+        avatar: false,
       },
       hover: false,
       infloating: false,
@@ -253,7 +253,7 @@ export default {
         current: 1,
         count: 10,
         tipContent: "sdfsdf",
-        uploadProgress:"",
+        uploadProgress: "",
       }
     };
   },
@@ -311,6 +311,7 @@ export default {
     }
 
     console.log("this.modelData ", this.modelData);
+
     this.RequestGetAllModel(() => {
       this.Load();
     });
@@ -367,7 +368,7 @@ export default {
       if (this.modelData.modelType == "角色") {
         this.ChangePanel("player");
       }
-      
+
       if (this.modelData.modelType == "角色模型") {
         this.ChangePanel("avatar");
         setTimeout(() => {
@@ -412,37 +413,38 @@ export default {
         if (res.data.txtDataList) {
           let txtDataList = res.data.txtDataList;
 
+          let modelsList = [];
           for (let i = 0; i < txtDataList.length; i++) {
             let element = txtDataList[i];
-
             try {
-              let item = JSON.parse(element);
-              if (item.folderBase == this.folderBase) {
-                localStorage.setItem("modelData", JSON.stringify(item));
-                this.modelData = item;
-                if (callback) {
-                  callback();
-                }
-                return;
-
-              }
+              modelsList.push(JSON.parse(element));
             } catch (error) {
-              // https://blog.csdn.net/weixin_44321578/article/details/121109968 解决报错
               element = element.substring(1);
-              let item = JSON.parse(element);
-              if (item.folderBase == this.folderBase) {
-                localStorage.setItem("modelData", JSON.stringify(item));
-                this.modelData = item;
-                if (callback) {
-                  callback();
-                }
-                return;
-              }
+              modelsList.push(JSON.parse(element));
             }
           }
 
-          if (callback) {
-            callback();
+
+          for (let i = 0; i < modelsList.length; i++) {
+            let item = modelsList[i];
+            if (item.modelType == "角色模型") {
+              // 到角色数据中，模型路径、动画数据
+              let data = item.message.data;
+              data.modelPath = this.$uploadUrl + item.modelPath;
+              _Global.CreateOrLoadPlayerAnimData().AddAvatarData(data);
+            }
+          }
+
+          for (let i = 0; i < modelsList.length; i++) {
+            let item = modelsList[i];
+            if (item.folderBase == this.folderBase) {
+              localStorage.setItem("modelData", JSON.stringify(item));
+              this.modelData = item;
+              if (callback) {
+                callback();
+              }
+              return;
+            }
           }
         }
       });
@@ -454,6 +456,9 @@ export default {
       GetAllModel().then((res) => {
         if (res.data.txtDataList) {
           let txtDataList = res.data.txtDataList;
+
+
+
           for (let i = 0; i < txtDataList.length; i++) {
             const element = txtDataList[i];
             let item = JSON.parse(element);
@@ -477,8 +482,11 @@ export default {
       if (this.inputing) {
         //
         if (this.oldFileName != this.modelData.name) {
-          this.updateModelTxtData();
           this.oldFileName = this.modelData.name;
+          if (this.modelData.modelType == "角色模型") {
+            this.$refs.settingPanel_avatar.updateName(this.oldFileName);
+          }
+          this.updateModelTxtData();
         }
       }
       this.ThreejsHumanChat.threeJSfocus();
@@ -672,7 +680,7 @@ export default {
 
             this.tipData.tipContent = "上传完成";
             this.tipData.uploadProgress = "";
-            
+
             setTimeout(() => {
               this.tipData.opening = false;
             }, 2000);
@@ -769,9 +777,9 @@ export default {
 
 
       //上传到本地 或 0SS
-      this.$uploadFile(fromData,(progressEvent)=>{
+      this.$uploadFile(fromData, (progressEvent) => {
         console.log("上传进度 ", progressEvent);
-        let num = ((progressEvent.loaded/progressEvent.total)*100 | 0);
+        let num = ((progressEvent.loaded / progressEvent.total) * 100 | 0);
         this.tipData.uploadProgress = num + '%';
       }).then((res) => {
         console.log(" 上传文件 ", res);

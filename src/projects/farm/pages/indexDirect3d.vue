@@ -218,8 +218,9 @@ import AvatarData from "../data/sceneSetting.js";
 
 //角色动作数据
 // import PlayerAnimData from "../data/playerAnimSetting.js";
-import PlayerAnimData from "../data/playerAnimSkinSetting.js";
+// import PlayerAnimData from "../data/playerAnimSkinSetting.js";
 
+import PlayerAnimData from "../data/platform/playerAnimSetting.js";
 
 
 import Language from "/@/data/zh_cn.js";

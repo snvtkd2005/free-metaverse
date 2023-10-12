@@ -54,24 +54,14 @@ import { YJUVAnim3 } from "./components/YJUVAnim3.js";
 import { YJStaticMeshMerged } from "./YJStaticMeshMerged.js";
 import { YJCar } from "./model/YJCar.js";
 
-import { YJPlayerAnimData } from "./YJPlayerAnimData";
-
 
 class YJSceneManager {
   constructor(scene, renderer, camera, _this, platform, initCallback) {
     let scope = this;
 
-
-    let _YJPlayerAnimData = null
-    this.CreateOrLoadPlayerAnimData = function () {
-
-      if (_YJPlayerAnimData != null) {
-        return _YJPlayerAnimData;
-      }
-      _YJPlayerAnimData = new YJPlayerAnimData(_this, scope);
-      return _YJPlayerAnimData;
+    this.CreateOrLoadPlayerAnimData = function(){
+      return _Global.CreateOrLoadPlayerAnimData();
     }
-
 
     let _YJLoadUserModelManager = null;
     this.GetLoadUserModelManager = function () {

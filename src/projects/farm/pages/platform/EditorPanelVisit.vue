@@ -54,7 +54,7 @@
 <script>
 
 
-import PlayerAnimData from "../../data/playerAnimSkinSetting.js";
+import PlayerAnimData from "../../data/platform/playerAnimSetting.js";
 
 // import playVideo from "./playVideo.vue";
 import playVideo from "./playVideoHLS.vue";

@@ -18,26 +18,9 @@
         {{ item.title }}
       </div>
       <div class=" self-center w-20 ">
-        <div v-if="item.type == 'file'" v-show="item.display" class=" relative flex  gap-2 cursor-pointer  "
-          @click="SelectFile(item, i)">
-          <div class=" absolute right-0 w-auto h-6 rounded-sm bg-gray-50 flex">
-            <div class=" text-xs pl-1 self-center mx-auto w-10 h-4 leading-4  rounded-sm text-black">
-              浏览...
-            </div>
-          </div>
-        </div>
-
-        <div v-if="item.type == 'upload'" v-show="item.display" class=" relative flex  gap-2 cursor-pointer  ">
-          <YJinput_upload class=" w-32 h-16 " :accept="item.accept" :index="i" :callback="item.callback" />
-        </div>
 
         <div v-if="item.type == 'text'" class=" w-32 h-auto text-black ">
           <YJinput_text class=" w-full h-auto " :value="item.value" :index="i" :callback="item.callback" />
-        </div>
-
-        <div v-if="item.type == 'drop'" class=" w-20 h-16 text-black ">
-          <YJinput_drop class=" w-32 h-16 " :value="item.value" :options="item.options" :index="i"
-            :callback="item.callback" />
         </div>
 
         <div v-if="item.type == 'num'" class=" flex gap-2 text-black ">
@@ -51,7 +34,7 @@
 
     <div class="w-full h-5/6 flex text-xs">
       <!-- 左侧动作列表 -->
-      <div class="w-64 px-4">
+      <div class="w-56 px-4">
         <div>模型动作列表</div>
         <div v-for="(item, i) in animations" :key="i" :index="item.clipIndex"
           class="w-full h-8 self-center mx-auto flex mt-4">
@@ -82,7 +65,7 @@
             解绑
           </div>
           <!-- 速度 input -->
-          <div class="mr-2 w-5 h-full">
+          <div class="mr-2 w-5 h-full text-black">
             <input class="w-full h-full px-1" v-model="item.timeScale" type="text" />
           </div>
 
@@ -115,23 +98,12 @@
     </div>
 
 
-    <div class=" mt-10 w-80 h-10 text-white cursor-pointer " @click="load()">
+    <div class=" hidden mt-10 w-80 h-10 text-white cursor-pointer " @click="load()">
       <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">{{ loadContent }}</div>
     </div>
 
     <div class=" mt-2 w-80 h-10 text-white cursor-pointer " @click="save()">
       <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">保存</div>
-    </div>
-
-    <div v-if="inSelect">
-      <div v-for="(item, i) in uvAnimList" :key="i" class="
-                  self-center w-40 h-auto relative
-                ">
-        <div class=" w-40 h-20 self-center mx-auto 
-                  cursor-pointer " @click="ClickUVAnim(item)">
-          <img class=" w-full h-full    object-fill hover:opacity-70 " :src="$uploadUVAnimUrl + item" />
-        </div>
-      </div>
     </div>
 
   </div>
@@ -140,9 +112,6 @@
 <script>
 
 import YJinput_text from "./components/YJinput_text.vue";
-// import YJinput_text from "./components/YJinput_textarea.vue";
-import YJinput_drop from "./components/YJinput_drop.vue";
-import YJinput_upload from "./components/YJinput_upload.vue";
 import YJinput_number from "./components/YJinput_number.vue";
 
 
@@ -150,24 +119,17 @@ export default {
   name: "settingpanel_uvanim",
   components: {
     YJinput_text,
-    YJinput_drop,
-    YJinput_upload,
     YJinput_number,
 
   },
   data() {
     return {
-      chassisWidth: 2.2, //车身宽
 
       settingData: {
-        id: "",
-        name: "unity娘",
+        name: "",
         height: 1.4,
         nameScale: 1,
         modelScale: 1,
-        img: "images/player/13.png",
-        modelType: "角色",
-        modelPath: "models/player/unitychan/unitychan.gltf",
         animationsData: [
           { clipIndex: 0, animName: "idle", timeScale: 1, connected: false, targetIndex: 0 },
           { clipIndex: 1, animName: "walk", timeScale: 2, connected: false, targetIndex: 1 },
@@ -180,11 +142,7 @@ export default {
       selectCurrentIndex: 0,
       animations: [],
 
-      cTime: "",
-      currentTime: "",
-      loading: false,
-      height: 1.7,
-      avatarData: {},
+      // 标准动作模板，无需改变
       animationsData: [
         {
           clipIndex: 0,
@@ -212,17 +170,11 @@ export default {
 
       setting: [
         { property: "height", display: true, title: "高度", type: "num", value: 1.78, step: 0.1, unit: "m", callback: this.ChangeValue },
-        { property: "name", display: true, title: "名字", type: "text", value: "", callback: this.ChangeValue },
+        // { property: "name", display: true, title: "名字", type: "text", value: "", callback: this.ChangeValue },
 
-      ],
-      animOptions: [
-        { label: "idle", value: "idle" },
-        { label: "walk", value: "walk" },
-        { label: "jump", value: "jump" },
       ],
 
       loadContent: "使用",
-      inSelect: false,
     };
   },
   created() {
@@ -231,7 +183,6 @@ export default {
   mounted() {
 
 
-    // _Global.SendMsgTo3D("添加组件", { component: "car", data: this.carData });
     let modelData = JSON.parse(localStorage.getItem("modelData"));
     if (modelData == null) {
       return;
@@ -243,36 +194,52 @@ export default {
 
     console.log(" modelData = ", modelData);
     this.settingData = modelData.message.data;
-
+    this.settingData.name = modelData.name;
     this.initValue();
 
 
   },
   methods: {
 
-    initValue() {
-
+    setSettingItemByProperty(property, value) {
       for (let i = 0; i < this.setting.length; i++) {
         const element = this.setting[i];
-        if (element.property == "url") {
-          element.value = this.settingData.url;
+        if (element.property == property) {
+          element.value = value;
         }
-        // if (element.property == "loadPath") {
-        //   if (this.$parent.updateModelTxtData) {
-        //     element.display = false;
-        //   }
-        // }
+      }
+    },
+    initValue() {
+
+      this.animations = this.settingData.animationsData;
+
+      for (let i = 0; i < this.animationsData.length; i++) {
+        const item = this.animationsData[i];
+        for (let j = 0; j < this.animations.length; j++) {
+          const element = this.animations[j];
+          if (item.animName == element.animName) {
+            item.connected = true;
+          }
+        }
       }
 
-      if (this.settingData.url != "") {
-        setTimeout(() => {
-          this.load();
-        }, 3000);
-      }
+      this.setSettingItemByProperty("height", this.settingData.height);
 
     },
     load() {
       //替换角色控制器控制的角色
+
+    },
+    updateName(v) {
+      this.settingData.name = v;
+      this.$parent.modelData.message = {
+        pointType: "avatar",
+        data: this.settingData
+      };
+
+      // 控制三维
+      this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetSingleModelTransform().
+        GetComponent("Avatar").SetMessage(this.settingData);
     },
     Init(_settingData) {
       this.settingData = _settingData;
@@ -286,24 +253,37 @@ export default {
     },
     ChangeValue(i, e) {
 
-      // return;
-
       this.setting[i].value = e;
-      // https://snvtkd2005.com/socketIOserver/socketIoServer/uploads/1691034641465/1691034641465_thumb.png
-      // https://snvtkd2005.com/vue/dh2/metaverse/public/videos/movieSD.mp4
-
       this.settingData[this.setting[i].property] = e;
 
+      if (this.setting[i].property == "height") {
+        // 控制三维
+        this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetSingleModelTransform().
+          GetComponent("Avatar").SetMessage(this.settingData);
+      }
       console.log(i + " " + this.setting[i].value);
-      // console.log(i + " " + this.setting[i].value + " " + e);
-
-      // 
     },
     save() {
+
+
+      this.settingData.animationsData = [];
+      for (let i = 0; i < this.animations.length; i++) {
+        const element = this.animations[i];
+        this.settingData.animationsData.push(
+          {
+            targetIndex: element.targetIndex,
+            animName: element.connectAnim,
+            localAnimName: element.animName,
+            timeScale: element.timeScale,
+          }
+        );
+      }
+
+
       // 单品中才有 updateModelTxtData
       if (this.$parent.updateModelTxtData) {
         this.$parent.modelData.message = {
-          pointType: "screen",
+          pointType: "avatar",
           data: this.settingData
         };
         this.$parent.updateModelTxtData();
@@ -318,10 +298,21 @@ export default {
       this.$parent.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetTargetHeight(height);
     },
 
+    // 解绑
     Clear(i) {
+
+      for (let index = 0; index < this.animationsData.length; index++) {
+        const element = this.animationsData[index];
+        if (element.animName == this.animations[i].connectAnim) {
+          element.connected = false;
+        }
+      }
+
       this.animations[i].connectAnim = "";
       this.animations[i].targetIndex = -1;
-      this.UpdateBaseAnimState();
+
+ 
+
     },
     ChangeAnim(i) {
       this.selectCurrentIndex = i;
@@ -333,58 +324,55 @@ export default {
       }
     },
     SelectBaseAnim(i) {
-      this.animations[this.selectCurrentIndex].connectAnim =
-        this.animationsData[i].animName;
-      this.animations[this.selectCurrentIndex].targetIndex = i;
+
+      // 清除其他按钮的状态
+      for (let index = 0; index < this.animationsData.length; index++) {
+        const element = this.animationsData[index];
+        if (element.animName == this.animations[this.selectCurrentIndex].connectAnim) {
+          element.connected = false;
+        }
+      }
+
+      this.animations[this.selectCurrentIndex].connectAnim = this.animationsData[i].animName;
+      this.animations[this.selectCurrentIndex].targetIndex = this.animations[this.selectCurrentIndex].clipIndex;
+      this.animationsData[i].connected = true;
       this.animationsData[i].targetIndex =
         this.animations[this.selectCurrentIndex].clipIndex;
 
-      this.UpdateBaseAnimState();
-    },
-    UpdateBaseAnimState() {
-      let selected = [];
-      for (let index = 0; index < this.animations.length; index++) {
-        const element = this.animations[index];
-        if (element.targetIndex != -1) {
-          selected.push({
-            clipIndex: element.targetIndex,
-            targetIndex: element.clipIndex,
-          });
-        }
-      }
 
-      for (let index = 0; index < this.animationsData.length; index++) {
-        const element = this.animationsData[index];
-        element.connected = false;
-        element.targetIndex = -1;
-      }
-
-      for (let index = 0; index < selected.length; index++) {
-        const element = selected[index];
-        this.animationsData[element.clipIndex].connected = true;
-        this.animationsData[element.clipIndex].targetIndex =
-          element.targetIndex;
-        if (element.timeScale == undefined) {
-          element.timeScale = 1;
-        }
-        this.animationsData[element.clipIndex].timeScale = element.timeScale;
-      }
-    },
+    }, 
     SetAvatar(avatar) {
       this.avatar = avatar.GetComponent("Animator");
       let animations = this.avatar.GetAnimation();
       if (animations.length > 0) {
+        let temp = [];
         for (let i = 0; i < animations.length; i++) {
-          this.animations.push({
-            clipIndex: i, timeScale: 1, connected: false, targetIndex: i,
+          temp.push({
+            clipIndex: i, timeScale: 1, connected: false, targetIndex: -1,
+            connectAnim: "",
             animName: animations[i].name
           });
         }
+        if (this.animations.length == 0) {
+        } else {
+          for (let i = 0; i < this.animations.length; i++) {
+            const item = this.animations[i];
+            for (let j = 0; j < temp.length; j++) {
+              const element = temp[j];
+              if (element.animName == item.localAnimName) {
+                element.connectAnim = item.animName;
+                element.connected = true;
+                element.targetIndex = item.targetIndex;
+                element.timeScale = item.timeScale;
+              }
+            }
+          }
+        }
+        this.animations = temp;
         this.ChangeAnim(0);
         console.log("设置 animations ", this.animations);
 
       }
-      this.loading = false;
     },
     Update() {
 
@@ -392,7 +380,7 @@ export default {
 
       this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.UpdateTransform(
         {
-          pointType: "screen",
+          pointType: "avatar",
           data: this.settingData
         }
       );
@@ -401,16 +389,6 @@ export default {
         this.$parent.updateSceneModelData();
       }
 
-
-    },
-    SelectFile(item) {
-      console.log(" ", item);
-      if (item.title == '选择UV图') {
-        this.inSelect = true;
-        this.RequestGetAllUVAnim();
-      }
-    },
-    async RequestGetAllUVAnim() {
 
     },
 

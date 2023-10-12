@@ -23,6 +23,8 @@ export const UploadFile = (data,progress) => {
         onUploadProgress:progress,
     });
 }
+
+// 获取单品模型数据
 export const GetAllModel = () => {
     return Fetch({
         method: "get",
@@ -30,6 +32,7 @@ export const GetAllModel = () => {
         // data: data,
     });
 }
+
 
 export const UploadPlayerFile = (data) => {
     return Fetch({

@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
-
+ 
+import { YJPlayerAnimData } from "/@/threeJS/YJPlayerAnimData.js";
 
 // Threejs 中的事件传出接口
 
@@ -19,7 +20,19 @@ class Interface {
     function init() {
       _Global.isSupportedHls = Hls.isSupported();
     }
+
     init();
+
+    let _YJPlayerAnimData = null
+    this.CreateOrLoadPlayerAnimData = function () {
+      if (_YJPlayerAnimData != null) {
+        return _YJPlayerAnimData;
+      }
+      _YJPlayerAnimData = new YJPlayerAnimData(_this);
+      return _YJPlayerAnimData;
+    }
+    _Global.CreateOrLoadPlayerAnimData = this.CreateOrLoadPlayerAnimData;
+
 
     // 向3d页发送
     this.SendMsgTo3D = (type, msg) => {

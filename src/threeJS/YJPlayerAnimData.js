@@ -1,16 +1,10 @@
-import * as THREE from "three";
-
-import { YJLoadModel } from "./YJLoadModel";
-
-import TWEEN from '@tweenjs/tween.js';
-import { Vector3 } from "three";
 
 import { createAnimationClip } from "/@/utils/utils_threejs.js";
 
-// 矩形序列 A x B
+// 读取模型的动作数据
 
 class YJPlayerAnimData {
-  constructor(_this, _YJSceneManager, modelPath, pos, rota, size) {
+  constructor(_this) {
     let scope = this;
     let PlayerAnimData;
     function Init() {
@@ -23,6 +17,7 @@ class YJPlayerAnimData {
       if (_this.$parent.$parent.GetPlayerAnimData) {
         PlayerAnimData = _this.$parent.$parent.GetPlayerAnimData();
       }
+      console.log(" in yj PlayerAnimData ", PlayerAnimData);
       scope.GetAllAnim(PlayerAnimData.defaultUser.avatarName);
     }
 
@@ -56,7 +51,7 @@ class YJPlayerAnimData {
               // _this.GetPublicUrl() + element.path
               let path = (_this.$uploadPlayerUrl + "farmplayer/" + element.path);
               // console.log("加载扩展动作 ",path);
-              _YJSceneManager.LoadAssset(path, (data) => { 
+              this.LoadAssset(path, (data) => { 
                 if (callback) {
                   callback(element.isLoop,createAnimationClip(animName, data));
                 }
@@ -65,6 +60,16 @@ class YJPlayerAnimData {
           }
         }
       }
+    }
+
+    async function loadAssset(path, callback) {
+      const res = await _this.$axios.get(path);
+      if (callback) {
+        callback(res.data);
+      }
+    }
+    this.LoadAssset = function (path, callback) {
+      loadAssset(path, callback);
     }
 
 
@@ -123,7 +128,9 @@ class YJPlayerAnimData {
       }
     }
 
-
+    this.AddAvatarData = function(avatarData){
+      PlayerAnimData.avatarData.push(avatarData);
+    }
 
 
     this.GetAllExtendAnim = function (playerName) {

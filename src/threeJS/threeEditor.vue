@@ -616,6 +616,8 @@ export default {
       if (this.hasStats) {
         stats = new Stats();
         stats.domElement.style.position = "absolute";
+        stats.domElement.style.width = "80px";
+        stats.domElement.style.height = "48px";
         stats.domElement.style.right = "10px";
         stats.domElement.style.top = "100px";
         stats.domElement.style.zIndex = "9999";

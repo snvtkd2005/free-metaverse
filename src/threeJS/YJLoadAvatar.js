@@ -146,9 +146,7 @@ class YJLoadAvatar {
           });
           // scene.add(playerObj); 
 
-          playerObj.position.set(0, 0, 0); //原点位置
-          // playerObj.rotation.set(0, 3.14/2, 0); // 
-          // playerObj.rotation.set(0, 3.14, 0); // 
+          playerObj.position.set(0, 0, 0); //原点位置 
           playerObj.rotation.set(0, 0, 0); // 
           let size = 0.01;
           playerObj.scale.set(size, size, size); //原点位置

@@ -115,7 +115,9 @@ class YJPlayer {
       modelPath = avatarData.modelPath;
       playerHeight = avatarData.height;
       modelScale = avatarData.modelScale;
-
+      if (modelPath.indexOf("fbx") > -1) {
+        modelScale = modelScale * 0.01;
+      } 
       nameScale = avatarData.nameScale;
       // 动作数据
       animationsData = avatarData.animationsData;
@@ -200,10 +202,15 @@ class YJPlayer {
         avatar.ChangeAnim("idle");
       }
 
+      if( modelPath.includes("http")){
+      }else{
+        modelPath =  _this.GetPublicUrl() + modelPath;
+      }
+
       mountAvatar = new YJLoadAvatar(
         _this,
         group,
-        _this.GetPublicUrl() + modelPath,
+         modelPath,
         animationsData,
         scope,
         (_playerObj) => {
@@ -275,13 +282,16 @@ class YJPlayer {
     function LoadAvatar(modelPath, height, animationsData) {
       playerHeight = height;
 
-
+      if( modelPath.includes("http")){
+      }else{
+        modelPath =  _this.GetPublicUrl() + modelPath;
+      }
 
       // console.log("加载角色0",modelPath,animationsData);
       avatar = new YJLoadAvatar(
         _this,
         _this.scene,
-        _this.GetPublicUrl() + modelPath,
+         modelPath,
         animationsData,
         scope,
         (_playerObj) => {

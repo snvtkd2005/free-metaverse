@@ -11,7 +11,7 @@
         <input ref="nickNameInput" class="  
                            rounded-lg shadow-sm
                             h-full
-                            w-24
+                            w-auto
                             px-2
                             outline-none
                           " v-model="userName" :placeholder="enterUserName" />
@@ -40,13 +40,15 @@ export default {
   mounted() {
     if (localStorage.getItem("userName")) {
       this.userName = localStorage.getItem("userName");
+    }else{
+      this.userName = "理想国居民-"+ parseInt( Math.random()*10000) +""+ parseInt( Math.random()*10000);
+      localStorage.setItem("userName", this.userName);
     }
 
     //输入框重新获取焦点
     this.$refs.nickNameInput.focus();
     this.$refs.nickNameInput.addEventListener('input', () => {
       localStorage.setItem("userName", this.userName);
-
       this.callback(this.userName);
     });
 

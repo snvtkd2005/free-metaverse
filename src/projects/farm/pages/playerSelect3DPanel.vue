@@ -65,6 +65,9 @@ export default {
       //加载3d模型
       this._YJ3dScene.ChangeAvatarByCustom(this._YJ3dScene.CreateOrLoadPlayerAnimData().GetAvatarData(selectPlayerName),callback);
     },
+    AddAvatarData (avatarData){
+      this._YJ3dScene.CreateOrLoadPlayerAnimData().AddAvatarData(avatarData);
+    },
     GetFaceModel() {
       this._YJ3dScene.GetFaceModel();
     },

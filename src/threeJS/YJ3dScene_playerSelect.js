@@ -429,16 +429,22 @@ class YJ3dScene_playerSelect {
     // 此函数用来做npc
     this.ChangeAvatarByCustom = function (avatarData, callback) {
       clearGroup(group);
-
+      console.log(" 加载角色 ", avatarData);
       playerHeight = avatarData.height;
       playerName = avatarData.name;
+      let modelPath = "";
+      if( avatarData.modelPath.includes("http")){
+        modelPath = avatarData.modelPath;
+      }else{
+        modelPath =  _this.GetPublicUrl() + avatarData.modelPath;
+      }
       // console.log("切换角色11 高度为 ", playerHeight);
       SetViewHeight();
       if (avatar == null) {
         avatar = new YJLoadAvatar(
           _this,
           scene,
-          _this.GetPublicUrl() + avatarData.modelPath,
+         modelPath ,
           avatarData.animationsData,
           scope,
           (_playerObj) => {
@@ -481,7 +487,7 @@ class YJ3dScene_playerSelect {
       } else {
 
         avatar.ChangeAvatar(
-          _this.GetPublicUrl() + avatarData.modelPath,
+          modelPath ,
           avatarData.animationsData,
           (_playerObj) => {
             // console.log(" 加载角色完成 ===");
@@ -553,7 +559,7 @@ class YJ3dScene_playerSelect {
       collider = new THREE.Mesh(geometry, material);
       playerGroup.add(collider);
 
-    }
+    } 
 
     this.GetFaceModel = () => {
       avatar.GetFaceModel();

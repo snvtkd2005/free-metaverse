@@ -12,8 +12,8 @@
             ">
     <div class=" text-left ">角色设置</div>
 
-    <div v-for="(item, i) in setting" :key="i" class=" text-xs  text-left flex w-80 h-auto mb-2     ">
-      <div class=" self-center w-40  truncate">
+    <div v-for="(item, i) in setting" :key="i" class=" text-xs  text-left flex justify-between w-80 h-auto mb-2     ">
+      <div class=" self-center w-48  truncate">
         {{ item.title }}
       </div>
       <div class=" self-center w-20 ">
@@ -219,7 +219,7 @@ export default {
 
         { property: "animName", title: "动作名", type: "text", value: "", callback: this.ChangeValue },
         { property: "isLoop", title: "是否循环", type: "toggle", value: true, callback: this.ChangeValue },
-        { property: "path", title: "动作", type: "upload", value: "none", callback: this.ChangeValue },
+        { property: "path", title: "动作(上传记录动作信息的json文件)", type: "upload", value: "none", callback: this.ChangeValue },
 
       ],
 

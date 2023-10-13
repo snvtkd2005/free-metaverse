@@ -26,6 +26,7 @@ import { YJCar } from "./model/YJCar.js";
 import { YJTrigger } from "./YJTrigger.js";
 import YJParticle from "./components/YJParticle";
 import { YJAvatar } from "./loader/YJAvatar";
+import { YJNPC } from "./loader/YJNPC";
 // 加载静态物体
 class YJLoadUserModelManager {
   constructor(_this, scene, camera, callback) {
@@ -331,7 +332,34 @@ class YJLoadUserModelManager {
         }, (e) => {
           LoadError(uuid, callback, e);
         });
-      } else if (modelData.modelType == "uv模型") {
+      }else if (modelData.modelType == "NPC模型") {
+
+
+        modelPath = modelData.message.data.avatarData.modelPath;
+        MeshRenderer.load(modelPath, (scope) => {
+          let component = new YJAnimator(scope.GetModel(), scope.GetAnimations());
+          object.AddComponent("Animator", component);
+
+          let avatar = new YJAvatar(_this, object.GetGroup(), component);
+          object.AddComponent("Avatar", avatar); 
+
+          let NPC = new YJNPC(_this, object.GetGroup(),avatar);
+          object.AddComponent("NPC", NPC);
+          if (modelData.message != undefined) {
+            if (modelData.message.pointType == "npc") {
+              avatar.SetMessage(modelData.message.data.avatarData);
+              NPC.SetMessage(modelData.message.data);
+            }
+          }
+
+
+          if (callback) {
+            callback(object);
+          }
+        }, (e) => {
+          LoadError(uuid, callback, e);
+        });
+      }  else if (modelData.modelType == "uv模型") {
         MeshRenderer.load(modelPath, (scope) => {
           let uvanim = new YJUVAnim3(_this);
           object.AddComponent("UVAnim", uvanim);

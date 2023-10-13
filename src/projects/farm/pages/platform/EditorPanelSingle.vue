@@ -81,6 +81,11 @@
       <div v-if="panelState.avatar" class=" mt-10  w-80 border-t max-w-md  ">
         <settingPanel_avatar ref="settingPanel_avatar" />
       </div>
+
+      <div v-if="panelState.npc" class=" mt-10  w-80 border-t max-w-md  ">
+        <settingPanel_npc ref="settingPanel_npc" />
+      </div>
+
       <!-- <div class=" mt-10 w-80 h-10 border-t text-white cursor-pointer " @click.stop="inAddComponent=true;">
         <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">Add Component</div>
       </div>
@@ -100,6 +105,7 @@
     <!-- 截图区域安全区域 -->
     <PanelCut @cancel="CancelCut" ref="PanelCut" />
 
+    <modelPanel ref="modelPanel" />
 
     <!-- 与后台交互的操作提示 -->
     <!---->
@@ -134,6 +140,7 @@ import YJmetaBase from "./YJmetaBase.vue";
 
 import PanelCut from "./PanelCut.vue";
 
+import modelPanel from "./modelSelectPanel.vue";
 // 加载进度页
 import loadingPanel from "./loadingPanel2.vue";
 import settingPanel_uvAnim from "./settingPanel_uvAnim.vue";
@@ -143,6 +150,7 @@ import settingPanel_player from "./settingPanel_player.vue";
 import settingPanel_screen from "./settingPanel_screen.vue";
 import settingPanel_particle from "./settingPanel_particle.vue";
 import settingPanel_avatar from "./settingPanel_avatar.vue";
+import settingPanel_npc from "./settingPanel_npc.vue";
 
 import addComponent from "./components/addComponent.vue";
 
@@ -156,6 +164,7 @@ export default {
   components: {
     loadingPanel,
     YJmetaBase,
+    modelPanel,
     settingPanel_uvAnim,
     settingPanel_car,
     settingPanel_weapon,
@@ -163,6 +172,7 @@ export default {
     settingPanel_screen,
     settingPanel_particle,
     settingPanel_avatar,
+    settingPanel_npc,
     addComponent,
     PanelCut,
   },
@@ -180,6 +190,7 @@ export default {
         screen: false,
         particle: false,
         avatar: false,
+        npc: false,
       },
       hover: false,
       infloating: false,
@@ -356,6 +367,11 @@ export default {
         this.ChangePanel("car");
       }
 
+      if (this.modelData.modelType == "NPC模型") {
+        this.ChangePanel("npc");
+        this.$refs.modelPanel.Init("角色模型");
+
+      }
       if (this.modelData.modelType == "装备模型") {
         this.ChangePanel("weapon");
         setTimeout(() => {
@@ -445,6 +461,10 @@ export default {
               }
               return;
             }
+          }
+
+          if (callback) {
+            callback();
           }
         }
       });
@@ -1057,17 +1077,9 @@ export default {
         let userd = false;
         if (b && !this.InDriving) {
           userd = this._SceneManager.SetCar(owner);
-
-          // setTimeout(() => {
-          //   this.InCar();
-          // }, 1000);
         } else {
           this._SceneManager.SetCar(null);
         }
-
-        // if (this.$refs.modelPanel && !userd && !this.InDriving) {
-        //   this.$refs.modelPanel.CallDriving(b);
-        // }
       }
     },
 

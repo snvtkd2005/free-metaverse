@@ -123,7 +123,7 @@ export default {
 
     this.path = this.$uploadUrl;
 
-    this.modelTable = this.UIData.customPanel.modelTemplate; 
+    this.modelTable = this.UIData.customPanel.selectModel; 
 
     // console.log(" this.path ", this.path);
     // console.log(" this.modelsList ", this.modelsList);
@@ -152,18 +152,33 @@ export default {
         console.log("获取所有单品模型 ", res);
         //先记录旧照片
         if (res.data.txtDataList) {
-          let txtDataList = res.data.txtDataList;
-          for (let i = 0; i < txtDataList.length; i++) {
+          let txtDataList = res.data.txtDataList; 
 
+          let modelsList = [];
+          for (let i = 0; i < txtDataList.length; i++) {
             let element = txtDataList[i];
-            try { 
-              this.modelsList.push(JSON.parse(element));
+            try {
+              modelsList.push(JSON.parse(element));
             } catch (error) {
               element = element.substring(1);
-              this.modelsList.push(JSON.parse(element));
+              modelsList.push(JSON.parse(element));
             }
-
           }
+
+          
+          for (let i = 0; i < modelsList.length; i++) {
+            let item = modelsList[i];
+            if (item.modelType == "角色模型") {
+              // 到角色数据中，模型路径、动画数据
+              let data = item.message.data;
+              data.modelPath = this.$uploadUrl + item.modelPath;
+              _Global.CreateOrLoadPlayerAnimData().AddAvatarData(data);
+            }else{
+              this.modelsList.push(item);
+            }
+          }
+
+
         }
       });
     },

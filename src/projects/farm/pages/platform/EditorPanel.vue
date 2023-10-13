@@ -110,7 +110,7 @@
 <script>
 
 
-import PlayerAnimData from "../../data/playerAnimSkinSetting.js";
+import PlayerAnimData from "../../data/platform/playerAnimSetting.js";
 
 
 import YJmetaBase from "./YJmetaBase.vue";

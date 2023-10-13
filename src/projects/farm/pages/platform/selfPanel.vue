@@ -319,8 +319,12 @@
         <!-- 模板选择 单品 -->
         <div v-if="createForm.title == tableList[1].content" class="mt-4 grid grid-cols-5 gap-4">
           <div v-for="(item, i) in modelTemplate" :key="i" class="self-center w-auto h-auto relative">
-            <div class="w-32 h-32 self-center mx-auto cursor-pointer" @click="createForm.template = item.name">
+            <div class=" w-12 h-12 self-center mx-auto cursor-pointer relative " @click="selectTempleHandle(item)">
               <img class="w-full h-full object-fill hover:opacity-70" />
+
+              <div v-if="createForm.template == item.name" class="absolute -top-1 -right-2">
+                <img class="w-2 h-2 xl:w-6 xl:h-6 object-fill" :src="publicUrl + 'images/spUI/select.png'" />
+              </div>
             </div>
             <div class="mt-2 px-2 flex text-sm justify-between cursor-pointer">
               <div class="mx-auto">{{ item.name }}</div>
@@ -338,17 +342,18 @@
               <div>{{ item.content }}</div>
             </div>
 
-            <div v-if="createForm.template == item.name" class="absolute bottom-2 -right-2">
-              <img class="w-4 h-4 xl:w-full xl:h-full object-fill" :src="publicUrl + 'images/spUI/select.png'" />
-            </div>
           </div>
         </div>
 
         <!-- 模板选择 场景 -->
         <div v-if="createForm.title == tableList[0].content" class="mt-4 flex gap-5">
           <div v-for="(item, i) in sceneTemplate" :key="i" class="self-center w-auto h-auto relative">
-            <div class="w-32 h-32 self-center mx-auto cursor-pointer" @click="createForm.template = item.name">
+            <div class="w-12 h-12 self-center mx-auto cursor-pointer relative" @click="createForm.template = item.name">
               <img class="w-full h-full object-fill hover:opacity-70" />
+              
+              <div v-if="createForm.template == item.name" class="absolute -top-1 -right-2">
+                <img class="w-2 h-2 xl:w-6 xl:h-6 object-fill" :src="publicUrl + 'images/spUI/select.png'" />
+              </div>
             </div>
             <div class="mt-2 px-2 flex text-sm justify-between cursor-pointer">
               <div class="mx-auto">{{ item.name }}</div>
@@ -365,15 +370,12 @@
               ">
               <div>{{ item.content }}</div>
             </div>
-
-            <div v-if="createForm.template == item.name" class="absolute -bottom-2 -right-2">
-              <img class="w-4 h-4 xl:w-full xl:h-full object-fill" :src="publicUrl + 'images/spUI/select.png'" />
-            </div>
+ 
           </div>
         </div>
 
-        <div class="h-full"></div>
-        <div class="w-full h-12 text-xl flex">
+        <div class=" mt-2 text-left w-auto h-full">描述:{{ createForm.content }}</div>
+        <div class="w-full h-12 text-xl flex mt-4 ">
           <div class="
               self-center
               mx-auto
@@ -594,6 +596,10 @@ export default {
     this.RequestGetAllUVAnim();
   },
   methods: {
+    selectTempleHandle(item) {
+      this.createForm.template = item.name;
+      this.createForm.content = item.content;
+    },
     uploadOk(e) {
       if (e == "UVAnim") {
         this.inUploadUVAnimfloating = false;
@@ -815,10 +821,12 @@ export default {
 
       if (e == this.tableList[0].content) {
         this.createForm.template = this.sceneTemplate[0].name;
+        this.createForm.content = this.sceneTemplate[0].content;
       }
 
       if (e == this.tableList[1].content) {
         this.createForm.template = this.modelTemplate[0].name;
+        this.createForm.content = this.modelTemplate[0].content;
       }
     },
     CreateNewOK() {

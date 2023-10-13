@@ -129,6 +129,12 @@ class YJPlayerAnimData {
     }
 
     this.AddAvatarData = function(avatarData){
+      for (let i = 0; i < PlayerAnimData.avatarData.length; i++) {
+        const element = PlayerAnimData.avatarData[i];
+        if(element.name == avatarData.name){
+          return;
+        }
+      }
       PlayerAnimData.avatarData.push(avatarData);
     }
 

@@ -6,10 +6,14 @@ import { createText } from 'three/examples/jsm/webxr/Text2D.js';
 
 // 可控 角色
 // 实现显示头顶姓名条、血条
-// 控制 _YJAnimator  动画播放
+// 控制 animator  动画播放
+// 1，头顶上方有 感叹号 ，表示可交互
+// 2，交互方式为：靠近弹出交互内容，远离交互内容消失
+// 3，制作碰撞区域
+// 4，设置 交互内容，图、文、视频
 
-class YJAvatar {
-  constructor(_this, scene, _YJAnimator) {
+class YJNPC {
+  constructor(_this,scene, _YJAvatar) {
     var scope = this;
  
     let group = null;
@@ -188,11 +192,11 @@ class YJAvatar {
     // NPC行为树、状态机
     function ChangeAnim(state) {
       if (state == "行走") {
-        _YJAnimator.ChangeAnim("walk");
+        animator.ChangeAnim("walk");
 
       }
       if (state == "停止") {
-        _YJAnimator.ChangeAnim("idle");
+        animator.ChangeAnim("idle");
         // 延迟3秒，从当前位置移动到设定路线的其他坐标
 
         setTimeout(() => {
@@ -328,4 +332,4 @@ class YJAvatar {
   }
 }
 
-export { YJAvatar };
+export { YJNPC };

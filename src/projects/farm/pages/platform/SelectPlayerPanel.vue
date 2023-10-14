@@ -2,100 +2,166 @@
 
 // 游戏开始前的 角色选择界面
 <template>
-  <div class=" w-full h-full bg-white  overflow-hidden ">
-
-    <div class=" hidden  absolute top-0 left-0 cutimg overflow-hidden">
+  <div class="w-full h-full bg-white overflow-hidden">
+    <div class="hidden absolute top-0 left-0 cutimg overflow-hidden">
       <canvas id="nowcanvas" class=""> </canvas>
     </div>
 
-
-
-
     <!-- 角色选择 和 场景选择 -->
-    <div class="absolute top-10 xl:top-20 left-10 xl:left-20 z-60 w-64 xl:w-auto h-auto  ">
+    <div
+      class="
+        absolute
+        top-10
+        xl:top-20
+        left-10
+        xl:left-20
+        z-60
+        w-64
+        xl:w-auto
+        h-auto
+      "
+    >
       <!-- 角色选择 -->
-      <div class="
-                                  xl:w-auto
-                                  w-auto
-                                  h-auto  
-                                  self-center
-                                  mx-auto 
-                                ">
-
-        <div class=" flex mb-2 xl:mb-5 origin-top-left w-32 xl:w-auto text-3xl font-bold ">
+      <div class="xl:w-auto w-auto h-auto self-center mx-auto">
+        <div
+          class="
+            flex
+            mb-2
+            xl:mb-5
+            origin-top-left
+            w-32
+            xl:w-auto
+            text-3xl
+            font-bold
+          "
+        >
           可选Avatar
         </div>
 
         <!-- 列表 -->
-        <div class="
-   
-                                     
-                                    w-full
-                                   max-w-2xl
-                                   h-16
-                                   gap-3 xl:gap-10
-                                    xl:h-2/3
-                                   justify-items-start
-                                   grid grid-cols-4
-                                  ">
-          <div v-for="(item, i) in playerImgPath" :key="i" :index="item.img" class="
-                                      w-16 h-16
-                                  xl:w-32 xl:h-32
-                                   transform
-                                     hover:scale-110
-                                      self-center
-                                      mx-auto 
-                                      cursor-pointer
-                                      flex
-                                     relative
-                                    " :class="selectPlayerName == item.name ? ' ' : ' '"
-            @click="SelectAvatar(item.name)">
-            <div class=" self-center mx-auto  w-full h-full rounded-full ">
-              <img class=" w-full h-full rounded-full " :src="item.img" />
+        <div
+          class="
+            w-full
+            max-w-2xl
+            h-16
+            gap-3
+            xl:gap-10 xl:h-2/3
+            justify-items-start
+            grid grid-cols-4
+          "
+        >
+          <div
+            v-for="(item, i) in playerImgPath"
+            :key="i"
+            :index="item.img"
+            class="
+              w-16
+              h-16
+              xl:w-32 xl:h-32
+              transform
+              hover:scale-110
+              self-center
+              mx-auto
+              cursor-pointer
+              flex
+              relative
+            "
+            :class="selectPlayerName == item.name ? ' ' : ' '"
+            @click="SelectAvatar(item.name)"
+          >
+            <div class="self-center mx-auto w-full h-full rounded-full">
+              <img class="w-full h-full rounded-full" :src="item.img" />
             </div>
-            <div v-if="selectPlayerName == item.name" class=" absolute bottom-0 right-0 ">
-              <img class=" w-4 h-4 xl:w-full xl:h-full object-fill" :src="publicUrl + 'images/spUI/select.png'" />
+            <div
+              v-if="selectPlayerName == item.name"
+              class="absolute bottom-0 right-0"
+            >
+              <img
+                class="w-4 h-4 xl:w-full xl:h-full object-fill"
+                :src="publicUrl + 'images/spUI/select.png'"
+              />
             </div>
           </div>
         </div>
       </div>
-
     </div>
-
 
     <!-- 右侧角色模型展示 -->
-    <div class="   absolute z-20 right-0 top-0 w-full md:w-1/2 h-full overflow-hidden   ">
-      <playerSelect3DPanel id="contain" class=" w-full h-full " ref="playerSelect3DPanel"></playerSelect3DPanel>
-      <YJinputPlayerName class="absolute bottom-16 md:bottom-6 xl:bottom-2 w-full h-16" :callback="ChangeNickName" />
+    <div
+      class="absolute z-20 right-0 top-0 w-full md:w-1/2 h-full overflow-hidden"
+    >
+      <playerSelect3DPanel
+        id="contain"
+        class="w-full h-full"
+        ref="playerSelect3DPanel"
+      ></playerSelect3DPanel>
+      <YJinputPlayerName
+        class="absolute bottom-16 md:bottom-6 xl:bottom-2 w-full h-16"
+        :callback="ChangeNickName"
+      />
       <!-- 角色换装选择  -->
-      <div class="  absolute z-30 left-10 top-10 w-1/2 xl:w-1/2 h-full overflow-hidden pointer-events-none text-black ">
-        <SkinPanel class=" w-full h-full " ref="SkinPanel" :skinData="skinData"></SkinPanel>
+      <div
+        class="
+          absolute
+          z-30
+          left-10
+          top-10
+          w-1/2
+          xl:w-1/2
+          h-full
+          overflow-hidden
+          pointer-events-none
+          text-black
+        "
+      >
+        <SkinPanel
+          class="w-full h-full"
+          ref="SkinPanel"
+          :skinData="skinData"
+        ></SkinPanel>
       </div>
 
-      <div v-if="needEnter" class=" absolute w-full bottom-4 mt-10 text-black ">
-        <div class=" px-2 inline-block rounded-lg shadow-md  bg-blue-100 " @click="ClickeSelectOK()">
+      <div v-if="needEnter" class="absolute w-full bottom-4 mt-10 text-black">
+        <div
+          class="px-2 inline-block rounded-lg shadow-md bg-blue-100"
+          @click="ClickeSelectOK()"
+        >
           进入元宇宙
         </div>
-
-      </div>
-
-    </div>
-
-    <div class=" hidden xl:flex  absolute z-20 right-4 top-20  text-black overflow-hidden  ">
-      <YJinput_drop class=" w-32 h-16 " :value="animValue" :options="animList" :callback="ChangeAnim" />
-
-      <div v-if="this.selectPlayerName == '小孩'" class=" mt-2 w-32 h-10 text-white cursor-pointer "
-        @click="editorPlayer()">
-        <div class=" mt-2 bg-445760 rounded-md inline-block px-6 py-1 ">编辑</div>
       </div>
     </div>
 
+    <div
+      class="
+        hidden
+        xl:flex
+        absolute
+        z-20
+        right-4
+        top-20
+        text-black
+        overflow-hidden
+      "
+    >
+      <YJinput_drop
+        class="w-32 h-16"
+        :value="animValue"
+        :options="animList"
+        :callback="ChangeAnim"
+      />
+
+      <div
+        v-if="this.selectPlayerName == '小孩'"
+        class="mt-2 w-32 h-10 text-white cursor-pointer"
+        @click="editorPlayer()"
+      >
+        <div class="mt-2 bg-445760 rounded-md inline-block px-6 py-1">编辑</div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-
-
 //角色动作数据
 import PlayerAnimData from "../../data/platform/playerAnimSetting.js";
 
@@ -118,10 +184,8 @@ export default {
   },
   data() {
     return {
-
       animValue: "idle",
       animList: [],
-
 
       skinData: {},
 
@@ -129,9 +193,8 @@ export default {
         content: {
           enterUserName: "输入昵称",
           selectOK: "进入元宇宙",
-        }
+        },
       },
-
 
       selectPlayerName: "小孩",
 
@@ -146,8 +209,6 @@ export default {
   },
   created() {
     this.avatarData = PlayerAnimData;
-
-
   },
 
   mounted() {
@@ -169,18 +230,16 @@ export default {
       this.needEnter = true;
     }
 
-      this.selectPlayerName = this.avatarData.defaultUser.avatarName;
-
+    this.selectPlayerName = this.avatarData.defaultUser.avatarName;
 
     console.log("  this.selectPlayerName =  ", this.selectPlayerName);
 
-
     this.$refs.playerSelect3DPanel.SelectAvatar(this.selectPlayerName);
 
-
     setTimeout(() => {
-
-      this.skinData = this.$refs.playerSelect3DPanel.GetAvatarData(this.selectPlayerName).skinData;
+      this.skinData = this.$refs.playerSelect3DPanel.GetAvatarData(
+        this.selectPlayerName
+      ).skinData;
       if (this.skinData != undefined && this.skinData.length > 1) {
         setTimeout(() => {
           this.UpdateSkin(localStorage.getItem("playerState"));
@@ -192,15 +251,10 @@ export default {
       this.updateAnimList(this.selectPlayerName);
     }, 100);
 
-
-
-
-
-    window.addEventListener('keydown', this._onKeyDown);
+    window.addEventListener("keydown", this._onKeyDown);
     this.GetServerAvatar();
   },
   methods: {
-
     GetServerAvatar() {
       this.RequestModelByModelType("角色模型", (avatarList) => {
         console.log(" 获取所有用户上传的角色模型 ", avatarList);
@@ -257,7 +311,7 @@ export default {
       let item = {
         folderBase: "farmplayer",
         modelType: "角色",
-      }
+      };
       localStorage.setItem("modelData", JSON.stringify(item));
       let path = "/editorSingle";
       _Global.reloadTimes = 1;
@@ -272,12 +326,17 @@ export default {
     },
     updateAnimList(selectPlayerName) {
       this.animList = [];
-      this.$refs.playerSelect3DPanel.GetAllAnim(selectPlayerName, (_animList) => {
-        for (let i = 0; i < _animList.length; i++) {
-          const element = _animList[i];
-          this.animList.push({ value: element, label: element });
+      this.$refs.playerSelect3DPanel.GetAllAnim(
+        selectPlayerName,
+        (_animList) => { 
+          for (let i = 0; i < _animList.length; i++) {
+            const element = _animList[i];
+            if (element != "") {
+              this.animList.push({ value: element, label: element });
+            }
+          }
         }
-      });
+      );
     },
     GetPlayerAnimData() {
       return PlayerAnimData;
@@ -312,14 +371,28 @@ export default {
       }
       // console.log(" 脸部原始贴图路径 ", faceSourcePath);
       //换装
-      this.$refs.playerSelect3DPanel.ChangeSkin(targetPath, part, mode, faceSourcePath);
+      this.$refs.playerSelect3DPanel.ChangeSkin(
+        targetPath,
+        part,
+        mode,
+        faceSourcePath
+      );
       if (part == "eye") {
-        this.$refs.playerSelect3DPanel.ChangeSkin(targetPath, "Face", mode, faceSourcePath);
-        this.$refs.playerSelect3DPanel.ChangeSkin(faceAddPath, "Face", "addTexture", faceSourcePath);
+        this.$refs.playerSelect3DPanel.ChangeSkin(
+          targetPath,
+          "Face",
+          mode,
+          faceSourcePath
+        );
+        this.$refs.playerSelect3DPanel.ChangeSkin(
+          faceAddPath,
+          "Face",
+          "addTexture",
+          faceSourcePath
+        );
       }
 
       localStorage.setItem("playerState", state);
-
     },
     UpdateSkin(playerState) {
       if (playerState == null || playerState == undefined) {
@@ -327,7 +400,7 @@ export default {
         return;
       }
 
-      let sp = playerState.split('_');
+      let sp = playerState.split("_");
       for (let i = 0; i < this.skinData.length; i++) {
         this.skinData[i].selected = parseInt(sp[i]);
       }
@@ -349,42 +422,63 @@ export default {
         }
       }
 
-
       for (let i = 0; i < this.skinData.length; i++) {
         const element = this.skinData[i];
         if (element.title == "eye") {
           targetPath = element.modelPath[element.selected];
-          this.$refs.playerSelect3DPanel.ChangeSkin(targetPath, element.part, element.mode, faceSourcePath);
-          this.$refs.playerSelect3DPanel.ChangeSkin(targetPath, "Face", element.mode, faceSourcePath);
-          this.$refs.playerSelect3DPanel.ChangeSkin(faceAddPath, "Face", "addTexture", faceSourcePath);
+          this.$refs.playerSelect3DPanel.ChangeSkin(
+            targetPath,
+            element.part,
+            element.mode,
+            faceSourcePath
+          );
+          this.$refs.playerSelect3DPanel.ChangeSkin(
+            targetPath,
+            "Face",
+            element.mode,
+            faceSourcePath
+          );
+          this.$refs.playerSelect3DPanel.ChangeSkin(
+            faceAddPath,
+            "Face",
+            "addTexture",
+            faceSourcePath
+          );
         }
         if (element.title == "hair") {
           targetPath = element.modelPath[element.selected];
-          this.$refs.playerSelect3DPanel.ChangeSkin(targetPath, element.part, element.mode, faceSourcePath);
+          this.$refs.playerSelect3DPanel.ChangeSkin(
+            targetPath,
+            element.part,
+            element.mode,
+            faceSourcePath
+          );
         }
         if (element.title == "coat") {
           targetPath = element.modelPath[element.selected];
-          this.$refs.playerSelect3DPanel.ChangeSkin(targetPath, element.part, element.mode, faceSourcePath);
+          this.$refs.playerSelect3DPanel.ChangeSkin(
+            targetPath,
+            element.part,
+            element.mode,
+            faceSourcePath
+          );
         }
       }
-
 
       setTimeout(() => {
         this.$refs.playerSelect3DPanel.ChangeSkinCompleted();
       }, 200);
-
     },
 
     _onKeyDown(event) {
       // console.log(event.code);
       switch (event.code) {
-        case 'Enter':
+        case "Enter":
           this.ClickeSelectOK();
           break;
-        case 'NumpadEnter':
+        case "NumpadEnter":
           this.ClickeSelectOK();
           break;
-
       }
     },
 
@@ -396,7 +490,9 @@ export default {
       // console.log("this.selectPlayerName = " + this.selectPlayerName);
       //加载3d模型
       this.$refs.playerSelect3DPanel.SelectAvatar(this.selectPlayerName);
-      this.skinData = this.$refs.playerSelect3DPanel.GetAvatarData(this.selectPlayerName).skinData;
+      this.skinData = this.$refs.playerSelect3DPanel.GetAvatarData(
+        this.selectPlayerName
+      ).skinData;
       if (this.skinData != undefined && this.skinData.length > 1) {
         setTimeout(() => {
           this.UpdateSkin(localStorage.getItem("playerState"));
@@ -406,7 +502,6 @@ export default {
       }
       this.updateAnimList(e);
       localStorage.setItem("avatarName", this.selectPlayerName);
-
     },
     ClickeSelectOK() {
       if (this.selectPlayerName == "") {
@@ -422,10 +517,10 @@ export default {
 
       localStorage.setItem("reloadTimes", 1);
       // 跳转页面
-      this.$router.replace("/editorVisit?folderBase=" + localStorage.getItem("visitfolderBase"));
-
+      this.$router.replace(
+        "/editorVisit?folderBase=" + localStorage.getItem("visitfolderBase")
+      );
     },
-
   },
 };
 </script>
@@ -437,8 +532,8 @@ export default {
 }
 
 .scale-30 {
-  --tw-scale-x: .3;
-  --tw-scale-y: .3;
+  --tw-scale-x: 0.3;
+  --tw-scale-y: 0.3;
 }
 
 .z-60 {

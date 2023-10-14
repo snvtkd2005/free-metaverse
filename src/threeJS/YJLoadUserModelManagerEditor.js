@@ -269,9 +269,10 @@ class YJLoadUserModelManager {
       let object = new YJTransform(_this, scene, "", null, null, modelData.name);
       let modelPath = modelData.modelPath;
       if (modelPath == undefined) {
-        // if (callback) {
-        //   callback(object);
-        // } 
+        if (callback) {
+          callback(object);
+        } 
+        return;
       } else {
         if (modelData.modelPath.includes("http")) {
 
@@ -315,6 +316,7 @@ class YJLoadUserModelManager {
           LoadError(uuid, callback, e);
         });
       } else if (modelData.modelType == "角色模型") {
+        if(modelPath){}
         MeshRenderer.load(modelPath, (scope) => {
           let component = new YJAnimator(scope.GetModel(), scope.GetAnimations());
           object.AddComponent("Animator", component);

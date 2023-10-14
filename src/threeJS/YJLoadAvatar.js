@@ -588,7 +588,7 @@ class YJLoadAvatar {
           runAction = mixer.clipAction(animations[element.targetIndex].clipAction);
         }
 
-        let action = mixer.clipAction(animations[element.targetIndex].clipAction);
+        let action = mixer.clipAction(animations[element.targetIndex<0?0:element.targetIndex].clipAction);
         action.timeScale = element.timeScale;
 
 

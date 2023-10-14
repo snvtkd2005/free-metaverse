@@ -53,7 +53,7 @@ class YJAvatar {
       nameScale = data.nameScale;
       playerHeight = data.height;
       CreateNameTrans(this.npcName);
-
+      _YJAnimator.SetAnimationsData(data.animationsData);
       if (data.movePos && data.movePos.length > 0) {
         AddDirectPosToNavmesh(data.movePos);
 

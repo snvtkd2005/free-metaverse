@@ -1,59 +1,80 @@
 
 <template>
   <!-- 场景访问 -->
-  <div class=" main  absolute left-0 top-0  z-999 w-full h-full flex flex-col ">
-
-
+  <div class="main absolute left-0 top-0 z-999 w-full h-full flex flex-col">
     <!-- 摆放模型 -->
 
     <YJmetaBase ref="YJmetaBase" />
 
-    <div class=" hidden absolute top-0 left-0 cutimg overflow-hidden">
+    <div class="hidden absolute top-0 left-0 cutimg overflow-hidden">
       <canvas id="nowcanvas" class="bg-white"> </canvas>
     </div>
 
     <!-- 当在键鼠/遥感控制模式 并且在移动端时，显示左右遥感 -->
     <div v-if="isMobile && contrlState == 0">
-      <JoystickLeftPanel class="  " ref="JoystickLeftPanel" />
+      <JoystickLeftPanel class="" ref="JoystickLeftPanel" />
       <!-- <JoystickRightPanel class=" " ref="JoystickRightPanel" /> -->
     </div>
 
-
     <loadingPanel class="absolute z-50 left-0 top-0" ref="loadingPanel" />
-
 
     <skillPanel ref="skillPanel" />
     <!-- 多人同步 -->
-    <YJDync v-if="inLoadCompleted" class="absolute z-50 left-0 top-0 " :hasTRTC="this.hasTRTC" ref="YJDync" />
+    <YJDync
+      v-if="inLoadCompleted"
+      class="absolute z-50 left-0 top-0"
+      :hasTRTC="this.hasTRTC"
+      ref="YJDync"
+    />
 
     <!-- 修改名称 -->
-    <div class=" absolute left-2 top-2 flex ">
-      <div class="   w-auto h-6 mt-1">
+    <div class="absolute left-2 top-2 flex">
+      <div class="w-auto h-6 mt-1">
         {{ modelData.name }}
       </div>
     </div>
 
-    <playVideo ref="playVideo" video_url="./public/farm/videos/movieSD.mp4" type="video/mp4" />
+    <playVideo
+      ref="playVideo"
+      video_url="./public/farm/videos/movieSD.mp4"
+      type="video/mp4"
+    />
 
-    <div class=" hidden xl:flex absolute left-2 bottom-10 w-auto pointer-events-none  ">
-      <div class="  flex w-auto bg-black bg-opacity-20   text-white text-md rounded-lg h-auto">
-        <div class=" px-2 text-left mx-auto self-center ">
-          键盘操作：<br>
-          G:重力开关<br>
-          M:小地图开关<br>
-          H:九宫格展示开关<br>
-          F:上下车<br>
-          T:扔掉武器<br>
+    <div
+      class="
+        hidden
+        xl:flex
+        absolute
+        left-2
+        bottom-10
+        w-auto
+        pointer-events-none
+      "
+    >
+      <div
+        class="
+          flex
+          w-auto
+          bg-black bg-opacity-20
+          text-white text-md
+          rounded-lg
+          h-auto
+        "
+      >
+        <div class="px-2 text-left mx-auto self-center">
+          键盘操作：<br />
+          G:重力开关<br />
+          M:小地图开关<br />
+          H:九宫格展示开关<br />
+          F:上下车<br />
+          T:扔掉武器<br />
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
 <script>
-
-
 import PlayerAnimData from "../../data/platform/playerAnimSetting.js";
 
 // import playVideo from "./playVideo.vue";
@@ -74,18 +95,21 @@ import { Interface } from "../../js/Interface_editor.js";
 
 import skillPanel from "./components/skillPanel.vue";
 
-// 摇杆 
+// 摇杆
 import JoystickLeftPanel from "./joystickLeft.vue";
 
 import {
-  UploadSceneFile
-  , GetAllScene
+  UploadSceneFile,
+  GetAllScene,
+  GetAllModel,
 } from "../../js/uploadThreejs.js";
 
 export default {
   name: "EditorPanel",
   components: {
-    loadingPanel, YJmetaBase, modelPanel,
+    loadingPanel,
+    YJmetaBase,
+    modelPanel,
 
     JoystickLeftPanel,
     playVideo,
@@ -101,19 +125,19 @@ export default {
       _SceneManager: null,
       tableList: [
         // { id: 10000, content: "导入", },
-        { id: 10000, content: "截图（制作缩略图）", },
-        { id: 10000, content: "保存", },
-        { id: 10000, content: "保存场景配置", },
-        { id: 10000, content: "保存场景模型", },
+        { id: 10000, content: "截图（制作缩略图）" },
+        { id: 10000, content: "保存" },
+        { id: 10000, content: "保存场景配置" },
+        { id: 10000, content: "保存场景模型" },
         // { id: 10000, content: "发布", },
       ],
       viewFar: 5,
 
       // npc音效
-      npcMusicUrl: '',
+      npcMusicUrl: "",
 
       inMeeting: false,
-      meetingOwner: '',
+      meetingOwner: "",
       oldSceneName: "",
 
       // 是否开启音视频
@@ -172,11 +196,11 @@ export default {
 
       niaokanUI: false,
       projectionList: [
-        { id: '10001', content: '岛2', pos: { x: -500, y: -500 } },
-        { id: '10002', content: '岛3', pos: { x: -500, y: -500 } },
-        { id: '10003', content: '岛4', pos: { x: -500, y: -500 } },
-        { id: '10004', content: '岛5', pos: { x: -500, y: -500 } },
-        { id: '10005', content: '岛1', pos: { x: -500, y: -500 } },
+        { id: "10001", content: "岛2", pos: { x: -500, y: -500 } },
+        { id: "10002", content: "岛3", pos: { x: -500, y: -500 } },
+        { id: "10003", content: "岛4", pos: { x: -500, y: -500 } },
+        { id: "10004", content: "岛5", pos: { x: -500, y: -500 } },
+        { id: "10005", content: "岛1", pos: { x: -500, y: -500 } },
       ],
 
       openModelPanel: "",
@@ -198,7 +222,7 @@ export default {
       sceneData: {
         setting: {
           localPath: "farm/",
-        }
+        },
       },
       sceneLoadUrl: "",
       oldFileName: "",
@@ -209,8 +233,6 @@ export default {
     this.sceneLoadUrl = this.$uploadSceneUrl;
   },
   mounted() {
-    
-
     if (this.$route.params.folderBase != undefined) {
       this.folderBase = this.$route.params.folderBase;
     } else if (this.$route.query.folderBase != undefined) {
@@ -221,7 +243,6 @@ export default {
       this.oldFileName = this.modelData.name;
       this.folderBase = modelData.folderBase;
     }
-
 
     if (localStorage.getItem("userName")) {
     } else {
@@ -240,17 +261,49 @@ export default {
       window.location.reload();
       return;
     }
-    
+
     this.Interface = new Interface(this);
 
-    this.RequestGetAllSceneData();
-    this.$refs.YJmetaBase.SetloadingPanel(this.$refs.loadingPanel);
-    this.ThreejsHumanChat = this.$refs.YJmetaBase.ThreejsHumanChat;
-
-
+    this.RequestGetAllModel(() => {
+      this.RequestGetAllSceneData();
+      this.$refs.YJmetaBase.SetloadingPanel(this.$refs.loadingPanel);
+      this.ThreejsHumanChat = this.$refs.YJmetaBase.ThreejsHumanChat;
+    });
   },
   methods: {
+    // 获取所有单品
+    async RequestGetAllModel(callback) {
+      GetAllModel().then((res) => {
+        console.log("获取所有单品模型 ", this.folderBase, res);
+        if (res.data.txtDataList) {
+          let txtDataList = res.data.txtDataList;
 
+          let modelsList = [];
+          for (let i = 0; i < txtDataList.length; i++) {
+            let element = txtDataList[i];
+            try {
+              modelsList.push(JSON.parse(element));
+            } catch (error) {
+              element = element.substring(1);
+              modelsList.push(JSON.parse(element));
+            }
+          }
+
+          for (let i = 0; i < modelsList.length; i++) {
+            let item = modelsList[i];
+            if (item.modelType == "角色模型") {
+              // 到角色数据中，模型路径、动画数据
+              let data = item.message.data;
+              data.modelPath = this.$uploadUrl + item.modelPath;
+              _Global.CreateOrLoadPlayerAnimData().AddAvatarData(data);
+            }
+          } 
+          if (callback) {
+            callback();
+          }
+        }
+      });
+    },
     GetPlayerAnimData() {
       return PlayerAnimData;
     },
@@ -260,13 +313,10 @@ export default {
       this.inputing = true;
     },
     addThreeJSfocus() {
-
       this.ThreejsHumanChat.threeJSfocus();
       this.inputing = false;
-
     },
     Enter() {
-
       let avatarName = PlayerAnimData.defaultUser.avatarName;
 
       if (localStorage.getItem("avatarName")) {
@@ -289,7 +339,6 @@ export default {
         modelType: avatarName,
       };
 
-
       this.$refs.YJmetaBase.ClickSelectPlayerOK(this.userData);
       this.$refs.YJmetaBase.ThreejsHumanChat.SetNickName(this.userName);
 
@@ -305,18 +354,17 @@ export default {
           // if (callback) {
           //   callback();
           // }
-
         }
       );
-
-
     },
 
-
     async RequestGetAllSceneData() {
-
       let res = await this.$axios.get(
-        this.sceneLoadUrl + this.folderBase + "/" + this.folderBase + "_setting.txt"
+        this.sceneLoadUrl +
+          this.folderBase +
+          "/" +
+          this.folderBase +
+          "_setting.txt"
       );
 
       // console.log(" 获取场景配置 ", res.data);
@@ -328,11 +376,14 @@ export default {
       this.Enter();
     },
     async RequestGetAllSceneModelData() {
-
       // let path = this.sceneLoadUrl + this.folderBase + "/" + this.folderBase + "_scene.txt";
       // console.log(" 获取场景 模型文本路径 ", path);
       let res = await this.$axios.get(
-        this.sceneLoadUrl + this.folderBase + "/" + this.folderBase + "_scene.txt"
+        this.sceneLoadUrl +
+          this.folderBase +
+          "/" +
+          this.folderBase +
+          "_scene.txt"
       );
 
       this.modelList.splice(0, this.modelList.length);
@@ -344,15 +395,17 @@ export default {
       }
       // console.log(" 获取场景 模型 ", data);
 
-      this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CreateSenceBy(this.modelList);
-
+      this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CreateSenceBy(
+        this.modelList
+      );
     },
 
     viewFarFn(e) {
-      this.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetCameraWheelPos(-this.viewFar);
+      this.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetCameraWheelPos(
+        -this.viewFar
+      );
       // 取消焦点
       this.$refs.viewFarCtrl.blur();
-
     },
     changeViewSliderValue(e) {
       this.viewFar = -e;
@@ -367,11 +420,14 @@ export default {
     },
 
     UpdateSkin(_YJPlayer, playerName, playerState) {
-
       // this._SceneManager.UpdateSkin(_YJPlayer, playerName, playerState);
       // return;
       // console.error(" 同步换装数据 ",playerName, playerState);
-      if (playerName != "litleUnityChain2" || playerState == null || playerState == undefined) {
+      if (
+        playerName != "litleUnityChain2" ||
+        playerState == null ||
+        playerState == undefined
+      ) {
         _YJPlayer.ChangeSkinCompleted();
         return;
       }
@@ -383,8 +439,10 @@ export default {
         }
       }
       let skinData = avatarData.skinData;
-      if (skinData == undefined || skinData.length <= 1) { return; }
-      let sp = playerState.split('_');
+      if (skinData == undefined || skinData.length <= 1) {
+        return;
+      }
+      let sp = playerState.split("_");
       for (let i = 0; i < skinData.length; i++) {
         skinData[i].selected = parseInt(sp[i]);
       }
@@ -410,17 +468,42 @@ export default {
         if (element.title == "eye") {
           targetPath = element.modelPath[element.selected];
 
-          _YJPlayer.ChangeSkin(targetPath, element.part, element.mode, faceSourcePath);
-          _YJPlayer.ChangeSkin(targetPath, "Face", element.mode, faceSourcePath);
-          _YJPlayer.ChangeSkin(faceAddPath, "Face", "addTexture", faceSourcePath);
+          _YJPlayer.ChangeSkin(
+            targetPath,
+            element.part,
+            element.mode,
+            faceSourcePath
+          );
+          _YJPlayer.ChangeSkin(
+            targetPath,
+            "Face",
+            element.mode,
+            faceSourcePath
+          );
+          _YJPlayer.ChangeSkin(
+            faceAddPath,
+            "Face",
+            "addTexture",
+            faceSourcePath
+          );
         }
         if (element.title == "hair") {
           targetPath = element.modelPath[element.selected];
-          _YJPlayer.ChangeSkin(targetPath, element.part, element.mode, faceSourcePath);
+          _YJPlayer.ChangeSkin(
+            targetPath,
+            element.part,
+            element.mode,
+            faceSourcePath
+          );
         }
         if (element.title == "coat") {
           targetPath = element.modelPath[element.selected];
-          _YJPlayer.ChangeSkin(targetPath, element.part, element.mode, faceSourcePath);
+          _YJPlayer.ChangeSkin(
+            targetPath,
+            element.part,
+            element.mode,
+            faceSourcePath
+          );
         }
       }
       setTimeout(() => {
@@ -448,10 +531,12 @@ export default {
       }
     },
 
-
     ChangeAvatar(playerName, callback) {
       if (this.$refs.gameUI) {
-        this.$refs.gameUI.ChangeAvatar(this.$refs.YJmetaBase.GetAvatarData(playerName), callback);
+        this.$refs.gameUI.ChangeAvatar(
+          this.$refs.YJmetaBase.GetAvatarData(playerName),
+          callback
+        );
       }
     },
     GetUseId() {
@@ -459,8 +544,6 @@ export default {
     },
     //由角色选择界面传入 角色类型、用户名
     ClickSelectPlayerOK(selectPlayerName, userName) {
-
-
       this.userName = userName;
       localStorage.setItem("username", this.userName);
       this.avatarName = selectPlayerName;
@@ -478,8 +561,6 @@ export default {
         this.$refs.scenePanel.DisplayLoading();
       }
 
-
-
       //场景设置
       this._SceneManager = new SceneManager(
         this.$refs.YJmetaBase.ThreejsHumanChat.scene,
@@ -492,10 +573,8 @@ export default {
           // if (callback) {
           //   callback();
           // }
-
         }
       );
-
 
       // console.log(userData);
 
@@ -503,11 +582,6 @@ export default {
 
       // 显示玩家姓名条
       this.$refs.YJmetaBase.ThreejsHumanChat.SetNickName(userName);
-
-
-
-
-
 
       console.log("场景加载完成------------");
 
@@ -522,7 +596,6 @@ export default {
       };
     },
 
-
     SetTriggerOverlap(b, id, owner) {
       if (this._SceneManager) {
         this._SceneManager.SetTriggerOverlap(b, id, owner);
@@ -532,10 +605,14 @@ export default {
       if (b) {
         if (id == "portal_001" || id == "portal_002") {
           if (id == "portal_001") {
-            this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.ChangeViewByIdDirect("playerPos_001");
+            this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.ChangeViewByIdDirect(
+              "playerPos_001"
+            );
           }
           if (id == "portal_002") {
-            this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.ChangeViewByIdDirect("playerPos_002");
+            this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.ChangeViewByIdDirect(
+              "playerPos_002"
+            );
           }
 
           this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.UpdateLightPos();
@@ -545,7 +622,6 @@ export default {
             this.$refs.YJDync.DirectSendUserData();
           }
           this.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetTransmit();
-
         }
       }
       if (id == "car") {
@@ -570,7 +646,7 @@ export default {
     },
 
     LoadingProcess(f) {
-      // 3d加载进度   0-1 
+      // 3d加载进度   0-1
       // console.log(" 加载场景进度 " ,f);
 
       if (this.$refs.scenePanel) {
@@ -581,13 +657,9 @@ export default {
     load3dComplete(callback) {
       console.log("场景加载完成------------");
 
-
       if (!this.initCompleted) {
-
-
         this.$refs.YJmetaBase.ThreejsHumanChat.PlayVideo();
         this.$refs.YJmetaBase.ThreejsHumanChat.AddVideoListener();
-
 
         this.hasGameUI = true;
         this.$nextTick(() => {
@@ -597,12 +669,9 @@ export default {
           }
 
           this.Interface.SelectPlayerCompleted(this.avatarName, this.userName);
-
         });
 
-
         this._SceneManager.ChangeScene(this.sceneData);
-
 
         this.$nextTick(() => {
           if (this.$refs.YJDync) {
@@ -611,9 +680,7 @@ export default {
             _Global.mainUser = true;
           }
         });
-
       } else {
-
         if (this.$refs.YJDync) {
           this.$refs.YJDync.ChangeRoom(this.sceneData.roomName);
         }
@@ -637,7 +704,6 @@ export default {
       // this.$refs.YJmetaBase.ThreejsHumanChat.camera,
       // this.$refs.YJmetaBase.ThreejsHumanChat
       // );
-
     },
     // 3转2坐标
     UpdateProjectionUI(_projectionList) {
@@ -668,8 +734,6 @@ export default {
       }
     },
 
-
-
     // 点击角色NPC，显示NPC下方的光圈
     ClickPlayer(owner) {
       if (this._SceneManager) {
@@ -680,11 +744,13 @@ export default {
       if (this.$refs.chatPanel && owner.GetName() == "ChatGPT001号") {
         this.$refs.chatPanel.SetDisplay(true);
       }
-      if (this.$refs.chatPanelNPC && (owner.GetName() == "咕叽" || owner.GetName() == "坐")) {
+      if (
+        this.$refs.chatPanelNPC &&
+        (owner.GetName() == "咕叽" || owner.GetName() == "坐")
+      ) {
         this.$refs.chatPanelNPC.SetYJNPC(owner, this.userName);
         this.$refs.chatPanelNPC.SetDisplay(true);
       }
-
     },
     ClickModel(hitObject) {
       // console.log(" 点击模型 owner ", hitObject);
@@ -710,12 +776,10 @@ export default {
       }
     },
     ClickHotPointOwner(hitObject) {
-
       let hotPointData = hitObject.owner.GetHotPointData();
       // console.log(" hotpointdata  ", hotPointData);
       if (hotPointData.type) {
         if (hotPointData.type == "设置角色位置") {
-
           this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.SetPlayerPosRota(
             hotPointData.pos,
             hotPointData.rotaV3
@@ -728,7 +792,6 @@ export default {
           this.viewFarIndex = 2;
         }
       }
-
     },
 
     // 把视角切换到指定id的热点视角位置
@@ -743,7 +806,9 @@ export default {
       }
       let far = this.viewFar[this.viewFarIndex];
       // this.$refs.YJmetaBase.ThreejsHumanChat.YJController.ChangeCameraFar();
-      this.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetCameraWheelPos(far);
+      this.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetCameraWheelPos(
+        far
+      );
     },
 
     GetPublicUrl() {
@@ -759,7 +824,6 @@ export default {
       return this.GetPublicUrl() + this.sceneData.modelPath;
     },
 
-
     //获取小地图图片url
     GetMinMapData() {
       let minMapData = this.sceneData.minMapData;
@@ -769,7 +833,6 @@ export default {
       this.inThreejs = true;
       this.$refs.YJmetaBase.OpenThreejs();
 
-
       // setTimeout(() => {
       //   this.ChangeViewById(10004);
       // }, 2000);
@@ -777,7 +840,6 @@ export default {
     ClickNiaokan() {
       this.$refs.YJmetaBase.ThreejsHumanChat.YJController.ResetToNiaokanView();
     },
-
   },
 };
 </script>

@@ -29,7 +29,18 @@ class YJAnimator {
     this.GetAnimation = function () {
       return animations;
     }
-
+    let animationsData = [];
+    this.SetAnimationsData = function(v){
+      animationsData = v;
+    }
+    this.ChangeAnim = function (animName) { 
+      for (let i = 0; i < animationsData.length; i++) {
+        const element = animationsData[i];
+        if(element.animName == animName){
+          this.ChangeAnimByIndex(element.targetIndex,element.timeScale);
+        }
+      } 
+    }
     this.ChangeAnimByIndex = function (i, timeScale) {
       console.log(animations,timeScale);
       for (let i = 0; i < animations.length; i++) {
@@ -139,7 +150,7 @@ class YJAnimator {
       try {
         for (let i = 0; i < animCount; i++) {
           let action = mixer.clipAction(animations[i]);
-          actions.push({ name: 'one', action: action, weight: 1, scale: 1 });
+          actions.push({ name: animations.animName, action: action, weight: 1, scale: 1 });
         }
 
       } catch (error) {
@@ -339,7 +350,7 @@ class YJAnimator {
         clearTimeout(later);
       }
       actions.forEach(function (action) {
-        // console.log("播放"+action.name);
+        console.log("播放"+action.name);
         if (action.action != undefined) {
           setWeight(action.action, action.name == e ? 1 : 0, action.scale);
           action.action.reset();

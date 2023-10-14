@@ -4,7 +4,8 @@
   <div class="absolute left-0 top-0 z-999 w-full h-full flex flex-col">
     <button ref="opacityBtn" class="opacity-0"></button>
     <!-- 顶部 -->
-    <div class="
+    <div
+      class="
         absolute
         z-20
         left-0
@@ -14,32 +15,46 @@
         flex
         bg-445760
         text-gray-200
-        
-      ">
+      "
+    >
       <!-- 顶部工具栏 -->
       <!-- table -->
       <div class="flex">
-        <el-upload class="bg-transparent" action="" multiple :before-upload="handleBeforeUpload" :accept="accept"
-          :show-file-list="false">
+        <el-upload
+          class="bg-transparent"
+          action=""
+          multiple
+          :before-upload="handleBeforeUpload"
+          :accept="accept"
+          :show-file-list="false"
+        >
           <!-- :before-upload="changeFile" -->
-          <div class="p-2 w-20 cursor-pointer 
-            hover:bg-546770">导入</div>
+          <div class="p-2 w-20 cursor-pointer hover:bg-546770">导入</div>
         </el-upload>
 
         <div class="hidden relative w-40 cursor-pointer">
-          <label class="absolute left-0 cursor-pointer mt-2 ml-2">导入文件夹</label>
-          <input class="absolute left-0 w-full opacity-0 h-full cursor-pointer" title="" ref="fileRef" type="file"
-            name="file" webkitdirectory @change.stop="change" />
+          <label class="absolute left-0 cursor-pointer mt-2 ml-2"
+            >导入文件夹</label
+          >
+          <input
+            class="absolute left-0 w-full opacity-0 h-full cursor-pointer"
+            title=""
+            ref="fileRef"
+            type="file"
+            name="file"
+            webkitdirectory
+            @change.stop="change"
+          />
         </div>
 
-        <div v-for="(item, i) in tableList" :key="i" :index="item.id" class="
-            px-12
-            flex
-            h-10
-            text-center
-            hover:bg-546770
-            
-          " :class="0 == item.id ? ' ' : ' cursor-pointer '" @click="ChangeTable(item)">
+        <div
+          v-for="(item, i) in tableList"
+          :key="i"
+          :index="item.id"
+          class="px-12 flex h-10 text-center hover:bg-546770"
+          :class="0 == item.id ? ' ' : ' cursor-pointer '"
+          @click="ChangeTable(item)"
+        >
           <div class="self-center">
             {{ item.content }}
           </div>
@@ -58,31 +73,31 @@
     <loadingPanel class="absolute z-50 left-0 top-0" ref="loadingPanel" />
 
     <!-- 右侧检视面板 @click="inAddComponent=false;"-->
-    <div class=" absolute right-0 top-0 w-80 h-full bg-546770">
-      <div v-if="panelState.uvAnim" class=" mt-10 w-80 border-t max-w-md  ">
+    <div class="absolute right-0 top-0 w-80 h-full bg-546770">
+      <div v-if="panelState.uvAnim" class="mt-10 w-80 border-t max-w-md">
         <settingPanel_uvAnim ref="settingPanel_uvAnim" />
       </div>
-      <div v-if="panelState.car" class=" mt-10  w-80 border-t max-w-md  ">
+      <div v-if="panelState.car" class="mt-10 w-80 border-t max-w-md">
         <settingPanel_car ref="settingPanel_car" />
       </div>
-      <div v-if="panelState.weapon" class=" mt-10  w-80 border-t max-w-md  ">
+      <div v-if="panelState.weapon" class="mt-10 w-80 border-t max-w-md">
         <settingPanel_weapon ref="settingPanel_weapon" />
       </div>
-      <div v-if="panelState.player" class=" mt-10  w-80 border-t max-w-md  ">
+      <div v-if="panelState.player" class="mt-10 w-80 border-t max-w-md">
         <settingPanel_player ref="settingPanel_player" />
       </div>
-      <div v-if="panelState.screen" class=" mt-10  w-80 border-t max-w-md  ">
+      <div v-if="panelState.screen" class="mt-10 w-80 border-t max-w-md">
         <settingPanel_screen ref="settingPanel_screen" />
       </div>
-      <div v-if="panelState.particle" class=" mt-10  w-80 border-t max-w-md  ">
+      <div v-if="panelState.particle" class="mt-10 w-80 border-t max-w-md">
         <settingPanel_particle ref="settingPanel_particle" />
       </div>
 
-      <div v-if="panelState.avatar" class=" mt-10  w-80 border-t max-w-md  ">
+      <div v-if="panelState.avatar" class="mt-10 w-80 border-t max-w-md">
         <settingPanel_avatar ref="settingPanel_avatar" />
       </div>
 
-      <div v-if="panelState.npc" class=" mt-10  w-80 border-t max-w-md  ">
+      <div v-if="panelState.npc" class="mt-10 w-80 border-t max-w-md">
         <settingPanel_npc ref="settingPanel_npc" />
       </div>
 
@@ -92,14 +107,19 @@
       <div class="  mt-2 w-80 flex   " v-if="inAddComponent">
         <addComponent ref="addComponent" />
       </div> -->
-
     </div>
 
     <!-- 修改名称 -->
     <div class="absolute left-2 top-12 flex text-white">
       <div class="w-auto h-6 mt-1">单品名:</div>
-      <input class="bg-transparent placeholder-gray-400 p-1" type="text" v-model="modelData.name"
-        :placeholder="modelData.name" @focus="removeThreeJSfocus" @blur="addThreeJSfocus" />
+      <input
+        class="bg-transparent placeholder-gray-400 p-1"
+        type="text"
+        v-model="modelData.name"
+        :placeholder="modelData.name"
+        @focus="removeThreeJSfocus"
+        @blur="addThreeJSfocus"
+      />
     </div>
 
     <!-- 截图区域安全区域 -->
@@ -109,25 +129,44 @@
 
     <!-- 与后台交互的操作提示 -->
     <!---->
-    <div v-if="tipData.opening" class=" absolute left-0 top-10 w-full flex  ">
-      <div class=" mx-auto flex w-auto  bg-blue-400 text-white text-xl rounded-lg h-10">
-        <div class=" px-4  mx-auto self-center ">
+    <div v-if="tipData.opening" class="absolute left-0 top-10 w-full flex">
+      <div
+        class="
+          mx-auto
+          flex
+          w-auto
+          bg-blue-400
+          text-white text-xl
+          rounded-lg
+          h-10
+        "
+      >
+        <div class="px-4 mx-auto self-center">
           {{ tipData.tipContent }} --- {{ tipData.uploadProgress }}
         </div>
       </div>
     </div>
 
-    <div class=" hidden md:flex absolute left-0 bottom-10 w-auto pointer-events-none ">
-      <div class="  flex w-auto   text-white text-md rounded-lg h-10">
-        <div class=" px-4 text-left mx-auto self-center ">
-          键盘操作：<br>
-          G:重力开关<br>
-          F:上下车<br>
-          T:扔掉武器<br>
+    <div
+      class="
+        hidden
+        md:flex
+        absolute
+        left-0
+        bottom-10
+        w-auto
+        pointer-events-none
+      "
+    >
+      <div class="flex w-auto text-white text-md rounded-lg h-10">
+        <div class="px-4 text-left mx-auto self-center">
+          键盘操作：<br />
+          G:重力开关<br />
+          F:上下车<br />
+          T:扔掉武器<br />
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -215,7 +254,6 @@ export default {
       userId: "",
       id: "",
 
-
       isMobile: false,
 
       language: null,
@@ -225,8 +263,6 @@ export default {
       contrlState: 0,
 
       inThreejs: false,
-
-
 
       publicUrl: "",
 
@@ -265,7 +301,7 @@ export default {
         count: 10,
         tipContent: "sdfsdf",
         uploadProgress: "",
-      }
+      },
     };
   },
   created() {
@@ -296,9 +332,7 @@ export default {
     }
     this.avatarName = avatarName;
 
-
     this.$refs.YJmetaBase.SetloadingPanel(this.$refs.loadingPanel);
-
 
     let modelData = JSON.parse(localStorage.getItem("modelData"));
     this.modelData = modelData;
@@ -334,7 +368,6 @@ export default {
     } else {
       this.Load();
     }
-
   },
   methods: {
     ChangePanel(e) {
@@ -344,7 +377,9 @@ export default {
         const element = names[i];
         this.panelState[element] = false;
       }
-      if (e == "") { return; }
+      if (e == "") {
+        return;
+      }
       // console.log(names);
       // console.log(list);
       this.panelState[e] = true;
@@ -360,7 +395,7 @@ export default {
       this.hasUI = false;
 
       if (this.modelData.modelType == "uv模型") {
-        this.ChangePanel('uvAnim');
+        this.ChangePanel("uvAnim");
       }
 
       if (this.modelData.modelType == "汽车模型") {
@@ -370,14 +405,15 @@ export default {
       if (this.modelData.modelType == "NPC模型") {
         this.ChangePanel("npc");
         this.$refs.modelPanel.Init("角色模型");
-
       }
       if (this.modelData.modelType == "装备模型") {
         this.ChangePanel("weapon");
         setTimeout(() => {
-          this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CreateOrLoadPlayerAnimData().GetAllAnim(this.avatarName, (animList) => {
-            this.$refs.settingPanel_weapon.SetAnimList(animList);
-          });
+          this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager
+            .CreateOrLoadPlayerAnimData()
+            .GetAllAnim(this.avatarName, (animList) => {
+              this.$refs.settingPanel_weapon.SetAnimList(animList);
+            });
         }, 1000);
       }
 
@@ -388,7 +424,9 @@ export default {
       if (this.modelData.modelType == "角色模型") {
         this.ChangePanel("avatar");
         setTimeout(() => {
-          this.$refs.settingPanel_avatar.SetAvatar(this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetSingleModelTransform());
+          this.$refs.settingPanel_avatar.SetAvatar(
+            this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetSingleModelTransform()
+          );
         }, 3000);
       }
 
@@ -419,7 +457,6 @@ export default {
       this.$refs.YJmetaBase.ThreejsHumanChat.SetNickName(this.userName);
       // 初始化截图
       this.$refs.PanelCut.Init(this.ThreejsHumanChat);
-
     },
 
     // 获取所有单品
@@ -440,14 +477,15 @@ export default {
             }
           }
 
-
           for (let i = 0; i < modelsList.length; i++) {
             let item = modelsList[i];
             if (item.modelType == "角色模型") {
               // 到角色数据中，模型路径、动画数据
-              let data = item.message.data;
-              data.modelPath = this.$uploadUrl + item.modelPath;
-              _Global.CreateOrLoadPlayerAnimData().AddAvatarData(data);
+              if (item.message) {
+                let data = item.message.data;
+                data.modelPath = this.$uploadUrl + item.modelPath;
+                _Global.CreateOrLoadPlayerAnimData().AddAvatarData(data);
+              }
             }
           }
 
@@ -471,18 +509,15 @@ export default {
     },
     // 使用id获取其模型路径
     GetModelPathByFolderBase(folderBase, callback) {
-
       console.log("" + folderBase);
       GetAllModel().then((res) => {
         if (res.data.txtDataList) {
           let txtDataList = res.data.txtDataList;
 
-
-
           for (let i = 0; i < txtDataList.length; i++) {
             const element = txtDataList[i];
             let item = JSON.parse(element);
-            if ((item.folderBase + "") == (folderBase + "")) {
+            if (item.folderBase + "" == folderBase + "") {
               if (callback) {
                 callback(item.modelPath);
               }
@@ -560,7 +595,6 @@ export default {
       this.updateModelTxtData();
     },
     CancelCut() {
-
       _Global.SendMsgTo3D("单品", "显示角色");
       // _Global.ChangeFirstThird(false);
       _Global.SetEnableGravity(true);
@@ -640,7 +674,8 @@ export default {
       this.tipData.opening = true;
       this.tipData.current = 1;
       this.tipData.count = this.fileList.count;
-      this.tipData.tipContent = "正在上传 " + this.tipData.current + "/" + this.tipData.count;
+      this.tipData.tipContent =
+        "正在上传 " + this.tipData.current + "/" + this.tipData.count;
 
       this.UploadFilesDire(this.fileList[0]);
     },
@@ -687,16 +722,15 @@ export default {
           this.fileList.shift();
           this.loading = false;
           if (this.fileList.length > 0) {
-
             this.tipData.current++;
-            this.tipData.tipContent = "正在上传 " + this.tipData.current + "/" + this.tipData.count;
+            this.tipData.tipContent =
+              "正在上传 " + this.tipData.current + "/" + this.tipData.count;
 
             this.UploadFilesDire(this.fileList[0]);
           } else {
             // 清空input file
             this.$refs.fileRef.value = "";
             this.$refs.opacityBtn.focus();
-
 
             this.tipData.tipContent = "上传完成";
             this.tipData.uploadProgress = "";
@@ -744,7 +778,8 @@ export default {
       this.tipData.opening = true;
       this.tipData.current = 1;
       this.tipData.count = this.fileList.length;
-      this.tipData.tipContent = "正在上传 " + this.tipData.current + "/" + this.tipData.count;
+      this.tipData.tipContent =
+        "正在上传 " + this.tipData.current + "/" + this.tipData.count;
 
       if (this.loading) {
         return;
@@ -757,7 +792,6 @@ export default {
       if (this.loading) {
         return;
       }
-
 
       this.loading = true;
       this.hasModel = false;
@@ -792,21 +826,15 @@ export default {
         this.modelName = file.name;
       }
 
-
-
-
-
       //上传到本地 或 0SS
       this.$uploadFile(fromData, (progressEvent) => {
         console.log("上传进度 ", progressEvent);
-        let num = ((progressEvent.loaded / progressEvent.total) * 100 | 0);
-        this.tipData.uploadProgress = num + '%';
+        let num = ((progressEvent.loaded / progressEvent.total) * 100) | 0;
+        this.tipData.uploadProgress = num + "%";
       }).then((res) => {
         console.log(" 上传文件 ", res);
 
-        if (
-          fileName.indexOf(".bin") > -1
-        ) {
+        if (fileName.indexOf(".bin") > -1) {
           this.hasbin = true;
         }
 
@@ -816,16 +844,17 @@ export default {
           this.fileList.shift();
           this.loading = false;
           if (this.fileList.length > 0) {
-
             this.tipData.current++;
-            this.tipData.tipContent = "正在上传 " + this.tipData.current + "/" + this.tipData.count;
+            this.tipData.tipContent =
+              "正在上传 " + this.tipData.current + "/" + this.tipData.count;
 
             this.UploadFiles(this.fileList[0]);
           } else {
             console.log(" 上传文件完成 ");
 
             if (this.modelName == "") {
-              this.tipData.tipContent = "出错了。请选择模型文件，gltf+bin+贴图 或 glb ";
+              this.tipData.tipContent =
+                "出错了。请选择模型文件，gltf+bin+贴图 或 glb ";
               return;
             }
             if (this.modelName.indexOf(".gltf") > -1 && !this.hasbin) {
@@ -833,33 +862,41 @@ export default {
               return;
             }
 
-
             this.tipData.tipContent = "正在加载模型...";
 
-            console.log("正在加载模型 33 ", this.folderBase + "/" + this.modelName);
+            console.log(
+              "正在加载模型 33 ",
+              this.folderBase + "/" + this.modelName
+            );
 
             this.$refs.opacityBtn.focus();
             //加载模型
             this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CreateSingleModel(
               "https://snvtkd2005.com/socketIoServer/socketIoServer/uploads/" +
-              this.folderBase +
-              "/" +
-              this.modelName,
+                this.folderBase +
+                "/" +
+                this.modelName,
               () => {
                 console.log("加载模型完成 33 ");
                 this.tipData.tipContent = "加载模型完成";
                 setTimeout(() => {
                   this.tipData.opening = false;
+                  if (this.modelData.modelType == "角色模型") {
+                    this.$refs.settingPanel_avatar.SetAvatar(
+                      this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetSingleModelTransform()
+                    );
+                  }
                 }, 1000);
 
-                this.modelData.modelPath = this.folderBase + "/" + this.modelName;
+                this.modelData.modelPath =
+                  this.folderBase + "/" + this.modelName;
+
                 this.updateModelTxtData();
-              }, (e) => {
+              },
+              (e) => {
                 this.tipData.tipContent = "出错了。加载模型出错，" + e;
               }
             );
-
-
           }
         }
         // if (res.status == 200) {
@@ -1012,12 +1049,9 @@ export default {
     Photo(callback) {
       return this._SceneManager.Photo(callback);
     },
-    SetNpcMusicUrl(npcName) {
-    },
+    SetNpcMusicUrl(npcName) {},
 
-    ClickChangeScene(sceneSetting) {
-
-    },
+    ClickChangeScene(sceneSetting) {},
     //切换场景
     ChangeScene(sceneSetting) {
       this.avatarData = sceneSetting;
@@ -1065,7 +1099,6 @@ export default {
       this.$refs.YJmetaBase.ThreejsHumanChat.SetNickName(userName);
 
       console.log("场景加载完成------------");
-
     },
 
     SetTriggerOverlap(b, id, owner) {
@@ -1105,7 +1138,6 @@ export default {
       let modelData = JSON.parse(localStorage.getItem("modelData"));
       console.log(" modelData ", modelData);
 
-
       if (!this.initCompleted) {
         this.$refs.YJmetaBase.ThreejsHumanChat.PlayVideo();
         this.$refs.YJmetaBase.ThreejsHumanChat.AddVideoListener();
@@ -1137,12 +1169,10 @@ export default {
             if (callback) {
               callback();
             }
-
           }
         );
 
         this._SceneManager.ChangeScene(this.sceneData);
-
       }
 
       if (this.$refs.scenePanel) {
@@ -1164,38 +1194,26 @@ export default {
       // console.log(" 3转2 ",_projectionList);
     },
 
-    SetViewState(e) {
-
-    },
+    SetViewState(e) {},
 
     // 点击角色NPC，显示NPC下方的光圈
     ClickPlayer(owner) {
       // this._YJGameManager.ClickPlayer(owner);
-
     },
-    ClickModel(hitObject) {
-
-    },
-    HoverObject(hoverObject, hoverPoint) {
-
-    },
+    ClickModel(hitObject) {},
+    HoverObject(hoverObject, hoverPoint) {},
 
     CreateHotContent(modelData, owner) {
       console.log("点击热点 ", modelData, owner);
 
       this.Interface.LoadData(modelData.id);
     },
-    ClickHotPointOwner(hitObject) {
-
-    },
+    ClickHotPointOwner(hitObject) {},
 
     // 把视角切换到指定id的热点视角位置
-    ChangeViewById(id) {
-    },
+    ChangeViewById(id) {},
 
-    ChangeViewFar() {
-
-    },
+    ChangeViewFar() {},
 
     GetPublicUrl() {
       return this.publicUrl;

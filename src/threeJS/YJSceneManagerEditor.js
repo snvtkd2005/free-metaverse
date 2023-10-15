@@ -44,7 +44,7 @@ import { TextureLoader } from "three";
 import { YJGameManager_DyncScene } from "./YJGameManager_DyncScene.js";
 import { YJ3dScene_margeTexture } from "/@/threeJS/YJ3dScene_margeTexture.js";
 import { YJTransform } from "./YJTransform.js";
-import { YJMeshRenderer } from "./YJMeshRenderer.js";
+import { YJMeshRenderer } from "./loader/YJMeshRenderer.js";
 import { YJTrigger } from "./YJTrigger.js";
 import { YJAnimator } from "./loader/YJAnimator.js";
 import { YJUVAnim3 } from "./components/YJUVAnim3.js";
@@ -1952,101 +1952,7 @@ class YJSceneManager {
     }
     //#endregion
 
-    //#region 加载NPC
-    const cloneGltf = (gltf) => {
-      const clone = {
-        animations: gltf.animations,
-        scene: gltf.scene.clone(true)
-      };
-
-      const skinnedMeshes = {};
-
-      gltf.scene.traverse(node => {
-        if (node.isSkinnedMesh) {
-          skinnedMeshes[node.name] = node;
-        }
-      });
-
-      const cloneBones = {};
-      const cloneSkinnedMeshes = {};
-
-      clone.scene.traverse(node => {
-        if (node.isBone) {
-          cloneBones[node.name] = node;
-        }
-
-        if (node.isSkinnedMesh) {
-          cloneSkinnedMeshes[node.name] = node;
-        }
-      });
-
-      for (let name in skinnedMeshes) {
-        const skinnedMesh = skinnedMeshes[name];
-        const skeleton = skinnedMesh.skeleton;
-        const cloneSkinnedMesh = cloneSkinnedMeshes[name];
-
-        const orderedCloneBones = [];
-
-        for (let i = 0; i < skeleton.bones.length; ++i) {
-          const cloneBone = cloneBones[skeleton.bones[i].name];
-          orderedCloneBones.push(cloneBone);
-        }
-
-        cloneSkinnedMesh.bind(
-          new THREE.Skeleton(orderedCloneBones, skeleton.boneInverses),
-          cloneSkinnedMesh.matrixWorld);
-      }
-
-      return clone;
-    }
-
-
-    function cloneFbx(object) {
-      const clone = {
-        animations: object.animations,
-        scene: object.clone(true)
-      };
-
-      const skinnedMeshes = {};
-
-      object.traverse(node => {
-        if (node.isSkinnedMesh) {
-          skinnedMeshes[node.name] = node;
-        }
-      });
-
-      const cloneBones = {};
-      const cloneSkinnedMeshes = {};
-
-      clone.scene.traverse(node => {
-        if (node.isBone) {
-          cloneBones[node.name] = node;
-        }
-
-        if (node.isSkinnedMesh) {
-          cloneSkinnedMeshes[node.name] = node;
-        }
-      });
-
-      for (let name in skinnedMeshes) {
-        const skinnedMesh = skinnedMeshes[name];
-        const skeleton = skinnedMesh.skeleton;
-        const cloneSkinnedMesh = cloneSkinnedMeshes[name];
-
-        const orderedCloneBones = [];
-
-        for (let i = 0; i < skeleton.bones.length; ++i) {
-          const cloneBone = cloneBones[skeleton.bones[i].name];
-          orderedCloneBones.push(cloneBone);
-        }
-
-        cloneSkinnedMesh.bind(
-          new THREE.Skeleton(orderedCloneBones, skeleton.boneInverses),
-          cloneSkinnedMesh.matrixWorld);
-      }
-
-      return clone;
-    }
+    //#region 加载NPC 
 
     function cloneAvatar(object, animations) {
       const clone = {

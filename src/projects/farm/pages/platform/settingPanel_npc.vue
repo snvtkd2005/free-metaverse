@@ -120,6 +120,8 @@ export default {
     load(item) {
       console.log(item);
       this.settingData.avatarData = item.message.data;
+      this.settingData.avatarData.modelPath = this.$uploadUrl + item.modelPath;
+
       this.save();
 
       //区分首次加载和第二次加载，首次加载直接创建，第二次加载修改第一次加载的内容
@@ -149,7 +151,7 @@ export default {
       } else {
         let MeshRenderer = singleTransform.GetComponent("MeshRenderer");
         MeshRenderer.Destroy();
-        let modelPath = item.message.data.modelPath;
+        let modelPath = this.$uploadUrl + item.modelPath;
 
         console.log(" modelPath ", modelPath);
         MeshRenderer.load(

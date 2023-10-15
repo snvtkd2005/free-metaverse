@@ -10,7 +10,7 @@ import { YJLoadModel } from "/@/threeJS/YJLoadModel.js";
 import { YJCameraImage } from "/@/threeJS/YJCameraImage.js";
 
 import { YJTransform } from "/@/threeJS/YJTransform.js";
-import { YJMeshRenderer } from "/@/threeJS/YJMeshRenderer.js";
+import { YJMeshRenderer } from "/@/threeJS/loader/YJMeshRenderer.js";
 import { YJAnimator } from "/@/threeJS/loader/YJAnimator.js";
 import { EXRLoader } from 'three/examples/jsm/loaders/EXRLoader.js';
 

@@ -69,7 +69,7 @@ class YJMeshRenderer {
 
       let mesh = _this._YJSceneManager.checkLoadMesh(modelPath);
       if (mesh != null) {
-        LoadMesh(mesh, callback, errorback);
+        LoadMesh(mesh.mesh, callback);
         return;
       }
 
@@ -154,7 +154,7 @@ class YJMeshRenderer {
 
       let meshAndMats = _this._YJSceneManager.checkLoadMesh(modelPath);
       if (meshAndMats != null) {
-        LoadMesh(meshAndMats.mesh, meshAndMats.materials, callback);
+        LoadMesh(meshAndMats.mesh, callback);
         return;
       }
 
@@ -243,7 +243,7 @@ class YJMeshRenderer {
       return clone;
     }
 
-    function LoadMesh(mesh, materials, callback) {
+    function LoadMesh(mesh, callback) {
       // console.log(" 已存在mesh ,复用之 ！", mesh, materials);
 
       model = cloneFbx(mesh.scene).scene;

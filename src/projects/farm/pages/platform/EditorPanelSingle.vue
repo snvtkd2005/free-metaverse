@@ -125,7 +125,7 @@
     <!-- 截图区域安全区域 -->
     <PanelCut @cancel="CancelCut" ref="PanelCut" />
 
-    <modelPanel ref="modelPanel" />
+    <modelSelectPanel ref="modelSelectPanel" />
 
     <!-- 与后台交互的操作提示 -->
     <!---->
@@ -179,7 +179,7 @@ import YJmetaBase from "./YJmetaBase.vue";
 
 import PanelCut from "./PanelCut.vue";
 
-import modelPanel from "./modelSelectPanel.vue";
+import modelSelectPanel from "./modelSelectPanel.vue";
 // 加载进度页
 import loadingPanel from "./loadingPanel2.vue";
 import settingPanel_uvAnim from "./settingPanel_uvAnim.vue";
@@ -203,7 +203,7 @@ export default {
   components: {
     loadingPanel,
     YJmetaBase,
-    modelPanel,
+    modelSelectPanel,
     settingPanel_uvAnim,
     settingPanel_car,
     settingPanel_weapon,
@@ -408,8 +408,8 @@ export default {
 
       if (this.modelData.modelType == "NPC模型") {
         this.ChangePanel("npc");
-        this.$refs.modelPanel.isOpen = true;
-        this.$refs.modelPanel.Init("角色模型");
+        // this.$refs.modelSelectPanel.isOpen = true;
+        // this.$refs.modelSelectPanel.Init("角色模型");
       }
       if (this.modelData.modelType == "装备模型") {
         this.ChangePanel("weapon");

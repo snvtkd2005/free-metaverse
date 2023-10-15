@@ -17,7 +17,7 @@ import { YJUVanim2 } from "./YJUVanim2";
 import { YJLoadModel } from "./YJLoadModel";
 import { MeshBasicMaterial } from "three";
 import { YJTransform } from "./YJTransform";
-import { YJMeshRenderer } from "./YJMeshRenderer";
+import { YJMeshRenderer } from "./loader/YJMeshRenderer";
 import { YJAnimator } from "./loader/YJAnimator";
 import { YJUVAnim3 } from "./components/YJUVAnim3.js";
 import { YJScreen } from "./components/YJScreen.js";
@@ -342,7 +342,10 @@ class YJLoadUserModelManager {
 
 
         modelPath = modelData.message.data.avatarData.modelPath;
-
+        if (modelPath == undefined) {
+          LoadError(uuid, callback);
+          return;
+        }
         console.log(" modelPath ",modelPath);
         MeshRenderer.load(modelPath, (scope) => {
           let Animator = new YJAnimator(scope.GetModel(), scope.GetAnimations());
@@ -484,7 +487,9 @@ class YJLoadUserModelManager {
       modelData.pos = pos;
 
       CreateTransform(parent, modelData, (object) => {
-        object.EditorEnd();
+        if(object){
+          object.EditorEnd();
+        }
         if (callback) {
           callback(object);
         }
@@ -585,7 +590,7 @@ class YJLoadUserModelManager {
     }
     function LoadError(uuid, callback, e) {
       console.log("加载模型出错 22 " + uuid, e, allTransform);
-
+      loadIndex++;
       for (let i = allTransform.length - 1; i >= 0; i--) {
         const elment = allTransform[i].transform;
         if (elment.GetUUID() == uuid) {

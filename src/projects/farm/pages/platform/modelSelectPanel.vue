@@ -124,6 +124,7 @@ export default {
       this.isOpen = b;
     },
     Init(e) {
+      this.modelTable = [];
       if (e != undefined) {
         this.selectModelTable = e;
         this.modelTable.push({ name: e });
@@ -135,6 +136,9 @@ export default {
       this.RequestGetAllModel();
     },
     async RequestGetAllModel() {
+      if(this.modelsList.length>0){ 
+        return;
+      }
       GetAllModel().then((res) => {
         console.log("获取所有单品模型 ", res);
         //先记录旧照片

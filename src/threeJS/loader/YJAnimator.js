@@ -48,7 +48,7 @@ class YJAnimator {
         mixer.clipAction(animations[i]).stop();
       }
       let action = mixer.clipAction(animations[i]);
-      action.timeScale = timeScale;
+      action.timeScale = parseInt(timeScale) ;
       action.play();//播放动画 
       console.log("切换动画",animations[i]);
 

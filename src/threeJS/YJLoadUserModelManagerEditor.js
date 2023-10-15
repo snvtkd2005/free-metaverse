@@ -269,10 +269,14 @@ class YJLoadUserModelManager {
       let object = new YJTransform(_this, scene, "", null, null, modelData.name);
       let modelPath = modelData.modelPath;
       if (modelPath == undefined) {
-        if (callback) {
-          callback(object);
-        } 
-        return;
+        if (modelData.modelType == "NPC模型"){
+
+        }else{
+          if (callback) {
+            callback(object);
+          } 
+          return;
+        }
       } else {
         if (modelData.modelPath.includes("http")) {
 
@@ -338,22 +342,19 @@ class YJLoadUserModelManager {
 
 
         modelPath = modelData.message.data.avatarData.modelPath;
+
+        console.log(" modelPath ",modelPath);
         MeshRenderer.load(modelPath, (scope) => {
-          let component = new YJAnimator(scope.GetModel(), scope.GetAnimations());
-          object.AddComponent("Animator", component);
+          let Animator = new YJAnimator(scope.GetModel(), scope.GetAnimations());
+          object.AddComponent("Animator", Animator);
 
-          let avatar = new YJAvatar(_this, object.GetGroup(), component);
-          object.AddComponent("Avatar", avatar); 
-
-          let NPC = new YJNPC(_this, object.GetGroup(),avatar);
+          let NPC = new YJNPC(_this, object.GetGroup(),Animator);
           object.AddComponent("NPC", NPC);
           if (modelData.message != undefined) {
-            if (modelData.message.pointType == "npc") {
-              avatar.SetMessage(modelData.message.data.avatarData);
+            if (modelData.message.pointType == "npc") { 
               NPC.SetMessage(modelData.message.data);
             }
           }
-
 
           if (callback) {
             callback(object);

@@ -55,13 +55,19 @@
       <div v-show="panelState.particle" class=" mt-10  w-80 border-t max-w-md  ">
         <settingPanel_particle ref="settingPanel_particle" />
       </div>
+      
+      <div v-show="panelState.npc" class="mt-10 w-80 border-t max-w-md">
+        <settingPanel_npc ref="settingPanel_npc" />
+      </div>
     </div>
 
     <!-- 浮框按钮 -->
     <div class=" absolute right-80 top-0 ">
       <settingPanel ref="settingPanel" />
     </div>
+
     <modelPanel ref="modelPanel" />
+    <modelSelectPanel ref="modelSelectPanel" />
 
 
     <skillPanel ref="skillPanel" />
@@ -118,11 +124,15 @@ import YJmetaBase from "./YJmetaBase.vue";
 import PanelCut from "./PanelCut.vue";
 
 import modelPanel from "./modelPanel.vue";
+
+import modelSelectPanel from "./modelSelectPanel.vue";
+
 import settingPanel from "./settingPanel.vue";
 import sceneSettingPanel from "./sceneSettingPanel.vue";
 import settingPanel_uvAnim from "./settingPanel_uvAnim.vue";
 import settingPanel_screen from "./settingPanel_screen.vue";
 import settingPanel_particle from "./settingPanel_particle.vue";
+import settingPanel_npc from "./settingPanel_npc.vue";
 
 
 import skillPanel from "./components/skillPanel.vue";
@@ -145,12 +155,17 @@ import {
 export default {
   name: "EditorPanel",
   components: {
-    loadingPanel, YJmetaBase, modelPanel, settingPanel, PanelCut
-    , hierarchy,
+    loadingPanel, YJmetaBase, 
+    modelPanel, 
+    modelSelectPanel, 
+    settingPanel, 
+    PanelCut, 
+    hierarchy,
     sceneSettingPanel,
     settingPanel_uvAnim,
     settingPanel_screen,
     settingPanel_particle,
+    settingPanel_npc,
     skillPanel,
   },
   data() {
@@ -161,6 +176,8 @@ export default {
         model: true,
         uvAnim: false,
         screen: false,
+        particle: false,
+        npc: false,
       },
       hover: false,
       infloating: false,
@@ -1302,12 +1319,11 @@ export default {
       this.clickModelJS = transform;
       this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetLoadUserModelManager().EditorStart(this.clickModelJS);
       this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager._YJTransformManager.attach(transform.GetGroup());
-      // this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.SetSelectTransform(this.clickModelJS);
       this.UpdateComponentPanel();
     },
     UpdateComponentPanel() {
       this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.SetSelectTransform(this.clickModelJS);
-
+      
       let component = this.clickModelJS.GetComponent("UVAnim");
       if (component != null) {
         this.ChangePanel('uvAnim');
@@ -1329,6 +1345,14 @@ export default {
         this.ChangePanel('particle');
         let msg = this.clickModelJS.GetMessage();
         this.$refs.settingPanel_particle.Init(msg.data);
+        console.log(component);
+        return;
+      }
+      component = this.clickModelJS.GetComponent("NPC");
+      if (component != null) {
+        this.ChangePanel('npc');
+        let msg = this.clickModelJS.GetMessage();
+        this.$refs.settingPanel_npc.Init(msg.data);
         console.log(component);
         return;
       }

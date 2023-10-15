@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import { createText } from 'three/examples/jsm/webxr/Text2D.js';
- 
+
 
 
 // 可控 角色
@@ -13,9 +13,9 @@ import { createText } from 'three/examples/jsm/webxr/Text2D.js';
 // 4，设置 交互内容，图、文、视频
 
 class YJNPC {
-  constructor(_this,scene, _YJAvatar) {
+  constructor(_this, scene, _YJAnimator) {
     var scope = this;
- 
+
     let group = null;
     let playerHeight;
     let nameScale = 1;
@@ -32,17 +32,17 @@ class YJNPC {
       group = new THREE.Group();
       scene.add(group);
 
-      fromGroup = new THREE.Group();
-      scene.add(fromGroup);
-      fromGroup.rotation.set(Math.PI/2,0,0);
+      // fromGroup = new THREE.Group();
+      // scene.add(fromGroup);
+      // fromGroup.rotation.set(Math.PI/2,0,0);
 
       group.rotation.y += Math.PI;
- 
+
       // group.add(new THREE.AxesHelper(5)); // 场景添加坐标轴
       // return;
       update();
- 
-    } 
+
+    }
 
     let data = null;
     let npcPos = [];
@@ -51,12 +51,18 @@ class YJNPC {
       if (msg == null || msg == undefined || msg == "") { return; }
       // data = JSON.parse(msg);
       data = (msg);
-      console.log("in YJAvatar msg = " ,data); 
+      console.log("in YJAvatar msg = ", data);
 
       this.npcName = data.name;
-      nameScale = data.nameScale;
-      playerHeight = data.height;
+      nameScale = data.avatarData.nameScale;
+      playerHeight = data.avatarData.height;
       CreateNameTrans(this.npcName);
+      if (data.defaultPath == "" || data.defaultPath == undefined) {
+        data.defaultPath = "idle";
+      }
+
+      _YJAnimator.SetAnimationsData(data.avatarData.animationsData);
+      _YJAnimator.ChangeAnim(data.defaultPath);
 
       if (data.movePos && data.movePos.length > 0) {
         AddDirectPosToNavmesh(data.movePos);
@@ -66,13 +72,24 @@ class YJNPC {
 
         let p1 = data.movePos[navpath.length];
         let p2 = data.movePos[data.movePos.length - 1];
- 
+
         let fromPos = new THREE.Vector3(p1.x, p1.y, p1.z);
         let targetPos = new THREE.Vector3(p2.x, p2.y, p2.z);
         //npc随机在点位之间移动
         navpath = npcManager.GetNavpath(fromPos, targetPos);
         console.log("navpath ", navpath);
       }
+    }
+
+    this.UpdateModel = function (msg) {
+      if (msg == null || msg == undefined || msg == "") { return; }
+      // data = JSON.parse(msg);
+      data = (msg);
+      console.log("in YJAvatar msg = ", data);
+      nameScale = data.nameScale;
+      playerHeight = data.height; 
+
+ 
     }
 
     function AddDirectPosToNavmesh(movePos) {
@@ -115,18 +132,18 @@ class YJNPC {
         return false;
       }
       return false;
-    } 
+    }
     //#region 
     //#endregion
- 
+
     //创建姓名条参考物体
     let namePosTrans = null;
     function CreateNameTrans(content) {
-      if(namePosTrans == null){
+      if (namePosTrans == null) {
         namePosTrans = new THREE.Group();
         namePosTrans.name = "npcname";
         group.add(namePosTrans);
-      }else{
+      } else {
         namePosTrans.remove(namePosTrans.children[0]);
       }
       namePosTrans.position.set(0, (playerHeight + 0.3), 0); //原点位置
@@ -144,18 +161,18 @@ class YJNPC {
       resetButton.scale.set(size, size, size);
       namePosTrans.scale.set(nameScale, nameScale, nameScale);
 
-    } 
- 
+    }
+
 
     let lookAtObj = null;
- 
+
     //销毁组件
     this.Destroy = function () {
-      
-      cancelAnimationFrame(updateId); 
+
+      cancelAnimationFrame(updateId);
       scene.remove(group);
 
-    } 
+    }
     //放下后，获取模型的坐标和旋转，记录到服务器，让其他客户端创建
     this.GetPosRota = function (callback) {
       callback(group.position, group.rotation);
@@ -189,14 +206,17 @@ class YJNPC {
 
     }
 
+    this.ChangeAnim = function(v){
+      _YJAnimator.ChangeAnim(v);
+    }
     // NPC行为树、状态机
     function ChangeAnim(state) {
       if (state == "行走") {
-        animator.ChangeAnim("walk");
+        _YJAnimator.ChangeAnim("walk");
 
       }
       if (state == "停止") {
-        animator.ChangeAnim("idle");
+        _YJAnimator.ChangeAnim("idle");
         // 延迟3秒，从当前位置移动到设定路线的其他坐标
 
         setTimeout(() => {
@@ -312,17 +332,17 @@ class YJNPC {
       var raycaster = new THREE.Raycaster(pos, raytDricV3, 0, 100);
       // var hits = raycaster.intersectObjects( _this.pointsParent, true);
       // var hits = raycaster.intersectObjects(scene.children, true);
-      var hits = raycaster.intersectObjects( _this._YJSceneManager.GetAllLandCollider(), true);
-      
+      var hits = raycaster.intersectObjects(_this._YJSceneManager.GetAllLandCollider(), true);
+
       if (hits.length > 0) {
         for (let i = 0; i < hits.length; i++) {
-          const hit = hits[i].object; 
+          const hit = hits[i].object;
           if (hit.name.includes("land")) {
             // hit.visible = true;
             // hit.material.opacity = 0.5;
             return hits[i].point;
           }
-        } 
+        }
       }
       pos.y -= 5;
       return pos.clone();

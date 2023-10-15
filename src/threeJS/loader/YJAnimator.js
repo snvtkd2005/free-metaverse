@@ -34,6 +34,7 @@ class YJAnimator {
       animationsData = v;
     }
     this.ChangeAnim = function (animName) { 
+      console.log(" in change anim " ,animName,animationsData);
       for (let i = 0; i < animationsData.length; i++) {
         const element = animationsData[i];
         if(element.animName == animName){
@@ -62,14 +63,17 @@ class YJAnimator {
     this.SetCurrentTime = function (f) {
       oneAction.time = f;
     }
+    this.Destroy = function(){
+      mixer = null;
+      cancelAnimationFrame(updateId);
+    }
 
 
     // 动画物体的同步。 用服务器统一的偏移时间来计算同步
     this.SetState = function (state) {
       let offsetTime = state.offsetTime;
       offsetTime = parseInt(offsetTime % oneActionDuration / 1000);
-      this.SetCurrentTime(offsetTime);
-      // console.log("anim model 接收同步 ",oneActionDuration,offsetTime,);
+      this.SetCurrentTime(offsetTime); 
     }
 
     this.Play = function () {
@@ -135,18 +139,14 @@ class YJAnimator {
       }
     }
 
-
+    this.UpdateModel = function (model,_animations) { 
+      mixer = new THREE.AnimationMixer(model); 
+      animations = _animations;
+      update();
+    }
     function Init() {
-
-      // let needCut = CheckNeedCut(name);
-      // SetModelAnimationClip(model, animations[0], needCut);
-
-
-      mixer = new THREE.AnimationMixer(model);
-      // console.log("加载动画物体 model " , model);
-      // console.log("加载动画物体 animations ", animations);
+      mixer = new THREE.AnimationMixer(model); 
       animCount = animations.length;
-
       try {
         for (let i = 0; i < animCount; i++) {
           let action = mixer.clipAction(animations[i]);
@@ -155,7 +155,6 @@ class YJAnimator {
 
       } catch (error) {
         console.log("加载动画物体 出错 ", name);
-        LoadCompleted();
         return;
       }
 
@@ -188,11 +187,8 @@ class YJAnimator {
       }
 
       playActinByIndex(0);
-
-      // oneActionDuration = oneAction._clip.duration * 1000;
-      // console.log("动画长度为 ",oneActionDuration);
+ 
       update();
-      LoadCompleted();
     }
     function playActinByIndex(i) {
       let action = actions[i];
@@ -379,15 +375,6 @@ class YJAnimator {
       });
 
     }
-
-
-    function LoadCompleted() {
-
-      // mixer.addEventListener('loop', function (e) {
-      //   console.log(" ===== 到达模型动画 loop 点 ===== ",e); 
-      // }); 
-    }
-
 
     this.SetMessage = function (msg) {
       if (msg == null || msg == undefined || msg == "") { return; }

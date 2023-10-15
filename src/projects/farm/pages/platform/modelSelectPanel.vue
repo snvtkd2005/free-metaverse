@@ -78,7 +78,7 @@ export default {
   data() {
     return {
 
-      isOpen: true,
+      isOpen: false,
       // 是否正在加载
       loading: false,
       // 提示文字内容

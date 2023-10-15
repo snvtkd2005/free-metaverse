@@ -3,6 +3,8 @@
 <template>
   <!-- 顶部 -->
   <input class=" w-full" ref="input" type="text" :value="value" 
+        @focus="focus"
+        @blur="blur"
    >
 </template>
 
@@ -18,7 +20,7 @@ export default {
     };
   },
   created() {
-
+    
   },
   mounted() {
     let that = this;
@@ -35,6 +37,10 @@ export default {
   },
   methods: {
     
+    focus() {
+      this.$parent.$parent.removeThreeJSfocus();
+    },
+    blur() {},
 
   },
 };

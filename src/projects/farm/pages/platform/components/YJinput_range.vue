@@ -3,7 +3,8 @@
 <template>
   <!-- 顶部 -->
   <input ref="input" type="range" :value="value" :step="step" :min="min" :max="max"
-   >
+           @focus="focus"
+        @blur="blur">
 </template>
 
 <script>
@@ -31,6 +32,10 @@ export default {
   },
   methods: {
     
+    focus() {
+      this.$parent.$parent.removeThreeJSfocus();
+    },
+    blur() {},
 
   },
 };

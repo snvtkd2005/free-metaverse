@@ -170,6 +170,12 @@ export default {
 
   },
   methods: {
+    
+    removeThreeJSfocus() {
+      this.$parent.removeThreeJSfocus();
+    },
+    addThreeJSfocus() { 
+    },
     getSettingItemByProperty(property){
       for (let i = 0; i < this.setting.length; i++) {
         const element = this.setting[i];

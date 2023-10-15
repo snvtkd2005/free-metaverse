@@ -3,7 +3,7 @@
 <template>
   <!-- 顶部 -->
 
-  <input  ref="input" type="color" :value="value">
+  <input  ref="input" type="color" :value="value" >
   <div>{{ value }}</div>
 </template>
 
@@ -32,6 +32,10 @@ export default {
   methods: {
 
 
+    focus() {
+      this.$parent.$parent.removeThreeJSfocus();
+    },
+    blur() {},
   },
 };
 </script>

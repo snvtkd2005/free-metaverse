@@ -42,7 +42,7 @@ class YJAnimator {
       } 
     }
     this.ChangeAnimByIndex = function (i, timeScale) {
-      console.log(animations,timeScale);
+      console.log(i,animations,timeScale);
       for (let i = 0; i < animations.length; i++) {
         mixer.clipAction(animations[i]).stop();
       }

@@ -141,6 +141,11 @@ export default {
   },
   methods: {
 
+    removeThreeJSfocus() {
+      this.$parent.removeThreeJSfocus();
+    },
+    addThreeJSfocus() { 
+    },
     initValue() {
 
       for (let i = 0; i < this.setting.length; i++) {

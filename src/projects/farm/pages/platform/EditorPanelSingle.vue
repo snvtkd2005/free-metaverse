@@ -302,6 +302,7 @@ export default {
         tipContent: "sdfsdf",
         uploadProgress: "",
       },
+      currentSettingPanel: null,
     };
   },
   created() {
@@ -384,6 +385,9 @@ export default {
       // console.log(list);
       this.panelState[e] = true;
       this.hasUI = true;
+      setTimeout(() => {
+        this.currentSettingPanel = this.$refs["settingPanel_" + e];
+      }, 200);
       return;
       if (this.openModelPanel != e) {
         this.openModelPanel = e;
@@ -404,6 +408,7 @@ export default {
 
       if (this.modelData.modelType == "NPC模型") {
         this.ChangePanel("npc");
+        this.$refs.modelPanel.isOpen = true;
         this.$refs.modelPanel.Init("角色模型");
       }
       if (this.modelData.modelType == "装备模型") {
@@ -545,7 +550,7 @@ export default {
         }
       }
       this.ThreejsHumanChat.threeJSfocus();
-      this.inputing = false;
+      this.inputing = false; 
     },
 
     // 模型数据上传完成后，保存并上传其文本文件数据

@@ -315,6 +315,7 @@ export default {
     addThreeJSfocus() {
       this.ThreejsHumanChat.threeJSfocus();
       this.inputing = false;
+      //取消设置面板的input焦点
     },
     Enter() {
       let avatarName = PlayerAnimData.defaultUser.avatarName;

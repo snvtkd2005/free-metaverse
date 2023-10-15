@@ -276,6 +276,11 @@ export default {
   },
   methods: {
 
+    removeThreeJSfocus() {
+      this.$parent.removeThreeJSfocus();
+    },
+    addThreeJSfocus() { 
+    },
     SetAnimList(_animList) {
       this.animList = [];
       for (let i = 0; i < _animList.length; i++) {

@@ -56,6 +56,10 @@ export default {
   methods: {
 
 
+    focus() {
+      this.$parent.$parent.removeThreeJSfocus();
+    },
+    blur() {},
   },
 };
 </script>

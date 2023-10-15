@@ -123,6 +123,12 @@ export default {
 
   },
   methods: {
+    
+    removeThreeJSfocus() {
+      this.$parent.removeThreeJSfocus();
+    },
+    addThreeJSfocus() { 
+    },
     Init(data) {
       this.uvAnimData = data;
       this.setting[0].url =   this.uvAnimData.gifPath;

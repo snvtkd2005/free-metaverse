@@ -1,7 +1,9 @@
 
 // 场景设置
 <template>
-   <textarea name=""  class=" w-full" id="" ref="input" :value="value"  cols="30" rows="10"></textarea>
+   <textarea name=""  class=" w-full" id="" ref="input" :value="value"  cols="30" rows="10"
+           @focus="focus"
+        @blur="blur"></textarea>
 </template>
 
 <script>
@@ -34,6 +36,10 @@ export default {
   methods: {
     
 
+    focus() {
+      this.$parent.$parent.removeThreeJSfocus();
+    },
+    blur() {},
   },
 };
 </script>

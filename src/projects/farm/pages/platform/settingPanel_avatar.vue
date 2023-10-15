@@ -19,7 +19,7 @@
             class="w-full h-auto"
             :value="item.value"
             :index="i"
-            :callback="item.callback"
+            :callback="item.callback"  
           />
         </div>
 
@@ -28,7 +28,7 @@
             :value="item.value"
             :step="item.step"
             :index="i"
-            :callback="item.callback"
+            :callback="item.callback" 
           />
         </div>
       </div>
@@ -210,6 +210,13 @@ export default {
           connected: false,
           targetIndex: 2,
         },
+        {
+          clipIndex: 3,
+          animName: "run",
+          timeScale: 1,
+          connected: false,
+          targetIndex: 3,
+        },
       ],
 
       setting: [
@@ -233,9 +240,8 @@ export default {
   mounted() {
     let modelData = JSON.parse(localStorage.getItem("modelData"));
 
-    
     this.settingData.name = modelData.name;
-    
+
     if (modelData == null) {
       return;
     }
@@ -249,6 +255,12 @@ export default {
     this.initValue();
   },
   methods: {
+     
+    removeThreeJSfocus() {
+      this.$parent.removeThreeJSfocus();
+    },
+    addThreeJSfocus() { 
+    },
     setSettingItemByProperty(property, value) {
       for (let i = 0; i < this.setting.length; i++) {
         const element = this.setting[i];
@@ -355,19 +367,18 @@ export default {
       this.animations[i].connectAnim = "";
       this.animations[i].targetIndex = -1;
     },
-    
-    ChangeAnimByIndex(i) { 
-      this.selectCurrentIndex = i;
-      this.avatar.ChangeAnimByIndex(i, this.animations[i].timeScale); 
 
-      if (this.animations[i].targetIndex != -1) {
+    ChangeAnimByIndex(i) {
+      this.selectCurrentIndex = i;
+      this.avatar.ChangeAnimByIndex(i,this.animations[i].timeScale);
+      if (this.animations[i].targetIndex != -1 && this.animations[i].targetIndex<this.animationsData.length) {
         this.animationsData[this.animations[i].targetIndex].timeScale =
           parseFloat(this.animations[this.selectCurrentIndex].timeScale);
       }
     },
 
-    ChangeAnim(animName) { 
-      this.avatar.ChangeAnim(animName); 
+    ChangeAnim(animName) {
+      this.avatar.ChangeAnim(animName);
     },
     SelectBaseAnim(i) {
       // 清除其他按钮的状态
@@ -417,7 +428,13 @@ export default {
             const item = this.animations[i];
             for (let j = 0; j < temp.length; j++) {
               const element = temp[j];
-              if (element.animName == item.localAnimName) {
+              // if (element.animName == item.localAnimName) {
+              //   element.connectAnim = item.animName;
+              //   element.connected = true;
+              //   element.targetIndex = item.targetIndex;
+              //   element.timeScale = item.timeScale;
+              // }
+              if (element.clipIndex == item.targetIndex) {
                 element.connectAnim = item.animName;
                 element.connected = true;
                 element.targetIndex = item.targetIndex;

@@ -186,6 +186,12 @@ export default {
 
   },
   methods: {
+    
+    removeThreeJSfocus() {
+      this.$parent.removeThreeJSfocus();
+    },
+    addThreeJSfocus() { 
+    },
     initValue() {
       this.setting[1].value = this.carData.param.chassisWidth;
       this.setting[2].value = this.carData.param.chassisHeight;

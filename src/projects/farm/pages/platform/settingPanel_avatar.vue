@@ -1,7 +1,7 @@
 
 // UV动画设置
 <template>
-  <!-- 场景设置面板 -->
+  <!-- avatar设置 -->
   <div class="w-80 max-w-md p-2 text-white rounded-lg overflow-hidden">
     <div class="text-left">avatar设置</div>
 

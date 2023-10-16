@@ -4,8 +4,7 @@
   <div class="absolute left-0 top-0 z-999 w-full h-full flex flex-col">
     <button ref="opacityBtn" class="opacity-0"></button>
     <!-- 顶部 -->
-    <div
-      class="
+    <div class="
         absolute
         z-20
         left-0
@@ -15,46 +14,24 @@
         flex
         bg-445760
         text-gray-200
-      "
-    >
+      ">
       <!-- 顶部工具栏 -->
       <!-- table -->
       <div class="flex">
-        <el-upload
-          class="bg-transparent"
-          action=""
-          multiple
-          :before-upload="handleBeforeUpload"
-          :accept="accept"
-          :show-file-list="false"
-        >
+        <el-upload v-if="hasImport" class="bg-transparent" action="" multiple :before-upload="handleBeforeUpload"
+          :accept="accept" :show-file-list="false">
           <!-- :before-upload="changeFile" -->
           <div class="p-2 w-20 cursor-pointer hover:bg-546770">导入</div>
         </el-upload>
 
         <div class="hidden relative w-40 cursor-pointer">
-          <label class="absolute left-0 cursor-pointer mt-2 ml-2"
-            >导入文件夹</label
-          >
-          <input
-            class="absolute left-0 w-full opacity-0 h-full cursor-pointer"
-            title=""
-            ref="fileRef"
-            type="file"
-            name="file"
-            webkitdirectory
-            @change.stop="change"
-          />
+          <label class="absolute left-0 cursor-pointer mt-2 ml-2">导入文件夹</label>
+          <input class="absolute left-0 w-full opacity-0 h-full cursor-pointer" title="" ref="fileRef" type="file"
+            name="file" webkitdirectory @change.stop="change" />
         </div>
 
-        <div
-          v-for="(item, i) in tableList"
-          :key="i"
-          :index="item.id"
-          class="px-12 flex h-10 text-center hover:bg-546770"
-          :class="0 == item.id ? ' ' : ' cursor-pointer '"
-          @click="ChangeTable(item)"
-        >
+        <div v-for="(item, i) in tableList" :key="i" :index="item.id" class="px-12 flex h-10 text-center hover:bg-546770"
+          :class="0 == item.id ? ' ' : ' cursor-pointer '" @click="ChangeTable(item)">
           <div class="self-center">
             {{ item.content }}
           </div>
@@ -112,26 +89,20 @@
     <!-- 修改名称 -->
     <div class="absolute left-2 top-12 flex text-white">
       <div class="w-auto h-6 mt-1">单品名:</div>
-      <input
-        class="bg-transparent placeholder-gray-400 p-1"
-        type="text"
-        v-model="modelData.name"
-        :placeholder="modelData.name"
-        @focus="removeThreeJSfocus"
-        @blur="addThreeJSfocus"
-      />
+      <input class="bg-transparent placeholder-gray-400 p-1" type="text" v-model="modelData.name"
+        :placeholder="modelData.name" @focus="removeThreeJSfocus" @blur="addThreeJSfocus" />
     </div>
 
     <!-- 截图区域安全区域 -->
     <PanelCut @cancel="CancelCut" ref="PanelCut" />
 
     <modelSelectPanel ref="modelSelectPanel" />
+    <animPanel ref="animPanel" />
 
     <!-- 与后台交互的操作提示 -->
     <!---->
     <div v-if="tipData.opening" class="absolute left-0 top-10 w-full flex">
-      <div
-        class="
+      <div class="
           mx-auto
           flex
           w-auto
@@ -139,16 +110,14 @@
           text-white text-xl
           rounded-lg
           h-10
-        "
-      >
+        ">
         <div class="px-4 mx-auto self-center">
           {{ tipData.tipContent }} --- {{ tipData.uploadProgress }}
         </div>
       </div>
     </div>
 
-    <div
-      class="
+    <div class="
         hidden
         md:flex
         absolute
@@ -156,8 +125,7 @@
         bottom-10
         w-auto
         pointer-events-none
-      "
-    >
+      ">
       <div class="flex w-auto text-white text-md rounded-lg h-10">
         <div class="px-4 text-left mx-auto self-center">
           键盘操作：<br />
@@ -180,6 +148,8 @@ import YJmetaBase from "./YJmetaBase.vue";
 import PanelCut from "./PanelCut.vue";
 
 import modelSelectPanel from "./modelSelectPanel.vue";
+import animPanel from "./animPanel.vue";
+
 // 加载进度页
 import loadingPanel from "./loadingPanel2.vue";
 import settingPanel_uvAnim from "./settingPanel_uvAnim.vue";
@@ -204,6 +174,7 @@ export default {
     loadingPanel,
     YJmetaBase,
     modelSelectPanel,
+    animPanel,
     settingPanel_uvAnim,
     settingPanel_car,
     settingPanel_weapon,
@@ -235,6 +206,7 @@ export default {
       infloating: false,
 
       _SceneManager: null,
+      hasImport: true,
       tableList: [
         { id: "single_cut", content: "截图（制作缩略图）" },
         { id: "single_collider", content: "隐藏碰撞体", value: true },
@@ -347,28 +319,11 @@ export default {
     } else {
     }
 
-    if (this.folderBase == "farmplayer") {
-      let modelData = {
-        folderBase: "farmplayer",
-        modelType: "角色",
-      };
-      this.modelData = modelData;
-      localStorage.setItem("modelData", JSON.stringify(this.modelData));
-    }
-
     console.log("this.modelData ", this.modelData);
 
     this.RequestGetAllModel(() => {
       this.Load();
     });
-    return;
-    if (this.modelData.modelType == undefined) {
-      this.RequestGetAllModel(() => {
-        this.Load();
-      });
-    } else {
-      this.Load();
-    }
   },
   methods: {
     ChangePanel(e) {
@@ -399,20 +354,14 @@ export default {
       this.hasUI = false;
 
       if (this.modelData.modelType == "uv模型") {
-        this.ChangePanel("uvAnim");
       }
 
       if (this.modelData.modelType == "汽车模型") {
-        this.ChangePanel("car");
       }
 
-      if (this.modelData.modelType == "NPC模型") {
-        this.ChangePanel("npc");
-        // this.$refs.modelSelectPanel.isOpen = true;
-        // this.$refs.modelSelectPanel.Init("角色模型");
+      if (this.modelData.modelType == "NPC模型") { 
       }
       if (this.modelData.modelType == "装备模型") {
-        this.ChangePanel("weapon");
         setTimeout(() => {
           this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager
             .CreateOrLoadPlayerAnimData()
@@ -423,21 +372,17 @@ export default {
       }
 
       if (this.modelData.modelType == "角色") {
-        this.ChangePanel("player");
+        this.hasImport = false;
       }
 
       if (this.modelData.modelType == "角色模型") {
-        this.ChangePanel("avatar");
         setTimeout(() => {
-          this.$refs.settingPanel_avatar.SetAvatar(
+          this.$refs.settingPanel_player.SetAvatar(
             this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetSingleModelTransform()
           );
         }, 3000);
       }
-
-      if (this.modelData.modelType == "屏幕模型") {
-        this.ChangePanel("screen");
-      }
+ 
 
       let modelTemplate = this.UIData.customPanel.modelTemplate;
       for (let i = 0; i < modelTemplate.length; i++) {
@@ -550,7 +495,7 @@ export default {
         }
       }
       this.ThreejsHumanChat.threeJSfocus();
-      this.inputing = false; 
+      this.inputing = false;
     },
 
     // 模型数据上传完成后，保存并上传其文本文件数据
@@ -878,9 +823,9 @@ export default {
             //加载模型
             this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CreateSingleModel(
               "https://snvtkd2005.com/socketIoServer/socketIoServer/uploads/" +
-                this.folderBase +
-                "/" +
-                this.modelName,
+              this.folderBase +
+              "/" +
+              this.modelName,
               () => {
                 console.log("加载模型完成 33 ");
                 this.tipData.tipContent = "加载模型完成";
@@ -1054,9 +999,9 @@ export default {
     Photo(callback) {
       return this._SceneManager.Photo(callback);
     },
-    SetNpcMusicUrl(npcName) {},
+    SetNpcMusicUrl(npcName) { },
 
-    ClickChangeScene(sceneSetting) {},
+    ClickChangeScene(sceneSetting) { },
     //切换场景
     ChangeScene(sceneSetting) {
       this.avatarData = sceneSetting;
@@ -1199,26 +1144,26 @@ export default {
       // console.log(" 3转2 ",_projectionList);
     },
 
-    SetViewState(e) {},
+    SetViewState(e) { },
 
     // 点击角色NPC，显示NPC下方的光圈
     ClickPlayer(owner) {
       // this._YJGameManager.ClickPlayer(owner);
     },
-    ClickModel(hitObject) {},
-    HoverObject(hoverObject, hoverPoint) {},
+    ClickModel(hitObject) { },
+    HoverObject(hoverObject, hoverPoint) { },
 
     CreateHotContent(modelData, owner) {
       console.log("点击热点 ", modelData, owner);
 
       this.Interface.LoadData(modelData.id);
     },
-    ClickHotPointOwner(hitObject) {},
+    ClickHotPointOwner(hitObject) { },
 
     // 把视角切换到指定id的热点视角位置
-    ChangeViewById(id) {},
+    ChangeViewById(id) { },
 
-    ChangeViewFar() {},
+    ChangeViewFar() { },
 
     GetPublicUrl() {
       return this.publicUrl;

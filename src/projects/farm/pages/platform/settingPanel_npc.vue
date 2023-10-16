@@ -3,39 +3,22 @@
   <div class="w-80 max-w-md p-2 text-white rounded-lg overflow-hidden">
     <div class="text-left">npc 设置</div>
 
-    <div
-      v-for="(item, i) in setting"
-      :key="i"
-      class="text-xs text-left flex w-80 h-auto mb-2"
-    >
+    <div v-for="(item, i) in setting" :key="i" class="text-xs text-left flex w-80 h-auto mb-2">
       <div class="self-center w-40 truncate" v-show="item.display">
         {{ item.title }}
       </div>
       <div class="self-center w-20">
         <div v-if="item.type == 'text'" class="w-32 h-auto text-black">
-          <YJinput_text
-            class="w-full h-auto"
-            :value="item.value"
-            :index="i"
-            :callback="item.callback"
-          />
+          <YJinput_text class="w-full h-auto" :value="item.value" :index="i" :callback="item.callback" />
         </div>
 
         <div v-if="item.type == 'num'" class="flex gap-2 text-black">
-          <YJinput_number
-            :value="item.value"
-            :step="item.step"
-            :index="i"
-            :callback="item.callback"
-          />
+          <YJinput_number :value="item.value" :step="item.step" :index="i" :callback="item.callback" />
         </div>
       </div>
     </div>
 
-    <div
-      class="mt-10 w-80 h-10 text-white cursor-pointer"
-      @click="openModelPanel()"
-    >
+    <div class="mt-10 w-80 h-10 text-white cursor-pointer" @click="openModelPanel()">
       <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">
         {{ loadContent }}
       </div>
@@ -70,9 +53,9 @@ export default {
       selectCurrentIndex: 0,
       setting: [
         {
-          property: "avatarPath",
+          property: "name",
           display: true,
-          title: "角色模型地址",
+          title: "npc名称",
           type: "text",
           value: "",
           callback: this.ChangeValue,
@@ -82,7 +65,7 @@ export default {
       loadContent: "加载角色模型",
     };
   },
-  created() {},
+  created() { },
   mounted() {
     let modelData = JSON.parse(localStorage.getItem("modelData"));
     if (modelData == null) {
@@ -102,7 +85,7 @@ export default {
     removeThreeJSfocus() {
       this.$parent.removeThreeJSfocus();
     },
-    addThreeJSfocus() {},
+    addThreeJSfocus() { },
     setSettingItemByProperty(property, value) {
       for (let i = 0; i < this.setting.length; i++) {
         const element = this.setting[i];
@@ -164,7 +147,7 @@ export default {
             _YJAnimator.SetAnimationsData(item.message.data.animationsData);
             _YJAnimator.ChangeAnim("idle");
           },
-          (e) => {}
+          (e) => { }
         );
       }
     },
@@ -185,8 +168,8 @@ export default {
       this.settingData = _settingData;
       for (let i = 0; i < this.setting.length; i++) {
         const element = this.setting[i];
-        if (element.property == "url") {
-          element.value = this.settingData.url;
+        if (element.property == "name") {
+          element.value = this.settingData.name;
         }
       }
       console.log(" npc setting data ", _settingData);
@@ -194,7 +177,14 @@ export default {
     ChangeValue(i, e) {
       this.setting[i].value = e;
       this.settingData[this.setting[i].property] = e;
-
+      if (this.setting[i].property == "name") {
+        //改变三维中的姓名条
+        // 控制三维
+        this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager
+          .GetSingleModelTransform()
+          .GetComponent("NPC")
+          .SetName(e);
+      }
       console.log(i + " " + this.setting[i].value);
     },
     save() {
@@ -232,6 +222,7 @@ export default {
       );
       // 调用场景保存
       if (this.$parent.updateSceneModelData) {
+        this.$parent.tableList[2].value = true;
         this.$parent.updateSceneModelData();
       }
     },

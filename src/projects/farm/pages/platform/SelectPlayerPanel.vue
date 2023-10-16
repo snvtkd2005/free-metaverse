@@ -67,7 +67,7 @@
               relative
             "
             :class="selectPlayerName == item.name ? ' ' : ' '"
-            @click="SelectAvatar(item.name)"
+            @click="SelectAvatar(item)"
           >
             <div class="self-center mx-auto w-full h-full rounded-full">
               <img class="w-full h-full rounded-full" :src="item.img" />
@@ -150,8 +150,8 @@
         :callback="ChangeAnim"
       />
 
+      <!-- v-if="this.selectPlayerName == '小孩'" -->
       <div
-        v-if="this.selectPlayerName == '小孩'"
         class="mt-2 w-32 h-10 text-white cursor-pointer"
         @click="editorPlayer()"
       >
@@ -263,6 +263,7 @@ export default {
           // 加入到选中icon中，角色名、角色icon
           this.playerImgPath.push({
             name: element.name,
+            folderBase: element.folderBase,
             img: this.$uploadUrl + element.icon,
           });
           // 到角色数据中，模型路径、动画数据
@@ -309,10 +310,11 @@ export default {
     },
     editorPlayer() {
       let item = {
-        folderBase: "farmplayer",
+        // folderBase: "farmplayer",
+        folderBase: this.folderBase ,
         modelType: "角色",
       };
-      localStorage.setItem("modelData", JSON.stringify(item));
+      localStorage.setItem("playerData", JSON.stringify(item));
       let path = "/editorSingle";
       _Global.reloadTimes = 1;
       // 新窗口 新标签
@@ -485,8 +487,13 @@ export default {
     GetPublicUrl() {
       return this.publicUrl;
     },
-    SelectAvatar(e) {
-      this.selectPlayerName = e;
+    SelectAvatar(item ) {
+      this.selectPlayerName = item.name;
+      this.folderBase = item.folderBase;
+      
+      if(this.selectPlayerName == "小孩"){
+        this.folderBase = "farmplayer";
+      }
       // console.log("this.selectPlayerName = " + this.selectPlayerName);
       //加载3d模型
       this.$refs.playerSelect3DPanel.SelectAvatar(this.selectPlayerName);
@@ -500,7 +507,7 @@ export default {
       } else {
         this.$refs.playerSelect3DPanel.ChangeSkinCompleted();
       }
-      this.updateAnimList(e);
+      this.updateAnimList(this.selectPlayerName);
       localStorage.setItem("avatarName", this.selectPlayerName);
     },
     ClickeSelectOK() {

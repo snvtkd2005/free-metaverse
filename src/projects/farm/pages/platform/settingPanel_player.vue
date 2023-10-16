@@ -1,7 +1,8 @@
 
 // 角色设置
 <template>
-  <!-- 面板 -->
+  <settingPanel_avatar ref="settingPanel_avatar" /> 
+  <!-- 角色设置面板 -->
   <div class="
               w-80
               max-w-md
@@ -32,7 +33,7 @@
 
         <div v-if="item.type == 'upload'" class=" relative flex  gap-2 cursor-pointer  ">
           <div>{{ item.url }}</div>
-          <el-upload class="bg-transparent" action="" :before-upload="handleBeforeUpload" :accept="accept"
+          <el-upload ref="uploadAnimBtn" class="bg-transparent" action="" :before-upload="handleBeforeUpload" :accept="accept"
             :show-file-list="false">
             <div class="p-2 w-20 cursor-pointer bg-gray-500
             hover:bg-546770">上传</div>
@@ -75,10 +76,14 @@
       </div>
 
     </div>
-    <!-- <div class=" mt-10 w-80 h-10 text-white cursor-pointer " @click="load()">
-      <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">{{ loadContent }}</div>
-    </div> -->
 
+
+    <div class=" mt-10 w-80 h-10 text-white cursor-pointer " @click="load()">
+      <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">{{ loadContent }}</div>
+    </div>
+    <div class=" w-80 h-10 text-white cursor-pointer " @click="download()">
+      <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">下载模型</div>
+    </div>
     <div v-if="canSave" class=" mt-2 w-80 h-10 text-white cursor-pointer " @click="save()">
       <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">保存</div>
     </div>
@@ -193,16 +198,19 @@ import YJinput_toggle from "./components/YJinput_toggle.vue";
 import YJinput_drop from "./components/YJinput_drop.vue";
 import YJinput_vector3 from "./components/YJinput_vector3.vue";
 
+import settingPanel_avatar from "./settingPanel_avatar.vue";
+
 import { UploadFile, UploadSkill, UploadPlayerFile } from "../../js/uploadThreejs.js";
 
 export default {
   name: "settingpanel_player",
   components: {
+    settingPanel_avatar,
+    YJinput_color,
     YJinput_range,
     YJinput_number,
-    YJinput_color,
-    YJinput_toggle,
     YJinput_text,
+    YJinput_toggle,
     YJinput_drop,
     YJinput_vector3,
   },
@@ -232,7 +240,7 @@ export default {
       accept: ".json",
       acceptImage: ".jpg,.png",
 
-      loadContent: "刷新",
+      loadContent: "打开动作列表",
       inSelect: false,
       folderBase: "",
       fileName: "",
@@ -266,16 +274,20 @@ export default {
 
 
     // _Global.SendMsgTo3D("添加组件", { component: "car", data: this.carData });
-    // let modelData = JSON.parse(localStorage.getItem("modelData"));
-    // this.folderBase = modelData.folderBase;
-    this.folderBase = "farmplayer";
+    this.modelData = JSON.parse(localStorage.getItem("modelData"));
+    this.folderBase = this.modelData.folderBase;
 
+    // this.folderBase = "farmplayer";
+    console.log("modelData in playerPanel " , this.modelData);
     this.initValue();
-
+ 
 
   },
   methods: {
-
+    SetAvatar(avatar) {
+      this.$refs.settingPanel_avatar.SetAvatar(avatar);
+    },
+    download(){},
     removeThreeJSfocus() {
       this.$parent.removeThreeJSfocus();
     },
@@ -296,6 +308,7 @@ export default {
       }
     },
     async initValue() {
+      return;
       let res = await this.$axios.get(
         this.$uploadPlayerUrl + this.folderBase + "/" + this.folderBase + "_data.txt" + "?time=" + new Date().getTime()
       );
@@ -325,8 +338,8 @@ export default {
       this.$parent.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetPlayerAnimName(e);
     },
     load() {
-      console.log(" 加载 武器 ");
-
+      console.log(" 打开动作列表 ");
+      this.$parent.$refs.animPanel.SetVisible(true,this.modelData.name);
     },
     Init(_carData) {
       this.carData = _carData;
@@ -418,11 +431,8 @@ export default {
     async UploadFiles_skillicon(file) {
       this.loading = true;
       this.hasModel = false;
-      let fromData = new FormData();
-      //服务器中的本地地址
-      fromData.append("fileToUpload", file);
-      // 单个文件上传，可多选。上传后放在根目录
-      //模型或场景文件夹的根目录在创建时由服务器返回
+      let fromData = new FormData(); 
+      fromData.append("fileToUpload", file); 
       fromData.append("folderBase", "");
 
 
@@ -444,7 +454,10 @@ export default {
         // console.log("上传文件后的返回值", url);
       });
     },
-
+    SetAnimName(v){
+      this.setting[0].value = v;
+      this.animName = this.setting[0].value; 
+    },
     handleBeforeUpload(file) {
       this.animName = this.setting[0].value;
       if (this.animName == "") {
@@ -483,33 +496,21 @@ export default {
       if (this.loading) {
         return;
       }
-
-
       this.loading = true;
       this.hasModel = false;
-      let that = this;
-
       let fromData = new FormData();
-      //服务器中的本地地址
       fromData.append("fileToUpload", file);
-      // 单个文件上传，可多选。上传后放在根目录
-      //模型或场景文件夹的根目录在创建时由服务器返回
       fromData.append("folderBase", this.folderBase);
 
       let fileName = file.name;
 
-      //上传到本地 或 0SS
       UploadPlayerFile(fromData).then((res) => {
         console.log(" 上传文件 ", res);
-
-
         if (res.data == "SUCCESS") {
           this.fileList.shift();
           this.loading = false;
           if (this.fileList.length > 0) {
-
             console.log("准备上传。。", fileName);
-
             this.UploadFiles(this.fileList[0]);
           } else {
             console.log(" 上传文件完成 ");
@@ -517,16 +518,12 @@ export default {
             this.currentAnimData.animName = this.animName;
             this.currentAnimData.path = fileName;
             let items = [this.currentAnimData];
-            this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CreateOrLoadPlayerAnimData().AddAllExtendAnimData("小孩", items);
+            this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CreateOrLoadPlayerAnimData().AddAllExtendAnimData(this.modelData.name, items);
             // 加载动作
             this.$parent.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetPlayerAnimName(this.animName);
 
           }
         }
-        // if (res.status == 200) {
-        // }
-        // //先记录旧照片
-        // console.log("上传文件后的返回值", url);
       });
     },
 
@@ -554,9 +551,9 @@ export default {
           this.$parent.SetTip("保存成功");
           this.canSave = false;
 
-          let animList = this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CreateOrLoadPlayerAnimData().AddAllExtendAnimData("小孩", this.animListData);
+          let animList = this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CreateOrLoadPlayerAnimData().AddAllExtendAnimData(this.modelData.name, this.animListData);
           this.SetAnimList(animList);
-          window.location.reload();
+          // window.location.reload();
         }
       });
 

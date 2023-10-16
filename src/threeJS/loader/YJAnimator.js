@@ -191,6 +191,7 @@ class YJAnimator {
       update();
     }
     function playActinByIndex(i) {
+      if(actions.length<=i){return;}
       let action = actions[i];
       setWeight(action.action, action.weight, action.scale);
       action.action.reset();

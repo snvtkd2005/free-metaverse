@@ -47,6 +47,10 @@ class YJNPC {
     let data = null;
     let npcPos = [];
     this.npcName = "";
+    this.SetName = function(v){
+      this.npcName = v;
+      CreateNameTrans(this.npcName);
+    }
     this.SetMessage = function (msg) {
       if (msg == null || msg == undefined || msg == "") { return; }
       // data = JSON.parse(msg);

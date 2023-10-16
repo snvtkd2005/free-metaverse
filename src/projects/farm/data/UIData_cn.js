@@ -54,7 +54,7 @@ export default {
       { id: 5, templateType: "Model", name: "装备模型", panel: "weapon", content: "装备模型 。如武器" },
       { id: 6, templateType: "Model", name: "屏幕模型", panel: "screen", content: "屏幕容器模型 。可以播放图片、视频、直播流" },
       { id: 7, templateType: "Model", name: "粒子特效", panel: "particle", content: "粒子特效" },
-      { id: 8, templateType: "Model", name: "角色模型", panel: "avatar", content: "角色模型。玩家可控角色，必须包含待机idle、行走walk动作" },
+      { id: 8, templateType: "Model", name: "角色模型", panel: "player", content: "角色模型。玩家可控角色，必须包含待机idle、行走walk动作" },
       { id: 9, templateType: "Model", name: "NPC模型", panel: "npc", content: "场景npc。形象从角色模型中选择，执行一系列事件" },
     ],
     selectModel: [

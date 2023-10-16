@@ -11,12 +11,11 @@
       flex
        bg-gray-500 bg-opacity-70
       text-white 
-      overflow-hidden
-    "
-    @click="isOpen=false"
+    " 
   >
     <div class=" self-center mx-auto w-1/2 h-1/2 bg-gray-100 
-      rounded-tr-lg rounded-tl-lg ">
+      rounded-tr-lg rounded-tl-lg 
+       relative">
       <!-- 分类table -->
       <div class="flex bg-546770">
         <div
@@ -80,6 +79,10 @@
           </div>
         </div>
       </div>
+      
+      <div class=" absolute -right-5 -top-5 rounded-full w-10 h-10 bg-white text-black flex cursor-pointer "
+        @click="isOpen=false;">
+          <div class=" self-center mx-auto ">X</div></div>
     </div>
   </div>
 </template>

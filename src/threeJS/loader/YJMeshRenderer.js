@@ -83,6 +83,14 @@ class YJMeshRenderer {
  
 
           animations =  model.animations ;
+          for (let i = animations.length-1; i >= 0; i--) {
+            const element = animations[i];
+            if(element.tracks.length == 0){
+              animations.splice(i,1);
+            }  
+          }
+          model.animations = animations;
+
           let scale = 0.01;
           model.scale.set(1 * scale, 1 * scale, 1 * scale);
 

@@ -62,8 +62,19 @@ export default {
 
       this._YJ3dScene.NeedChangeSkin();
       // console.log("selectPlayerName = " + selectPlayerName);
+      let avatarData = this._YJ3dScene.CreateOrLoadPlayerAnimData().GetAvatarData(selectPlayerName);
+      let modelData = {
+        name:avatarData.name,
+        modelType:"角色模型",
+        modelPath:avatarData.modelPath,
+        message:{
+          data:avatarData
+        }
+      }
+      localStorage.setItem("modelData", JSON.stringify(modelData));
+
       //加载3d模型
-      this._YJ3dScene.ChangeAvatarByCustom(this._YJ3dScene.CreateOrLoadPlayerAnimData().GetAvatarData(selectPlayerName),callback);
+      this._YJ3dScene.ChangeAvatarByCustom(avatarData,callback);
     },
     AddAvatarData (avatarData){
       this._YJ3dScene.CreateOrLoadPlayerAnimData().AddAvatarData(avatarData);

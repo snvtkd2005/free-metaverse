@@ -269,17 +269,19 @@ class YJLoadUserModelManager {
       let object = new YJTransform(_this, scene, "", null, null, modelData.name);
       let modelPath = modelData.modelPath;
       if (modelPath == undefined) {
-        if (modelData.modelType == "NPC模型"){
+        if (modelData.modelType == "NPC模型") {
 
-        }else{
+        } else {
           if (callback) {
             callback(object);
-          } 
+          }
           return;
         }
       } else {
         if (modelData.modelPath.includes("http")) {
 
+        } else if (modelData.modelPath.includes("models/player")) {
+          modelPath = _this.$publicUrl+"farm/" + modelData.modelPath
         } else {
           modelPath = uploadUrl + modelData.modelPath;
         }
@@ -320,7 +322,7 @@ class YJLoadUserModelManager {
           LoadError(uuid, callback, e);
         });
       } else if (modelData.modelType == "角色模型") {
-        if(modelPath){}
+        if (modelPath) { }
         MeshRenderer.load(modelPath, (scope) => {
           let component = new YJAnimator(scope.GetModel(), scope.GetAnimations());
           object.AddComponent("Animator", component);
@@ -328,7 +330,7 @@ class YJLoadUserModelManager {
           let avatar = new YJAvatar(_this, object.GetGroup(), component);
           object.AddComponent("Avatar", avatar);
           if (modelData.message != undefined) {
-            if (modelData.message.pointType == "avatar") {
+            if (modelData.message.pointType == "player" || modelData.message.pointType == "avatar") {
               avatar.SetMessage(modelData.message.data);
             }
           }
@@ -338,7 +340,7 @@ class YJLoadUserModelManager {
         }, (e) => {
           LoadError(uuid, callback, e);
         });
-      }else if (modelData.modelType == "NPC模型") {
+      } else if (modelData.modelType == "NPC模型") {
 
 
         modelPath = modelData.message.data.avatarData.modelPath;
@@ -346,15 +348,15 @@ class YJLoadUserModelManager {
           LoadError(uuid, callback);
           return;
         }
-        console.log(" modelPath ",modelPath);
+        console.log(" modelPath ", modelPath);
         MeshRenderer.load(modelPath, (scope) => {
           let Animator = new YJAnimator(scope.GetModel(), scope.GetAnimations());
           object.AddComponent("Animator", Animator);
 
-          let NPC = new YJNPC(_this, object.GetGroup(),Animator);
+          let NPC = new YJNPC(_this, object.GetGroup(), Animator);
           object.AddComponent("NPC", NPC);
           if (modelData.message != undefined) {
-            if (modelData.message.pointType == "npc") { 
+            if (modelData.message.pointType == "npc") {
               NPC.SetMessage(modelData.message.data);
             }
           }
@@ -365,7 +367,7 @@ class YJLoadUserModelManager {
         }, (e) => {
           LoadError(uuid, callback, e);
         });
-      }  else if (modelData.modelType == "uv模型") {
+      } else if (modelData.modelType == "uv模型") {
         MeshRenderer.load(modelPath, (scope) => {
           let uvanim = new YJUVAnim3(_this);
           object.AddComponent("UVAnim", uvanim);
@@ -487,7 +489,7 @@ class YJLoadUserModelManager {
       modelData.pos = pos;
 
       CreateTransform(parent, modelData, (object) => {
-        if(object){
+        if (object) {
           object.EditorEnd();
         }
         if (callback) {

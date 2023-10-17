@@ -308,9 +308,11 @@ export default {
     this.$refs.YJmetaBase.SetloadingPanel(this.$refs.loadingPanel);
 
     let modelData = JSON.parse(localStorage.getItem("modelData"));
-    this.modelData = modelData;
-    this.oldFileName = this.modelData.name;
-    this.folderBase = modelData.folderBase;
+    if (modelData) {
+      this.modelData = modelData;
+      this.oldFileName = this.modelData.name;
+      this.folderBase = modelData.folderBase;
+    }
 
     if (this.$route.params.folderBase != undefined) {
       this.folderBase = this.$route.params.folderBase;
@@ -319,6 +321,11 @@ export default {
     } else {
     }
 
+    // 如从虚拟形象编辑进入，则不显示导入按钮,并且不额外加载角色模型
+    if(localStorage.getItem("inAvatarEditor")){
+      localStorage.removeItem("inAvatarEditor");
+      this.hasImport = false;
+    }
     console.log("this.modelData ", this.modelData);
 
     this.RequestGetAllModel(() => {
@@ -359,7 +366,7 @@ export default {
       if (this.modelData.modelType == "汽车模型") {
       }
 
-      if (this.modelData.modelType == "NPC模型") { 
+      if (this.modelData.modelType == "NPC模型") {
       }
       if (this.modelData.modelType == "装备模型") {
         setTimeout(() => {
@@ -382,7 +389,7 @@ export default {
           );
         }, 3000);
       }
- 
+
 
       let modelTemplate = this.UIData.customPanel.modelTemplate;
       for (let i = 0; i < modelTemplate.length; i++) {
@@ -489,7 +496,7 @@ export default {
         if (this.oldFileName != this.modelData.name) {
           this.oldFileName = this.modelData.name;
           if (this.modelData.modelType == "角色模型") {
-            this.$refs.settingPanel_avatar.updateName(this.oldFileName);
+            this.$refs.settingPanel_player.updateName(this.oldFileName);
           }
           this.updateModelTxtData();
         }

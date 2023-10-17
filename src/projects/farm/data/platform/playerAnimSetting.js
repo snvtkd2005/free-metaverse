@@ -99,13 +99,14 @@ export default {
     },
 
     {
+      folderBase:"farmPlayer",
       name: "小孩",
       height: 1.7,
       nameScale: 1,
       // 模型缩放
       modelScale: 1,
       img: "img/player/farmPlayer.png",
-      modelType: "角色",
+      modelType: "角色模型",
       modelPath: "models/player/farmplayer/farmPlayer.fbx",
       animationsData: [
         { clipIndex: 0, animName: "idle", timeScale: 1, connected: false, targetIndex: 0 },

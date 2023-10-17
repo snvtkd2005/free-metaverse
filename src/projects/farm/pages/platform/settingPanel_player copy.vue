@@ -222,16 +222,6 @@ export default {
       animListData: [
         // { animName: "shooting",path:"anim.json",icon:""},
       ],
-      settingData: {
-        name: "",
-        id:"",
-        height: 1.4,
-        nameScale: 1,
-        modelScale: 1,
-        animationsData: [],
-        // 扩展动作，由加载外部动画文本解析得到
-        animationsExtendData:[],
-      },
 
       setting: [
         { property: "animName", title: "动作名", type: "text", value: "", callback: this.ChangeValue },
@@ -283,35 +273,16 @@ export default {
 
 
     // _Global.SendMsgTo3D("添加组件", { component: "car", data: this.carData });
-    let modelData = JSON.parse(localStorage.getItem("modelData"));
-    this.folderBase = modelData.folderBase;
+    this.modelData = JSON.parse(localStorage.getItem("modelData"));
+    this.folderBase = this.modelData.folderBase;
 
     // this.folderBase = "farmplayer";
-    console.log("modelData in playerPanel " , modelData);
-    this.settingData.name = modelData.name; 
-    if (modelData.message == undefined) {
-      this.settingData.id = this.$parent.folderBase + "";
-      return;
-    }
-
-    console.log(" modelData = ", modelData);
-    this.settingData = modelData.message.data; 
-    this.modelData = modelData;
+    console.log("modelData in playerPanel " , this.modelData);
     this.initValue();
  
-    this.$refs.settingPanel_avatar.initValue(this.settingData);
-    this.setSettingItemByProperty("isLoop",this.currentAnimData.isLoop);
+
   },
   methods: {
-    
-    setSettingItemByProperty(property, value) {
-      for (let i = 0; i < this.setting.length; i++) {
-        const element = this.setting[i];
-        if (element.property == property) {
-          element.value = value;
-        }
-      }
-    },
     SetAvatar(avatar) {
       this.$refs.settingPanel_avatar.SetAvatar(avatar);
     },
@@ -369,21 +340,6 @@ export default {
       console.log(" 打开动作列表 ");
       this.$parent.$refs.animPanel.SetVisible(true,this.modelData.name);
     },
-    
-    updateName(v) {
-      this.settingData.name = v;
-      this.$parent.modelData.message = {
-        pointType: "player",
-        data: this.settingData,
-      };
-
-      // 控制三维
-      this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager
-        .GetSingleModelTransform()
-        .GetComponent("Avatar")
-        .SetMessage(this.settingData);
-    },
-    
     Init(_carData) {
       this.carData = _carData;
     },
@@ -485,6 +441,8 @@ export default {
       //上传到本地 或 0SS
       UploadSkill(fromData).then((res) => {
         console.log(" 上传文件 ", res);
+
+
         if (res.data.state == "SUCCESS") {
           this.fileList.shift();
           this.skill.value = this.$uploadSkillUrl + res.data.data.filePath;
@@ -545,7 +503,7 @@ export default {
 
       let fileName = file.name;
 
-      this.$uploadFile(fromData).then((res) => {
+      UploadPlayerFile(fromData).then((res) => {
         console.log(" 上传文件 ", res);
         if (res.data == "SUCCESS") {
           this.fileList.shift();
@@ -557,26 +515,8 @@ export default {
             console.log(" 上传文件完成 ");
             this.canSave = true;
             this.currentAnimData.animName = this.animName;
-            this.currentAnimData.path =  fileName;
-            // this.$uploadUrl + this.folderBase + "/" +
+            this.currentAnimData.path = fileName;
             let items = [this.currentAnimData];
-            if(this.settingData.animationsExtendData == undefined){
-              this.settingData.animationsExtendData = [];
-            } 
-            // this.settingData.animationsExtendData = [];
-
-            let has = false;
-            for (let i = 0; i < this.settingData.animationsExtendData.length; i++) {
-              const element = this.settingData.animationsExtendData[i];
-              if(element.animName == this.currentAnimData.animName){
-                element.path = this.currentAnimData.path;
-                has = true;
-              }
-            }
-            if(!has){
-              this.settingData.animationsExtendData.push(this.currentAnimData);
-            }
-
             this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CreateOrLoadPlayerAnimData().AddAllExtendAnimData(this.modelData.name, items);
             // 加载动作
             this.$parent.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetPlayerAnimName(this.animName);
@@ -588,23 +528,12 @@ export default {
 
     save() {
       // 能保存的情况下，才显示保存按钮
-      console.log("角色数据 ", this.settingData);
+      this.animListData.push(this.currentAnimData);
+      this.Update();
 
-      // 单品中才有 updateModelTxtData
-      if (this.$parent.updateModelTxtData) {
-        this.$parent.modelData.message = {
-          pointType: "player",
-          data: this.settingData,
-        };
-        this.$parent.updateModelTxtData();
-      } else {
-        // 在场景编辑中的修改
-        this.Update();
-      }
     },
 
     Update() {
-
       let s = JSON.stringify(this.animListData);
       let fromData = new FormData();
       //服务器中的本地地址

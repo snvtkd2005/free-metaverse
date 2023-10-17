@@ -1,29 +1,31 @@
 
 import { createAnimationClip } from "/@/utils/utils_threejs.js";
+import { YJLoadAnimation } from "/@/threeJS/loader/YJLoadAnimation.js";
+
 
 // 读取模型的动作数据
-
 class YJPlayerAnimData {
   constructor(_this) {
     let scope = this;
     let PlayerAnimData;
+    let _YJLoadAnimation = null;
     function Init() {
       if (_this.GetPlayerAnimData) {
         PlayerAnimData = _this.GetPlayerAnimData();
-      }else
-      if (_this.$parent.GetPlayerAnimData) {
-        PlayerAnimData = _this.$parent.GetPlayerAnimData();
-      }else
-      if (_this.$parent.$parent.GetPlayerAnimData) {
-        PlayerAnimData = _this.$parent.$parent.GetPlayerAnimData();
-      }
+      } else
+        if (_this.$parent.GetPlayerAnimData) {
+          PlayerAnimData = _this.$parent.GetPlayerAnimData();
+        } else
+          if (_this.$parent.$parent.GetPlayerAnimData) {
+            PlayerAnimData = _this.$parent.$parent.GetPlayerAnimData();
+          }
       console.log(" in yj PlayerAnimData ", PlayerAnimData);
       scope.GetAllAnim(PlayerAnimData.defaultUser.avatarName);
     }
 
 
     this.GetAvatarData = function (playerName) {
-      console.error(" 查找角色信息  ", playerName);
+      console.error(" 查找角色信息  ", playerName, PlayerAnimData.avatarData);
       for (let i = 0; i < PlayerAnimData.avatarData.length; i++) {
         if (PlayerAnimData.avatarData[i].name == playerName) {
           return PlayerAnimData.avatarData[i];
@@ -43,19 +45,32 @@ class YJPlayerAnimData {
         }
       }
       if (has) {
-        console.log(avatarData);
+        console.log(animName, avatarData);
         if (avatarData.animationsExtendData != undefined) {
           for (let i = 0; i < avatarData.animationsExtendData.length; i++) {
             const element = avatarData.animationsExtendData[i];
             if (element.animName == animName) {
-              // _this.GetPublicUrl() + element.path
-              let path = (_this.$uploadPlayerUrl + "farmplayer/" + element.path);
+
+              let path = (_this.$uploadUrl + avatarData.id + "/" + element.path);
               // console.log("加载扩展动作 ",path);
-              this.LoadAssset(path, (data) => { 
-                if (callback) {
-                  callback(element.isLoop,createAnimationClip(animName, data));
+              if (path.includes("json")) {
+                this.LoadAssset(path, (data) => {
+                  console.log(" 读取扩展动作 ", path, data);
+                  if (callback) {
+                    callback(element.isLoop, createAnimationClip(animName, data));
+                  }
+                });
+              } else {
+                //fbx动作直接加载模型，提前里面的动画
+                if (_YJLoadAnimation == null) {
+                  _YJLoadAnimation = new YJLoadAnimation();
                 }
-              });
+                _YJLoadAnimation.load(path, (anim) => {
+                  if (callback) {
+                    callback(element.isLoop, anim);
+                  }
+                });
+              }
             }
           }
         }
@@ -89,20 +104,31 @@ class YJPlayerAnimData {
           const element = avatarData.animationsData[i];
           animList.push(element.animName);
         }
+
         //再查找其扩展动作
-        LoadExtendData(playerName, (animationsExtendData) => {
-          if (animationsExtendData != undefined) {
-            for (let i = 0; i < animationsExtendData.length; i++) {
-              animList.push(animationsExtendData[i]);
-            }
-          }
+        for (let i = 0; i < avatarData.animationsExtendData.length; i++) {
+          const element = avatarData.animationsExtendData[i];
+          animList.push(element.animName);
+        }
+        console.error(" 查找角色动作  ", playerName, animList);
 
-          console.error(" 查找角色动作  ", playerName,animList);
+        if (callback) {
+          callback(animList);
+        }
+        //再查找其扩展动作
+        // LoadExtendData(playerName, (animationsExtendData) => {
+        //   if (animationsExtendData != undefined) {
+        //     for (let i = 0; i < animationsExtendData.length; i++) {
+        //       animList.push(animationsExtendData[i]);
+        //     }
+        //   }
 
-          if (callback) {
-            callback(animList);
-          }
-        });
+        //   console.error(" 查找角色动作  ", playerName, animList);
+
+        //   if (callback) {
+        //     callback(animList);
+        //   }
+        // });
 
 
         // if (avatarData.animationsExtendData != undefined) {
@@ -128,10 +154,10 @@ class YJPlayerAnimData {
       }
     }
 
-    this.AddAvatarData = function(avatarData){
+    this.AddAvatarData = function (avatarData) {
       for (let i = 0; i < PlayerAnimData.avatarData.length; i++) {
         const element = PlayerAnimData.avatarData[i];
-        if(element.name == avatarData.name){
+        if (element.name == avatarData.name) {
           return;
         }
       }
@@ -182,12 +208,12 @@ class YJPlayerAnimData {
             }
           }
           if (!has) {
-            avatarData.animationsExtendData.push({ animName: item.animName,isLoop:item.isLoop, path: item.path });
+            avatarData.animationsExtendData.push({ animName: item.animName, isLoop: item.isLoop, path: item.path });
           }
 
         } else {
           avatarData.animationsExtendData = [];
-          avatarData.animationsExtendData.push({ animName: item.animName,isLoop:item.isLoop, path: item.path });
+          avatarData.animationsExtendData.push({ animName: item.animName, isLoop: item.isLoop, path: item.path });
         }
       }
       return this.GetAllExtendAnim(playerName);
@@ -203,10 +229,23 @@ class YJPlayerAnimData {
         }
       }
       if (has) {
-        avatarData.animationsExtendData = [];
+        if(avatarData.animationsExtendData == undefined){
+          avatarData.animationsExtendData = [];
+        }
         for (let i = 0; i < playerData.length; i++) {
           const item = playerData[i];
-          avatarData.animationsExtendData.push({ animName: item.animName,isLoop:item.isLoop, path: item.path });
+          let hass = false;
+          for (let j = 0; j < avatarData.animationsExtendData.length; j++) {
+            const element = avatarData.animationsExtendData[j];
+            if (element.animName == item.animName) {
+              element.isLoop = item.isLoop;
+              element.path = item.path;
+              hass = true;
+            }
+          }
+          if (!hass) {
+            avatarData.animationsExtendData.push({ animName: item.animName, isLoop: item.isLoop, path: item.path });
+          }
         }
       }
       return this.GetAllExtendAnim(playerName);
@@ -214,14 +253,14 @@ class YJPlayerAnimData {
 
 
     //#region 获取技能
-    this.GetSkillList = function(playerName,callback){
-      GetSkillListFn(playerName,callback);
+    this.GetSkillList = function (playerName, callback) {
+      GetSkillListFn(playerName, callback);
     }
-    async function GetSkillListFn(playerName,callback){
+    async function GetSkillListFn(playerName, callback) {
       if (playerName == "小孩") {
         let res = await _this.$axios.get(
           _this.$uploadPlayerUrl + "farmplayer/farmplayer" + "_skill_data.txt" + "?time=" + new Date().getTime()
-        ); 
+        );
         if (callback) {
           callback(res.data);
         }

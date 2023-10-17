@@ -9,9 +9,10 @@
       flex 
       text-white 
       overflow-hidden
+     pointer-events-none
     ">
-    <div class=" self-center mx-auto w-1/2 h-1/2 p-2 bg-gray-100 
-      rounded-tr-lg rounded-tl-lg ">
+    <div class=" absolute bottom-0 mx-auto w-1/2 h-1/2 p-2 bg-gray-100 
+      rounded-tr-lg rounded-tl-lg pointer-events-auto ">
 
       <!-- 技能面板 -->
       <div class="
@@ -34,23 +35,24 @@
             <div class=" hidden w-12 h-12 self-center mx-auto cursor-pointer" @click="EditorSkillEvent('读取', item)">
               <!-- <img class="w-full h-full object-fill hover:opacity-70" :src="item.icon" /> -->
             </div>
-            <div class=" w-1/3  truncate   flex  justify-between ">
+            <div class=" w-1/3  truncate   flex  justify-between " :class="item.has ? ' cursor-pointer ' : ''"
+              @click="ChangeAnim(item.animName)">
               <text>{{ item.animName }}</text>
             </div>
             <div class="  w-1/3 truncate   flex  justify-between ">
               <text>{{ item.content }}</text>
             </div>
 
-            
+
             <div class="  w-10 truncate   flex  justify-between ">
               <text>{{ item.has ? '有' : '没有' }}</text>
             </div>
- 
+
             <div class=" w-10 flex text-sm  justify-between">
               <div class="cursor-pointer bg-gray-100 " @click="EditorSkillEvent('编辑', item, i)">{{ UIData.base.editor }}
               </div>
             </div>
-            
+
             <div v-if="!item.has" class="  w-12 cursor-pointer text-white bg-gray-500
             hover:bg-546770" @click="EditorSkillEvent('上传', item, i)">去上传</div>
           </div>
@@ -62,7 +64,7 @@
       </div>
 
       <!-- 技能添加弹窗 -->
-      <div v-if="inAdd" class=" text-white bg-black bg-opacity-40   ">
+      <div v-if="inAdd" class=" absolute top-0 right-0 text-white bg-black bg-opacity-40   ">
 
         <div v-for="(item, i) in skillFrom" :key="i" class=" 
                text-xs  text-left flex w-80 px-4 py-2 h-auto mb-2     ">
@@ -120,6 +122,8 @@ export default {
       modelItem: null,
 
       uploadUrl: "",
+
+      avatarName:"",
     };
   },
   created() { },
@@ -131,7 +135,7 @@ export default {
 
   },
   methods: {
-    SetVisible(b,avatarName) {
+    SetVisible(b, avatarName) {
       this.isOpen = b;
       if (b) {
         this.initValue(avatarName);
@@ -139,6 +143,7 @@ export default {
     },
 
     async initValue(avatarName) {
+      this.avatarName = avatarName;
       let res = await this.$axios.get(
         this.$uploadPlayerUrl + "anim_data.txt" + "?time=" + new Date().getTime()
       );
@@ -147,7 +152,7 @@ export default {
 
       //获取当前角色已存在的动作
       _Global.CreateOrLoadPlayerAnimData().GetAllAnim(avatarName, (temp) => {
-        console.log(avatarName,temp);
+        console.log(avatarName, temp);
         for (let i = 0; i < this.animList.length; i++) {
           const anim = this.animList[i];
           anim.has = false;
@@ -162,7 +167,19 @@ export default {
 
       // this.SetSkillList(res.data);
     },
+    ChangeAnim(animName) {
+      let _YJAnimator = this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager
+        .GetSingleModelTransform()
+        .GetComponent("Animator");
+      let has = _YJAnimator.ChangeAnim(animName);
+      if (!has) {
+        //扩展动作
+        _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(this.avatarName, animName, (isLoop, anim) => {
+          _YJAnimator.ChangeAnimByAnimData(animName, isLoop, anim);
+        });
+      }
 
+    },
 
     ChangeValue(i, e) {
       console.log(i, e);
@@ -181,7 +198,7 @@ export default {
       if (e == "上传") {
         this.$parent.$refs.settingPanel_player.SetAnimName(item.animName);
         this.isOpen = false;
-        return; 
+        return;
       }
       if (e == "读取") {
         this.ChangeAnim(item.animList[0].animName);

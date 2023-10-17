@@ -47,7 +47,7 @@ class YJAvatar {
       if (msg == null || msg == undefined || msg == "") { return; }
       // data = JSON.parse(msg);
       data = (msg);
-      console.log("in YJAvatar msg = " ,data); 
+      // console.log("in YJAvatar msg = " ,data); 
 
       this.npcName = data.name;
       nameScale = data.nameScale;
@@ -207,8 +207,7 @@ class YJAvatar {
           }
           if (num == (count - 1)) {
 
-            // 0 - num 之间随机 
-            // console.log("生成随机数"+q);
+            // 0 - num 之间随机  
             let qq = radomNum(0, num - 1);
 
             for (let i = num; i >= qq; i--) {

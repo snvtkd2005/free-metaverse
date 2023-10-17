@@ -116,6 +116,18 @@ class YJLoadAvatar {
       fbxLoader.load(modelPath,
         function (object) {
           // console.log("=========加载角色  object =======", object);
+          
+          playerObj = object;
+          playerObj.name = "player";
+          playerObj.tag = "player";
+          for (let i = playerObj.animations.length-1; i >= 0; i--) {
+            const element = playerObj.animations[i];
+            if(element.tracks.length == 0){
+              playerObj.animations.splice(i,1);
+            }  
+          }
+          console.log("加载到的 角色模型",modelPath, playerObj);
+
           if (needCheck) {
             if (_this._YJSceneManager) {
               _this._YJSceneManager.addLoadAvatar_needCheck_done(modelPath, object);
@@ -123,10 +135,6 @@ class YJLoadAvatar {
           }
 
 
-          playerObj = object;
-          playerObj.name = "player";
-          playerObj.tag = "player";
-          // console.log("加载到的 角色模型", playerObj);
 
           playerObj.traverse(function (item) {
             if (item instanceof THREE.Mesh) {
@@ -518,6 +526,7 @@ class YJLoadAvatar {
       }
     }
     this.ChangeAnimByAnimData = function (animName, isLoop, anim) {
+      if(animName == ""){return;}
       let action = mixer.clipAction(anim);
       actions.push({
         action: action, animName: animName,
@@ -566,11 +575,12 @@ class YJLoadAvatar {
           action.clampWhenFinished = true;//暂停在最后一帧播放的状态
         }
 
-        actions.push({
-          action: action, animName: element.animName,
-          timeScale: element.timeScale, weight: 1
-        });
-
+        if(element.animName != ""){
+          actions.push({
+            action: action, animName: element.animName,
+            timeScale: element.timeScale, weight: 1
+          });
+        }
 
 
         mixer.addEventListener('loop', function (e) { 
@@ -585,24 +595,25 @@ class YJLoadAvatar {
     }
 
     function activateAllActions(animName) {
+      // console.log(actions);
       let has = false;
-      for (let i = 0; i < actions.length; i++) {
-        const element = actions[i];
-        element.action.stop();
-      }
+      // for (let i = 0; i < actions.length; i++) {
+      //   const element = actions[i];
+      //   element.action.stop(); 
+      // }
+      // return;
       for (let i = 0; i < actions.length; i++) {
         const element = actions[i];
         if (element.animName == animName) {
           has = true;
-          setWeight(element.action, element.animName == animName ? element.weight : 0, element.timeScale);
-          if (element.action != undefined) { 
-            element.action.reset();
-            element.action.play();
-          }
         }
-
+        setWeight(element.action, element.animName == animName ? element.weight : 0, element.timeScale);
+        if (element.action != undefined) { 
+          element.action.reset();
+          element.action.play();
+        }
       }
-
+      
       // 如果要播放的动作，不在已有动作列表中，则去扩展动作中查找
       if (!has) {
         if (missAnimCallback) {

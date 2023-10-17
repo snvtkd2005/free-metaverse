@@ -39,8 +39,10 @@ class YJAnimator {
         const element = animationsData[i];
         if(element.animName == animName){
           this.ChangeAnimByIndex(element.targetIndex,element.timeScale);
+          return true;
         }
       } 
+      return false;
     }
     this.ChangeAnimByIndex = function (i, timeScale) {
       console.log(i,animations,timeScale);
@@ -50,9 +52,27 @@ class YJAnimator {
       let action = mixer.clipAction(animations[i]);
       action.timeScale = parseInt(timeScale) ;
       action.play();//播放动画 
-      console.log("切换动画",animations[i]);
+      // console.log("切换动画",animations[i]);
 
     }
+
+    
+    this.ChangeAnimByAnimData = function (animName, isLoop, anim) {
+      if(animName == ""){return;}
+      for (let i = 0; i < animations.length; i++) {
+        mixer.clipAction(animations[i]).stop();
+      }
+      animations.push(anim);
+      animationsData.push({targetIndex:animations.length-1,animName:animName,timeScale:1,weight:1});
+      let action = mixer.clipAction(anim);
+      if (isLoop != undefined && !isLoop) {
+        action.loop = THREE.LoopOnce; //不循环播放
+        action.clampWhenFinished = true;//暂停在最后一帧播放的状态
+      }
+      action.reset();
+      action.play();
+    }
+
     // 获取当前动画播放帧
     this.GetCurrentTime = function () {
       return oneAction.time;

@@ -428,8 +428,8 @@ class YJ3dScene_playerSelect {
     let playerName = "";
     // 此函数用来做npc
     this.ChangeAvatarByCustom = function (avatarData, callback) {
-      clearGroup(group);
-      console.log(" 加载角色 ", avatarData);
+      clearGroup(group); 
+
       playerHeight = avatarData.height;
       playerName = avatarData.name;
       let modelPath = "";

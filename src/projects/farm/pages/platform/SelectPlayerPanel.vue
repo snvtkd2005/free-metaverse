@@ -309,19 +309,14 @@ export default {
       localStorage.setItem("userName", this.userName);
     },
     editorPlayer() {
-      let item = {
-        // folderBase: "farmplayer",
-        folderBase: this.folderBase ,
-        modelType: "角色",
-      };
-      localStorage.setItem("playerData", JSON.stringify(item));
+      localStorage.setItem("inAvatarEditor","hasImport")
       let path = "/editorSingle";
       _Global.reloadTimes = 1;
       // 新窗口 新标签
       let href = this.$router.resolve({
         name: path.replace("/", ""),
         query: {
-          folderBase: item.folderBase,
+          folderBase: this.folderBase,
         },
       });
       window.open(href.href, "_blank");
@@ -488,6 +483,7 @@ export default {
       return this.publicUrl;
     },
     SelectAvatar(item ) {
+      console.log("选择角色",item);
       this.selectPlayerName = item.name;
       this.folderBase = item.folderBase;
       

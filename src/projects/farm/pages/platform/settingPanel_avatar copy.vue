@@ -119,6 +119,15 @@
       </div>
     </div>
 
+    <div
+      class="hidden mt-10 w-80 h-10 text-white cursor-pointer"
+      @click="load()"
+    >
+      <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">
+        {{ loadContent }}
+      </div>
+    </div>
+
     <div class="mt-2 w-80 h-10 text-white cursor-pointer" @click="save()">
       <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">保存</div>
     </div>
@@ -137,7 +146,45 @@ export default {
   },
   data() {
     return {
-      settingData: {},
+      settingData: {
+        name: "",
+        id:"",
+        height: 1.4,
+        nameScale: 1,
+        modelScale: 1,
+        animationsData: [
+          {
+            clipIndex: 0,
+            animName: "idle",
+            timeScale: 1,
+            connected: false,
+            targetIndex: 0,
+          },
+          {
+            clipIndex: 1,
+            animName: "walk",
+            timeScale: 2,
+            connected: false,
+            targetIndex: 1,
+          },
+          {
+            clipIndex: 2,
+            animName: "jump",
+            timeScale: 2,
+            connected: false,
+            targetIndex: 3,
+          },
+          {
+            clipIndex: 3,
+            animName: "run",
+            timeScale: 1,
+            connected: false,
+            targetIndex: 2,
+          },
+        ],
+        // 扩展动作，由加载外部动画文本解析得到
+        animationsExtendData:[],
+      },
 
       avatar: null,
       selectCurrentIndex: 0,
@@ -187,11 +234,28 @@ export default {
           callback: this.ChangeValue,
         },
         // { property: "name", display: true, title: "名字", type: "text", value: "", callback: this.ChangeValue },
-      ], 
+      ],
+
+      loadContent: "使用",
     };
   },
   created() {},
-  mounted() { 
+  mounted() {
+    let modelData = JSON.parse(localStorage.getItem("modelData"));
+
+    this.settingData.name = modelData.name;
+
+    if (modelData == null) {
+      return;
+    }
+    if (modelData.message == undefined) {
+      this.settingData.id = this.$parent.folderBase + "";
+      return;
+    }
+
+    console.log(" modelData = ", modelData);
+    this.settingData = modelData.message.data;
+    this.initValue();
   },
   methods: {
      
@@ -208,8 +272,7 @@ export default {
         }
       }
     },
-    initValue(_settingData) {
-      this.settingData = _settingData;
+    initValue() {
       this.animations = this.settingData.animationsData;
 
       for (let i = 0; i < this.animationsData.length; i++) {
@@ -224,7 +287,22 @@ export default {
 
       this.setSettingItemByProperty("height", this.settingData.height);
     },
-    
+    load() {
+      //替换角色控制器控制的角色
+    },
+    updateName(v) {
+      this.settingData.name = v;
+      this.$parent.modelData.message = {
+        pointType: "avatar",
+        data: this.settingData,
+      };
+
+      // 控制三维
+      this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager
+        .GetSingleModelTransform()
+        .GetComponent("Avatar")
+        .SetMessage(this.settingData);
+    },
     Init(_settingData) {
       this.settingData = _settingData;
       for (let i = 0; i < this.setting.length; i++) {
@@ -241,7 +319,7 @@ export default {
 
       if (this.setting[i].property == "height") {
         // 控制三维
-        this.$parent.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager
+        this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager
           .GetSingleModelTransform()
           .GetComponent("Avatar")
           .SetMessage(this.settingData);
@@ -259,13 +337,23 @@ export default {
           timeScale: element.timeScale,
         });
       }
-      this.$parent.settingData.animationsData = this.settingData.animationsData;
-      this.$parent.save();
+
+      // 单品中才有 updateModelTxtData
+      if (this.$parent.updateModelTxtData) {
+        this.$parent.modelData.message = {
+          pointType: "avatar",
+          data: this.settingData,
+        };
+        this.$parent.updateModelTxtData();
+      } else {
+        // 在场景编辑中的修改
+        this.Update();
+      }
     },
 
     // 设置角色眼睛高度
     SetEyeHeight() {
-      this.$parent.$parent.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetTargetHeight(
+      this.$parent.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetTargetHeight(
         height
       );
     },
@@ -343,6 +431,12 @@ export default {
             const item = this.animations[i];
             for (let j = 0; j < temp.length; j++) {
               const element = temp[j];
+              // if (element.animName == item.localAnimName) {
+              //   element.connectAnim = item.animName;
+              //   element.connected = true;
+              //   element.targetIndex = item.targetIndex;
+              //   element.timeScale = item.timeScale;
+              // }
               if (element.clipIndex == item.targetIndex) {
                 element.connectAnim = item.animName;
                 element.connected = true;
@@ -356,7 +450,21 @@ export default {
         this.ChangeAnim("idle");
         console.log("设置 animations ", this.animations);
       }
-    }, 
+    },
+    Update() {
+      // _Global.SendMsgTo3D("刷新Transform", this.$parent.modelData.message);
+
+      this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.UpdateTransform(
+        {
+          pointType: "avatar",
+          data: this.settingData,
+        }
+      );
+      // 调用场景保存
+      if (this.$parent.updateSceneModelData) {
+        this.$parent.updateSceneModelData();
+      }
+    },
   },
 };
 </script>

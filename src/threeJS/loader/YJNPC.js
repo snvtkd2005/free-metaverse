@@ -55,7 +55,7 @@ class YJNPC {
       if (msg == null || msg == undefined || msg == "") { return; }
       // data = JSON.parse(msg);
       data = (msg);
-      console.log("in YJAvatar msg = ", data);
+      console.log("in NPC msg = ", data);
 
       this.npcName = data.name;
       nameScale = data.avatarData.nameScale;
@@ -64,10 +64,20 @@ class YJNPC {
       if (data.defaultPath == "" || data.defaultPath == undefined) {
         data.defaultPath = "idle";
       }
+ 
+      // 第一次加载时，把数据加入到全局角色数据中
+      _Global.CreateOrLoadPlayerAnimData().AddAvatarData(data.avatarData);
 
       _YJAnimator.SetAnimationsData(data.avatarData.animationsData);
-      _YJAnimator.ChangeAnim(data.defaultPath);
+      let has = _YJAnimator.ChangeAnim(data.defaultPath);
 
+      let animName = data.defaultPath;
+      if(!has){
+        console.log(" 加载扩展动作 ",animName);
+        _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(data.avatarData.name, animName, (isLoop,anim) => {
+          _YJAnimator.ChangeAnimByAnimData(animName,isLoop,anim);
+        });
+      }
       if (data.movePos && data.movePos.length > 0) {
         AddDirectPosToNavmesh(data.movePos);
 
@@ -87,12 +97,28 @@ class YJNPC {
 
     this.UpdateModel = function (msg) {
       if (msg == null || msg == undefined || msg == "") { return; }
-      // data = JSON.parse(msg);
+      
       data = (msg);
-      console.log("in YJAvatar msg = ", data);
+      console.log("in NPC UpdateModel msg = ", data);
       nameScale = data.nameScale;
       playerHeight = data.height; 
+      if (data.defaultPath == "" || data.defaultPath == undefined) {
+        data.defaultPath = "idle";
+      }
+ 
+      // 第一次加载时，把数据加入到全局角色数据中
+      _Global.CreateOrLoadPlayerAnimData().AddAvatarData(data);
 
+      _YJAnimator.SetAnimationsData(data.animationsData);
+      let has = _YJAnimator.ChangeAnim(data.defaultPath);
+
+      let animName = data.defaultPath;
+      if(!has){
+        console.log(" 加载扩展动作 ",animName);
+        _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(data.name, animName, (isLoop,anim) => {
+          _YJAnimator.ChangeAnimByAnimData(animName,isLoop,anim);
+        });
+      }
  
     }
 

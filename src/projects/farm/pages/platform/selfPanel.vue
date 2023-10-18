@@ -740,7 +740,7 @@ export default {
 
     async RequestGetAllHDR() {
       GetAllHDR().then((res) => {
-        console.log("获取所有 hdr ", res);
+        // console.log("获取所有 hdr ", res);
         //先记录旧照片
         if (res.data.txtDataList) {
           let txtDataList = res.data.txtDataList;

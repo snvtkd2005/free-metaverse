@@ -3,50 +3,34 @@
 <template>
   <!-- avatar设置 -->
   <div class="w-80 max-w-md p-2 text-white rounded-lg overflow-hidden">
-    <div class="text-left">动作映射</div>
-
-    <div
-      v-for="(item, i) in setting"
-      :key="i"
-      class="text-xs text-left flex w-80 h-auto mb-2"
-    >
-      <div class="self-center w-40 truncate" v-show="item.display">
-        {{ item.title }}
-      </div>
-      <div class="self-center w-20">
-        <div v-if="item.type == 'text'" class="w-32 h-auto text-black">
-          <YJinput_text
-            class="w-full h-auto"
-            :value="item.value"
-            :index="i"
-            :callback="item.callback"  
-          />
-        </div>
-
-        <div v-if="item.type == 'num'" class="flex gap-2 text-black">
-          <YJinput_number
-            :value="item.value"
-            :step="item.step"
-            :index="i"
-            :callback="item.callback" 
-          />
-        </div>
-      </div>
+    <div class=" flex justify-between">
+      <div class="text-left">自带动作映射</div>
+      <div class=" cursor-pointer " @click="fold=!fold;" >{{fold?'展开':'折叠'}}</div>
     </div>
+    <div v-show="!fold">
 
-    <div class="w-full h-5/6 flex text-xs">
-      <!-- 左侧动作列表 -->
-      <div class="w-56 px-4">
-        <div>模型动作列表</div>
-        <div
-          v-for="(item, i) in animations"
-          :key="i"
-          :index="item.clipIndex"
-          class="w-full h-8 self-center mx-auto flex mt-4"
-        >
-          <div
-            @click="ChangeAnimByIndex(item.clipIndex)"
-            class="
+      <div v-for="(item, i) in setting" :key="i" class="text-xs text-left flex w-80 h-auto mb-2">
+        <div class="self-center w-40 truncate" v-show="item.display">
+          {{ item.title }}
+        </div>
+        <div class="self-center w-20">
+          <div v-if="item.type == 'text'" class="w-32 h-auto text-black">
+            <YJinput_text class="w-full h-auto" :value="item.value" :index="i" :callback="item.callback" />
+          </div>
+
+          <div v-if="item.type == 'num'" class="flex gap-2 text-black">
+            <YJinput_number :value="item.value" :step="item.step" :index="i" :callback="item.callback" />
+          </div>
+        </div>
+      </div>
+
+      <div class="w-full h-5/6 flex text-xs">
+        <!-- 左侧动作列表 -->
+        <div class="w-56 px-4">
+          <div>模型动作列表</div>
+          <div v-for="(item, i) in animations" :key="i" :index="item.clipIndex"
+            class="w-full h-8 self-center mx-auto flex mt-4">
+            <div @click="ChangeAnimByIndex(item.clipIndex)" class="
               cursor-pointer
               pointer-events-auto
               self-center
@@ -54,74 +38,54 @@
               w-16
               h-full
               flex
-            "
-            :class="
-              selectCurrentIndex == item.clipIndex ? ' text-blue-300 ' : '  '
-            "
-          >
-            <div class="self-center mx-auto text-xs">
-              {{ item.animName }}<br />->{{ item.connectAnim }}
+            " :class="selectCurrentIndex == item.clipIndex ? ' text-blue-300 ' : '  '
+              ">
+              <div class="self-center mx-auto text-xs">
+                {{ item.animName }}<br />->{{ item.connectAnim }}
+              </div>
             </div>
-          </div>
 
-          <div
-            v-if="item.targetIndex != -1"
-            @click="Clear(item.clipIndex)"
-            class="w-8 self-center text-xs cursor-pointer pointer-events-auto"
-          >
-            解绑
-          </div>
-          <!-- 速度 input -->
-          <div class="mr-2 w-5 h-full text-black">
-            <input
-              class="w-full h-full px-1"
-              v-model="item.timeScale"
-              type="text"
-            />
-          </div>
+            <div v-if="item.targetIndex != -1" @click="Clear(item.clipIndex)"
+              class="w-8 self-center text-xs cursor-pointer pointer-events-auto">
+              解绑
+            </div>
+            <!-- 速度 input -->
+            <div class="mr-2 w-5 h-full text-black">
+              <input class="w-full h-full px-1" v-model="item.timeScale" type="text" />
+            </div>
 
-          <!-- <YJinput_drop class=" w-32 h-16 " :value="animOptions[i].value" :options="animOptions" :index="i"
+            <!-- <YJinput_drop class=" w-32 h-16 " :value="animOptions[i].value" :options="animOptions" :index="i"
             :callback="item.callback" /> -->
+          </div>
+          <!-- 角色高度 input -->
+          <div class="hidden mt-12 w-full h-10 flex gap-x-5">
+            <div class="self-center">设置眼睛高度</div>
+            <input class="w-10 h-10 px-1" v-model="height" @change="SetEyeHeight()" type="text" />
+          </div>
         </div>
-        <!-- 角色高度 input -->
-        <div class="hidden mt-12 w-full h-10 flex gap-x-5">
-          <div class="self-center">设置眼睛高度</div>
-          <input
-            class="w-10 h-10 px-1"
-            v-model="height"
-            @change="SetEyeHeight()"
-            type="text"
-          />
-        </div>
-      </div>
 
-      <!-- 右侧标准动作名称 -->
-      <div class="w-24 px-4">
-        <div>标准动作名称</div>
-        <div>
-          <div
-            v-for="(item, i) in animationsData"
-            :key="i"
-            :index="item.clipIndex"
-            class="w-full h-8 self-center mx-auto flex mt-1"
-            @click="SelectBaseAnim(item.clipIndex)"
-            :class="
-              item.connected
-                ? ' bg-gray-500  pointer-events-none  '
-                : ' bg-blue-200 cursor-pointer  pointer-events-auto '
-            "
-          >
-            <div class="self-center mx-auto">
-              {{ item.animName }}
+        <!-- 右侧标准动作名称 -->
+        <div class="w-24 px-4">
+          <div>标准动作名称</div>
+          <div>
+            <div v-for="(item, i) in animationsData" :key="i" :index="item.clipIndex"
+              class="w-full h-8 self-center mx-auto flex mt-1" @click="SelectBaseAnim(item.clipIndex)" :class="item.connected
+                  ? ' bg-gray-500  pointer-events-none  '
+                  : ' bg-blue-200 cursor-pointer  pointer-events-auto '
+                ">
+              <div class="self-center mx-auto">
+                {{ item.animName }}
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      <div class="mt-2 w-80 h-10 text-white cursor-pointer" @click="save()">
+        <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">保存</div>
+      </div>
     </div>
 
-    <div class="mt-2 w-80 h-10 text-white cursor-pointer" @click="save()">
-      <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">保存</div>
-    </div>
   </div>
 </template>
 
@@ -138,7 +102,7 @@ export default {
   data() {
     return {
       settingData: {},
-
+      fold:false,
       avatar: null,
       selectCurrentIndex: 0,
       animations: [],
@@ -187,18 +151,18 @@ export default {
           callback: this.ChangeValue,
         },
         // { property: "name", display: true, title: "名字", type: "text", value: "", callback: this.ChangeValue },
-      ], 
+      ],
     };
   },
-  created() {},
-  mounted() { 
+  created() { },
+  mounted() {
   },
   methods: {
-     
+
     removeThreeJSfocus() {
       this.$parent.removeThreeJSfocus();
     },
-    addThreeJSfocus() { 
+    addThreeJSfocus() {
     },
     setSettingItemByProperty(property, value) {
       for (let i = 0; i < this.setting.length; i++) {
@@ -224,7 +188,7 @@ export default {
 
       this.setSettingItemByProperty("height", this.settingData.height);
     },
-    
+
     Init(_settingData) {
       this.settingData = _settingData;
       for (let i = 0; i < this.setting.length; i++) {
@@ -285,8 +249,8 @@ export default {
 
     ChangeAnimByIndex(i) {
       this.selectCurrentIndex = i;
-      this.avatar.ChangeAnimByIndex(i,this.animations[i].timeScale);
-      if (this.animations[i].targetIndex != -1 && this.animations[i].targetIndex<this.animationsData.length) {
+      this.avatar.ChangeAnimByIndex(i, this.animations[i].timeScale);
+      if (this.animations[i].targetIndex != -1 && this.animations[i].targetIndex < this.animationsData.length) {
         this.animationsData[this.animations[i].targetIndex].timeScale =
           parseFloat(this.animations[this.selectCurrentIndex].timeScale);
       }
@@ -356,7 +320,7 @@ export default {
         this.ChangeAnim("idle");
         console.log("设置 animations ", this.animations);
       }
-    }, 
+    },
   },
 };
 </script>

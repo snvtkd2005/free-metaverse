@@ -116,17 +116,17 @@ class YJLoadAvatar {
       fbxLoader.load(modelPath,
         function (object) {
           // console.log("=========加载角色  object =======", object);
-          
+
           playerObj = object;
           playerObj.name = "player";
           playerObj.tag = "player";
-          for (let i = playerObj.animations.length-1; i >= 0; i--) {
+          for (let i = playerObj.animations.length - 1; i >= 0; i--) {
             const element = playerObj.animations[i];
-            if(element.tracks.length == 0){
-              playerObj.animations.splice(i,1);
-            }  
+            if (element.tracks.length == 0) {
+              playerObj.animations.splice(i, 1);
+            }
           }
-          console.log("加载到的 角色模型",modelPath, playerObj);
+          console.log("加载到的 角色模型", modelPath, playerObj);
 
           if (needCheck) {
             if (_this._YJSceneManager) {
@@ -493,6 +493,60 @@ class YJLoadAvatar {
     }
 
 
+    this.SetActionByIndex = function (animationData) {
+      SetActionByIndexFn(animationData);
+    }
+    //编辑完之后，保存数据
+    //通过索引数据，设置具体动作索引属于那个动作
+    function SetActionByIndexFn(animationData) {
+      GetFaceModelFn();
+      if (mixer == undefined) { return; }
+      // console.log("动作数据为", animationData);
+      for (let i = 0; i < animationData.length; i++) {
+        const element = animationData[i];
+
+        if (element.animName == "walk") {
+          walkAction = mixer.clipAction(animations[element.targetIndex].clipAction);
+        }
+        if (element.animName == "run") {
+          runAction = mixer.clipAction(animations[element.targetIndex].clipAction);
+        }
+
+        let action = mixer.clipAction(animations[element.targetIndex < 0 ? 0 : element.targetIndex].clipAction);
+        action.timeScale = element.timeScale;
+
+
+
+        // 跳跃和死亡动作，不循环 且播放完成后保持在最后一帧
+        if (element.animName == "jump" || element.animName == "death"
+          || element.animName == "collection" || element.animName == "sitting") {
+          action.loop = THREE.LoopOnce; //不循环播放
+          action.clampWhenFinished = true;//暂停在最后一帧播放的状态
+        }
+        if (element.isLoop != undefined && !element.isLoop) {
+          action.loop = THREE.LoopOnce; //不循环播放
+          action.clampWhenFinished = true;//暂停在最后一帧播放的状态
+        }
+
+        if (element.animName != "") {
+          actions.push({
+            action: action, animName: element.animName,
+            timeScale: element.timeScale, weight: 1
+          });
+        }
+
+
+        mixer.addEventListener('loop', function (e) {
+          // console.log(" ===== 到达动画 loop 点 222 ===== ", actions[0].action);
+        });
+        mixer.addEventListener('finished', function (e) {
+          // console.log(" ===== 到达动画 结束 点 ===== ");
+        });
+      }
+
+
+    }
+
 
 
     let animations = [];
@@ -526,7 +580,7 @@ class YJLoadAvatar {
       }
     }
     this.ChangeAnimByAnimData = function (animName, isLoop, anim) {
-      if(animName == ""){return;}
+      if (animName == "") { return; }
       let action = mixer.clipAction(anim);
       actions.push({
         action: action, animName: animName,
@@ -536,62 +590,9 @@ class YJLoadAvatar {
         action.loop = THREE.LoopOnce; //不循环播放
         action.clampWhenFinished = true;//暂停在最后一帧播放的状态
       }
-      action.reset();
-      action.play();
-    }
-
-    this.SetActionByIndex = function (animationData) {
-      SetActionByIndexFn(animationData);
-    }
-    //编辑完之后，保存数据
-    //通过索引数据，设置具体动作索引属于那个动作
-    function SetActionByIndexFn(animationData) {
-      GetFaceModelFn();
-      if (mixer == undefined) { return; }
-      // console.log("动作数据为", animationData);
-      for (let i = 0; i < animationData.length; i++) {
-        const element = animationData[i]; 
-
-        if (element.animName == "walk") {
-          walkAction = mixer.clipAction(animations[element.targetIndex].clipAction);
-        }
-        if (element.animName == "run") {
-          runAction = mixer.clipAction(animations[element.targetIndex].clipAction);
-        }
-
-        let action = mixer.clipAction(animations[element.targetIndex<0?0:element.targetIndex].clipAction);
-        action.timeScale = element.timeScale;
-
-
-
-        // 跳跃和死亡动作，不循环 且播放完成后保持在最后一帧
-        if (element.animName == "jump" || element.animName == "death"
-          || element.animName == "collection" || element.animName == "sitting") {
-          action.loop = THREE.LoopOnce; //不循环播放
-          action.clampWhenFinished = true;//暂停在最后一帧播放的状态
-        }
-        if (element.isLoop != undefined && !element.isLoop) {
-          action.loop = THREE.LoopOnce; //不循环播放
-          action.clampWhenFinished = true;//暂停在最后一帧播放的状态
-        }
-
-        if(element.animName != ""){
-          actions.push({
-            action: action, animName: element.animName,
-            timeScale: element.timeScale, weight: 1
-          });
-        }
-
-
-        mixer.addEventListener('loop', function (e) { 
-          // console.log(" ===== 到达动画 loop 点 222 ===== ", actions[0].action);
-        }); 
-        mixer.addEventListener('finished', function (e) {
-          // console.log(" ===== 到达动画 结束 点 ===== ");
-        }); 
-      }
- 
-
+      // action.reset();
+      // action.play();
+      activateAllActions(animName);
     }
 
     function activateAllActions(animName) {
@@ -607,13 +608,24 @@ class YJLoadAvatar {
         if (element.animName == animName) {
           has = true;
         }
-        setWeight(element.action, element.animName == animName ? element.weight : 0, element.timeScale);
-        if (element.action != undefined) { 
-          element.action.reset();
-          element.action.play();
+        // setWeight(element.action, element.animName == animName ? element.weight : 0, element.timeScale);
+        // if (element.action != undefined) { 
+        //   element.action.reset();
+        //   element.action.play();
+        // }
+      }
+      if (has) {
+        for (let i = 0; i < actions.length; i++) {
+          const element = actions[i];
+          setWeight(element.action, element.animName == animName ? element.weight : 0, element.timeScale);
+          if (element.animName == animName) {
+            if (element.action != undefined) {
+              element.action.reset();
+              element.action.play();
+            }
+          }
         }
       }
-      
       // 如果要播放的动作，不在已有动作列表中，则去扩展动作中查找
       if (!has) {
         if (missAnimCallback) {
@@ -669,7 +681,7 @@ class YJLoadAvatar {
       activateAllActions(animName);
     }
     this.SetWalkWeight = function (f) {
-      if(walkAction == undefined){
+      if (walkAction == undefined) {
         return;
       }
       if (oldAnimName != "walk") { return; }

@@ -32,7 +32,8 @@ export default {
       modelType: "角色",
     },   
   ],
-
+  avatarData: [],
+/*
   // 角色数据
   avatarData: [
     
@@ -127,6 +128,8 @@ export default {
     }, 
       
   ]
+
+  */
 }
 
 

@@ -38,27 +38,30 @@ class YJAnimator {
       for (let i = 0; i < animationsData.length; i++) {
         const element = animationsData[i];
         if(element.animName == animName){
-          this.ChangeAnimByIndex(element.targetIndex,element.timeScale);
-          return true;
+          return this.ChangeAnimByIndex(element.targetIndex,element.timeScale);
         }
-      } 
+      }  
       return false;
     }
     this.ChangeAnimByIndex = function (i, timeScale) {
+      if(i>=animations.length){
+        return false;
+      }
       console.log(i,animations,timeScale);
-      for (let i = 0; i < animations.length; i++) {
-        mixer.clipAction(animations[i]).stop();
+      for (let j = 0; j < animations.length; j++) {
+        mixer.clipAction(animations[j]).stop();
       }
       let action = mixer.clipAction(animations[i]);
       action.timeScale = parseInt(timeScale) ;
       action.play();//播放动画 
       // console.log("切换动画",animations[i]);
-
+      return true;
     }
 
     
     this.ChangeAnimByAnimData = function (animName, isLoop, anim) {
       if(animName == ""){return;}
+      console.log("添加扩展动画 ",animName);
       for (let i = 0; i < animations.length; i++) {
         mixer.clipAction(animations[i]).stop();
       }

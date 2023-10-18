@@ -534,6 +534,8 @@ export default {
     //   this.Enter();
     // }
 
+    
+    
     if (this.modelData.modelType == undefined) {
       this.RequestGetAllScene(() => {
         console.log(" this.modelData  = ", this.modelData);
@@ -662,8 +664,8 @@ export default {
 
         }
       );
-
       this.$refs.modelPanel.Init();
+
     },
 
     async RequestGetAllSceneData() {

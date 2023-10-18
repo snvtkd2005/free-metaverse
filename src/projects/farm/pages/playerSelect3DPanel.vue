@@ -77,6 +77,9 @@ export default {
       this._YJ3dScene.ChangeAvatarByCustom(avatarData,callback);
     },
     AddAvatarData (avatarData){
+      if (this._YJ3dScene == null) {
+        this._YJ3dScene = new YJ3dScene_playerSelect(this.$refs.YJ3dscene, this.$parent);
+      }
       this._YJ3dScene.CreateOrLoadPlayerAnimData().AddAvatarData(avatarData);
     },
     GetFaceModel() {

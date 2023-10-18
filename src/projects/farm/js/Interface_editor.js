@@ -3,6 +3,9 @@ import * as THREE from "three";
  
 import { YJPlayerAnimData } from "/@/threeJS/YJPlayerAnimData.js";
 
+
+import { GetAllModel } from "./uploadThreejs.js";
+
 // Threejs 中的事件传出接口
 
 //所有 this.functionHandle 用来传出threejs中的操作，由threejs调用。界面开发人员无需关心
@@ -19,9 +22,46 @@ class Interface {
     _Global.isSupportedHls = false;
     function init() {
       _Global.isSupportedHls = Hls.isSupported();
+      RequestGetAllModel();
     }
 
-    init();
+    async function RequestGetAllModel() {
+
+      GetAllModel().then((res) => {
+        console.log("获取所有单品模型 ", res);
+        //先记录旧照片
+        if (res.data.txtDataList) {
+          let txtDataList = res.data.txtDataList; 
+
+          let modelsList = [];
+          for (let i = 0; i < txtDataList.length; i++) {
+            let element = txtDataList[i];
+            try {
+              modelsList.push(JSON.parse(element));
+            } catch (error) {
+              element = element.substring(1);
+              modelsList.push(JSON.parse(element));
+            }
+          }
+
+          
+          for (let i = 0; i < modelsList.length; i++) {
+            let item = modelsList[i];
+            if (item.modelType == "角色模型") {
+              // 到角色数据中，模型路径、动画数据
+              let data = item.message.data;
+              data.modelPath = _this.$uploadUrl + item.modelPath;
+              _Global.CreateOrLoadPlayerAnimData().AddAvatarData(data);
+            }else{
+              // this.modelsList.push(item);
+            }
+          }
+
+
+        }
+      });
+    }
+
 
     let _YJPlayerAnimData = null
     this.CreateOrLoadPlayerAnimData = function () {
@@ -32,6 +72,8 @@ class Interface {
       return _YJPlayerAnimData;
     }
     _Global.CreateOrLoadPlayerAnimData = this.CreateOrLoadPlayerAnimData;
+    
+    init();
 
 
     // 向3d页发送

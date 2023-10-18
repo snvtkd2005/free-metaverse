@@ -8,8 +8,7 @@
     </div>
 
     <!-- 角色选择 和 场景选择 -->
-    <div
-      class="
+    <div class="
         absolute
         top-10
         xl:top-20
@@ -19,12 +18,10 @@
         w-64
         xl:w-auto
         h-auto
-      "
-    >
+      ">
       <!-- 角色选择 -->
       <div class="xl:w-auto w-auto h-auto self-center mx-auto">
-        <div
-          class="
+        <div class="
             flex
             mb-2
             xl:mb-5
@@ -33,14 +30,12 @@
             xl:w-auto
             text-3xl
             font-bold
-          "
-        >
+          ">
           可选Avatar
         </div>
 
         <!-- 列表 -->
-        <div
-          class="
+        <div class="
             w-full
             max-w-2xl
             h-16
@@ -48,13 +43,8 @@
             xl:gap-10 xl:h-2/3
             justify-items-start
             grid grid-cols-4
-          "
-        >
-          <div
-            v-for="(item, i) in playerImgPath"
-            :key="i"
-            :index="item.img"
-            class="
+          ">
+          <div v-for="(item, i) in playerImgPath" :key="i" :index="item.img" class="
               w-16
               h-16
               xl:w-32 xl:h-32
@@ -65,21 +55,12 @@
               cursor-pointer
               flex
               relative
-            "
-            :class="selectPlayerName == item.name ? ' ' : ' '"
-            @click="SelectAvatar(item)"
-          >
+            " :class="selectPlayerName == item.name ? ' ' : ' '" @click="SelectAvatar(item)">
             <div class="self-center mx-auto w-full h-full rounded-full">
               <img class="w-full h-full rounded-full" :src="item.img" />
             </div>
-            <div
-              v-if="selectPlayerName == item.name"
-              class="absolute bottom-0 right-0"
-            >
-              <img
-                class="w-4 h-4 xl:w-full xl:h-full object-fill"
-                :src="publicUrl + 'images/spUI/select.png'"
-              />
+            <div v-if="selectPlayerName == item.name" class="absolute bottom-0 right-0">
+              <img class="w-4 h-4 xl:w-full xl:h-full object-fill" :src="publicUrl + 'images/spUI/select.png'" />
             </div>
           </div>
         </div>
@@ -87,21 +68,11 @@
     </div>
 
     <!-- 右侧角色模型展示 -->
-    <div
-      class="absolute z-20 right-0 top-0 w-full md:w-1/2 h-full overflow-hidden"
-    >
-      <playerSelect3DPanel
-        id="contain"
-        class="w-full h-full"
-        ref="playerSelect3DPanel"
-      ></playerSelect3DPanel>
-      <YJinputPlayerName
-        class="absolute bottom-16 md:bottom-6 xl:bottom-2 w-full h-16"
-        :callback="ChangeNickName"
-      />
+    <div class="absolute z-20 right-0 top-0 w-full md:w-1/2 h-full overflow-hidden">
+      <playerSelect3DPanel id="contain" class="w-full h-full" ref="playerSelect3DPanel"></playerSelect3DPanel>
+      <YJinputPlayerName class="absolute bottom-16 md:bottom-6 xl:bottom-2 w-full h-16" :callback="ChangeNickName" />
       <!-- 角色换装选择  -->
-      <div
-        class="
+      <div class="
           absolute
           z-30
           left-10
@@ -112,27 +83,18 @@
           overflow-hidden
           pointer-events-none
           text-black
-        "
-      >
-        <SkinPanel
-          class="w-full h-full"
-          ref="SkinPanel"
-          :skinData="skinData"
-        ></SkinPanel>
+        ">
+        <SkinPanel class="w-full h-full" ref="SkinPanel" :skinData="skinData"></SkinPanel>
       </div>
 
       <div v-if="needEnter" class="absolute w-full bottom-4 mt-10 text-black">
-        <div
-          class="px-2 inline-block rounded-lg shadow-md bg-blue-100"
-          @click="ClickeSelectOK()"
-        >
+        <div class="px-2 inline-block rounded-lg shadow-md bg-blue-100" @click="ClickeSelectOK()">
           进入元宇宙
         </div>
       </div>
     </div>
 
-    <div
-      class="
+    <div class="
         hidden
         xl:flex
         absolute
@@ -141,20 +103,11 @@
         top-20
         text-black
         overflow-hidden
-      "
-    >
-      <YJinput_drop
-        class="w-32 h-16"
-        :value="animValue"
-        :options="animList"
-        :callback="ChangeAnim"
-      />
+      ">
+      <YJinput_drop class="w-32 h-16" :value="animValue" :options="animList" :callback="ChangeAnim" />
 
       <!-- v-if="this.selectPlayerName == '小孩'" -->
-      <div
-        class="mt-2 w-32 h-10 text-white cursor-pointer"
-        @click="editorPlayer()"
-      >
+      <div class="mt-2 w-32 h-10 text-white cursor-pointer" @click="editorPlayer()">
         <div class="mt-2 bg-445760 rounded-md inline-block px-6 py-1">编辑</div>
       </div>
     </div>
@@ -212,64 +165,76 @@ export default {
   },
 
   mounted() {
-    this.playerImgPath = this.avatarData.playerImgPath;
-    for (let i = 0; i < this.playerImgPath.length; i++) {
-      const element = this.playerImgPath[i];
-      element.img = this.publicUrl + element.img;
-    }
 
-    if (localStorage.getItem("avatarName")) {
-      this.selectPlayerName = localStorage.getItem("avatarName");
-    }
-
-    if (localStorage.getItem("userName")) {
-      this.userName = localStorage.getItem("userName");
-    }
-
-    if (localStorage.getItem("needEnter")) {
-      this.needEnter = true;
-    }
-
-    this.selectPlayerName = this.avatarData.defaultUser.avatarName;
-
-    console.log("  this.selectPlayerName =  ", this.selectPlayerName);
-
-    this.$refs.playerSelect3DPanel.SelectAvatar(this.selectPlayerName);
-
-    setTimeout(() => {
-      this.skinData = this.$refs.playerSelect3DPanel.GetAvatarData(
-        this.selectPlayerName
-      ).skinData;
-      if (this.skinData != undefined && this.skinData.length > 1) {
-        setTimeout(() => {
-          this.UpdateSkin(localStorage.getItem("playerState"));
-        }, 100);
-      } else {
-        this.$refs.playerSelect3DPanel.ChangeSkinCompleted();
-      }
-
-      this.updateAnimList(this.selectPlayerName);
-    }, 100);
 
     window.addEventListener("keydown", this._onKeyDown);
-    this.GetServerAvatar();
+    this.GetServerAvatar(() => {
+
+      // this.playerImgPath = this.avatarData.playerImgPath;
+      // for (let i = 0; i < this.playerImgPath.length; i++) {
+      //   const element = this.playerImgPath[i];
+      //   element.img = this.publicUrl + element.img;
+      // }
+
+      this.selectPlayerName = this.playerImgPath[0].name;
+
+      if (localStorage.getItem("avatarName")) {
+        this.selectPlayerName = localStorage.getItem("avatarName");
+      }
+
+      if (localStorage.getItem("userName")) {
+        this.userName = localStorage.getItem("userName");
+      }
+
+      if (localStorage.getItem("needEnter")) {
+        this.needEnter = true;
+      }
+
+      // this.selectPlayerName = this.avatarData.defaultUser.avatarName;
+      console.log("  this.selectPlayerName =  ", this.selectPlayerName);
+
+
+      this.$refs.playerSelect3DPanel.SelectAvatar(this.selectPlayerName);
+
+      setTimeout(() => {
+        this.skinData = this.$refs.playerSelect3DPanel.GetAvatarData(
+          this.selectPlayerName
+        ).skinData;
+        if (this.skinData != undefined && this.skinData.length > 1) {
+          setTimeout(() => {
+            this.UpdateSkin(localStorage.getItem("playerState"));
+          }, 100);
+        } else {
+          this.$refs.playerSelect3DPanel.ChangeSkinCompleted();
+        }
+
+        this.updateAnimList(this.selectPlayerName);
+      }, 100);
+    });
   },
   methods: {
-    GetServerAvatar() {
+    GetServerAvatar(callback) {
       this.RequestModelByModelType("角色模型", (avatarList) => {
         console.log(" 获取所有用户上传的角色模型 ", avatarList);
         for (let i = 0; i < avatarList.length; i++) {
           const element = avatarList[i];
+          // 到角色数据中，模型路径、动画数据
+          let data = element.message.data;
+          data.modelPath = this.$uploadUrl + element.modelPath;
+          this.$refs.playerSelect3DPanel.AddAvatarData(data);
+
+          if (element.folderBase == "farmPlayer" || element.name == "小孩") {
+            continue;
+          }
           // 加入到选中icon中，角色名、角色icon
           this.playerImgPath.push({
             name: element.name,
             folderBase: element.folderBase,
             img: this.$uploadUrl + element.icon,
           });
-          // 到角色数据中，模型路径、动画数据
-          let data = element.message.data;
-          data.modelPath = this.$uploadUrl + element.modelPath;
-          this.$refs.playerSelect3DPanel.AddAvatarData(data);
+        }
+        if (callback) {
+          callback();
         }
       });
     },
@@ -309,7 +274,7 @@ export default {
       localStorage.setItem("userName", this.userName);
     },
     editorPlayer() {
-      localStorage.setItem("inAvatarEditor","hasImport")
+      localStorage.setItem("inAvatarEditor", "hasImport")
       let path = "/editorSingle";
       _Global.reloadTimes = 1;
       // 新窗口 新标签
@@ -325,7 +290,7 @@ export default {
       this.animList = [];
       this.$refs.playerSelect3DPanel.GetAllAnim(
         selectPlayerName,
-        (_animList) => { 
+        (_animList) => {
           for (let i = 0; i < _animList.length; i++) {
             const element = _animList[i];
             if (element != "") {
@@ -482,12 +447,12 @@ export default {
     GetPublicUrl() {
       return this.publicUrl;
     },
-    SelectAvatar(item ) {
-      console.log("选择角色",item);
+    SelectAvatar(item) {
+      console.log("选择角色", item);
       this.selectPlayerName = item.name;
       this.folderBase = item.folderBase;
-      
-      if(this.selectPlayerName == "小孩"){
+
+      if (this.selectPlayerName == "小孩") {
         this.folderBase = "farmplayer";
       }
       // console.log("this.selectPlayerName = " + this.selectPlayerName);

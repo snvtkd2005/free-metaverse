@@ -108,7 +108,7 @@ class YJPlayer {
       playerName = _playerName;
       let animationsData = [];
 
-      // console.error(" 加载角色名 " +playerName );
+      console.error(" 加载角色名 " +playerName );
       
       // avatarData = _this.$parent.GetAvatarData(playerName);
       avatarData = _this._YJSceneManager.CreateOrLoadPlayerAnimData().GetAvatarData(playerName);

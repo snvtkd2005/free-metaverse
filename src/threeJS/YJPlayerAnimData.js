@@ -2,12 +2,13 @@
 import { createAnimationClip } from "/@/utils/utils_threejs.js";
 import { YJLoadAnimation } from "/@/threeJS/loader/YJLoadAnimation.js";
 
-
 // 读取模型的动作数据
 class YJPlayerAnimData {
   constructor(_this) {
     let scope = this;
     let PlayerAnimData;
+    let avatarDataList = [];
+
     let _YJLoadAnimation = null;
     function Init() {
       if (_this.GetPlayerAnimData) {
@@ -20,15 +21,24 @@ class YJPlayerAnimData {
             PlayerAnimData = _this.$parent.$parent.GetPlayerAnimData();
           }
       console.log(" in yj PlayerAnimData ", PlayerAnimData);
-      scope.GetAllAnim(PlayerAnimData.defaultUser.avatarName);
+      avatarDataList = PlayerAnimData.avatarData;
+
+      let has = false;
+      for (let i = 0; i < avatarDataList.length; i++) {
+        const element = avatarDataList[i];
+        if (element.name == PlayerAnimData.defaultUser.avatarName) {
+          has = true;
+        }
+      }
+      scope.GetAllAnim(has ? avatarDataList[0].name : PlayerAnimData.defaultUser.avatarName);
     }
 
 
     this.GetAvatarData = function (playerName) {
-      console.error(" 查找角色信息  ", playerName, PlayerAnimData.avatarData);
-      for (let i = 0; i < PlayerAnimData.avatarData.length; i++) {
-        if (PlayerAnimData.avatarData[i].name == playerName) {
-          return PlayerAnimData.avatarData[i];
+      console.error(" 查找角色信息  ", playerName, avatarDataList);
+      for (let i = 0; i < avatarDataList.length; i++) {
+        if (avatarDataList[i].name == playerName) {
+          return avatarDataList[i];
         }
       }
       console.error(" 角色信息未找到 ", playerName);
@@ -38,10 +48,10 @@ class YJPlayerAnimData {
     this.GetExtendAnim = function (playerName, animName, callback) {
       let has = false;
       let avatarData = null;
-      for (let i = 0; i < PlayerAnimData.avatarData.length && !has; i++) {
-        if (PlayerAnimData.avatarData[i].name == playerName) {
+      for (let i = 0; i < avatarDataList.length && !has; i++) {
+        if (avatarDataList[i].name == playerName) {
           has = true;
-          avatarData = PlayerAnimData.avatarData[i];
+          avatarData = avatarDataList[i];
         }
       }
       if (has) {
@@ -93,10 +103,10 @@ class YJPlayerAnimData {
       let animList = [];
       let has = false;
       let avatarData = null;
-      for (let i = 0; i < PlayerAnimData.avatarData.length && !has; i++) {
-        if (PlayerAnimData.avatarData[i].name == playerName) {
+      for (let i = 0; i < avatarDataList.length && !has; i++) {
+        if (avatarDataList[i].name == playerName) {
           has = true;
-          avatarData = PlayerAnimData.avatarData[i];
+          avatarData = avatarDataList[i];
         }
       }
       if (has) {
@@ -106,9 +116,11 @@ class YJPlayerAnimData {
         }
 
         //再查找其扩展动作
-        for (let i = 0; i < avatarData.animationsExtendData.length; i++) {
-          const element = avatarData.animationsExtendData[i];
-          animList.push(element.animName);
+        if (avatarData.animationsExtendData) {
+          for (let i = 0; i < avatarData.animationsExtendData.length; i++) {
+            const element = avatarData.animationsExtendData[i];
+            animList.push(element.animName);
+          }
         }
         console.error(" 查找角色动作  ", playerName, animList);
 
@@ -155,13 +167,15 @@ class YJPlayerAnimData {
     }
 
     this.AddAvatarData = function (avatarData) {
-      for (let i = 0; i < PlayerAnimData.avatarData.length; i++) {
-        const element = PlayerAnimData.avatarData[i];
+      for (let i = 0; i < avatarDataList.length; i++) {
+        const element = avatarDataList[i];
         if (element.name == avatarData.name) {
           return;
         }
       }
-      PlayerAnimData.avatarData.push(avatarData);
+      (scope.AddAllExtendAnimData(avatarData.name, avatarData.animationsExtendData));
+
+      avatarDataList.push(avatarData);
     }
 
 
@@ -169,10 +183,10 @@ class YJPlayerAnimData {
       let animList = [];
       let has = false;
       let avatarData = null;
-      for (let i = 0; i < PlayerAnimData.avatarData.length && !has; i++) {
-        if (PlayerAnimData.avatarData[i].name == playerName) {
+      for (let i = 0; i < avatarDataList.length && !has; i++) {
+        if (avatarDataList[i].name == playerName) {
           has = true;
-          avatarData = PlayerAnimData.avatarData[i];
+          avatarData = avatarDataList[i];
         }
       }
       if (has) {
@@ -189,10 +203,10 @@ class YJPlayerAnimData {
     this.AddExtendAnimData = function (playerName, item) {
       let has = false;
       let avatarData = null;
-      for (let i = 0; i < PlayerAnimData.avatarData.length && !has; i++) {
-        if (PlayerAnimData.avatarData[i].name == playerName) {
+      for (let i = 0; i < avatarDataList.length && !has; i++) {
+        if (avatarDataList[i].name == playerName) {
           has = true;
-          avatarData = PlayerAnimData.avatarData[i];
+          avatarData = avatarDataList[i];
         }
       }
       if (has) {
@@ -222,14 +236,14 @@ class YJPlayerAnimData {
       let has = false;
 
       let avatarData = null;
-      for (let i = 0; i < PlayerAnimData.avatarData.length && !has; i++) {
-        if (PlayerAnimData.avatarData[i].name == playerName) {
+      for (let i = 0; i < avatarDataList.length && !has; i++) {
+        if (avatarDataList[i].name == playerName) {
           has = true;
-          avatarData = PlayerAnimData.avatarData[i];
+          avatarData = avatarDataList[i];
         }
       }
       if (has) {
-        if(avatarData.animationsExtendData == undefined){
+        if (avatarData.animationsExtendData == undefined) {
           avatarData.animationsExtendData = [];
         }
         for (let i = 0; i < playerData.length; i++) {

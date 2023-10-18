@@ -47,6 +47,12 @@ export default {
         name: "",
         defaultAnim: "idle", //默认动作
         avatarData: {},
+        eventType:"no",//事件类型
+        contentData:{},//事件内容数据
+      },
+      // npc行为
+      npcActionData:{
+
       },
 
       avatar: null,
@@ -140,12 +146,10 @@ export default {
         MeshRenderer.load(
           modelPath,
           (scope) => {
-            singleTransform.GetComponent("NPC").UpdateModel(item.message.data);
             let _YJAnimator = singleTransform.GetComponent("Animator");
             _YJAnimator.Destroy();
             _YJAnimator.UpdateModel(scope.GetModel(), scope.GetAnimations());
-            _YJAnimator.SetAnimationsData(item.message.data.animationsData);
-            _YJAnimator.ChangeAnim("idle");
+            singleTransform.GetComponent("NPC").UpdateModel(item.message.data);
           },
           (e) => { }
         );

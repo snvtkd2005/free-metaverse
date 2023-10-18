@@ -52,7 +52,7 @@ export default {
   },
   mounted() {
     this.isSupportedHls = _Global.isSupportedHls;
-    console.log(" in  this.isSupportedHls ", this.isSupportedHls);
+    // console.log(" in  this.isSupportedHls ", this.isSupportedHls);
   },
   methods: {
     SetVideoFullScreen() {

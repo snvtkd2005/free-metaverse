@@ -128,6 +128,7 @@ export default {
     // console.log(" this.path ", this.path);
     // console.log(" this.modelsList ", this.modelsList);
 
+    this.RequestGetAllModel();
 
   },
   methods: {
@@ -135,16 +136,12 @@ export default {
       this.isOpen = b;
     },
     Init() {
-
       this.ThreejsHumanChat = this.$parent.$refs.YJmetaBase.GetThreejsHumanChat();
-
-
       setTimeout(() => {
         this._LoadUserModelManager = this.ThreejsHumanChat._YJSceneManager.Create_LoadUserModelManager();
       }, 1000);
       this.update();
 
-      this.RequestGetAllModel();
     },
     async RequestGetAllModel() {
 
@@ -182,6 +179,7 @@ export default {
         }
       });
     },
+
     //#region 模型库
     //切换模型table
     SelectTable(e) {

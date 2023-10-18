@@ -17,7 +17,7 @@
     <div class=" mt-10 text-left h-auto max-h-96 overflow-y-auto overscroll-auto text-white">
       <div v-for="(item, i) in otherUser" :key="i" :index="item.userName" class=" relative w-11/12  pl-2 border-b-2 flex "
         :id="item.id">
-        <div class=" w-2/3  whitespace-nowrap  truncate "
+        <div class=" w-auto  whitespace-nowrap  truncate "
           :class="item.id == id ? ' pointer-events-none ' : 'cursor-pointer', (isMainUser && item.id == id) ? ' text-green-400 ' : ''"
           @click="ClickOtherUser('select', item)">
           <div>

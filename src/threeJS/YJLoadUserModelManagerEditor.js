@@ -201,7 +201,7 @@ class YJLoadUserModelManager {
       });
       return;
 
-
+/*
       let object = new YJTransform(_this, scene, "", null, null, modelData.name);
 
       let uuid = object.GetUUID();
@@ -261,7 +261,7 @@ class YJLoadUserModelManager {
       if (callback) {
         callback(object);
       }
-
+*/
     }
 
     function CreateTransform(parent, modelData, callback) {
@@ -322,7 +322,7 @@ class YJLoadUserModelManager {
           LoadError(uuid, callback, e);
         });
       } else if (modelData.modelType == "角色模型") {
-        if (modelPath) { }
+        
         MeshRenderer.load(modelPath, (scope) => {
           let component = new YJAnimator(scope.GetModel(), scope.GetAnimations());
           object.AddComponent("Animator", component);
@@ -338,7 +338,7 @@ class YJLoadUserModelManager {
             callback(object);
           }
         }, (e) => {
-          LoadError(uuid, callback, e);
+          LoadError(uuid, callback, e,modelData);
         });
       } else if (modelData.modelType == "NPC模型") {
 
@@ -497,7 +497,7 @@ class YJLoadUserModelManager {
         }
       });
       return;
-
+/*
       let modelName = modelData.name;
       let modelPath = uploadUrl + modelData.modelPath;
       let modelType = modelData.modelType;
@@ -588,10 +588,10 @@ class YJLoadUserModelManager {
           LoadError(uuid, callback);
         });
       }
-
+*/
     }
-    function LoadError(uuid, callback, e) {
-      console.log("加载模型出错 22 " + uuid, e, allTransform);
+    function LoadError(uuid, callback, e,modelData) {
+      console.log("加载模型出错 22 " + uuid,modelData, e, allTransform);
       loadIndex++;
       for (let i = allTransform.length - 1; i >= 0; i--) {
         const elment = allTransform[i].transform;

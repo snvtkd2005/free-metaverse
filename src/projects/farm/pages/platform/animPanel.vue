@@ -35,7 +35,7 @@
             <div class=" hidden w-12 h-12 self-center mx-auto cursor-pointer" @click="EditorSkillEvent('读取', item)">
               <!-- <img class="w-full h-full object-fill hover:opacity-70" :src="item.icon" /> -->
             </div>
-            <div class=" w-1/3  truncate   flex  justify-between " :class="item.has ? ' cursor-pointer ' : ''"
+            <div class=" w-1/3  truncate   flex  justify-between " :class="item.has ? ' cursor-pointer text-green-500 ' : ''"
               @click="ChangeAnim(item.animName)">
               <text>{{ item.animName }}</text>
             </div>
@@ -44,7 +44,7 @@
             </div>
 
 
-            <div class="  w-10 truncate   flex  justify-between ">
+            <div class=" hidden w-10 truncate   flex  justify-between ">
               <text>{{ item.has ? '有' : '没有' }}</text>
             </div>
 

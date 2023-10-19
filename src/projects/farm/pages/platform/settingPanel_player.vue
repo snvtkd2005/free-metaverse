@@ -96,12 +96,12 @@
     <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">打开角色骨骼映射面板</div>
   </div>
   <div class=" w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('动作列表')">
-    <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">打开动作列表</div>
+    <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">查看已有动作</div>
   </div>
   <div class=" w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('下载模型')">
     <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">下载模型</div>
   </div>
-  <div v-if="canSave" class=" mt-2 w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('保存')">
+  <div class=" mt-2 w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('保存')">
     <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">保存</div>
   </div>
 
@@ -327,13 +327,15 @@ export default {
 
       }
       if (e == "保存") {
+        this.$refs.settingPanel_avatar.save();
         this.save();
       }
       if (e == "下载模型") {
         this.download();
       }
       if (e == "动作列表") {
-        this.openAnimPanel();
+        console.log(" 打开动作列表 ");
+        this.$parent.$refs.animPanel.SetVisible(true, this.modelData.name);
       }
       if (e == "骨骼映射面板") {
         let bones = this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager
@@ -403,11 +405,6 @@ export default {
     ChangeAnim(e) {
       this.$parent.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetPlayerAnimName(e);
     },
-    openAnimPanel() {
-      console.log(" 打开动作列表 ");
-      this.$parent.$refs.animPanel.SetVisible(true, this.modelData.name);
-    },
-
     updateName(v) {
       this.settingData.name = v;
       this.$parent.modelData.message = {

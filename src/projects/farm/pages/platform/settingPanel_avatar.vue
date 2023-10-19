@@ -81,7 +81,7 @@
         </div>
       </div>
 
-      <div class="mt-2 w-80 h-10 text-white cursor-pointer" @click="save()">
+      <div class=" hidden mt-2 w-80 h-10 text-white cursor-pointer" @click="save()">
         <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">保存</div>
       </div>
     </div>
@@ -224,7 +224,7 @@ export default {
         });
       }
       this.$parent.settingData.animationsData = this.settingData.animationsData;
-      this.$parent.save();
+      // this.$parent.save();
     },
 
     // 设置角色眼睛高度

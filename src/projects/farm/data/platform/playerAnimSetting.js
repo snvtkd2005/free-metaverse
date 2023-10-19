@@ -8,15 +8,15 @@ export default {
   defaultUser: {
     userName: "test", 
     // 默认角色
-    avatarName: "小孩",
+    avatarName: "litleUnityChain2",
   },
   // 角色选择界面的角色信息
   playerImgPath: [
-    {
-      name: "小孩",
-      platform: "pcweb",
-      img: "images/spUI/player1.png",
-    },
+    // {
+    //   name: "小孩",
+    //   platform: "pcweb",
+    //   img: "images/spUI/player1.png",
+    // },
     {
       name: "litleUnityChain2",
       platform: "pcweb", 
@@ -31,9 +31,7 @@ export default {
       img: "img/player/farmPlayer.png",
       modelType: "角色",
     },   
-  ],
-  avatarData: [],
-/*
+  ], 
   // 角色数据
   avatarData: [
     
@@ -98,6 +96,7 @@ export default {
         { clipIndex: 2, animName: "jump", timeScale: 1, connected: false, targetIndex: 2 },
       ]
     },
+/*
 
     {
       folderBase:"farmPlayer",
@@ -126,10 +125,10 @@ export default {
         { animName: "shooting", timeScale: 1, connected: false, path:  "models/player/farmplayer/anim.json" },
       ],
     }, 
+  */
       
   ]
 
-  */
 }
 
 

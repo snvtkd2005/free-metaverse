@@ -106,8 +106,8 @@
       ">
       <YJinput_drop class="w-32 h-16" :value="animValue" :options="animList" :callback="ChangeAnim" />
 
-      <!-- v-if="this.selectPlayerName == '小孩'" -->
-      <div class="mt-2 w-32 h-10 text-white cursor-pointer" @click="editorPlayer()">
+      <!--  -->
+      <div v-if="this.selectPlayerName != 'litleUnityChain2'" class="mt-2 w-32 h-10 text-white cursor-pointer" @click="editorPlayer()">
         <div class="mt-2 bg-445760 rounded-md inline-block px-6 py-1">编辑</div>
       </div>
     </div>
@@ -166,15 +166,15 @@ export default {
 
   mounted() {
 
+    this.playerImgPath = this.avatarData.playerImgPath;
+    for (let i = 0; i < this.playerImgPath.length; i++) {
+      const element = this.playerImgPath[i];
+      element.img = this.publicUrl + element.img;
+    }
 
     window.addEventListener("keydown", this._onKeyDown);
     this.GetServerAvatar(() => {
 
-      // this.playerImgPath = this.avatarData.playerImgPath;
-      // for (let i = 0; i < this.playerImgPath.length; i++) {
-      //   const element = this.playerImgPath[i];
-      //   element.img = this.publicUrl + element.img;
-      // }
 
       this.selectPlayerName = this.playerImgPath[0].name;
 

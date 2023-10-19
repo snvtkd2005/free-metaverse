@@ -1,7 +1,8 @@
 
 // 角色设置
 <template>
-  <settingPanel_avatar ref="settingPanel_avatar" /> 
+  <settingPanel_avatar ref="settingPanel_avatar" />
+
   <!-- 角色设置面板 -->
   <div class="
               w-80
@@ -33,8 +34,8 @@
 
         <div v-if="item.type == 'upload'" class=" relative flex  gap-2 cursor-pointer  ">
           <div>{{ item.url }}</div>
-          <el-upload ref="uploadAnimBtn" class="bg-transparent" action="" :before-upload="handleBeforeUpload" :accept="accept"
-            :show-file-list="false">
+          <el-upload ref="uploadAnimBtn" class="bg-transparent" action="" :before-upload="handleBeforeUpload"
+            :accept="accept" :show-file-list="false">
             <div class="p-2 w-20 cursor-pointer bg-gray-500
             hover:bg-546770">上传</div>
           </el-upload>
@@ -78,16 +79,6 @@
     </div>
 
 
-    <div class=" mt-10 w-80 h-10 text-white cursor-pointer " @click="load()">
-      <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">{{ loadContent }}</div>
-    </div>
-    <div class=" w-80 h-10 text-white cursor-pointer " @click="download()">
-      <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">下载模型</div>
-    </div>
-    <div v-if="canSave" class=" mt-2 w-80 h-10 text-white cursor-pointer " @click="save()">
-      <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">保存</div>
-    </div>
-
     <!-- <div class=" mt-4 flex h-16 ">
       <div class="  self-center ">
         用户上传的动作
@@ -95,6 +86,23 @@
       <YJinput_drop class=" self-center ml-2 w-32  " :value="animValue" :options="animList" :callback="ChangeAnim" />
     </div> -->
 
+  </div>
+
+  <div class=" hidden w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('选择可映射角色')">
+    <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">选择可映射角色</div>
+  </div>
+
+  <div class=" hidden w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('骨骼映射面板')">
+    <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">打开角色骨骼映射面板</div>
+  </div>
+  <div class=" w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('动作列表')">
+    <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">打开动作列表</div>
+  </div>
+  <div class=" w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('下载模型')">
+    <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">下载模型</div>
+  </div>
+  <div v-if="canSave" class=" mt-2 w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('保存')">
+    <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">保存</div>
   </div>
 
   <!-- 技能面板 -->
@@ -142,7 +150,7 @@
       <div class=" self-center  ">
 
         <div v-if="item.type == 'upload'" class=" relative flex  gap-2 cursor-pointer  ">
-          <div v-if="item.value!=''" class=" bg-black" @click="ChangeAnimBySkill(setting)">
+          <div v-if="item.value != ''" class=" bg-black" @click="ChangeAnimBySkill(setting)">
             <img class=" w-12 h-12 " :src="item.value" alt="">
           </div>
           <el-upload class="bg-transparent" action="" :before-upload="handleBeforeUpload_skillicon" :accept="acceptImage"
@@ -224,13 +232,16 @@ export default {
       ],
       settingData: {
         name: "",
-        id:"",
+        id: "",
         height: 1.4,
         nameScale: 1,
         modelScale: 1,
         animationsData: [],
         // 扩展动作，由加载外部动画文本解析得到
-        animationsExtendData:[],
+        animationsExtendData: [],
+        // boneList: [],
+        // boneRefPlayer: 0,
+        // boneRefPlayerAnimationData: []
       },
 
       setting: [
@@ -287,23 +298,50 @@ export default {
     this.folderBase = modelData.folderBase;
 
     // this.folderBase = "farmplayer";
-    console.log("modelData in playerPanel " , modelData);
-    this.settingData.name = modelData.name; 
+    console.log("modelData in playerPanel ", modelData);
+    this.settingData.name = modelData.name;
     if (modelData.message == undefined) {
       this.settingData.id = this.$parent.folderBase + "";
       return;
     }
 
     console.log(" modelData = ", modelData);
-    this.settingData = modelData.message.data; 
+    this.settingData = modelData.message.data;
+
+    if (this.settingData.boneList) {
+      this.settingData.boneList = undefined;
+      this.settingData.boneRefPlayer = undefined;
+      this.settingData.boneRefPlayerAnimationData = undefined;
+    }
     this.modelData = modelData;
     this.initValue();
- 
+
     this.$refs.settingPanel_avatar.initValue(this.settingData);
-    this.setSettingItemByProperty("isLoop",this.currentAnimData.isLoop);
+    this.setSettingItemByProperty("isLoop", this.currentAnimData.isLoop);
   },
   methods: {
-    
+    ClickBtnHandler(e) {
+
+      if (e == "选择可映射角色") {
+        this.$parent.$refs.modelSelectPanel.Init("角色模型");
+
+      }
+      if (e == "保存") {
+        this.save();
+      }
+      if (e == "下载模型") {
+        this.download();
+      }
+      if (e == "动作列表") {
+        this.openAnimPanel();
+      }
+      if (e == "骨骼映射面板") {
+        let bones = this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager
+          .GetSingleModelTransform()
+          .GetComponent("MeshRenderer").GetAllBone();
+        this.$parent.$refs.boneConvertPanel.SetVisible(true, bones, this.settingData.boneList);
+      }
+    },
     setSettingItemByProperty(property, value) {
       for (let i = 0; i < this.setting.length; i++) {
         const element = this.setting[i];
@@ -315,11 +353,11 @@ export default {
     SetAvatar(avatar) {
       this.$refs.settingPanel_avatar.SetAvatar(avatar);
     },
-    download(){},
+    download() { },
     removeThreeJSfocus() {
       this.$parent.removeThreeJSfocus();
     },
-    addThreeJSfocus() { 
+    addThreeJSfocus() {
     },
     SetAnimList(_animList) {
       this.animList = [];
@@ -365,11 +403,11 @@ export default {
     ChangeAnim(e) {
       this.$parent.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetPlayerAnimName(e);
     },
-    load() {
+    openAnimPanel() {
       console.log(" 打开动作列表 ");
-      this.$parent.$refs.animPanel.SetVisible(true,this.modelData.name);
+      this.$parent.$refs.animPanel.SetVisible(true, this.modelData.name);
     },
-    
+
     updateName(v) {
       this.settingData.name = v;
       this.$parent.modelData.message = {
@@ -383,7 +421,7 @@ export default {
         .GetComponent("Avatar")
         .SetMessage(this.settingData);
     },
-    
+
     Init(_carData) {
       this.carData = _carData;
     },
@@ -474,8 +512,8 @@ export default {
     async UploadFiles_skillicon(file) {
       this.loading = true;
       this.hasModel = false;
-      let fromData = new FormData(); 
-      fromData.append("fileToUpload", file); 
+      let fromData = new FormData();
+      fromData.append("fileToUpload", file);
       fromData.append("folderBase", "");
 
 
@@ -495,9 +533,9 @@ export default {
         // console.log("上传文件后的返回值", url);
       });
     },
-    SetAnimName(v){
+    SetAnimName(v) {
       this.setting[0].value = v;
-      this.animName = this.setting[0].value; 
+      this.animName = this.setting[0].value;
     },
     handleBeforeUpload(file) {
       this.animName = this.setting[0].value;
@@ -557,23 +595,23 @@ export default {
             console.log(" 上传文件完成 ");
             this.canSave = true;
             this.currentAnimData.animName = this.animName;
-            this.currentAnimData.path =  fileName;
+            this.currentAnimData.path = fileName;
             // this.$uploadUrl + this.folderBase + "/" +
             let items = [this.currentAnimData];
-            if(this.settingData.animationsExtendData == undefined){
+            if (this.settingData.animationsExtendData == undefined) {
               this.settingData.animationsExtendData = [];
-            } 
+            }
             // this.settingData.animationsExtendData = [];
 
             let has = false;
             for (let i = 0; i < this.settingData.animationsExtendData.length; i++) {
               const element = this.settingData.animationsExtendData[i];
-              if(element.animName == this.currentAnimData.animName){
+              if (element.animName == this.currentAnimData.animName) {
                 element.path = this.currentAnimData.path;
                 has = true;
               }
             }
-            if(!has){
+            if (!has) {
               this.settingData.animationsExtendData.push(this.currentAnimData);
             }
 
@@ -586,6 +624,27 @@ export default {
       });
     },
 
+    // 添加骨骼映射角色
+    addBoneRefPlayer(item) {
+      this.settingData.boneRefPlayer = item.folderBase;
+      let refBonelist = item.message.data.boneList;
+      for (let i = 0; i < refBonelist.length; i++) {
+        const refbone = refBonelist[i];
+        for (let j = 0; j < this.settingData.boneList.length; j++) {
+          const element = this.settingData.boneList[j];
+          if (element.targetBone == refbone.targetBone) {
+            element.refBone = refbone.boneName;
+          }
+        }
+      }
+      this.settingData.boneRefPlayerAnimationData = item.message.data.animationsExtendData;
+      this.save();
+    },
+
+    saveBone(boneList) {
+      this.settingData.boneList = boneList;
+      this.save();
+    },
     save() {
       // 能保存的情况下，才显示保存按钮
       console.log("角色数据 ", this.settingData);

@@ -27,6 +27,27 @@ class YJMeshRenderer {
     this.GetModel = function () {
       return model;
     }
+    this.GetAllBone = function () {
+      let boneNode = [];
+      model.traverse(function (item) {
+        if (item instanceof THREE.Bone) { 
+          boneNode.push(item); 
+        }
+      });
+      for (let i = boneNode.length-1; i > 0 ; i--) {
+        const element = boneNode[i];
+        if(element.parent.name == element.name){
+          boneNode.splice(i,1);
+        }
+      }
+      let bones = [];
+      for (let i = 0; i < boneNode.length; i++) {
+        const element = boneNode[i];
+        bones.push(element.name);
+      }
+      return bones;
+    }
+
     this.RotaY = function (f) {
       model.rotation.y += f;
     }
@@ -117,7 +138,7 @@ class YJMeshRenderer {
 
 
           scene.add(model);
-          // console.log(" 加载模型完成 " ,model );
+          console.log(" 加载模型完成 " ,model );
           _this._YJSceneManager.addLoadMesh(modelPath, model);
 
           if (callback) {

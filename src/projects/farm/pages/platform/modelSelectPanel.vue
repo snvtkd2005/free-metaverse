@@ -177,9 +177,14 @@ export default {
     },
     // 点击UI创建模型
     ChangeSceneByUI(item) {
-      // console.log(item);
+      console.log(item);
       this.isOpen = false;
-      this.$parent.$refs.settingPanel_npc.load(item);
+      if(this.$parent.$refs.settingPanel_npc){
+        this.$parent.$refs.settingPanel_npc.load(item);
+      }
+      if(this.$parent.$refs.settingPanel_player){
+        this.$parent.$refs.settingPanel_player.addBoneRefPlayer(item);
+      }
     },
   },
 };

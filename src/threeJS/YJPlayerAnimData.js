@@ -1,5 +1,5 @@
 
-import { createAnimationClip } from "/@/utils/utils_threejs.js";
+import { createAnimationClip,createAnimationClip2 } from "/@/utils/utils_threejs.js";
 import { YJLoadAnimation } from "/@/threeJS/loader/YJLoadAnimation.js";
 
 // 读取模型的动作数据
@@ -55,7 +55,8 @@ class YJPlayerAnimData {
         }
       }
       if (has) {
-        console.log(animName, avatarData);
+        console.error(animName, avatarData);
+        // 本角色扩展动作
         if (avatarData.animationsExtendData != undefined) {
           for (let i = 0; i < avatarData.animationsExtendData.length; i++) {
             const element = avatarData.animationsExtendData[i];
@@ -84,6 +85,43 @@ class YJPlayerAnimData {
             }
           }
         }
+
+        /*
+        // 映射到其他角色动作: 情况太复杂，实验失败
+        if (avatarData.boneRefPlayer != undefined 
+          && avatarData.boneRefPlayerAnimationData != undefined
+          && avatarData.boneRefPlayerAnimationData.length>0 
+          ) {
+
+          for (let i = 0; i < avatarData.boneRefPlayerAnimationData.length; i++) {
+            const element = avatarData.boneRefPlayerAnimationData[i];
+            if (element.animName == animName) {
+
+              let path = (_this.$uploadUrl + avatarData.boneRefPlayer + "/" + element.path);
+              // console.log("加载扩展动作 ",path);
+              if (path.includes("json")) {
+                this.LoadAssset(path, (data) => {
+                  console.log(" 读取扩展动作 ", path, data);
+
+                  if (callback) {
+                    callback(element.isLoop, createAnimationClip2(animName,avatarData.boneList, data));
+                  }
+                });
+              } else {
+                //fbx动作直接加载模型，提前里面的动画
+                if (_YJLoadAnimation == null) {
+                  _YJLoadAnimation = new YJLoadAnimation();
+                }
+                _YJLoadAnimation.load(path, (anim) => {
+                  if (callback) {
+                    callback(element.isLoop, anim);
+                  }
+                });
+              }
+            }
+          }
+        }
+        */
       }
     }
 

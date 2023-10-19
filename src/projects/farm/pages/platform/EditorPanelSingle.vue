@@ -98,6 +98,7 @@
 
     <modelSelectPanel ref="modelSelectPanel" />
     <animPanel ref="animPanel" />
+    <boneConvertPanel ref="boneConvertPanel" />
 
     <!-- 与后台交互的操作提示 -->
     <!---->
@@ -149,6 +150,7 @@ import PanelCut from "./PanelCut.vue";
 
 import modelSelectPanel from "./modelSelectPanel.vue";
 import animPanel from "./animPanel.vue";
+import boneConvertPanel from "./boneConvertPanel.vue";
 
 // 加载进度页
 import loadingPanel from "./loadingPanel2.vue";
@@ -175,6 +177,7 @@ export default {
     YJmetaBase,
     modelSelectPanel,
     animPanel,
+    boneConvertPanel,
     settingPanel_uvAnim,
     settingPanel_car,
     settingPanel_weapon,

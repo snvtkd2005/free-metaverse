@@ -65,3 +65,76 @@ export const createAnimationClip = (animName, data)=> {
   animationClip.optimize();
   return animationClip;
 }
+
+
+export const createAnimationClip2 = (animName,boneList, data)=> {
+  // console.log("获取动画data", data);
+  const tracks = [];
+
+  let vectorKeyframeTrackList = data.vectorKeyframeTrackList;
+
+  for (let i = vectorKeyframeTrackList.length-1; i >=0 ; i--) {
+    const element = vectorKeyframeTrackList[i];
+    const trackName = element.name;
+    let has = false;
+    for (let j = 0; j < boneList.length; j++) {
+      const bone = boneList[j];
+      if(bone.refBone+'.position' == trackName ){
+        element.name = bone.boneName+'.position';
+        has = true;
+      }
+      if(bone.refBone+'.scale' == trackName ){
+        element.name = bone.boneName+'.scale';
+        has = true;
+      }
+      if(!has){
+        vectorKeyframeTrackList.splice(i,1); 
+      }
+    }
+  }
+
+
+
+  for (let i = 0; i < vectorKeyframeTrackList.length; i++) {
+    const element = vectorKeyframeTrackList[i];
+    const trackName = element.name;
+    const times = element.times;
+    const values = element.values;
+    const track = new THREE.VectorKeyframeTrack(trackName, times, values);
+    tracks.push(track);
+  }
+
+  let quaternionKeyframeTrackList = data.quaternionKeyframeTrackList;
+
+
+  for (let i = 0; i < quaternionKeyframeTrackList.length; i++) {
+    const element = quaternionKeyframeTrackList[i];
+    const trackName = element.name;
+    let has = false;
+    for (let j = 0; j < boneList.length; j++) {
+      const bone = boneList[j];
+      if(bone.refBone+'.quaternion' == trackName ){
+        element.name = bone.boneName+'.quaternion';
+        has = true;
+      } 
+      if(!has){
+        quaternionKeyframeTrackList.splice(i,1); 
+      }
+    }
+  }
+
+
+  for (let i = 0; i < quaternionKeyframeTrackList.length; i++) {
+    const element = quaternionKeyframeTrackList[i];
+    const trackName = element.name;
+    const times = element.times;
+    const values = element.values;
+    const track = new THREE.QuaternionKeyframeTrack(trackName, times, values);
+    tracks.push(track);
+  }
+
+  // 创建 AnimationClip
+  const animationClip = new THREE.AnimationClip(animName, -1, tracks);
+  animationClip.optimize();
+  return animationClip;
+}

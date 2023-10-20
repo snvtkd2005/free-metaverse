@@ -238,11 +238,14 @@ export default {
     Clear(i) {
       for (let index = 0; index < this.animationsData.length; index++) {
         const element = this.animationsData[index];
-        if (element.animName == this.animations[i].connectAnim) {
+        if (this.animations[i]==undefined || element.animName == this.animations[i].connectAnim) {
           element.connected = false;
         }
       }
-
+      if(this.animations[i]==undefined){
+        this.animations.splice(i,1);
+        return;
+      }
       this.animations[i].connectAnim = "";
       this.animations[i].targetIndex = -1;
     },

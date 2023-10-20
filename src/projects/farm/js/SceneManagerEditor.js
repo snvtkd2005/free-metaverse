@@ -166,6 +166,8 @@ class SceneManager {
           indexVue.$refs.gameUI.SetTargetVaild(b);
         }
       });
+ 
+
     }
 
     let boneAttachList = [];

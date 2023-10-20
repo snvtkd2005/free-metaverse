@@ -501,6 +501,8 @@ class YJLoadAvatar {
     function SetActionByIndexFn(animationData) {
       GetFaceModelFn();
       if (mixer == undefined) { return; }
+      if (animations.length == 0) { return; }
+      
       // console.log("动作数据为", animationData);
       for (let i = 0; i < animationData.length; i++) {
         const element = animationData[i];

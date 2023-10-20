@@ -30,14 +30,14 @@ class YJMeshRenderer {
     this.GetAllBone = function () {
       let boneNode = [];
       model.traverse(function (item) {
-        if (item instanceof THREE.Bone) { 
-          boneNode.push(item); 
+        if (item instanceof THREE.Bone) {
+          boneNode.push(item);
         }
       });
-      for (let i = boneNode.length-1; i > 0 ; i--) {
+      for (let i = boneNode.length - 1; i > 0; i--) {
         const element = boneNode[i];
-        if(element.parent.name == element.name){
-          boneNode.splice(i,1);
+        if (element.parent.name == element.name) {
+          boneNode.splice(i, 1);
         }
       }
       let bones = [];
@@ -101,14 +101,14 @@ class YJMeshRenderer {
 
           model = object;
           model.transform = owner;
- 
 
-          animations =  model.animations ;
-          for (let i = animations.length-1; i >= 0; i--) {
+
+          animations = model.animations;
+          for (let i = animations.length - 1; i >= 0; i--) {
             const element = animations[i];
-            if(element.tracks.length == 0){
-              animations.splice(i,1);
-            }  
+            if (element.tracks.length == 0) {
+              animations.splice(i, 1);
+            }
           }
           model.animations = animations;
 
@@ -134,11 +134,16 @@ class YJMeshRenderer {
 
               }
             }
+            // if (item instanceof THREE.Bone) {
+            //   if (item.name.includes("Hips")) {
+            //     item.add(new THREE.AxesHelper(1000));
+            //   }
+            // }
           });
 
 
           scene.add(model);
-          console.log(" 加载模型完成 " ,model );
+          console.log(" 加载模型完成 ", model);
           _this._YJSceneManager.addLoadMesh(modelPath, model);
 
           if (callback) {
@@ -158,7 +163,7 @@ class YJMeshRenderer {
     }
 
     this.load = function (modelPath, callback, errorback) {
-      if(modelPath == undefined){
+      if (modelPath == undefined) {
         if (callback) {
           callback(scope);
         }
@@ -295,7 +300,7 @@ class YJMeshRenderer {
 
 
     this.CreateCollider = function (colliderVisible) {
-      if(model == null){return;}
+      if (model == null) { return; }
       CreateColliderFn(model, colliderVisible);
     }
     function TraverseOwner(model) {

@@ -119,7 +119,7 @@ export default {
     targetRota: { x: -1.56, y: 1.3 },
 
 
-    playerPos:{ x: 0, y: 20,z:20 },
+    playerPos:{ x: 0, y: 10,z:5 },
     playerRotaV3: { x: 0, y:3.14, z: 0 },
     // 玩家刚体高度
     playerHeight: 1.7,

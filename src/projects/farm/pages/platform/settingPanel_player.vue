@@ -88,7 +88,7 @@
 
   </div>
 
-  <div class=" hidden w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('选择可映射角色')">
+  <div class=" w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('选择可映射角色')">
     <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">选择可映射角色</div>
   </div>
 
@@ -240,8 +240,8 @@ export default {
         // 扩展动作，由加载外部动画文本解析得到
         animationsExtendData: [],
         // boneList: [],
-        // boneRefPlayer: 0,
-        // boneRefPlayerAnimationData: []
+        boneRefPlayer: 0,
+        boneRefPlayerAnimationData: [],
       },
 
       setting: [
@@ -308,11 +308,11 @@ export default {
     console.log(" modelData = ", modelData);
     this.settingData = modelData.message.data;
 
-    if (this.settingData.boneList) {
-      this.settingData.boneList = undefined;
-      this.settingData.boneRefPlayer = undefined;
-      this.settingData.boneRefPlayerAnimationData = undefined;
-    }
+    // if (this.settingData.boneList) {
+    //   this.settingData.boneList = undefined;
+    //   this.settingData.boneRefPlayer = undefined;
+    //   this.settingData.boneRefPlayerAnimationData = undefined;
+    // }
     this.modelData = modelData;
     this.initValue();
 
@@ -323,8 +323,9 @@ export default {
     ClickBtnHandler(e) {
 
       if (e == "选择可映射角色") {
-        this.$parent.$refs.modelSelectPanel.Init("角色模型");
-
+        // 只有骨骼相同，且有扩展动作的角色，才允许被映射
+        // this.$parent.$refs.modelSelectPanel.Init("角色模型");
+        this.$parent.$refs.modelSelectPanel.RequestProjectionPlayer( this.settingData);
       }
       if (e == "保存") {
         this.$refs.settingPanel_avatar.save();
@@ -623,7 +624,14 @@ export default {
 
     // 添加骨骼映射角色
     addBoneRefPlayer(item) {
-      this.settingData.boneRefPlayer = item.folderBase;
+      this.settingData.boneRefPlayer = item.id;
+      this.settingData.boneRefPlayerAnimationData = item.animationsExtendData;
+      this.save();
+      // 更新 YJPlayerAnimData 中的数据
+      this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CreateOrLoadPlayerAnimData().UpdateAvatarDataById(this.settingData.id, this.settingData);
+
+      
+      return;
       let refBonelist = item.message.data.boneList;
       for (let i = 0; i < refBonelist.length; i++) {
         const refbone = refBonelist[i];

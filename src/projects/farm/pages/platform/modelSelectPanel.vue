@@ -170,6 +170,26 @@ export default {
         }
       });
     },
+
+    RequestProjectionPlayer(avatarData){
+      this.selectModelTable = avatarData.modelType;
+
+      this.modelsList = [];
+      let list = _Global.CreateOrLoadPlayerAnimData().GetAllAvatar();
+      
+      for (let i = 0; i < list.length; i++) {
+        const element = list[i];
+        if(element.id !=avatarData.id 
+        && element.animationsExtendData != undefined 
+        // && Math.abs( element.height-avatarData.height)<0.2
+        ){
+          this.modelsList.push(element);
+        }
+      }
+      this.SetVisible(true);
+      console.log(avatarData,list,this.modelsList);
+      
+    },
     //#region 模型库
     //切换模型table
     SelectTable(e) {

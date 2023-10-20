@@ -1,5 +1,5 @@
 
-import { createAnimationClip,createAnimationClip2 } from "/@/utils/utils_threejs.js";
+import { createAnimationClip,createAnimationClip2,createAnimationClipScale } from "/@/utils/utils_threejs.js";
 import { YJLoadAnimation } from "/@/threeJS/loader/YJLoadAnimation.js";
 
 // 读取模型的动作数据
@@ -34,6 +34,10 @@ class YJPlayerAnimData {
     }
 
 
+    this.GetAllAvatar = function(){
+      return avatarDataList;
+    }
+
     this.GetAvatarData = function (playerName) {
       console.error(" 查找角色信息  ", playerName, avatarDataList);
       for (let i = 0; i < avatarDataList.length; i++) {
@@ -43,7 +47,13 @@ class YJPlayerAnimData {
       }
       console.error(" 角色信息未找到 ", playerName);
     }
-
+    this.UpdateAvatarDataById = function(id,avatarData){
+      for (let i = 0; i < avatarDataList.length ; i++) {
+        if (avatarDataList[i].id == id) { 
+          avatarDataList[i] = avatarData;
+        }
+      }
+    }
     // 获取扩展动作。动作从unity转的json文本中解析得到
     this.GetExtendAnim = function (playerName, animName, callback) {
       let has = false;
@@ -77,16 +87,17 @@ class YJPlayerAnimData {
                   _YJLoadAnimation = new YJLoadAnimation();
                 }
                 _YJLoadAnimation.load(path, (anim) => {
+
                   if (callback) {
                     callback(element.isLoop, anim);
                   }
                 });
               }
+              return;
             }
           }
         }
-
-        /*
+        //*
         // 映射到其他角色动作: 情况太复杂，实验失败
         if (avatarData.boneRefPlayer != undefined 
           && avatarData.boneRefPlayerAnimationData != undefined
@@ -102,9 +113,8 @@ class YJPlayerAnimData {
               if (path.includes("json")) {
                 this.LoadAssset(path, (data) => {
                   console.log(" 读取扩展动作 ", path, data);
-
                   if (callback) {
-                    callback(element.isLoop, createAnimationClip2(animName,avatarData.boneList, data));
+                    callback(element.isLoop, createAnimationClip(animName, data));
                   }
                 });
               } else {
@@ -115,13 +125,16 @@ class YJPlayerAnimData {
                 _YJLoadAnimation.load(path, (anim) => {
                   if (callback) {
                     callback(element.isLoop, anim);
+                    // callback(element.isLoop, createAnimationClipScale(animName,0.6, anim) );
+
                   }
                 });
               }
             }
           }
         }
-        */
+        //*/
+        
       }
     }
 

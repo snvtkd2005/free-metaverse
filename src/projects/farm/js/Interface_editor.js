@@ -2,8 +2,6 @@ import * as THREE from "three";
 
  
 import { YJPlayerAnimData } from "/@/threeJS/YJPlayerAnimData.js";
-
-
 import { GetAllModel } from "./uploadThreejs.js";
 
 // Threejs 中的事件传出接口
@@ -51,6 +49,7 @@ class Interface {
               // 到角色数据中，模型路径、动画数据
               let data = item.message.data;
               data.modelPath = _this.$uploadUrl + item.modelPath;
+              data.icon = item.icon;
               _Global.CreateOrLoadPlayerAnimData().AddAvatarData(data);
             }else{
               // this.modelsList.push(item);

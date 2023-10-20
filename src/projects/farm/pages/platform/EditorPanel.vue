@@ -144,7 +144,6 @@ import loadingPanel from "./loadingPanel2.vue";
 
 import { SceneManager } from "../../js/SceneManagerEditor.js";
 
-// import { SceneManager_ddp } from "../../js/SceneManager_ddp.js";
 
 import { Interface } from "../../js/Interface_editor.js";
 
@@ -1175,20 +1174,6 @@ export default {
 
         });
 
-
-        // new SceneManager_ddp(
-        //   this.$refs.container,
-        //   null,
-        //   this,
-        //   () => {
-        //     if (callback) {
-        //       callback();
-        //     }
-
-        //   }
-        // );
-
-
         this._SceneManager.ChangeScene(this.sceneData);
 
 
@@ -1226,13 +1211,6 @@ export default {
       });
 
       this.Interface.load3dComplete();
-
-      // new SceneManager_MaterialSetting(
-      // this.$refs.YJmetaBase.ThreejsHumanChat.scene,
-      // this.$refs.YJmetaBase.ThreejsHumanChat.renderer,
-      // this.$refs.YJmetaBase.ThreejsHumanChat.camera,
-      // this.$refs.YJmetaBase.ThreejsHumanChat
-      // );
 
     },
     // 3转2坐标

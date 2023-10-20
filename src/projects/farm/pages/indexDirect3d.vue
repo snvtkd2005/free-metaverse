@@ -9,22 +9,22 @@
       <canvas id="nowcanvas" class="bg-white"> </canvas>
     </div>
 
-  <!-- 视角远近滑块 -->
+    <!-- 视角远近滑块 -->
     <!-- <input ref="viewFarCtrl" class=" absolute  -right-10 bottom-20  outline-none  transform rotate-90" @input="viewFarFn"
             v-model="viewFar" type="range" min="0" max="23" step="1"> -->
 
     <!-- 加载loading -->
     <loadingPanel class="absolute z-50 left-0 top-0" ref="loadingPanel" />
 
-  <!-- 小地图透明按钮 -->
-  <!-- <div v-if="avatarData.setting.hasMinMap" class="absolute z-20 left-0 bottom-8 w-full pointer-events-none">
+    <!-- 小地图透明按钮 -->
+    <!-- <div v-if="avatarData.setting.hasMinMap" class="absolute z-20 left-0 bottom-8 w-full pointer-events-none">
                                                 <div class="mx-auto w-60 h-36 bg-transparent pointer-events-auto" @click="ClickNiaokan()"></div>
                                               </div> -->
 
 
     <!-- <minMapEditor v-if="avatarData.setting.inMinMapEditor" /> -->
 
-  <!-- <div v-if="avatarData.setting.has2dMinMap"  class=" absolute left-1/2 bottom-0 w-96 h-48 transform -translate-x-48 scale-75 "  @click="ClickNiaokan()">
+    <!-- <div v-if="avatarData.setting.has2dMinMap"  class=" absolute left-1/2 bottom-0 w-96 h-48 transform -translate-x-48 scale-75 "  @click="ClickNiaokan()">
                                                   <map2d ref="map2d" :inEditor="avatarData.setting.inMinMapEditor" />
                                               </div> -->
 
@@ -40,7 +40,7 @@
       <!-- <JoystickRightPanel class=" " ref="JoystickRightPanel" /> -->
     </div>
 
-  <!-- <div v-show="displayMinMap" class=" absolute flex right-5 bottom-5 w-auto h-10 rounded-full shadow-md bg-gray-100 cursor-pointer "
+    <!-- <div v-show="displayMinMap" class=" absolute flex right-5 bottom-5 w-auto h-10 rounded-full shadow-md bg-gray-100 cursor-pointer "
     @click="ChangeViewFar">
     <div class=" px-2 self-center mx-auto">
       ViewFar
@@ -51,13 +51,12 @@
     <!-- 鸟瞰2d点位 -->
     <div v-if="niaokanUI" class="absolute left-0 top-0 z-10 w-full h-full pointer-events-none">
       <div>
-        <div v-for="(item, i) in projectionList" :key="i" :index="item.id" class=" text-xl flex" :style="
-          ' position:absolute; left:' +
+        <div v-for="(item, i) in projectionList" :key="i" :index="item.id" class=" text-xl flex" :style="' position:absolute; left:' +
           (item.pos.x - 48) +
           'px;top:' +
           (item.pos.y - 12) +
           'px'
-        ">
+          ">
           <!-- :style="' position:absolute; left:'+item.pos.x+'px;top:'+i*100+'px'" -->
           <div class="
                                                         w-32
@@ -135,8 +134,8 @@
     </div>
 
 
-  <!-- chatgpt 对话框 -->
-  <!-- <div class=" absolute left-0 top-0 w-1/2 h-2/3 transform translate-x-1/2 translate-y-1/4 pointer-events-none  ">
+    <!-- chatgpt 对话框 -->
+    <!-- <div class=" absolute left-0 top-0 w-1/2 h-2/3 transform translate-x-1/2 translate-y-1/4 pointer-events-none  ">
                 <chatPanel ref="chatPanel" />
               </div> -->
     <div class=" absolute left-0 top-0 z-50 w-full h-full pointer-events-none   ">
@@ -151,7 +150,7 @@
     </div>
 
 
-    <!-- <interfaceCtrlTest ref="interfaceCtrlTest" /> --> 
+    <!-- <interfaceCtrlTest ref="interfaceCtrlTest" /> -->
   </div>
 
 
@@ -164,8 +163,8 @@
 
 
 
-<!-- npc音效 -->
-<!-- <div v-if="npcMusicUrl != ''">
+  <!-- npc音效 -->
+  <!-- <div v-if="npcMusicUrl != ''">
           <audio :src="npcMusicUrl" ref="npcMusic"></audio>
         </div> -->
 </template>
@@ -177,7 +176,7 @@ import chatPanel from "./chatPanelSingle3D.vue";
 import chatPanelNPC from "./chatPanelNPC.vue";
 import chatRecodePanel from "./chatRecodePanel.vue";
 
- 
+
 
 import interfaceCtrlTest from "./interfaceCtrlTest.vue";
 
@@ -264,7 +263,7 @@ export default {
     chatPanelNPC,
     chatRecodePanel,
     YJDyncConnectCount,
-    interfaceCtrlTest, 
+    interfaceCtrlTest,
   },
   data() {
     return {
@@ -453,9 +452,11 @@ export default {
         this.SelectScene(localStorage.getItem("sceneName"));
       }
 
-      this.ClickSelectPlayerOK(avatarName, this.userName);
-    }
+      setTimeout(() => {
+        this.ClickSelectPlayerOK(avatarName, this.userName);
+      }, 2000);
 
+    }
 
 
     this.$refs.YJmetaBase.SetloadingPanel(this.$refs.loadingPanel);
@@ -467,7 +468,7 @@ export default {
   },
   methods: {
 
-    GetPlayerAnimData(){
+    GetPlayerAnimData() {
       return PlayerAnimData;
     },
     viewFarFn(e) {
@@ -700,7 +701,7 @@ export default {
         this.$refs.gameUI.DelIconTo(name);
       }
     },
- 
+
     SetTriggerOverlap(b, id, owner) {
       this.Interface.SetTriggerOverlap(b, id, name);
 

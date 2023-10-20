@@ -340,13 +340,13 @@ class YJGameManager {
 
     let posRef_huluobu;
     let posRef_nangua;
-    let inInputing = true;
+    let inInputing = false;
     function init() {
 
       _YJProjector = new YJProjector(_this);
 
 
-      // console.error(" 初始化 YJGameManager Editor ");
+      console.error(" 初始化 YJGameManager Editor ");
       new YJKeyboard((key) => {
         if(inInputing){
           return;

@@ -3,9 +3,9 @@
 <template>
   <div class="  flex-grow flex-col mt-10 md:mt-0 p-2 md:p-20 overflow-y-scroll">
 
-    <div class="  w-auto text-left h-12 text-xl xl:text-3xl text-black font-bold ">开放世界（无缝大地图,未开放）</div>
+    <div class=" hidden w-auto text-left h-12 text-xl xl:text-3xl text-black font-bold ">开放世界（无缝大地图,未开放）</div>
 
-    <div class="  flex ">
+    <div class=" hidden  ">
       <!-- 选择列表 -->
       <div v-for="(item, i) in metaWorldList" :key="i" class="
                   self-center  cursor-pointer  w-auto h-auto  relative
@@ -27,8 +27,8 @@
       </div>
     </div>
 
-    <div class=" mt-10 w-auto text-left h-12 text-xl xl:text-3xl text-black font-bold ">平台案例</div>
-    <div class=" flex space-x-20 ">
+    <div class=" hidden mt-10 w-auto text-left h-12 text-xl xl:text-3xl text-black font-bold ">平台案例</div>
+    <div class=" hidden  space-x-20 ">
       <!-- 选择列表 -->
       <div v-for="(item, i) in sceneList" :key="i" class="
 
@@ -51,7 +51,7 @@
     </div>
 
     <div class=" mt-10 w-auto text-left h-12 text-xl xl:text-3xl text-black font-bold ">用户创建场景</div>
-    <div class="  gap-6 grid grid-cols-3 xl:grid-cols-8 md:grid-cols-5 ">
+    <div class="  gap-6 grid grid-cols-3 xl:grid-cols-7 md:grid-cols-5 ">
       <!-- 选择列表 -->
       <div v-for="(item, i) in userSceneList" :key="i" class="
 

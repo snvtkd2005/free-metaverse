@@ -49,7 +49,8 @@
             </div>
 
             <div class=" w-10 flex text-sm  justify-between">
-              <div class="cursor-pointer bg-gray-100 " @click="EditorSkillEvent('编辑', item, i)">{{ UIData.base.editor }}
+              <div class="cursor-pointer bg-gray-100 " @click="EditorSkillEvent('上传', item, i)">{{ UIData.base.editor }}
+              <!-- <div class="cursor-pointer bg-gray-100 " @click="EditorSkillEvent('编辑', item, i)">{{ UIData.base.editor }} -->
               </div>
             </div>
 
@@ -168,17 +169,7 @@ export default {
       // this.SetSkillList(res.data);
     },
     ChangeAnim(animName) {
-      let _YJAnimator = this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager
-        .GetSingleModelTransform()
-        .GetComponent("Animator");
-      let has = _YJAnimator.ChangeAnim(animName);
-      if (!has) {
-        //扩展动作
-        _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(this.avatarName, animName, (isLoop, anim) => {
-          _YJAnimator.ChangeAnimByAnimData(animName, isLoop, anim);
-        });
-      }
-
+      this.$parent.$refs.settingPanel_player.ChangePlayerAnim(animName);
     },
 
     ChangeValue(i, e) {
@@ -196,7 +187,7 @@ export default {
     EditorSkillEvent(e, item, i) {
       console.log(e, item, i);
       if (e == "上传") {
-        this.$parent.$refs.settingPanel_player.SetAnimName(item.animName);
+        this.$parent.$refs.settingPanel_player.SetAnimName(item);
         this.isOpen = false;
         return;
       }

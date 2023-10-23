@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { YJAnimModel } from "./loader/YJAnimModel";
+import { YJAnimModel } from "./components/YJAnimModel";
 import { YJLoadModel } from "./YJLoadModel";
 
 import TWEEN from '@tweenjs/tween.js';

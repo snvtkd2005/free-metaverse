@@ -202,6 +202,55 @@ class YJPlayerAnimData {
         // }
       }
     }
+    this.GetAnimDataByAnimName = function (playerName,animName, callback) {
+
+      let animList = [];
+      let has = false;
+      let avatarData = null;
+      for (let i = 0; i < avatarDataList.length && !has; i++) {
+        if (avatarDataList[i].name == playerName) {
+          has = true;
+          avatarData = avatarDataList[i];
+        }
+      }
+      if (has) {
+        for (let i = 0; i < avatarData.animationsData.length; i++) {
+          const element = avatarData.animationsData[i];
+          if(element.animName == animName){
+            if(callback){
+              callback(element);
+            }
+            return ;
+          } 
+        }
+
+        //再查找其扩展动作
+        if (avatarData.animationsExtendData) {
+          for (let i = 0; i < avatarData.animationsExtendData.length; i++) {
+            const element = avatarData.animationsExtendData[i];
+            if(element.animName == animName){
+              if(callback){
+                callback(element);
+              }
+              return ;
+            } 
+          }
+        }
+
+        // 再从映射动作中查找
+        if (avatarData.boneRefPlayerAnimationData) {
+          for (let i = 0; i < avatarData.boneRefPlayerAnimationData.length; i++) {
+            const element = avatarData.boneRefPlayerAnimationData[i];
+            if(element.animName == animName){
+              if(callback){
+                callback(element);
+              }
+              return ;
+            } 
+          }
+        } 
+      }
+    }
     async function LoadExtendData(playerName, callback) {
       if (playerName == "小孩") {
         let res = await _this.$axios.get(

@@ -29,7 +29,7 @@ class YJPlayer {
 
 
     let avatar = null;
-    this.GetAvatar = function(){
+    this.GetAvatar = function () {
       return avatar;
     }
     let group = null;
@@ -42,7 +42,7 @@ class YJPlayer {
 
     var modelPath = "";
     var playerName = "";
-    this.GetPlayerName = function(){
+    this.GetPlayerName = function () {
       return playerName;
     }
 
@@ -62,13 +62,13 @@ class YJPlayer {
       group.name = "group";
       playerGroup.add(group);
 
-      _YJPlayerDync = new YJPlayerDync(_this, scene, scope,playerGroup);
-      _YJPlayerDync.DyncPlayerState({type:"脚底光圈",msg:"生成"});
+      _YJPlayerDync = new YJPlayerDync(_this, scene, scope, playerGroup);
+      _YJPlayerDync.DyncPlayerState({ type: "脚底光圈", msg: "生成" });
     }
     this.DyncPlayerState = function (state) {
       _YJPlayerDync.DyncPlayerState(state);
     }
-    
+
 
     let defaultplayerSetting = {};
     this.setPlayerDefaultPos = function (playerSetting) {
@@ -92,7 +92,7 @@ class YJPlayer {
         scene.attach(playerGroup);
         return;
       }
-      parent.attach(playerGroup); 
+      parent.attach(playerGroup);
     }
 
 
@@ -108,8 +108,8 @@ class YJPlayer {
       playerName = _playerName;
       let animationsData = [];
 
-      console.error(" 加载角色名 " +playerName );
-      
+      console.error(" 加载角色名 " + playerName);
+
       // avatarData = _this.$parent.GetAvatarData(playerName);
       avatarData = _this._YJSceneManager.CreateOrLoadPlayerAnimData().GetAvatarData(playerName);
       modelPath = avatarData.modelPath;
@@ -117,7 +117,7 @@ class YJPlayer {
       modelScale = avatarData.modelScale;
       if (modelPath.indexOf("fbx") > -1) {
         modelScale = modelScale * 0.01;
-      } 
+      }
       nameScale = avatarData.nameScale;
       // 动作数据
       animationsData = avatarData.animationsData;
@@ -202,15 +202,15 @@ class YJPlayer {
         avatar.ChangeAnim("idle");
       }
 
-      if( modelPath.includes("http")){
-      }else{
-        modelPath =  _this.GetPublicUrl() + modelPath;
+      if (modelPath.includes("http")) {
+      } else {
+        modelPath = _this.GetPublicUrl() + modelPath;
       }
 
       mountAvatar = new YJLoadAvatar(
         _this,
         group,
-         modelPath,
+        modelPath,
         animationsData,
         scope,
         (_playerObj) => {
@@ -282,16 +282,16 @@ class YJPlayer {
     function LoadAvatar(modelPath, height, animationsData) {
       playerHeight = height;
 
-      if( modelPath.includes("http")){
-      }else{
-        modelPath =  _this.GetPublicUrl() + modelPath;
+      if (modelPath.includes("http")) {
+      } else {
+        modelPath = _this.GetPublicUrl() + modelPath;
       }
 
       // console.log("加载角色0",modelPath,animationsData);
       avatar = new YJLoadAvatar(
         _this,
         _this.scene,
-         modelPath,
+        modelPath,
         animationsData,
         scope,
         (_playerObj) => {
@@ -347,9 +347,9 @@ class YJPlayer {
             CreateNameTransFn();
           }
         },
-        (animName)=>{
-          _this._YJSceneManager.CreateOrLoadPlayerAnimData().GetExtendAnim(playerName, animName, (isLoop,anim) => {
-            avatar.ChangeAnimByAnimData(animName,isLoop,anim);
+        (animName) => {
+          _this._YJSceneManager.CreateOrLoadPlayerAnimData().GetExtendAnim(playerName, animName, (isLoop, anim) => {
+            avatar.ChangeAnimByAnimData(animName, isLoop, anim);
           });
         }
       );
@@ -458,14 +458,14 @@ class YJPlayer {
       // console.log("从模型中查找bone ", playerObj,boneName);
       doonce = 0;
       playerObj.traverse(function (item) {
-        if(doonce>0){return;}
+        if (doonce > 0) { return; }
         if (item.type == "Bone" && item.name.includes(boneName)) {
           if (callback) {
             callback(item);
-          } 
-          doonce++; 
+          }
+          doonce++;
         }
-      }); 
+      });
       // return function(){
 
       //   playerObj.traverse(function (item) {
@@ -487,7 +487,9 @@ class YJPlayer {
       hasName = true;
       CreateNameTransFn();
     }
-
+    this.GetNickName = function () {
+      return nickName;
+    }
     // 设置姓名条高度偏移和尺寸
     this.SetNameTransOffsetAndScale = function (h, scale) {
       namePosTrans.position.set(0, h, 0); //原点位置
@@ -536,7 +538,7 @@ class YJPlayer {
         transparent: true,
         color: 0xffffff,
         depthWrite: false,
-        map: resetButtonText.material.map, 
+        map: resetButtonText.material.map,
       }); // 材质
       resetButtonText.material = mat;
       resetButtonText.renderOrder = 1;
@@ -917,7 +919,7 @@ class YJPlayer {
 
 
       // console.log("获取角色镜像同步数据",userData);
- 
+
 
       this.ChangeAnim(userData.animName);
 
@@ -991,7 +993,7 @@ class YJPlayer {
       // if (e) {
       //   group.rotation.set(e.x, e.y, e.z);
       // }
-      
+
       let lookatPos = newPos.clone();
       lookatPos.y = currentTargetPos.y;
       group.lookAt(lookatPos);
@@ -1184,7 +1186,7 @@ class YJPlayer {
           && Math.abs(targetPos.y - currentTargetPos.y) < 0.01
         ) {
           b_lerpChangeView = false;
-          lerpLength = 0; 
+          lerpLength = 0;
           console.log("已移动到指定位置");
         }
       }

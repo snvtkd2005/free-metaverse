@@ -31,10 +31,10 @@
         </div>
 
         <div v-for="(item, i) in tableList" :key="i" :index="item.id" class="px-12 flex h-10 text-center hover:bg-546770"
-          :class="0 == item.id ? ' ' : ' cursor-pointer '" @click="ChangeTable(item)">
-          <div class="self-center">
+          >
+          <div v-if="item.display" class="self-center" :class="0 == item.id ? ' ' : ' cursor-pointer '" @click="ChangeTable(item)">
             {{ item.content }}
-          </div>
+          </div> 
         </div>
       </div>
     </div>
@@ -209,15 +209,14 @@ export default {
       infloating: false,
 
       _SceneManager: null,
-      hasImport: true,
+      hasImport: true, 
       tableList: [
-        { id: "single_cut", content: "截图（制作缩略图）" },
-        { id: "single_collider", content: "隐藏碰撞体", value: true },
-        { id: "single_usercollider", content: "激活碰撞体", value: true },
+        { id: "single_cut",display:true, content: "截图（制作缩略图）" },
+        { id: "single_collider", display:true,content: "隐藏碰撞体", value: true },
+        { id: "single_usercollider",display:true, content: "激活碰撞体", value: true },
         // { id: "single_first", content: "第一人称视角" },
         // { id: "single_third", content: "第三人称视角" },
-        { id: "single_planeState", content: "隐藏地面", value: true },
-
+        { id: "single_planeState",display:true, content: "隐藏地面", value: true },
         // { id: 10000, content: "保存", },
         // { id: 10000, content: "发布", },
       ],
@@ -336,6 +335,16 @@ export default {
     });
   },
   methods: {
+    
+    setSettingDisplayById(id, display) {
+      for (let i = 0; i < this.tableList.length; i++) {
+        const element = this.tableList[i];
+        if (element.id == id) {
+          element.display = display;
+        }
+      }
+    },
+
     ChangePanel(e) {
       let names = Object.getOwnPropertyNames(this.panelState);
       let list = Object.getOwnPropertySymbols(this.panelState);
@@ -364,12 +373,24 @@ export default {
       this.hasUI = false;
 
       if (this.modelData.modelType == "uv模型") {
+        this.hasImport = false;
+        this.setSettingDisplayById("single_collider",false);
+        this.setSettingDisplayById("single_usercollider",false);
+        this.setSettingDisplayById("single_planeState",false);
       }
 
       if (this.modelData.modelType == "汽车模型") {
+        this.hasImport = false;
+        this.setSettingDisplayById("single_collider",false);
+        this.setSettingDisplayById("single_usercollider",false);
+        this.setSettingDisplayById("single_planeState",false);
       }
 
       if (this.modelData.modelType == "NPC模型") {
+        this.hasImport = false;
+        this.setSettingDisplayById("single_collider",false);
+        this.setSettingDisplayById("single_usercollider",false);
+        this.setSettingDisplayById("single_planeState",false);
       }
       if (this.modelData.modelType == "装备模型") {
         setTimeout(() => {

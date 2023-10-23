@@ -25,7 +25,9 @@ export default {
     let that = this;
     this.$refs.input.addEventListener("input", function () {
       // this.$emit("OnInput",this.value);
-
+      if(that.type == "int"){
+        this.value = parseInt(this.value);
+      }
       if (that.index != undefined) {
         that.callback(that.index, parseFloat(this.value));
       } else {

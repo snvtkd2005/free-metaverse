@@ -65,6 +65,7 @@ class YJTransform {
     this.components = [];
     let components = [];
     this.AddComponent = function (type, js) {
+      js.transform = scope;
       components.push({ type: type, js: js });
 
       this.components = components;
@@ -143,7 +144,15 @@ class YJTransform {
       data.modelPath = modelPath;
     }
 
-
+    this.GetWorldPos = function(){
+      let pos = getWorldPosition(group).clone();
+      return pos;
+    }
+    function getWorldPosition(object) {
+      var worldPosition = new THREE.Vector3();
+      object.getWorldPosition(worldPosition);
+      return worldPosition;
+    }
     //放下后，获取模型的坐标和旋转，记录到服务器，让其他客户端创建
     this.GetPosRota = function (callback) {
       callback(model.position, model.rotation);
@@ -199,7 +208,14 @@ class YJTransform {
         }
       }
     }
-
+    this._update = function(){
+      for (let i = 0; i < components.length; i++) {
+        const element = components[i];
+        if (element.js._update) {
+          element.js._update(); 
+        }
+      } 
+    }
     Init();
 
   }

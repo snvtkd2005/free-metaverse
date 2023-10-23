@@ -13,41 +13,58 @@ import { createText } from 'three/examples/jsm/webxr/Text2D.js';
 // 4，设置 交互内容，图、文、视频
 
 class YJNPC {
-  constructor(_this, scene, _YJAnimator) {
+  constructor(_this, parent, _YJAnimator) {
     var scope = this;
 
     let group = null;
     let playerHeight;
     let nameScale = 1;
     let doonce = 0;
-
+    let baseData = {
+      health: 5,
+    }
     let navpath = [];
     const clock = new THREE.Clock();
-    const SPEED = 3;
+    let SPEED = 8;
+    const NORMALSPEED = 8;
+    const MISSSPEED = 20;
     let playerPosition = new THREE.Vector3(0, 0, 0);
 
     let fromGroup;
 
+    // 目标
+    let targetModel;
+    // 攻击速度，攻击间隔，判定有效的攻击时机
+    let attackSpeed = 1.2;
+
+    const stateType = {
+      Normal: 'normal',//正常状态， 待机/巡逻
+      Back: 'back',//失去战斗焦点后回到初始状态 
+      Fire: 'fire',//战斗 
+      Dead: 'dead',//死亡 
+    }
+    let state = stateType.Normal;
+
     function Init() {
       group = new THREE.Group();
-      scene.add(group);
+      parent.add(group);
 
       // fromGroup = new THREE.Group();
-      // scene.add(fromGroup);
+      // parent.add(fromGroup);
       // fromGroup.rotation.set(Math.PI/2,0,0);
 
       group.rotation.y += Math.PI;
 
       // group.add(new THREE.AxesHelper(5)); // 场景添加坐标轴
       // return;
-      update();
+      // update();
 
     }
 
     let data = null;
     let npcPos = [];
     this.npcName = "";
-    this.SetName = function(v){
+    this.SetName = function (v) {
       this.npcName = v;
       CreateNameTrans(this.npcName);
     }
@@ -64,20 +81,13 @@ class YJNPC {
       if (data.defaultPath == "" || data.defaultPath == undefined) {
         data.defaultPath = "idle";
       }
- 
+
       // 第一次加载时，把数据加入到全局角色数据中
       _Global.CreateOrLoadPlayerAnimData().AddAvatarData(data.avatarData);
 
       _YJAnimator.SetAnimationsData(data.avatarData.animationsData);
-      let has = _YJAnimator.ChangeAnim(data.defaultPath);
+      _YJAnimator.ChangeAnim(data.defaultPath);
 
-      let animName = data.defaultPath;
-      if(!has){
-        console.log(" 加载扩展动作 ",animName);
-        _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(data.avatarData.name, animName, (isLoop,anim) => {
-          _YJAnimator.ChangeAnimByAnimData(animName,isLoop,anim);
-        });
-      }
       if (data.movePos && data.movePos.length > 0) {
         AddDirectPosToNavmesh(data.movePos);
 
@@ -97,29 +107,21 @@ class YJNPC {
 
     this.UpdateModel = function (msg) {
       if (msg == null || msg == undefined || msg == "") { return; }
-      
+
       data = (msg);
       console.log("in NPC UpdateModel msg = ", data);
       nameScale = data.nameScale;
-      playerHeight = data.height; 
+      playerHeight = data.height;
       if (data.defaultPath == "" || data.defaultPath == undefined) {
         data.defaultPath = "idle";
       }
- 
+
       // 第一次加载时，把数据加入到全局角色数据中
       _Global.CreateOrLoadPlayerAnimData().AddAvatarData(data);
 
       _YJAnimator.SetAnimationsData(data.animationsData);
-      let has = _YJAnimator.ChangeAnim(data.defaultPath);
+      _YJAnimator.ChangeAnim(data.defaultPath);
 
-      let animName = data.defaultPath;
-      if(!has){
-        console.log(" 加载扩展动作 ",animName);
-        _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(data.name, animName, (isLoop,anim) => {
-          _YJAnimator.ChangeAnimByAnimData(animName,isLoop,anim);
-        });
-      }
- 
     }
 
     function AddDirectPosToNavmesh(movePos) {
@@ -150,7 +152,7 @@ class YJNPC {
     // 判断两点之间是否可以直接到达，即两点之间是否有障碍物，有障碍物表示不可直接到达
     function CheckColliderBetween(fromPos, targetPos) {
       var raycaster_collider = new THREE.Raycaster(fromPos, targetPos, 0, 8);
-      var hits = raycaster_collider.intersectObjects(scene.children, true);
+      var hits = raycaster_collider.intersectObjects(parent.children, true);
       if (hits.length > 0) {
 
         for (let i = 0; i < hits.length; i++) {
@@ -200,7 +202,7 @@ class YJNPC {
     this.Destroy = function () {
 
       cancelAnimationFrame(updateId);
-      scene.remove(group);
+      parent.remove(group);
 
     }
     //放下后，获取模型的坐标和旋转，记录到服务器，让其他客户端创建
@@ -209,10 +211,9 @@ class YJNPC {
     }
 
     Init();
-    var updateId = null;
-    function update() {
-      updateId = requestAnimationFrame(update);
 
+    // 姓名条始终朝向摄像机
+    function nameTransLookatCamera() {
       if (namePosTrans != null) {
         var lookatPos = new THREE.Vector3();
         var camWorlPos = new THREE.Vector3();
@@ -231,12 +232,127 @@ class YJNPC {
         lookAtObj.getWorldPosition(fromPos);
         group.lookAt(fromPos.x, fromPos.y, fromPos.z);
       }
+    }
 
+    let fireBeforePos = null;
+    // 设置NPC的战斗目标
+    this.SetTarget = function (_target) {
+
+      if (state == stateType.Back) {
+        return;
+      }
+      targetModel = _target;
+      if (targetModel == null) {
+        // 暂停1秒
+        navpath = [];
+        doonce = 0;
+        state = stateType.Back;
+        _YJAnimator.ChangeAnim("idle");
+        setTimeout(() => {
+          SPEED = MISSSPEED;
+          navpath.push(fireBeforePos);
+        }, 1000);
+
+        return;
+      }
+      SPEED = NORMALSPEED;
+      state = stateType.Fire;
+      fireBeforePos = scope.transform.GetWorldPos();
+      console.log(targetModel);
+    }
+
+
+
+    let checkPlayerLater = null;
+    function CheckPlayer() {
+
+      if (checkPlayerLater != null) {
+        clearTimeout(checkPlayerLater);
+        checkPlayerLater = null;
+      }
+      checkPlayerLater = setTimeout(() => {
+        CheckPlayer();
+      }, 500);
+    }
+    let oldPlayerPos = null;
+    let inBlocking = false;
+    let vaildAttackLater = null;
+    function CheckState() {
+      if (state == stateType.Dead) {
+        _YJAnimator.ChangeAnim("death");
+      }
+      if (state == stateType.Normal) {
+
+
+      }
+
+      if (state == stateType.Fire) {
+        let playerPos = targetModel.GetWorldPos();
+        playerPos.y = 0;
+        if (oldPlayerPos != playerPos) {
+          oldPlayerPos = playerPos;
+          navpath = [];
+          doonce = 0;
+        }
+        let npcPos = scope.transform.GetWorldPos();
+        npcPos.y = 0;
+        let dis = playerPos.distanceTo(npcPos);
+        if (dis < 1) {
+          navpath = [];
+          doonce = 0;
+          parent.lookAt(playerPos.clone());
+          //攻击
+          if(!inBlocking){
+            _YJAnimator.ChangeAnim("boxing attack001");
+          }
+          if (vaildAttackLater == null) {
+            vaildAttackLater = setTimeout(() => {
+              //有效攻击
+              console.log("有效攻击");
+              baseData.health--;
+              if (baseData.health <= 0) {
+                state = stateType.Dead;
+              }
+
+              _YJAnimator.ChangeAnim("body block");
+              inBlocking = true;
+              setTimeout(() => {
+                inBlocking = false;
+              }, 300);
+              vaildAttackLater = null;
+            }, attackSpeed * 1000);
+          }
+        } else {
+          if (vaildAttackLater != null) {
+            clearTimeout(vaildAttackLater);
+            vaildAttackLater = null;
+          }
+          //跑向目标
+          navpath.push(playerPos);
+          // navpath[0] = (playerPos);
+
+        }
+        // console.log( scope.npcName + " in fire " + dis);
+      }
+    }
+
+
+
+    var updateId = null;
+    function update() {
+      updateId = requestAnimationFrame(update);
+      nameTransLookatCamera();
+      CheckState();
       tick(clock.getDelta());
 
     }
+    this._update = function () {
+      nameTransLookatCamera();
+      CheckState();
+      tick(clock.getDelta());
+    }
 
-    this.ChangeAnim = function(v){
+    this.ChangeAnim = function (v) {
       _YJAnimator.ChangeAnim(v);
     }
     // NPC行为树、状态机
@@ -245,8 +361,10 @@ class YJNPC {
         _YJAnimator.ChangeAnim("walk");
 
       }
-      if (state == "停止") {
+      if (state == "战斗前") {
         _YJAnimator.ChangeAnim("idle");
+
+        return;
         // 延迟3秒，从当前位置移动到设定路线的其他坐标
 
         setTimeout(() => {
@@ -306,23 +424,23 @@ class YJNPC {
       let targetPosition = navpath[0];
       const velocity = targetPosition.clone().sub(playerPosition);
 
-
-      if (velocity.lengthSq() > 0.05 * 0.05) {
+      if (velocity.lengthSq() > 0.00075 * SPEED) {
         velocity.normalize();
         // Move player to target
         playerPosition.add(velocity.multiplyScalar(0.015 * SPEED));
+        // console.log(" in tick 222 ", playerPosition);
 
         // pathfindingHelper.setPlayerPosition( playerPosition );
 
-        let pos = raycasterDownPos(playerPosition.clone());
-        // let pos = playerPosition.clone();
+        // let pos = raycasterDownPos(playerPosition.clone());
+        let pos = playerPosition.clone();
 
-        group.position.copy(pos);
+        parent.position.copy(pos);
 
         if (doonce < 1) {
           if (navpath.length > 0) {
             //角色朝向目标点
-            group.lookAt(targetPosition.clone());
+            parent.lookAt(targetPosition.clone());
           }
           doonce++;
         }
@@ -333,9 +451,15 @@ class YJNPC {
         navpath.shift();
         doonce = 0;
         if (navpath.length == 0) {
-          ChangeAnim("停止");
-
         }
+        if (state == stateType.Normal) {
+          ChangeAnim("战斗前");
+        }
+        if (state == stateType.Back) {
+          state = stateType.Normal;
+          ChangeAnim("战斗前");
+        }
+
         // if (navpath.length > 1) {
         //   let targetPosition = navpath[1];
         //   //角色朝向目标点
@@ -361,7 +485,7 @@ class YJNPC {
       // dricGroup.position.copy(raytDricV3);
       var raycaster = new THREE.Raycaster(pos, raytDricV3, 0, 100);
       // var hits = raycaster.intersectObjects( _this.pointsParent, true);
-      // var hits = raycaster.intersectObjects(scene.children, true);
+      // var hits = raycaster.intersectObjects(parent.children, true);
       var hits = raycaster.intersectObjects(_this._YJSceneManager.GetAllLandCollider(), true);
 
       if (hits.length > 0) {

@@ -325,7 +325,7 @@ export default {
       if (e == "选择可映射角色") {
         // 只有骨骼相同，且有扩展动作的角色，才允许被映射
         // this.$parent.$refs.modelSelectPanel.Init("角色模型");
-        this.$parent.$refs.modelSelectPanel.RequestProjectionPlayer( this.settingData);
+        this.$parent.$refs.modelSelectPanel.RequestProjectionPlayer(this.settingData);
       }
       if (e == "保存") {
         this.$refs.settingPanel_avatar.save();
@@ -333,17 +333,16 @@ export default {
       }
       if (e == "下载模型") {
         this.download();
-      }
+      }       
       if (e == "动作列表") {
         console.log(" 打开动作列表 ");
         this.$parent.$refs.animPanel.SetVisible(true, this.modelData.name);
       }
       if (e == "骨骼映射面板") {
-        let bones = this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager
-          .GetSingleModelTransform()
-          .GetComponent("MeshRenderer").GetAllBone();
+        let bones = _Global.YJ3D._YJSceneManager 
+          .GetSingleTransformComponent("MeshRenderer").GetAllBone();
         this.$parent.$refs.boneConvertPanel.SetVisible(true, bones, this.settingData.boneList);
-      }
+      }  
     },
     setSettingItemByProperty(property, value) {
       for (let i = 0; i < this.setting.length; i++) {
@@ -376,6 +375,9 @@ export default {
         this.skillList.push(_skillList[i]);
       }
     },
+    PlayerAnimData(){
+      return _Global.CreateOrLoadPlayerAnimData();
+    },
     async initValue() {
       return;
       let res = await this.$axios.get(
@@ -384,7 +386,7 @@ export default {
       this.animListData = res.data;
 
       console.log(this.animListData);
-      let animList = this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CreateOrLoadPlayerAnimData().AddAllExtendAnimData("小孩", this.animListData);
+      let animList = this.PlayerAnimData().AddAllExtendAnimData("小孩", this.animListData);
       this.SetAnimList(animList);
       res = await this.$axios.get(
         this.$uploadPlayerUrl + this.folderBase + "/" + this.folderBase + "_skill_data.txt" + "?time=" + new Date().getTime()
@@ -403,8 +405,15 @@ export default {
         this.ChangeAnim(e);
       }
     },
+    // 改变控制器角色动作
     ChangeAnim(e) {
-      this.$parent.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetPlayerAnimName(e);
+      _Global.YJ3D.YJController.SetPlayerAnimName(e);
+    },
+    // 改变当前上传角色动作
+    ChangePlayerAnim(animName) {
+      let _YJAnimator = _Global.YJ3D._YJSceneManager 
+        .GetSingleTransformComponent("Animator");
+        _YJAnimator.ChangeAnim(animName);
     },
     updateName(v) {
       this.settingData.name = v;
@@ -414,9 +423,8 @@ export default {
       };
 
       // 控制三维
-      this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager
-        .GetSingleModelTransform()
-        .GetComponent("Avatar")
+      _Global.YJ3D._YJSceneManager 
+        .GetSingleTransformComponent("Avatar")
         .SetMessage(this.settingData);
     },
 
@@ -430,9 +438,14 @@ export default {
       if (this.setting[i].property == "isLoop") {
         this.currentAnimData.isLoop = e;
         // 控制动作
-        this.$parent.$refs.YJmetaBase.ThreejsHumanChat.YJPlayer.GetAvatar().ChangeAnimIsLoop(this.animName, e);
+        _Global.YJ3D.YJPlayer.GetAvatar().ChangeAnimIsLoop(this.animName, e);
+        //
+        let _YJAnimator = _Global.YJ3D._YJSceneManager 
+          .GetSingleTransformComponent("Animator");
+        _YJAnimator.ChangeAnimIsLoop(this.animName, e);
+
       }
-      console.log(i + " " + this.setting[i].value);
+      console.log(i + " " + this.setting[i].value, this.animName);
     },
     SkillFloatEvent(e) {
       if (e == "保存") {
@@ -531,9 +544,28 @@ export default {
         // console.log("上传文件后的返回值", url);
       });
     },
-    SetAnimName(v) {
-      this.setting[0].value = v;
+    SetAnimName(anim) {
+      this.setting[0].value = anim.animName;
       this.animName = this.setting[0].value;
+      this.currentAnimData.animName = this.animName;
+      if (this.animName == "") {
+        return;
+      }
+      // 从当前角色的动作中获取
+      this.PlayerAnimData().
+        GetAnimDataByAnimName(this.modelData.name, this.animName, (animData) => {
+          this.setting[1].value = animData.isLoop;
+          this.currentAnimData.isLoop = this.setting[1].value;
+          this.currentAnimData.path = animData.path;
+          //npc播放动作
+          if (animData.path != "") {
+            let _YJAnimator = _Global.YJ3D._YJSceneManager 
+              .GetSingleTransformComponent("Animator");
+              _YJAnimator.ChangeAnim(this.animName);
+          }
+        });
+
+
     },
     handleBeforeUpload(file) {
       this.animName = this.setting[0].value;
@@ -613,9 +645,9 @@ export default {
               this.settingData.animationsExtendData.push(this.currentAnimData);
             }
 
-            this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CreateOrLoadPlayerAnimData().AddAllExtendAnimData(this.modelData.name, items);
+            this.PlayerAnimData().AddAllExtendAnimData(this.modelData.name, items);
             // 加载动作
-            this.$parent.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetPlayerAnimName(this.animName);
+            _Global.YJ3D.YJController.SetPlayerAnimName(this.animName);
 
           }
         }
@@ -628,9 +660,9 @@ export default {
       this.settingData.boneRefPlayerAnimationData = item.animationsExtendData;
       this.save();
       // 更新 YJPlayerAnimData 中的数据
-      this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CreateOrLoadPlayerAnimData().UpdateAvatarDataById(this.settingData.id, this.settingData);
+      this.PlayerAnimData().UpdateAvatarDataById(this.settingData.id, this.settingData);
 
-      
+
       return;
       let refBonelist = item.message.data.boneList;
       for (let i = 0; i < refBonelist.length; i++) {
@@ -651,9 +683,17 @@ export default {
       this.save();
     },
     save() {
+      if (this.currentAnimData.animName != "") {
+        for (let i = 0; i < this.settingData.animationsExtendData.length; i++) {
+          const element = this.settingData.animationsExtendData[i];
+          if (element.animName == this.currentAnimData.animName) {
+            element.path = this.currentAnimData.path;
+            element.isLoop = this.currentAnimData.isLoop;
+          }
+        }
+      }
       // 能保存的情况下，才显示保存按钮
       console.log("角色数据 ", this.settingData);
-
       // 单品中才有 updateModelTxtData
       if (this.$parent.updateModelTxtData) {
         this.$parent.modelData.message = {
@@ -665,6 +705,9 @@ export default {
         // 在场景编辑中的修改
         this.Update();
       }
+
+      // 清空动作上传输入
+      this.SetAnimName("");
     },
 
     Update() {
@@ -685,7 +728,7 @@ export default {
           this.$parent.SetTip("保存成功");
           this.canSave = false;
 
-          let animList = this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CreateOrLoadPlayerAnimData().AddAllExtendAnimData(this.modelData.name, this.animListData);
+          let animList = this.PlayerAnimData().AddAllExtendAnimData(this.modelData.name, this.animListData);
           this.SetAnimList(animList);
           // window.location.reload();
         }

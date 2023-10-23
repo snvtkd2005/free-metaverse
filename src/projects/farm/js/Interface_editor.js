@@ -74,6 +74,11 @@ class Interface {
     
     init();
 
+    this.YJ3D = function () { 
+      return _this.$refs.YJmetaBase.ThreejsHumanChat;
+    }
+    _Global.YJ3D = this.YJ3D();
+
 
     // 向3d页发送
     this.SendMsgTo3D = (type, msg) => {

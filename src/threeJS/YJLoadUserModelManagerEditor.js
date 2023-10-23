@@ -7,7 +7,7 @@ import * as THREE from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
-import { YJAnimModel } from "./loader/YJAnimModel";
+import { YJAnimModel } from "./components/YJAnimModel";
 import { YJBillboard } from "./model/YJBillboard";
 import { YJHotPoint } from "./YJHotPoint";
 import { YJ3DAudio } from "./YJ3DAudio";
@@ -17,16 +17,16 @@ import { YJUVanim2 } from "./YJUVanim2";
 import { YJLoadModel } from "./YJLoadModel";
 import { MeshBasicMaterial } from "three";
 import { YJTransform } from "./YJTransform";
-import { YJMeshRenderer } from "./loader/YJMeshRenderer";
-import { YJAnimator } from "./loader/YJAnimator";
+import { YJMeshRenderer } from "./components/YJMeshRenderer";
+import { YJAnimator } from "./components/YJAnimator";
 import { YJUVAnim3 } from "./components/YJUVAnim3.js";
 import { YJScreen } from "./components/YJScreen.js";
 
 import { YJCar } from "./model/YJCar.js";
 import { YJTrigger } from "./YJTrigger.js";
 import YJParticle from "./components/YJParticle";
-import { YJAvatar } from "./loader/YJAvatar";
-import { YJNPC } from "./loader/YJNPC";
+import { YJAvatar } from "./components/YJAvatar";
+import { YJNPC } from "./components/YJNPC";
 // 加载静态物体
 class YJLoadUserModelManager {
   constructor(_this, scene, camera, callback) {
@@ -296,6 +296,9 @@ class YJLoadUserModelManager {
       if (modelData.message != undefined) {
         object.SetMessage(modelData.message);
       }
+
+      _this._YJSceneManager.AddNeedUpdateJS(object);
+      console.error("添加更新 AddNeedUpdateJS ",object);
 
       // 测试模型合批
       // let hasSame = _this._YJSceneManager.CheckTransform(modelData.modelPath, modelData, object);

@@ -44,9 +44,9 @@ import { TextureLoader } from "three";
 import { YJGameManager_DyncScene } from "./YJGameManager_DyncScene.js";
 import { YJ3dScene_margeTexture } from "/@/threeJS/YJ3dScene_margeTexture.js";
 import { YJTransform } from "./YJTransform.js";
-import { YJMeshRenderer } from "./loader/YJMeshRenderer.js";
+import { YJMeshRenderer } from "./components/YJMeshRenderer.js";
 import { YJTrigger } from "./YJTrigger.js";
-import { YJAnimator } from "./loader/YJAnimator.js";
+import { YJAnimator } from "./components/YJAnimator.js";
 import { YJUVAnim3 } from "./components/YJUVAnim3.js";
 
 
@@ -211,7 +211,15 @@ class YJSceneManager {
     this.GetSingleModelTransform = function () {
       return GetSingleModelTransformFn();
     }
-
+    
+    /**
+     * 
+     * @param {string} 接收组件名
+     * @returns {组件} 获取当前编辑的Transform的指定组件 
+     */
+    this.GetSingleTransformComponent = function (componentName) {
+      return this.GetSingleModelTransform().GetComponent(componentName);
+    }
     this.AddComponent = function (component, data) {
       if (singleTransform == null) { return; }
       if (component == "car") {

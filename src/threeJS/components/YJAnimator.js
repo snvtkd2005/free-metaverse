@@ -9,7 +9,7 @@ import * as THREE from "three";
 class YJAnimator {
   constructor(model, animations, msg) {
 
-
+    let scope = this;
     // 创建一个时钟对象Clock
     var clock = new THREE.Clock();
 
@@ -24,58 +24,135 @@ class YJAnimator {
 
     var updateId = null;
     let currentTime = 0;
-
+    let oldAnimName = "";
 
     this.GetAnimation = function () {
       return animations;
     }
     let animationsData = [];
-    this.SetAnimationsData = function(v){
-      animationsData = v;
+    this.SetAnimationsData = function (v) {
+      // animationsData = v;
     }
-    this.ChangeAnim = function (animName) { 
-      console.log(" in change anim " ,animName,animationsData);
-      for (let i = 0; i < animationsData.length; i++) {
-        const element = animationsData[i];
-        if(element.animName == animName){
-          return this.ChangeAnimByIndex(element.targetIndex,element.timeScale);
+    this.ChangeAnim = function (animName) {
+      if (oldAnimName == animName) { return; }
+      console.log(" in change anim ", animName," message = ",); 
+      if(activateAllActions(animName)){
+
+      }else{
+        let messageData = scope.transform.GetMessage().data;
+        if(messageData.avatarData){
+          _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.avatarData.name, animName, (isLoop, anim) => {
+            scope.ChangeAnimByAnimData(animName, isLoop, anim);
+          });
+        }else{
+          _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.name, animName, (isLoop, anim) => {
+            scope.ChangeAnimByAnimData(animName, isLoop, anim);
+          });
         }
-      }  
+      }
+      oldAnimName = animName;
+      //
       return false;
     }
     this.ChangeAnimByIndex = function (i, timeScale) {
-      if(i>=animations.length){
+      if (i >= animations.length) {
         return false;
       }
-      console.log(i,animations,timeScale);
+      
+
+      console.log(i, animations, timeScale);
       for (let j = 0; j < animations.length; j++) {
-        mixer.clipAction(animations[j]).stop();
+        // mixer.clipAction(animations[i]).stop();
+        mixer.clipAction(animations[i]).setEffectiveWeight(0);
       }
       let action = mixer.clipAction(animations[i]);
-      action.timeScale = parseInt(timeScale) ;
+      action.timeScale = parseInt(timeScale);
+      action.setEffectiveWeight(1);
+      action.reset();
       action.play();//播放动画 
       // console.log("切换动画",animations[i]);
       return true;
     }
 
-    
-    this.ChangeAnimByAnimData = function (animName, isLoop, anim) {
-      if(animName == ""){return;}
-      console.log("添加扩展动画 ",animName);
-      for (let i = 0; i < animations.length; i++) {
-        mixer.clipAction(animations[i]).stop();
+    this.ChangeAnimIsLoop = function (animName, isLoop) {
+      for (let i = 0; i < actions.length; i++) {
+        const element = actions[i];
+        if (element.animName == animName) {
+          element.isLoop = isLoop;
+          if (element.isLoop) {
+            mixer.clipAction(animations[i]).loop = THREE.LoopRepeat;
+          } else {
+            mixer.clipAction(animations[i]).loop = THREE.LoopOnce;
+            mixer.clipAction(animations[i]).clampWhenFinished = true;//暂停在最后一帧播放的状态
+          }
+          mixer.clipAction(animations[i]).reset();
+          mixer.clipAction(animations[i]).play();
+        }
       }
-      animations.push(anim);
-      animationsData.push({targetIndex:animations.length-1,animName:animName,timeScale:1,weight:1});
+      oldAnimName = animName;
+
+    }
+
+    this.ChangeAnimByAnimData = function (animName, isLoop, anim) {
+      if (animName == "") { return; }
+      console.log("添加扩展动画 ", animName);
+ 
+      for (let i = 0; i < actions.length; i++) {
+        const element = actions[i];
+        if (element.animName == animName) {
+          console.log("添加扩展动画 重复 ", animName,animations,actions);
+          return;
+        }
+      }
+      
       let action = mixer.clipAction(anim);
       if (isLoop != undefined && !isLoop) {
         action.loop = THREE.LoopOnce; //不循环播放
         action.clampWhenFinished = true;//暂停在最后一帧播放的状态
       }
-      action.reset();
-      action.play();
-    }
 
+      animations.push(anim);
+      actions.push({ action:action,
+        targetIndex: animations.length - 1, animName: animName, timeScale: 1, weight: 1
+        , isLoop: isLoop
+      });
+      activateAllActions(animName);
+
+      console.log("添加扩展动画 完成 ", animName);
+
+    }
+    function activateAllActions(animName) { 
+
+      let has = false; 
+      for (let i = 0; i < actions.length; i++) {
+        const element = actions[i];
+        if (element.animName == animName) {
+          has = true;
+        } 
+      }
+      if (has) {
+        for (let i = 0; i < actions.length; i++) {
+          const element = actions[i];
+          setWeight(element.action, element.animName == animName ? element.weight : 0, element.timeScale);
+          if (element.animName == animName) {
+            if (element.action != undefined) {
+              element.action.reset();
+              element.action.play();
+            }
+          }
+        }
+        oldAnimName = animName;
+
+        return true;
+      } 
+      return false;
+    }
+    function setWeight(action, weight, scale) { 
+      if (action == undefined) { return; }
+      action.enabled = true; 
+      action.setEffectiveTimeScale(scale); 
+      action.setEffectiveWeight(weight);
+    }
     // 获取当前动画播放帧
     this.GetCurrentTime = function () {
       return oneAction.time;
@@ -86,7 +163,7 @@ class YJAnimator {
     this.SetCurrentTime = function (f) {
       oneAction.time = f;
     }
-    this.Destroy = function(){
+    this.Destroy = function () {
       mixer = null;
       cancelAnimationFrame(updateId);
     }
@@ -96,7 +173,7 @@ class YJAnimator {
     this.SetState = function (state) {
       let offsetTime = state.offsetTime;
       offsetTime = parseInt(offsetTime % oneActionDuration / 1000);
-      this.SetCurrentTime(offsetTime); 
+      this.SetCurrentTime(offsetTime);
     }
 
     this.Play = function () {
@@ -162,18 +239,18 @@ class YJAnimator {
       }
     }
 
-    this.UpdateModel = function (model,_animations) { 
-      mixer = new THREE.AnimationMixer(model); 
+    this.UpdateModel = function (model, _animations) {
+      mixer = new THREE.AnimationMixer(model);
       animations = _animations;
       update();
     }
     function Init() {
-      mixer = new THREE.AnimationMixer(model); 
+      mixer = new THREE.AnimationMixer(model);
       animCount = animations.length;
       try {
         for (let i = 0; i < animCount; i++) {
           let action = mixer.clipAction(animations[i]);
-          actions.push({ name: animations.animName, action: action, weight: 1, scale: 1 });
+          actions.push({ name: animations.animName, action: action, weight: 1, scale: 1,isLoop:true });
         }
 
       } catch (error) {
@@ -210,11 +287,11 @@ class YJAnimator {
       }
 
       playActinByIndex(0);
- 
+
       update();
     }
     function playActinByIndex(i) {
-      if(actions.length<=i){return;}
+      if (actions.length <= i) { return; }
       let action = actions[i];
       setWeight(action.action, action.weight, action.scale);
       action.action.reset();
@@ -370,7 +447,7 @@ class YJAnimator {
         clearTimeout(later);
       }
       actions.forEach(function (action) {
-        console.log("播放"+action.name);
+        console.log("播放" + action.name);
         if (action.action != undefined) {
           setWeight(action.action, action.name == e ? 1 : 0, action.scale);
           action.action.reset();

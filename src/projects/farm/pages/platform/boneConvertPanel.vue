@@ -72,7 +72,6 @@
 
 import YJinput_text from "./components/YJinput_text.vue";
 import { GetAllModel, UploadPlayerFile } from "../../js/uploadThreejs.js";
-import { YJBoneConvert } from "/@/threeJS/loader/YJBoneConvert.js";
 
 export default {
   name: "index",

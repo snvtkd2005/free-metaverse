@@ -598,7 +598,7 @@ class YJLoadAvatar {
     }
 
     function activateAllActions(animName) {
-      console.log(actions);
+      // console.log(actions);
       let has = false;
       // for (let i = 0; i < actions.length; i++) {
       //   const element = actions[i];

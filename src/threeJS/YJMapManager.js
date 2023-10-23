@@ -12,7 +12,7 @@ class YJMapManager {
     var model = null;
     let mapGroup = null;
     function Init() {
-      // console.log(" 创建地图 ", player);
+      console.log(" 创建地图 ", player);
       mapGroup = new THREE.Group();
       scene.add(mapGroup);
       mapGroup.position.set(-0 / 2, 0.1, 0 / 2);

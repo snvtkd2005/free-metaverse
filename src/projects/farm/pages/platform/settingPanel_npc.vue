@@ -12,19 +12,31 @@
           <YJinput_text class="w-full h-auto" :value="item.value" :index="i" :callback="item.callback" />
         </div>
 
-        <div v-if="item.type == 'num'" class="flex gap-2 text-black">
-          <YJinput_number :value="item.value" :step="item.step" :index="i" :callback="item.callback" />
+        <div v-if="item.type == 'int'" class="flex gap-2 text-black">
+          <YJinput_number :value="item.value" :type="item.type" :step="item.step" :index="i" :callback="item.callback" />
         </div>
       </div>
     </div>
 
-    <div class="mt-10 w-80 h-10 text-white cursor-pointer" @click="openModelPanel()">
+    <div class="mt-10 w-80 h-10 text-white cursor-pointer" @click="ClickHandler('设置为npc目标')">
       <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">
-        {{ loadContent }}
+        设置为npc目标
       </div>
     </div>
 
-    <div class="mt-2 w-80 h-10 text-white cursor-pointer" @click="save()">
+    <div class=" w-80 h-10 text-white cursor-pointer" @click="ClickHandler('设置npc失去目标')">
+      <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">
+        设置npc失去目标
+      </div>
+    </div>
+
+    <div class=" w-80 h-10 text-white cursor-pointer" @click="ClickHandler('加载角色模型')">
+      <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">
+        加载角色模型
+      </div>
+    </div>
+
+    <div class="mt-2 w-80 h-10 text-white cursor-pointer" @click="ClickHandler('保存')">
       <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">保存</div>
     </div>
   </div>
@@ -45,30 +57,23 @@ export default {
       pointType: "npc",
       settingData: {
         name: "",
+        health: 1,
         defaultAnim: "idle", //默认动作
         avatarData: {},
-        eventType:"no",//事件类型
-        contentData:{},//事件内容数据
+        eventType: "no",//事件类型
+        contentData: {},//事件内容数据
       },
       // npc行为
-      npcActionData:{
+      npcActionData: {
 
       },
 
       avatar: null,
       selectCurrentIndex: 0,
       setting: [
-        {
-          property: "name",
-          display: true,
-          title: "npc名称",
-          type: "text",
-          value: "",
-          callback: this.ChangeValue,
-        },
+        { property: "name", display: true, title: "npc名称", type: "text", value: "", callback: this.ChangeValue, },
+        { property: "health", display: true, title: "生命值", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
       ],
-
-      loadContent: "加载角色模型",
     };
   },
   created() { },
@@ -88,6 +93,26 @@ export default {
     this.initValue();
   },
   methods: {
+    ClickHandler(e) {
+      if (e == "加载角色模型") {
+        this.openModelPanel();
+      }
+      if (e == "保存") {
+        this.save();
+      }
+
+      if (e == "设置为npc目标") {
+        _Global.YJ3D._YJSceneManager
+          .GetSingleTransformComponent("NPC")
+          .SetTarget(_Global.YJ3D.YJPlayer);
+      }
+      if (e == "设置npc失去目标") {
+        _Global.YJ3D._YJSceneManager
+          .GetSingleTransformComponent("NPC")
+          .SetTarget(null);
+      }
+      
+    },
     removeThreeJSfocus() {
       this.$parent.removeThreeJSfocus();
     },
@@ -100,7 +125,9 @@ export default {
         }
       }
     },
+    // 从单品编辑跳转过来后更新UI值
     initValue() {
+      this.setSettingItemByProperty("name", this.settingData.name);
       this.setSettingItemByProperty("height", this.settingData.height);
     },
     openModelPanel() {
@@ -178,6 +205,7 @@ export default {
       }
       console.log(" npc setting data ", _settingData);
     },
+    // 改变UI输入值后刷新
     ChangeValue(i, e) {
       this.setting[i].value = e;
       this.settingData[this.setting[i].property] = e;

@@ -8,11 +8,7 @@ import TWEEN from '@tweenjs/tween.js';
 import { YJLoadModel } from "/@/threeJS/YJLoadModel.js";
 
 import { YJTransform } from "/@/threeJS/YJTransform.js";
-import { YJMeshRenderer } from "/@/threeJS/loader/YJMeshRenderer.js";
-import { YJAnimator } from "/@/threeJS/loader/YJAnimator.js";
-
-import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-
+import { YJMeshRenderer } from "/@/threeJS/components/YJMeshRenderer.js"; 
 import { YJRigidbodyOverlep } from "/@/threeJS/YJRigidbodyOverlep.js";
 
 class SceneManager {

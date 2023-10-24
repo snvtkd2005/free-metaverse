@@ -1179,10 +1179,18 @@ export default {
 
     // 点击角色NPC，显示NPC下方的光圈
     ClickPlayer(owner) {
-      // this._YJGameManager.ClickPlayer(owner);
+      this._SceneManager.ClickPlayer(owner);
     },
-    ClickModel(hitObject) { },
-    HoverObject(hoverObject, hoverPoint) { },
+    
+    RightClick(hitObject, hitPoint) {
+      this._SceneManager.RightClick(hitObject, hitPoint);
+    },
+    ClickModel(hitObject) { 
+      this._SceneManager.ClickModel(hitObject);
+    },
+    HoverObject(hoverObject, hoverPoint) { 
+      this._SceneManager.HoverObject(hoverObject, hoverPoint);
+    },
 
     CreateHotContent(modelData, owner) {
       console.log("点击热点 ", modelData, owner);

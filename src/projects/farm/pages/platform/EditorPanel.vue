@@ -1259,6 +1259,10 @@ export default {
         this.$refs.chatPanelNPC.SetDisplay(true);
       }
     },
+    
+    RightClick(hitObject, hitPoint) {
+      this._SceneManager.RightClick(hitObject, hitPoint);
+    },
     ClickModel(hitObject) {
       if (hitObject == null || hitObject.name == "floor") {
         this.ClickFloor();

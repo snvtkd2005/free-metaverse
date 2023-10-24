@@ -231,7 +231,34 @@ class SceneManager {
 
 
 
-
+    this.RightClick = (hitObject, hitPoint)=>{
+      console.log(" 右键点击 ",hitObject);
+      if(hitObject.transform){
+        // 点击NPC
+        let message = hitObject.transform.GetData().message;
+        console.log(" 右键点击 transform ",message);
+        if(message){
+          if(message.pointType == "npc"){
+            if(message.data.baseData.camp == "bl"){
+              //敌人
+              //进入战斗状态
+              _this.YJController.SetPlayerState("准备战斗");
+              _this.YJController.SetInteractiveNPC(hitObject.transform);
+            }
+          }
+        }
+        return;
+      }
+      if(hitObject.owner){
+        let isLocal = hitObject.owner.isLocal;
+        if(isLocal){
+          // 点击自身
+        }else{
+          // 点击其他角色
+        }
+        return;
+      }
+    }
     this.ClickPlayer = (owner) => {
       _YJGameManager.ClickPlayer(owner);
     }

@@ -101,12 +101,12 @@ class YJRaycaster extends EventDispatcher {
 
 
       if (raycasterClickHotPoint(pos)) {
-        clickHit(null);
+        clickCallback(null);
         return;
       }
 
       if (scene == null || scene.getObjectByName("pointsParent") == null) {
-        clickHit(null);
+        clickCallback(null);
         return;
       }
 
@@ -124,13 +124,9 @@ class YJRaycaster extends EventDispatcher {
       //var intersects = raycaster.intersectObject( scene.getObjectByName('pointsParent'));
       if (intersects.length > 0) {
 
-
-        // hit = intersects[0].object;
-        // if(hit.visible == false){return;}
-
         hit = GetAcitveObjectFromIntersects(intersects);
         if (hit == null) {
-          clickHit(null);
+          clickCallback(null);
           return;
         }
         // console.log("hit",hit);
@@ -146,8 +142,8 @@ class YJRaycaster extends EventDispatcher {
           }
           return;
         }
-        clickHit(hit, intersects[hitIndex].point);
-
+        clickCallback(hit, intersects[hitIndex].point);
+        
         //判断是否双击
         if (oldHitObjName == hit.name && doubleClickTime < 0.5) {
           //双击模型
@@ -160,7 +156,7 @@ class YJRaycaster extends EventDispatcher {
       } else {
         // console.log(" 未点击到任何模型 ");
 
-        clickHit(null);
+        clickCallback(null);
         //判断是否双击。 
         if (doubleClickTime < 0.5) {
           //双击空白位置
@@ -175,6 +171,7 @@ class YJRaycaster extends EventDispatcher {
     function GetAcitveObjectFromIntersects(intersects) {
       for (let i = 0; i < intersects.length; i++) {
         const element = intersects[i].object;
+        // console.log("点击筛选",element); 
         if (element.visible == false) { continue; }
         if (element.name == "ignoreRaycast") { continue; }
         if (element.tag == "helper") { continue; }
@@ -187,6 +184,24 @@ class YJRaycaster extends EventDispatcher {
       return null;
     }
 
+    function clickCallback(hit,point){
+      if(state == STATE.ROTATE){
+        if(hit==null){
+          clickHit(null);
+          return;
+        }
+        clickHit(hit,point);
+        return;
+      }
+      if(state == STATE.PAN){
+        if(hit==null){
+          rightMouseUpCallback(null);
+          return;
+        }
+        rightMouseUpCallback(hit,point);
+        return;
+      }
+    }
     const raycasterClickHotPoint = (pos) => {
       // if (scene == null || scene.getObjectByName("hotPointsParent") == null) {
       //   return false;
@@ -204,7 +219,7 @@ class YJRaycaster extends EventDispatcher {
       if (intersects.length > 0) {
         hit = intersects[0].object;
  
-        clickHit(hit, intersects[0].point);
+        clickCallback(hit, intersects[0].point);
         // hotPointObject(hit, intersects[0].point);
         oldHotObj = hit;
         return true;
@@ -384,7 +399,7 @@ class YJRaycaster extends EventDispatcher {
           break;
         case STATE.PAN:
           //鼠标右键点击
-          rightMouseUpCallback();
+          raycasterClick(mouse);
           break;
 
       }

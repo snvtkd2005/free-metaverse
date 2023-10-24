@@ -32,7 +32,15 @@ class YJController {
     this.mouseButtons = { ORBIT: THREE.MOUSE.LEFT, ZOOM: THREE.MOUSE.MIDDLE, PAN: THREE.MOUSE.RIGHT };
     var STATE = { NONE: - 1, ROTATE: 0, DOLLY: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_DOLLY: 4, TOUCH_PAN: 5 };
 
-    var PLAYERSTATE = { NORMAL: -1, DEAD: 0, ATTACK: 1, INTERACTIVE: 2, SITTING: 3, JUMPING: 4 };
+    var PLAYERSTATE = {
+      NORMAL: -1,
+      DEAD: 0,
+      ATTACK: 1000,
+      ATTACKING: 1001,
+      INTERACTIVE: 2,
+      SITTING: 3,
+      JUMPING: 4
+    };
     var playerState = PLAYERSTATE.NORMAL;
     // true :鼠标左键只旋转视角
     var leftMouseRotaView = true;
@@ -3136,6 +3144,7 @@ class YJController {
     var _YJPlayer = null;
     this.SetPlayer = (yjplayer) => {
       _YJPlayer = yjplayer;
+      _YJPlayer.owner = scope;
     }
     this.GetYJPlayer = () => {
       return _YJPlayer;
@@ -3213,8 +3222,8 @@ class YJController {
             hit_collider.name.indexOf("trigger") > -1 ||
             hit_collider.name.indexOf("point") > -1 ||
             hit_collider.name.indexOf("hit") > -1 ||
-            (hit_collider.tag !=undefined &&  hit_collider.tag.indexOf("particle")) > -1 ||
-            (hit_collider.tag !=undefined &&  hit_collider.tag.indexOf("player")) > -1 ||
+            (hit_collider.tag != undefined && hit_collider.tag.indexOf("particle")) > -1 ||
+            (hit_collider.tag != undefined && hit_collider.tag.indexOf("player")) > -1 ||
             hit_collider.parent.name == "ignoreRaycast" ||
             (hit_collider.isLine != null && hit_collider.isLine == true) ||
             (hit_collider.parent.parent && hit_collider.parent.parent.isTransformControlsGizmo) ||
@@ -3237,7 +3246,7 @@ class YJController {
             hit_collider.name.indexOf("trigger") > -1 ||
             hit_collider.name.indexOf("point") > -1 ||
             hit_collider.name.indexOf("hit") > -1 ||
-            (hit_collider.tag !=undefined &&  hit_collider.tag.indexOf("particle")) > -1 ||
+            (hit_collider.tag != undefined && hit_collider.tag.indexOf("particle")) > -1 ||
             hit_collider.parent.name == "ignoreRaycast" ||
             (hit_collider.isLine != null && hit_collider.isLine == true) ||
             hit_collider.name == "ignoreRaycast"
@@ -3295,7 +3304,7 @@ class YJController {
     }
     let hasCamRaycast = false;
     function CheckCameraLine() {
-      console.log("摄像机障碍检测", hasCamRaycast, viewState);
+      // console.log("摄像机障碍检测", hasCamRaycast, viewState);
 
       if (!hasCamRaycast || viewState == 1) { return; }
       let fromPos = camTargetDirection.getWorldPosition(new THREE.Vector3());
@@ -3586,51 +3595,176 @@ class YJController {
       // _YJPlayer.ChangeAnim(animName);
     }
 
-    this.SetPlayerState = function (e, type) {
-      // console.log(" in SetPlayerState  ",e,type);
-      if (e == "death") {
-        playerState = PLAYERSTATE.DEAD;
-      }
-      if (e == "sitting") {
-        playerState = PLAYERSTATE.SITTING;
-        animName = type;
-        return;
+    let npcTransform = null;
+    let npcPos = null;
+    this.SetInteractiveNPC = function (_npcTransform) {
+      npcTransform = _npcTransform;
+
+    }
+
+    let baseData = {
+      camp: "lm",
+      speed: 8, //移动速度
+      level: 1, //等级
+      health: 100, //生命值
+      strength: 40, //攻击力
+    }
+
+    let targetModel = null;
+    this.ReceiveDamage = function (_targetModel, skillName, strength) {
+      if (targetModel == null) {
+        targetModel = _targetModel;
+        console.log("targetModel 角色目标 ", targetModel);
+
       }
 
-      if (e == "normal") {
-        playerState = PLAYERSTATE.NORMAL;
-        animName = "idle";
+      baseData.health -= strength;
+      console.log(" 主角受到 " + skillName + " 攻击 剩余 " + baseData.health);
+
+      if (toIdelLater != null) {
+        clearTimeout(toIdelLater);
+        toIdelLater = null;
       }
-      if (e == "attack") {
+
+      if (baseData.health <= 0) {
+        baseData.health = 0;
+        playerState = PLAYERSTATE.DEAD
+        scope.SetPlayerState("death");
+        return true;
+      }
+
+      inBlocking = true;
+      scope.SetPlayerState("受伤");
+
+      if (playerState == PLAYERSTATE.NORMAL) {
         playerState = PLAYERSTATE.ATTACK;
-        if (type == undefined) {
-          animName = "attack";
+      }
+
+      toIdelLater = setTimeout(() => {
+        scope.SetPlayerState("准备战斗");
+        toIdelLater = null;
+      }, 300);
+      return false;
+    }
+
+    let inBlocking = false;
+    let vaildAttackLater = null;
+    let attackStepSpeed = 2; //攻击间隔/攻击速度
+    let toIdelLater = null;
+    let skillName = "";
+    function CheckState() {
+
+
+      if (playerState == PLAYERSTATE.ATTACK) {
+        if (npcTransform == null) {
+          // scope.SetPlayerState("idle");
           return;
         }
+        let playerPos = getWorldPosition(_YJAmmoPlayer);
+        playerPos.y = 0;
+        npcPos = npcTransform.GetWorldPos();
+        npcPos.y = 0;
+        let dis = playerPos.distanceTo(npcPos);
+        if (dis < 1) {
+          if (!inBlocking) {
+            //攻击 
+            skillName = "赤手攻击";
+            scope.SetPlayerState(skillName);
+            inBlocking = true;
 
-        if (type == "胡萝卜") {
-          animName = "throw";
+            if (toIdelLater != null) {
+              clearTimeout(toIdelLater);
+              toIdelLater = null;
+            }
+
+            setTimeout(() => {
+              //有效攻击
+              let isDead = npcTransform.GetComponent("NPC").ReceiveDamage(_YJPlayer, skillName, baseData.strength);
+              if (isDead) {
+                npcTransform = null;
+                scope.SetPlayerState("normal");
+                return;
+              }
+            }, 100);
+
+
+            toIdelLater = setTimeout(() => {
+              scope.SetPlayerState("准备战斗");
+              toIdelLater = null;
+            }, 300);
+          }
+          if (vaildAttackLater == null) {
+            vaildAttackLater = setTimeout(() => {
+              inBlocking = false;
+              vaildAttackLater = null;
+            }, attackStepSpeed * 1000);
+          }
+        } else {
+          if (vaildAttackLater != null) {
+            clearTimeout(vaildAttackLater);
+            vaildAttackLater = null;
+          }
+          scope.SetPlayerState("准备战斗");
         }
-        if (type == "南瓜") {
-          animName = "throw2";
-        }
-        setTimeout(() => {
-          playerState = PLAYERSTATE.NORMAL;
-        }, 2000);
+
+        return;
       }
+    }
 
-      if (e == "interactive") {
-        playerState = PLAYERSTATE.INTERACTIVE;
-        if (type == "地上拾取") {
-          animName = "collection";
+
+    this.SetPlayerState = function (e, type) {
+      // console.log(" in SetPlayerState  ",e,type);
+
+      switch (e) {
+        case "赤手攻击":
+          playerState = PLAYERSTATE.ATTACK;
+          animName = "boxing attack001"; //空手状态 攻击状态 拳击动作
+          break;
+        case "准备战斗":
+          playerState = PLAYERSTATE.ATTACK;
+          animName = "boxing idle"; //空手状态 战斗准备状态
+          break;
+        case "受伤":
+          playerState = PLAYERSTATE.ATTACK;
+          animName = "body block"; //空手状态 拳击受伤
+          break;
+        case "death":
+          playerState = PLAYERSTATE.DEAD;
+          animName = "death";
+          break;
+        case "sitting":
+          playerState = PLAYERSTATE.SITTING;
+          animName = type;
+          break;
+        case "normal":
+          playerState = PLAYERSTATE.NORMAL;
+          animName = "idle";
+          break;
+        case "attack":
+          playerState = PLAYERSTATE.ATTACK;
+          if (type == undefined) {
+            animName = "attack";
+          } else if (type == "胡萝卜") {
+            animName = "throw";
+          } else if (type == "南瓜") {
+            animName = "throw2";
+          }
           setTimeout(() => {
             playerState = PLAYERSTATE.NORMAL;
           }, 2000);
-        }
-
+          break;
+        case "interactive":
+          playerState = PLAYERSTATE.INTERACTIVE;
+          if (type == "地上拾取") {
+            animName = "collection";
+            setTimeout(() => {
+              playerState = PLAYERSTATE.NORMAL;
+            }, 2000);
+          }
+          break;
+        default:
+          break;
       }
-
-
       _YJPlayer.ChangeAnim(animName);
 
     }
@@ -3642,6 +3776,7 @@ class YJController {
     this.SetPlayerPosHandler = function (callback) {
       onPlayerPosAction = callback;
     }
+
 
 
     this.update = function () {
@@ -3671,6 +3806,8 @@ class YJController {
 
       OnRotaBaseFn();
 
+      // 检测状态 战斗逻辑
+      CheckState();
       if (canDampingRota) {
         // 滑动阻尼 
         LerpRotaBase_leftMouse();

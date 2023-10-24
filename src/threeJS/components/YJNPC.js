@@ -20,22 +20,18 @@ class YJNPC {
     let playerHeight;
     let nameScale = 1;
     let doonce = 0;
-    let baseData = {
-      health: 5,
-    }
     let navpath = [];
     const clock = new THREE.Clock();
-    let SPEED = 8;
     const NORMALSPEED = 8;
     const MISSSPEED = 20;
     let playerPosition = new THREE.Vector3(0, 0, 0);
 
     let fromGroup;
-
+    let animName = "";
     // 目标
     let targetModel;
     // 攻击速度，攻击间隔，判定有效的攻击时机
-    let attackSpeed = 1.2;
+    let attackStepSpeed = 1.2; //攻击间隔/攻击速度
 
     const stateType = {
       Normal: 'normal',//正常状态， 待机/巡逻
@@ -43,8 +39,14 @@ class YJNPC {
       Fire: 'fire',//战斗 
       Dead: 'dead',//死亡 
     }
-    let state = stateType.Normal;
 
+    let baseData = {
+      state: 'normal', //状态
+      speed: 8, //移动速度
+      level: 1, //等级
+      health: 100, //生命值
+      strength:20, //攻击力
+    }
     function Init() {
       group = new THREE.Group();
       parent.add(group);
@@ -52,7 +54,7 @@ class YJNPC {
       // fromGroup = new THREE.Group();
       // parent.add(fromGroup);
       // fromGroup.rotation.set(Math.PI/2,0,0);
-
+      playerPosition = parent.position;
       group.rotation.y += Math.PI;
 
       // group.add(new THREE.AxesHelper(5)); // 场景添加坐标轴
@@ -238,7 +240,7 @@ class YJNPC {
     // 设置NPC的战斗目标
     this.SetTarget = function (_target) {
 
-      if (state == stateType.Back) {
+      if (baseData.state == stateType.Back) {
         return;
       }
       targetModel = _target;
@@ -246,19 +248,19 @@ class YJNPC {
         // 暂停1秒
         navpath = [];
         doonce = 0;
-        state = stateType.Back;
-        _YJAnimator.ChangeAnim("idle");
+        baseData.state = stateType.Back;
+        scope.SetPlayerState("normal");
         setTimeout(() => {
-          SPEED = MISSSPEED;
+          baseData.speed = MISSSPEED;
           navpath.push(fireBeforePos);
         }, 1000);
 
         return;
       }
-      SPEED = NORMALSPEED;
-      state = stateType.Fire;
+      baseData.speed = NORMALSPEED;
+      baseData.state = stateType.Fire;
       fireBeforePos = scope.transform.GetWorldPos();
-      console.log(targetModel);
+      console.log("targetModel npc目标 ", targetModel);
     }
 
 
@@ -274,59 +276,139 @@ class YJNPC {
         CheckPlayer();
       }, 500);
     }
+
+    this.SetPlayerState = function (e, type) {
+      // console.log(" in SetPlayerState  ", e, type);
+
+      switch (e) {
+        case "赤手攻击":
+          animName = "boxing attack001"; //空手状态 攻击状态 
+          break;
+        case "准备战斗":
+          animName = "boxing idle"; //空手状态 战斗准备状态
+          break;
+        case "受伤":
+          animName = "body block"; //空手状态 拳击受伤
+          break;
+        case "normal":
+          animName = "idle";
+          break;
+        case "death":
+          animName = "death";
+          break;
+        case "跑向目标":
+          animName = "walk";
+          break;
+        default:
+          break;
+      }
+      _YJAnimator.ChangeAnim(animName);
+    }
+
+    this.ReceiveDamage = function (_targetModel, skillName, strength) {
+      if (targetModel == null) {
+        targetModel = _targetModel;
+        console.log("targetModel npc目标 ", targetModel);
+        fireBeforePos = scope.transform.GetWorldPos();
+      }
+
+      baseData.health -= strength;
+
+      console.log(this.npcName + " 受到 " + skillName + " 攻击 剩余 " + baseData.health);
+      if (toIdelLater != null) {
+        clearTimeout(toIdelLater);
+        toIdelLater = null;
+      }
+
+      if (baseData.health <= 0) {
+        baseData.health = 0;
+        baseData.state = stateType.Dead;
+        scope.SetPlayerState("death");
+        return true;
+      }
+
+      scope.SetPlayerState("受伤");
+
+      if (baseData.state == stateType.Normal) {
+        baseData.state = stateType.Fire;
+      }
+
+      toIdelLater = setTimeout(() => {
+        scope.SetPlayerState("准备战斗");
+        toIdelLater = null;
+      }, 300);
+      return false;
+    }
+
+
     let oldPlayerPos = null;
     let inBlocking = false;
     let vaildAttackLater = null;
+    let toIdelLater = null;
+    let skillName = "";
     function CheckState() {
-      if (state == stateType.Dead) {
-        _YJAnimator.ChangeAnim("death");
-      }
-      if (state == stateType.Normal) {
 
-
+      if (baseData.state == stateType.Normal) {
       }
 
-      if (state == stateType.Fire) {
+      if (baseData.state == stateType.Fire) {
+        // 逻辑见note/npc策划.md 战斗策略
         let playerPos = targetModel.GetWorldPos();
-        playerPos.y = 0;
+        let npcPos = scope.transform.GetWorldPos();
+        playerPos.y = npcPos.y;
         if (oldPlayerPos != playerPos) {
           oldPlayerPos = playerPos;
           navpath = [];
           doonce = 0;
         }
-        let npcPos = scope.transform.GetWorldPos();
-        npcPos.y = 0;
         let dis = playerPos.distanceTo(npcPos);
         if (dis < 1) {
           navpath = [];
           doonce = 0;
           parent.lookAt(playerPos.clone());
+          console.log(" 进入攻击范围内 ，停止跑动，进入战斗状态 ");
           //攻击
-          if(!inBlocking){
-            _YJAnimator.ChangeAnim("boxing attack001");
-          }
-          if (vaildAttackLater == null) {
-            vaildAttackLater = setTimeout(() => {
+          if (!inBlocking) {
+            if (toIdelLater != null) {
+              clearTimeout(toIdelLater);
+              toIdelLater = null;
+            }
+            skillName = "赤手攻击";
+            scope.SetPlayerState(skillName);
+            inBlocking = true;
+
+            setTimeout(() => {
               //有效攻击
-              console.log("有效攻击");
-              baseData.health--;
-              if (baseData.health <= 0) {
-                state = stateType.Dead;
+              if (targetModel.isLocal) {
+                let isDead = targetModel.owner.ReceiveDamage(scope.transform, skillName, baseData.strength);
+                if (isDead) {
+                  targetModel = null;
+                  scope.SetTarget(targetModel);
+                  return;
+                }
               }
 
-              _YJAnimator.ChangeAnim("body block");
-              inBlocking = true;
-              setTimeout(() => {
-                inBlocking = false;
-              }, 300);
+            }, 100);
+
+            toIdelLater = setTimeout(() => {
+              scope.SetPlayerState("准备战斗");
+              toIdelLater = null;
+            }, 300);
+
+          }
+
+          if (vaildAttackLater == null) {
+            vaildAttackLater = setTimeout(() => {
+              inBlocking = false;
               vaildAttackLater = null;
-            }, attackSpeed * 1000);
+            }, attackStepSpeed * 1000);
           }
         } else {
           if (vaildAttackLater != null) {
             clearTimeout(vaildAttackLater);
             vaildAttackLater = null;
           }
+          inBlocking = false;
           //跑向目标
           navpath.push(playerPos);
           // navpath[0] = (playerPos);
@@ -357,12 +439,10 @@ class YJNPC {
     }
     // NPC行为树、状态机
     function ChangeAnim(state) {
-      if (state == "行走") {
-        _YJAnimator.ChangeAnim("walk");
+      if (state == "跑向目标") {
 
       }
       if (state == "战斗前") {
-        _YJAnimator.ChangeAnim("idle");
 
         return;
         // 延迟3秒，从当前位置移动到设定路线的其他坐标
@@ -417,17 +497,18 @@ class YJNPC {
       return parseInt(Math.random() * (maxNum - minNum + 1) + minNum, 10);
     }
 
+    let oldMovePos = null;
+    let samePosTimes = 0;
     //寻路
     function tick(dt) {
-      if (!(navpath || []).length) return
-      ChangeAnim("行走");
+      if (!(navpath || []).length) return;
       let targetPosition = navpath[0];
       const velocity = targetPosition.clone().sub(playerPosition);
 
-      if (velocity.lengthSq() > 0.00075 * SPEED) {
+      if (velocity.lengthSq() > 0.00075 * baseData.speed) {
         velocity.normalize();
         // Move player to target
-        playerPosition.add(velocity.multiplyScalar(0.015 * SPEED));
+        playerPosition.add(velocity.multiplyScalar(0.015 * baseData.speed));
         // console.log(" in tick 222 ", playerPosition);
 
         // pathfindingHelper.setPlayerPosition( playerPosition );
@@ -435,36 +516,45 @@ class YJNPC {
         // let pos = raycasterDownPos(playerPosition.clone());
         let pos = playerPosition.clone();
 
+
+        // 在同一位置停留时间超过1秒，则取消移动
+        // if (oldMovePos != pos) {
+        //   oldMovePos = pos.clone();
+        // }
+        // if (pos.distanceTo(oldMovePos) < 0.1) {
+        //   samePosTimes++;
+        //   if (samePosTimes > 30) {
+        //     navpath = [];
+        //     doonce = 0;
+        //     baseData.state = stateType.Normal;
+        //     scope.SetPlayerState("normal");
+        //     return;
+        //   }
+        // }
+        // console.log(pos, oldMovePos);
+
         parent.position.copy(pos);
 
+        let lookatPos = targetPosition.clone();
+        lookatPos.y = parent.position.y;
         if (doonce < 1) {
           if (navpath.length > 0) {
             //角色朝向目标点
-            parent.lookAt(targetPosition.clone());
+            parent.lookAt(lookatPos);
           }
           doonce++;
         }
 
+        scope.SetPlayerState("跑向目标");
 
       } else {
         // Remove node from the path we calculated
         navpath.shift();
         doonce = 0;
         if (navpath.length == 0) {
+          console.log("到达目标位置");
+          scope.SetPlayerState("normal");
         }
-        if (state == stateType.Normal) {
-          ChangeAnim("战斗前");
-        }
-        if (state == stateType.Back) {
-          state = stateType.Normal;
-          ChangeAnim("战斗前");
-        }
-
-        // if (navpath.length > 1) {
-        //   let targetPosition = navpath[1];
-        //   //角色朝向目标点
-        //   group.lookAt(targetPosition.clone());
-        // }
 
       }
     }

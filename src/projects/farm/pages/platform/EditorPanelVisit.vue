@@ -753,6 +753,11 @@ export default {
         this.$refs.chatPanelNPC.SetDisplay(true);
       }
     },
+
+    
+    RightClick(hitObject, hitPoint) {
+      this._SceneManager.RightClick(hitObject, hitPoint);
+    },
     ClickModel(hitObject) {
       // console.log(" 点击模型 owner ", hitObject);
       if (this.$refs.modelPanel) {

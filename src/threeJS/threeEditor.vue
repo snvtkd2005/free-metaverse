@@ -483,9 +483,9 @@ export default {
           //     " "
           // );
         },
-        () => {
+        (hit,point) => {
           // 右键点击空白位置
-          this.SelectModel();
+          this.RightClick(hit,point);
           // console.log("点击右键");
         },
         // 点击合批物体 InstancedMesh
@@ -543,8 +543,10 @@ export default {
       }
     },
 
-    SelectModel(modelData) {
-
+    RightClick(hitObject, hitPoint) {
+      if (this.$parent.$parent.RightClick) {
+        this.$parent.$parent.RightClick(hitObject,hitPoint);
+      }
     },
     ClickFloor(hitObject, hitPoint) {
       // console.log("点击地面");

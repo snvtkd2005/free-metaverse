@@ -7,11 +7,15 @@
       <div class="self-center w-40 truncate" v-show="item.display">
         {{ item.title }}
       </div>
-      <div class="self-center w-20">
+      <div class="self-center w-20"  v-show="item.display">
         <div v-if="item.type == 'text'" class="w-32 h-auto text-black">
           <YJinput_text class="w-full h-auto" :value="item.value" :index="i" :callback="item.callback" />
         </div>
 
+        <div v-if="item.type == 'drop'" class=" w-20 h-16 text-black ">
+          <YJinput_drop class=" w-32 h-16 " :value="item.value" :options="item.options" :index="i"
+            :callback="item.callback" />
+        </div>
         <div v-if="item.type == 'int'" class="flex gap-2 text-black">
           <YJinput_number :value="item.value" :type="item.type" :step="item.step" :index="i" :callback="item.callback" />
         </div>
@@ -45,22 +49,39 @@
 <script>
 import YJinput_text from "./components/YJinput_text.vue";
 import YJinput_number from "./components/YJinput_number.vue";
+import YJinput_drop from "./components/YJinput_drop.vue";
 
 export default {
   name: "settingpanel_uvanim",
   components: {
     YJinput_text,
     YJinput_number,
+    YJinput_drop,
   },
   data() {
     return {
       pointType: "npc",
+      baseData: {
+        camp: "bl",
+        state: 'normal', //状态
+        speed: 8, //移动速度
+        level: 1, //等级
+        health: 100, //生命值
+        strength: 20, //攻击力
+      },
       settingData: {
         name: "",
-        health: 1,
+        baseData: {
+          camp: "bl",
+          state: 'normal', //状态
+          speed: 8, //移动速度
+          level: 1, //等级
+          health: 100, //生命值
+          strength: 20, //攻击力
+        },
         defaultAnim: "idle", //默认动作
         avatarData: {},
-        eventType: "no",//事件类型
+        eventType: "no",//事件类型 
         contentData: {},//事件内容数据
       },
       // npc行为
@@ -72,8 +93,16 @@ export default {
       selectCurrentIndex: 0,
       setting: [
         { property: "name", display: true, title: "npc名称", type: "text", value: "", callback: this.ChangeValue, },
-        { property: "health", display: true, title: "生命值", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
+        {
+          property: "camp", display: true, title: "阵营", type: "drop", value: "lm", options: [
+            { value: 'lm', label: '联盟' },
+            { value: 'bl', label: '部落' },
+          ], callback: this.ChangeValue,
+        },
+        { property: "health", display: false, title: "生命值", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
+        { property: "level", display: true, title: "等级", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
       ],
+
     };
   },
   created() { },
@@ -89,6 +118,10 @@ export default {
 
     console.log(" modelData = ", modelData);
     this.settingData = modelData.message.data;
+    this.settingData.baseData = undefined;
+    if (!this.settingData.baseData) {
+      this.settingData.baseData = this.baseData;
+    }
     this.settingData.name = modelData.name;
     this.initValue();
   },
@@ -111,7 +144,7 @@ export default {
           .GetSingleTransformComponent("NPC")
           .SetTarget(null);
       }
-      
+
     },
     removeThreeJSfocus() {
       this.$parent.removeThreeJSfocus();
@@ -128,6 +161,9 @@ export default {
     // 从单品编辑跳转过来后更新UI值
     initValue() {
       this.setSettingItemByProperty("name", this.settingData.name);
+      this.setSettingItemByProperty("health", this.settingData.baseData.health);
+      this.setSettingItemByProperty("level", this.settingData.baseData.level);
+      this.setSettingItemByProperty("camp", this.settingData.baseData.camp);
       this.setSettingItemByProperty("height", this.settingData.height);
     },
     openModelPanel() {

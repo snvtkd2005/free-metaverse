@@ -293,12 +293,12 @@ class YJLoadUserModelManager {
       object.SetPosRota(modelData.pos, modelData.rotaV3, modelData.scale);
       object.SetModelPath(modelData.modelPath);
       object.SetData(modelData.folderBase, modelData.modelType);
-      if (modelData.message != undefined) {
-        object.SetMessage(modelData.message);
-      }
+      // if (modelData.message != undefined) {
+      //   object.SetMessage(modelData.message);
+      // }
 
       _this._YJSceneManager.AddNeedUpdateJS(object);
-      console.error("添加更新 AddNeedUpdateJS ",object);
+      // console.error("添加更新 AddNeedUpdateJS ",object);
 
       // 测试模型合批
       // let hasSame = _this._YJSceneManager.CheckTransform(modelData.modelPath, modelData, object);
@@ -331,12 +331,12 @@ class YJLoadUserModelManager {
           object.AddComponent("Animator", component);
 
           let avatar = new YJAvatar(_this, object.GetGroup(), component);
-          object.AddComponent("Avatar", avatar);
+          object.AddComponent("Avatar", avatar); 
+
           if (modelData.message != undefined) {
-            if (modelData.message.pointType == "player" || modelData.message.pointType == "avatar") {
-              avatar.SetMessage(modelData.message.data);
-            }
+            object.SetMessage(modelData.message);
           }
+    
           if (callback) {
             callback(object);
           }
@@ -357,11 +357,10 @@ class YJLoadUserModelManager {
           object.AddComponent("Animator", Animator);
 
           let NPC = new YJNPC(_this, object.GetGroup(), Animator);
-          object.AddComponent("NPC", NPC);
+          object.AddComponent("NPC", NPC); 
+
           if (modelData.message != undefined) {
-            if (modelData.message.pointType == "npc") {
-              NPC.SetMessage(modelData.message.data);
-            }
+            object.SetMessage(modelData.message);
           }
 
           if (callback) {
@@ -372,13 +371,12 @@ class YJLoadUserModelManager {
         });
       } else if (modelData.modelType == "uv模型") {
         MeshRenderer.load(modelPath, (scope) => {
-          let uvanim = new YJUVAnim3(_this);
+          let uvanim = new YJUVAnim3(_this,scope.GetModel());
           object.AddComponent("UVAnim", uvanim);
           if (modelData.message != undefined) {
-            if (modelData.message.pointType == "UV动画") {
-              uvanim.Init(scope.GetModel(), modelData.message.data);
-            }
+            object.SetMessage(modelData.message);
           }
+
           if (callback) {
             callback(object);
           }
@@ -415,9 +413,11 @@ class YJLoadUserModelManager {
         MeshRenderer.load(modelPath, (scope) => {
           let _YJScreen = new YJScreen(_this, scope.GetModel(), "screen" + uuid);
           object.AddComponent("Screen", _YJScreen);
+          
           if (modelData.message != undefined) {
-            _YJScreen.Init(modelData.message.data);
+            object.SetMessage(modelData.message);
           }
+
           if (callback) {
             callback(object);
           }

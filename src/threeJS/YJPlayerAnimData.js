@@ -20,7 +20,7 @@ class YJPlayerAnimData {
           if (_this.$parent.$parent.GetPlayerAnimData) {
             PlayerAnimData = _this.$parent.$parent.GetPlayerAnimData();
           }
-      console.log(" in yj PlayerAnimData ", PlayerAnimData);
+      // console.log(" in yj PlayerAnimData ", PlayerAnimData);
       avatarDataList = PlayerAnimData.avatarData;
 
       let has = false;
@@ -39,7 +39,7 @@ class YJPlayerAnimData {
     }
 
     this.GetAvatarData = function (playerName) {
-      console.error(" 查找角色信息  ", playerName, avatarDataList);
+      // console.error(" 查找角色信息  ", playerName, avatarDataList);
       for (let i = 0; i < avatarDataList.length; i++) {
         if (avatarDataList[i].name == playerName) {
           return avatarDataList[i];
@@ -65,7 +65,7 @@ class YJPlayerAnimData {
         }
       }
       if (has) {
-        console.error(animName, avatarData);
+        // console.error(animName, avatarData);
         // 本角色扩展动作
         if (avatarData.animationsExtendData != undefined) {
           for (let i = 0; i < avatarData.animationsExtendData.length; i++) {

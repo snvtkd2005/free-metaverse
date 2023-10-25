@@ -3599,15 +3599,18 @@ class YJController {
     let npcPos = null;
     this.SetInteractiveNPC = function (_npcTransform) {
       npcTransform = _npcTransform;
-
+      if(npcTransform == null){
+        return;
+      }
+      this.PlayerLookatPos(npcTransform.GetWorldPos());
     }
 
     let baseData = {
       camp: "lm",
       speed: 8, //移动速度
       level: 1, //等级
-      health: 100, //生命值
-      strength: 40, //攻击力
+      health: 1000, //生命值
+      strength: 2, //攻击力
     }
 
     let targetModel = null;
@@ -3615,7 +3618,8 @@ class YJController {
       if (targetModel == null) {
         targetModel = _targetModel;
         console.log("targetModel 角色目标 ", targetModel);
-
+        //自动显示其头像
+        _Global.ReportTo3D("锁定目标",targetModel);
       }
 
       baseData.health -= strength;
@@ -3649,7 +3653,7 @@ class YJController {
 
     let inBlocking = false;
     let vaildAttackLater = null;
-    let attackStepSpeed = 2; //攻击间隔/攻击速度
+    let attackStepSpeed = 3; //攻击间隔/攻击速度
     let toIdelLater = null;
     let skillName = "";
     function CheckState() {
@@ -3665,7 +3669,7 @@ class YJController {
         npcPos = npcTransform.GetWorldPos();
         npcPos.y = 0;
         let dis = playerPos.distanceTo(npcPos);
-        if (dis < 1) {
+        if (dis < 1.5) {
           if (!inBlocking) {
             //攻击 
             skillName = "赤手攻击";
@@ -3691,7 +3695,7 @@ class YJController {
             toIdelLater = setTimeout(() => {
               scope.SetPlayerState("准备战斗");
               toIdelLater = null;
-            }, 300);
+            }, 1000);
           }
           if (vaildAttackLater == null) {
             vaildAttackLater = setTimeout(() => {

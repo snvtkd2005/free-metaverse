@@ -35,6 +35,44 @@ class YJTransform {
     }
     this.SetMessage = function (message) {
       data.message = message;
+      if (message.pointType == "npc") {
+        let com = this.GetComponent("NPC");
+        com.SetMessage(message.data);
+      }
+      if (message.pointType == "player" || message.pointType == "avatar") {
+        let com = this.GetComponent("Avatar");
+        com.SetMessage(message.data);
+      }
+      if (message.pointType == "UV动画") {
+        let com = this.GetComponent("UVAnim");
+        com.SetMessage(message.data);
+      }
+      if (message.pointType == "screen") {
+        let com = this.GetComponent("Screen");
+        com.SetMessage(message.data);
+      }
+    }
+    let handlerList = [];
+    this.AddHandle = function (handler) {
+      handlerList.push(handler);
+    }
+    this.RemoveHandle = function () {
+      handlerList = [];
+    }
+    // 数据有更新时的回调
+    this.UpdateData = function () {
+      // console.log(data.name + " 数据更新", data.message.data);
+      for (let i = 0; i < handlerList.length; i++) {
+        const element = handlerList[i];
+        element(data.message.data);
+      }
+
+      if (data.message.pointType == "npc") { 
+        // 死亡时清空回调
+        if (data.message.data.baseData.health == 0) {
+          handlerList = [];
+        }
+      }
     }
     this.GetData = function () {
       return data;
@@ -144,7 +182,7 @@ class YJTransform {
       data.modelPath = modelPath;
     }
 
-    this.GetWorldPos = function(){
+    this.GetWorldPos = function () {
       let pos = getWorldPosition(group).clone();
       return pos;
     }
@@ -208,13 +246,13 @@ class YJTransform {
         }
       }
     }
-    this._update = function(){
+    this._update = function () {
       for (let i = 0; i < components.length; i++) {
         const element = components[i];
         if (element.js._update) {
-          element.js._update(); 
+          element.js._update();
         }
-      } 
+      }
     }
     Init();
 

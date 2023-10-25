@@ -112,7 +112,7 @@ class YJScreen {
     this.Destroy = function () {
 
     }
-    this.Init = function (_data) {
+    this.SetMessage = function (_data) {
       this.Load(_data.url);
     }
     this.GetData = function () {

@@ -314,7 +314,7 @@ export default {
       this.animListData = res.data;
 
       console.log(this.animListData);
-      let animList = this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CreateOrLoadPlayerAnimData().AddAllExtendAnimData("小孩", this.animListData);
+      let animList = _Global.YJ3D._YJSceneManager.CreateOrLoadPlayerAnimData().AddAllExtendAnimData("小孩", this.animListData);
       this.SetAnimList(animList);
       res = await this.$axios.get(
         this.$uploadPlayerUrl + this.folderBase + "/" + this.folderBase + "_skill_data.txt" + "?time=" + new Date().getTime()
@@ -334,7 +334,7 @@ export default {
       }
     },
     ChangeAnim(e) {
-      this.$parent.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetPlayerAnimName(e);
+      _Global.YJ3D.YJController.SetPlayerAnimName(e);
     },
     load() {
       console.log(" 打开动作列表 ");
@@ -350,7 +350,7 @@ export default {
       if (this.setting[i].property == "isLoop") {
         this.currentAnimData.isLoop = e;
         // 控制动作
-        this.$parent.$refs.YJmetaBase.ThreejsHumanChat.YJPlayer.GetAvatar().ChangeAnimIsLoop(this.animName, e);
+        _Global.YJ3D.YJPlayer.GetAvatar().ChangeAnimIsLoop(this.animName, e);
       }
       console.log(i + " " + this.setting[i].value);
     },
@@ -517,9 +517,9 @@ export default {
             this.currentAnimData.animName = this.animName;
             this.currentAnimData.path = fileName;
             let items = [this.currentAnimData];
-            this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CreateOrLoadPlayerAnimData().AddAllExtendAnimData(this.modelData.name, items);
+            _Global.YJ3D._YJSceneManager.CreateOrLoadPlayerAnimData().AddAllExtendAnimData(this.modelData.name, items);
             // 加载动作
-            this.$parent.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetPlayerAnimName(this.animName);
+            _Global.YJ3D.YJController.SetPlayerAnimName(this.animName);
 
           }
         }
@@ -550,7 +550,7 @@ export default {
           this.$parent.SetTip("保存成功");
           this.canSave = false;
 
-          let animList = this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CreateOrLoadPlayerAnimData().AddAllExtendAnimData(this.modelData.name, this.animListData);
+          let animList = _Global.YJ3D._YJSceneManager.CreateOrLoadPlayerAnimData().AddAllExtendAnimData(this.modelData.name, this.animListData);
           this.SetAnimList(animList);
           // window.location.reload();
         }

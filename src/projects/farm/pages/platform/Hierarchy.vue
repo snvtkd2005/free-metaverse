@@ -47,7 +47,7 @@ export default {
 
     SelectModel(item) {
 
-      this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.SelectModel(item.uuid);
+      _Global.YJ3D._YJSceneManager.SelectModel(item.uuid);
     },
 
 

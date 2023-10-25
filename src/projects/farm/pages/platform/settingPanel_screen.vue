@@ -89,7 +89,7 @@ export default {
   data() {
     return {
       chassisWidth: 2.2, //车身宽
-
+      pointType: "screen",
       settingData: {
         id: "",
         screenType: "image",
@@ -168,7 +168,7 @@ export default {
 
     },
     load() {
-      this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetSingleModelTransform().
+      _Global.YJ3D._YJSceneManager.GetSingleModelTransform().
         GetComponent("Screen").Load(this.settingData.url);
     },
     Init(_settingData) {
@@ -199,10 +199,7 @@ export default {
     save() {
       // 单品中才有 updateModelTxtData
       if (this.$parent.updateModelTxtData) {
-        this.$parent.modelData.message = {
-          pointType: "screen",
-          data: this.settingData
-        };
+        this.$parent.modelData.message = this.getMessage();
         this.$parent.updateModelTxtData();
       } else {
         // 在场景编辑中的修改
@@ -210,16 +207,19 @@ export default {
       }
     },
 
+    getMessage() {
+      return {
+        pointType: this.pointType,
+        data: this.settingData,
+      };
+    },
     Update() {
 
       // _Global.SendMsgTo3D("刷新Transform", this.$parent.modelData.message);
 
-      this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.UpdateTransform(
-        {
-          pointType: "screen",
-          data: this.settingData
-        }
-      );
+      _Global.YJ3D._YJSceneManager
+          .GetSingleModelTransform()
+          .SetMessage(this.getMessage());
       // 调用场景保存
       if (this.$parent.updateSceneModelData) {
         this.$parent.updateSceneModelData();

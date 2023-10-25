@@ -8,7 +8,7 @@ export default {
   defaultUser: {
     userName: "test", 
     // 默认角色
-    avatarName: "litleUnityChain2",
+    avatarName: "女孩",
   },
   // 角色选择界面的角色信息
   playerImgPath: [
@@ -17,11 +17,11 @@ export default {
     //   platform: "pcweb",
     //   img: "images/spUI/player1.png",
     // },
-    {
-      name: "litleUnityChain2",
-      platform: "pcweb", 
-      img: "images/spUI/player2.png",
-    },  
+    // {
+    //   name: "litleUnityChain2",
+    //   platform: "pcweb", 
+    //   img: "images/spUI/player2.png",
+    // },  
   ],
 
   // 模型库/皮肤列表数据
@@ -34,6 +34,7 @@ export default {
   ], 
   // 角色数据
   avatarData: [
+/*
     
     {
       name: "litleUnityChain2",

@@ -73,7 +73,10 @@
     <skillPanel ref="skillPanel" />
 
     <hierarchy ref="hierarchyPanel" class=" hidden " :modelList="modelList" />
-
+    <div class=" absolute left-24 top-10">
+      <!-- 左上角血条头像 -->
+      <headerUI ref="headerUI" />
+    </div>
 
     <!-- 修改名称 -->
     <div class=" absolute left-2 top-12 flex text-white ">
@@ -135,6 +138,8 @@ import settingPanel_particle from "./settingPanel_particle.vue";
 import settingPanel_npc from "./settingPanel_npc.vue";
 
 
+import headerUI from "./common/headerUI.vue";
+
 import skillPanel from "./components/skillPanel.vue";
 
 import hierarchy from "./Hierarchy.vue";
@@ -166,6 +171,7 @@ export default {
     settingPanel_particle,
     settingPanel_npc,
     skillPanel,
+    headerUI,
   },
   data() {
     return {
@@ -516,8 +522,7 @@ export default {
     }
 
     this.$refs.YJmetaBase.SetloadingPanel(this.$refs.loadingPanel);
-    this.ThreejsHumanChat = this.$refs.YJmetaBase.ThreejsHumanChat;
-    this.$refs.PanelCut.Init(this.ThreejsHumanChat);
+    this.$refs.PanelCut.Init(_Global.YJ3D);
 
     // 没有icon表示为新建的场景
     // if (this.modelData.icon) {
@@ -606,7 +611,7 @@ export default {
 
     //在点击threeJS界面时，还原threejs的键盘监听。
     removeThreeJSfocus() {
-      this.ThreejsHumanChat.removeEventListener();
+      _Global.YJ3D.removeEventListener();
       this.inputing = true;
     },
     addThreeJSfocus() {
@@ -617,7 +622,7 @@ export default {
           this.oldFileName = this.modelData.name;
         }
       }
-      this.ThreejsHumanChat.threeJSfocus();
+      _Global.YJ3D.threeJSfocus();
       this.inputing = false;
 
     },
@@ -646,15 +651,15 @@ export default {
       };
 
       this.$refs.YJmetaBase.ClickSelectPlayerOK(this.userData);
-      this.$refs.YJmetaBase.ThreejsHumanChat.SetNickName(this.userName);
+      _Global.YJ3D.SetNickName(this.userName);
 
       //场景设置
       this._SceneManager = new SceneManager(
-        this.$refs.YJmetaBase.ThreejsHumanChat.scene,
-        this.$refs.YJmetaBase.ThreejsHumanChat.renderer,
-        this.$refs.YJmetaBase.ThreejsHumanChat.camera,
-        this.$refs.YJmetaBase.ThreejsHumanChat,
-        this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetmodelParent(),
+        _Global.YJ3D.scene,
+        _Global.YJ3D.renderer,
+        _Global.YJ3D.camera,
+        _Global.YJ3D,
+        _Global.YJ3D._YJSceneManager.GetmodelParent(),
         this,
         () => {
           // if (callback) {
@@ -704,7 +709,7 @@ export default {
       console.log(" 获取场景 模型 ", data, data.length, this.modelList, this.modelList.length);
 
 
-      this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CreateSenceBy(this.modelList);
+      _Global.YJ3D._YJSceneManager.CreateSenceBy(this.modelList);
 
       setTimeout(() => {
         this.modelList = [];
@@ -820,14 +825,14 @@ export default {
         }
       });
 
-      this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.LoadDone();
+      _Global.YJ3D._YJSceneManager.LoadDone();
 
     },
 
 
     // 保存模型缩略图，并上传
     updateModelIconPic(dataurl) {
-      // this.$refs.YJmetaBase.ThreejsHumanChat.scene.background = null;
+      // _Global.YJ3D.scene.background = null;
 
       let fromData = new FormData();
       //服务器中的本地地址
@@ -919,11 +924,11 @@ export default {
 
 
     SelectModel(item) {
-      this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.SelectModel(item.uuid);
+      _Global.YJ3D._YJSceneManager.SelectModel(item.uuid);
     },
 
     viewFarFn(e) {
-      this.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetCameraWheelPos(-this.viewFar);
+      _Global.YJ3D.YJController.SetCameraWheelPos(-this.viewFar);
       // 取消焦点
       this.$refs.viewFarCtrl.blur();
 
@@ -1067,7 +1072,7 @@ export default {
       this.$refs.YJmetaBase.ClickSelectPlayerOK(this.userData);
 
       // 显示玩家姓名条
-      this.$refs.YJmetaBase.ThreejsHumanChat.SetNickName(userName);
+      _Global.YJ3D.SetNickName(userName);
 
 
 
@@ -1098,19 +1103,19 @@ export default {
       if (b) {
         if (id == "portal_001" || id == "portal_002") {
           if (id == "portal_001") {
-            this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.ChangeViewByIdDirect("playerPos_001");
+            _Global.YJ3D._YJSceneManager.ChangeViewByIdDirect("playerPos_001");
           }
           if (id == "portal_002") {
-            this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.ChangeViewByIdDirect("playerPos_002");
+            _Global.YJ3D._YJSceneManager.ChangeViewByIdDirect("playerPos_002");
           }
 
-          this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.UpdateLightPos();
+          _Global.YJ3D._YJSceneManager.UpdateLightPos();
 
-          this.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetTransmit(true);
+          _Global.YJ3D.YJController.SetTransmit(true);
           if (this.$refs.YJDync) {
             this.$refs.YJDync.DirectSendUserData();
           }
-          this.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetTransmit();
+          _Global.YJ3D.YJController.SetTransmit();
 
         }
       }
@@ -1159,8 +1164,8 @@ export default {
       if (!this.initCompleted) {
 
 
-        this.$refs.YJmetaBase.ThreejsHumanChat.PlayVideo();
-        this.$refs.YJmetaBase.ThreejsHumanChat.AddVideoListener();
+        _Global.YJ3D.PlayVideo();
+        _Global.YJ3D.AddVideoListener();
 
 
         this.hasGameUI = true;
@@ -1282,8 +1287,8 @@ export default {
 
         // 激活上一个选中模型的碰撞
         if (this.clickModelJS != null) {
-          this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetLoadUserModelManager().EditorEnd(this.clickModelJS);
-          this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager._YJTransformManager.detach();
+          _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().EditorEnd(this.clickModelJS);
+          _Global.YJ3D._YJSceneManager._YJTransformManager.detach();
           this.clickModelJS = null;
         }
 
@@ -1301,12 +1306,12 @@ export default {
     },
     SetSelectTransform(transform){
       this.clickModelJS = transform;
-      this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetLoadUserModelManager().EditorStart(this.clickModelJS);
-      this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager._YJTransformManager.attach(transform.GetGroup());
+      _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().EditorStart(this.clickModelJS);
+      _Global.YJ3D._YJSceneManager._YJTransformManager.attach(transform.GetGroup());
       this.UpdateComponentPanel();
     },
     UpdateComponentPanel() {
-      this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.SetSelectTransform(this.clickModelJS);
+      _Global.YJ3D._YJSceneManager.SetSelectTransform(this.clickModelJS);
       
       let component = this.clickModelJS.GetComponent("UVAnim");
       if (component != null) {
@@ -1347,8 +1352,8 @@ export default {
       if (this.clickModelJS != null) {
         this.editorModelList("删除", this.clickModelJS.GetData());
 
-        this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager._YJTransformManager.detach();
-        this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetLoadUserModelManager().DelUserModel(this.clickModelJS);
+        _Global.YJ3D._YJSceneManager._YJTransformManager.detach();
+        _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().DelUserModel(this.clickModelJS);
         this.clickModelJS = null;
         this.ChangePanel('');
 
@@ -1357,8 +1362,8 @@ export default {
     ClickFloor() {
 
       if (this.clickModelJS != null) {
-        this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetLoadUserModelManager().EditorEnd(this.clickModelJS);
-        this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager._YJTransformManager.detach();
+        _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().EditorEnd(this.clickModelJS);
+        _Global.YJ3D._YJSceneManager._YJTransformManager.detach();
         this.clickModelJS = null;
         this.ChangePanel("");
       }
@@ -1384,15 +1389,15 @@ export default {
       if (hotPointData.type) {
         if (hotPointData.type == "设置角色位置") {
 
-          this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.SetPlayerPosRota(
+          _Global.YJ3D._YJSceneManager.SetPlayerPosRota(
             hotPointData.pos,
             hotPointData.rotaV3
           );
 
           //视角拉近
-          this.$refs.YJmetaBase.ThreejsHumanChat.YJController.ChangeToPersonView();
+          _Global.YJ3D.YJController.ChangeToPersonView();
 
-          this.$refs.YJmetaBase.ThreejsHumanChat.YJController.ChangeCameraToFar();
+          _Global.YJ3D.YJController.ChangeCameraToFar();
           this.viewFarIndex = 2;
         }
       }
@@ -1407,7 +1412,7 @@ export default {
       }
       InstancedMeshOwner.Click(index);
 
-      this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetLoadUserModelManager().LoadStaticModel(
+      _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().LoadStaticModel(
         InstancedMeshOwner.GetModelData(), (transform) => {
           this.clickModelJS = transform;
         }
@@ -1416,7 +1421,7 @@ export default {
 
     // 把视角切换到指定id的热点视角位置
     ChangeViewById(id) {
-      this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.ChangeViewById(id);
+      _Global.YJ3D._YJSceneManager.ChangeViewById(id);
     },
 
     ChangeViewFar() {
@@ -1425,8 +1430,8 @@ export default {
         this.viewFarIndex = 0;
       }
       let far = this.viewFar[this.viewFarIndex];
-      // this.$refs.YJmetaBase.ThreejsHumanChat.YJController.ChangeCameraFar();
-      this.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetCameraWheelPos(far);
+      // _Global.YJ3D.YJController.ChangeCameraFar();
+      _Global.YJ3D.YJController.SetCameraWheelPos(far);
     },
 
     GetPublicUrl() {
@@ -1458,7 +1463,7 @@ export default {
       // }, 2000);
     },
     ClickNiaokan() {
-      this.$refs.YJmetaBase.ThreejsHumanChat.YJController.ResetToNiaokanView();
+      _Global.YJ3D.YJController.ResetToNiaokanView();
     },
 
   },

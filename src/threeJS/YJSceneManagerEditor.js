@@ -557,7 +557,7 @@ class YJSceneManager {
       }
 
       singleTransform.SetMessage({ data: gifData, pointType: "UV动画" });
-      uvanim.Init(meshrender.GetModel(), gifData);
+      // uvanim.Init(meshrender.GetModel(), gifData);
 
     }
     this.UpdateTransform = (msg) => {
@@ -598,11 +598,6 @@ class YJSceneManager {
         }
 
 
-      }
-
-      if (singleTransform.GetMessage().pointType == msg.pointType) {
-        singleTransform.SetMessage(msg);
-        return;
       }
 
       singleTransform.SetMessage(msg);
@@ -661,7 +656,7 @@ class YJSceneManager {
 
       // 角色掉入地下的回调
       _this.YJController.SetplayerPosDownCallback(() => {
-        this.SetPlayerPos({ x: 0, y: 10, z: 0 });
+        scope.SetPlayerPos({ x: 0, y: 10, z: 0 });
       });
 
 

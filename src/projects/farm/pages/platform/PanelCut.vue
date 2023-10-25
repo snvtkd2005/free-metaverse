@@ -86,7 +86,7 @@ export default {
     updateModelIconPic() {
 
       this._YJ3dCanvasCut.Photo((dataurl) => {
-        // let dataurl = this.$refs.YJmetaBase.ThreejsHumanChat.getCanvasImg(
+        // let dataurl = _Global.YJ3D.getCanvasImg(
         //   400,
         //   300
         // );

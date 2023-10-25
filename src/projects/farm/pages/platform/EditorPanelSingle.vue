@@ -30,11 +30,11 @@
             name="file" webkitdirectory @change.stop="change" />
         </div>
 
-        <div v-for="(item, i) in tableList" :key="i" :index="item.id" class="px-12 flex h-10 text-center hover:bg-546770"
-          >
-          <div v-if="item.display" class="self-center" :class="0 == item.id ? ' ' : ' cursor-pointer '" @click="ChangeTable(item)">
+        <div v-for="(item, i) in tableList" :key="i" :index="item.id" class="px-12 flex h-10 text-center hover:bg-546770">
+          <div v-if="item.display" class="self-center" :class="0 == item.id ? ' ' : ' cursor-pointer '"
+            @click="ChangeTable(item)">
             {{ item.content }}
-          </div> 
+          </div>
         </div>
       </div>
     </div>
@@ -100,6 +100,11 @@
     <animPanel ref="animPanel" />
     <boneConvertPanel ref="boneConvertPanel" />
 
+    <div class=" absolute left-24 top-10">
+      <!-- 左上角血条头像 -->
+      <headerUI ref="headerUI" />
+    </div>
+
     <!-- 与后台交互的操作提示 -->
     <!---->
     <div v-if="tipData.opening" class="absolute left-0 top-10 w-full flex">
@@ -163,6 +168,8 @@ import settingPanel_particle from "./settingPanel_particle.vue";
 import settingPanel_avatar from "./settingPanel_avatar.vue";
 import settingPanel_npc from "./settingPanel_npc.vue";
 
+import headerUI from "./common/headerUI.vue";
+
 import addComponent from "./components/addComponent.vue";
 
 import { SceneManager } from "../../js/SceneManagerEditor.js";
@@ -188,6 +195,7 @@ export default {
     settingPanel_npc,
     addComponent,
     PanelCut,
+    headerUI,
   },
   data() {
     return {
@@ -209,14 +217,14 @@ export default {
       infloating: false,
 
       _SceneManager: null,
-      hasImport: true, 
+      hasImport: true,
       tableList: [
-        { id: "single_cut",display:true, content: "截图（制作缩略图）" },
-        { id: "single_collider", display:true,content: "隐藏碰撞体", value: true },
-        { id: "single_usercollider",display:true, content: "激活碰撞体", value: true },
+        { id: "single_cut", display: true, content: "截图（制作缩略图）" },
+        { id: "single_collider", display: true, content: "隐藏碰撞体", value: true },
+        { id: "single_usercollider", display: true, content: "激活碰撞体", value: true },
         // { id: "single_first", content: "第一人称视角" },
         // { id: "single_third", content: "第三人称视角" },
-        { id: "single_planeState",display:true, content: "隐藏地面", value: true },
+        { id: "single_planeState", display: true, content: "隐藏地面", value: true },
         // { id: 10000, content: "保存", },
         // { id: 10000, content: "发布", },
       ],
@@ -324,7 +332,7 @@ export default {
     }
 
     // 如从虚拟形象编辑进入，则不显示导入按钮,并且不额外加载角色模型
-    if(localStorage.getItem("inAvatarEditor")){
+    if (localStorage.getItem("inAvatarEditor")) {
       localStorage.removeItem("inAvatarEditor");
       this.hasImport = false;
     }
@@ -335,7 +343,7 @@ export default {
     });
   },
   methods: {
-    
+
     setSettingDisplayById(id, display) {
       for (let i = 0; i < this.tableList.length; i++) {
         const element = this.tableList[i];
@@ -374,27 +382,27 @@ export default {
 
       if (this.modelData.modelType == "uv模型") {
         this.hasImport = false;
-        this.setSettingDisplayById("single_collider",false);
-        this.setSettingDisplayById("single_usercollider",false);
-        this.setSettingDisplayById("single_planeState",false);
+        this.setSettingDisplayById("single_collider", false);
+        this.setSettingDisplayById("single_usercollider", false);
+        this.setSettingDisplayById("single_planeState", false);
       }
 
       if (this.modelData.modelType == "汽车模型") {
         this.hasImport = false;
-        this.setSettingDisplayById("single_collider",false);
-        this.setSettingDisplayById("single_usercollider",false);
-        this.setSettingDisplayById("single_planeState",false);
+        this.setSettingDisplayById("single_collider", false);
+        this.setSettingDisplayById("single_usercollider", false);
+        this.setSettingDisplayById("single_planeState", false);
       }
 
       if (this.modelData.modelType == "NPC模型") {
         this.hasImport = false;
-        this.setSettingDisplayById("single_collider",false);
-        this.setSettingDisplayById("single_usercollider",false);
-        this.setSettingDisplayById("single_planeState",false);
+        this.setSettingDisplayById("single_collider", false);
+        this.setSettingDisplayById("single_usercollider", false);
+        this.setSettingDisplayById("single_planeState", false);
       }
       if (this.modelData.modelType == "装备模型") {
         setTimeout(() => {
-          this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager
+          _Global.YJ3D._YJSceneManager
             .CreateOrLoadPlayerAnimData()
             .GetAllAnim(this.avatarName, (animList) => {
               this.$refs.settingPanel_weapon.SetAnimList(animList);
@@ -409,7 +417,7 @@ export default {
       if (this.modelData.modelType == "角色模型") {
         setTimeout(() => {
           this.$refs.settingPanel_player.SetAvatar(
-            this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetSingleModelTransform()
+            _Global.YJ3D._YJSceneManager.GetSingleModelTransform()
           );
         }, 3000);
       }
@@ -433,11 +441,10 @@ export default {
       };
 
       this.$refs.YJmetaBase.ClickSelectPlayerOK(this.userData);
-
-      this.ThreejsHumanChat = this.$refs.YJmetaBase.ThreejsHumanChat;
-      this.$refs.YJmetaBase.ThreejsHumanChat.SetNickName(this.userName);
+ 
+      _Global.YJ3D.SetNickName(this.userName);
       // 初始化截图
-      this.$refs.PanelCut.Init(this.ThreejsHumanChat);
+      this.$refs.PanelCut.Init(_Global.YJ3D);
     },
 
     // 获取所有单品
@@ -511,7 +518,7 @@ export default {
 
     //在点击threeJS界面时，还原threejs的键盘监听。
     removeThreeJSfocus() {
-      this.ThreejsHumanChat.removeEventListener();
+      _Global.YJ3D.removeEventListener();
       this.inputing = true;
     },
     addThreeJSfocus() {
@@ -525,7 +532,7 @@ export default {
           this.updateModelTxtData();
         }
       }
-      this.ThreejsHumanChat.threeJSfocus();
+      _Global.YJ3D.threeJSfocus();
       this.inputing = false;
     },
 
@@ -554,7 +561,7 @@ export default {
 
     // 保存模型缩略图，并上传
     updateModelIconPic(dataurl) {
-      this.$refs.YJmetaBase.ThreejsHumanChat.scene.background = null;
+      _Global.YJ3D.scene.background = null;
 
       let fromData = new FormData();
       //服务器中的本地地址
@@ -571,7 +578,7 @@ export default {
         }
       });
 
-      this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.ResetBackgroundColor();
+      _Global.YJ3D._YJSceneManager.ResetBackgroundColor();
       localStorage.setItem("modelData", JSON.stringify(this.modelData));
       this.updateModelTxtData();
     },
@@ -852,7 +859,7 @@ export default {
 
             this.$refs.opacityBtn.focus();
             //加载模型
-            this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CreateSingleModel(
+            _Global.YJ3D._YJSceneManager.CreateSingleModel(
               "https://snvtkd2005.com/socketIoServer/socketIoServer/uploads/" +
               this.folderBase +
               "/" +
@@ -864,7 +871,7 @@ export default {
                   this.tipData.opening = false;
                   if (this.modelData.modelType == "角色模型") {
                     this.$refs.settingPanel_avatar.SetAvatar(
-                      this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetSingleModelTransform()
+                      _Global.YJ3D._YJSceneManager.GetSingleModelTransform()
                     );
                   }
                 }, 1000);
@@ -895,7 +902,7 @@ export default {
     },
 
     SelectModel(item) {
-      this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.SelectModel(
+      _Global.YJ3D._YJSceneManager.SelectModel(
         item.uuid
       );
     },
@@ -912,7 +919,7 @@ export default {
     },
 
     viewFarFn(e) {
-      this.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetCameraWheelPos(
+      _Global.YJ3D.YJController.SetCameraWheelPos(
         -this.viewFar
       );
       // 取消焦点
@@ -1040,7 +1047,7 @@ export default {
 
       // 程序加载场景
       this.$refs.YJmetaBase.Reload();
-      this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.ChangeScene();
+      _Global.YJ3D._YJSceneManager.ChangeScene();
 
       if (this._SceneManager != null) {
         this._SceneManager.ChangeScene(this.avatarData);
@@ -1077,7 +1084,7 @@ export default {
       this.$refs.YJmetaBase.ClickSelectPlayerOK(this.userData);
 
       // 显示玩家姓名条
-      this.$refs.YJmetaBase.ThreejsHumanChat.SetNickName(userName);
+      _Global.YJ3D.SetNickName(userName);
 
       console.log("场景加载完成------------");
     },
@@ -1120,8 +1127,8 @@ export default {
       console.log(" modelData ", modelData);
 
       if (!this.initCompleted) {
-        this.$refs.YJmetaBase.ThreejsHumanChat.PlayVideo();
-        this.$refs.YJmetaBase.ThreejsHumanChat.AddVideoListener();
+        _Global.YJ3D.PlayVideo();
+        _Global.YJ3D.AddVideoListener();
 
         this.hasGameUI = true;
 
@@ -1140,11 +1147,11 @@ export default {
 
         //场景设置
         this._SceneManager = new SceneManager(
-          this.$refs.YJmetaBase.ThreejsHumanChat.scene,
-          this.$refs.YJmetaBase.ThreejsHumanChat.renderer,
-          this.$refs.YJmetaBase.ThreejsHumanChat.camera,
-          this.$refs.YJmetaBase.ThreejsHumanChat,
-          this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetmodelParent(),
+          _Global.YJ3D.scene,
+          _Global.YJ3D.renderer,
+          _Global.YJ3D.camera,
+          _Global.YJ3D,
+          _Global.YJ3D._YJSceneManager.GetmodelParent(),
           this,
           () => {
             if (callback) {
@@ -1164,10 +1171,10 @@ export default {
       this.Interface.load3dComplete();
 
       // new SceneManager_MaterialSetting(
-      // this.$refs.YJmetaBase.ThreejsHumanChat.scene,
-      // this.$refs.YJmetaBase.ThreejsHumanChat.renderer,
-      // this.$refs.YJmetaBase.ThreejsHumanChat.camera,
-      // this.$refs.YJmetaBase.ThreejsHumanChat
+      // _Global.YJ3D.scene,
+      // _Global.YJ3D.renderer,
+      // _Global.YJ3D.camera,
+      // _Global.YJ3D
       // );
     },
     // 3转2坐标
@@ -1181,14 +1188,14 @@ export default {
     ClickPlayer(owner) {
       this._SceneManager.ClickPlayer(owner);
     },
-    
+
     RightClick(hitObject, hitPoint) {
       this._SceneManager.RightClick(hitObject, hitPoint);
     },
-    ClickModel(hitObject) { 
+    ClickModel(hitObject) {
       this._SceneManager.ClickModel(hitObject);
     },
-    HoverObject(hoverObject, hoverPoint) { 
+    HoverObject(hoverObject, hoverPoint) {
       this._SceneManager.HoverObject(hoverObject, hoverPoint);
     },
 
@@ -1231,7 +1238,7 @@ export default {
       // }, 2000);
     },
     ClickNiaokan() {
-      this.$refs.YJmetaBase.ThreejsHumanChat.YJController.ResetToNiaokanView();
+      _Global.YJ3D.YJController.ResetToNiaokanView();
     },
   },
 };

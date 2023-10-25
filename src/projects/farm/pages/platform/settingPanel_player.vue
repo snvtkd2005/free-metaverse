@@ -224,6 +224,7 @@ export default {
   },
   data() {
     return {
+      pointType: "player",
       canSave: false,
       // 添加技能窗口
       inAddSkill: false,
@@ -333,16 +334,16 @@ export default {
       }
       if (e == "下载模型") {
         this.download();
-      }       
+      }
       if (e == "动作列表") {
         console.log(" 打开动作列表 ");
         this.$parent.$refs.animPanel.SetVisible(true, this.modelData.name);
       }
       if (e == "骨骼映射面板") {
-        let bones = _Global.YJ3D._YJSceneManager 
+        let bones = _Global.YJ3D._YJSceneManager
           .GetSingleTransformComponent("MeshRenderer").GetAllBone();
         this.$parent.$refs.boneConvertPanel.SetVisible(true, bones, this.settingData.boneList);
-      }  
+      }
     },
     setSettingItemByProperty(property, value) {
       for (let i = 0; i < this.setting.length; i++) {
@@ -375,7 +376,7 @@ export default {
         this.skillList.push(_skillList[i]);
       }
     },
-    PlayerAnimData(){
+    PlayerAnimData() {
       return _Global.CreateOrLoadPlayerAnimData();
     },
     async initValue() {
@@ -411,23 +412,26 @@ export default {
     },
     // 改变当前上传角色动作
     ChangePlayerAnim(animName) {
-      let _YJAnimator = _Global.YJ3D._YJSceneManager 
+      let _YJAnimator = _Global.YJ3D._YJSceneManager
         .GetSingleTransformComponent("Animator");
-        _YJAnimator.ChangeAnim(animName);
+      _YJAnimator.ChangeAnim(animName);
     },
     updateName(v) {
       this.settingData.name = v;
-      this.$parent.modelData.message = {
-        pointType: "player",
-        data: this.settingData,
-      };
+      this.$parent.modelData.message = this.getMessage();
 
       // 控制三维
-      _Global.YJ3D._YJSceneManager 
-        .GetSingleTransformComponent("Avatar")
-        .SetMessage(this.settingData);
+      _Global.YJ3D._YJSceneManager
+      .GetSingleModelTransform()
+          .SetMessage(this.getMessage());
     },
 
+    getMessage() {
+      return {
+        pointType: this.pointType,
+        data: this.settingData,
+      };
+    },
     Init(_carData) {
       this.carData = _carData;
     },
@@ -440,7 +444,7 @@ export default {
         // 控制动作
         _Global.YJ3D.YJPlayer.GetAvatar().ChangeAnimIsLoop(this.animName, e);
         //
-        let _YJAnimator = _Global.YJ3D._YJSceneManager 
+        let _YJAnimator = _Global.YJ3D._YJSceneManager
           .GetSingleTransformComponent("Animator");
         _YJAnimator.ChangeAnimIsLoop(this.animName, e);
 
@@ -559,9 +563,9 @@ export default {
           this.currentAnimData.path = animData.path;
           //npc播放动作
           if (animData.path != "") {
-            let _YJAnimator = _Global.YJ3D._YJSceneManager 
+            let _YJAnimator = _Global.YJ3D._YJSceneManager
               .GetSingleTransformComponent("Animator");
-              _YJAnimator.ChangeAnim(this.animName);
+            _YJAnimator.ChangeAnim(this.animName);
           }
         });
 
@@ -696,10 +700,7 @@ export default {
       console.log("角色数据 ", this.settingData);
       // 单品中才有 updateModelTxtData
       if (this.$parent.updateModelTxtData) {
-        this.$parent.modelData.message = {
-          pointType: "player",
-          data: this.settingData,
-        };
+        this.$parent.modelData.message = this.getMessage();
         this.$parent.updateModelTxtData();
       } else {
         // 在场景编辑中的修改

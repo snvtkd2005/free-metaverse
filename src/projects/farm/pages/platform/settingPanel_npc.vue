@@ -7,7 +7,7 @@
       <div class="self-center w-40 truncate" v-show="item.display">
         {{ item.title }}
       </div>
-      <div class="self-center w-20"  v-show="item.display">
+      <div class="self-center w-20" v-show="item.display">
         <div v-if="item.type == 'text'" class="w-32 h-auto text-black">
           <YJinput_text class="w-full h-auto" :value="item.value" :index="i" :callback="item.callback" />
         </div>
@@ -67,6 +67,7 @@ export default {
         speed: 8, //移动速度
         level: 1, //等级
         health: 100, //生命值
+        maxHealth: 100, //生命值
         strength: 20, //攻击力
       },
       settingData: {
@@ -77,6 +78,7 @@ export default {
           speed: 8, //移动速度
           level: 1, //等级
           health: 100, //生命值
+          maxHealth: 100, //生命值
           strength: 20, //攻击力
         },
         defaultAnim: "idle", //默认动作
@@ -118,7 +120,7 @@ export default {
 
     console.log(" modelData = ", modelData);
     this.settingData = modelData.message.data;
-    this.settingData.baseData = undefined;
+    // this.settingData.baseData = undefined; //重置数据时解除注释
     if (!this.settingData.baseData) {
       this.settingData.baseData = this.baseData;
     }
@@ -158,6 +160,15 @@ export default {
         }
       }
     },
+    getSettingItemByProperty(property) {
+      for (let i = 0; i < this.setting.length; i++) {
+        const element = this.setting[i];
+        if (element.property == property) {
+          return element.value;
+        }
+      }
+      return null;
+    },
     // 从单品编辑跳转过来后更新UI值
     initValue() {
       this.setSettingItemByProperty("name", this.settingData.name);
@@ -179,10 +190,10 @@ export default {
       //区分首次加载和第二次加载，首次加载直接创建，第二次加载修改第一次加载的内容
 
       let singleTransform =
-        this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetSingleModelTransform();
+        _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
       if (singleTransform == null) {
         //加载模型
-        this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CreateSingleModel(
+        _Global.YJ3D._YJSceneManager.CreateSingleModel(
           data.modelPath,
           () => {
             console.log("加载模型完成 33 ");
@@ -191,7 +202,7 @@ export default {
               this.$parent.tipData.opening = false;
             }, 1000);
             this.avatar =
-              this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager
+              _Global.YJ3D._YJSceneManager
                 .GetSingleModelTransform()
                 .GetComponent("Animator");
             this.ChangeAnim(0);
@@ -226,10 +237,9 @@ export default {
       };
 
       // 控制三维
-      this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager
+      _Global.YJ3D._YJSceneManager
         .GetSingleModelTransform()
-        .GetComponent("Avatar")
-        .SetMessage(this.settingData);
+        .SetMessage(this.getMessage());
     },
     Init(_settingData) {
       this.settingData = _settingData;
@@ -244,24 +254,31 @@ export default {
     // 改变UI输入值后刷新
     ChangeValue(i, e) {
       this.setting[i].value = e;
-      this.settingData[this.setting[i].property] = e;
-      if (this.setting[i].property == "name") {
-        //改变三维中的姓名条
-        // 控制三维
-        this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager
-          .GetSingleModelTransform()
-          .GetComponent("NPC")
-          .SetName(e);
+      let property = this.setting[i].property;
+      if (property == "camp") {
+        this.settingData.baseData[property] = e;
+      } else {
+        this.settingData[property] = e;
       }
+      if (property == "name" || property == "camp") {
+        // 控制三维
+        _Global.YJ3D._YJSceneManager
+          .GetSingleModelTransform()
+          .SetMessage(this.getMessage());
+      }
+
       console.log(i + " " + this.setting[i].value);
+    },
+    getMessage() {
+      return {
+        pointType: this.pointType,
+        data: this.settingData,
+      };
     },
     save() {
       // 单品中才有 updateModelTxtData
       if (this.$parent.updateModelTxtData) {
-        this.$parent.modelData.message = {
-          pointType: this.pointType,
-          data: this.settingData,
-        };
+        this.$parent.modelData.message = this.getMessage();
         this.$parent.updateModelTxtData();
       } else {
         // 在场景编辑中的修改
@@ -271,7 +288,7 @@ export default {
 
     // 设置角色眼睛高度
     SetEyeHeight() {
-      this.$parent.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetTargetHeight(
+      _Global.YJ3D.YJController.SetTargetHeight(
         height
       );
     },
@@ -282,7 +299,7 @@ export default {
     Update() {
       // _Global.SendMsgTo3D("刷新Transform", this.$parent.modelData.message);
 
-      this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.UpdateTransform(
+      _Global.YJ3D._YJSceneManager.UpdateTransform(
         {
           pointType: this.pointType,
           data: this.settingData,

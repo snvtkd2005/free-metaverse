@@ -267,7 +267,6 @@ export default {
     this.RequestGetAllModel(() => {
       this.RequestGetAllSceneData();
       this.$refs.YJmetaBase.SetloadingPanel(this.$refs.loadingPanel);
-      this.ThreejsHumanChat = this.$refs.YJmetaBase.ThreejsHumanChat;
     });
   },
   methods: {
@@ -309,11 +308,11 @@ export default {
     },
     //在点击threeJS界面时，还原threejs的键盘监听。
     removeThreeJSfocus() {
-      this.ThreejsHumanChat.removeEventListener();
+      _Global.YJ3D.removeEventListener();
       this.inputing = true;
     },
     addThreeJSfocus() {
-      this.ThreejsHumanChat.threeJSfocus();
+      _Global.YJ3D.threeJSfocus();
       this.inputing = false;
       //取消设置面板的input焦点
     },
@@ -341,15 +340,15 @@ export default {
       };
 
       this.$refs.YJmetaBase.ClickSelectPlayerOK(this.userData);
-      this.$refs.YJmetaBase.ThreejsHumanChat.SetNickName(this.userName);
+      _Global.YJ3D.SetNickName(this.userName);
 
       //场景设置
       this._SceneManager = new SceneManager(
-        this.$refs.YJmetaBase.ThreejsHumanChat.scene,
-        this.$refs.YJmetaBase.ThreejsHumanChat.renderer,
-        this.$refs.YJmetaBase.ThreejsHumanChat.camera,
-        this.$refs.YJmetaBase.ThreejsHumanChat,
-        this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetmodelParent(),
+        _Global.YJ3D.scene,
+        _Global.YJ3D.renderer,
+        _Global.YJ3D.camera,
+        _Global.YJ3D,
+        _Global.YJ3D._YJSceneManager.GetmodelParent(),
         this,
         () => {
           // if (callback) {
@@ -396,13 +395,13 @@ export default {
       }
       // console.log(" 获取场景 模型 ", data);
 
-      this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CreateSenceBy(
+      _Global.YJ3D._YJSceneManager.CreateSenceBy(
         this.modelList
       );
     },
 
     viewFarFn(e) {
-      this.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetCameraWheelPos(
+      _Global.YJ3D.YJController.SetCameraWheelPos(
         -this.viewFar
       );
       // 取消焦点
@@ -564,11 +563,11 @@ export default {
 
       //场景设置
       this._SceneManager = new SceneManager(
-        this.$refs.YJmetaBase.ThreejsHumanChat.scene,
-        this.$refs.YJmetaBase.ThreejsHumanChat.renderer,
-        this.$refs.YJmetaBase.ThreejsHumanChat.camera,
-        this.$refs.YJmetaBase.ThreejsHumanChat,
-        this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetmodelParent(),
+        _Global.YJ3D.scene,
+        _Global.YJ3D.renderer,
+        _Global.YJ3D.camera,
+        _Global.YJ3D,
+        _Global.YJ3D._YJSceneManager.GetmodelParent(),
         this,
         () => {
           // if (callback) {
@@ -582,7 +581,7 @@ export default {
       this.$refs.YJmetaBase.ClickSelectPlayerOK(this.userData);
 
       // 显示玩家姓名条
-      this.$refs.YJmetaBase.ThreejsHumanChat.SetNickName(userName);
+      _Global.YJ3D.SetNickName(userName);
 
       console.log("场景加载完成------------");
 
@@ -606,23 +605,23 @@ export default {
       if (b) {
         if (id == "portal_001" || id == "portal_002") {
           if (id == "portal_001") {
-            this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.ChangeViewByIdDirect(
+            _Global.YJ3D._YJSceneManager.ChangeViewByIdDirect(
               "playerPos_001"
             );
           }
           if (id == "portal_002") {
-            this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.ChangeViewByIdDirect(
+            _Global.YJ3D._YJSceneManager.ChangeViewByIdDirect(
               "playerPos_002"
             );
           }
 
-          this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.UpdateLightPos();
+          _Global.YJ3D._YJSceneManager.UpdateLightPos();
 
-          this.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetTransmit(true);
+          _Global.YJ3D.YJController.SetTransmit(true);
           if (this.$refs.YJDync) {
             this.$refs.YJDync.DirectSendUserData();
           }
-          this.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetTransmit();
+          _Global.YJ3D.YJController.SetTransmit();
         }
       }
       if (id == "car") {
@@ -659,8 +658,8 @@ export default {
       console.log("场景加载完成------------");
 
       if (!this.initCompleted) {
-        this.$refs.YJmetaBase.ThreejsHumanChat.PlayVideo();
-        this.$refs.YJmetaBase.ThreejsHumanChat.AddVideoListener();
+        _Global.YJ3D.PlayVideo();
+        _Global.YJ3D.AddVideoListener();
 
         this.hasGameUI = true;
         this.$nextTick(() => {
@@ -700,10 +699,10 @@ export default {
       this.Interface.load3dComplete();
 
       // new SceneManager_MaterialSetting(
-      // this.$refs.YJmetaBase.ThreejsHumanChat.scene,
-      // this.$refs.YJmetaBase.ThreejsHumanChat.renderer,
-      // this.$refs.YJmetaBase.ThreejsHumanChat.camera,
-      // this.$refs.YJmetaBase.ThreejsHumanChat
+      // _Global.YJ3D.scene,
+      // _Global.YJ3D.renderer,
+      // _Global.YJ3D.camera,
+      // _Global.YJ3D
       // );
     },
     // 3转2坐标
@@ -786,15 +785,15 @@ export default {
       // console.log(" hotpointdata  ", hotPointData);
       if (hotPointData.type) {
         if (hotPointData.type == "设置角色位置") {
-          this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.SetPlayerPosRota(
+          _Global.YJ3D._YJSceneManager.SetPlayerPosRota(
             hotPointData.pos,
             hotPointData.rotaV3
           );
 
           //视角拉近
-          this.$refs.YJmetaBase.ThreejsHumanChat.YJController.ChangeToPersonView();
+          _Global.YJ3D.YJController.ChangeToPersonView();
 
-          this.$refs.YJmetaBase.ThreejsHumanChat.YJController.ChangeCameraToFar();
+          _Global.YJ3D.YJController.ChangeCameraToFar();
           this.viewFarIndex = 2;
         }
       }
@@ -802,7 +801,7 @@ export default {
 
     // 把视角切换到指定id的热点视角位置
     ChangeViewById(id) {
-      this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.ChangeViewById(id);
+      _Global.YJ3D._YJSceneManager.ChangeViewById(id);
     },
 
     ChangeViewFar() {
@@ -811,8 +810,8 @@ export default {
         this.viewFarIndex = 0;
       }
       let far = this.viewFar[this.viewFarIndex];
-      // this.$refs.YJmetaBase.ThreejsHumanChat.YJController.ChangeCameraFar();
-      this.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetCameraWheelPos(
+      // _Global.YJ3D.YJController.ChangeCameraFar();
+      _Global.YJ3D.YJController.SetCameraWheelPos(
         far
       );
     },
@@ -844,7 +843,7 @@ export default {
       // }, 2000);
     },
     ClickNiaokan() {
-      this.$refs.YJmetaBase.ThreejsHumanChat.YJController.ResetToNiaokanView();
+      _Global.YJ3D.YJController.ResetToNiaokanView();
     },
   },
 };

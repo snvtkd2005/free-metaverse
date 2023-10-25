@@ -61,6 +61,9 @@ class Interface {
       });
     }
 
+    _Global.user = {
+      camp:"lm"
+    }
 
     let _YJPlayerAnimData = null
     this.CreateOrLoadPlayerAnimData = function () {
@@ -85,133 +88,140 @@ class Interface {
       console.log("向3d页发送", type, msg);
 
       if (type == "切到后台") {
-        _this.$refs.YJmetaBase.ThreejsHumanChat.enableRenderer = false;
+        _Global.YJ3D.enableRenderer = false;
         return;
       }
       if (type == "切到前台") {
         // _Global.restoreContext();
-        _this.$refs.YJmetaBase.ThreejsHumanChat.enableRenderer = true;
+        _Global.YJ3D.enableRenderer = true;
         return;
       }
 
       if (type == "点击技能栏") {
-        _this.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetPlayerAnimName(msg);
+        _Global.YJ3D.YJController.SetPlayerAnimName(msg);
         return;
       }
 
       if (type == "获取单品坐标旋转") {
-        msg(_this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetSingleTransformPosRota());
+        msg(_Global.YJ3D._YJSceneManager.GetSingleTransformPosRota());
         return;
       }
 
       if (type == "放下武器") {
         _this._SceneManager.PickDownWeapon();
-        _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.ResetSingleTransfomParent();
+        _Global.YJ3D._YJSceneManager.ResetSingleTransfomParent();
         return;
       }
       if (type == "编辑武器位置") {
-        let singleTransform = _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetSingleModelTransform();
-        _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CreateOrLoad_TransformManager().SetRotaAxis(true, true, true);
-        _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CreateOrLoad_TransformManager().attach(singleTransform.GetGroup());
+        let singleTransform = _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
+        _Global.YJ3D._YJSceneManager.CreateOrLoad_TransformManager().SetRotaAxis(true, true, true);
+        _Global.YJ3D._YJSceneManager.CreateOrLoad_TransformManager().attach(singleTransform.GetGroup());
 
         return;
       }
       if (type == "取消编辑") {
-        _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CreateOrLoad_TransformManager().detach();
+        _Global.YJ3D._YJSceneManager.CreateOrLoad_TransformManager().detach();
         return;
       }
       if (type == "单品在骨骼上位移") {
-        _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.SetSingleTransfomPosition(msg);
+        _Global.YJ3D._YJSceneManager.SetSingleTransfomPosition(msg);
         return;
       }
       if (type == "单品在骨骼上旋转") {
-        _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.SetSingleTransfomRotation(msg);
+        _Global.YJ3D._YJSceneManager.SetSingleTransfomRotation(msg);
         return;
       }
       if (type == "单品放置在骨骼上") {
-        _this.$refs.YJmetaBase.ThreejsHumanChat.YJPlayer.GetBoneVague(msg, (bone) => {
+        _Global.YJ3D.YJPlayer.GetBoneVague(msg, (bone) => {
           console.log("bone ", bone);
-          _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.SetSingleTransfomParent(bone);
+          _Global.YJ3D._YJSceneManager.SetSingleTransfomParent(bone);
         });
         return;
       }
       if (type == "切换角色动作") {
-        _this.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetPlayerAnimName(msg);
+        _Global.YJ3D.YJController.SetPlayerAnimName(msg);
         return;
       }
 
       if (type == "显示隐藏九宫格") {
-        _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetAmmo().ToggleMetaWorldPlaneDisplay();
+        _Global.YJ3D._YJSceneManager.GetAmmo().ToggleMetaWorldPlaneDisplay();
         return;
       }
       if (msg == "隐藏角色") {
-        _this.$refs.YJmetaBase.ThreejsHumanChat.YJPlayer.DisplayAvatar(false);
+        _Global.YJ3D.YJPlayer.DisplayAvatar(false);
         return;
       }
       if (msg == "显示角色") {
-        _this.$refs.YJmetaBase.ThreejsHumanChat.YJPlayer.DisplayAvatar(true);
+        _Global.YJ3D.YJPlayer.DisplayAvatar(true);
         return;
       }
       if (type == "场景") {
         if (msg == "还原到访问视角") {
-          _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.ResetPlayerPos();
+          _Global.YJ3D._YJSceneManager.ResetPlayerPos();
           return;
         }
       }
       if (type == "单品") {
         if (msg == "隐藏碰撞体") {
-          _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.displayCollider(!false);
+          _Global.YJ3D._YJSceneManager.displayCollider(!false);
 
         }
         if (msg == "显示碰撞体") {
-          _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.displayCollider(!true);
+          _Global.YJ3D._YJSceneManager.displayCollider(!true);
         }
 
         if (msg == "激活碰撞体") {
-          _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetSingleModelTransform().DestroyCollider();
+          _Global.YJ3D._YJSceneManager.GetSingleModelTransform().DestroyCollider();
         }
 
         if (msg == "忽略碰撞体") {
-          _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetSingleModelTransform().CreateCollider(true);
+          _Global.YJ3D._YJSceneManager.GetSingleModelTransform().CreateCollider(true);
         }
         return;
       }
 
       if (type == "设置太阳光开关") {
-        _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.VisibleDirectionalLight(msg);
+        _Global.YJ3D._YJSceneManager.VisibleDirectionalLight(msg);
         return;
       }
 
       if (type == "添加组件") {
-        _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.AddComponent(msg.component, msg.data);
+        _Global.YJ3D._YJSceneManager.AddComponent(msg.component, msg.data);
         return;
       }
       if (type == "刷新Transform") {
-        _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.UpdateTransform(msg);
+        _Global.YJ3D._YJSceneManager.UpdateTransform(msg);
         return;
       }
       if (type == "隐藏地面") {
-        _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.SetDisplayFloor(msg);
+        _Global.YJ3D._YJSceneManager.SetDisplayFloor(msg);
         return;
       }
     };
     _Global.SendMsgTo3D = this.SendMsgTo3D;
 
 
+    // 由3d页发出
     this.ReportTo3D = (type, msg) => {
+
+      if (type == "锁定目标") {
+        _this._SceneManager.SetTargetModel(msg);
+        return;
+      }
+
       if (type == "坐标转地图id") {
-        return _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CallPosToMapId(msg);
+        return _Global.YJ3D._YJSceneManager.CallPosToMapId(msg);
       }
       if (type == "获取开发世界坐标组") {
         return _this.sceneData.metaWorldCoordinate;
       }
 
       if (type == "设置角色位置") {
-        _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.SetPlayerPos(msg);
+        _Global.YJ3D._YJSceneManager.SetPlayerPos(msg);
         return;
       }
       if (type == "获取角色位置") {
-        _this.$refs.YJmetaBase.ThreejsHumanChat.GetLocalPlayerPos(msg);
+        _Global.YJ3D.GetLocalPlayerPos(msg);
         return;
       }
 
@@ -222,12 +232,12 @@ class Interface {
 
       if (type == "传送") {
 
-        let mapId = _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CallPosToMapId(msg);
+        let mapId = _Global.YJ3D._YJSceneManager.CallPosToMapId(msg);
 
         console.log("传送到的mapId = ", mapId);
         _this._SceneManager.CallGetFolderBaseByMapid(mapId, (mapData) => {
           if (mapData == null) {
-            _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.SetPlayerPos(msg);
+            _Global.YJ3D._YJSceneManager.SetPlayerPos(msg);
             return;
           }
           console.log(" 即将传送到场景 = ", msg, mapData.folderBase);
@@ -235,7 +245,7 @@ class Interface {
           _this._SceneManager.CallLoadSceneDataByFolderBase(mapData.folderBase, (pos, rotaV3) => {
             pos.x += msg.x;
             pos.z += msg.z;
-            _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.SetPlayerPosRota(pos, rotaV3);
+            _Global.YJ3D._YJSceneManager.SetPlayerPosRota(pos, rotaV3);
           });
         });
         return;
@@ -248,38 +258,38 @@ class Interface {
     // 显示碰撞体
     this.enableHDR = function (b, path, isEnvmap) {
       // console.log(" 显示碰撞体 ",b);
-      _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.enableHDR(b, path, isEnvmap);
+      _Global.YJ3D._YJSceneManager.enableHDR(b, path, isEnvmap);
     }
     _Global.enableHDR = this.enableHDR;
 
     // 画布背景色
     this.SetBackgroundColor = function (color) {
-      _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.SetBackgroundColor(color);
+      _Global.YJ3D._YJSceneManager.SetBackgroundColor(color);
     }
     _Global.SetBackgroundColor = this.SetBackgroundColor;
 
     // 设置环境光强度
     this.SetAmbientLightIntensity = function (i) {
-      _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.SetAmbientIntensity(i);
+      _Global.YJ3D._YJSceneManager.SetAmbientIntensity(i);
     }
     _Global.SetAmbientLightIntensity = this.SetAmbientLightIntensity;
 
     //保存角色初始位置和角度
     this.SavePlayerPos = function () {
-      _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.SavePlayerPos();
+      _Global.YJ3D._YJSceneManager.SavePlayerPos();
     }
     _Global.SavePlayerPos = this.SavePlayerPos;
 
 
     //添加UV动画数据
     this.AddUVAnimToTransform = function (gifData) {
-      _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.AddUVAnimToTransform(gifData);
+      _Global.YJ3D._YJSceneManager.AddUVAnimToTransform(gifData);
     }
     _Global.AddUVAnimToTransform = this.AddUVAnimToTransform;
 
     // 是否显示地面
     this.SetDisplayFloor = function (b) {
-      _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.SetDisplayFloor(b);
+      _Global.YJ3D._YJSceneManager.SetDisplayFloor(b);
     }
     _Global.SetDisplayFloor = this.SetDisplayFloor;
 
@@ -288,18 +298,18 @@ class Interface {
 
     // 第一人称 第三人称视角切换.改变camwheel 距离
     this.ChangeFirstThird = function (first) {
-      _this.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetCameraWheelPos(first ? 0 : -10);
+      _Global.YJ3D.YJController.SetCameraWheelPos(first ? 0 : -10);
     }
     _Global.ChangeFirstThird = this.ChangeFirstThird;
 
 
     // 重力是否开启 EnableGravity 
     this.SetEnableGravity = function (b) {
-      _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetAmmo().SetGravityActive(b);
+      _Global.YJ3D._YJSceneManager.GetAmmo().SetGravityActive(b);
 
       // if (!b) {
-      //   _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetAmmo().SetPlayerPos({ x: 0, y: 0.5, z: 1 });
-      //   _this.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetPlayerRota3({ x: 0, y: 3.14, z: 0 });
+      //   _Global.YJ3D._YJSceneManager.GetAmmo().SetPlayerPos({ x: 0, y: 0.5, z: 1 });
+      //   _Global.YJ3D.YJController.SetPlayerRota3({ x: 0, y: 3.14, z: 0 });
       // }
     }
     _Global.SetEnableGravity = this.SetEnableGravity;
@@ -315,7 +325,7 @@ class Interface {
 
 
     this.SetPlayerAnim = function (animName) {
-      _this.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetPlayerAnim(animName);
+      _Global.YJ3D.YJController.SetPlayerAnim(animName);
 
       if (_this.$refs.YJDync) {
         _this.$refs.YJDync.DirectSendUserData();
@@ -332,7 +342,7 @@ class Interface {
 
     // 传入装置id，视角跳转到装置正前方
     this.ChangeViewById = function (id) {
-      _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.ChangeViewByIdDirect(id);
+      _Global.YJ3D._YJSceneManager.ChangeViewByIdDirect(id);
     }
 
     this.ChangeViewByName = function (name) {
@@ -350,18 +360,18 @@ class Interface {
         console.log("未查找跳转id " + id);
         return;
       }
-      _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.ChangeViewByIdDirect(id);
+      _Global.YJ3D._YJSceneManager.ChangeViewByIdDirect(id);
 
 
-      _this.$refs.YJmetaBase.ThreejsHumanChat.SetCanAddControllerListner(true);
+      _Global.YJ3D.SetCanAddControllerListner(true);
       _this.$refs.YJmetaBase.addThreeJSfocus();
-      _this.$refs.YJmetaBase.ThreejsHumanChat.YJController.ChangeCtrlState();
+      _Global.YJ3D.YJController.ChangeCtrlState();
 
       _this.otherLoadManager.CloseGame();
       _this.animModelId = "";
 
       if (id == "game") {
-        _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.SetPointObjDisplay(
+        _Global.YJ3D._YJSceneManager.SetPointObjDisplay(
           "game",
           true
         );
@@ -372,12 +382,12 @@ class Interface {
 
     }
     this.ActiveThree3D = function () {
-      _this.$refs.YJmetaBase.ThreejsHumanChat.SetCanAddControllerListner(true);
+      _Global.YJ3D.SetCanAddControllerListner(true);
       _this.$refs.YJmetaBase.addThreeJSfocus();
-      _this.$refs.YJmetaBase.ThreejsHumanChat.YJController.DirectToBeforePos();
+      _Global.YJ3D.YJController.DirectToBeforePos();
       _this.otherLoadManager.CloseGame();
       _this.animModelId = "";
-      // _this.$refs.YJmetaBase.ThreejsHumanChat.YJController.ChangeCtrlState();
+      // _Global.YJ3D.YJController.ChangeCtrlState();
     }
 
     this.BeginGame = function () {
@@ -476,13 +486,13 @@ class Interface {
     // 再次开始游戏，跳转到游戏装置前
     this.BeginAgineGame = function () {
       // 隐藏热点
-      _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.SetPointObjDisplay(
+      _Global.YJ3D._YJSceneManager.SetPointObjDisplay(
         "game",
         false
       );
 
-      _this.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetCamPosAndRota(
-        _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetCamPosAndRota(
+      _Global.YJ3D.YJController.SetCamPosAndRota(
+        _Global.YJ3D._YJSceneManager.GetCamPosAndRota(
           "game"
         ), () => {
           this.BeginGame();
@@ -496,7 +506,7 @@ class Interface {
 
     //设置渲染分辨率，默认1，有锯齿但流畅。提高分辨率可能会卡顿
     this.SetPixelRatio = function (f) {
-      _this.$refs.YJmetaBase.ThreejsHumanChat.SetPixelRatio(f);
+      _Global.YJ3D.SetPixelRatio(f);
     }
 
     //发送加载进度
@@ -573,7 +583,7 @@ class Interface {
 
     let WEBGL_lose_context = null;
     function InitWEBGL_lose_context() {
-      let canvas = _this.$refs.YJmetaBase.ThreejsHumanChat.renderer.domElement;
+      let canvas = _Global.YJ3D.renderer.domElement;
       const gl = canvas.getContext("webgl2"); 
       WEBGL_lose_context = gl.getExtension("WEBGL_lose_context");
       canvas.addEventListener("webglcontextlost", (event) => {
@@ -585,7 +595,7 @@ class Interface {
     }
 
     this.loseContext = function () { 
-      let canvas = _this.$refs.YJmetaBase.ThreejsHumanChat.renderer.domElement;
+      let canvas = _Global.YJ3D.renderer.domElement;
       const gl = canvas.getContext("webgl2"); 
       gl.getExtension("WEBGL_lose_context").loseContext();
     }

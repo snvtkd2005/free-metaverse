@@ -346,7 +346,7 @@ class YJGameManager {
       _YJProjector = new YJProjector(_this);
 
 
-      console.error(" 初始化 YJGameManager Editor ");
+      // console.error(" 初始化 YJGameManager Editor ");
       new YJKeyboard((key) => {
         if(inInputing){
           return;

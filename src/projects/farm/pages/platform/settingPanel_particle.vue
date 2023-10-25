@@ -226,7 +226,7 @@ export default {
 
     load() {
       // console.log(this.settingData);return;
-      this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetSingleModelTransform().
+      _Global.YJ3D._YJSceneManager.GetSingleModelTransform().
         GetComponent("Particle").Load(this.settingData);
     },
     ClickUVAnim(item) {
@@ -239,7 +239,7 @@ export default {
       
     },
     Update() { 
-      this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.UpdateTransform(
+      _Global.YJ3D._YJSceneManager.UpdateTransform(
         {
           pointType: "particle",
           data: this.settingData

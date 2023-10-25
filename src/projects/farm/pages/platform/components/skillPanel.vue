@@ -84,7 +84,7 @@ export default {
     this.publicUrl = this.$parent.GetPublicUrl();
 
     setTimeout(() => {
-      this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.CreateOrLoadPlayerAnimData().GetSkillList("小孩", this.SetSkillList);
+      _Global.YJ3D._YJSceneManager.CreateOrLoadPlayerAnimData().GetSkillList("小孩", this.SetSkillList);
     }, 5000);
 
   },

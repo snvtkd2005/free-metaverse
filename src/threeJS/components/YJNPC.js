@@ -31,7 +31,7 @@ class YJNPC {
     // 目标
     let targetModel;
     // 攻击速度，攻击间隔，判定有效的攻击时机
-    let attackStepSpeed = 1.2; //攻击间隔/攻击速度
+    let attackStepSpeed = 3; //攻击间隔/攻击速度
 
     const stateType = {
       Normal: 'normal',//正常状态， 待机/巡逻
@@ -42,10 +42,12 @@ class YJNPC {
 
     let baseData = {
       state: 'normal', //状态
+      camp: "bl",
       speed: 8, //移动速度
       level: 1, //等级
       health: 100, //生命值
-      strength:20, //攻击力
+      maxHealth: 100, //生命值
+      strength: 20, //攻击力
     }
     function Init() {
       group = new THREE.Group();
@@ -77,6 +79,7 @@ class YJNPC {
       console.log("in NPC msg = ", data);
 
       this.npcName = data.name;
+      baseData = data.baseData;
       nameScale = data.avatarData.nameScale;
       playerHeight = data.avatarData.height;
       CreateNameTrans(this.npcName);
@@ -170,9 +173,12 @@ class YJNPC {
     //#region 
     //#endregion
 
+
+
     //创建姓名条参考物体
     let namePosTrans = null;
     function CreateNameTrans(content) {
+
       if (namePosTrans == null) {
         namePosTrans = new THREE.Group();
         namePosTrans.name = "npcname";
@@ -188,6 +194,11 @@ class YJNPC {
       resetButton.add(resetButtonText);
       resetButtonText.position.set(0, 0, 0.0051);
       resetButtonText.scale.set(1, 1, 1);
+
+
+      resetButtonText.material.color.set(_Global.user.camp != baseData.camp ? '#ee0000' : '#ffffff');
+
+
       namePosTrans.add(resetButton);
       resetButton.name = "ignoreRaycast";
       resetButton.position.set(0, 0, 0);
@@ -251,9 +262,15 @@ class YJNPC {
         baseData.state = stateType.Back;
         scope.SetPlayerState("normal");
         setTimeout(() => {
-          baseData.speed = MISSSPEED;
+          let currentPos = scope.transform.GetWorldPos();
+          if(currentPos.distanceTo(fireBeforePos)>=20){
+            baseData.speed = MISSSPEED;
+          }
           navpath.push(fireBeforePos);
         }, 1000);
+        baseData.health = baseData.maxHealth;
+        scope.transform.UpdateData();
+
 
         return;
       }
@@ -322,10 +339,15 @@ class YJNPC {
 
       if (baseData.health <= 0) {
         baseData.health = 0;
+      }
+
+      scope.transform.UpdateData();
+      if (baseData.health == 0) {
         baseData.state = stateType.Dead;
         scope.SetPlayerState("death");
         return true;
       }
+
 
       scope.SetPlayerState("受伤");
 
@@ -362,11 +384,11 @@ class YJNPC {
           doonce = 0;
         }
         let dis = playerPos.distanceTo(npcPos);
-        if (dis < 1) {
+        if (dis < 1.5) {
           navpath = [];
           doonce = 0;
           parent.lookAt(playerPos.clone());
-          console.log(" 进入攻击范围内 ，停止跑动，进入战斗状态 ");
+          // console.log(" 进入攻击范围内 ，停止跑动，进入战斗状态 ");
           //攻击
           if (!inBlocking) {
             if (toIdelLater != null) {
@@ -393,7 +415,7 @@ class YJNPC {
             toIdelLater = setTimeout(() => {
               scope.SetPlayerState("准备战斗");
               toIdelLater = null;
-            }, 300);
+            }, 1000);//间隔等于攻击动作时长
 
           }
 
@@ -554,6 +576,9 @@ class YJNPC {
         if (navpath.length == 0) {
           console.log("到达目标位置");
           scope.SetPlayerState("normal");
+          if (baseData.state == stateType.Back) {
+            baseData.state = stateType.Normal;
+          }
         }
 
       }

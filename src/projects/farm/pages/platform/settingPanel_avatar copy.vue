@@ -298,7 +298,7 @@ export default {
       };
 
       // 控制三维
-      this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager
+      _Global.YJ3D._YJSceneManager
         .GetSingleModelTransform()
         .GetComponent("Avatar")
         .SetMessage(this.settingData);
@@ -319,7 +319,7 @@ export default {
 
       if (this.setting[i].property == "height") {
         // 控制三维
-        this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager
+        _Global.YJ3D._YJSceneManager
           .GetSingleModelTransform()
           .GetComponent("Avatar")
           .SetMessage(this.settingData);
@@ -353,7 +353,7 @@ export default {
 
     // 设置角色眼睛高度
     SetEyeHeight() {
-      this.$parent.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetTargetHeight(
+      _Global.YJ3D.YJController.SetTargetHeight(
         height
       );
     },
@@ -454,7 +454,7 @@ export default {
     Update() {
       // _Global.SendMsgTo3D("刷新Transform", this.$parent.modelData.message);
 
-      this.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.UpdateTransform(
+      _Global.YJ3D._YJSceneManager.UpdateTransform(
         {
           pointType: "avatar",
           data: this.settingData,

@@ -166,7 +166,7 @@ class SceneManager {
           indexVue.$refs.gameUI.SetTargetVaild(b);
         }
       });
- 
+
 
     }
 
@@ -181,18 +181,18 @@ class SceneManager {
           // console.log("_this.YJController.GetUserDataItem(\"hasWeapon\") ",_this.YJController.GetUserDataItem("hasWeapon"));
           let state = _this.YJController.GetUserDataItem("hasWeapon");
           // 判断角色是否可以拾取武器
-          if(state != undefined && state){
+          if (state != undefined && state) {
             return;
-          }  
+          }
 
           // 碰到武器就拾取
           _this.YJPlayer.GetBoneVague(msg.data.boneName, (bone) => {
             let transformCenter = owner.GetGroup();
             boneAttachList.push(
               {
-                boneName:msg.data.boneName,
-                parent:transformCenter.parent,
-                transform:owner
+                boneName: msg.data.boneName,
+                parent: transformCenter.parent,
+                transform: owner
               });
             bone.attach(transformCenter);
             let pos = msg.data.position;
@@ -203,7 +203,7 @@ class SceneManager {
             transformCenter.scale.set(100, 100, 100);
             // 绑定到骨骼后，清除trigger
             owner.GetComponent("Trigger").Destroy();
-            _this.YJController.SetUserDataItem("hasWeapon",true);
+            _this.YJController.SetUserDataItem("hasWeapon", true);
             // console.log("bone ",bone); 
           });
         }
@@ -214,7 +214,7 @@ class SceneManager {
     }
 
     this.PickDownWeapon = function () {
-      if(boneAttachList.length==0){return;}
+      if (boneAttachList.length == 0) { return; }
       let tranform = boneAttachList[0].transform;
       boneAttachList[0].parent.attach(tranform.GetGroup());
       let pos = _this._YJSceneManager.GetPlayerPosReduceHeight();
@@ -222,42 +222,74 @@ class SceneManager {
       tranform.GetGroup().position.copy(pos);
       tranform.GetGroup().scale.set(1, 1, 1);
       tranform.GetGroup().rotation.set(0, 0, 0);
-      if(tranform.GetComponent("Trigger") != null){
+      if (tranform.GetComponent("Trigger") != null) {
         tranform.GetComponent("Trigger").Reset();
       }
       boneAttachList.shift();
     }
 
+    let targetModel = null;
+    this.SetTargetModel = function (transform) {
+      if(targetModel != null){
+        if(targetModel != transform){
+          targetModel.RemoveHandle();
+        }else{
+          return;
+        }
+      }
+      targetModel = transform;
 
+      if (targetModel == null) {
+        indexVue.$refs.headerUI.display = false;
+        return;
+      }
+      let message = targetModel.GetData().message;
+      targetModel.AddHandle((data) => {
+        if (data.baseData.health == 0) {
+          indexVue.$refs.headerUI.display = false;
+          return;
+        }
+        indexVue.$refs.headerUI.SetTarget(data);
+      });
+      indexVue.$refs.headerUI.SetTarget(message.data);
+    }
 
-
-    this.RightClick = (hitObject, hitPoint)=>{
-      console.log(" 右键点击 ",hitObject);
-      if(hitObject.transform){
+    this.RightClick = (hitObject, hitPoint) => {
+      console.log(" 右键点击 ", hitObject);
+      if (hitObject.transform) {
         // 点击NPC
         let message = hitObject.transform.GetData().message;
-        console.log(" 右键点击 transform ",message);
-        if(message){
-          if(message.pointType == "npc"){
-            if(message.data.baseData.camp == "bl"){
-              //敌人
+        // console.log(" 右键点击 transform ", message);
+        if (message) {
+          if (message.pointType == "npc") {
+            // 头像
+            this.SetTargetModel(hitObject.transform);
+
+            if (message.data.baseData.camp == "bl") {
+              //敌人  
               //进入战斗状态
-              _this.YJController.SetPlayerState("准备战斗");
-              _this.YJController.SetInteractiveNPC(hitObject.transform);
+              if (message.data.baseData.health > 0) {
+                _this.YJController.SetPlayerState("准备战斗");
+                _this.YJController.SetInteractiveNPC(hitObject.transform);
+              }
             }
           }
         }
         return;
       }
-      if(hitObject.owner){
+      if (hitObject.owner) {
         let isLocal = hitObject.owner.isLocal;
-        if(isLocal){
+        if (isLocal) {
           // 点击自身
-        }else{
+        } else {
           // 点击其他角色
         }
         return;
       }
+      // 点击空白位置 
+      this.SetTargetModel(null);
+      _this.YJController.SetInteractiveNPC(null);
+
     }
     this.ClickPlayer = (owner) => {
       _YJGameManager.ClickPlayer(owner);

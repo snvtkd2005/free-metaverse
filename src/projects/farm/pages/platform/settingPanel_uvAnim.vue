@@ -44,7 +44,7 @@
         </div>
 
         <div v-if="item.type == 'toggle'" class=" w-4 h-4 ">
-          <YJinput_toggle class=" w-4 h-4 " :value="item.value" :callback="item.callback" />
+          <YJinput_toggle class=" w-4 h-4 " :index="i" :value="item.value" :callback="item.callback" />
         </div>
       </div>
     </div>
@@ -81,20 +81,7 @@ export default {
   },
   data() {
     return {
-      setting: [
-
-        {property: "gifPath", title: "选择UV图", type: "file", url: null },
-        {property: "color", title: "叠加色", type: "color", value: "#ffffff", callback: this.ChangeColor },
-        {property: "row", title: "UV X", type: "num", value: 14, callback: this.ChangeX },
-        {property: "col", title: "UV Y", type: "num", value: 1, callback: this.ChangeY },
-        {property: "speed", title: "播放速度", type: "slider", value: 1, min: 0.5, max: 5, step: 0.5, callback: this.SliderSpeed },
-        {property: "isBlack", title: "是否黑底", type: "toggle", value: false, callback: this.ChangeToggleBlack },
-
-      ],
-
-      uvAnimList: [],
-      inSelect: false,
-      uvAnimData: {
+      settingData: {
         gifPath: '',
         color: "#ffffff",
         row: 14,
@@ -103,6 +90,19 @@ export default {
         delay: 100,
         isBlack: false,
       },
+      setting: [
+
+        {property: "gifPath", title: "选择UV图", type: "file", url: null },
+        {property: "color", title: "叠加色", type: "color", value: "#ffffff", callback: this.ChangeColor },
+        {property: "row", title: "UV X", type: "num", value: 14, callback: this.ChangeX },
+        {property: "col", title: "UV Y", type: "num", value: 1, callback: this.ChangeY },
+        {property: "speed", title: "播放速度", type: "slider", value: 1, min: 0.5, max: 5, step: 0.5, callback: this.SliderSpeed },
+        {property: "isBlack", title: "是否黑底", type: "toggle", value: false, callback: this.ChangeValue },
+
+      ],
+
+      uvAnimList: [],
+      inSelect: false,
     };
   },
   created() {
@@ -130,16 +130,25 @@ export default {
     addThreeJSfocus() { 
     },
     Init(data) {
-      this.uvAnimData = data;
-      this.setting[0].url =   this.uvAnimData.gifPath;
-      this.setting[1].value = this.uvAnimData.color;
-      this.setting[2].value = this.uvAnimData.row;
-      this.setting[3].value = this.uvAnimData.col;
-      this.setting[4].value = this.uvAnimData.speed;
-      this.setting[5].value = this.uvAnimData.isBlack;
+      this.settingData = data;
+      this.setting[0].url =   this.settingData.gifPath;
+      this.setting[1].value = this.settingData.color;
+      this.setting[2].value = this.settingData.row;
+      this.setting[3].value = this.settingData.col;
+      this.setting[4].value = this.settingData.speed;
+      this.setting[5].value = this.settingData.isBlack | false;
     },
+    ChangeValue(i, e) {
+      this.setting[i].value = e;
+      let property = this.setting[i].property; 
+      this.Update();
+
+    },
+
+
     ChangeToggleBlack(e) {
       this.setting[5].value = e;
+      console.log(" toggle ",e);
       this.Update();
 
     },
@@ -170,7 +179,7 @@ export default {
     },
     Update() {
 
-      this.uvAnimData =
+      this.settingData =
       {
         gifPath: this.setting[0].url,
         color: this.setting[1].value,
@@ -184,14 +193,14 @@ export default {
       if (this.$parent.updateModelTxtData) {
         this.$parent.modelData.message = {
           pointType: "UV动画",
-          data: this.uvAnimData
+          data: this.settingData
         };
         this.$parent.updateModelTxtData();
       }
 
 
       //给模型指定贴图
-      _Global.AddUVAnimToTransform(this.uvAnimData);
+      _Global.AddUVAnimToTransform(this.settingData);
 
 
     },

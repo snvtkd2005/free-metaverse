@@ -2,7 +2,7 @@
 import * as THREE from "three";
 
 class YJUVAnim3 {
-  constructor(_this) {
+  constructor(_this,model) {
     var scope = this;
     let num = 0;
 
@@ -18,14 +18,12 @@ class YJUVAnim3 {
     let delay = 20;
 
     let pointObj = [];
-    let model = null;
     let gifData = null;
-    function InitFn(_model, _gifData) {
+    function InitFn( _gifData) {
       if (_gifData == undefined) { return; }
       gifData = _gifData;
       pointObj.splice(0, pointObj.length);
 
-      model = _model;
       row = gifData.row;
       col = gifData.col;
       scaleX = 1 / row;
@@ -79,12 +77,16 @@ class YJUVAnim3 {
       }, 20);
 
 
-      _this._YJSceneManager.AddNeedUpdateJS(scope);
+      // _this._YJSceneManager.AddNeedUpdateJS(scope);
       _this._YJSceneManager.AddLookatHotPoint(model);
     }
-
-    this.Init = function (_model, _gifData) {
-      InitFn(_model, _gifData);
+    let data = null;
+    this.SetMessage = function ( msg) {
+      if (msg == null || msg == undefined || msg == "") { return; }
+      // data = JSON.parse(msg);
+      data = (msg);
+      console.log("in uvanim3 msg = ", data);
+      InitFn( data);
     }
 
     this.GetData = function () {
@@ -93,7 +95,7 @@ class YJUVAnim3 {
 
     //删除模型
     this.Destroy = function () {
-      _this._YJSceneManager.RemoveNeedUpdateJS(scope);
+      // _this._YJSceneManager.RemoveNeedUpdateJS(scope);
       _this._YJSceneManager.RemoveLookatHotPoint(model);
     }
 

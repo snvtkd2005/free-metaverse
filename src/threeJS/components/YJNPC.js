@@ -263,7 +263,7 @@ class YJNPC {
         scope.SetPlayerState("normal");
         setTimeout(() => {
           let currentPos = scope.transform.GetWorldPos();
-          if(currentPos.distanceTo(fireBeforePos)>=20){
+          if (currentPos.distanceTo(fireBeforePos) >= 20) {
             baseData.speed = MISSSPEED;
           }
           navpath.push(fireBeforePos);
@@ -274,6 +274,14 @@ class YJNPC {
 
         return;
       }
+      
+      scope.SetPlayerState("准备战斗");
+      
+      let npcPos = parent.position.clone();
+      let playerPosRef = targetModel.GetWorldPos().clone();
+      playerPosRef.y = npcPos.y;
+      parent.lookAt(playerPosRef);
+
       baseData.speed = NORMALSPEED;
       baseData.state = stateType.Fire;
       fireBeforePos = scope.transform.GetWorldPos();
@@ -345,6 +353,10 @@ class YJNPC {
       if (baseData.health == 0) {
         baseData.state = stateType.Dead;
         scope.SetPlayerState("death");
+        setTimeout(() => {
+          // 模型渐隐消失
+          scope.transform.Destroy();
+        }, 10000);
         return true;
       }
 
@@ -374,20 +386,25 @@ class YJNPC {
       }
 
       if (baseData.state == stateType.Fire) {
+        if(targetModel==null){
+          return;
+        }
         // 逻辑见note/npc策划.md 战斗策略
         let playerPos = targetModel.GetWorldPos();
-        let npcPos = scope.transform.GetWorldPos();
-        playerPos.y = npcPos.y;
-        if (oldPlayerPos != playerPos) {
-          oldPlayerPos = playerPos;
+        // let npcPos = scope.transform.GetWorldPos();
+        let npcPos = parent.position.clone();
+        let playerPosRef = playerPos.clone();
+        playerPosRef.y = npcPos.y;
+        if (oldPlayerPos != playerPosRef) {
+          oldPlayerPos = playerPosRef;
           navpath = [];
           doonce = 0;
         }
-        let dis = playerPos.distanceTo(npcPos);
+        let dis = playerPosRef.distanceTo(npcPos);
         if (dis < 1.5) {
           navpath = [];
           doonce = 0;
-          parent.lookAt(playerPos.clone());
+          parent.lookAt(playerPosRef.clone());
           // console.log(" 进入攻击范围内 ，停止跑动，进入战斗状态 ");
           //攻击
           if (!inBlocking) {
@@ -425,19 +442,31 @@ class YJNPC {
               vaildAttackLater = null;
             }, attackStepSpeed * 1000);
           }
+          getnavpathTimes = 0;
         } else {
+
           if (vaildAttackLater != null) {
             clearTimeout(vaildAttackLater);
             vaildAttackLater = null;
           }
           inBlocking = false;
           //跑向目标
-          navpath.push(playerPos);
-          // navpath[0] = (playerPos);
-
+          // navpath.push(playerPosRef); 
+          GetNavpath(npcPos,playerPos);
         }
         // console.log( scope.npcName + " in fire " + dis);
       }
+    }
+    let getnavpathTimes = 0;
+    function GetNavpath(fromPos, targetPos){
+      navpath = _Global.GetNavpath(fromPos, targetPos);
+      if(navpath == null){
+        getnavpathTimes++;
+        if(getnavpathTimes>=100){
+          scope.SetTarget(null);
+        }
+      }
+      console.log("查到寻路路径 ", navpath);
     }
 
 

@@ -3,6 +3,7 @@ import * as THREE from "three";
  
 import { YJPlayerAnimData } from "/@/threeJS/YJPlayerAnimData.js";
 import { GetAllModel } from "./uploadThreejs.js";
+import { YJPathfindingCtrl } from "/@/threeJS/pathfinding/YJPathfindingCtrl.js";
 
 // Threejs 中的事件传出接口
 
@@ -474,10 +475,22 @@ class Interface {
       _Global.notIn3D();
     }
 
+    let _YJPathfindingCtrl = null;
+    this.GetNavpath = function (fromPos, targetPos) {
+      return _YJPathfindingCtrl.GetNavpath(fromPos, targetPos);
+    }
+    _Global.GetNavpath = this.GetNavpath;
+
     // 如果3d加载好了能点击跳转时候 执行一下
     this.load3dComplete = function () {
       console.log(" 如果3d加载好了能点击跳转时候 执行 ");
       InitWEBGL_lose_context();
+
+      if (_YJPathfindingCtrl == null) {
+        _YJPathfindingCtrl = new YJPathfindingCtrl(_Global.YJ3D.scene, () => {
+          console.log("初始化寻路完成");
+         });
+      }
 
       if (_Global.load3dComplete == null) { return; }
       _Global.load3dComplete();

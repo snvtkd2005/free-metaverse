@@ -248,6 +248,12 @@ export default {
         if (element.property == "name") {
           element.value = this.settingData.name;
         }
+        if (element.property == "level") {
+          element.value = this.settingData.baseData.level;
+        }
+        if (element.property == "camp") {
+          element.value = this.settingData.baseData.camp;
+        }
       }
       console.log(" npc setting data ", _settingData);
     },

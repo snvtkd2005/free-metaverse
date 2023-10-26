@@ -153,7 +153,6 @@ class YJNPCManager {
     function Init() {
       if (_YJPathfindingCtrl == null) {
         _YJPathfindingCtrl = new YJPathfindingCtrl(scene, _this.GetPublicUrl(), () => { });
-      
         console.log("初始化寻路");
       }
       InitFn(npcPath);
@@ -208,7 +207,6 @@ class YJNPCManager {
     }
 
     this.GetNavpath = function (fromPos, targetPos) {
-
       return _YJPathfindingCtrl.GetNavpath(fromPos, targetPos);
     }
     Init();

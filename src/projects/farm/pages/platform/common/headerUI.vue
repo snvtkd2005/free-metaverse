@@ -41,7 +41,7 @@
 
 
 export default {
-  name: "gameUI",
+  name: "headerUI",
   components: {
   },
   data() {

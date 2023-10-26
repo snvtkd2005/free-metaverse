@@ -1,50 +1,65 @@
 import * as THREE from "three";
 
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-
 import { Pathfinding, PathfindingHelper } from "three-pathfinding";
 
+import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 //  
 
 class YJPathfindingCtrl {
-  constructor( scene, path, callback) {
+  constructor(scene, callback) {
 
     let pathfinding, pathfindingHelper, ZONE;
     let navmesh, groupId, navpath;
 
-		const clock = new THREE.Clock();
-		const SPEED = 3;
+    let count = 1;
+    let posList = [];
+    let rotaList = [];
+    let scaleList = [];
 
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-    let playerPosition = new THREE.Vector3(0, 0, 0);
-    let group = new THREE.Group();
+    let matrix = new THREE.Matrix4();
+    function transformToMatrix4(pos, rota, size) {
+
+      const position = new THREE.Vector3(pos.x, pos.y, pos.z);
+      const rotation = new THREE.Euler(rota.x, rota.y, rota.z);
+      const quaternion = new THREE.Quaternion();
+      const scale = new THREE.Vector3(size.x, size.y, size.z);
+      quaternion.setFromEuler(rotation);
+      matrix.compose(position, quaternion, scale);
+    }
 
     function Init() {
-      scene.add(group); 
+
+      let group = new THREE.Group();
+      scene.add(group);
 
       pathfinding = new Pathfinding();
+      console.log("初始化寻路。。。",pathfinding);
 
-      // pathfindingHelper = new PathfindingHelper();
-      // group.add(pathfindingHelper);
+      pathfindingHelper = new PathfindingHelper();
+      group.add(pathfindingHelper);
 
-      ZONE = 'npcLevel1'; 
-      const loader = new GLTFLoader();
-      // XUNLU navmesh
-      loader.load(path + "models/Scene/navmesh.gltf", function (gltf) {
-        let model = gltf.scene; 
-        group.add(model);
+      ZONE = 'npcLevel1';
 
-        gltf.scene.traverse(node => {
-          if (!navmesh && node.isObject3D && node.children && node.children.length > 0) {
-            // console.log(node);
-            navmesh = node.children[0].children[0].children[0];
-            // navmesh = node.children[0].children[0];
-            // navmesh = node.children[0];
+      const geometries = [];
 
-            const wireframeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, transparent: true });
-            navmesh.material = wireframeMaterial;
+      const wireframeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, transparent: true });
+
+      scene.traverse(node => {
+        if (
+          // !navmesh && 
+          node.type == "Mesh"
+          && node.name.includes("navMesh") 
+        ) {
+          console.log(node);
+          // node.position.add(new THREE.Vector3(0, 1, 0));
+          // node.visible = true;
+          if (true) {
+
+            navmesh = node;
+
+            // const wireframeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, transparent: true });
+            // navmesh.material = wireframeMaterial;
 
             // const navWireframe = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
             //   color: 0x808080,
@@ -53,158 +68,94 @@ class YJPathfindingCtrl {
             // group.add(navWireframe);
 
 
-            console.time('createZone()'); 
-            const zone = Pathfinding.createZone(navmesh.geometry);
-            console.timeEnd('createZone()');
-            pathfinding.setZoneData(ZONE, zone);
+            // console.time('createZone()');
+            // const zone = Pathfinding.createZone(navmesh.geometry);
+            // console.timeEnd('createZone()');
+            // pathfinding.setZoneData(ZONE, zone);
 
-            if(callback){
-              callback();
-            }
 
-            navmesh.visible = false;
-            // console.log(" zone = ", pathfinding.zones);
+            // navmesh.visible = true; 
+ 
+            let transform = node.parent.parent.parent.parent;
+            console.log(" transform.name ",transform.name);
+            let position = transform.position;
+            let quaternion = transform.quaternion;
+            let scale = transform.scale;
+            matrix.compose(position, quaternion, scale);
+            const instanceGeometry = navmesh.geometry.clone();
+            instanceGeometry.applyMatrix4(matrix);
+            geometries.push(instanceGeometry);
+
+
           }
-        });
-
+          // console.log(" zone = ", pathfinding.zones);
+        }
       });
 
-      // animate();
 
-      // window.addEventListener('pointerdown', onPointerDown);
+      
+      const mergedGeometry = BufferGeometryUtils.mergeGeometries(geometries);
 
-    }
+      console.time('createZone()');
+      const zone = Pathfinding.createZone(mergedGeometry);
+      console.timeEnd('createZone()');
+      pathfinding.setZoneData(ZONE, zone);
+      for (let i = 1; i < pathfinding.zones.npcLevel1.groups.length; i++) {
+        pathfinding.zones.npcLevel1.groups[i].map(ii=>{
+          pathfinding.zones.npcLevel1.groups[0].push(ii);
+        });
+      }
+      
+      pathfinding.zones.npcLevel1.groups.splice(1,pathfinding.zones.npcLevel1.groups.length-1);
 
-    function onPointerDown(event) {
-      // return;
-      playerPosition = _YJSceneManager.GetPlayerPos();
-      playerPosition.y -=  _YJSceneManager.GetPlayerHeight();
+      scene.add(new THREE.Mesh(mergedGeometry, wireframeMaterial));
 
-      // console.log(" player pos = >", pos);
-
-      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
-
-      raycaster.setFromCamera(mouse, camera);
-      const found = raycaster.intersectObjects(group.children,true);
-      // console.log(found);
-      if (found.length > 0) {
-
-        let target = found[0].point;
-        groupId = pathfinding.getGroup(ZONE, playerPosition,true);
-        // console.log("groupId " + groupId);
-        const closest = pathfinding.getClosestNode(playerPosition, ZONE, groupId);
-        // console.log("closest ", closest);
-        navpath = pathfinding.findPath(closest.centroid, target, ZONE, groupId);
-
-        // console.log("navpath ", navpath);
-        if (navpath) {
-          pathfindingHelper.reset();
-          pathfindingHelper.setPlayerPosition(playerPosition);
-          pathfindingHelper.setTargetPosition(target);
-          pathfindingHelper.setPath(navpath);
-
-        } else {
-
-          // const closestPlayerNode = pathfinding.getClosestNode(pos, ZONE, groupId);
-          // console.log("closestPlayerNode ", closestPlayerNode);
-          // const clamped = new THREE.Vector3();
-
-          // pathfinding.clampStep(pos, target.clone(), closestPlayerNode, ZONE, groupId, clamped);
-          // pathfindingHelper.setStepPosition(clamped);
-
+      if(navmesh){
+        if (callback) {
+          callback();
         }
       }
 
     }
+
     let getTimes = 0;
-    this.GetNavpath = function(fromPos,targetPos){
-      groupId = pathfinding.getGroup(ZONE, fromPos,true);
+    this.GetNavpath = function (fromPos, targetPos) {
+      // fromPos.y = 0; 
+      // targetPos.y = fromPos.y;
+      // console.log(" 查找寻路路径 ",fromPos,targetPos);
+      groupId = pathfinding.getGroup(ZONE, fromPos, true);
       // console.log("groupId " + groupId);
       const closest = pathfinding.getClosestNode(fromPos, ZONE, groupId);
       // console.log("closest ", closest);
       navpath = pathfinding.findPath(closest.centroid, targetPos, ZONE, groupId);
       getTimes++;
-      if(navpath==null && getTimes<3){
-        targetPos.x+=0.5;
-        return  this.GetNavpath(fromPos,targetPos);
+      if (navpath == null && getTimes < 3) {
+        // targetPos.x += 0.5;
+        return this.GetNavpath(fromPos, targetPos);
       }
       if (navpath) {
-        // pathfindingHelper.reset();
-        // pathfindingHelper.setPlayerPosition(fromPos);
-        // pathfindingHelper.setTargetPosition(targetPos);
-        // pathfindingHelper.setPath(navpath);
+        pathfindingHelper.reset();
+        pathfindingHelper.setPlayerPosition(fromPos);
+        pathfindingHelper.setTargetPosition(targetPos);
+        pathfindingHelper.setPath(navpath);
 
       } else {
 
-        // const closestPlayerNode = pathfinding.getClosestNode(pos, ZONE, groupId);
-        // console.log("closestPlayerNode ", closestPlayerNode);
+        // const closestPlayerNode = pathfinding.getClosestNode(fromPos, ZONE, groupId);
+        // // console.log("closestPlayerNode ", closestPlayerNode);
         // const clamped = new THREE.Vector3();
-
-        // pathfinding.clampStep(pos, target.clone(), closestPlayerNode, ZONE, groupId, clamped);
+        // pathfinding.clampStep(fromPos, targetPos.clone(), closestPlayerNode, ZONE, groupId, clamped);
         // pathfindingHelper.setStepPosition(clamped);
 
       }
-      getTimes=0;
+      getTimes = 0;
       return navpath;
-      
+
     }
-
-
-    function animate() {
-
-			requestAnimationFrame( animate );
-			// tick(clock.getDelta());
-    }
-    
-    let doonce = 0;
-		function tick ( dt ) {
-			if ( !(navpath||[]).length ) return
-
-			let targetPosition = navpath[0];
-			const velocity = targetPosition.clone().sub( playerPosition );
-
-      if(doonce<1){
-        //角色朝向目标点
-        _YJSceneManager.SetLocalPlayerLookatPos(targetPosition.clone()); 
-        doonce++;
-      }
-
-			if (velocity.lengthSq() > 0.05 * 0.05) {
-				velocity.normalize();
-				// Move player to target
-				playerPosition.add( velocity.multiplyScalar( dt * SPEED ) );
-
-				pathfindingHelper.setPlayerPosition( playerPosition );
-
-        let pos = playerPosition.clone();
-        pos.y +=  _YJSceneManager.GetPlayerHeight();
-        // console.log("设置自动寻路坐标 " ,pos );
-        _YJSceneManager.SetOnlyPlayerPos(pos);
-
-			} else {
-				// Remove node from the path we calculated
-				navpath.shift();
-        doonce = 0;
-        console.log(navpath.length); 
-        if(navpath.length==0){
-          
-          // let pos = playerPosition.clone();
-          // pos.y +=  _YJSceneManager.GetPlayerHeight();
-          // _YJSceneManager.SetPlayerPos(pos); 
-        }
-
-			}
-		}
-
     //#region 
     //#endregion
 
     Init();
-    var updateId = null;
-    this._update = function () {
-      animate();
-    }
   }
 }
 

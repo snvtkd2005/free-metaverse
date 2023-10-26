@@ -713,7 +713,7 @@ class YJPlayer {
     }
     this.GetWorldPos = function () {
       let pos = getWorldPosition(playerGroup).clone();
-      pos.y += playerHeight;
+      // pos.y += playerHeight;
       return pos;
     }
     // 生成光圈时调用，返回父物体、角色高度

@@ -150,7 +150,6 @@ class YJStaticMeshMerged {
       }
 
       const mergedGeometry = BufferGeometryUtils.mergeGeometries(geometries);
-
       scene.add(new THREE.Mesh(mergedGeometry, material));
 
     }

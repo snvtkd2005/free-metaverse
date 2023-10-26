@@ -297,7 +297,7 @@ class YJMeshRenderer {
       LoadCompleted();
 
     }
-
+ 
 
     this.CreateCollider = function (colliderVisible) {
       if (model == null) { return; }
@@ -521,10 +521,7 @@ class YJMeshRenderer {
 
     //删除模型
     this.Destroy = function () {
-      LoadCompleted();
-
       if (model == null) { return; }
-
       this.DestroyCollider();
       scene.remove(model);
     }

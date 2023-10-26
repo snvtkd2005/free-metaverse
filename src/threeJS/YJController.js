@@ -3610,7 +3610,7 @@ class YJController {
       speed: 8, //移动速度
       level: 1, //等级
       health: 1000, //生命值
-      strength: 2, //攻击力
+      strength: 20, //攻击力
     }
 
     let targetModel = null;

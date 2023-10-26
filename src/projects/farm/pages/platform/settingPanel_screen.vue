@@ -153,11 +153,6 @@ export default {
         if (element.property == "url") {
           element.value = this.settingData.url;
         }
-        // if (element.property == "loadPath") {
-        //   if (this.$parent.updateModelTxtData) {
-        //     element.display = false;
-        //   }
-        // }
       }
 
       if (this.settingData.url != "") {

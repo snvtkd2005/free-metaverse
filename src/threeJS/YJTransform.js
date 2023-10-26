@@ -211,6 +211,7 @@ class YJTransform {
     }
     //删除模型
     this.Destroy = function () {
+      _this._YJSceneManager.RemoveNeedUpdateJS(scope);
       for (let i = 0; i < components.length; i++) {
         const element = components[i];
         if (element.js.Destroy) {

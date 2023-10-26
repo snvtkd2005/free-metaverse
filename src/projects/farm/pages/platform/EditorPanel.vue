@@ -44,19 +44,19 @@
         <sceneSettingPanel ref="sceneSettingPanel" />
       </div>
       <!-- uv动画设置面板 -->
-      <div v-show="panelState.uvAnim" class=" absolute  w-80 border-t-2 mt-1 right-0 max-w-md  h-2/3  top-20  ">
+      <div v-if="panelState.uvAnim" class=" absolute  w-80 border-t-2 mt-1 right-0 max-w-md  h-2/3  top-20  ">
         <settingPanel_uvAnim ref="settingPanel_uvAnim" />
       </div>
       <!-- 图片视频直播流设置面板 -->
-      <div v-show="panelState.screen" class=" mt-10  w-80 border-t max-w-md  ">
+      <div v-if="panelState.screen" class=" mt-10  w-80 border-t max-w-md  ">
         <settingPanel_screen ref="settingPanel_screen" />
       </div>
       <!-- 粒子系统设置面板 -->
-      <div v-show="panelState.particle" class=" mt-10  w-80 border-t max-w-md  ">
+      <div v-if="panelState.particle" class=" mt-10  w-80 border-t max-w-md  ">
         <settingPanel_particle ref="settingPanel_particle" />
       </div>
-      
-      <div v-show="panelState.npc" class="mt-10 w-80 border-t max-w-md">
+
+      <div v-if="panelState.npc" class="mt-10 w-80 border-t max-w-md">
         <settingPanel_npc ref="settingPanel_npc" />
       </div>
     </div>
@@ -159,11 +159,11 @@ import {
 export default {
   name: "EditorPanel",
   components: {
-    loadingPanel, YJmetaBase, 
-    modelPanel, 
-    modelSelectPanel, 
-    settingPanel, 
-    PanelCut, 
+    loadingPanel, YJmetaBase,
+    modelPanel,
+    modelSelectPanel,
+    settingPanel,
+    PanelCut,
     hierarchy,
     sceneSettingPanel,
     settingPanel_uvAnim,
@@ -538,8 +538,8 @@ export default {
     //   this.Enter();
     // }
 
-    
-    
+
+
     if (this.modelData.modelType == undefined) {
       this.RequestGetAllScene(() => {
         console.log(" this.modelData  = ", this.modelData);
@@ -679,8 +679,8 @@ export default {
 
       console.log(" 获取场景配置 ", res.data);
       this.sceneData = res.data;
-      this.sceneData.setting.hasCamRaycast = true; 
-      this.sceneData.setting.camOffsetY =  this.sceneData.setting.playerHeight/2; 
+      this.sceneData.setting.hasCamRaycast = true;
+      this.sceneData.setting.camOffsetY = this.sceneData.setting.playerHeight / 2;
 
       this.Enter();
     },
@@ -1264,7 +1264,7 @@ export default {
         this.$refs.chatPanelNPC.SetDisplay(true);
       }
     },
-    
+
     RightClick(hitObject, hitPoint) {
       this._SceneManager.RightClick(hitObject, hitPoint);
     },
@@ -1304,7 +1304,7 @@ export default {
       this.editorModelList("增加", transform.GetData());
       this.SetSelectTransform(transform);
     },
-    SetSelectTransform(transform){
+    SetSelectTransform(transform) {
       this.clickModelJS = transform;
       _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().EditorStart(this.clickModelJS);
       _Global.YJ3D._YJSceneManager._YJTransformManager.attach(transform.GetGroup());
@@ -1312,11 +1312,13 @@ export default {
     },
     UpdateComponentPanel() {
       _Global.YJ3D._YJSceneManager.SetSelectTransform(this.clickModelJS);
-      
+
       let component = this.clickModelJS.GetComponent("UVAnim");
       if (component != null) {
         this.ChangePanel('uvAnim');
-        this.$refs.settingPanel_uvAnim.Init(component.GetData());
+        this.$nextTick(() => {
+          this.$refs.settingPanel_uvAnim.Init(component.GetData());
+        });
         console.log(component);
         return;
       }
@@ -1324,7 +1326,9 @@ export default {
       if (component != null) {
         this.ChangePanel('screen');
         let msg = this.clickModelJS.GetMessage();
-        this.$refs.settingPanel_screen.Init(msg.data);
+        this.$nextTick(() => {
+          this.$refs.settingPanel_screen.Init(msg.data);
+        });
         console.log(component);
         return;
       }
@@ -1333,7 +1337,9 @@ export default {
       if (component != null) {
         this.ChangePanel('particle');
         let msg = this.clickModelJS.GetMessage();
-        this.$refs.settingPanel_particle.Init(msg.data);
+        this.$nextTick(() => {
+          this.$refs.settingPanel_particle.Init(msg.data);
+        });
         console.log(component);
         return;
       }
@@ -1341,7 +1347,9 @@ export default {
       if (component != null) {
         this.ChangePanel('npc');
         let msg = this.clickModelJS.GetMessage();
-        this.$refs.settingPanel_npc.Init(msg.data);
+        this.$nextTick(() => {
+          this.$refs.settingPanel_npc.Init(msg.data);
+        });
         console.log(component);
         return;
       }
@@ -1406,7 +1414,7 @@ export default {
 
     ClickInstancedMesh(InstancedMeshOwner, index) {
       // console.log(InstancedMeshOwner);return;
-      if(InstancedMeshOwner.GetComponent("Particle") != null){
+      if (InstancedMeshOwner.GetComponent("Particle") != null) {
         this.SetSelectTransform(InstancedMeshOwner);
         return;
       }

@@ -318,6 +318,10 @@ class YJLoadUserModelManager {
         MeshRenderer.load(modelPath, (scope) => {
           let component = new YJAnimator(scope.GetModel(), scope.GetAnimations());
           object.AddComponent("Animator", component);
+
+          if (modelData.message != undefined) {
+            object.SetMessage(modelData.message);
+          }
           if (callback) {
             callback(object);
           }
@@ -393,18 +397,26 @@ class YJLoadUserModelManager {
           modelData.pos,
           modelData.rotaV3,
           new THREE.Vector3(1, 1, 1),
-          null, (scope) => {
-            _this._YJSceneManager.AddNeedUpdateJS(scope);
+          null, (scope) => { 
             if (callback) {
               callback(object);
             }
           }, object
         );
         object.AddComponent("Car", car);
+
+        if (modelData.message != undefined) {
+          object.SetMessage(modelData.message);
+        }
       } else if (modelData.modelType == "装备模型") {
         MeshRenderer.load(modelPath, (scope) => {
           let meshTrigger = new YJTrigger(_this, object.GetGroup(), object, "weapon");
           object.AddComponent("Trigger", meshTrigger);
+
+          if (modelData.message != undefined) {
+            object.SetMessage(modelData.message);
+          }
+
           if (callback) {
             callback(object);
           }
@@ -431,8 +443,9 @@ class YJLoadUserModelManager {
           // "particle"+uuid
           let _YJParticle = new YJParticle(_this, object.GetGroup(), object, data);
           object.AddComponent("Particle", _YJParticle);
-
-          _this._YJSceneManager.AddNeedUpdateJS(_YJParticle);
+          if (modelData.message != undefined) {
+            object.SetMessage(modelData.message);
+          } 
 
           if (callback) {
             callback(object);

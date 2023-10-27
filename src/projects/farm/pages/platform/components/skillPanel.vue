@@ -83,9 +83,9 @@ export default {
 
     this.publicUrl = this.$parent.GetPublicUrl();
 
-    setTimeout(() => {
-      _Global.YJ3D._YJSceneManager.CreateOrLoadPlayerAnimData().GetSkillList("小孩", this.SetSkillList);
-    }, 5000);
+    // setTimeout(() => {
+    //   _Global.YJ3D._YJSceneManager.CreateOrLoadPlayerAnimData().GetSkillList("小孩", this.SetSkillList);
+    // }, 5000);
 
   },
   methods: {

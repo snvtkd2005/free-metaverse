@@ -84,12 +84,13 @@ export const createAnimationClipScale = (animName,scale, anim)=> {
     let element = anim.tracks[i]; 
     const trackName = element.name;
     let values = element.values;
-    // if(trackName.includes("Hips.position")){
-    //   anim.tracks.splice(i,1);
-    // }  
-    // if(trackName.includes("Hips.quaternion")){
-    //   anim.tracks.splice(i,1);
-    // }  
+    if(trackName.includes("Hips.position")){
+      anim.tracks.splice(i,1);
+    }  
+    
+    if(trackName.includes("Hips.quaternion")){
+      anim.tracks.splice(i,1);
+    }  
   } 
   console.log("获取动画 222  tracks ", tracks);
 

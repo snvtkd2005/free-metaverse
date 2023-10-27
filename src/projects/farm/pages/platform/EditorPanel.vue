@@ -611,8 +611,8 @@ export default {
 
     //在点击threeJS界面时，还原threejs的键盘监听。
     removeThreeJSfocus() {
-      _Global.YJ3D.removeEventListener();
       this.inputing = true;
+      _Global.YJ3D.removeEventListener();
     },
     addThreeJSfocus() {
       if (this.inputing) {

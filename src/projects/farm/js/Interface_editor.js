@@ -109,7 +109,12 @@ class Interface {
       }
 
       if (type == "放下武器") {
+        let singleTransform = _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
         _this._SceneManager.PickDownWeapon();
+        
+        let message = singleTransform.GetMessage();
+        if(message==null){return;}
+        if(message.modelType != "装备模型"){return;}
         _Global.YJ3D._YJSceneManager.ResetSingleTransfomParent();
         return;
       }

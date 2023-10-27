@@ -123,22 +123,57 @@ export default {
     return {
       chassisWidth: 2.2, //车身宽
 
-      weaponData: {
+      settingData: {
         id: "",
         name: "weapon001",
+
+        weaponType: "",
+        pickType: "",
         // 1.81 0.65 3.6
 
         // position: { x: 0, y: -0.61, z: -0.3 },
         // rotation: { x: 1.81, y: 0.65, z: 3.6 },
         position: [0, 0, 0],
-        rotation: [0,0, 0],
+        rotation: [0, 0, 0],
         animName: "",
         boneName: "",
       },
 
       setting: [
 
-        { property: "boneName", title: "跟随骨骼", type: "drop", value: "none", options: [], callback: this.ChangeValue },
+        {
+          property: "pickType", title: "手持类型", type: "drop", value: "twoHand", options: [
+
+            { value: "twoHand", label: "双手" },
+            { value: "mainHand", label: "主手" },
+            { value: "oneHand", label: "单手" },
+          ], callback: this.ChangeValue
+        },
+        {
+          property: "weaponType", title: "装备类型", type: "drop", value: "sword", options: [
+
+            { value: "gun", label: "枪" },
+            { value: "sword", label: "剑" },
+            { value: "axe", label: "斧" },
+            { value: "arch", label: "弓" },
+            { value: "crossbow", label: "弩" },
+            { value: "dagger", label: "匕首" },
+            { value: "staff", label: "法杖" },
+            { value: "Wand", label: "魔棒" },
+            // { value: "oneHand",label: "拳套" }, 
+          ], callback: this.ChangeValue
+        },
+        {
+          property: "boneName", title: "跟随骨骼", type: "drop", value: "none", options: [
+
+            { value: "None", label: "none" },
+            { value: "Head", label: "头部" },
+            { value: "LeftShoulder", label: "左肩" },
+            { value: "RightShoulder", label: "右肩" },
+            { value: "LeftHand", label: "左手腕" },
+            { value: "RightHand", label: "右手腕" },
+          ], callback: this.ChangeValue
+        },
         { property: "animName", title: "交互动作", type: "drop", value: "none", options: [], callback: this.ChangeValue },
         { property: "position", title: "偏移", type: "vector3", value: [0, 0, 0], step: 0.01, callback: this.ChangeValue },
         { property: "rotation", title: "旋转", type: "vector3", value: [0, 0, 0], step: 0.01, callback: this.ChangeValue },
@@ -146,14 +181,27 @@ export default {
       ],
 
       bones: [
-
-        { boneName: "None", part: "none" },
-        { boneName: "Head", part: "头部" },
-        { boneName: "LeftShoulder", part: "左肩" },
-        { boneName: "RightShoulder", part: "右肩" },
-        { boneName: "LeftHand", part: "左手腕" },
-        { boneName: "RightHand", part: "右手腕" },
-
+        { value: "None", label: "none" },
+        { value: "Head", label: "头部" },
+        { value: "LeftShoulder", label: "左肩" },
+        { value: "RightShoulder", label: "右肩" },
+        { value: "LeftHand", label: "左手腕" },
+        { value: "RightHand", label: "右手腕" },
+      ],
+      // 持有类型
+      pickType: [
+        { value: "twoHand", label: "双手" },
+        { value: "mainHand", label: "主手" },
+        { value: "oneHand", label: "单手" },
+      ],
+      // 武器类型
+      weaponType: [
+        { value: "sword", label: "剑" },
+        { value: "axe", label: "斧" },
+        { value: "arch", label: "弓" },
+        { value: "crossbow", label: "弩" },
+        { value: "dagger", label: "匕首" },
+        // { value: "oneHand",label: "拳套" }, 
       ],
 
       animList: [{ value: 'none', label: 'none' }],
@@ -179,7 +227,7 @@ export default {
       return;
     }
 
-    this.weaponData = modelData.message.data;
+    this.settingData = modelData.message.data;
 
     this.initValue();
 
@@ -190,39 +238,51 @@ export default {
     removeThreeJSfocus() {
       this.$parent.removeThreeJSfocus();
     },
-    addThreeJSfocus() { 
+    addThreeJSfocus() {
     },
+
+    setSettingItemByProperty(property, value) {
+      for (let i = 0; i < this.setting.length; i++) {
+        const element = this.setting[i];
+        if (element.property == property) {
+          element.value = value;
+        }
+      }
+    },
+    getSettingItemByProperty(property) {
+      for (let i = 0; i < this.setting.length; i++) {
+        const element = this.setting[i];
+        if (element.property == property) {
+          return element.value;
+        }
+      }
+      return null;
+    },
+
     SetAnimList(_animList) {
       for (let i = 0; i < _animList.length; i++) {
         const element = _animList[i];
         this.animList.push({ value: element, label: element });
       }
-      this.setting[1].options = this.animList;
-      console.log(this.setting[1].options);
-
-
-      let boneList = [];
-      for (let i = 0; i < this.bones.length; i++) {
-        const element = this.bones[i];
-        boneList.push({ value: element.boneName, label: element.part });
-      }
-      this.setting[0].options = boneList;
+      this.setting[3].options = this.animList;
+      console.log(this.setting[3].options);
 
     },
     initValue() {
 
-      this.setting[0].value = this.weaponData.boneName;
-      this.setting[1].value = this.weaponData.animName;
-      this.setting[2].value = this.weaponData.position;
-      this.setting[3].value = this.weaponData.rotation;
+      this.setSettingItemByProperty("boneName", this.settingData.boneName);
+      this.setSettingItemByProperty("animName", this.settingData.animName);
+      this.setSettingItemByProperty("position", this.settingData.position);
+      this.setSettingItemByProperty("rotation", this.settingData.rotation);
+
 
       // setTimeout(() => {
-      //   console.log( this.weaponData);
-      //   _Global.SendMsgTo3D("切换角色动作", this.weaponData.animName);
-      //   _Global.SendMsgTo3D("单品放置在骨骼上", this.weaponData.boneName);
+      //   console.log( this.settingData);
+      //   _Global.SendMsgTo3D("切换角色动作", this.settingData.animName);
+      //   _Global.SendMsgTo3D("单品放置在骨骼上", this.settingData.boneName);
       //   setTimeout(() => {
-      //     _Global.SendMsgTo3D("单品在骨骼上位移", this.weaponData.position);
-      //     _Global.SendMsgTo3D("单品在骨骼上旋转", this.weaponData.rotation);
+      //     _Global.SendMsgTo3D("单品在骨骼上位移", this.settingData.position);
+      //     _Global.SendMsgTo3D("单品在骨骼上旋转", this.settingData.rotation);
       //   }, 20);
       // }, 3000);
 
@@ -236,8 +296,8 @@ export default {
           let e = element.value;
           _Global.SendMsgTo3D("单品放置在骨骼上", e);
           setTimeout(() => {
-            _Global.SendMsgTo3D("单品在骨骼上位移", this.weaponData.position);
-            _Global.SendMsgTo3D("单品在骨骼上旋转", this.weaponData.rotation);
+            _Global.SendMsgTo3D("单品在骨骼上位移", this.settingData.position);
+            _Global.SendMsgTo3D("单品在骨骼上旋转", this.settingData.rotation);
           }, 20);
 
           setTimeout(() => {
@@ -259,7 +319,7 @@ export default {
       this.setting[i].value = e;
 
 
-      this.weaponData[this.setting[i].property] = e;
+      this.settingData[this.setting[i].property] = e;
 
 
       console.log(i + " " + this.setting[i].value);
@@ -271,8 +331,8 @@ export default {
       if (this.setting[i].property == "boneName") {
         _Global.SendMsgTo3D("单品放置在骨骼上", e);
         setTimeout(() => {
-          _Global.SendMsgTo3D("单品在骨骼上位移", this.weaponData.position);
-          _Global.SendMsgTo3D("单品在骨骼上旋转", this.weaponData.rotation);
+          _Global.SendMsgTo3D("单品在骨骼上位移", this.settingData.position);
+          _Global.SendMsgTo3D("单品在骨骼上旋转", this.settingData.rotation);
         }, 20);
         return;
       }
@@ -292,16 +352,17 @@ export default {
         let pos = [posRota.pos.x, posRota.pos.y, posRota.pos.z];
         let rota = [posRota.rota.x, posRota.rota.y, posRota.rota.z];
 
-        this.setting[2].value = pos;
-        this.weaponData[this.setting[2].property] = pos;
+        this.settingData["position"] = pos;
+        this.settingData["rotation"] = rota;
+        
+        this.setSettingItemByProperty("position", this.settingData.position);
+        this.setSettingItemByProperty("rotation", this.settingData.rotation);
 
-        this.setting[3].value = rota;
-        this.weaponData[this.setting[3].property] = rota;
 
         if (this.$parent.updateModelTxtData) {
           this.$parent.modelData.message = {
             pointType: "weapon",
-            data: this.weaponData
+            data: this.settingData
           };
           this.$parent.updateModelTxtData();
         }
@@ -319,7 +380,7 @@ export default {
       if (this.$parent.updateModelTxtData) {
         this.$parent.modelData.message = {
           pointType: "weapon",
-          data: this.weaponData
+          data: this.settingData
         };
         this.$parent.updateModelTxtData();
       }

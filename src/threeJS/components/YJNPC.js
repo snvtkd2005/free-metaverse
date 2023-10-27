@@ -255,6 +255,9 @@ class YJNPC {
         return;
       }
       targetModel = _target;
+
+      let npcPos = parent.position.clone();
+
       if (targetModel == null) {
         // 暂停1秒
         navpath = [];
@@ -266,7 +269,8 @@ class YJNPC {
           if (currentPos.distanceTo(fireBeforePos) >= 20) {
             baseData.speed = MISSSPEED;
           }
-          navpath.push(fireBeforePos);
+          // navpath.push(fireBeforePos);
+          GetNavpath(npcPos,fireBeforePos);
         }, 1000);
         baseData.health = baseData.maxHealth;
         scope.transform.UpdateData();
@@ -277,7 +281,6 @@ class YJNPC {
       
       scope.SetPlayerState("准备战斗");
       
-      let npcPos = parent.position.clone();
       let playerPosRef = targetModel.GetWorldPos().clone();
       playerPosRef.y = npcPos.y;
       parent.lookAt(playerPosRef);
@@ -322,7 +325,7 @@ class YJNPC {
           animName = "death";
           break;
         case "跑向目标":
-          animName = "walk";
+          animName = "run";
           break;
         default:
           break;

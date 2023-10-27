@@ -41,7 +41,7 @@ export default {
     if (localStorage.getItem("userName")) {
       this.userName = localStorage.getItem("userName");
     }else{
-      this.userName = "理想国居民-"+ parseInt( Math.random()*10000) +""+ parseInt( Math.random()*10000);
+      this.userName = "居民-"+ parseInt( Math.random()*10000) +""+ parseInt( Math.random()*10000);
       localStorage.setItem("userName", this.userName);
     }
 

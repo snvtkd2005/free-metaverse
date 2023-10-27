@@ -19,6 +19,12 @@
     <loadingPanel class="absolute z-50 left-0 top-0" ref="loadingPanel" />
 
     <skillPanel ref="skillPanel" />
+
+    <div class=" absolute left-24 top-10">
+      <!-- 左上角血条头像 -->
+      <headerUI ref="headerUI" />
+    </div>
+
     <!-- 多人同步 -->
     <YJDync
       v-if="inLoadCompleted"
@@ -93,6 +99,7 @@ import loadingPanel from "./loadingPanel2.vue";
 import { SceneManager } from "../../js/SceneManagerEditor.js";
 import { Interface } from "../../js/Interface_editor.js";
 
+import headerUI from "./common/headerUI.vue";
 import skillPanel from "./components/skillPanel.vue";
 
 // 摇杆
@@ -116,6 +123,7 @@ export default {
     YJDync,
     settingPanel,
     skillPanel,
+    headerUI,
   },
   data() {
     return {

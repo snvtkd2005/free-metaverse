@@ -88,7 +88,7 @@
       </div>
 
       <div v-if="needEnter" class="absolute w-full bottom-4 mt-10 text-black">
-        <div class="px-2 inline-block rounded-lg shadow-md bg-blue-100" @click="ClickeSelectOK()">
+        <div class="px-2 inline-block rounded-lg shadow-md bg-blue-100 cursor-pointer" @click="ClickeSelectOK()">
           进入元宇宙
         </div>
       </div>

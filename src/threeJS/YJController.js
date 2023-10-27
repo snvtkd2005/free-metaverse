@@ -3865,7 +3865,8 @@ class YJController {
             if (inRun) {
               animName = "run";
             } else {
-              animName = "walk";
+              // animName = "walk";
+              animName = "run";
             }
 
             userData.onlySetAnim = false;

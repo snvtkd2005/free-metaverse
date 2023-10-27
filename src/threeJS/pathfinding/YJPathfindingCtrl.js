@@ -36,14 +36,13 @@ class YJPathfindingCtrl {
       pathfinding = new Pathfinding();
       console.log("初始化寻路。。。",pathfinding);
 
-      pathfindingHelper = new PathfindingHelper();
-      group.add(pathfindingHelper);
+      // pathfindingHelper = new PathfindingHelper();
+      // group.add(pathfindingHelper);
 
       ZONE = 'npcLevel1';
 
       const geometries = [];
 
-      const wireframeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, transparent: true });
 
       scene.traverse(node => {
         if (
@@ -74,17 +73,18 @@ class YJPathfindingCtrl {
             // pathfinding.setZoneData(ZONE, zone);
 
 
-            // navmesh.visible = true; 
+            navmesh.visible = false; 
  
             let transform = node.parent.parent.parent.parent;
-            console.log(" transform.name ",transform.name);
             let position = transform.position;
             let quaternion = transform.quaternion;
             let scale = transform.scale;
             matrix.compose(position, quaternion, scale);
             const instanceGeometry = navmesh.geometry.clone();
             instanceGeometry.applyMatrix4(matrix);
-            geometries.push(instanceGeometry);
+            if(geometries.length == 0){
+              geometries.push(instanceGeometry);
+            }
 
 
           }
@@ -92,10 +92,11 @@ class YJPathfindingCtrl {
         }
       });
 
-
+      if(geometries.length == 0){
+        return;
+      }
       
       const mergedGeometry = BufferGeometryUtils.mergeGeometries(geometries);
-
       console.time('createZone()');
       const zone = Pathfinding.createZone(mergedGeometry);
       console.timeEnd('createZone()');
@@ -105,10 +106,10 @@ class YJPathfindingCtrl {
           pathfinding.zones.npcLevel1.groups[0].push(ii);
         });
       }
-      
       pathfinding.zones.npcLevel1.groups.splice(1,pathfinding.zones.npcLevel1.groups.length-1);
 
-      scene.add(new THREE.Mesh(mergedGeometry, wireframeMaterial));
+      // const wireframeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, transparent: true });
+      // scene.add(new THREE.Mesh(mergedGeometry, wireframeMaterial));
 
       if(navmesh){
         if (callback) {
@@ -134,10 +135,10 @@ class YJPathfindingCtrl {
         return this.GetNavpath(fromPos, targetPos);
       }
       if (navpath) {
-        pathfindingHelper.reset();
-        pathfindingHelper.setPlayerPosition(fromPos);
-        pathfindingHelper.setTargetPosition(targetPos);
-        pathfindingHelper.setPath(navpath);
+        // pathfindingHelper.reset();
+        // pathfindingHelper.setPlayerPosition(fromPos);
+        // pathfindingHelper.setTargetPosition(targetPos);
+        // pathfindingHelper.setPath(navpath);
 
       } else {
 

@@ -24,13 +24,13 @@
 
     <div class="mt-10 w-80 h-10 text-white cursor-pointer" @click="ClickHandler('设置为npc目标')">
       <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">
-        设置为npc目标
+        你过来呀
       </div>
     </div>
 
     <div class=" w-80 h-10 text-white cursor-pointer" @click="ClickHandler('设置npc失去目标')">
       <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">
-        设置npc失去目标
+        饶命啊
       </div>
     </div>
 

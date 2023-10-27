@@ -630,6 +630,7 @@ class YJLoadAvatar {
       }
       // 如果要播放的动作，不在已有动作列表中，则去扩展动作中查找
       if (!has) {
+        
         if (missAnimCallback) {
           missAnimCallback(animName);
         }
@@ -663,10 +664,10 @@ class YJLoadAvatar {
     //切换动画
     this.ChangeAnim = function (animName) {
       if (animName == "run") {
-        if (runAction == undefined) {
-          animName = "walk";
-        } else {
-        }
+        // if (runAction == undefined) {
+        //   animName = "walk";
+        // } else {
+        // }
       }
       // console.error(" 直接设置玩家角色动作 22 " + animName);
       ChangeAnimDirectFn(animName);

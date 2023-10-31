@@ -163,6 +163,12 @@ class YJTransform {
     }
 
 
+    this.ResetPosRota = function(){
+      let pos = data.pos ;
+      let rota = data.rotaV3 ;
+      group.position.set(pos.x, pos.y, pos.z); // 
+      group.rotation.set(rota.x, rota.y, rota.z); // 
+    }
     //用户摆放自定义的模型，位置跟随鼠标悬浮的地面位置
     this.SetPosRota = function (pos, rota, size) {
 

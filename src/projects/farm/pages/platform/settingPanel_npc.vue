@@ -22,7 +22,47 @@
       </div>
     </div>
 
-    <div class="mt-10 w-80 h-10 text-white cursor-pointer" @click="ClickHandler('设置为npc目标')">
+    <div v-if="!isMoving" class=" mt-4 flex">
+      <div class=" text-left ">巡逻点</div>
+      <div class=" ml-2 p-2 h-6  bg-white text-black flex cursor-pointer" @click="ClickHandler('添加')">
+        <div class=" self-center ">+</div>
+      </div>
+    </div>
+
+    <div v-if="!isMoving" v-for="(item, i) in settingData.movePos" :key="i" class="
+                   w-auto h-auto relative flex
+                ">
+      <div class="   w-6 h-6 ">
+        X:
+      </div>
+      <input class=" w-16  h-6 bg-transparent border-px placeholder-gray-400 p-1" type="number" v-model="item.x"
+        :placeholder="item.x" @change="ClickHandler('值改变', item,i)" />
+      <div class="   w-6 h-6 ">
+        Y:
+      </div>
+      <input class=" w-16  h-6 bg-transparent border-px placeholder-gray-400 p-1" type="number" v-model="item.y"
+        :placeholder="item.y" @change="ClickHandler('值改变', item,i)" />
+
+      <div class="   w-6 h-6 ">
+        Z:
+      </div>
+      <input class=" w-16  h-6 bg-transparent border-px placeholder-gray-400 p-1" type="number" v-model="item.z"
+        :placeholder="item.z" @change="ClickHandler('值改变', item,i)" />
+
+      <div class=" ml-2 flex  h-6 p-1 text-sm bg-white text-black cursor-pointer " @click="ClickHandler('删除', item, i)">
+        <div class=" self-center">-</div>
+      </div>
+
+    </div>
+
+
+    <div class="mt-10 w-80 h-10 text-white cursor-pointer" @click="ClickHandler(isMoving?'停止巡逻':'开始巡逻')">
+      <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">
+        {{ isMoving?'停止巡逻':'开始巡逻' }}
+      </div>
+    </div>
+
+    <div class=" w-80 h-10 text-white cursor-pointer" @click="ClickHandler('设置为npc目标')">
       <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">
         你过来呀
       </div>
@@ -61,6 +101,9 @@ export default {
   data() {
     return {
       pointType: "npc",
+      movePos: [
+        { x: 0, y: 0, z: 0 },
+      ], //巡逻坐标点，随机顺序
       baseData: {
         camp: "bl",
         state: 'normal', //状态
@@ -85,6 +128,9 @@ export default {
         avatarData: {},
         eventType: "no",//事件类型 
         contentData: {},//事件内容数据
+        movePos: [
+          { x: 0, y: 0, z: 0 },
+        ], //巡逻坐标点，随机顺序
       },
       // npc行为
       npcActionData: {
@@ -104,6 +150,7 @@ export default {
         { property: "health", display: false, title: "生命值", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
         { property: "level", display: true, title: "等级", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
       ],
+      isMoving:true,
 
     };
   },
@@ -124,11 +171,51 @@ export default {
     if (!this.settingData.baseData) {
       this.settingData.baseData = this.baseData;
     }
+    if (!this.settingData.movePos) {
+      this.settingData.movePos = this.movePos;
+    }
     this.settingData.name = modelData.name;
     this.initValue();
   },
   methods: {
-    ClickHandler(e) {
+    ClickHandler(e, item, i) {
+
+      if (e == "停止巡逻" || e == "开始巡逻") { 
+        this.isMoving = !this.isMoving;
+        _Global.YJ3D._YJSceneManager
+          .GetSingleTransformComponent("NPC")
+          .UpdateNavPos(e);
+        return; 
+      }
+      
+      if (e == "删除") { 
+        if(i==0){ return;}
+        this.settingData.movePos.splice(i, 1);
+        //在场景中添加巡逻位置参考坐标点
+        _Global.YJ3D._YJSceneManager
+          .GetSingleTransformComponent("NPC")
+          .UpdateNavPos(e,null,i);
+        return;
+      }
+      if (e == "添加") {
+        
+        this.settingData.movePos.push({ x: 0, y: 0, z: 0 });
+        //在场景中添加巡逻位置参考坐标点
+        _Global.YJ3D._YJSceneManager
+          .GetSingleTransformComponent("NPC")
+          .UpdateNavPos(e, { x: 0, y: 0, z: 0 });
+        return;
+      }
+      if (e == "值改变") {
+        if(i==0){item.x=item.y=item.z=0;return;}
+        _Global.YJ3D._YJSceneManager
+          .GetSingleTransformComponent("NPC")
+          .UpdateNavPos("更新",item,i);
+        // this.settingData.movePos[i].
+        return;
+      }
+
+
       if (e == "加载角色模型") {
         this.openModelPanel();
       }

@@ -482,6 +482,9 @@ class Interface {
 
     let _YJPathfindingCtrl = null;
     this.GetNavpath = function (fromPos, targetPos) {
+      if (_YJPathfindingCtrl == null) {
+        return null;
+      }
       return _YJPathfindingCtrl.GetNavpath(fromPos, targetPos);
     }
     _Global.GetNavpath = this.GetNavpath;

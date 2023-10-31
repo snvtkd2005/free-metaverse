@@ -73,8 +73,9 @@
     <skillPanel ref="skillPanel" />
 
     <hierarchy ref="hierarchyPanel" class=" hidden " :modelList="modelList" />
+
+    <!-- 左上角血条头像 -->
     <div class=" absolute left-24 top-10">
-      <!-- 左上角血条头像 -->
       <headerUI ref="headerUI" />
     </div>
 

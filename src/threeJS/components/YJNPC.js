@@ -21,8 +21,11 @@ class YJNPC {
     let nameScale = 1;
     let doonce = 0;
     let navpath = [];
+    let movePos = [];
+    let movePosMeshList = [];
     const clock = new THREE.Clock();
-    const NORMALSPEED = 8;
+    const WALKSPEED = 3;
+    const RUNSPEED = 8;
     const MISSSPEED = 20;
     let playerPosition = new THREE.Vector3(0, 0, 0);
 
@@ -94,19 +97,9 @@ class YJNPC {
       _YJAnimator.ChangeAnim(data.defaultPath);
 
       if (data.movePos && data.movePos.length > 0) {
-        AddDirectPosToNavmesh(data.movePos);
+        this.UpdateNavPos("初始", data.movePos);
+        // AddDirectPosToNavmesh(data.movePos);
 
-        if (navpath.length == data.movePos.length) { return; }
-
-
-        let p1 = data.movePos[navpath.length];
-        let p2 = data.movePos[data.movePos.length - 1];
-
-        let fromPos = new THREE.Vector3(p1.x, p1.y, p1.z);
-        let targetPos = new THREE.Vector3(p2.x, p2.y, p2.z);
-        //npc随机在点位之间移动
-        navpath = npcManager.GetNavpath(fromPos, targetPos);
-        console.log("navpath ", navpath);
       }
     }
 
@@ -129,6 +122,7 @@ class YJNPC {
 
     }
 
+    // 通过碰撞检测两个点之间是否可到达
     function AddDirectPosToNavmesh(movePos) {
       let count = movePos.length;
       for (let i = 0; i < count - 1; i++) {
@@ -170,7 +164,97 @@ class YJNPC {
       }
       return false;
     }
-    //#region 
+
+
+    let spare = new THREE.SphereGeometry(0.1, 10);
+    const material = new THREE.MeshLambertMaterial({ color: 0xff0000 });
+    let posMesh = new THREE.Mesh(spare, material);
+
+    //#region 添加巡逻坐标点 
+    this.UpdateNavPos = function (e, pos, i) {
+      // console.log(" 刷新巡逻点 ", e, pos,i);
+      if (e == "停止巡逻") {
+        //回到transform原始位置
+        navpath = [];
+        this.SetPlayerState("normal");
+        scope.transform.ResetPosRota();
+
+        return;
+      }
+      if (e == "开始巡逻") {
+        if (movePos && movePos.length > 0) {
+          GetNavpath(parent.position.clone(), movePos[radomNum(0, movePos.length - 1)]);
+        }
+        return;
+      }
+      if (e == "添加") {
+        //添加球体到指定坐标
+        let mesh = posMesh.clone();
+        parent.parent.add(mesh);
+        mesh.position.set(pos.x, pos.y, pos.z);
+        mesh.position.add(parent.position);
+        pos.x = mesh.position.x;
+        pos.y = mesh.position.y;
+        pos.z = mesh.position.z;
+        movePosMeshList.push(mesh);
+        
+        let { x, y, z } = pos;
+        x += mesh.position.x;
+        y += mesh.position.y;
+        z += mesh.position.z;
+        movePos.push({ x: x, y: y, z: z });
+         
+        return;
+      }
+      if (e == "删除") {
+        parent.remove(movePosMeshList[i]);
+        movePosMeshList.splice(i, 1);
+        movePos.splice(i, 1);
+        return;
+      }
+      if (e == "更新") {
+        // movePos[i] = pos;
+        let { x, y, z } = pos;
+        movePos[i] = { x: x, y: y, z: z };
+        movePosMeshList[i].position.set(pos.x, pos.y, pos.z).add(parent.position);
+        return;
+      }
+      if (e == "初始") {
+        // return;
+        pos.map(item => {
+          let { x, y, z } = item;
+          movePos.push({ x: x, y: y, z: z });
+        });
+        // 此时pos是数组
+        for (let i = 0; i < movePos.length; i++) {
+          let pos = movePos[i];
+          let mesh = posMesh.clone();
+          parent.parent.add(mesh);
+
+          mesh.position.set(pos.x, pos.y, pos.z);
+          mesh.position.add(parent.position);
+          movePosMeshList.push(mesh);
+          pos.x = mesh.position.x;
+          pos.y = mesh.position.y;
+          pos.z = mesh.position.z;
+        }
+
+        let p1 = movePos[0];
+        let p2 = movePos[movePos.length - 1];
+
+        let fromPos = new THREE.Vector3(p1.x, p1.y, p1.z);
+        let targetPos = new THREE.Vector3(p2.x, p2.y, p2.z);
+        //npc随机在点位之间移动
+        setTimeout(() => {
+          GetNavpath(fromPos, targetPos);
+          console.log("navpath ", navpath);
+        }, 5000);
+        // console.log(" movePosMeshList ", movePosMeshList);
+        return;
+      }
+
+    }
+
     //#endregion
 
 
@@ -269,8 +353,7 @@ class YJNPC {
           if (currentPos.distanceTo(fireBeforePos) >= 20) {
             baseData.speed = MISSSPEED;
           }
-          // navpath.push(fireBeforePos);
-          GetNavpath(npcPos,fireBeforePos);
+          GetNavpath(npcPos, fireBeforePos);
         }, 1000);
         baseData.health = baseData.maxHealth;
         scope.transform.UpdateData();
@@ -278,14 +361,14 @@ class YJNPC {
 
         return;
       }
-      
+
       scope.SetPlayerState("准备战斗");
-      
+
       let playerPosRef = targetModel.GetWorldPos().clone();
       playerPosRef.y = npcPos.y;
       parent.lookAt(playerPosRef);
 
-      baseData.speed = NORMALSPEED;
+      baseData.speed = RUNSPEED;
       baseData.state = stateType.Fire;
       fireBeforePos = scope.transform.GetWorldPos();
       console.log("targetModel npc目标 ", targetModel);
@@ -326,6 +409,15 @@ class YJNPC {
           break;
         case "跑向目标":
           animName = "run";
+          baseData.speed = RUNSPEED;
+          break;
+        case "丢失目标":
+          animName = "run";
+          // baseData.speed = MISSSPEED;
+          break;
+        case "巡逻":
+          animName = "walk";
+          baseData.speed = WALKSPEED;
           break;
         default:
           break;
@@ -389,7 +481,7 @@ class YJNPC {
       }
 
       if (baseData.state == stateType.Fire) {
-        if(targetModel==null){
+        if (targetModel == null) {
           return;
         }
         // 逻辑见note/npc策划.md 战斗策略
@@ -453,19 +545,18 @@ class YJNPC {
             vaildAttackLater = null;
           }
           inBlocking = false;
-          //跑向目标
-          // navpath.push(playerPosRef); 
-          GetNavpath(npcPos,playerPos);
+          //跑向目标 
+          GetNavpath(npcPos, playerPos);
         }
         // console.log( scope.npcName + " in fire " + dis);
       }
     }
     let getnavpathTimes = 0;
-    function GetNavpath(fromPos, targetPos){
+    function GetNavpath(fromPos, targetPos) {
       navpath = _Global.GetNavpath(fromPos, targetPos);
-      if(navpath == null){
+      if (navpath == null) {
         getnavpathTimes++;
-        if(getnavpathTimes>=100){
+        if (getnavpathTimes >= 100) {
           scope.SetTarget(null);
         }
       }
@@ -599,17 +690,34 @@ class YJNPC {
           doonce++;
         }
 
-        scope.SetPlayerState("跑向目标");
+        if (baseData.state == stateType.Normal) {
+          scope.SetPlayerState("巡逻");
+        } else if (baseData.state == stateType.Back) {
+          scope.SetPlayerState("丢失目标");
+        } else {
+          scope.SetPlayerState("跑向目标");
+        }
 
       } else {
         // Remove node from the path we calculated
         navpath.shift();
         doonce = 0;
         if (navpath.length == 0) {
-          console.log("到达目标位置");
-          scope.SetPlayerState("normal");
+          // console.log("到达目标位置");
           if (baseData.state == stateType.Back) {
+            //返回模式到达目标点后，切换为正常模式
             baseData.state = stateType.Normal;
+            scope.SetPlayerState("normal");
+            setTimeout(() => {
+              //在正常模式到达目标点，表示在巡逻过程中。再次到下一个巡逻点
+              GetNavpath(parent.position.clone(), movePos[radomNum(0, movePos.length - 1)]);
+            }, 2000);
+          } else if (baseData.state == stateType.Normal) {
+            scope.SetPlayerState("normal");
+            setTimeout(() => {
+              //在正常模式到达目标点，表示在巡逻过程中。再次到下一个巡逻点
+              GetNavpath(parent.position.clone(), movePos[radomNum(0, movePos.length - 1)]);
+            }, 2000);
           }
         }
 

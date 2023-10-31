@@ -50,9 +50,7 @@ class YJPathfindingCtrl {
           node.type == "Mesh"
           && node.name.includes("navMesh") 
         ) {
-          console.log(node);
-          // node.position.add(new THREE.Vector3(0, 1, 0));
-          // node.visible = true;
+          // console.log(node); 
           if (true) {
 
             navmesh = node;

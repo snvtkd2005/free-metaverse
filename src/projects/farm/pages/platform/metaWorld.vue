@@ -376,7 +376,7 @@ export default {
     //   window.location.reload();
     //   _Global.reloadTimes = 0;
     // }
-    this.Interface = new Interface(this);
+    this.Interface = new Interface(this,false);
 
     if (this.$route.params.folderBase != undefined) {
       this.folderBase = this.$route.params.folderBase;

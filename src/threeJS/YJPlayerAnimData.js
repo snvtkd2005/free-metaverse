@@ -42,11 +42,26 @@ class YJPlayerAnimData {
       // console.error(" 查找角色信息  ", playerName, avatarDataList);
       for (let i = 0; i < avatarDataList.length; i++) {
         if (avatarDataList[i].name == playerName) {
-          return avatarDataList[i];
+          return  FindBoneRefAnimationData(avatarDataList[i]);
         }
       }
       console.error(" 角色信息未找到 ", playerName);
     }
+    //查找动画数据时，把映射数据也加上
+    function FindBoneRefAnimationData(avatarData){
+      if(avatarData.boneRefPlayer == undefined ){
+        return avatarData;
+      }
+      for (let i = 0; i < avatarDataList.length; i++) {
+        // console.log(avatarDataList[i],avatarData.boneRefPlayer);
+        if (avatarDataList[i].id+'' == avatarData.boneRefPlayer) {
+          avatarData.boneRefPlayerAnimationData = avatarDataList[i].animationsExtendData;
+          return  avatarData;
+        }
+      }
+    }
+
+
     this.UpdateAvatarDataById = function(id,avatarData){
       for (let i = 0; i < avatarDataList.length ; i++) {
         if (avatarDataList[i].id == id) { 
@@ -173,6 +188,15 @@ class YJPlayerAnimData {
             animList.push(element.animName);
           }
         }
+
+        //再查找其映射角色动作
+        if (avatarData.boneRefPlayerAnimationData) {
+          for (let i = 0; i < avatarData.boneRefPlayerAnimationData.length; i++) {
+            const element = avatarData.boneRefPlayerAnimationData[i];
+            animList.push(element.animName);
+          }
+        } 
+
         console.error(" 查找角色动作  ", playerName, animList);
 
         if (callback) {

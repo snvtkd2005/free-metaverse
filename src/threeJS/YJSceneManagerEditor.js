@@ -1877,6 +1877,28 @@ class YJSceneManager {
       // console.log("未找到 copy 模型",path);
       return null;
     }
+    
+    this.DirectLoadMesh = function (path, callback) {
+      for (let i = loadMesh.length - 1; i >= 0; i--) {
+        if (loadMesh[i].path == path) {
+          if (callback) {
+            callback(loadMesh[i].mesh.clone().children[0]);
+          }
+          return;
+        }
+      }
+      let _YJLoadModel = new YJLoadModel(_this, scene);
+      // _this.GetPublicUrl() +
+      _YJLoadModel.load("", path, new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, Math.PI, 0),
+        new THREE.Vector3(1, 1, 1), false, null, (scope) => {
+          let model = scope.GetModel();
+          if (callback) {
+            callback(model);
+          }
+        });
+    }
+
+
     //#endregion
 
     //#region 把添加的 图片 存到数组中，加载相同模型时，clone现有的

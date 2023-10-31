@@ -19,6 +19,12 @@
         <div v-if="item.type == 'int'" class="flex gap-2 text-black">
           <YJinput_number :value="item.value" :type="item.type" :step="item.step" :index="i" :callback="item.callback" />
         </div>
+        
+        <div v-if="item.type == 'image'" class="flex gap-2 text-black">
+          <div @click="item.callback('加载武器模型')">
+            <img :src="item.value"   />
+          </div>
+        </div>
       </div>
     </div>
 
@@ -56,6 +62,8 @@
     </div>
 
 
+
+
     <div class="mt-10 w-80 h-10 text-white cursor-pointer" @click="ClickHandler(isMoving?'停止巡逻':'开始巡逻')">
       <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">
         {{ isMoving?'停止巡逻':'开始巡逻' }}
@@ -73,7 +81,7 @@
         饶命啊
       </div>
     </div>
-
+    
     <div class=" w-80 h-10 text-white cursor-pointer" @click="ClickHandler('加载角色模型')">
       <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">
         加载角色模型
@@ -131,6 +139,10 @@ export default {
         movePos: [
           { x: 0, y: 0, z: 0 },
         ], //巡逻坐标点，随机顺序
+
+        
+        //武器 
+        weaponData: {},
       },
       // npc行为
       npcActionData: {
@@ -149,6 +161,7 @@ export default {
         },
         { property: "health", display: false, title: "生命值", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
         { property: "level", display: true, title: "等级", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
+        { property: "weapon", display: true, title: "装备", type: "image", value: 1, callback: this.ClickHandler, },
       ],
       isMoving:true,
 
@@ -184,7 +197,7 @@ export default {
         this.isMoving = !this.isMoving;
         _Global.YJ3D._YJSceneManager
           .GetSingleTransformComponent("NPC")
-          .UpdateNavPos(e);
+          .UpdateNavPos(e,this.settingData.movePos);
         return; 
       }
       
@@ -215,9 +228,12 @@ export default {
         return;
       }
 
-
+      
+      if (e == "加载武器模型") {
+        this.$parent.$refs.modelSelectPanel.Init("装备模型");
+      }
       if (e == "加载角色模型") {
-        this.openModelPanel();
+        this.$parent.$refs.modelSelectPanel.Init("角色模型");
       }
       if (e == "保存") {
         this.save();
@@ -263,12 +279,24 @@ export default {
       this.setSettingItemByProperty("level", this.settingData.baseData.level);
       this.setSettingItemByProperty("camp", this.settingData.baseData.camp);
       this.setSettingItemByProperty("height", this.settingData.height);
-    },
-    openModelPanel() {
-      this.$parent.$refs.modelSelectPanel.Init("角色模型");
-    },
-    load(item) {
-      console.log(item);
+
+      if(this.settingData.weaponData){
+        this.setSettingItemByProperty("weapon",this.$uploadUrl + this.settingData.weaponData.icon );
+      }
+
+    }, 
+    load(item,modelType) {
+      console.log(item,modelType);
+      if(modelType == "装备模型"){
+        this.settingData.weaponData = item;
+        //加载武器并让角色使用
+        this.setSettingItemByProperty("weapon",this.$uploadUrl + this.settingData.weaponData.icon );
+
+        return;
+      }
+
+
+      if(modelType != "角色模型"){ return; }
       this.settingData.avatarData = item.message.data;
       this.settingData.avatarData.modelPath = this.$uploadUrl + item.modelPath;
 
@@ -318,10 +346,7 @@ export default {
     },
     updateName(v) {
       this.settingData.name = v;
-      this.$parent.modelData.message = {
-        pointType: this.pointType,
-        data: this.settingData,
-      };
+      this.$parent.modelData.message = this.getMessage();
 
       // 控制三维
       _Global.YJ3D._YJSceneManager
@@ -393,10 +418,7 @@ export default {
       // _Global.SendMsgTo3D("刷新Transform", this.$parent.modelData.message);
 
       _Global.YJ3D._YJSceneManager.UpdateTransform(
-        {
-          pointType: this.pointType,
-          data: this.settingData,
-        }
+        this.getMessage()
       );
       // 调用场景保存
       if (this.$parent.updateSceneModelData) {

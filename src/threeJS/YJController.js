@@ -38,8 +38,7 @@ class YJController {
       ATTACK: 1000,
       ATTACKING: 1001,
       INTERACTIVE: 2,
-      SITTING: 3,
-      JUMPING: 4
+      SITTING: 3, 
     };
     var playerState = PLAYERSTATE.NORMAL;
     // true :鼠标左键只旋转视角
@@ -3131,15 +3130,6 @@ class YJController {
       }
     }
 
-    // 角色lookat坐标
-    this.PlayerLookatPos = function (pos) {
-      let temp = new THREE.Group();
-      scene.add(temp);
-      temp.position.copy(pos);
-      temp.position.y = this.GetPlayerWorldPos().y - playerHeight / 2;
-      _player.lookAt(temp.position.clone());
-      scene.remove(temp);
-    }
     //是否在地面。跳起后，实时检测是否已碰到地面，碰到地面时，不允许下降
     var _YJPlayer = null;
     this.SetPlayer = (yjplayer) => {
@@ -3169,9 +3159,7 @@ class YJController {
       CancelOnlyRotaView();
 
       jump = true;
-      animName = "jump";
-      playerState = PLAYERSTATE.JUMPING;
-
+      scope.SetPlayerState("跳跃");
       userData.onlySetAnim = false;
 
       // setTimeout(() => {
@@ -3444,6 +3432,11 @@ class YJController {
       parentName: "scene",
       avatarDisplay: true,
 
+      //武器
+      inPickWeapon: false,
+      pickType: "",
+      weaponType: "",
+      weaponId: "",
       // pos:{x:0,y:0,z:0},
     };
 
@@ -3592,18 +3585,8 @@ class YJController {
       playerState = PLAYERSTATE.INTERACTIVE;
 
       _YJPlayer.ChangeAnimDirect(animName);
-      // _YJPlayer.ChangeAnim(animName);
     }
 
-    let npcTransform = null;
-    let npcPos = null;
-    this.SetInteractiveNPC = function (_npcTransform) {
-      npcTransform = _npcTransform;
-      if(npcTransform == null){
-        return;
-      }
-      this.PlayerLookatPos(npcTransform.GetWorldPos());
-    }
 
     let baseData = {
       camp: "lm",
@@ -3619,7 +3602,7 @@ class YJController {
         targetModel = _targetModel;
         console.log("targetModel 角色目标 ", targetModel);
         //自动显示其头像
-        _Global.ReportTo3D("锁定目标",targetModel);
+        _Global.ReportTo3D("锁定目标", targetModel);
       }
 
       baseData.health -= strength;
@@ -3651,11 +3634,45 @@ class YJController {
       return false;
     }
 
+    let npcTransform = null;
+    let npcPos = null;
+    this.SetInteractiveNPC = function (_npcTransform) {
+      npcTransform = _npcTransform;
+      if (npcTransform == null) {
+        playerState = PLAYERSTATE.NORMAL;
+        if (vaildAttackLater != null) {
+          clearTimeout(vaildAttackLater);
+          vaildAttackLater = null;
+        }
+        if (toIdelLater != null) {
+          clearTimeout(toIdelLater);
+          toIdelLater = null;
+        }
+        scope.SetPlayerState("停止移动");
+        return;
+      }
+      _this.YJController.SetPlayerState("准备战斗");
+      this.PlayerLookatPos(npcTransform.GetWorldPos());
+    }
+
+    // 角色lookat坐标
+    this.PlayerLookatPos = function (pos) {
+      let temp = new THREE.Group();
+      scene.add(temp);
+      temp.position.copy(pos);
+      temp.position.y = this.GetPlayerWorldPos().y - playerHeight / 2;
+      temp.add(new THREE.AxesHelper(5));
+      // _player.lookAt(temp.position.clone());
+      // _player.add(new THREE.AxesHelper(2));
+
+      scene.remove(temp);
+    }
     let inBlocking = false;
     let vaildAttackLater = null;
     let attackStepSpeed = 3; //攻击间隔/攻击速度
     let toIdelLater = null;
     let skillName = "";
+    let vaildAttackDis = 1.5; //有效攻击距离
     function CheckState() {
 
 
@@ -3669,13 +3686,17 @@ class YJController {
         npcPos = npcTransform.GetWorldPos();
         npcPos.y = 0;
         let dis = playerPos.distanceTo(npcPos);
-        if (dis < 1.5) {
-          if (!inBlocking) {
-            //攻击 
-            skillName = "赤手攻击";
-            scope.SetPlayerState(skillName);
-            inBlocking = true;
 
+
+        // console.log("距离目标",dis);
+        if (dis < vaildAttackDis) {
+          if (!inBlocking) {
+            
+            // _player.lookAt(npcPos);
+            // _player.add(new THREE.AxesHelper(2));
+            //攻击 
+            scope.SetPlayerState("普通攻击");
+            inBlocking = true;
             if (toIdelLater != null) {
               clearTimeout(toIdelLater);
               toIdelLater = null;
@@ -3686,20 +3707,27 @@ class YJController {
               let isDead = npcTransform.GetComponent("NPC").ReceiveDamage(_YJPlayer, skillName, baseData.strength);
               if (isDead) {
                 npcTransform = null;
-                scope.SetPlayerState("normal");
+                playerState = PLAYERSTATE.NORMAL;
+                if (toIdelLater != null) {
+                  clearTimeout(toIdelLater);
+                  toIdelLater = null;
+                }
+                scope.SetPlayerState("战斗结束");
                 return;
               }
-            }, 100);
+            }, attackStepSpeed * 100);
 
 
             toIdelLater = setTimeout(() => {
               scope.SetPlayerState("准备战斗");
               toIdelLater = null;
-            }, 1000);
+            }, attackStepSpeed * 300);
           }
+
           if (vaildAttackLater == null) {
             vaildAttackLater = setTimeout(() => {
               inBlocking = false;
+
               vaildAttackLater = null;
             }, attackStepSpeed * 1000);
           }
@@ -3720,6 +3748,28 @@ class YJController {
       // console.log(" in SetPlayerState  ",e,type);
 
       switch (e) {
+        case "普通攻击":
+          playerState = PLAYERSTATE.ATTACK;
+
+          console.log("userData ", userData);
+          if (userData.inPickWeapon) {
+            skillName = "" + userData.weaponType + "";
+            if (userData.pickType == "twoHand") {
+              if (userData.weaponType == "gun") {
+                animName = "shooting";
+                vaildAttackDis = 30;
+                attackStepSpeed = 1;
+
+              }
+            }
+          } else {
+            skillName = "拳头";
+            animName = "boxing attack001"; //空手状态 攻击状态 拳击动作
+            vaildAttackDis = 1.5;
+            attackStepSpeed = 3;
+          }
+
+          break;
         case "赤手攻击":
           playerState = PLAYERSTATE.ATTACK;
           animName = "boxing attack001"; //空手状态 攻击状态 拳击动作
@@ -3727,6 +3777,23 @@ class YJController {
         case "准备战斗":
           playerState = PLAYERSTATE.ATTACK;
           animName = "boxing idle"; //空手状态 战斗准备状态
+
+          if (userData.inPickWeapon) {
+            if (userData.pickType == "twoHand") {
+              if (userData.weaponType == "gun") {
+                animName = "shooting";
+
+                vaildAttackDis = 30;
+                attackStepSpeed = 1;
+              }
+            }
+          } else {
+            skillName = "拳头";
+            animName = "boxing attack001"; //空手状态 攻击状态 拳击动作
+            vaildAttackDis = 1.5;
+            attackStepSpeed = 3;
+          }
+
           break;
         case "受伤":
           playerState = PLAYERSTATE.ATTACK;
@@ -3743,7 +3810,54 @@ class YJController {
         case "normal":
           playerState = PLAYERSTATE.NORMAL;
           animName = "idle";
+          if(type == "jump"){
+            animName = type; 
+          }
           break;
+          
+        case "跳跃":  
+          animName = "jump"; 
+
+          break;
+        case "移动":
+          animName = "run";
+
+          if (userData.inPickWeapon) {
+            if (userData.pickType == "twoHand") {
+              if (userData.weaponType == "gun") {
+                animName = "two hand gun run";
+              }
+            }
+          }
+          break;
+        case "停止移动":
+
+          if (playerState == PLAYERSTATE.NORMAL) {
+            animName = "idle";
+            if (userData.inPickWeapon) {
+              if (userData.pickType == "twoHand") {
+                if (userData.weaponType == "gun") {
+                  animName = "two hand gun idle";
+                }
+              }
+            }
+          }
+
+          break;
+        case "战斗结束":
+          if (playerState == PLAYERSTATE.NORMAL) {
+            animName = "idle";
+            if (userData.inPickWeapon) {
+              if (userData.pickType == "twoHand") {
+                if (userData.weaponType == "gun") {
+                  animName = "two hand gun idle";
+                }
+              }
+            }
+          }
+
+          break;
+
         case "attack":
           playerState = PLAYERSTATE.ATTACK;
           if (type == undefined) {
@@ -3862,13 +3976,14 @@ class YJController {
             // 插值旋转角色朝向
             lerpRotaPlayer();
 
-            if (inRun) {
-              animName = "run";
-            } else {
-              // animName = "walk";
-              animName = "run";
-            }
+            // if (inRun) {
+            //   animName = "run";
+            // } else {
+            //   // animName = "walk";
+            //   animName = "run";
+            // }
 
+            scope.SetPlayerState("移动");
             userData.onlySetAnim = false;
 
 
@@ -3880,18 +3995,11 @@ class YJController {
             }
 
           } else {
-
-            if (playerState == PLAYERSTATE.NORMAL) {
-              animName = "idle";
-            }
-
-            if (playerState == PLAYERSTATE.DEAD) {
-              animName = "death";
-            }
+            scope.SetPlayerState("停止移动");
             rotaViewDoonce = 0;
           }
         }
-        _YJPlayer.ChangeAnim(animName);
+        // _YJPlayer.ChangeAnim(animName);
         // console.log("animName = " + animName,inRun,playerState);
 
         if (contrlState != CONTRLSTATE.MOUSE && !inKeyboardOrJoystick) {

@@ -298,7 +298,7 @@ export default {
       window.location.reload();
       _Global.reloadTimes = 0;
     }
-    this.Interface = new Interface(this);
+    this.Interface = new Interface(this,true);
 
     if (this.$route.path.toLowerCase().includes("editorsingle")) {
       localStorage.setItem("modelType", "模型");
@@ -555,6 +555,7 @@ export default {
         //先记录旧照片
         if (res.data == "SUCCESS") {
           console.log(" 上传模型数据文件成功 ");
+          this.SetTip("保存成功");
         }
       });
     },

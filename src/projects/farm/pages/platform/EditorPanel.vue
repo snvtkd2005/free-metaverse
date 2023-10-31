@@ -59,6 +59,10 @@
       <div v-if="panelState.npc" class="mt-10 w-80 border-t max-w-md">
         <settingPanel_npc ref="settingPanel_npc" />
       </div>
+
+      <div v-if="panelState.weapon" class="mt-10 w-80 border-t max-w-md">
+        <settingPanel_weapon ref="settingPanel_weapon" />
+      </div>
     </div>
 
     <!-- 浮框按钮 -->
@@ -138,6 +142,7 @@ import settingPanel_screen from "./settingPanel_screen.vue";
 import settingPanel_particle from "./settingPanel_particle.vue";
 import settingPanel_npc from "./settingPanel_npc.vue";
 
+import settingPanel_weapon from "./settingPanel_weapon.vue";
 
 import headerUI from "./common/headerUI.vue";
 
@@ -171,6 +176,7 @@ export default {
     settingPanel_screen,
     settingPanel_particle,
     settingPanel_npc,
+    settingPanel_weapon,
     skillPanel,
     headerUI,
   },
@@ -1352,6 +1358,17 @@ export default {
           this.$refs.settingPanel_npc.Init(msg.data);
         });
         console.log(component);
+        return;
+      }
+      component = this.clickModelJS.GetComponent("Weapon");
+      if (component != null) {
+        // this.ChangePanel('weapon');
+        // let msg = this.clickModelJS.GetMessage();
+        // this.$nextTick(() => {
+        //   this.$refs.settingPanel_weapon.Init(msg.data);
+        // });
+        // console.log(component);
+        console.log("武器请到武器单品中设置");
         return;
       }
     },

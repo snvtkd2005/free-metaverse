@@ -178,8 +178,8 @@ class SceneManager {
         let msg = owner.GetMessage();
         if (msg.pointType == "weapon") {
 
-          // console.log("_this.YJController.GetUserDataItem(\"hasWeapon\") ",_this.YJController.GetUserDataItem("hasWeapon"));
-          let state = _this.YJController.GetUserDataItem("hasWeapon");
+          console.log(" 碰到武器 ", msg.data);
+          let state = _this.YJController.GetUserDataItem("inPickWeapon");
           // 判断角色是否可以拾取武器
           if (state != undefined && state) {
             return;
@@ -202,8 +202,11 @@ class SceneManager {
             transformCenter.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
             transformCenter.scale.set(100, 100, 100);
             // 绑定到骨骼后，清除trigger
-            owner.GetComponent("Trigger").Destroy();
-            _this.YJController.SetUserDataItem("hasWeapon", true);
+            owner.GetComponent("Weapon").DestroyTrigger();
+            _this.YJController.SetUserDataItem("inPickWeapon", true);
+            _this.YJController.SetUserDataItem("pickType",msg.data.pickType );
+            _this.YJController.SetUserDataItem("weaponType", msg.data.weaponType);
+            // _this.YJController.SetUserDataItem("weaponId", true);
             // console.log("bone ",bone); 
           });
         }
@@ -222,8 +225,8 @@ class SceneManager {
       tranform.GetGroup().position.copy(pos);
       tranform.GetGroup().scale.set(1, 1, 1);
       tranform.GetGroup().rotation.set(0, 0, 0);
-      if (tranform.GetComponent("Trigger") != null) {
-        tranform.GetComponent("Trigger").Reset();
+      if (tranform.GetComponent("Weapon") != null) {
+        tranform.GetComponent("Weapon").Reset();
       }
       boneAttachList.shift();
     }
@@ -269,7 +272,6 @@ class SceneManager {
               //敌人  
               //进入战斗状态
               if (message.data.baseData.health > 0) {
-                _this.YJController.SetPlayerState("准备战斗");
                 _this.YJController.SetInteractiveNPC(hitObject.transform);
               }
             }

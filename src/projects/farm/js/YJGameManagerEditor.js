@@ -400,8 +400,8 @@ class YJGameManager {
           // if (_this._YJSceneManager) {
           //   _this._YJSceneManager.ClickInteractive();
           // }
+          _this.YJController.SetUserDataItem("inPickWeapon",false);
           _Global.SendMsgTo3D("放下武器");
-          _this.YJController.SetUserDataItem("hasWeapon",false);
 
           return;
         }

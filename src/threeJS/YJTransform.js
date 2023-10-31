@@ -51,6 +51,10 @@ class YJTransform {
         let com = this.GetComponent("Screen");
         com.SetMessage(message.data);
       }
+      if (message.pointType == "weapon") {
+        let com = this.GetComponent("Weapon");
+        com.SetMessage(message.data);
+      }
     }
     let handlerList = [];
     this.AddHandle = function (handler) {
@@ -163,6 +167,7 @@ class YJTransform {
     }
 
 
+
     this.ResetPosRota = function(){
       let pos = data.pos ;
       let rota = data.rotaV3 ;
@@ -253,6 +258,17 @@ class YJTransform {
         }
       }
     }
+    
+    
+    this.Start = function(){  
+      for (let i = 0; i < components.length; i++) {
+        const element = components[i];
+        if (element.js.Start) {
+          element.js.Start();
+        }
+      }
+    }
+
     this._update = function () {
       for (let i = 0; i < components.length; i++) {
         const element = components[i];

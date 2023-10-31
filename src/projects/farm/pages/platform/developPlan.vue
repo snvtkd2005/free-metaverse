@@ -66,6 +66,8 @@ export default {
       ],
 
       witkeyList: [
+        { isChild: false, content: " npc攻击、受伤、死亡 ", tip: "", date: "", isCompleted: true },
+        { isChild: false, content: " npc寻路功能、巡逻路径设置 ", tip: "", date: "", isCompleted: true },
         { isChild: false, content: " 多人模式场景漫游 ", tip: "", date: "", isCompleted: true },
 
         { isChild: false, title: " 单个模型上传  ", content: " 单个fbx、gltf、glb模型上传。 使用的贴图与模型放在同级目录。上传时选择模型类型  ", tip: "服装", date: "2023-4-23 18:02", isCompleted: true },

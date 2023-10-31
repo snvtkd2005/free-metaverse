@@ -214,6 +214,7 @@ export default {
   },
   methods: {
     GetServerAvatar(callback) {
+      this.playerImgPath = [];
       this.RequestModelByModelType("角色模型", (avatarList) => {
         console.log(" 获取所有用户上传的角色模型 ", avatarList);
         for (let i = 0; i < avatarList.length; i++) {

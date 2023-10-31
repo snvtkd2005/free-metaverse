@@ -74,7 +74,9 @@
     <div class=" mt-2 w-80 h-10 text-white cursor-pointer " @click="save()">
       <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">保存</div>
     </div>
-
+    <div class=" mt-2 w-80 h-10 text-white cursor-pointer " @click="saveTrans()">
+      <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">保存偏移旋转</div>
+    </div>
     <!-- <div class=" mt-2 w-80 h-10 text-white cursor-pointer " @click="pickDown()">
       <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">放下</div>
     </div> -->
@@ -122,6 +124,7 @@ export default {
   data() {
     return {
       chassisWidth: 2.2, //车身宽
+      pointType: "weapon",
 
       settingData: {
         id: "",
@@ -229,6 +232,14 @@ export default {
 
     this.settingData = modelData.message.data;
 
+
+    if (!this.settingData.pickType) {
+      this.settingData.pickType = "";
+    }
+
+    if (!this.settingData.weaponType) {
+        this.settingData.weaponType = "";
+      }
     this.initValue();
 
 
@@ -274,6 +285,8 @@ export default {
       this.setSettingItemByProperty("animName", this.settingData.animName);
       this.setSettingItemByProperty("position", this.settingData.position);
       this.setSettingItemByProperty("rotation", this.settingData.rotation);
+      this.setSettingItemByProperty("pickType", this.settingData.pickType);
+      this.setSettingItemByProperty("weaponType", this.settingData.weaponType);
 
 
       // setTimeout(() => {
@@ -309,8 +322,17 @@ export default {
         }
       }
     },
-    Init(_carData) {
-      this.carData = _carData;
+    Init(_data) {
+      this.settingData = _data;
+      if (!this.settingData.pickType) {
+        this.settingData.pickType = "";
+      }
+      if (!this.settingData.weaponType) {
+        this.settingData.weaponType = "";
+      }
+      console.log("选中物体",this.settingData);
+      this.initValue();
+
     },
     ChangeValue(i, e) {
 
@@ -346,7 +368,20 @@ export default {
       }
       // this.Update();
     },
-    save() {
+
+    getMessage() {
+      return {
+        pointType: this.pointType,
+        data: this.settingData,
+      };
+    },
+    save() { 
+      this.saveFn();
+    },
+    saveTrans() {
+      // 判断是否被拾取
+      // 如果被拾取则同时保存坐标和旋转
+      // 如果未被拾取则不保存坐标和旋转
       //获取武器坐标、刷新界面数值、保存
       _Global.SendMsgTo3D("获取单品坐标旋转", (posRota) => {
         let pos = [posRota.pos.x, posRota.pos.y, posRota.pos.z];
@@ -354,48 +389,47 @@ export default {
 
         this.settingData["position"] = pos;
         this.settingData["rotation"] = rota;
-        
+
         this.setSettingItemByProperty("position", this.settingData.position);
         this.setSettingItemByProperty("rotation", this.settingData.rotation);
 
-
-        if (this.$parent.updateModelTxtData) {
-          this.$parent.modelData.message = {
-            pointType: "weapon",
-            data: this.settingData
-          };
-          this.$parent.updateModelTxtData();
-        }
+        this.saveFn();
         //取消编辑
         _Global.SendMsgTo3D("取消编辑");
-
       })
     },
+
     pickDown() {
       _Global.SendMsgTo3D("放下武器");
     },
+
+    saveFn() {
+      // 单品中才有 updateModelTxtData
+      if (this.$parent.updateModelTxtData) {
+        this.$parent.modelData.message = this.getMessage();
+        this.$parent.updateModelTxtData();
+      } else {
+        // 在场景编辑中的修改
+        this.Update();
+      }
+    },
     Update() {
 
+      _Global.YJ3D._YJSceneManager.UpdateTransform(
+        this.getMessage()
+      );
 
-      if (this.$parent.updateModelTxtData) {
-        this.$parent.modelData.message = {
-          pointType: "weapon",
-          data: this.settingData
-        };
-        this.$parent.updateModelTxtData();
+      // 调用场景保存
+      if (this.$parent.updateSceneModelData) {
+        this.$parent.tableList[2].value = true;
+        this.$parent.updateSceneModelData();
       }
-
       //给模型指定贴图
-      _Global.SendMsgTo3D("刷新Transform", this.$parent.modelData.message);
+      // _Global.SendMsgTo3D("刷新Transform", this.$parent.modelData.message);
 
 
     },
     SelectFile(item) {
-      console.log(" ", item);
-      if (item.title == '选择UV图') {
-        this.inSelect = true;
-        this.RequestGetAllUVAnim();
-      }
     },
     async RequestGetAllUVAnim() {
 

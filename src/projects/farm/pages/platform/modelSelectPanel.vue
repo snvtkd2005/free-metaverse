@@ -200,11 +200,11 @@ export default {
       console.log(item);
       this.isOpen = false;
       if(this.$parent.$refs.settingPanel_npc){
-        this.$parent.$refs.settingPanel_npc.load(item);
+        this.$parent.$refs.settingPanel_npc.load(item,this.selectModelTable);
       }
       if(this.$parent.$refs.settingPanel_player){
         this.$parent.$refs.settingPanel_player.addBoneRefPlayer(item);
-      }
+      } 
     },
   },
 };

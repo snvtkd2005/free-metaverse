@@ -21,6 +21,7 @@ import { YJMeshRenderer } from "./components/YJMeshRenderer";
 import { YJAnimator } from "./components/YJAnimator";
 import { YJUVAnim3 } from "./components/YJUVAnim3.js";
 import { YJScreen } from "./components/YJScreen.js";
+import { YJWeapon } from "./components/YJWeapon.js";
 
 import { YJCar } from "./model/YJCar.js";
 import { YJTrigger } from "./YJTrigger.js";
@@ -348,8 +349,6 @@ class YJLoadUserModelManager {
           LoadError(uuid, callback, e,modelData);
         });
       } else if (modelData.modelType == "NPC模型") {
-
-
         modelPath = modelData.message.data.avatarData.modelPath;
         if (modelPath == undefined) {
           LoadError(uuid, callback);
@@ -410,8 +409,11 @@ class YJLoadUserModelManager {
         }
       } else if (modelData.modelType == "装备模型") {
         MeshRenderer.load(modelPath, (scope) => {
-          let meshTrigger = new YJTrigger(_this, object.GetGroup(), object, "weapon");
-          object.AddComponent("Trigger", meshTrigger);
+          
+          let _YJWeapon = new YJWeapon(_this, object.GetGroup(), object);
+          // let meshTrigger = new YJTrigger(_this, object.GetGroup(), object, "weapon");
+          // object.AddComponent("Trigger", meshTrigger);
+          object.AddComponent("Weapon", _YJWeapon);
 
           if (modelData.message != undefined) {
             object.SetMessage(modelData.message);
@@ -837,6 +839,14 @@ class YJLoadUserModelManager {
     }
 
     function Init() {
+
+      _Global.addEventListener("3d加载完成",()=>{
+        for (let i = 0; i < allTransform.length; i++) {
+          const transform = allTransform[i].transform;
+          transform.Start(); 
+        }
+      });
+
       InitAmmo();
       update();
     }

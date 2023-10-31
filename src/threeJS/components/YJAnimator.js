@@ -140,7 +140,7 @@ class YJAnimator {
               element.action.reset();
               element.action.play();
             }
-            console.log("播放动画 ", animName,element.action._clip.duration);
+            // console.log("播放动画 ", animName,element.action._clip.duration);
 
           }
         }

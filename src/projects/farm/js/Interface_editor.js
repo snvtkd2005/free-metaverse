@@ -15,7 +15,7 @@ import { YJPathfindingCtrl } from "/@/threeJS/pathfinding/YJPathfindingCtrl.js";
 
 class Interface {
   // _this 为三维主页面vue
-  constructor(_this) {
+  constructor(_this,inEditor) {
 
     _Global.MetaworldSize = 100;
     _Global.isSupportedHls = false;
@@ -62,6 +62,13 @@ class Interface {
       });
     }
 
+    // npc巡逻点模型
+    let spare = new THREE.SphereGeometry(0.1, 10);
+    const material = new THREE.MeshLambertMaterial({ color: 0xff0000 });
+    _Global.setting = {
+      inEditor: inEditor , //是否编辑模式
+      navPointMesh:new THREE.Mesh(spare, material),
+    }
     _Global.user = {
       camp:"lm"
     }
@@ -109,9 +116,9 @@ class Interface {
       }
 
       if (type == "放下武器") {
-        let singleTransform = _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
         _this._SceneManager.PickDownWeapon();
-        
+        let singleTransform = _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
+        if(singleTransform==null){return;}
         let message = singleTransform.GetMessage();
         if(message==null){return;}
         if(message.modelType != "装备模型"){return;}
@@ -489,6 +496,25 @@ class Interface {
     }
     _Global.GetNavpath = this.GetNavpath;
 
+    let eventList = [];
+    // 添加事件监听
+    this.addEventListener = function(e,fn){
+      eventList.push({eventName:e,fn:fn});
+    }
+    _Global.addEventListener = this.addEventListener;
+
+    // 执行事件
+    this.applyEvent = function(e){
+      for (let i = 0; i < eventList.length; i++) {
+        const element = eventList[i];
+        if(element.eventName == e){
+          element.fn();
+        }
+      }
+    }
+    _Global.applyEvent = this.applyEvent;
+
+
     // 如果3d加载好了能点击跳转时候 执行一下
     this.load3dComplete = function () {
       console.log(" 如果3d加载好了能点击跳转时候 执行 ");
@@ -499,7 +525,7 @@ class Interface {
           console.log("初始化寻路完成");
          });
       }
-
+      _Global.applyEvent("3d加载完成");
       if (_Global.load3dComplete == null) { return; }
       _Global.load3dComplete();
     }

@@ -270,7 +270,7 @@ export default {
       return;
     }
 
-    this.Interface = new Interface(this);
+    this.Interface = new Interface(this,false);
 
     this.RequestGetAllModel(() => {
       this.RequestGetAllSceneData();

@@ -5,13 +5,12 @@
 // 角色同步相关。如角色扔物品、施放技能等的同步
 // 脚下光圈
 import * as THREE from "three";
-import { createText } from 'three/examples/jsm/webxr/Text2D.js';
 
-import { YJLoadAvatar } from "./YJLoadAvatar.js";
-import { YJLoadModel } from "./YJLoadModel.js";
 import { YJParabola } from "./YJParabola.js";
 
 import { DecalGeometry } from 'three/examples/jsm/geometries/DecalGeometry.js';
+
+import { YJPlayerFireCtrl } from "./YJPlayerFireCtrl.js"; //战斗控制
 
 class YJPlayerDync {
   constructor(_this, scene, YJPlayer, playerGroup) {
@@ -19,9 +18,15 @@ class YJPlayerDync {
     var scope = this;
     let oldStateId = 0;
     let otherthrowObj = null;
-
+    let _YJPlayerFireCtrl = null;
     this.DyncPlayerState = function (state) {
-
+      if(state.title == "fire"){
+        if(_YJPlayerFireCtrl == null){
+          _YJPlayerFireCtrl = new YJPlayerFireCtrl(_this,YJPlayer);
+        }
+        _YJPlayerFireCtrl.DyncPlayerState(state);
+        return;
+      }
       let stateId = state.stateId;
       if (oldStateId != stateId) {
         if (otherthrowObj != null) {

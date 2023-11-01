@@ -102,21 +102,20 @@ class YJNPC {
         weaponData = data.weaponData.message.data;
 
         //加载武器
-        _this._YJSceneManager.DirectLoadMesh(_this.$uploadUrl + data.weaponData.modelPath,(model)=>{
+        _this._YJSceneManager.DirectLoadMesh(_this.$uploadUrl + data.weaponData.modelPath,(meshAndMats)=>{
           scope.GetBoneVague(weaponData.boneName, (bone) => {
+            
+            let model =  (meshAndMats.mesh).scene.clone();
             let transformCenter = model;
  
             bone.attach(transformCenter);
             let pos = weaponData.position;
             let rotaV3 = weaponData.rotation;
             transformCenter.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
-            // transformCenter.position.set(100 * pos[0], 100 * pos[1], 100 * pos[2]);
             transformCenter.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
             transformCenter.scale.set(100, 100, 100);
 
-            scope.SetPlayerState("normal");
-
-            // console.log("bone ",bone); 
+            scope.SetPlayerState("normal"); 
           });
         });
         console.log(" 加载武器 ",data.weaponData);
@@ -181,14 +180,23 @@ class YJNPC {
       }
     }
 
-
+		let temp = new THREE.Group();
+		_this.scene.add(temp);
+		let temp2 = new THREE.Group();
+		_this.scene.add(temp2);
 
     // 判断两点之间是否可以直接到达，即两点之间是否有障碍物，有障碍物表示不可直接到达
     function CheckColliderBetween(fromPos, targetPos) {
-      var raycaster_collider = new THREE.Raycaster(fromPos, targetPos, 0, 8);
-      var hits = raycaster_collider.intersectObjects(parent.children, true);
-      if (hits.length > 0) {
 
+			temp.position.copy(fromPos);
+			temp2.position.copy(targetPos);
+			temp.lookAt(temp2.position);
+			let direction = temp.getWorldDirection(new THREE.Vector3());
+			var raycaster_collider = new THREE.Raycaster(fromPos, direction, 0, 1 * fromPos.distanceTo(targetPos));
+			var hits = raycaster_collider.intersectObjects(_this._YJSceneManager.GetAllColliderAndLand(), true);
+
+      
+      if (hits.length > 0) {
         for (let i = 0; i < hits.length; i++) {
           const hit = hits[i].object;
           if (hit.name.indexOf("collider") > -1) {
@@ -615,14 +623,14 @@ class YJNPC {
         // let npcPos = scope.transform.GetWorldPos();
         let npcPos = parent.position.clone();
         let playerPosRef = playerPos.clone();
-        playerPosRef.y = npcPos.y;
+        playerPosRef.y = npcPos.y = 0.5;
         if (oldPlayerPos != playerPosRef) {
           oldPlayerPos = playerPosRef;
           navpath = [];
           doonce = 0;
         }
         let dis = playerPosRef.distanceTo(npcPos);
-        if (dis < vaildAttackDis) {
+        if (dis < vaildAttackDis && !CheckColliderBetween(npcPos,playerPosRef)) {
           navpath = [];
           doonce = 0;
           parent.lookAt(playerPosRef.clone());

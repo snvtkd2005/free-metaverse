@@ -205,7 +205,7 @@ class YJMeshRenderer {
 
         model.transform = owner;
 
-        scene.add(model);
+        scene.add(model); 
         _this._YJSceneManager.addLoadMesh(modelPath, gltf);
 
         TraverseOwner(model);
@@ -327,6 +327,7 @@ class YJMeshRenderer {
             cSize.y = item.scale.y * size.y;
             cSize.z = item.scale.z * size.z;
             _this._YJSceneManager.CreateTriangeMeshCollider(item, cSize);
+            _this._YJSceneManager.AddCollider(item);
 
             // console.log(" 创建模型自身collider ");
           } else if (item.name.includes("collider") && item.name.indexOf("land")) {
@@ -337,7 +338,6 @@ class YJMeshRenderer {
             cSize.y = item.scale.y * size.y;
             cSize.z = item.scale.z * size.z;
             _this._YJSceneManager.CreateTriangeMeshCollider(item, cSize);
-
             _this._YJSceneManager.AddLandCollider(item);
 
           }

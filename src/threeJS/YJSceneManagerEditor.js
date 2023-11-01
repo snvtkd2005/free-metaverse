@@ -59,7 +59,7 @@ class YJSceneManager {
   constructor(scene, renderer, camera, _this, platform, initCallback) {
     let scope = this;
 
-    this.CreateOrLoadPlayerAnimData = function(){
+    this.CreateOrLoadPlayerAnimData = function () {
       return _Global.CreateOrLoadPlayerAnimData();
     }
 
@@ -211,7 +211,7 @@ class YJSceneManager {
     this.GetSingleModelTransform = function () {
       return GetSingleModelTransformFn();
     }
-    
+
     /**
      * 
      * @param {string} 接收组件名
@@ -1076,7 +1076,7 @@ class YJSceneManager {
     }
 
     this.CreateSenceBy = (data) => {
-      if(data.length == 0){
+      if (data.length == 0) {
         this.LoadDone();
         return;
       }
@@ -1107,7 +1107,10 @@ class YJSceneManager {
 
     let allCollider = [];
     let allLandCollider = [];
-
+    let allAndLandCollider = [];
+    this.GetAllColliderAndLand = function () {
+      return allAndLandCollider;
+    }
     this.GetAllCollider = function () {
       return allCollider;
     }
@@ -1116,13 +1119,14 @@ class YJSceneManager {
     }
     this.AddCollider = function (colliderMesh) {
       allCollider.push(colliderMesh);
+      allAndLandCollider.push(colliderMesh); 
+      // console.error("添加模型碰撞体");
     }
     this.AddLandCollider = function (colliderMesh) {
       allLandCollider.push(colliderMesh);
-    }
-    this.GetLandCollider = function () {
-      return allLandCollider;
-    }
+      allAndLandCollider.push(colliderMesh); 
+      // console.error("添加模型碰撞体 地面 ");
+    } 
     //#region 记录模型信息中的模型名和模型路径
 
     let modelData = [];
@@ -1839,30 +1843,31 @@ class YJSceneManager {
           return;
         }
       }
+      // console.log("添加模型", path, mesh);
 
       let materials = [];
       if (path.includes(".fbx")) {
 
-        mesh.traverse(function (item) {
-          if (item.isMesh) {
-            materials.push(item.material);
-          }
-        });
+        // mesh.traverse(function (item) {
+        //   if (item.isMesh) {
+        //     materials.push(item.material);
+        //   }
+        // });
 
         loadMesh.push({ path: path, mesh: cloneAvatar(mesh, mesh.animations), materials });
       }
       if (path.includes(".gltf") || path.includes(".glb")) {
 
-        mesh.scene.traverse(function (item) {
-          if (item.isMesh) {
-            materials.push(item.material);
-          }
-        });
+        // mesh.scene.traverse(function (item) {
+        //   if (item.isMesh) {
+        //     materials.push(item.material);
+        //   }
+        // });
 
         loadMesh.push({ path: path, mesh: cloneAvatar(mesh.scene, mesh.animations), materials });
       }
 
-      // console.log("添加路径" + path);
+      // console.log("添加模型 222 ", path, mesh);
       // loadMesh.push({ path: path, mesh: mesh });
     }
     this.checkLoadMesh = function (path) {
@@ -1877,12 +1882,16 @@ class YJSceneManager {
       // console.log("未找到 copy 模型",path);
       return null;
     }
-    
+
     this.DirectLoadMesh = function (path, callback) {
       for (let i = loadMesh.length - 1; i >= 0; i--) {
         if (loadMesh[i].path == path) {
+          // console.log(" 找到相同模型 ",path);
           if (callback) {
-            callback(loadMesh[i].mesh.clone().children[0]);
+            callback({
+              mesh: loadMesh[i].mesh,
+              materials: loadMesh[i].materials,
+            });
           }
           return;
         }
@@ -1890,11 +1899,14 @@ class YJSceneManager {
       let _YJLoadModel = new YJLoadModel(_this, scene);
       // _this.GetPublicUrl() +
       _YJLoadModel.load("", path, new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, Math.PI, 0),
-        new THREE.Vector3(1, 1, 1), false, null, (scope) => {
-          let model = scope.GetModel();
-          if (callback) {
-            callback(model);
-          }
+        new THREE.Vector3(1, 1, 1), false, null, () => {
+          // let model = scope.GetModel();
+          // model.visible = false;
+          // if (callback) {
+          //   callback(model);
+          // }
+          scope.DirectLoadMesh(path, callback);
+
         });
     }
 
@@ -1978,7 +1990,9 @@ class YJSceneManager {
     //#endregion
 
     //#region 加载NPC 
-
+    this.cloneFbx = function(object){
+      return cloneAvatar(object,object.animations);
+    }
     function cloneAvatar(object, animations) {
       const clone = {
         animations: animations,

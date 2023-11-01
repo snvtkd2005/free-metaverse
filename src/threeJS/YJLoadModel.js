@@ -19,6 +19,9 @@ class YJLoadModel {
     this.GetModel = function () {
       return model;
     }
+    this.GetGroup = function () {
+      return group;
+    }
     this.RotaY = function (f) {
       model.rotation.y += f;
     }
@@ -125,8 +128,7 @@ class YJLoadModel {
         LoadMesh(mesh, name, pos, rota, size, createCollider, modelItem, callback);
         return;
       }
-
-      let group = new THREE.Group();
+ 
       // group.add(new THREE.AxesHelper(3));
 
       const loader = new GLTFLoader();
@@ -169,13 +171,8 @@ class YJLoadModel {
 
 
 
-        group.add(model);
-        scene.add(group);
-
-        console.error("加载 模型 ",group);
-
-        // _this._YJSceneManager.addLoadMesh(modelPath, group.clone());
-        // _this._YJSceneManager.addLoadMesh(modelPath, gltf);
+        // scene.add(model);
+        _this._YJSceneManager.addLoadMesh(modelPath, gltf);
 
         // console.log(" 加载模型完成 " ,model );
         // console.log(" 加载模型完成 ", name);

@@ -312,7 +312,7 @@ class YJLoadUserModelManager {
       // }
 
 
-      let MeshRenderer = new YJMeshRenderer(_this, object.GetGroup(), object, false);
+      let MeshRenderer = new YJMeshRenderer(_this, object.GetGroup(), object, true);
       object.AddComponent("MeshRenderer", MeshRenderer);
 
       if (modelData.modelType == "动画模型") {

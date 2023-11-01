@@ -3789,7 +3789,7 @@ class YJController {
             }
           } else {
             skillName = "拳头";
-            animName = "boxing attack001"; //空手状态 攻击状态 拳击动作
+            animName = "boxing idle"; //空手状态 攻击状态 拳击动作
             vaildAttackDis = 1.5;
             attackStepSpeed = 3;
           }

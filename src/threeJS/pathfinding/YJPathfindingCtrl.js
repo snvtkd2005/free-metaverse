@@ -12,11 +12,11 @@ class YJPathfindingCtrl {
     let pathfinding, pathfindingHelper, ZONE;
     let navmesh, groupId, navpath;
 
-    let count = 1;
+    let hasPathfinding = false;
     let posList = [];
     let rotaList = [];
     let scaleList = [];
-
+    let tempV3 = new THREE.Vector3(0,0,0);
     let matrix = new THREE.Matrix4();
     function transformToMatrix4(pos, rota, size) {
 
@@ -106,6 +106,7 @@ class YJPathfindingCtrl {
       }
       pathfinding.zones.npcLevel1.groups.splice(1,pathfinding.zones.npcLevel1.groups.length-1);
 
+      hasPathfinding = true;
       // const wireframeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, transparent: true });
       // scene.add(new THREE.Mesh(mergedGeometry, wireframeMaterial));
 
@@ -119,6 +120,11 @@ class YJPathfindingCtrl {
 
     let getTimes = 0;
     this.GetNavpath = function (fromPos, targetPos) {
+      if(!hasPathfinding){
+        tempV3.set(targetPos.x,targetPos.y,targetPos.z);
+        navpath = [tempV3];
+        return navpath;
+      }
       // fromPos.y = 0; 
       // targetPos.y = fromPos.y;
       // console.log(" 查找寻路路径 ",fromPos,targetPos);

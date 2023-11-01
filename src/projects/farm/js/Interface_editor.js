@@ -56,7 +56,8 @@ class Interface {
               // this.modelsList.push(item);
             }
           }
-
+          
+          _Global.CreateOrLoadPlayerAnimData().UpdateBoneRefData();
 
         }
       });

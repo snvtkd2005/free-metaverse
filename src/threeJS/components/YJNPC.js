@@ -453,11 +453,43 @@ class YJNPC {
       // console.log(" in SetPlayerState  ", e, type);
 
       switch (e) {
+        case "普通攻击":
+          animName = "boxing attack001"; //空手状态 攻击状态 
+          if(weaponData){
+            skillName = "" + weaponData.weaponType + "";
+            if (weaponData.pickType == "twoHand") {
+              if (weaponData.weaponType == "gun") {
+                animName = "shooting"; 
+                vaildAttackDis = 30;
+                attackStepSpeed = 1;
+              }
+            }
+          }else {
+            skillName = "拳头";
+            animName = "boxing attack001"; //空手状态 攻击状态 拳击动作
+            vaildAttackDis = 1.5;
+            attackStepSpeed = 3;
+          }
+          break;
         case "赤手攻击":
           animName = "boxing attack001"; //空手状态 攻击状态 
           break;
         case "准备战斗":
-          animName = "boxing idle"; //空手状态 战斗准备状态
+          
+          if(weaponData){
+            if (weaponData.pickType == "twoHand") {
+              if (weaponData.weaponType == "gun") {
+                animName = "shooting"; 
+                vaildAttackDis = 30;
+                attackStepSpeed = 1;
+              }
+            }
+          }else{
+            skillName = "拳头";
+            animName = "boxing idle"; //空手状态 攻击状态 拳击动作
+            vaildAttackDis = 1.5;
+            attackStepSpeed = 3;
+          }
           break;
         case "受伤":
           animName = "body block"; //空手状态 拳击受伤
@@ -479,14 +511,37 @@ class YJNPC {
         case "跑向目标":
           animName = "run";
           baseData.speed = RUNSPEED;
+          
+          if(weaponData){
+            if (weaponData.pickType == "twoHand") {
+              if (weaponData.weaponType == "gun") {
+                animName = "two hand gun run"; 
+              }
+            }
+          }
           break;
         case "丢失目标":
           animName = "run";
+          
+          if(weaponData){
+            if (weaponData.pickType == "twoHand") {
+              if (weaponData.weaponType == "gun") {
+                animName = "two hand gun run"; 
+              }
+            }
+          }
           // baseData.speed = MISSSPEED;
           break;
         case "巡逻":
           animName = "walk";
           baseData.speed = WALKSPEED;
+          if(weaponData){
+            if (weaponData.pickType == "twoHand") {
+              if (weaponData.weaponType == "gun") {
+                animName = "two hand gun walk"; 
+              }
+            }
+          }
           break;
         default:
           break;
@@ -545,6 +600,7 @@ class YJNPC {
     let vaildAttackLater = null;
     let toIdelLater = null;
     let skillName = "";
+    let vaildAttackDis = 1.5; //有效攻击距离
     function CheckState() {
 
       if (baseData.state == stateType.Normal) {
@@ -566,7 +622,7 @@ class YJNPC {
           doonce = 0;
         }
         let dis = playerPosRef.distanceTo(npcPos);
-        if (dis < 1.5) {
+        if (dis < vaildAttackDis) {
           navpath = [];
           doonce = 0;
           parent.lookAt(playerPosRef.clone());
@@ -576,9 +632,8 @@ class YJNPC {
             if (toIdelLater != null) {
               clearTimeout(toIdelLater);
               toIdelLater = null;
-            }
-            skillName = "赤手攻击";
-            scope.SetPlayerState(skillName);
+            } 
+            scope.SetPlayerState("普通攻击");
             inBlocking = true;
 
             setTimeout(() => {
@@ -592,12 +647,12 @@ class YJNPC {
                 }
               }
 
-            }, 100);
+            }, attackStepSpeed * 100);
 
             toIdelLater = setTimeout(() => {
               scope.SetPlayerState("准备战斗");
               toIdelLater = null;
-            }, 1000);//间隔等于攻击动作时长
+            },  attackStepSpeed * 300);//间隔等于攻击动作时长
 
           }
 

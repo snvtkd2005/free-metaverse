@@ -290,6 +290,7 @@ class YJPlayerAnimData {
       }
     }
 
+    // 进入页面前，先加载角色数据
     this.AddAvatarData = function (avatarData) {
       for (let i = 0; i < avatarDataList.length; i++) {
         const element = avatarDataList[i];
@@ -387,6 +388,13 @@ class YJPlayerAnimData {
         }
       }
       return this.GetAllExtendAnim(playerName);
+    }
+
+    // 角色数据加载完成后，刷新其中的骨骼映射数据
+    this.UpdateBoneRefData = function(){
+      for (let i = 0; i < avatarDataList.length; i++) {
+        avatarDataList[i] = FindBoneRefAnimationData(avatarDataList[i]);
+      }
     }
 
 

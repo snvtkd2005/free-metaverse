@@ -7,7 +7,7 @@ import * as THREE from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
-import { YJAnimModel } from "./loader/YJAnimModel";
+import { YJAnimModel } from "./components/YJAnimModel";
 import { YJBillboard } from "./model/YJBillboard";
 import { YJHotPoint } from "./YJHotPoint";
 import { YJ3DAudio } from "./YJ3DAudio";
@@ -18,7 +18,7 @@ import { YJLoadModel } from "./YJLoadModel";
 import { MeshBasicMaterial } from "three";
 import { YJTransform } from "./YJTransform";
 import { YJMeshRenderer } from "./loader/YJMeshRenderer";
-import { YJAnimator } from "./loader/YJAnimator";
+import { YJAnimator } from "./components/YJAnimator";
 import { YJUVAnim3 } from "./YJUVAnim3.js";
 
 // 加载静态物体

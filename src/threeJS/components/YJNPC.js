@@ -92,7 +92,7 @@ class YJNPC {
       _Global.CreateOrLoadPlayerAnimData().AddAvatarData(data.avatarData);
 
       _YJAnimator.SetAnimationsData(data.avatarData.animationsData);
-      
+
 
       if (data.movePos && data.movePos.length > 0) {
         this.UpdateNavPos("初始", data.movePos);
@@ -102,12 +102,12 @@ class YJNPC {
         weaponData = data.weaponData.message.data;
 
         //加载武器
-        _this._YJSceneManager.DirectLoadMesh(_this.$uploadUrl + data.weaponData.modelPath,(meshAndMats)=>{
+        _this._YJSceneManager.DirectLoadMesh(_this.$uploadUrl + data.weaponData.modelPath, (meshAndMats) => {
           scope.GetBoneVague(weaponData.boneName, (bone) => {
-            
-            let model =  (meshAndMats.mesh).scene.clone();
+
+            let model = (meshAndMats.mesh).scene.clone();
             let transformCenter = model;
- 
+
             bone.attach(transformCenter);
             let pos = weaponData.position;
             let rotaV3 = weaponData.rotation;
@@ -115,12 +115,12 @@ class YJNPC {
             transformCenter.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
             transformCenter.scale.set(100, 100, 100);
 
-            scope.SetPlayerState("normal"); 
+            scope.SetPlayerState("normal");
           });
         });
-        console.log(" 加载武器 ",data.weaponData);
+        console.log(" 加载武器 ", data.weaponData);
       }
-      
+
       scope.SetPlayerState("normal");
     }
 
@@ -135,7 +135,7 @@ class YJNPC {
           }
           doonce++;
         }
-      }); 
+      });
     }
     this.UpdateModel = function (msg) {
       if (msg == null || msg == undefined || msg == "") { return; }
@@ -180,22 +180,22 @@ class YJNPC {
       }
     }
 
-		let temp = new THREE.Group();
-		_this.scene.add(temp);
-		let temp2 = new THREE.Group();
-		_this.scene.add(temp2);
+    let temp = new THREE.Group();
+    _this.scene.add(temp);
+    let temp2 = new THREE.Group();
+    _this.scene.add(temp2);
 
     // 判断两点之间是否可以直接到达，即两点之间是否有障碍物，有障碍物表示不可直接到达
     function CheckColliderBetween(fromPos, targetPos) {
 
-			temp.position.copy(fromPos);
-			temp2.position.copy(targetPos);
-			temp.lookAt(temp2.position);
-			let direction = temp.getWorldDirection(new THREE.Vector3());
-			var raycaster_collider = new THREE.Raycaster(fromPos, direction, 0, 1 * fromPos.distanceTo(targetPos));
-			var hits = raycaster_collider.intersectObjects(_this._YJSceneManager.GetAllColliderAndLand(), true);
+      temp.position.copy(fromPos);
+      temp2.position.copy(targetPos);
+      temp.lookAt(temp2.position);
+      let direction = temp.getWorldDirection(new THREE.Vector3());
+      var raycaster_collider = new THREE.Raycaster(fromPos, direction, 0, 1 * fromPos.distanceTo(targetPos));
+      var hits = raycaster_collider.intersectObjects(_this._YJSceneManager.GetAllColliderAndLand(), true);
 
-      
+
       if (hits.length > 0) {
         for (let i = 0; i < hits.length; i++) {
           const hit = hits[i].object;
@@ -456,100 +456,56 @@ class YJNPC {
         CheckPlayer();
       }, 500);
     }
-
+    function GetAnimNameByPlayStateAndWeapon(e, weaponData) {
+      return _Global.CreateOrLoadPlayerAnimData().GetAnimNameByPlayStateAndWeapon(e, weaponData);
+    }
+    function GetSkillDataByWeapon(weaponData) {
+      return _Global.CreateOrLoadPlayerAnimData().GetSkillDataByWeapon(weaponData);
+    }
     this.SetPlayerState = function (e, type) {
       // console.log(" in SetPlayerState  ", e, type);
 
       switch (e) {
         case "普通攻击":
-          animName = "boxing attack001"; //空手状态 攻击状态 
-          if(weaponData){
-            skillName = "" + weaponData.weaponType + "";
-            if (weaponData.pickType == "twoHand") {
-              if (weaponData.weaponType == "gun") {
-                animName = "shooting"; 
-                vaildAttackDis = 30;
-                attackStepSpeed = 1;
-              }
-            }
-          }else {
-            skillName = "拳头";
-            animName = "boxing attack001"; //空手状态 攻击状态 拳击动作
-            vaildAttackDis = 1.5;
-            attackStepSpeed = 3;
-          }
+          var { s, v, a } = GetSkillDataByWeapon(weaponData);
+          skillName = s;
+          vaildAttackDis = v;
+          attackStepSpeed = a;
+          animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
+
           break;
         case "赤手攻击":
-          animName = "boxing attack001"; //空手状态 攻击状态 
+          animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
           break;
         case "准备战斗":
-          
-          if(weaponData){
-            if (weaponData.pickType == "twoHand") {
-              if (weaponData.weaponType == "gun") {
-                animName = "shooting"; 
-                vaildAttackDis = 30;
-                attackStepSpeed = 1;
-              }
-            }
-          }else{
-            skillName = "拳头";
-            animName = "boxing idle"; //空手状态 攻击状态 拳击动作
-            vaildAttackDis = 1.5;
-            attackStepSpeed = 3;
-          }
+
+          var { s, v, a } = GetSkillDataByWeapon(weaponData);
+          skillName = s;
+          vaildAttackDis = v;
+          attackStepSpeed = a;
+          animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
+
           break;
         case "受伤":
-          animName = "body block"; //空手状态 拳击受伤
+          animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
+
           break;
         case "normal":
-          animName = "idle";
-          if(weaponData){
-            if (weaponData.pickType == "twoHand") {
-              if (weaponData.weaponType == "gun") {
-                animName = "two hand gun idle";
-                console.log(" npc 使用 双手 枪 动作");
-              }
-            }
-          }
+          animName = GetAnimNameByPlayStateAndWeapon("停止移动", weaponData);
           break;
         case "death":
           animName = "death";
           break;
         case "跑向目标":
-          animName = "run";
           baseData.speed = RUNSPEED;
-          
-          if(weaponData){
-            if (weaponData.pickType == "twoHand") {
-              if (weaponData.weaponType == "gun") {
-                animName = "two hand gun run"; 
-              }
-            }
-          }
+          animName = GetAnimNameByPlayStateAndWeapon("移动", weaponData);
           break;
         case "丢失目标":
-          animName = "run";
-          
-          if(weaponData){
-            if (weaponData.pickType == "twoHand") {
-              if (weaponData.weaponType == "gun") {
-                animName = "two hand gun run"; 
-              }
-            }
-          }
-          // baseData.speed = MISSSPEED;
+          animName = GetAnimNameByPlayStateAndWeapon("移动", weaponData);
           break;
         case "巡逻":
-          animName = "walk";
           baseData.speed = WALKSPEED;
-          if(weaponData){
-            if (weaponData.pickType == "twoHand") {
-              if (weaponData.weaponType == "gun") {
-                animName = "two hand gun walk"; 
-              }
-            }
-          }
+          animName = GetAnimNameByPlayStateAndWeapon("行走", weaponData);
           break;
         default:
           break;
@@ -608,7 +564,7 @@ class YJNPC {
     let vaildAttackLater = null;
     let toIdelLater = null;
     let skillName = "";
-    let vaildAttackDis = 1.5; //有效攻击距离
+    let vaildAttackDis = 3; //有效攻击距离
     function CheckState() {
 
       if (baseData.state == stateType.Normal) {
@@ -630,7 +586,7 @@ class YJNPC {
           doonce = 0;
         }
         let dis = playerPosRef.distanceTo(npcPos);
-        if (dis < vaildAttackDis && !CheckColliderBetween(npcPos,playerPosRef)) {
+        if (dis < vaildAttackDis && !CheckColliderBetween(npcPos, playerPosRef)) {
           navpath = [];
           doonce = 0;
           parent.lookAt(playerPosRef.clone());
@@ -640,7 +596,7 @@ class YJNPC {
             if (toIdelLater != null) {
               clearTimeout(toIdelLater);
               toIdelLater = null;
-            } 
+            }
             scope.SetPlayerState("普通攻击");
             inBlocking = true;
 
@@ -660,7 +616,7 @@ class YJNPC {
             toIdelLater = setTimeout(() => {
               scope.SetPlayerState("准备战斗");
               toIdelLater = null;
-            },  attackStepSpeed * 300);//间隔等于攻击动作时长
+            }, attackStepSpeed * 300);//间隔等于攻击动作时长
 
           }
 

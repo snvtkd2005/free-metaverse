@@ -504,6 +504,7 @@ class YJPlayer {
     //创建姓名条参考物体
     function CreateNameTransFn() {
       if (createdName) {
+        nameScale = 0.5;
         namePosTrans.position.set(0, (playerHeight + 0.3), 0); //原点位置
         namePosTrans.scale.set(nameScale, nameScale, nameScale);
 

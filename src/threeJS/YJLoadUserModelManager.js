@@ -7,7 +7,7 @@ import * as THREE from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
-import { YJAnimModel } from "./loader/YJAnimModel";
+import { YJAnimModel } from "./components/YJAnimModel";
 import { YJBillboard } from "./model/YJBillboard";
 import { YJHotPoint } from "./YJHotPoint";
 import { YJ3DAudio } from "./YJ3DAudio";

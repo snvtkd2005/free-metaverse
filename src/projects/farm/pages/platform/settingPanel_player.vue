@@ -422,8 +422,8 @@ export default {
 
       // 控制三维
       _Global.YJ3D._YJSceneManager
-      .GetSingleModelTransform()
-          .SetMessage(this.getMessage());
+        .GetSingleModelTransform()
+        .SetMessage(this.getMessage());
     },
 
     getMessage() {
@@ -628,27 +628,10 @@ export default {
           } else {
             console.log(" 上传文件完成 ");
             this.canSave = true;
-            this.currentAnimData.animName = this.animName;
             this.currentAnimData.path = fileName;
             // this.$uploadUrl + this.folderBase + "/" +
             let items = [this.currentAnimData];
-            if (this.settingData.animationsExtendData == undefined) {
-              this.settingData.animationsExtendData = [];
-            }
-            // this.settingData.animationsExtendData = [];
-
-            let has = false;
-            for (let i = 0; i < this.settingData.animationsExtendData.length; i++) {
-              const element = this.settingData.animationsExtendData[i];
-              if (element.animName == this.currentAnimData.animName) {
-                element.path = this.currentAnimData.path;
-                has = true;
-              }
-            }
-            if (!has) {
-              this.settingData.animationsExtendData.push(this.currentAnimData);
-            }
-
+            this.currentAnimData.animName = this.animName;
             this.PlayerAnimData().AddAllExtendAnimData(this.modelData.name, items);
             // 加载动作
             _Global.YJ3D.YJController.SetPlayerAnimName(this.animName);
@@ -687,15 +670,27 @@ export default {
       this.save();
     },
     save() {
-      if (this.currentAnimData.animName != "") {
-        for (let i = 0; i < this.settingData.animationsExtendData.length; i++) {
-          const element = this.settingData.animationsExtendData[i];
-          if (element.animName == this.currentAnimData.animName) {
-            element.path = this.currentAnimData.path;
-            element.isLoop = this.currentAnimData.isLoop;
-          }
+
+      if (this.settingData.animationsExtendData == undefined) {
+        this.settingData.animationsExtendData = [];
+      }
+      console.log("添加新动作 11 ",this.currentAnimData.animName , this.animName);
+
+      let has = false;
+      for (let i = 0; i < this.settingData.animationsExtendData.length; i++) {
+        const element = this.settingData.animationsExtendData[i];
+        if (element.animName == this.animName) {
+          element.path = this.currentAnimData.path;
+          element.isLoop = this.currentAnimData.isLoop;
+          has = true;
         }
       }
+      this.currentAnimData.animName = this.animName;
+      if (!has) {
+        console.log("添加新动作 22", this.animName);
+        this.settingData.animationsExtendData.push(this.currentAnimData);
+      }
+
       // 能保存的情况下，才显示保存按钮
       console.log("角色数据 ", this.settingData);
       // 单品中才有 updateModelTxtData
@@ -708,7 +703,7 @@ export default {
       }
 
       // 清空动作上传输入
-      this.SetAnimName("");
+      // this.SetAnimName("");
     },
 
     Update() {

@@ -7,7 +7,7 @@ import TWEEN from '@tweenjs/tween.js';
 
 import { YJLoadModel } from "/@/threeJS/YJLoadModel.js";
  
-import { YJAnimator } from "../../../threeJS/loader/YJAnimator";
+import { YJAnimator } from "../../../threeJS/components/YJAnimator";
 
 class SceneManager {
   constructor(scene, renderer, camera, _this, modelParent, indexVue, callback) {

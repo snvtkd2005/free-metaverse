@@ -1,5 +1,5 @@
 
-import { createAnimationClip,createAnimationClip2,createAnimationClipScale } from "/@/utils/utils_threejs.js";
+import { createAnimationClip, createAnimationClip2, createAnimationClipScale } from "/@/utils/utils_threejs.js";
 import { YJLoadAnimation } from "/@/threeJS/loader/YJLoadAnimation.js";
 
 // 读取模型的动作数据
@@ -34,7 +34,7 @@ class YJPlayerAnimData {
     }
 
 
-    this.GetAllAvatar = function(){
+    this.GetAllAvatar = function () {
       return avatarDataList;
     }
 
@@ -42,29 +42,29 @@ class YJPlayerAnimData {
       // console.error(" 查找角色信息  ", playerName, avatarDataList);
       for (let i = 0; i < avatarDataList.length; i++) {
         if (avatarDataList[i].name == playerName) {
-          return  FindBoneRefAnimationData(avatarDataList[i]);
+          return FindBoneRefAnimationData(avatarDataList[i]);
         }
       }
       console.error(" 角色信息未找到 ", playerName);
     }
     //查找动画数据时，把映射数据也加上
-    function FindBoneRefAnimationData(avatarData){
-      if(avatarData.boneRefPlayer == undefined ){
+    function FindBoneRefAnimationData(avatarData) {
+      if (avatarData.boneRefPlayer == undefined) {
         return avatarData;
       }
       for (let i = 0; i < avatarDataList.length; i++) {
         // console.log(avatarDataList[i],avatarData.boneRefPlayer);
-        if (avatarDataList[i].id+'' == avatarData.boneRefPlayer) {
+        if (avatarDataList[i].id + '' == avatarData.boneRefPlayer) {
           avatarData.boneRefPlayerAnimationData = avatarDataList[i].animationsExtendData;
-          return  avatarData;
+          return avatarData;
         }
       }
     }
 
 
-    this.UpdateAvatarDataById = function(id,avatarData){
-      for (let i = 0; i < avatarDataList.length ; i++) {
-        if (avatarDataList[i].id == id) { 
+    this.UpdateAvatarDataById = function (id, avatarData) {
+      for (let i = 0; i < avatarDataList.length; i++) {
+        if (avatarDataList[i].id == id) {
           avatarDataList[i] = avatarData;
         }
       }
@@ -114,10 +114,10 @@ class YJPlayerAnimData {
         }
         //*
         // 映射到其他角色动作: 情况太复杂，实验失败
-        if (avatarData.boneRefPlayer != undefined 
+        if (avatarData.boneRefPlayer != undefined
           && avatarData.boneRefPlayerAnimationData != undefined
-          && avatarData.boneRefPlayerAnimationData.length>0 
-          ) {
+          && avatarData.boneRefPlayerAnimationData.length > 0
+        ) {
 
           for (let i = 0; i < avatarData.boneRefPlayerAnimationData.length; i++) {
             const element = avatarData.boneRefPlayerAnimationData[i];
@@ -149,7 +149,7 @@ class YJPlayerAnimData {
           }
         }
         //*/
-        
+
       }
     }
 
@@ -195,7 +195,7 @@ class YJPlayerAnimData {
             const element = avatarData.boneRefPlayerAnimationData[i];
             animList.push(element.animName);
           }
-        } 
+        }
 
         console.error(" 查找角色动作  ", playerName, animList);
 
@@ -226,7 +226,7 @@ class YJPlayerAnimData {
         // }
       }
     }
-    this.GetAnimDataByAnimName = function (playerName,animName, callback) {
+    this.GetAnimDataByAnimName = function (playerName, animName, callback) {
 
       let animList = [];
       let has = false;
@@ -240,24 +240,24 @@ class YJPlayerAnimData {
       if (has) {
         for (let i = 0; i < avatarData.animationsData.length; i++) {
           const element = avatarData.animationsData[i];
-          if(element.animName == animName){
-            if(callback){
+          if (element.animName == animName) {
+            if (callback) {
               callback(element);
             }
-            return ;
-          } 
+            return;
+          }
         }
 
         //再查找其扩展动作
         if (avatarData.animationsExtendData) {
           for (let i = 0; i < avatarData.animationsExtendData.length; i++) {
             const element = avatarData.animationsExtendData[i];
-            if(element.animName == animName){
-              if(callback){
+            if (element.animName == animName) {
+              if (callback) {
                 callback(element);
               }
-              return ;
-            } 
+              return;
+            }
           }
         }
 
@@ -265,14 +265,14 @@ class YJPlayerAnimData {
         if (avatarData.boneRefPlayerAnimationData) {
           for (let i = 0; i < avatarData.boneRefPlayerAnimationData.length; i++) {
             const element = avatarData.boneRefPlayerAnimationData[i];
-            if(element.animName == animName){
-              if(callback){
+            if (element.animName == animName) {
+              if (callback) {
                 callback(element);
               }
-              return ;
-            } 
+              return;
+            }
           }
-        } 
+        }
       }
     }
     async function LoadExtendData(playerName, callback) {
@@ -391,7 +391,7 @@ class YJPlayerAnimData {
     }
 
     // 角色数据加载完成后，刷新其中的骨骼映射数据
-    this.UpdateBoneRefData = function(){
+    this.UpdateBoneRefData = function () {
       for (let i = 0; i < avatarDataList.length; i++) {
         avatarDataList[i] = FindBoneRefAnimationData(avatarDataList[i]);
       }
@@ -418,6 +418,171 @@ class YJPlayerAnimData {
     }
     //#endregion
 
+
+    //#region 根据武器类型、角色状态得到动作名
+    this.GetAnimNameByPlayStateAndWeapon = function (e, weaponData) {
+      let animName = "";
+      switch (e) {
+        case "普通攻击":
+          if (weaponData) {
+            if (weaponData.pickType == "twoHand") {
+              if (weaponData.weaponType == "gun") {
+                animName = "shooting";
+              }
+              if (weaponData.weaponType == "sword") {
+                animName = "two hand sword attack";
+              }
+            }
+          } else {
+            animName = "boxing attack001"; //空手状态 攻击状态 拳击动作 
+          }
+
+          break;
+        case "赤手攻击":
+          animName = "boxing attack001"; //空手状态 攻击状态 拳击动作
+          break;
+        case "准备战斗":
+          animName = "boxing idle"; //空手状态 战斗准备状态
+          if (weaponData) {
+            if (weaponData.pickType == "twoHand") {
+              if (weaponData.weaponType == "gun") {
+                animName = "shooting";
+              }
+              if (weaponData.weaponType == "sword") {
+                animName = "two hand sword before attack";
+              }
+            }
+          } else { 
+            animName = "boxing idle"; //空手状态 攻击状态 拳击动作 
+          }
+
+          break;
+        case "受伤":
+          animName = "body block"; //空手状态 拳击受伤 
+          if (weaponData) {
+            if (weaponData.pickType == "twoHand") {
+              if (weaponData.weaponType == "gun") { 
+              }
+              if (weaponData.weaponType == "sword") {
+                animName = "two hand sword hurt";
+              }
+            }
+          } else { 
+            
+          }
+          break;
+        case "death":
+          animName = "death";
+          break;
+        case "sitting":
+          animName = "sitting";
+          break;
+        case "normal":
+          animName = "idle";
+          break;
+        case "跳跃":
+          animName = "jump";
+          break;
+        case "移动":
+          animName = "run";
+          if (weaponData) {
+            if (weaponData.pickType == "twoHand") {
+              if (weaponData.weaponType == "gun") {
+                animName = "two hand gun run";
+              }
+              if (weaponData.weaponType == "sword") {
+                animName = "two hand sword run";
+              }
+            }
+          }
+          break;
+        case "停止移动":
+          animName = "idle";
+          if (weaponData) {
+            if (weaponData.pickType == "twoHand") {
+              if (weaponData.weaponType == "gun") {
+                animName = "two hand gun idle";
+              }
+              if (weaponData.weaponType == "sword") {
+                animName = "two hand sword idle";
+              }
+            }
+          }
+          break;
+        case "战斗结束":
+          animName = "idle";
+          if (weaponData) {
+            if (weaponData.pickType == "twoHand") {
+              if (weaponData.weaponType == "gun") {
+                animName = "two hand gun idle";
+              }
+              if (weaponData.weaponType == "sword") {
+                animName = "two hand sword idle";
+              }
+            }
+          }
+          break;
+
+        case "行走":
+          animName = "walk"; 
+          if (weaponData) {
+            if (weaponData.pickType == "twoHand") {
+              if (weaponData.weaponType == "gun") {
+                animName = "two hand gun walk";
+              }
+              if (weaponData.weaponType == "sword") {
+                animName = "two hand sword walk";
+              }
+            }
+          }
+          break;
+        case "attack":
+          // if (type == undefined) {
+          //   animName = "attack";
+          // } else if (type == "胡萝卜") {
+          //   animName = "throw";
+          // } else if (type == "南瓜") {
+          //   animName = "throw2";
+          // } 
+          break;
+        case "interactive":
+          // if (type == "地上拾取") {
+          //   animName = "collection"; 
+          // }
+          break;
+        default:
+          break;
+      }
+
+      return animName;
+    }
+
+    // 根据武器获取攻击速度、攻击距离、攻击技能。 后期改为根据技能获取
+    this.GetSkillDataByWeapon = function (weaponData) {
+      let vaildAttackDis = 3;
+      let attackStepSpeed = 1;
+      let skillName = "";
+      if(weaponData){
+        skillName = "" + weaponData.weaponType + "";
+        if (weaponData.pickType == "twoHand") {
+          if (weaponData.weaponType == "gun") {
+            vaildAttackDis = 30;
+            attackStepSpeed = 1;
+          }
+          if (weaponData.weaponType == "sword") {
+            vaildAttackDis = 5;
+            attackStepSpeed = 5;
+          }
+        }
+      }else {
+        skillName = "拳头";
+        vaildAttackDis = 3;
+        attackStepSpeed = 3;
+      }
+
+      return {s:skillName,v:vaildAttackDis,a:attackStepSpeed};
+    }
+    //#endregion
 
 
     Init();

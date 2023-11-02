@@ -75,7 +75,7 @@ import { YJshaderLX } from "../../../threeJS/loader/YJshaderLX.js";
 
 import Animation from "../../../threeJS/nothing/Animation.js";
 import Test from "../../../threeJS/nothing/Test.js";
-import { YJAnimator } from "../../../threeJS/loader/YJAnimator";
+import { YJAnimator } from "../../../threeJS/components/YJAnimator";
 
 class SceneManager {
   constructor(scene, renderer, camera, _this, modelParent, indexVue, callback) {

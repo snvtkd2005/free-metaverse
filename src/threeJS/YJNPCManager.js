@@ -5,7 +5,7 @@
 import * as THREE from "three";
 
 
-import { YJAnimModel } from "./loader/YJAnimModel";
+import { YJAnimModel } from "./components/YJAnimModel";
 import { YJBillboard } from "./model/YJBillboard";
 import { YJHotPoint } from "./YJHotPoint";
 import { YJ3DAudio } from "./YJ3DAudio";

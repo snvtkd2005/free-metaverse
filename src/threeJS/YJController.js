@@ -3604,7 +3604,7 @@ class YJController {
       // _player.add(new THREE.AxesHelper(2));
       scene.remove(temp);
     } 
-    
+
     this.DyncPlayerState = function (state) {
       _YJPlayer.DyncPlayerState(state);
     }
@@ -3628,6 +3628,9 @@ class YJController {
 
     this.SetPlayerState = function (e, type) {
       // console.log(" in SetPlayerState  ",e,type);
+      if(playerState == PLAYERSTATE.INTERACTIVE){
+        return;
+      }  
 
       // switch (e) { 
       //   case "normal": 
@@ -3646,7 +3649,7 @@ class YJController {
       //     break;
       // }
       // _YJPlayer.ChangeAnim(animName);
-
+ 
       _YJPlayer.DyncPlayerState({
         title:"fire",
         content:"设置玩家状态",

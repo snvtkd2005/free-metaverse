@@ -258,7 +258,7 @@ export default {
       animList: [{ value: 'none', label: 'none' }],
 
       // 动作数据
-      accept: ".json,.fbx",
+      accept: ".json,.fbx,.glb",
       acceptImage: ".jpg,.png",
 
       loadContent: "打开动作列表",

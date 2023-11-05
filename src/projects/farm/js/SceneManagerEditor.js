@@ -179,9 +179,9 @@ class SceneManager {
         if (msg.pointType == "weapon") {
 
           console.log(" 碰到武器 ", msg.data);
-          let state = _this.YJController.GetUserDataItem("inPickWeapon");
+          let state = _this.YJController.GetUserDataItem("weaponData");
           // 判断角色是否可以拾取武器
-          if (state != undefined && state) {
+          if (state != undefined && state.weaponId != undefined &&  state.weaponId != "") {
             return;
           }
 
@@ -227,7 +227,7 @@ class SceneManager {
       if (tranform.GetComponent("Weapon") != null) {
         tranform.GetComponent("Weapon").Reset();
       }
-      boneAttachList.shift();
+      boneAttachList = [];
     }
 
     let targetModel = null;

@@ -279,7 +279,7 @@ export default {
       this.setSettingItemByProperty("level", this.settingData.baseData.level);
       this.setSettingItemByProperty("camp", this.settingData.baseData.camp);
       this.setSettingItemByProperty("height", this.settingData.height);
-
+      
       if(this.settingData.weaponData){
         this.setSettingItemByProperty("weapon",this.$uploadUrl + this.settingData.weaponData.icon );
       }
@@ -338,7 +338,8 @@ export default {
             let _YJAnimator = singleTransform.GetComponent("Animator");
             _YJAnimator.Destroy();
             _YJAnimator.UpdateModel(scope.GetModel(), scope.GetAnimations());
-            singleTransform.GetComponent("NPC").UpdateModel(item.message.data);
+            singleTransform.GetComponent("NPC").SetMessage(this.settingData);
+
           },
           (e) => { }
         );
@@ -365,6 +366,11 @@ export default {
         }
         if (element.property == "camp") {
           element.value = this.settingData.baseData.camp;
+        }
+        if (element.property == "weapon") {
+          if(this.settingData.weaponData){
+            element.value =this.$uploadUrl + this.settingData.weaponData.icon;
+          }
         }
       }
       console.log(" npc setting data ", _settingData);

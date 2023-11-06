@@ -81,7 +81,7 @@ class YJNPC {
       // data = JSON.parse(msg);
       data = (msg);
       console.log("in NPC msg = ", data);
-
+      weaponData = null;
       this.npcName = data.name;
       baseData = data.baseData;
       nameScale = data.avatarData.nameScale;
@@ -95,7 +95,7 @@ class YJNPC {
 
 
       if (data.movePos && data.movePos.length > 0) {
-        this.UpdateNavPos("初始", data.movePos);
+        this.UpdateNavPos("停止巡逻", data.movePos);
         // AddDirectPosToNavmesh(data.movePos);
       }
       if (data.weaponData && data.weaponData != {}) {
@@ -114,14 +114,20 @@ class YJNPC {
             transformCenter.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
             transformCenter.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
             transformCenter.scale.set(100, 100, 100);
-
+            _YJAnimator.ChangeAnim("none");
             scope.SetPlayerState("normal");
+            this.UpdateNavPos("开始巡逻", data.movePos);
+
           });
         });
         console.log(" 加载武器 ", data.weaponData);
       }
+      if (weaponData == null) {
+        _YJAnimator.ChangeAnim("none");
+        scope.SetPlayerState("normal");
+        this.UpdateNavPos("开始巡逻", data.movePos);
+      }
 
-      scope.SetPlayerState("normal");
     }
 
     this.GetBoneVague = function (boneName, callback) {
@@ -136,25 +142,7 @@ class YJNPC {
           doonce++;
         }
       });
-    }
-    this.UpdateModel = function (msg) {
-      if (msg == null || msg == undefined || msg == "") { return; }
-
-      data = (msg);
-      console.log("in NPC UpdateModel msg = ", data);
-      nameScale = data.nameScale;
-      playerHeight = data.height;
-      if (data.defaultPath == "" || data.defaultPath == undefined) {
-        data.defaultPath = "idle";
-      }
-
-      // 第一次加载时，把数据加入到全局角色数据中
-      _Global.CreateOrLoadPlayerAnimData().AddAvatarData(data);
-
-      _YJAnimator.SetAnimationsData(data.animationsData);
-      _YJAnimator.ChangeAnim(data.defaultPath);
-
-    }
+    } 
 
     // 通过碰撞检测两个点之间是否可到达
     function AddDirectPosToNavmesh(movePos) {
@@ -274,6 +262,7 @@ class YJNPC {
         return;
       }
       if (e == "初始") {
+
         movePos = [];
         // return;
         pos.map(item => {

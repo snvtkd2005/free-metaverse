@@ -167,6 +167,8 @@ class YJAnimator {
       oneAction.time = f;
     }
     this.Destroy = function () {
+      actions = [];
+      animations = [];
       mixer = null;
       cancelAnimationFrame(updateId);
     }
@@ -245,6 +247,7 @@ class YJAnimator {
     this.UpdateModel = function (model, _animations) {
       mixer = new THREE.AnimationMixer(model);
       animations = _animations;
+      actions = [];
       update();
     }
     function Init() {

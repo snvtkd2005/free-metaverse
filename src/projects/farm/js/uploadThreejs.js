@@ -4,6 +4,13 @@ import Fetch from "./Fetch";
 let tag = "https://snvtkd2005.com:3335";
 
 
+export const RemoveFolderBase = (data) => {
+    return Fetch({
+        method: "post",
+        url: `${tag}/removeFolderBase`,
+        data: data,
+    });
+}
 
 // 通过地图id查找该地图id上的场景模型或单品模型
 export const RequestMetaWorld = (data) => {

@@ -2,7 +2,7 @@ import * as THREE from "three";
 
  
 import { YJPlayerAnimData } from "/@/threeJS/YJPlayerAnimData.js";
-import { GetAllModel } from "./uploadThreejs.js";
+import { GetAllModel, RemoveFolderBase} from "./uploadThreejs.js";
 import { YJPathfindingCtrl } from "/@/threeJS/pathfinding/YJPathfindingCtrl.js";
 
 // Threejs 中的事件传出接口
@@ -25,7 +25,6 @@ class Interface {
     }
 
     async function RequestGetAllModel() {
-
       GetAllModel().then((res) => {
         console.log("获取所有单品模型 ", res);
         //先记录旧照片
@@ -38,8 +37,12 @@ class Interface {
             try {
               modelsList.push(JSON.parse(element));
             } catch (error) {
-              element = element.substring(1);
-              modelsList.push(JSON.parse(element));
+              try {
+                element = element.substring(1);
+                modelsList.push(JSON.parse(element));
+              } catch (error2) {
+                
+              }
             }
           }
 
@@ -63,6 +66,14 @@ class Interface {
       });
     }
 
+    // 移除folderBase
+    async function RequestRemoveFolderBase(folderBase) {
+      let fromData = new FormData();  
+      fromData.append("folderBase", folderBase);
+      RemoveFolderBase(fromData).then((res) => {
+        console.log(" 移除成功 ", res); 
+      });
+    }
     // npc巡逻点模型
     let spare = new THREE.SphereGeometry(0.1, 10);
     const material = new THREE.MeshLambertMaterial({ color: 0xff0000 });
@@ -95,7 +106,11 @@ class Interface {
     // 向3d页发送
     this.SendMsgTo3D = (type, msg) => {
       console.log("向3d页发送", type, msg);
-
+      if (type == "删除folderBase") {
+        // _Global.SendMsgTo3D("删除folderBase","");
+        RequestRemoveFolderBase(msg); 
+        return;
+      }
       if (type == "切到后台") {
         _Global.YJ3D.enableRenderer = false;
         return;

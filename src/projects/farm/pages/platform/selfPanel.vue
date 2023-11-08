@@ -117,7 +117,6 @@
               xl:grid-cols-7
               md:grid-cols-5
               grid-cols-3
-              flex-row-reverse 
              overflow-y-scroll 
             ">
             <!-- 选择列表 -->

@@ -67,36 +67,35 @@ export const createAnimationClip = (animName, data)=> {
 }
 
 
+// 骨骼高度相差太多时，缩小映射动作的骨骼Y轴偏移
 export const createAnimationClipScale = (animName,scale, anim)=> {
-  console.log("获取动画 tracks ", anim.tracks);
+  // console.log("获取动画 tracks ", anim.tracks);
   const tracks = anim.tracks;
-  // for (let i = 0; i < anim.tracks.length; i++) {
-  //   let element = anim.tracks[i]; 
-  //   const trackName = element.name;
-  //   let values = element.values;
-  //   if(trackName.includes("Hips.position")){
-  //     for (let j = 0; j < element.values.length; j=j+3) {
-  //       element.values[j+1] -= scale*100;  
-  //     }
-  //   }  
-  // } 
-  for (let i = anim.tracks.length-1; i >=0; i--) {
+  for (let i = 0; i < anim.tracks.length; i++) {
     let element = anim.tracks[i]; 
     const trackName = element.name;
     let values = element.values;
     if(trackName.includes("Hips.position")){
-      anim.tracks.splice(i,1);
-    }  
-    
-    if(trackName.includes("Hips.quaternion")){
-      anim.tracks.splice(i,1);
+      for (let j = 0; j < element.values.length; j=j+3) {
+        element.values[j+1] -= scale*100;  
+      }
     }  
   } 
-  console.log("获取动画 222  tracks ", tracks);
+
+  // for (let i = anim.tracks.length-1; i >=0; i--) {
+  //   let element = anim.tracks[i]; 
+  //   const trackName = element.name;
+  //   let values = element.values;
+  //   if(trackName.includes("Hips.position")){
+  //     anim.tracks.splice(i,1);
+  //   }   
+  // } 
+
+  // console.log("获取动画 222  tracks ", tracks);
 
   // 创建 AnimationClip
   const animationClip = new THREE.AnimationClip(animName, -1, tracks);
-  // animationClip.optimize();
+  animationClip.optimize();
   return animationClip;
 }
 

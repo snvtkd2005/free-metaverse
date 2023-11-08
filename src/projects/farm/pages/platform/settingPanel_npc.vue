@@ -339,7 +339,7 @@ export default {
             _YJAnimator.Destroy();
             _YJAnimator.UpdateModel(scope.GetModel(), scope.GetAnimations());
             singleTransform.GetComponent("NPC").SetMessage(this.settingData);
-
+     
           },
           (e) => { }
         );

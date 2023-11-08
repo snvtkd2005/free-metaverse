@@ -455,6 +455,9 @@ class YJSceneManager {
         clearGroupMeshFn(singleModel);
       }
 
+      if(singleTransform != null){
+        singleTransform.Destroy();
+      }
 
       let modelData = JSON.parse(localStorage.getItem("modelData"));
 

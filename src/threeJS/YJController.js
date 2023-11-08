@@ -2089,9 +2089,10 @@ class YJController {
       // posToString(targetPos)+ "this.wheelCurrentValue = " + this.wheelCurrentValue );
     }
     this.SetTargetHeight = (y) => {
-      // console.log(" in SetTargetHeight ", y);
+      camOffsetY = y/2;
+      // camTarget.position.y = y;
+      console.log(" 设置中心点高度 " ,y);
 
-      camTarget.position.y = y;
     }
 
 

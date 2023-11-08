@@ -5,7 +5,7 @@
   <div class="w-80 max-w-md p-2 text-white rounded-lg overflow-hidden">
     <div class=" flex justify-between">
       <div class="text-left">自带动作映射</div>
-      <div class=" cursor-pointer " @click="fold=!fold;" >{{fold?'展开':'折叠'}}</div>
+      <div class=" cursor-pointer " @click="fold = !fold;">{{ fold ? '展开' : '折叠' }}</div>
     </div>
     <div v-show="!fold">
 
@@ -21,6 +21,10 @@
           <div v-if="item.type == 'num'" class="flex gap-2 text-black">
             <YJinput_number :value="item.value" :step="item.step" :index="i" :callback="item.callback" />
           </div>
+        </div>
+
+        <div v-if="item.unit" class=" self-center ml-2 w-4  truncate">
+          {{ item.unit }}
         </div>
       </div>
 
@@ -70,8 +74,8 @@
           <div>
             <div v-for="(item, i) in animationsData" :key="i" :index="item.clipIndex"
               class="w-full h-8 self-center mx-auto flex mt-1" @click="SelectBaseAnim(item.clipIndex)" :class="item.connected
-                  ? ' bg-gray-500  pointer-events-none  '
-                  : ' bg-blue-200 cursor-pointer  pointer-events-auto '
+                ? ' bg-gray-500  pointer-events-none  '
+                : ' bg-blue-200 cursor-pointer  pointer-events-auto '
                 ">
               <div class="self-center mx-auto">
                 {{ item.animName }}
@@ -102,7 +106,7 @@ export default {
   data() {
     return {
       settingData: {},
-      fold:false,
+      fold: false,
       avatar: null,
       selectCurrentIndex: 0,
       animations: [],
@@ -140,16 +144,8 @@ export default {
       ],
 
       setting: [
-        {
-          property: "height",
-          display: true,
-          title: "高度",
-          type: "num",
-          value: 1.78,
-          step: 0.1,
-          unit: "m",
-          callback: this.ChangeValue,
-        },
+        { property: "height", display: true, title: "高度", type: "num", value: 1.78, step: 0.1, unit: "m", callback: this.ChangeValue, },
+        { property: "modelScale", display: true, title: "缩放比例", type: "num", value: 1, step: 0.01, callback: this.ChangeValue, },
         // { property: "name", display: true, title: "名字", type: "text", value: "", callback: this.ChangeValue },
       ],
     };
@@ -187,6 +183,7 @@ export default {
       }
 
       this.setSettingItemByProperty("height", this.settingData.height);
+      this.setSettingItemByProperty("modelScale", this.settingData.modelScale);
     },
 
     Init(_settingData) {
@@ -205,10 +202,16 @@ export default {
 
       if (this.setting[i].property == "height") {
         // 控制三维
-        this.$parent.$parent.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager
+        _Global.YJ3D._YJSceneManager
           .GetSingleModelTransform()
           .GetComponent("Avatar")
           .SetMessage(this.settingData);
+      }
+      if (this.setting[i].property == "modelScale") {
+        // 控制三维
+        _Global.YJ3D._YJSceneManager
+          .GetSingleModelTransform().GetComponent("MeshRenderer")
+          .SetSize(e);
       }
       console.log(i + " " + this.setting[i].value);
     },
@@ -229,7 +232,7 @@ export default {
 
     // 设置角色眼睛高度
     SetEyeHeight() {
-      this.$parent.$parent.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetTargetHeight(
+      _Global.YJ3D.YJController.SetTargetHeight(
         height
       );
     },
@@ -238,12 +241,12 @@ export default {
     Clear(i) {
       for (let index = 0; index < this.animationsData.length; index++) {
         const element = this.animationsData[index];
-        if (this.animations[i]==undefined || element.animName == this.animations[i].connectAnim) {
+        if (this.animations[i] == undefined || element.animName == this.animations[i].connectAnim) {
           element.connected = false;
         }
       }
-      if(this.animations[i]==undefined){
-        this.animations.splice(i,1);
+      if (this.animations[i] == undefined) {
+        this.animations.splice(i, 1);
         return;
       }
       this.animations[i].connectAnim = "";

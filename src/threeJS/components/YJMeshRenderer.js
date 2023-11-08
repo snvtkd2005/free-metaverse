@@ -19,11 +19,10 @@ class YJMeshRenderer {
     let size = null;
     let volume = null;
     let animations = null;
-
+    let meshScale = 1;
     this.GetAnimations = function () {
       return animations;
     }
-
     this.GetModel = function () {
       return model;
     }
@@ -47,7 +46,10 @@ class YJMeshRenderer {
       }
       return bones;
     }
-
+    this.SetSize = function (f) {
+      // console.log("设置模型缩放",f);
+      model.scale.set(meshScale * f, meshScale * f, meshScale * f);
+    }
     this.RotaY = function (f) {
       model.rotation.y += f;
     }
@@ -112,8 +114,7 @@ class YJMeshRenderer {
           }
           model.animations = animations;
 
-          let scale = 0.01;
-          model.scale.set(1 * scale, 1 * scale, 1 * scale);
+          model.scale.set(1 * meshScale, 1 * meshScale, 1 * meshScale);
 
           model.traverse(function (item) {
             if (item instanceof THREE.Mesh) {
@@ -169,11 +170,13 @@ class YJMeshRenderer {
         }
         return;
       }
+
       let type = "fbx";
       if (modelPath.indexOf(".gltf") > -1 || modelPath.indexOf(".glb") > -1) {
         type = "gltf";
       }
       if (type == "fbx") {
+        meshScale = 0.01;
         loadFbx(modelPath, callback, errorback);
         return;
       }
@@ -205,7 +208,7 @@ class YJMeshRenderer {
 
         model.transform = owner;
 
-        scene.add(model); 
+        scene.add(model);
         _this._YJSceneManager.addLoadMesh(modelPath, gltf);
 
         TraverseOwner(model);
@@ -284,7 +287,7 @@ class YJMeshRenderer {
       animations = mesh.animations;
 
       scene.add(model);
-
+      model.scale.set( meshScale,  meshScale,  meshScale);
       model.transform = owner;
 
       TraverseOwner(model);
@@ -297,7 +300,7 @@ class YJMeshRenderer {
       LoadCompleted();
 
     }
- 
+
 
     this.CreateCollider = function (colliderVisible) {
       if (model == null) { return; }

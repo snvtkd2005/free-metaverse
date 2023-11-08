@@ -859,6 +859,7 @@ export default {
             );
 
             this.$refs.opacityBtn.focus();
+            //删除上一步的模型
             //加载模型
             _Global.YJ3D._YJSceneManager.CreateSingleModel(
               "https://snvtkd2005.com/socketIoServer/socketIoServer/uploads/" +
@@ -871,7 +872,8 @@ export default {
                 setTimeout(() => {
                   this.tipData.opening = false;
                   if (this.modelData.modelType == "角色模型") {
-                    this.$refs.settingPanel_avatar.SetAvatar(
+
+                    this.$refs.settingPanel_player.SetAvatar(
                       _Global.YJ3D._YJSceneManager.GetSingleModelTransform()
                     );
                   }

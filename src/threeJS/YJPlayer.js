@@ -320,7 +320,9 @@ class YJPlayer {
             if (controllerCallback) {
               controllerCallback(group, playerGroup);
             }
-            console.log("创建 本地角色 == > " + playerName);
+            console.log("创建 本地角色 == > " + playerName,playerHeight);
+            _this.YJController.SetTargetHeight(playerHeight);
+
           } else {
             console.log("创建角色镜像 == > " + playerName);
           }

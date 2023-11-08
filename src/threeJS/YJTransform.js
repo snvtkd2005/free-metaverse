@@ -35,13 +35,16 @@ class YJTransform {
     }
     this.SetMessage = function (message) {
       data.message = message;
+      
       if (message.pointType == "npc") {
         let com = this.GetComponent("NPC");
         com.SetMessage(message.data);
+        this.GetComponent("MeshRenderer").SetSize(message.data.avatarData.modelScale);
       }
       if (message.pointType == "player" || message.pointType == "avatar") {
         let com = this.GetComponent("Avatar");
         com.SetMessage(message.data);
+        this.GetComponent("MeshRenderer").SetSize(message.data.modelScale);
       }
       if (message.pointType == "UV动画") {
         let com = this.GetComponent("UVAnim");
@@ -55,6 +58,8 @@ class YJTransform {
         let com = this.GetComponent("Weapon");
         com.SetMessage(message.data);
       }
+
+       
     }
     let handlerList = [];
     this.AddHandle = function (handler) {
@@ -188,6 +193,10 @@ class YJTransform {
       group.scale.set(size.x, size.y, size.z);
       data.pos = pos;
       data.rotaV3 = rota;
+    }
+    this.SetSize = function (size) {
+      group.scale.set(size.x, size.y, size.z); 
+      data.scale = {x:size.x,y:size.y,z:size.z}; 
     }
     this.SetModelPath = function (modelPath) {
       data.modelPath = modelPath;

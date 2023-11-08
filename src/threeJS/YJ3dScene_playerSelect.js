@@ -438,7 +438,9 @@ class YJ3dScene_playerSelect {
       }else{
         modelPath =  _this.GetPublicUrl() + avatarData.modelPath;
       }
-      // console.log("切换角色11 高度为 ", playerHeight);
+      let modelScale = avatarData.modelScale;
+
+      console.log(" 准备加载角色 ", avatarData);
       SetViewHeight();
       if (avatar == null) {
         avatar = new YJLoadAvatar(
@@ -452,6 +454,8 @@ class YJ3dScene_playerSelect {
             setTimeout(() => {
               group.add(_playerObj);
               _playerObj.position.set(0, 0, 0); //原点位置
+              group.scale.set(modelScale,modelScale, modelScale); //原点位置
+
             }, 500);
 
             if (callback) {
@@ -494,6 +498,9 @@ class YJ3dScene_playerSelect {
 
             group.add(_playerObj);
             _playerObj.position.set(0, 0, 0); //原点位置
+            group.scale.set(modelScale,modelScale, modelScale); //原点位置
+            
+
             if (callback) {
               callback(avatar);
             }

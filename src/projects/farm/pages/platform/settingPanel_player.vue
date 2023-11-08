@@ -91,7 +91,11 @@
   <div class=" w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('选择可映射角色')">
     <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">选择可映射角色</div>
   </div>
-
+  
+  <div v-if="settingData.boneRefPlayer!=''" class=" w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('清除角色映射')">
+    <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">清除角色映射</div>
+  </div>
+  
   <div class=" hidden w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('骨骼映射面板')">
     <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">打开角色骨骼映射面板</div>
   </div>
@@ -241,7 +245,7 @@ export default {
         // 扩展动作，由加载外部动画文本解析得到
         animationsExtendData: [],
         // boneList: [],
-        boneRefPlayer: 0,
+        boneRefPlayer: "",
         boneRefPlayerAnimationData: [],
       },
 
@@ -258,7 +262,8 @@ export default {
       animList: [{ value: 'none', label: 'none' }],
 
       // 动作数据
-      accept: ".json,.fbx,.glb",
+      accept: ".json,.fbx",
+      // accept: ".json,.fbx,.glb",
       acceptImage: ".jpg,.png",
 
       loadContent: "打开动作列表",
@@ -344,6 +349,11 @@ export default {
           .GetSingleTransformComponent("MeshRenderer").GetAllBone();
         this.$parent.$refs.boneConvertPanel.SetVisible(true, bones, this.settingData.boneList);
       }
+      if (e == "清除角色映射") {
+        this.settingData.boneRefPlayer ="";
+        this.settingData.boneRefPlayerAnimationData = [];
+      }
+      
     },
     setSettingItemByProperty(property, value) {
       for (let i = 0; i < this.setting.length; i++) {
@@ -605,6 +615,7 @@ export default {
       this.UploadFiles(this.fileList[0]);
     },
 
+    // 上传动作文件
     async UploadFiles(file) {
       if (this.loading) {
         return;
@@ -634,8 +645,11 @@ export default {
             this.currentAnimData.animName = this.animName;
             this.PlayerAnimData().AddAllExtendAnimData(this.modelData.name, items);
             // 加载动作
-            _Global.YJ3D.YJController.SetPlayerAnimName(this.animName);
+            // _Global.YJ3D.YJController.SetPlayerAnimName(this.animName);
 
+            let _YJAnimator = _Global.YJ3D._YJSceneManager
+              .GetSingleTransformComponent("Animator");
+            _YJAnimator.ChangeAnim(this.animName);
           }
         }
       });

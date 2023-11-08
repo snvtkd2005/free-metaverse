@@ -49,12 +49,14 @@ class YJPlayerAnimData {
     }
     //查找动画数据时，把映射数据也加上
     function FindBoneRefAnimationData(avatarData) {
-      if (avatarData.boneRefPlayer == undefined) {
+      if (avatarData.boneRefPlayer == undefined || avatarData.boneRefPlayer == '') {
         return avatarData;
       }
       for (let i = 0; i < avatarDataList.length; i++) {
         // console.log(avatarDataList[i],avatarData.boneRefPlayer);
         if (avatarDataList[i].id + '' == avatarData.boneRefPlayer) {
+          // console.log(" 映射两个角色数据 ",avatarData,avatarDataList[i]);
+          avatarData.boneOffsetY = avatarDataList[i].height - avatarData.height;
           avatarData.boneRefPlayerAnimationData = avatarDataList[i].animationsExtendData;
           return avatarData;
         }
@@ -113,8 +115,8 @@ class YJPlayerAnimData {
           }
         }
         //*
-        // 映射到其他角色动作: 情况太复杂，实验失败
-        if (avatarData.boneRefPlayer != undefined
+        // 映射到其他角色动作: 情况太复杂，实验失败。 跟进:只有相同骨骼才能映射成功
+        if (avatarData.boneRefPlayer != undefined && avatarData.boneRefPlayer != ''
           && avatarData.boneRefPlayerAnimationData != undefined
           && avatarData.boneRefPlayerAnimationData.length > 0
         ) {
@@ -124,7 +126,6 @@ class YJPlayerAnimData {
             if (element.animName == animName) {
 
               let path = (_this.$uploadUrl + avatarData.boneRefPlayer + "/" + element.path);
-              // console.log("加载扩展动作 ",path);
               if (path.includes("json")) {
                 this.LoadAssset(path, (data) => {
                   console.log(" 读取扩展动作 ", path, data);
@@ -139,9 +140,12 @@ class YJPlayerAnimData {
                 }
                 _YJLoadAnimation.load(path, (anim) => {
                   if (callback) {
-                    callback(element.isLoop, anim);
-                    // callback(element.isLoop, createAnimationClipScale(animName,0.6, anim) );
-
+                    if(Math.abs( avatarData.boneOffsetY)>0.2){
+                      // 骨骼高度相差太多时，缩小映射动作的骨骼Y轴偏移
+                      callback(element.isLoop, createAnimationClipScale(animName,avatarData.boneOffsetY, anim) );
+                    }else{
+                      callback(element.isLoop, anim);
+                    }
                   }
                 });
               }

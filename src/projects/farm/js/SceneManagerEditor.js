@@ -178,10 +178,11 @@ class SceneManager {
         let msg = owner.GetMessage();
         if (msg.pointType == "weapon") {
 
-          console.log(" 碰到武器 ", msg.data);
           let state = _this.YJController.GetUserDataItem("weaponData");
+          console.log(" 碰到武器 ", msg.data,state);
+
           // 判断角色是否可以拾取武器
-          if (state != undefined && state.weaponId != undefined &&  state.weaponId != "") {
+          if (state.weaponType != "") {
             return;
           }
 

@@ -298,7 +298,7 @@ export default {
       window.location.reload();
       _Global.reloadTimes = 0;
     }
-    this.Interface = new Interface(this,true);
+    this.Interface = new Interface(this, true);
 
     if (this.$route.path.toLowerCase().includes("editorsingle")) {
       localStorage.setItem("modelType", "模型");
@@ -441,7 +441,7 @@ export default {
       };
 
       this.$refs.YJmetaBase.ClickSelectPlayerOK(this.userData);
- 
+
       _Global.YJ3D.SetNickName(this.userName);
       // 初始化截图
       this.$refs.PanelCut.Init(_Global.YJ3D);
@@ -539,6 +539,13 @@ export default {
     // 模型数据上传完成后，保存并上传其文本文件数据
     updateModelTxtData() {
       console.log(this.modelData);
+
+      if (this.modelData.message == undefined) {
+        if (this.modelData.modelType == "角色模型") {
+          this.modelData.message = this.$refs.settingPanel_player.getMessage();
+        }
+      }
+
 
       this.modelData.icon =
         this.folderBase + "/" + this.folderBase + "_thumb.png";

@@ -64,6 +64,13 @@ class Interface {
 
         }
       });
+
+      
+      let res = await _this.$axios.get(
+        _this.$uploadPlayerUrl + "anim_data.txt" + "?time=" + new Date().getTime()
+      ); 
+      _Global.animList = res.data; 
+      console.log("_Global.animList = ",_Global.animList);
     }
 
     // 移除folderBase
@@ -107,7 +114,7 @@ class Interface {
     this.SendMsgTo3D = (type, msg) => {
       console.log("向3d页发送", type, msg);
       if (type == "删除folderBase") {
-        // _Global.SendMsgTo3D("删除folderBase","");
+        // _Global.SendMsgTo3D("删除folderBase","1699511519512");
         RequestRemoveFolderBase(msg); 
         return;
       }

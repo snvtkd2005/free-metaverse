@@ -32,14 +32,23 @@ class YJAnimator {
     let animationsData = [];
     this.SetAnimationsData = function (v) {
       // animationsData = v;
+      actions = [];
+      for (let j = 0; j < animations.length; j++) { 
+        mixer.clipAction(animations[j]).setEffectiveWeight(0);
+      }
     }
     this.ChangeAnim = function (animName) {
+      // console.log(" in change anim ", animName,oldAnimName); 
       if (oldAnimName == animName) { return; }
-      // console.log(" in change anim ", animName); 
+      oldAnimName = animName;
       if (activateAllActions(animName)) {
 
       } else {
-        let messageData = scope.transform.GetMessage().data;
+        let message = scope.transform.GetMessage();
+        if (message == null) {
+          return false;
+        }
+        let messageData = message.data;
         if (messageData.avatarData) {
           _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.avatarData.name, animName, (isLoop, anim) => {
             scope.ChangeAnimByAnimData(animName, isLoop, anim);
@@ -50,7 +59,6 @@ class YJAnimator {
           });
         }
       }
-      oldAnimName = animName;
       //
       return false;
     }
@@ -110,8 +118,7 @@ class YJAnimator {
         action.loop = THREE.LoopOnce; //不循环播放
         action.clampWhenFinished = true;//暂停在最后一帧播放的状态
       }
-
-      animations.push(anim);
+ 
       actions.push({
         action: action,
         targetIndex: animations.length - 1, animName: animName, timeScale: 1, weight: 1
@@ -123,6 +130,10 @@ class YJAnimator {
 
     }
     function activateAllActions(animName) {
+
+      for (let j = 0; j < animations.length; j++) {
+        mixer.clipAction(animations[j]).setEffectiveWeight(0);
+      }
 
       let has = false;
       for (let i = 0; i < actions.length; i++) {

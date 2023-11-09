@@ -206,6 +206,10 @@ export default {
           .GetSingleModelTransform()
           .GetComponent("Avatar")
           .SetMessage(this.settingData);
+        //同时更新到 YJPlayerAnimData 中
+        _Global.CreateOrLoadPlayerAnimData().UpdateAvatarDataById(this.settingData.id, this.settingData);
+        console.log(" 刷新 setting data ", this.settingData.id, this.settingData);
+
       }
       if (this.setting[i].property == "modelScale") {
         // 控制三维

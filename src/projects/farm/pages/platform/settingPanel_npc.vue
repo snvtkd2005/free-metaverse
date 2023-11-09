@@ -62,6 +62,7 @@
     </div>
 
 
+    <settingPanel_npcSkill ref="settingPanel_npcSkill" />
 
 
     <div class="mt-10 w-80 h-10 text-white cursor-pointer" @click="ClickHandler(isMoving?'停止巡逻':'开始巡逻')">
@@ -98,6 +99,7 @@
 import YJinput_text from "./components/YJinput_text.vue";
 import YJinput_number from "./components/YJinput_number.vue";
 import YJinput_drop from "./components/YJinput_drop.vue";
+import settingPanel_npcSkill from "./settingPanel_npcSkill.vue";
 
 export default {
   name: "settingpanel_uvanim",
@@ -105,6 +107,7 @@ export default {
     YJinput_text,
     YJinput_number,
     YJinput_drop,
+    settingPanel_npcSkill,
   },
   data() {
     return {
@@ -177,6 +180,7 @@ export default {
       this.settingData.id = this.$parent.folderBase + "";
       return;
     }
+    this.folderBase = modelData.folderBase;
 
     console.log(" modelData = ", modelData);
     this.settingData = modelData.message.data;

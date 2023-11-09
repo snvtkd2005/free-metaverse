@@ -108,81 +108,9 @@
   <div class=" mt-2 w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('保存')">
     <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">保存</div>
   </div>
-
-  <!-- 技能面板 -->
-  <div class="
-              w-80
-              max-w-md
-               p-2
-             text-white 
-             rounded-lg
-             overflow-hidden 
-            ">
-    <div class=" flex ">
-      <div class=" text-left ">技能设置</div>
-      <div class=" text-left w-6 h-6 bg-white flex text-black self-center leading-6 mx-auto cursor-pointer "
-        @click="EditorSkillEvent('新建')">
-        <div class=" mx-auto">
-          +
-        </div>
-      </div>
-    </div>
-    <div class="mt-2 gap-3 grid grid-cols-3 flex-row-reverse">
-      <div v-for="(item, i) in skillList" :key="i" class=" text-xs  text-left  w-20 h-auto mb-2     ">
-        <div class="w-12 h-12 self-center mx-auto cursor-pointer" @click="EditorSkillEvent('读取', item)">
-          <img class="w-full h-full object-fill hover:opacity-70" :src="item.icon" />
-        </div>
-        <div class="mt-2 w-28 truncate px-2 flex text-sm justify-between ">
-          <text>{{ item.name }}</text>
-        </div>
-        <div class="mt-2 px-2 flex text-xs justify-between">
-          <div class="cursor-pointer" @click="EditorSkillEvent('编辑', item, i)">{{ UIData.base.editor }}</div>
-          <div class="cursor-pointer" @click="EditorSkillEvent('删除', item, i)">{{ UIData.base.delete }}</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 技能添加弹窗 -->
-  <div v-if="inAddSkill" class=" text-white bg-black bg-opacity-40   ">
-
-    <div v-for="(item, i) in skillFrom" :key="i" class=" 
-               text-xs  text-left flex w-80 px-4 py-2 h-auto mb-2     ">
-      <div class=" self-center w-40  truncate">
-        {{ item.title }}
-      </div>
-      <div class=" self-center  ">
-
-        <div v-if="item.type == 'upload'" class=" relative flex  gap-2 cursor-pointer  ">
-          <div v-if="item.value != ''" class=" bg-black" @click="ChangeAnimBySkill(setting)">
-            <img class=" w-12 h-12 " :src="item.value" alt="">
-          </div>
-          <el-upload class="bg-transparent" action="" :before-upload="handleBeforeUpload_skillicon" :accept="acceptImage"
-            :show-file-list="false">
-            <div class="p-2 w-20 cursor-pointer bg-gray-500
-            hover:bg-546770" @click="UploadSkillClick(item)">上传</div>
-          </el-upload>
-        </div>
-
-        <div v-if="item.type == 'text'" class=" w-20 h-4 text-black ">
-          <YJinput_text class=" w-20 h-4 " :value="item.value" :index="i" :callback="item.callback" />
-        </div>
-
-        <div v-if="item.type == 'drop'" class=" w-20 h-16 text-black ">
-          <YJinput_drop class=" w-32 h-16 " :value="item.value" :options="item.options" :index="i"
-            :callback="item.callback" />
-        </div>
-
-      </div>
-
-    </div>
-    <div class=" w-40 mx-auto flex justify-between ">
-      <div class="  cursor-pointer bg-black opacity-75 p-2 " @click="SkillFloatEvent('保存')">保存</div>
-      <div class="  cursor-pointer bg-black opacity-75 p-2 " @click="SkillFloatEvent('取消')">取消</div>
-    </div>
-  </div>
-
   <div>
+
+    <settingPanel_npcSkill ref="settingPanel_npcSkill" />
 
   </div>
 </template>
@@ -209,6 +137,7 @@ import YJinput_text from "./components/YJinput_text.vue";
 import YJinput_toggle from "./components/YJinput_toggle.vue";
 import YJinput_drop from "./components/YJinput_drop.vue";
 import YJinput_vector3 from "./components/YJinput_vector3.vue";
+import settingPanel_npcSkill from "./settingPanel_npcSkill.vue";
 
 import settingPanel_avatar from "./settingPanel_avatar.vue";
 
@@ -225,6 +154,7 @@ export default {
     YJinput_toggle,
     YJinput_drop,
     YJinput_vector3,
+    settingPanel_npcSkill,
   },
   data() {
     return {
@@ -238,7 +168,7 @@ export default {
       settingData: {
         name: "",
         id: "",
-        height: 1.4,
+        height: 1.7,
         nameScale: 1,
         modelScale: 1,
         animationsData: [],
@@ -277,20 +207,6 @@ export default {
         path: "",
         icon: "",
       },
-
-
-      skillFrom: [
-        { property: "skillName", title: "技能名", type: "text", value: "", callback: this.ChangeValueSkill },
-        { property: "icon", title: "图标", type: "upload", value: "", callback: this.ChangeValueSkill },
-        { property: "animList", title: "动作", type: "drop", value: "none", options: [], callback: this.ChangeValueSkill },
-      ],
-      skillList: [
-        // {
-        //   name: "挥剑", icon: "", animList: [
-        //     { animName: "shooting", path: "anim.json", icon: "" }
-        //   ]
-        // },
-      ],
     };
   },
   created() {
@@ -302,6 +218,8 @@ export default {
     // _Global.SendMsgTo3D("添加组件", { component: "car", data: this.carData });
     let modelData = JSON.parse(localStorage.getItem("modelData"));
     this.folderBase = modelData.folderBase;
+
+    this.modelData = modelData;
 
     // this.folderBase = "farmplayer";
     console.log("modelData in playerPanel ", modelData);
@@ -319,7 +237,6 @@ export default {
     //   this.settingData.boneRefPlayer = undefined;
     //   this.settingData.boneRefPlayerAnimationData = undefined;
     // }
-    this.modelData = modelData;
     this.initValue();
 
     this.$refs.settingPanel_avatar.initValue(this.settingData);
@@ -371,51 +288,12 @@ export default {
       this.$parent.removeThreeJSfocus();
     },
     addThreeJSfocus() {
-    },
-    SetAnimList(_animList) {
-      this.animList = [];
-      for (let i = 0; i < _animList.length; i++) {
-        const element = _animList[i];
-        this.animList.push({ value: element, label: element });
-      }
-
-      this.skillFrom[2].options = this.animList;
-    },
-    SetSkillList(_skillList) {
-      for (let i = 0; i < _skillList.length; i++) {
-        this.skillList.push(_skillList[i]);
-      }
-    },
+    }, 
     PlayerAnimData() {
       return _Global.CreateOrLoadPlayerAnimData();
     },
-    async initValue() {
-      return;
-      let res = await this.$axios.get(
-        this.$uploadPlayerUrl + this.folderBase + "/" + this.folderBase + "_data.txt" + "?time=" + new Date().getTime()
-      );
-      this.animListData = res.data;
-
-      console.log(this.animListData);
-      let animList = this.PlayerAnimData().AddAllExtendAnimData("小孩", this.animListData);
-      this.SetAnimList(animList);
-      res = await this.$axios.get(
-        this.$uploadPlayerUrl + this.folderBase + "/" + this.folderBase + "_skill_data.txt" + "?time=" + new Date().getTime()
-      );
-      console.log(" _skill_data res ", res);
-      this.SetSkillList(res.data);
-    },
-    // 点击技能图标播放动画
-    ChangeAnimBySkill(item) {
-      this.ChangeAnim(item.setting[2].value);
-    },
-    ChangeValueSkill(i, e) {
-      console.log(i, e);
-      this.skillFrom[i].value = e;
-      if (this.skillFrom[i].property == "animList") {
-        this.ChangeAnim(e);
-      }
-    },
+    async initValue() { 
+    }, 
     // 改变控制器角色动作
     ChangeAnim(e) {
       _Global.YJ3D.YJController.SetPlayerAnimName(e);
@@ -460,104 +338,7 @@ export default {
 
       }
       console.log(i + " " + this.setting[i].value, this.animName);
-    },
-    SkillFloatEvent(e) {
-      if (e == "保存") {
-        this.saveSkill();
-      }
-      if (e == "取消") {
-        this.inAddSkill = false;
-      }
-    },
-    EditorSkillEvent(e, item, i) {
-      if (e == "读取") {
-        this.ChangeAnim(item.animList[0].animName);
-      }
-      if (e == "新建") {
-        this.editorSkillIndex = -1;
-        this.inAddSkill = true;
-        this.skillFrom[0].value = "";
-        this.skillFrom[1].value = "";
-        this.skillFrom[2].value = "";
-      }
-      if (e == "编辑") {
-        this.editorSkillIndex = i;
-        this.inAddSkill = true;
-        this.skillFrom[0].value = item.name;
-        this.skillFrom[1].value = item.icon;
-        this.skillFrom[2].value = item.animList[0].animName;
-      }
-      if (e == "删除") {
-        // 技能名为空时，运行删除
-        if (item.name == "") {
-          this.skillList.splice(i, 1);
-          this.saveSkill();
-        }
-      }
-    },
-    saveSkill() {
-      if (this.inAddSkill) {
-        if (this.editorSkillIndex == -1) {
-          this.skillList.push({
-            name: this.skillFrom[0].value, icon: this.skillFrom[1].value, animList: [
-              { animName: this.skillFrom[2].value }
-            ]
-          });
-        } else {
-          this.skillList[this.editorSkillIndex].name = this.skillFrom[0].value;
-          this.skillList[this.editorSkillIndex].icon = this.skillFrom[1].value;
-          this.skillList[this.editorSkillIndex].animList[0].animName = this.skillFrom[2].value;
-        }
-      }
-      let s = JSON.stringify(this.skillList);
-      let fromData = new FormData();
-      //服务器中的本地地址
-      fromData.append(
-        "fileToUpload",
-        this.$stringtoBlob(s, this.folderBase + "_skill_data.txt")
-      );
-      fromData.append("folderBase", this.folderBase);
-      UploadPlayerFile(fromData).then((res) => {
-        //先记录旧照片
-        if (res.data == "SUCCESS") {
-          console.log(" 上传 角色 技能数据 文件成功 ");
-          this.inAddSkill = false;
-        }
-      });
-    },
-    UploadSkillClick(item) {
-      this.skill = item;
-      console.log("  this.skill ", this.skill);
-    },
-    handleBeforeUpload_skillicon(file) {
-      this.fileList.push(file);
-      console.log(file);
-      this.UploadFiles_skillicon(this.fileList[0]);
-    },
-    async UploadFiles_skillicon(file) {
-      this.loading = true;
-      this.hasModel = false;
-      let fromData = new FormData();
-      fromData.append("fileToUpload", file);
-      fromData.append("folderBase", "");
-
-
-      let sp = file.name.split('.');
-      let fileName = sp[0] + new Date().getTime();
-      fromData.append("fileName", fileName + '.' + sp[1]);
-      //上传到本地 或 0SS
-      UploadSkill(fromData).then((res) => {
-        console.log(" 上传文件 ", res);
-        if (res.data.state == "SUCCESS") {
-          this.fileList.shift();
-          this.skill.value = this.$uploadSkillUrl + res.data.data.filePath;
-        }
-        // if (res.status == 200) {
-        // }
-        // //先记录旧照片
-        // console.log("上传文件后的返回值", url);
-      });
-    },
+    }, 
     SetAnimName(anim) {
       this.setting[0].value = anim.animName;
       this.animName = this.setting[0].value;
@@ -640,9 +421,9 @@ export default {
             console.log(" 上传文件完成 ");
             this.canSave = true;
             this.currentAnimData.path = fileName;
+            this.currentAnimData.animName = this.animName;
             // this.$uploadUrl + this.folderBase + "/" +
             let items = [this.currentAnimData];
-            this.currentAnimData.animName = this.animName;
             this.PlayerAnimData().AddAllExtendAnimData(this.modelData.name, items);
             // 加载动作
             // _Global.YJ3D.YJController.SetPlayerAnimName(this.animName);
@@ -663,7 +444,8 @@ export default {
       // 更新 YJPlayerAnimData 中的数据
       this.PlayerAnimData().UpdateAvatarDataById(this.settingData.id, this.settingData);
 
-
+      _Global.YJ3D._YJSceneManager
+          .GetSingleModelTransform().SetMessage(this.getMessage());
       return;
       let refBonelist = item.message.data.boneList;
       for (let i = 0; i < refBonelist.length; i++) {
@@ -679,6 +461,17 @@ export default {
       this.save();
     },
 
+    removeAnim(_animName){
+      let has = false;
+      for (let i = this.settingData.animationsExtendData.length-1;!has && i >=0 ; i--) {
+        const element = this.settingData.animationsExtendData[i];
+        console.log(element.animName +' ---> '+ _animName + " = " + (element.animName == _animName));
+        if (element.animName == _animName) {
+          this.settingData.animationsExtendData.splice(i,1);
+          has = true;
+        }
+      } 
+    },
     saveBone(boneList) {
       this.settingData.boneList = boneList;
       this.save();
@@ -691,8 +484,9 @@ export default {
       console.log("添加新动作 11 ",this.currentAnimData.animName , this.animName);
 
       let has = false;
-      for (let i = 0; i < this.settingData.animationsExtendData.length; i++) {
+      for (let i = 0; i < this.settingData.animationsExtendData.length && !has; i++) {
         const element = this.settingData.animationsExtendData[i];
+        console.log(element.animName +' ---> '+ this.animName + " = " + (element.animName == this.animName));
         if (element.animName == this.animName) {
           element.path = this.currentAnimData.path;
           element.isLoop = this.currentAnimData.isLoop;
@@ -702,7 +496,7 @@ export default {
       this.currentAnimData.animName = this.animName;
       if (!has) {
         console.log("添加新动作 22", this.animName);
-        this.settingData.animationsExtendData.push(this.currentAnimData);
+        this.settingData.animationsExtendData.push(JSON.parse(JSON.stringify(this.currentAnimData)));
       }
 
       // 能保存的情况下，才显示保存按钮

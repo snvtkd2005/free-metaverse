@@ -3468,7 +3468,7 @@ class YJController {
       return userData;
     }
     this.SetUserDataItem = function (property, value,value2) {
-      if(value2){
+      if(value2 != undefined){
         userData[property][value] = value2;
         return;
       }

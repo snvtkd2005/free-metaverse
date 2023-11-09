@@ -128,6 +128,7 @@ export default {
     },
     Init(e) {
       this.modelTable = [];
+      this.modelsList = [];
       if (e != undefined) {
         this.selectModelTable = e;
         this.modelTable.push({ name: e });

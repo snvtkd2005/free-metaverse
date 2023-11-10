@@ -583,35 +583,38 @@ class YJPlayerAnimData {
       return animName;
     }
 
+
+    let skillListData = [
+      { pickType:"twoHand",weaponType:"gun", dis:30,speed:1}, 
+      { pickType:"twoHand",weaponType:"sword", dis:3,speed:3.2}, 
+      { pickType:"mainHand",weaponType:"arch", dis:20,speed:1.5}, 
+    ];
+    
+    function GetSkill(weaponData){
+      if(weaponData){
+        let {pickType,weaponType} = weaponData;
+        for (let i = 0; i < skillListData.length; i++) {
+          const element = skillListData[i];
+          if(element.pickType == pickType && element.weaponType == weaponType ){
+            return {dis:element.dis,speed:element.speed};
+          }
+        }
+      }
+      return  {dis:2,speed:2};
+    }
     // 根据武器获取攻击速度、攻击距离、攻击技能。 后期改为根据技能获取
     this.GetSkillDataByWeapon = function (weaponData) {
-      let vaildAttackDis = 3;
-      let attackStepSpeed = 1;
+      let vaildAttackDis = 0;
+      let attackStepSpeed = 0;
       let skillName = "";
+      let {dis,speed } = GetSkill(weaponData); 
+      vaildAttackDis = dis;
+      attackStepSpeed = speed;
       if(weaponData){
         skillName = "" + weaponData.weaponType + "";
-        if (weaponData.pickType == "twoHand") {
-          if (weaponData.weaponType == "gun") {
-            vaildAttackDis = 30;
-            attackStepSpeed = 1;
-          }
-          if (weaponData.weaponType == "sword") {
-            vaildAttackDis = 5;
-            attackStepSpeed = 5;
-          }
-        }
-        if (weaponData.pickType == "mainHand") {
-          if (weaponData.weaponType == "arch") {
-            vaildAttackDis = 20;
-            attackStepSpeed = 1.5;
-          } 
-        }
       }else {
-        skillName = "拳头";
-        vaildAttackDis = 3;
-        attackStepSpeed = 3;
+        skillName = "拳头"; 
       }
-
       return {s:skillName,v:vaildAttackDis,a:attackStepSpeed};
     }
     //#endregion

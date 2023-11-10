@@ -16,7 +16,7 @@ class YJPathfindingCtrl {
     let posList = [];
     let rotaList = [];
     let scaleList = [];
-    let tempV3 = new THREE.Vector3(0,0,0);
+    let tempV3 = new THREE.Vector3(0, 0, 0);
     let matrix = new THREE.Matrix4();
     function transformToMatrix4(pos, rota, size) {
 
@@ -28,16 +28,19 @@ class YJPathfindingCtrl {
       matrix.compose(position, quaternion, scale);
     }
 
+    let inEditor = false;
     function Init() {
-
+      inEditor = _Global.setting.inEditor;
       let group = new THREE.Group();
       scene.add(group);
 
       pathfinding = new Pathfinding();
-      console.log("初始化寻路。。。",pathfinding);
+      console.log("初始化寻路。。。", pathfinding);
 
-      // pathfindingHelper = new PathfindingHelper();
-      // group.add(pathfindingHelper);
+      if (inEditor) {
+        pathfindingHelper = new PathfindingHelper();
+        group.add(pathfindingHelper);
+      }
 
       ZONE = 'npcLevel1';
 
@@ -48,7 +51,7 @@ class YJPathfindingCtrl {
         if (
           // !navmesh && 
           node.type == "Mesh"
-          && node.name.includes("navMesh") 
+          && node.name.includes("navMesh")
         ) {
           // console.log(node); 
           if (true) {
@@ -71,8 +74,8 @@ class YJPathfindingCtrl {
             // pathfinding.setZoneData(ZONE, zone);
 
 
-            navmesh.visible = false; 
- 
+            navmesh.visible = false;
+
             let transform = node.parent.parent.parent.parent;
             let position = transform.position;
             let quaternion = transform.quaternion;
@@ -80,7 +83,7 @@ class YJPathfindingCtrl {
             matrix.compose(position, quaternion, scale);
             const instanceGeometry = navmesh.geometry.clone();
             instanceGeometry.applyMatrix4(matrix);
-            if(geometries.length == 0){
+            if (geometries.length == 0) {
               geometries.push(instanceGeometry);
             }
 
@@ -90,27 +93,29 @@ class YJPathfindingCtrl {
         }
       });
 
-      if(geometries.length == 0){
+      if (geometries.length == 0) {
         return;
       }
-      
+
       const mergedGeometry = BufferGeometryUtils.mergeGeometries(geometries);
       console.time('createZone()');
       const zone = Pathfinding.createZone(mergedGeometry);
       console.timeEnd('createZone()');
       pathfinding.setZoneData(ZONE, zone);
       for (let i = 1; i < pathfinding.zones.npcLevel1.groups.length; i++) {
-        pathfinding.zones.npcLevel1.groups[i].map(ii=>{
+        pathfinding.zones.npcLevel1.groups[i].map(ii => {
           pathfinding.zones.npcLevel1.groups[0].push(ii);
         });
       }
-      pathfinding.zones.npcLevel1.groups.splice(1,pathfinding.zones.npcLevel1.groups.length-1);
+      pathfinding.zones.npcLevel1.groups.splice(1, pathfinding.zones.npcLevel1.groups.length - 1);
 
       hasPathfinding = true;
-      // const wireframeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, transparent: true });
-      // scene.add(new THREE.Mesh(mergedGeometry, wireframeMaterial));
+      if (inEditor) {
+        const wireframeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, transparent: true });
+        scene.add(new THREE.Mesh(mergedGeometry, wireframeMaterial));
+      }
 
-      if(navmesh){
+      if (navmesh) {
         if (callback) {
           callback();
         }
@@ -120,8 +125,8 @@ class YJPathfindingCtrl {
 
     let getTimes = 0;
     this.GetNavpath = function (fromPos, targetPos) {
-      if(!hasPathfinding){
-        tempV3.set(targetPos.x,targetPos.y,targetPos.z);
+      if (!hasPathfinding) {
+        tempV3.set(targetPos.x, targetPos.y, targetPos.z);
         navpath = [tempV3];
         return navpath;
       }
@@ -139,10 +144,12 @@ class YJPathfindingCtrl {
         return this.GetNavpath(fromPos, targetPos);
       }
       if (navpath) {
-        // pathfindingHelper.reset();
-        // pathfindingHelper.setPlayerPosition(fromPos);
-        // pathfindingHelper.setTargetPosition(targetPos);
-        // pathfindingHelper.setPath(navpath);
+        if (inEditor) {
+          pathfindingHelper.reset();
+          pathfindingHelper.setPlayerPosition(fromPos);
+          pathfindingHelper.setTargetPosition(targetPos);
+          pathfindingHelper.setPath(navpath);
+        }
 
       } else {
 

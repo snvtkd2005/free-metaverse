@@ -66,7 +66,7 @@ class YJPlayer {
       _YJPlayerDync.DyncPlayerState({ type: "脚底光圈", msg: "生成" });
     }
     this.DyncPlayerState = function (state) {
-      _YJPlayerDync.DyncPlayerState(state);
+      return _YJPlayerDync.DyncPlayerState(state);
     }
 
 
@@ -392,6 +392,11 @@ class YJPlayer {
           }
         }
       );
+    }
+
+    
+    this.GetCurrentTime = function () {
+      return avatar.GetCurrentTime(); 
     }
 
     this.ChangeAvatarByCustom = function (avatarData, isLocal) {

@@ -81,7 +81,6 @@ class YJNPC {
       // data = JSON.parse(msg);
       data = (msg);
       console.log("in NPC msg = ", data);
-      weaponData = null;
       this.npcName = data.name;
       baseData = data.baseData;
       nameScale = data.avatarData.nameScale;
@@ -98,22 +97,30 @@ class YJNPC {
         this.UpdateNavPos("停止巡逻", data.movePos);
         // AddDirectPosToNavmesh(data.movePos);
       }
-      if (data.weaponData && data.weaponData != {}) {
+      if( weaponData != null){
+        //移除旧武器
+        scope.GetBoneVague(weaponData.boneName, (bone) => {
+          if(bone.weaponModel){
+            bone.remove(bone.weaponModel); 
+          }
+        });
+      }
+      if (data.weaponData && data.weaponData.message) {
         weaponData = data.weaponData.message.data;
 
         //加载武器
         _this._YJSceneManager.DirectLoadMesh(_this.$uploadUrl + data.weaponData.modelPath, (meshAndMats) => {
           scope.GetBoneVague(weaponData.boneName, (bone) => {
 
-            let model = (meshAndMats.mesh).scene.clone();
-            let transformCenter = model;
+            let weaponModel = (meshAndMats.mesh).scene.clone();
 
-            bone.attach(transformCenter);
+            bone.attach(weaponModel);
+            bone.weaponModel = weaponModel;
             let pos = weaponData.position;
             let rotaV3 = weaponData.rotation;
-            transformCenter.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
-            transformCenter.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
-            transformCenter.scale.set(100, 100, 100);
+            weaponModel.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
+            weaponModel.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
+            weaponModel.scale.set(100, 100, 100);
             _YJAnimator.ChangeAnim("none");
             scope.SetPlayerState("normal");
             this.UpdateNavPos("开始巡逻", data.movePos);
@@ -131,17 +138,21 @@ class YJNPC {
     }
 
     this.GetBoneVague = function (boneName, callback) {
-      // console.log("从模型中查找bone ", playerObj,boneName);
+      console.log("从模型中查找bone ", parent,boneName);
       let doonce = 0;
-      parent.traverse(function (item) {
-        if (doonce > 0) { return; }
-        if (item.type == "Bone" && item.name.includes(boneName)) {
-          if (callback) {
-            callback(item);
+      try {
+        parent.traverse(function (item) {
+          if (doonce > 0) { return; }
+          if (item.type == "Bone" && item.name.includes(boneName)) {
+            if (callback) {
+              callback(item);
+            }
+            doonce++;
           }
-          doonce++;
-        }
-      });
+        });
+      } catch (error) {
+        
+      }
     } 
 
     // 通过碰撞检测两个点之间是否可到达
@@ -568,7 +579,7 @@ class YJNPC {
         // let npcPos = scope.transform.GetWorldPos();
         let npcPos = parent.position.clone();
         let playerPosRef = playerPos.clone();
-        playerPosRef.y = npcPos.y = 0.5;
+        playerPosRef.y = npcPos.y ;
         if (oldPlayerPos != playerPosRef) {
           oldPlayerPos = playerPosRef;
           navpath = [];

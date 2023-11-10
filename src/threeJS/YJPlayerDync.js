@@ -24,8 +24,7 @@ class YJPlayerDync {
         if(_YJPlayerFireCtrl == null){
           _YJPlayerFireCtrl = new YJPlayerFireCtrl(_this,YJPlayer);
         }
-        _YJPlayerFireCtrl.DyncPlayerState(state);
-        return;
+        return _YJPlayerFireCtrl.DyncPlayerState(state);
       }
       let stateId = state.stateId;
       if (oldStateId != stateId) {

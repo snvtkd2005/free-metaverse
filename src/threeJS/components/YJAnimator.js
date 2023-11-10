@@ -32,6 +32,10 @@ class YJAnimator {
     let animationsData = [];
     this.SetAnimationsData = function (v) {
       // animationsData = v;
+      for (let i = 0; i < actions.length; i++) {
+        const element = actions[i];
+        setWeight(element.action,  0, element.timeScale);
+      }
       actions = [];
       for (let j = 0; j < animations.length; j++) { 
         mixer.clipAction(animations[j]).setEffectiveWeight(0);

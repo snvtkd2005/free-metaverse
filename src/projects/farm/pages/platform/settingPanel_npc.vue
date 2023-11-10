@@ -292,15 +292,22 @@ export default {
     load(item,modelType) {
       console.log(item,modelType);
       if(modelType == "装备模型"){
+        //npc换 装备模型
+
         this.settingData.weaponData = item;
         //加载武器并让角色使用
         this.setSettingItemByProperty("weapon",this.$uploadUrl + this.settingData.weaponData.icon );
+        
+        let singleTransform =
+          _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
+        singleTransform.GetComponent("NPC").SetMessage(this.settingData);
 
         return;
       }
 
 
       if(modelType != "角色模型"){ return; }
+      //npc换角色模型
       this.settingData.avatarData = item.message.data;
       this.settingData.avatarData.modelPath = this.$uploadUrl + item.modelPath;
 
@@ -313,18 +320,15 @@ export default {
       if (singleTransform == null) {
         //加载模型
         _Global.YJ3D._YJSceneManager.CreateSingleModel(
-          data.modelPath,
-          () => {
-            console.log("加载模型完成 33 ");
-            this.$parent.SetTip("加载模型完成");
+          item.modelPath,
+          () => { 
+            this.$parent.SetTip("加载模型完成"); 
             setTimeout(() => {
-              this.$parent.tipData.opening = false;
-            }, 1000);
-            this.avatar =
+              // 控制三维
               _Global.YJ3D._YJSceneManager
                 .GetSingleModelTransform()
-                .GetComponent("Animator");
-            this.ChangeAnim(0);
+                .SetMessage(this.getMessage());
+            }, 1000);
           },
           (e) => {
             this.$parent.SetTip("出错了。加载模型出错，" + e);
@@ -420,10 +424,7 @@ export default {
         height
       );
     },
-
-    ChangeAnim(i) {
-      this.avatar.ChangeAnimByIndex(i);
-    },
+ 
     Update() {
       // _Global.SendMsgTo3D("刷新Transform", this.$parent.modelData.message);
 

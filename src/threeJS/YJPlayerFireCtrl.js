@@ -35,7 +35,7 @@ class YJPlayerFireCtrl {
 					break;
 				case "受到伤害":
 					let { _targetModel, skillName, strength } = state.msg;
-					scope.ReceiveDamage(_targetModel, skillName, strength);
+					return scope.ReceiveDamage(_targetModel, skillName, strength);
 					break;
 				case "设置武器":
 					weaponData = state.msg;
@@ -54,7 +54,7 @@ class YJPlayerFireCtrl {
 			camp: "lm",
 			speed: 8, //移动速度
 			level: 1, //等级
-			health: 1000, //生命值
+			health: 100, //生命值
 			strength: 20, //攻击力
 		}
 

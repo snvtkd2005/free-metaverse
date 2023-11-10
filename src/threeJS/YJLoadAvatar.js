@@ -625,6 +625,9 @@ class YJLoadAvatar {
               element.action.reset();
               element.action.play();
             }
+            currentAction = element.action;
+            currentTime = 0;
+            currentDuration = currentAction._clip.duration; 
           }
         }
       }
@@ -1402,6 +1405,17 @@ class YJLoadAvatar {
     // 是否开启注视跟随
     // let inLookat = true;
     let inLookat = false;
+    let currentTime = 0;
+    let currentAction = null;
+    let currentDuration = 100;
+    let auto = true;
+    this.GetCurrentTime = function () {
+      return {time:currentTime,duration:currentDuration}; 
+    }
+    this.SetCurrentTime = function(e){
+      currentAction.time = e;
+      auto = false;
+    }
     function update() {
 
       updateId = requestAnimationFrame(update);
@@ -1409,6 +1423,13 @@ class YJLoadAvatar {
         //clock.getDelta()方法获得两帧的时间间隔
         // 更新混合器相关的时间
         mixer.update(clock.getDelta());
+        // && auto
+        if(currentAction ){
+          currentTime = currentAction.time;
+          // console.log("执行模型动画 中 ",currentTime);
+        }
+        // currentTime = mixer.time;
+        // oneAction.time
       }
 
       // console.log(inLookat , headBoneRef , lookatPosRef);

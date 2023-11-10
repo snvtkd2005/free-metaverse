@@ -67,14 +67,23 @@
       </div>
 
     </div>
-    <div class=" mt-10 w-80 h-10 text-white cursor-pointer " @click="load()">
-      <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">{{ loadContent }}</div>
+
+    <!-- 动作播放进度滑块 -->
+    <div class=" flex w-80   ">
+      <div class=" bg-gray-400 cursor-pointer" @click=" auto = !auto">{{auto?'暂停':'播放'}}</div>
+      <div class=" w-16 ml-2 ">{{animClip.currentTime+'/' +animClip.duration}}</div>
+      <input ref="viewFarCtrl" class=" ml-2  outline-none w-40  " @input="sliderChangeFn" v-model="animClip.currentTime"
+      type="range" min="0" :max="animClip.duration" step="1">
     </div>
 
-    <div class=" mt-2 w-80 h-10 text-white cursor-pointer " @click="save()">
+    <div class=" mt-10 w-80 h-10 text-white cursor-pointer " @click="ClickHandler('编辑位置')">
+      <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">编辑位置</div>
+    </div>
+
+    <div class=" mt-2 w-80 h-10 text-white cursor-pointer " @click="ClickHandler('保存')">
       <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">保存</div>
     </div>
-    <div class=" mt-2 w-80 h-10 text-white cursor-pointer " @click="saveTrans()">
+    <div class=" mt-2 w-80 h-10 text-white cursor-pointer " @click="ClickHandler('保存偏移旋转')">
       <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">保存偏移旋转</div>
     </div>
     <!-- <div class=" mt-2 w-80 h-10 text-white cursor-pointer " @click="pickDown()">
@@ -85,16 +94,6 @@
       <YJinput_number :value="carData.param.chassisHeight" />
     </div> -->
 
-    <div v-if="inSelect">
-      <div v-for="(item, i) in uvAnimList" :key="i" class="
-                  self-center w-40 h-auto relative
-                ">
-        <div class=" w-40 h-20 self-center mx-auto 
-                  cursor-pointer " @click="ClickUVAnim(item)">
-          <img class=" w-full h-full    object-fill hover:opacity-70 " :src="$uploadUVAnimUrl + item" />
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -209,9 +208,11 @@ export default {
 
       animList: [{ value: 'none', label: 'none' }],
 
-
-      loadContent: "编辑位置",
-      inSelect: false,
+      animClip: {
+        currentTime: 0,
+        duration: 100,
+      },
+      auto: true,
     };
   },
   created() {
@@ -238,14 +239,19 @@ export default {
     }
 
     if (!this.settingData.weaponType) {
-        this.settingData.weaponType = "";
-      }
+      this.settingData.weaponType = "";
+    }
     this.initValue();
 
 
   },
   methods: {
-
+    sliderChangeFn(e) {
+      this.auto = false;
+      //动画暂停自动播放
+      //动画随滑块播放
+      // console.log("滑块值改变 ", this.animClip.currentTime);
+    },
     removeThreeJSfocus() {
       this.$parent.removeThreeJSfocus();
     },
@@ -279,6 +285,24 @@ export default {
       console.log(this.setting[3].options);
 
     },
+
+    animate() {
+      requestAnimationFrame(this.animate);
+      if (_Global.YJ3D.YJPlayer) {
+
+        let { time, duration } = _Global.YJ3D.YJPlayer.GetAvatar().GetCurrentTime();
+        time = parseInt(time * 24);
+        duration = parseInt(duration * 24);
+        this.animClip.duration = duration;
+
+        if (this.auto) {
+          this.animClip.currentTime = time;
+        } else {
+          _Global.YJ3D.YJPlayer.GetAvatar().SetCurrentTime(this.animClip.currentTime / 24);
+        }
+        // console.log(" 动画 "+time + " / " + duration);
+      }
+    },
     initValue() {
 
       this.setSettingItemByProperty("boneName", this.settingData.boneName);
@@ -289,6 +313,7 @@ export default {
       this.setSettingItemByProperty("weaponType", this.settingData.weaponType);
 
 
+      this.animate();
       // setTimeout(() => {
       //   console.log( this.settingData);
       //   _Global.SendMsgTo3D("切换角色动作", this.settingData.animName);
@@ -299,6 +324,17 @@ export default {
       //   }, 20);
       // }, 3000);
 
+    },
+    ClickHandler(e, item, i) {
+      if (e == "编辑位置") {
+        this.load();
+      }
+      if (e == "保存") {
+        this.save();
+      }
+      if (e == "保存偏移旋转") {
+        this.saveTrans();
+      }
     },
     load() {
 
@@ -330,7 +366,7 @@ export default {
       if (!this.settingData.weaponType) {
         this.settingData.weaponType = "";
       }
-      console.log("选中物体",this.settingData);
+      console.log("选中物体", this.settingData);
       this.initValue();
 
     },
@@ -375,7 +411,7 @@ export default {
         data: this.settingData,
       };
     },
-    save() { 
+    save() {
       this.saveFn();
     },
     saveTrans() {
@@ -414,25 +450,14 @@ export default {
       }
     },
     Update() {
-
       _Global.YJ3D._YJSceneManager.UpdateTransform(
         this.getMessage()
       );
-
       // 调用场景保存
       if (this.$parent.updateSceneModelData) {
         this.$parent.tableList[2].value = true;
         this.$parent.updateSceneModelData();
       }
-      //给模型指定贴图
-      // _Global.SendMsgTo3D("刷新Transform", this.$parent.modelData.message);
-
-
-    },
-    SelectFile(item) {
-    },
-    async RequestGetAllUVAnim() {
-
     },
 
   },

@@ -349,12 +349,21 @@ class YJLoadUserModelManager {
           LoadError(uuid, callback, e,modelData);
         });
       } else if (modelData.modelType == "NPC模型") {
-        modelPath = modelData.message.data.avatarData.modelPath;
-        if (modelPath == undefined) {
-          LoadError(uuid, callback);
-          return;
+
+        if (modelData.message == undefined) { 
+          if (modelPath == undefined) {
+            LoadError(uuid, callback);
+            return;
+          }
+        }else{
+          modelPath = modelData.message.data.avatarData.modelPath;
+          if (modelPath == undefined) {
+            LoadError(uuid, callback);
+            return;
+          }
         }
         console.log(" modelPath ", modelPath);
+
         MeshRenderer.load(modelPath, (scope) => {
           let Animator = new YJAnimator(scope.GetModel(), scope.GetAnimations());
           object.AddComponent("Animator", Animator);

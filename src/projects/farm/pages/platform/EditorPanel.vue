@@ -511,7 +511,7 @@ export default {
       window.location.reload();
       _Global.reloadTimes = 0;
     }
-    this.Interface = new Interface(this);
+    this.Interface = new Interface(this,true);
 
     if (this.$route.path.toLowerCase().includes("editorscene")) {
       localStorage.setItem("modelType", "场景");

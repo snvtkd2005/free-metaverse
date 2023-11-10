@@ -31,7 +31,6 @@ class YJAnimModel {
     this.GetCurrentTime = function () {
       return oneAction.time;
       return mixer.time;
-
     }
     //设置动画播放秒，float
     this.SetCurrentTime = function (f) {

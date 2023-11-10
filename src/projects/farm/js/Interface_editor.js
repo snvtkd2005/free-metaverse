@@ -1,8 +1,8 @@
 import * as THREE from "three";
 
- 
+
 import { YJPlayerAnimData } from "/@/threeJS/YJPlayerAnimData.js";
-import { GetAllModel, RemoveFolderBase} from "./uploadThreejs.js";
+import { GetAllModel, RemoveFolderBase } from "./uploadThreejs.js";
 import { YJPathfindingCtrl } from "/@/threeJS/pathfinding/YJPathfindingCtrl.js";
 
 // Threejs 中的事件传出接口
@@ -15,8 +15,18 @@ import { YJPathfindingCtrl } from "/@/threeJS/pathfinding/YJPathfindingCtrl.js";
 
 class Interface {
   // _this 为三维主页面vue
-  constructor(_this,inEditor) {
-
+  constructor(_this, inEditor) {
+    // npc巡逻点模型
+    let spare = new THREE.SphereGeometry(0.1, 10);
+    const material = new THREE.MeshLambertMaterial({ color: 0xff0000 });
+    _Global.setting = {
+      inEditor: inEditor, //是否编辑模式
+      navPointMesh: new THREE.Mesh(spare, material),
+    }
+    _Global.user = {
+      camp: "lm"
+    }
+    
     _Global.MetaworldSize = 100;
     _Global.isSupportedHls = false;
     function init() {
@@ -29,7 +39,7 @@ class Interface {
         console.log("获取所有单品模型 ", res);
         //先记录旧照片
         if (res.data.txtDataList) {
-          let txtDataList = res.data.txtDataList; 
+          let txtDataList = res.data.txtDataList;
 
           let modelsList = [];
           for (let i = 0; i < txtDataList.length; i++) {
@@ -41,12 +51,12 @@ class Interface {
                 element = element.substring(1);
                 modelsList.push(JSON.parse(element));
               } catch (error2) {
-                
+
               }
             }
           }
 
-          
+
           for (let i = 0; i < modelsList.length; i++) {
             let item = modelsList[i];
             if (item.modelType == "角色模型") {
@@ -55,42 +65,33 @@ class Interface {
               data.modelPath = _this.$uploadUrl + item.modelPath;
               data.icon = item.icon;
               _Global.CreateOrLoadPlayerAnimData().AddAvatarData(data);
-            }else{
+            } else {
               // this.modelsList.push(item);
             }
           }
-          
+
           _Global.CreateOrLoadPlayerAnimData().UpdateBoneRefData();
 
         }
       });
 
-      
+
       let res = await _this.$axios.get(
         _this.$uploadPlayerUrl + "anim_data.txt" + "?time=" + new Date().getTime()
-      ); 
-      _Global.animList = res.data; 
-      console.log("_Global.animList = ",_Global.animList);
+      );
+      _Global.animList = res.data;
+      console.log("_Global.animList = ", _Global.animList);
     }
 
     // 移除folderBase
     async function RequestRemoveFolderBase(folderBase) {
-      let fromData = new FormData();  
+      let fromData = new FormData();
       fromData.append("folderBase", folderBase);
       RemoveFolderBase(fromData).then((res) => {
-        console.log(" 移除成功 ", res); 
+        console.log(" 移除成功 ", res);
       });
     }
-    // npc巡逻点模型
-    let spare = new THREE.SphereGeometry(0.1, 10);
-    const material = new THREE.MeshLambertMaterial({ color: 0xff0000 });
-    _Global.setting = {
-      inEditor: inEditor , //是否编辑模式
-      navPointMesh:new THREE.Mesh(spare, material),
-    }
-    _Global.user = {
-      camp:"lm"
-    }
+
 
     let _YJPlayerAnimData = null
     this.CreateOrLoadPlayerAnimData = function () {
@@ -101,10 +102,10 @@ class Interface {
       return _YJPlayerAnimData;
     }
     _Global.CreateOrLoadPlayerAnimData = this.CreateOrLoadPlayerAnimData;
-    
+
     init();
 
-    this.YJ3D = function () { 
+    this.YJ3D = function () {
       return _this.$refs.YJmetaBase.ThreejsHumanChat;
     }
     _Global.YJ3D = this.YJ3D();
@@ -115,8 +116,12 @@ class Interface {
       console.log("向3d页发送", type, msg);
       if (type == "删除folderBase") {
         // _Global.SendMsgTo3D("删除folderBase","1699511519512");
-        RequestRemoveFolderBase(msg); 
+        RequestRemoveFolderBase(msg);
         return;
+      }
+
+      if (type == "获取动作时间") {
+        return _Global.YJ3D.YJPlayer.GetCurrentTime();
       }
       if (type == "切到后台") {
         _Global.YJ3D.enableRenderer = false;
@@ -141,10 +146,10 @@ class Interface {
       if (type == "放下武器") {
         _this._SceneManager.PickDownWeapon();
         let singleTransform = _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
-        if(singleTransform==null){return;}
+        if (singleTransform == null) { return; }
         let message = singleTransform.GetMessage();
-        if(message==null){return;}
-        if(message.modelType != "装备模型"){return;}
+        if (message == null) { return; }
+        if (message.modelType != "装备模型") { return; }
         _Global.YJ3D._YJSceneManager.ResetSingleTransfomParent();
         return;
       }
@@ -521,16 +526,16 @@ class Interface {
 
     let eventList = [];
     // 添加事件监听
-    this.addEventListener = function(e,fn){
-      eventList.push({eventName:e,fn:fn});
+    this.addEventListener = function (e, fn) {
+      eventList.push({ eventName: e, fn: fn });
     }
     _Global.addEventListener = this.addEventListener;
 
     // 执行事件
-    this.applyEvent = function(e){
+    this.applyEvent = function (e) {
       for (let i = 0; i < eventList.length; i++) {
         const element = eventList[i];
-        if(element.eventName == e){
+        if (element.eventName == e) {
           element.fn();
         }
       }
@@ -546,7 +551,7 @@ class Interface {
       if (_YJPathfindingCtrl == null) {
         _YJPathfindingCtrl = new YJPathfindingCtrl(_Global.YJ3D.scene, () => {
           console.log("初始化寻路完成");
-         });
+        });
       }
       _Global.applyEvent("3d加载完成");
       if (_Global.load3dComplete == null) { return; }
@@ -654,7 +659,7 @@ class Interface {
     let WEBGL_lose_context = null;
     function InitWEBGL_lose_context() {
       let canvas = _Global.YJ3D.renderer.domElement;
-      const gl = canvas.getContext("webgl2"); 
+      const gl = canvas.getContext("webgl2");
       WEBGL_lose_context = gl.getExtension("WEBGL_lose_context");
       canvas.addEventListener("webglcontextlost", (event) => {
         console.log(" webgl 上下文丢失 ", event);
@@ -664,19 +669,19 @@ class Interface {
       });
     }
 
-    this.loseContext = function () { 
+    this.loseContext = function () {
       let canvas = _Global.YJ3D.renderer.domElement;
-      const gl = canvas.getContext("webgl2"); 
+      const gl = canvas.getContext("webgl2");
       gl.getExtension("WEBGL_lose_context").loseContext();
     }
     _Global.loseContext = this.loseContext;
     // _Global.loseContext()
 
-    this.restoreContext = function(){
+    this.restoreContext = function () {
       WEBGL_lose_context.restoreContext();
     }
     _Global.restoreContext = this.restoreContext;
-     
+
   }
 }
 

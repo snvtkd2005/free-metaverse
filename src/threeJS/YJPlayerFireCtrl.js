@@ -54,7 +54,7 @@ class YJPlayerFireCtrl {
 			camp: "lm",
 			speed: 8, //移动速度
 			level: 1, //等级
-			health: 100, //生命值
+			health: 500, //生命值
 			strength: 20, //攻击力
 		}
 
@@ -286,6 +286,10 @@ class YJPlayerFireCtrl {
 					canAttack = false; 
 					animName = GetAnimNameByPlayStateAndWeapon(e,weaponData);
 
+					if (playerState == PLAYERSTATE.DEAD) { 
+						playerState = PLAYERSTATE.NORMAL;
+						baseData.health = 500;
+					}
 					break;
 				case "停止移动":
 					if (playerState == PLAYERSTATE.NORMAL) {

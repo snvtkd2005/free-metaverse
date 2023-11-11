@@ -562,6 +562,7 @@ class YJNPC {
     let oldPlayerPos = null;
     let inBlocking = false;
     let vaildAttackLater = null;
+    let vaildAttackLater2 = null;
     let toIdelLater = null;
     let skillName = "";
     let vaildAttackDis = 3; //有效攻击距离
@@ -600,7 +601,7 @@ class YJNPC {
             scope.SetPlayerState("普通攻击");
             inBlocking = true;
 
-            setTimeout(() => {
+            vaildAttackLater2 = setTimeout(() => {
               //有效攻击
               if (targetModel.isLocal) {
                 let isDead = targetModel.owner.ReceiveDamage(scope.transform, skillName, baseData.strength);
@@ -631,6 +632,7 @@ class YJNPC {
 
           if (vaildAttackLater != null) {
             clearTimeout(vaildAttackLater);
+            clearTimeout(vaildAttackLater2);
             vaildAttackLater = null;
           }
           inBlocking = false;

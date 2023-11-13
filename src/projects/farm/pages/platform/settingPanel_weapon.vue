@@ -241,6 +241,7 @@ export default {
     if (!this.settingData.weaponType) {
       this.settingData.weaponType = "";
     }
+    this.settingData.id = modelData.folderBase;
     this.initValue();
 
 

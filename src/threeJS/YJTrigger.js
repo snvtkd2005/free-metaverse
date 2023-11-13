@@ -11,9 +11,9 @@ class YJTrigger {
     var model = null;
     let size = null;
     let volume = { x: 1, y: 1, z: 1 };
-
+    let createLater = null;
     function Init() { 
-      setTimeout(() => {
+      createLater = setTimeout(() => {
         scope.CreateTrigger();
       }, 2000);
       // if (item.name.includes("trigger")) {
@@ -34,7 +34,7 @@ class YJTrigger {
 
     }
     this.Reset = function () {
-      setTimeout(() => {
+      createLater = setTimeout(() => {
         scope.CreateTrigger();
       }, 2000);
     }
@@ -62,6 +62,11 @@ class YJTrigger {
 
     //删除模型
     this.Destroy = function () {
+      if(createLater!=null){
+        clearTimeout(createLater);
+        createLater = null;
+      }
+        
       this.DestroyCollider();
     }
     this.DestroyCollider = function () {

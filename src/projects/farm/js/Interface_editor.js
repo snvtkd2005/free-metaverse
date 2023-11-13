@@ -34,6 +34,45 @@ class Interface {
       RequestGetAllModel();
     }
 
+    let modelsList = [];
+    this.PickWeapon = function(YJPlayer,id){
+      for (let i = 0; i < modelsList.length; i++) {
+        const element = modelsList[i];
+        if(element.folderBase == id){
+          let weaponData = element.message.data;
+            console.log("weaponData ",weaponData); 
+
+          YJPlayer.GetBoneVague(weaponData.boneName, (bone) => {
+            if(YJPlayer.CheckPick(weaponData.boneName)){
+              if(bone.weaponModel){
+                bone.remove(bone.weaponModel); 
+              }
+            }
+            element.pos =  { x: 0, y: 0, z: 0 }; 
+
+            _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().ImportModel(element, (tranform) => {
+              let weaponModel = tranform.GetGroup(); 
+              bone.attach(weaponModel);
+              bone.weaponModel = weaponModel;
+              let pos = weaponData.position;
+              let rotaV3 = weaponData.rotation;
+              weaponModel.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
+              weaponModel.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
+              weaponModel.scale.set(100, 100, 100);
+              // 绑定到骨骼后，清除trigger
+              tranform.GetComponent("Weapon").DestroyTrigger(); 
+
+              YJPlayer.AddPick(weaponData.boneName,bone);
+            });
+            // console.log("bone ",bone); 
+          });
+          return element;
+        }
+      }
+    }
+    _Global.PickWeapon = this.PickWeapon;
+
+
     async function RequestGetAllModel() {
       GetAllModel().then((res) => {
         console.log("获取所有单品模型 ", res);
@@ -41,7 +80,7 @@ class Interface {
         if (res.data.txtDataList) {
           let txtDataList = res.data.txtDataList;
 
-          let modelsList = [];
+          modelsList = [];
           for (let i = 0; i < txtDataList.length; i++) {
             let element = txtDataList[i];
             try {
@@ -115,7 +154,7 @@ class Interface {
     this.SendMsgTo3D = (type, msg) => {
       console.log("向3d页发送", type, msg);
       if (type == "删除folderBase") {
-        // _Global.SendMsgTo3D("删除folderBase","1699511519512");
+        // _Global.SendMsgTo3D("删除folderBase","1699605982197");
         RequestRemoveFolderBase(msg);
         return;
       }
@@ -134,7 +173,7 @@ class Interface {
       }
 
       if (type == "点击技能栏") {
-        _Global.YJ3D.YJController.SetPlayerAnimName(msg);
+        _Global.YJ3D.YJController.ChangeAnimDirect(msg);
         return;
       }
 
@@ -180,7 +219,7 @@ class Interface {
         return;
       }
       if (type == "切换角色动作") {
-        _Global.YJ3D.YJController.SetPlayerAnimName(msg);
+        _Global.YJ3D.YJController.ChangeAnimDirect(msg);
         return;
       }
 

@@ -335,9 +335,8 @@ class YJPlayerFireCtrl {
 			}
 			// console.log(" 玩家动作 ",weaponData, e,animName);
 
-			// console.log(" 玩家动作 ",canAttack, e,animName);
-			_YJPlayer.ChangeAnim(animName);
-
+			// console.log(" 玩家动作 ",canAttack, e,animName); 
+			_this.YJController.SetPlayerAnimName(animName);
 		}
 		var updateId = null;
 		function update() {

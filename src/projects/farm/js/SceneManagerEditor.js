@@ -62,7 +62,7 @@ import carData from "../data/carData.js";
 
 import { getSceneData } from "./sceneApi.js"
 
-import { YJGameManager } from "./YJGameManagerEditor.js";
+import { YJGameManagerEditor } from "./YJGameManagerEditor.js";
 
 class SceneManager {
   constructor(scene, renderer, camera, _this, modelParent, indexVue, callback) {
@@ -84,7 +84,10 @@ class SceneManager {
     const listener = new THREE.AudioListener();
     let _YJMinMap = null;
     let _YJ3dPhotoPlane = null;
-    let _YJGameManager = null;
+    let _YJGameManagerEditor = null;
+    this.GetDyncManager = function(){
+      return _YJGameManagerEditor;
+    }
     // 需要执行update的脚本
     let needUpdateJS = [];
     let lightData = null;
@@ -132,6 +135,11 @@ class SceneManager {
         if (_YJCar != null) {
           _YJCar.SetKeyboard(key);
         }
+        
+        if (key == "Escape") {
+          ClearTarget();
+          return;
+        }
         if (key == "KeyF") {
           if (_YJCar != null) {
             if (!InDriving) {
@@ -160,13 +168,12 @@ class SceneManager {
       // render();
       _this._YJSceneManager.AddNeedUpdateJS(scope);
 
-      _YJGameManager = new YJGameManager(_this, indexVue);
-      _YJGameManager.AddChangeTargetListener((b) => {
+      _YJGameManagerEditor = new YJGameManagerEditor(_this, indexVue);
+      _YJGameManagerEditor.AddChangeTargetListener((b) => {
         if (indexVue.$refs.gameUI) {
           indexVue.$refs.gameUI.SetTargetVaild(b);
         }
       });
-
 
     }
 
@@ -182,31 +189,34 @@ class SceneManager {
           console.log(" 碰到武器 ", msg.data,state);
 
           // 判断角色是否可以拾取武器
-          if (state.weaponType != "") {
+          if (state.weaponId != "") {
             return;
           }
 
           // 碰到武器就拾取
           _this.YJPlayer.GetBoneVague(msg.data.boneName, (bone) => {
-            let transformCenter = owner.GetGroup();
+            let weaponModel = owner.GetGroup();
             boneAttachList.push(
               {
                 boneName: msg.data.boneName,
-                parent: transformCenter.parent,
+                parent: weaponModel.parent,
                 transform: owner
               });
-            bone.attach(transformCenter);
+            bone.add(weaponModel);
             let pos = msg.data.position;
             let rotaV3 = msg.data.rotation;
-            transformCenter.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
-            // transformCenter.position.set(100 * pos[0], 100 * pos[1], 100 * pos[2]);
-            transformCenter.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
-            transformCenter.scale.set(100, 100, 100);
+            // console.log(" 设置武器坐标",rotaV3);
+            weaponModel.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
+            // weaponModel.position.set(100 * pos[0], 100 * pos[1], 100 * pos[2]);
+            weaponModel.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
+            weaponModel.scale.set(100, 100, 100);
             // 绑定到骨骼后，清除trigger
             owner.GetComponent("Weapon").DestroyTrigger();
             _this.YJController.SetUserDataItem("weaponData","pickType",msg.data.pickType);
             _this.YJController.SetUserDataItem("weaponData","weaponType",msg.data.weaponType);
-            // _this.YJController.SetUserDataItem("weaponId", true);
+            _this.YJController.SetUserDataItem("weaponData","weaponId",msg.data.id);
+
+            _YJGameManagerEditor.SendModelState(owner.GetData().id,{display:false});
             // console.log("bone ",bone); 
           });
         }
@@ -218,17 +228,20 @@ class SceneManager {
 
     this.PickDownWeapon = function () {
       if (boneAttachList.length == 0) { return; }
-      let tranform = boneAttachList[0].transform;
-      boneAttachList[0].parent.attach(tranform.GetGroup());
+      let transform = boneAttachList[0].transform;
+      boneAttachList[0].parent.attach(transform.GetGroup());
       let pos = _this._YJSceneManager.GetPlayerPosReduceHeight();
       pos.y += 1;
-      tranform.GetGroup().position.copy(pos);
-      tranform.GetGroup().scale.set(1, 1, 1);
-      tranform.GetGroup().rotation.set(0, 0, 0);
-      if (tranform.GetComponent("Weapon") != null) {
-        tranform.GetComponent("Weapon").Reset();
+      transform.GetGroup().position.copy(pos);
+      transform.GetGroup().scale.set(1, 1, 1);
+      transform.GetGroup().rotation.set(0, 0, 0);
+      if (transform.GetComponent("Weapon") != null) {
+        transform.GetComponent("Weapon").Reset();
       }
       boneAttachList = [];
+      //同步放下武器
+      _YJGameManagerEditor.SendModelState(transform.GetData().id,{display:true,pos:pos});
+
     }
 
     let targetModel = null;
@@ -257,7 +270,14 @@ class SceneManager {
       indexVue.$refs.headerUI.SetTarget(message.data);
     }
 
+    function ClearTarget(){
+      // 点击空白位置 
+      scope.SetTargetModel(null);
+      _this.YJController.SetInteractiveNPC(null);
+    }
     this.RightClick = (hitObject, hitPoint) => {
+      
+      ClearTarget();
       console.log(" 右键点击 ", hitObject);
       if (hitObject.transform) {
         // 点击NPC
@@ -289,23 +309,34 @@ class SceneManager {
         return;
       }
       // 点击空白位置 
-      this.SetTargetModel(null);
-      _this.YJController.SetInteractiveNPC(null);
+      ClearTarget();
 
     }
     this.ClickPlayer = (owner) => {
-      _YJGameManager.ClickPlayer(owner);
+      _YJGameManagerEditor.ClickPlayer(owner);
     }
     this.ClickModel = (hitObject) => {
-      _YJGameManager.ClickModel(hitObject);
+      if (hitObject.transform) {
+        // 点击NPC
+        let message = hitObject.transform.GetData().message;
+        // console.log(" 右键点击 transform ", message);
+        if (message) {
+          if (message.pointType == "npc") {
+            // 头像
+            this.SetTargetModel(hitObject.transform);
+          }
+        }
+        return;
+      }
+      _YJGameManagerEditor.ClickModel(hitObject);
     }
     this.HoverObject = (hoverObject, hoverPoint) => {
-      _YJGameManager.HoverObject(hoverObject, hoverPoint);
+      _YJGameManagerEditor.HoverObject(hoverObject, hoverPoint);
     }
     this.CreateHotContent = (modelData, owner) => {
       if (modelData.id.includes("chair")) {
         //点击热点坐椅子
-        _YJGameManager.SetSittingModel(owner.GetGroup());
+        _YJGameManagerEditor.SetSittingModel(owner.GetGroup());
         owner.SetPointVisible(false);
       }
     }
@@ -353,6 +384,9 @@ class SceneManager {
     }
 
     this.ChangeScene = function (e) {
+
+      _YJGameManagerEditor.InitDyncSceneModels();
+
       return;
       let modelPath = e.modelPath;
       let npcTexPath = e.npcTexPath;

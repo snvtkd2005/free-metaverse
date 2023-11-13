@@ -6,9 +6,9 @@
     class=" xl:block w-48 h-48 absolute right-0 top-10 xl:top-20  origin-top-right transform scale-50 xl:scale-100 ">
 
     <!-- 透明度背景 -->
-    <div class="absolute left-0 top-0 z-0 w-full h-full ">
+    <!-- <div class="absolute left-0 top-0 z-0 w-full h-full ">
       <img :src="publicUrl + 'images/gameUI/zaixianrensu.png'" alt="">
-    </div>
+    </div> -->
 
     <div class=" absolute left-16 w-20 top-3 z-10 text-black  ">
       {{ language.content.onlineList }} {{ otherUser.length }}
@@ -29,7 +29,7 @@
           item.audio ? ' opacity-1 ' : ' opacity-0 '
         " @click.stop="ToggleAudio(item)">
           <div class=" w-6 h-6 p-px ">
-            <img class=" w-full h-full " :src="publicUrl + 'images/' + (item.mute ? 'mute' : '') + 'mico.png'" alt="">
+            <!-- <img class=" w-full h-full " :src="publicUrl + 'images/' + (item.mute ? 'mute' : '') + 'mico.png'" alt=""> -->
           </div>
         </div>
 

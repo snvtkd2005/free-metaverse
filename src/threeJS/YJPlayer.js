@@ -111,8 +111,8 @@ class YJPlayer {
 
       // avatarData = _this.$parent.GetAvatarData(playerName);
       avatarData = _this._YJSceneManager.CreateOrLoadPlayerAnimData().GetAvatarData(playerName);
-      console.error(" 加载角色名 " + playerName,avatarData);
-      
+      console.error(" 加载角色名 " + playerName, avatarData);
+
       modelPath = avatarData.modelPath;
       playerHeight = avatarData.height;
       modelScale = avatarData.modelScale;
@@ -320,7 +320,7 @@ class YJPlayer {
             if (controllerCallback) {
               controllerCallback(group, playerGroup);
             }
-            console.log("创建 本地角色 == > " + playerName,playerHeight);
+            console.log("创建 本地角色 == > " + playerName, playerHeight);
             _this.YJController.SetTargetHeight(playerHeight);
 
           } else {
@@ -394,9 +394,9 @@ class YJPlayer {
       );
     }
 
-    
+
     this.GetCurrentTime = function () {
-      return avatar.GetCurrentTime(); 
+      return avatar.GetCurrentTime();
     }
 
     this.ChangeAvatarByCustom = function (avatarData, isLocal) {
@@ -466,8 +466,10 @@ class YJPlayer {
       // console.log("从模型中查找bone ", playerObj,boneName);
       doonce = 0;
       playerObj.traverse(function (item) {
-        if (doonce > 0) { return; }
-        if (item.type == "Bone" && item.name.includes(boneName)) {
+        if (doonce > 0) { return; } 
+        // if (item.type == "Bone" && item.name == (boneName)) 
+        if (item.type == "Bone" && item.name.includes(boneName)) 
+        {
           if (callback) {
             callback(item);
           }
@@ -909,6 +911,7 @@ class YJPlayer {
 
         return;
       }
+      // console.log("接收角色同步",userData);
 
       if (_Global.dyncUpdateFrame < 10) {
         // 把角色数据添加到列表，由本地挨个取出更新镜像
@@ -917,7 +920,6 @@ class YJPlayer {
         //   userDataList.splice(0, 1);
         // }
         if (!inmoving) { UpdateUserData(); }
-        // console.log("接收同步",userData);
 
         return;
       } else {
@@ -926,6 +928,9 @@ class YJPlayer {
 
       }
 
+
+      // 同步拾取物体
+      dyncPickModel(userData.weaponData);
 
       // console.log("获取角色镜像同步数据",userData);
 
@@ -980,7 +985,7 @@ class YJPlayer {
         if (dyncTimes > 0) {
           targetPos.set(pos.x, pos.y, pos.z);
           b_lerpChangeView = true;
-          lerpLength = 0.1;
+          lerpLength = 0.5;
         } else {
           currentTargetPos.lerp(newPos, 1);
           playerGroup.position.set(currentTargetPos.x, currentTargetPos.y, currentTargetPos.z);
@@ -989,23 +994,25 @@ class YJPlayer {
 
 
         oldPos = newPos;
+        targetPos = oldPos;
         // return;
       }
 
       Display(userData.dyncDisplay);
 
+      // playerGroup.position.set(newPos.x, newPos.y, newPos.z);
 
       // group.rotation.set(0, userData.rotateY , 0);
 
       // 设置插值移动，防止抖动
-      // let e = userData.rotateEuler;
-      // if (e) {
-      //   group.rotation.set(e.x, e.y, e.z);
-      // }
+      let e = userData.rotateEuler;
+      if (e) {
+        group.rotation.set(e.x, e.y, e.z);
+      }
 
-      let lookatPos = newPos.clone();
-      lookatPos.y = currentTargetPos.y;
-      group.lookAt(lookatPos);
+      // let lookatPos = newPos.clone();
+      // lookatPos.y = currentTargetPos.y;
+      // group.lookAt(lookatPos);
 
       // group.rotation.set(0, userData.rotateY + 3.14 / 2 + 3.14, 0);
 
@@ -1015,6 +1022,46 @@ class YJPlayer {
     let rotaDoonce = 0;
     let doonce = 0;
     let userData = null;
+
+
+    //武器
+    let weaponData = {
+      pickType: "",
+      weaponType: "",
+      id: "",
+    };
+    let pickBone = [];
+    this.AddPick = function(boneName){
+      pickBone.push(boneName);
+    }
+    this.CheckPick = function(boneName){
+      for (let i = 0; i < pickBone.length; i++) {
+        if(pickBone[i] == boneName) {return true;}
+      }
+      return false;
+    }
+    // 同步拾取物体
+    function dyncPickModel(_weaponData) {
+      // console.log(weaponData,_weaponData);
+      if(weaponData.weaponId == _weaponData.weaponId){
+        return;
+      }
+      weaponData = _weaponData; 
+      if(_weaponData.weaponId == ""){
+        for (let i = 0; i < pickBone.length; i++) {
+          scope.GetBoneVague(pickBone[i], (bone) => {
+            if(bone.weaponModel){
+              bone.remove(bone.weaponModel); 
+            } 
+          });
+        }
+        pickBone = [];
+        return;
+      }
+      _Global.PickWeapon(scope,_weaponData.weaponId);
+
+    }
+
     function UpdateUserData() {
       // if (inmoving) { return; }
       if (userDataList.length == 0) {
@@ -1026,6 +1073,10 @@ class YJPlayer {
       scope.SetMountName(userData.mountName);
       // 角色模型是否显示同步
       scope.DisplayAvatar(userData.avatarDisplay);
+
+
+      // 同步拾取物体
+      dyncPickModel(userData.weaponData);
 
       //姓名条大小位置同步
       if (userData.nameTrans != undefined) {

@@ -182,7 +182,8 @@ export default {
       setting: [
         { property: "animName", title: "动作名", type: "text", value: "", callback: this.ChangeValue },
         { property: "isLoop", title: "是否循环", type: "toggle", value: true, callback: this.ChangeValue },
-        { property: "path", title: "动作(上传记录动作信息的json文件)", type: "upload", value: "none", callback: this.ChangeValue },
+        { property: "path", title: "动作(记录动作信息的json或fbx文件)", type: "upload", value: "none", callback: this.ChangeValue },
+        // { property: "path", title: "动作(上传记录动作信息的json文件)", type: "upload", value: "none", callback: this.ChangeValue },
 
       ],
 
@@ -296,7 +297,7 @@ export default {
     }, 
     // 改变控制器角色动作
     ChangeAnim(e) {
-      _Global.YJ3D.YJController.SetPlayerAnimName(e);
+      _Global.YJ3D.YJController.ChangeAnimDirect(e);
     },
     // 改变当前上传角色动作
     ChangePlayerAnim(animName) {
@@ -426,7 +427,7 @@ export default {
             let items = [this.currentAnimData];
             this.PlayerAnimData().AddAllExtendAnimData(this.modelData.name, items);
             // 加载动作
-            // _Global.YJ3D.YJController.SetPlayerAnimName(this.animName);
+            // _Global.YJ3D.YJController.ChangeAnimDirect(this.animName);
 
             let _YJAnimator = _Global.YJ3D._YJSceneManager
               .GetSingleTransformComponent("Animator");

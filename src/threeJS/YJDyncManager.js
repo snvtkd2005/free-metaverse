@@ -562,6 +562,42 @@ class YJDyncManager {
 
     //场景中需要同步的物体
     // 发送场景状态
+    this.SendSceneState = function (type,state) {
+      let fromData = {};
+      fromData.type = "更新场景状态";
+      let msg = this.InitMsg();
+      let sceneState = {}; 
+      sceneState.type = type;
+      sceneState.state = state; 
+      msg.sceneState = sceneState;
+      fromData.message = msg;
+      this.callRPCFn("_SendSceneState", "other", JSON.stringify(fromData));
+
+    }
+    //接收场景状态
+    function _SendSceneState(_this, msg) {
+      msg = eval("(" + msg + ")");
+      var data = JSON.parse(msg);
+      // console.log("更新场景状态", data);
+      var message = data.message;
+
+      if (message.roomName != _this.roomName) {
+        return;
+      }
+      if ( message.id == _this.id) {
+        return;
+      }
+      let sceneState = message.sceneState;
+      // if(!_Global.mainUser){
+      //   YJDync.$parent._SceneManager.GetDyncManager().Receive(sceneState);
+      // }
+      YJDync.$parent._SceneManager.GetDyncManager().Receive(sceneState);
+
+      // YJDync.UpdateSceneState(message.sceneState);
+      // YJDync.$parent._SceneManager.Receive(sceneState);
+
+    }
+    /** 
     this.SendSceneState = function (id, name, state) {
       let fromData = {};
       fromData.type = "更新场景状态";
@@ -592,15 +628,14 @@ class YJDyncManager {
       }
       let sceneState = message.sceneState;
 
-      // if(!_Global.mainUser){
-      //   YJDync.$parent._YJGameManager_DyncScene.Receive(sceneState);
-      // }
+      if(!_Global.mainUser){
+        YJDync.$parent.GetDyncManager().Receive(sceneState);
+      }
       // YJDync.UpdateSceneState(message.sceneState);
-
-      YJDync.$parent._SceneManager.Receive(sceneState);
+      // YJDync.$parent._SceneManager.Receive(sceneState);
 
     }
-
+*/
     // 接收服务器发送过来的场景同步信息
     function _DyncSceneFromServer(_this, msg) {
       // msg = eval("(" + msg + ")");
@@ -738,9 +773,9 @@ class YJDyncManager {
         this.updateUserStateSingle(data.id);
 
         //如果当前角色为主控角色，则主控角色发送整个场景的模型状态
-        // if(_Global.mainUser){
-        //   YJDync.$parent._YJGameManager_DyncScene.SendDyncSceneModel();
-        // }
+        if(_Global.mainUser){
+          YJDync.$parent._SceneManager.GetDyncManager().SendSceneState();
+        }
         return;
 
         // this.addSystemMsg(data.message + " 已上线");
@@ -813,10 +848,7 @@ class YJDyncManager {
           _Global.mainUser = true;
           YJDync.SetMainUser(_Global.mainUser); 
         }
-
-        // if( _Global.mainUser){
-        //   YJDync.$parent._YJGameManager_DyncScene.initState();
-        // }
+ 
         // console.log("刷新所有在线用户数 " + userList.length);
         for (let j = 0; j < userList.length; j++) {
           let userdata = userList[j];

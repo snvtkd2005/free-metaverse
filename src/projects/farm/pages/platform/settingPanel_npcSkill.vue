@@ -201,7 +201,7 @@ export default {
     },
     // 改变控制器角色动作
     ChangeAnim(e) {
-      // _Global.YJ3D.YJController.SetPlayerAnimName(e);
+      // _Global.YJ3D.YJController.ChangeAnimDirect(e);
       let _YJAnimator = _Global.YJ3D._YJSceneManager
         .GetSingleTransformComponent("Animator");
       _YJAnimator.ChangeAnim(e);

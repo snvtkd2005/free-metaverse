@@ -144,7 +144,7 @@ class YJMeshRenderer {
 
 
           scene.add(model);
-          console.log(" 加载模型完成 ", model);
+          // console.log(" 加载模型完成 ", model);
           _this._YJSceneManager.addLoadMesh(modelPath, model);
 
           if (callback) {
@@ -287,6 +287,7 @@ class YJMeshRenderer {
       animations = mesh.animations;
 
       scene.add(model);
+      model.rotation.set(0,0,0);
       model.scale.set( meshScale,  meshScale,  meshScale);
       model.transform = owner;
 

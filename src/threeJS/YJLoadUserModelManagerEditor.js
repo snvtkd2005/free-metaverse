@@ -37,7 +37,7 @@ class YJLoadUserModelManager {
 
     let loadIndex = 0;
     let allTransform = [];
-
+    let modelId = 0;
     // 每次进入游戏时，更新服务器上记录的模型
     let modelDataList = [];
     this.GetModelList = function () {
@@ -199,70 +199,7 @@ class YJLoadUserModelManager {
         if (callback) {
           callback(object);
         }
-      });
-      return;
-
-/*
-      let object = new YJTransform(_this, scene, "", null, null, modelData.name);
-
-      let uuid = object.GetUUID();
-      allTransform.push({ uuid: uuid, transform: object });
-      object.SetPosRota(modelData.pos);
-      object.SetModelPath(modelData.modelPath);
-      object.SetData(modelData.folderBase, modelData.modelType);
-      if (modelData.message != undefined) {
-        object.SetMessage(modelData.message);
-      }
-
-      let modelPath = uploadUrl + modelData.modelPath;
-
-      let MeshRenderer = new YJMeshRenderer(_this, object.GetGroup(), object, false);
-      object.AddComponent("MeshRenderer", MeshRenderer);
-
-      if (modelData.modelType == "动画模型") {
-        MeshRenderer.load(modelPath, (scope) => {
-          new YJAnimator(scope.GetModel(), scope.GetAnimations());
-        });
-      } else if (modelData.modelType == "uv模型") {
-        MeshRenderer.load(modelPath, (scope) => {
-          let uvanim = new YJUVAnim3(_this);;
-          object.AddComponent("UVAnim", uvanim);
-          if (modelData.message != undefined) {
-            if (modelData.message.pointType == "UV动画") {
-              uvanim.Init(scope.GetModel(), modelData.message.data);
-            }
-          }
-        });
-      } else if (modelData.modelType == "汽车模型") {
-        object.RemoveComponent("MeshRenderer");
-        let pos = modelData.pos.clone();
-        let x = pos.x.toFixed(2);
-        let z = pos.z.toFixed(2);
-        let id = modelData.folderBase + "car" + x + "-" + z;
-        let car = new YJCar(_this, scene, id, modelData.message.data,
-          modelData.pos,
-          modelData.rotaV3,
-          new THREE.Vector3(1, 1, 1),
-          null, (scope) => {
-            _this._YJSceneManager.AddNeedUpdateJS(scope);
-          }, object
-        );
-        object.AddComponent("Car", car);
-      } else if (modelData.modelType == "装备模型") {
-        MeshRenderer.load(modelPath, (scope) => {
-          let meshTrigger = new YJTrigger(_this, object.GetGroup(), object, "weapon");
-          object.AddComponent("Trigger", meshTrigger);
-        });
-      } else {
-        MeshRenderer.load(modelPath);
-      }
-
-
-      _this._YJSceneManager._YJTransformManager.attach(object.GetGroup());
-      if (callback) {
-        callback(object);
-      }
-*/
+      }); 
     }
 
     function CreateTransform(parent, modelData, callback) {
@@ -288,12 +225,12 @@ class YJLoadUserModelManager {
         }
       }
 
-
+      modelId++;
       let uuid = object.GetUUID();
-      allTransform.push({ uuid: uuid, transform: object });
+      allTransform.push({ uuid: uuid,id:modelId, transform: object });
       object.SetPosRota(modelData.pos, modelData.rotaV3, modelData.scale);
       object.SetModelPath(modelData.modelPath);
-      object.SetData(modelData.folderBase, modelData.modelType);
+      object.SetData(modelData.folderBase, modelData.modelType,modelId);
       // if (modelData.message != undefined) {
       //   object.SetMessage(modelData.message);
       // }
@@ -523,99 +460,7 @@ class YJLoadUserModelManager {
           callback(object);
         }
       });
-      return;
-/*
-      let modelName = modelData.name;
-      let modelPath = uploadUrl + modelData.modelPath;
-      let modelType = modelData.modelType;
-      let size = modelData.scale;
-      // console.error("加载模型", modelData.modelPath);
-
-      let object = new YJTransform(_this, parent, "", null, null, modelName);
-
-      let uuid = object.GetUUID();
-      allTransform.push({ uuid: uuid, transform: object });
-
-      object.SetPosRota(_pos, rotaV3, size);
-      object.SetModelPath(modelData.modelPath);
-      object.SetData(modelData.folderBase, modelType);
-      if (modelData.message != undefined) {
-        object.SetMessage(modelData.message);
-      }
-
-
-
-
-      let MeshRenderer = new YJMeshRenderer(_this, object.GetGroup(), object);
-      object.AddComponent("MeshRenderer", MeshRenderer);
-
-
-      if (modelType == "动画模型") {
-        MeshRenderer.load(modelPath, (scope) => {
-          object.EditorEnd();
-          new YJAnimator(scope.GetModel(), scope.GetAnimations());
-          if (callback) {
-            callback();
-          }
-        }, () => {
-          LoadError(uuid, callback);
-        });
-      } else if (modelData.modelType == "uv模型") {
-        MeshRenderer.load(modelPath, (scope) => {
-          object.EditorEnd();
-          let uvanim = new YJUVAnim3(_this);
-          object.AddComponent("UVAnim", uvanim);
-          if (modelData.message != undefined) {
-            if (modelData.message.pointType == "UV动画") {
-              uvanim.Init(scope.GetModel(), modelData.message.data);
-            }
-          }
-          if (callback) {
-            callback();
-          }
-        }, () => {
-          LoadError(uuid, callback);
-        });
-      } else if (modelData.modelType == "汽车模型") {
-        object.RemoveComponent("MeshRenderer");
-
-        // loadIndex++;
-        // 动力学物体只能放到世界坐标系下
-        let pos = parent.position.clone();
-        pos.x += modelData.pos.x;
-        pos.y += modelData.pos.y;
-        pos.z += modelData.pos.z;
-
-        let x = pos.x.toFixed(2);
-        let z = pos.z.toFixed(2);
-        let id = modelData.folderBase + "car" + x + "-" + z;
-        // let id = modelData.folderBase + "car" + loadIndex;
-        // let id = uuid;
-        let car = new YJCar(_this, scene, id, modelData.message.data,
-          pos,
-          rotaV3,
-          new THREE.Vector3(1, 1, 1),
-          null, (scope) => {
-            _this.$parent.$parent._SceneManager.AddDyncModel(id, scope);
-            if (callback) {
-              callback();
-            }
-          }, object
-        );
-        object.AddComponent("Car", car);
-
-      } else {
-
-        MeshRenderer.load(modelPath, () => {
-          object.EditorEnd();
-          if (callback) {
-            callback();
-          }
-        }, () => {
-          LoadError(uuid, callback);
-        });
-      }
-*/
+      return; 
     }
     function LoadError(uuid, callback, e,modelData) {
       console.log("加载模型出错 22 " + uuid,modelData, e, allTransform);
@@ -642,8 +487,29 @@ class YJLoadUserModelManager {
 
     }
 
-    this.EditorUserModel = function (item, local) {
-
+    this.EditorUserModel = function (sceneState) {
+      console.log(" 同步模型 ", sceneState);
+      for (let i = allTransform.length - 1; i >= 0 ; i--) {
+        const elment = allTransform[i];
+        if (elment.id  == sceneState.id) {
+          let state = sceneState.state;
+          let transform = elment.transform;
+          if(state != undefined){
+            if(!state.display){
+              transform.GetGroup().visible = false;
+              transform.GetComponent("Weapon").DestroyTrigger();
+            }else{
+              transform.GetGroup().position.copy(state.pos);
+              transform.GetGroup().scale.set(1, 1, 1);
+              transform.GetGroup().rotation.set(0, 0, 0);
+              transform.GetGroup().visible = true;
+              if (transform.GetComponent("Weapon") != null) {
+                transform.GetComponent("Weapon").Reset();
+              }
+            }
+          }
+        }
+      }
     }
     let delModelCallback;
     this.SetDelModelHandler = function (callback) {

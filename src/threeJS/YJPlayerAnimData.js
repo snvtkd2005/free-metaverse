@@ -476,33 +476,32 @@ class YJPlayerAnimData {
       let animName = "";
       switch (e) {
         case "普通攻击":
+          animName = "fight attack"; //空手状态 攻击状态 拳击动作 
           if (weaponData) { 
             let _animName = GetAnimName(e,weaponData);
             if(_animName != ""){
               animName =_animName;
             }
           } else {
-            animName = "boxing attack001"; //空手状态 攻击状态 拳击动作 
           }
 
           break;
         case "赤手攻击":
-          animName = "boxing attack001"; //空手状态 攻击状态 拳击动作
+          animName = "fight attack"; //空手状态 攻击状态 拳击动作
           break;
         case "准备战斗":
-          animName = "boxing idle"; //空手状态 战斗准备状态
+          animName = "fight idle"; //空手状态 战斗准备状态
           if (weaponData) {
             let _animName = GetAnimName(e,weaponData);
             if(_animName != ""){
               animName =_animName;
             }
-          } else { 
-            animName = "boxing idle"; //空手状态 攻击状态 拳击动作 
+          } else {  
           }
 
           break;
         case "受伤":
-          animName = "body block"; //空手状态 拳击受伤 
+          animName = "fight hurt"; //空手状态 受伤 
           if (weaponData) {
 
             let _animName = GetAnimName(e,weaponData);

@@ -12,15 +12,84 @@ import { YJLoadModel } from "/@/threeJS/YJLoadModel.js";
 import { YJParabola } from "/@/threeJS/YJParabola.js";
 
 
-// NPC 角色
-// 1，头顶上方有 感叹号 ，表示可交互
-// 2，交互方式为：靠近弹出交互内容，远离交互内容消失
-// 3，制作碰撞区域
-// 4，设置 交互内容，图、文、视频
+// 场景同步数据
 
-class YJGameManager {
-  constructor(_this, parentUI, assetId, avatarData, pos, rota, size, npcManager) {
+class YJGameManagerEditor {
+  constructor(_this, parentUI, npcManager) {
     var scope = this;
+
+    let dyncModelList = [];
+    // 初始化场景中需要同步的模型。每个客户端都执行
+    this.InitDyncSceneModels = ()=>{
+      //武器、npc 
+      let modelDataList = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetModelList();
+      for (let i = 0; i < modelDataList.length; i++) {
+        const element = modelDataList[i];
+        if(element.modelType == "NPC模型" 
+        || element.modelType == "装备模型"
+         ){
+          dyncModelList.push({id:element.id});
+        }
+      } 
+    }
+
+    //发送单个物体数据
+    this.SendModelState = function(id,state){
+      for (let i = 0; i < dyncModelList.length; i++) {
+        const element = dyncModelList[i];
+        if(element.id == id){
+          element.state = state;
+			    _this.$parent.$parent.$refs.YJDync._YJDyncManager.SendSceneState("single",{id:id,state:state});
+        } 
+      }
+    }
+
+    //发送整个场景数据
+    this.SendSceneState = function(){
+			_this.$parent.$parent.$refs.YJDync._YJDyncManager.SendSceneState("all",dyncModelList);
+    }
+
+    this.ReceiveScene = function(sceneState){
+      for (let i = 0; i < dyncModelList.length; i++) {
+        const element = dyncModelList[i];
+        if(element.id == id){
+          element.state = state;
+        } 
+      }
+    }
+    this.Receive = function(sceneState){
+      console.log("接收同步信息",sceneState);
+      let state = sceneState.state;
+
+      if(sceneState.type == "all"){
+        for (let i = 0; i < dyncModelList.length; i++) {
+          const element = dyncModelList[i];
+          let has = false;
+          for (let j = 0; j < state.length && !has; j++) {
+            const _state = state[j];
+            if(element.id == _state.id){
+              element.state = _state.state; 
+              has = true;
+            } 
+          } 
+        }
+
+        for (let i = 0; i < state.length; i++) {
+          const element = state[i]; 
+          _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().EditorUserModel(element);
+        }
+        return;
+      }
+      _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().EditorUserModel(state);
+      for (let i = 0; i < dyncModelList.length; i++) {
+        const element = dyncModelList[i];
+        console.log("查找",state.id,element.id);
+        if(element.id == state.id){
+          element.state = state.state;
+          return;
+        } 
+      }
+    }
 
     // 上次选中的角色、npc
     let oldTarget = null;
@@ -359,20 +428,16 @@ class YJGameManager {
           }
           return;
         }
-        if (key == "Digit1") {
-          // _this.YJController.SetPlayerState("death"); 
+        if (key == "Digit1") { 
           parentUI.$refs.skillPanel.ClickSkillIndex(0); 
           return;
         }
-        if (key == "Digit2") {
-          // _this.YJController.SetPlayerState("attack");
+        if (key == "Digit2") { 
           parentUI.$refs.skillPanel.ClickSkillIndex(1); 
           return;
         }
 
-        if (key == "Digit3") {
-          // _this.YJController.SetPlayerAnimName("shooting");
-          // _this.YJController.SetPlayerState("shooting");
+        if (key == "Digit3") { 
           parentUI.$refs.skillPanel.ClickSkillIndex(2); 
           return;
         }
@@ -401,6 +466,7 @@ class YJGameManager {
           //   _this._YJSceneManager.ClickInteractive();
           // }
            
+          _this.YJController.SetUserDataItem("weaponData","weaponId","");
           _this.YJController.SetUserDataItem("weaponData","weaponType","");
 
           _Global.SendMsgTo3D("放下武器");
@@ -623,4 +689,4 @@ class YJGameManager {
   }
 }
 
-export { YJGameManager };
+export { YJGameManagerEditor };

@@ -3438,9 +3438,7 @@ class YJController {
         pickType: "",
         weaponType: "",
         weaponId: "",
-      },
-      // inPickWeapon: false,
-      // pos:{x:0,y:0,z:0},
+      }, 
     };
 
     this.SetNameTransOffsetAndScale = function (h, scale) {
@@ -3587,13 +3585,13 @@ class YJController {
 
 
     this.SetPlayerAnimName = function (_animName) {
-      animName = _animName;
-      // console.log(" 直接设置玩家角色动作 " + animName);
-      playerState = PLAYERSTATE.INTERACTIVE;
-
+      animName = _animName; 			
+      _YJPlayer.ChangeAnim(animName);
+    }
+    this.ChangeAnimDirect = function (_animName) {
+      animName = _animName; 
       _YJPlayer.ChangeAnimDirect(animName);
     }
-
     // 角色lookat坐标
     this.PlayerLookatPos = function (pos) {
       let temp = new THREE.Group();
@@ -3602,6 +3600,7 @@ class YJController {
       temp.position.y = this.GetPlayerWorldPos().y - playerHeight / 2;
       temp.add(new THREE.AxesHelper(5));
       _player.lookAt(temp.position.clone());
+      oldrotateY = -100;
       // _player.add(new THREE.AxesHelper(2));
       scene.remove(temp);
     } 

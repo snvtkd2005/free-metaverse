@@ -29,9 +29,10 @@ class YJTransform {
       message: null, //模型热点信息
       uuid: "",//在场景中的唯一标识
     }
-    this.SetData = function (folderBase, modelType) {
+    this.SetData = function (folderBase, modelType,id) {
       data.folderBase = folderBase;
       data.modelType = modelType;
+      data.id = id;
     }
     this.SetMessage = function (message) {
       data.message = message;

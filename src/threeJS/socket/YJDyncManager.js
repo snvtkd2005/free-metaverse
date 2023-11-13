@@ -675,9 +675,9 @@ class YJDyncManager {
       }
       let sceneState = message.sceneState;
 
-      // if(!_Global.mainUser){
-      //   YJDync.$parent._YJGameManager_DyncScene.Receive(sceneState);
-      // }
+      if(!_Global.mainUser){
+        YJDync.$parent._YJGameManager_DyncScene.Receive(sceneState);
+      }
       // YJDync.UpdateSceneState(message.sceneState);
 
       YJDync.$parent._SceneManager.Receive(sceneState);
@@ -746,9 +746,9 @@ class YJDyncManager {
         this.updateUserStateSingle(data.id);
 
         //如果当前角色为主控角色，则主控角色发送整个场景的模型状态
-        // if(_Global.mainUser){
-        //   YJDync.$parent._YJGameManager_DyncScene.SendDyncSceneModel();
-        // }
+        if(_Global.mainUser){
+          YJDync.$parent._YJGameManager_DyncScene.SendDyncSceneModel();
+        }
         return;
 
         // this.addSystemMsg(data.message + " 已上线");

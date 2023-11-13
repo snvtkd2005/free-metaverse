@@ -14,7 +14,7 @@ import { YJParabola } from "./YJParabola.js";
 // 同步场景物体
 
 class YJGameManager_DyncScene {
-  constructor(_this, parent, assetId, avatarData, pos, rota, size, npcManager) {
+  constructor(_this, npcManager) {
     var scope = this;
     //场景中需要同步的物体
     let sceneModels = [];
@@ -61,13 +61,6 @@ class YJGameManager_DyncScene {
           modelState.model.SetState(sceneState.state);
           return;
         }
-      }
-    }
-
-    this.initState = function(){
-      for (let i = 0; i < sceneModels.length; i++) {
-        var modelState = sceneModels[i];
-        modelState.model.initState();
       }
     }
 

@@ -72,8 +72,7 @@ import YJmetaBase from "./YJmetaBase.vue";
 // 加载进度页
 import loadingPanel from "./loadingPanel2.vue";
 
-import { SceneManager } from "../../js/SceneManagerMetaworld.js";
-import { YJGameManager } from "../../js/YJGameManagerEditor.js";
+import { SceneManager } from "../../js/SceneManagerMetaworld.js"; 
 import { Interface } from "../../js/Interface_editor.js";
 
 
@@ -562,12 +561,21 @@ export default {
 
 
 
-      this._YJGameManager = new YJGameManager(_Global.YJ3D, this);
-      this._YJGameManager.AddChangeTargetListener((b) => {
-        if (this.$refs.gameUI) {
-          this.$refs.gameUI.SetTargetVaild(b);
+
+      //场景设置
+      this._SceneManager = new SceneManager(
+        _Global.YJ3D.scene,
+        _Global.YJ3D.renderer,
+        _Global.YJ3D.camera,
+        _Global.YJ3D,
+        _Global.YJ3D._YJSceneManager.GetmodelParent(),
+        this,
+        () => {
+          // if (callback) {
+          //   callback();
+          // }
         }
-      });
+      ); 
 
       setTimeout(() => {
         _Global.YJ3D._YJSceneManager.LoadMetaWorld();
@@ -635,21 +643,6 @@ export default {
         });
 
 
-        //场景设置
-        this._SceneManager = new SceneManager(
-          _Global.YJ3D.scene,
-          _Global.YJ3D.renderer,
-          _Global.YJ3D.camera,
-          _Global.YJ3D,
-          _Global.YJ3D._YJSceneManager.GetmodelParent(),
-          this,
-          () => {
-            // if (callback) {
-            //   callback();
-            // }
-
-          }
-        );
         this._SceneManager.ChangeScene(this.sceneData);
 
 
@@ -721,28 +714,36 @@ export default {
 
     // 点击角色NPC，显示NPC下方的光圈
     ClickPlayer(owner) {
-      this._YJGameManager.ClickPlayer(owner);
+      if (this._SceneManager) {
+        this._SceneManager.ClickPlayer(owner);
+      }
+    },
 
+    RightClick(hitObject, hitPoint) {
+      this._SceneManager.RightClick(hitObject, hitPoint);
     },
     ClickModel(hitObject) {
       // console.log(" 点击模型 owner ", hitObject);
       if (this.$refs.modelPanel) {
         this.$refs.modelPanel.SetModel(hitObject.owner);
       }
-      this._YJGameManager.ClickModel(hitObject);
+      if (this._SceneManager) {
+        this._SceneManager.ClickModel(hitObject);
+      }
     },
     HoverObject(hoverObject, hoverPoint) {
-      this._YJGameManager.HoverObject(hoverObject, hoverPoint);
+      if (this._SceneManager) {
+        this._SceneManager.HoverObject(hoverObject, hoverPoint);
+      }
     },
+
 
     CreateHotContent(modelData, owner) {
       console.log("点击热点 ", modelData, owner);
       this.Interface.LoadData(modelData.id);
-      if (modelData.id.includes("chair")) {
-        //点击热点坐椅子
-        this._YJGameManager.SetSittingModel(owner.GetGroup());
-        owner.SetPointVisible(false);
-      }
+      if (this._SceneManager) {
+        this._SceneManager.CreateHotContent(modelData, owner);
+      } 
     },
     ClickHotPointOwner(hitObject) {
 

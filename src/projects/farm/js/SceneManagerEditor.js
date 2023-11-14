@@ -193,6 +193,7 @@ class SceneManager {
             return;
           }
 
+
           // 碰到武器就拾取
           _this.YJPlayer.GetBoneVague(msg.data.boneName, (bone) => {
             let weaponModel = owner.GetGroup();
@@ -216,7 +217,7 @@ class SceneManager {
             _this.YJController.SetUserDataItem("weaponData","weaponType",msg.data.weaponType);
             _this.YJController.SetUserDataItem("weaponData","weaponId",msg.data.id);
 
-            _YJGameManagerEditor.SendModelState(owner.GetData().id,{display:false});
+            _YJGameManagerEditor.SendModelState(owner.GetData().id,{modelType:owner.GetData().modelType, msg:{ display:false}});
             // console.log("bone ",bone); 
           });
         }
@@ -240,7 +241,7 @@ class SceneManager {
       }
       boneAttachList = [];
       //同步放下武器
-      _YJGameManagerEditor.SendModelState(transform.GetData().id,{display:true,pos:pos});
+      _YJGameManagerEditor.SendModelState(transform.GetData().id,{modelType:transform.GetData().modelType,msg:{display:true,pos:pos}});
 
     }
 
@@ -259,6 +260,7 @@ class SceneManager {
         indexVue.$refs.headerUI.display = false;
         return;
       }
+      // console.log(" targetModel ",targetModel);
       let message = targetModel.GetData().message;
       targetModel.AddHandle((data) => {
         if (data.baseData.health == 0) {

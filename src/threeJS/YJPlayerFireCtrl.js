@@ -54,7 +54,7 @@ class YJPlayerFireCtrl {
 			camp: "lm",
 			speed: 8, //移动速度
 			level: 1, //等级
-			health: 500, //生命值
+			health: 100, //生命值
 			strength: 20, //攻击力
 		}
 
@@ -161,8 +161,12 @@ class YJPlayerFireCtrl {
 						setTimeout(() => {
 							console.log(" 有效攻击目标 ");
 							//有效攻击
-							let isDead = npcTransform.GetComponent("NPC").ReceiveDamage(_YJPlayer, skillName, baseData.strength);
-							if (isDead) {
+							let health = npcTransform.GetComponent("NPC").ReceiveDamage(_YJPlayer, skillName, baseData.strength);
+							
+							// _Global.DyncManager.SendModelState(npcTransform.GetData().id,{modelType:npcTransform.GetData().modelType, msg:{playerId:_YJPlayer.id, health:health}});
+
+							
+							if (health == 0) {
 								npcTransform = null;
 								playerState = PLAYERSTATE.NORMAL;
 								if (toIdelLater != null) {

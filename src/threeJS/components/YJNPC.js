@@ -402,12 +402,20 @@ class YJNPC {
 
     let fireBeforePos = null;
     // 设置NPC的战斗目标
-    this.SetTarget = function (_target) {
+    this.SetTarget = function (_targetModel,isLocal) {
 
       if (baseData.state == stateType.Back) {
         return;
       }
-      targetModel = _target;
+      if(_targetModel == null){
+        targetModel = _targetModel;
+      }else{
+        if (targetModel == null) {
+          targetModel = _targetModel;
+          console.log("targetModel npc目标 ", targetModel);
+          fireBeforePos = scope.transform.GetWorldPos();
+        } 
+      }
 
       let npcPos = parent.position.clone();
 
@@ -427,6 +435,9 @@ class YJNPC {
         baseData.health = baseData.maxHealth;
         scope.transform.UpdateData();
 
+        if(isLocal){
+          _Global.DyncManager.SendModelState(scope.transform.GetData().id,{modelType:scope.transform.GetData().modelType, msg:{type:"设置目标", playerId:"",}});
+        }
 
         return;
       }
@@ -441,11 +452,15 @@ class YJNPC {
       baseData.state = stateType.Fire;
       fireBeforePos = scope.transform.GetWorldPos();
       console.log("targetModel npc目标 ", targetModel);
+
+      _Global.DyncManager.SendModelState(scope.transform.GetData().id,{modelType:scope.transform.GetData().modelType, msg:{type:"设置目标", playerId:targetModel.id,}});
+
     }
 
 
 
     let checkPlayerLater = null;
+    //实时检测附近玩家
     function CheckPlayer() {
 
       if (checkPlayerLater != null) {
@@ -513,16 +528,16 @@ class YJNPC {
       _YJAnimator.ChangeAnim(animName);
     }
 
+    let targetModelList = [];
+
     this.ReceiveDamage = function (_targetModel, skillName, strength) {
-      if (targetModel == null) {
-        targetModel = _targetModel;
-        console.log("targetModel npc目标 ", targetModel);
-        fireBeforePos = scope.transform.GetWorldPos();
+      if (targetModel == null) { 
+        this.SetTarget(_targetModel,true);
       }
 
       baseData.health -= strength;
-
-      console.log(this.npcName + " 受到 " + skillName + " 攻击 剩余 " + baseData.health);
+      //_targetModel 是 YJPlayer
+      console.log(this.npcName + " 受到 " + _targetModel.GetPlayerName() +" 使用 "+ skillName + " 攻击 剩余 " + baseData.health);
       if (toIdelLater != null) {
         clearTimeout(toIdelLater);
         toIdelLater = null;
@@ -532,16 +547,12 @@ class YJNPC {
         baseData.health = 0;
       }
 
-      scope.transform.UpdateData();
-      if (baseData.health == 0) {
-        navpath = [];
-        baseData.state = stateType.Dead;
-        scope.SetPlayerState("death");
-        setTimeout(() => {
-          // 模型渐隐消失
-          scope.transform.Destroy();
-        }, 10000);
-        return true;
+      UpdateData();
+
+      _Global.DyncManager.SendModelState(scope.transform.GetData().id,{modelType:scope.transform.GetData().modelType, msg:{playerId:_targetModel.id, health:baseData.health}});
+
+      if (baseData.health == 0) { 
+        return baseData.health;
       }
 
 
@@ -555,9 +566,34 @@ class YJNPC {
         scope.SetPlayerState("准备战斗");
         toIdelLater = null;
       }, 300);
-      return false;
+      return baseData.health;
     }
 
+    // 同步
+    this.Dync = function(msg){
+      baseData.health = msg.health;
+      UpdateData();
+      if(msg.playerId ){
+        if(targetModel == null){
+          this.SetTarget(_Global.YJDync.GetPlayerById(msg.playerId));
+        }
+      }else{
+        this.SetTarget(null);
+      }
+    }
+    function UpdateData(){
+      
+      scope.transform.UpdateData(); // 触发更新数据的回调事件
+      if (baseData.health == 0) {
+        navpath = [];
+        baseData.state = stateType.Dead;
+        scope.SetPlayerState("death");
+        setTimeout(() => {
+          // 模型渐隐消失
+          scope.transform.Destroy();
+        }, 10000); 
+      }
+    }
 
     let oldPlayerPos = null;
     let inBlocking = false;
@@ -603,11 +639,17 @@ class YJNPC {
 
             vaildAttackLater2 = setTimeout(() => {
               //有效攻击
-              if (targetModel.isLocal) {
-                let isDead = targetModel.owner.ReceiveDamage(scope.transform, skillName, baseData.strength);
+              if (targetModel != null && targetModel.isLocal) {
+                let isDead = targetModel.DyncPlayerState({
+                  title:"fire",
+                  content:"受到伤害",
+                  msg:{_targetModel:targetModel, skillName:skillName,strength: baseData.strength},
+                }); 
+
+                // let isDead = targetModel.owner.ReceiveDamage(scope.transform, skillName, baseData.strength);
                 if (isDead) {
                   targetModel = null;
-                  scope.SetTarget(targetModel);
+                  scope.SetTarget(targetModel,true);
                   return;
                 }
               }
@@ -648,7 +690,7 @@ class YJNPC {
       if (navpath == null) {
         getnavpathTimes++;
         if (getnavpathTimes >= 100) {
-          scope.SetTarget(null);
+          scope.SetTarget(null,true);
         }
       }
       // console.log("查到寻路路径 ", navpath);

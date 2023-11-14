@@ -33,35 +33,34 @@ class YJGameManagerEditor {
       } 
     }
 
+    let playerData = [];
     //发送单个物体数据
     this.SendModelState = function(id,state){
       for (let i = 0; i < dyncModelList.length; i++) {
         const element = dyncModelList[i];
         if(element.id == id){
           element.state = state;
-			    _this.$parent.$parent.$refs.YJDync._YJDyncManager.SendSceneState("single",{id:id,state:state});
+
+          if(state.modelType == "装备模型"){
+            playerData.push({playerId:_Global.YJDync.id,modelType:state.modelType,msg:state.msg});
+          }
+          console.log(" 发送单个物体数据 ",state);
+          _Global.YJDync._YJDyncManager.SendSceneState("single",{id:id,state:state});
         } 
       }
     }
 
     //发送整个场景数据
     this.SendSceneState = function(){
-			_this.$parent.$parent.$refs.YJDync._YJDyncManager.SendSceneState("all",dyncModelList);
+      _Global.YJDync._YJDyncManager.SendSceneState("all",dyncModelList);
     }
-
-    this.ReceiveScene = function(sceneState){
-      for (let i = 0; i < dyncModelList.length; i++) {
-        const element = dyncModelList[i];
-        if(element.id == id){
-          element.state = state;
-        } 
-      }
-    }
+ 
     this.Receive = function(sceneState){
-      console.log("接收同步信息",sceneState);
+      // console.log("接收同步信息",sceneState);
       let state = sceneState.state;
 
       if(sceneState.type == "all"){
+        //整个场景所有模型的更新
         for (let i = 0; i < dyncModelList.length; i++) {
           const element = dyncModelList[i];
           let has = false;
@@ -80,16 +79,25 @@ class YJGameManagerEditor {
         }
         return;
       }
+
+      //单个模型的更新
       _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().EditorUserModel(state);
       for (let i = 0; i < dyncModelList.length; i++) {
         const element = dyncModelList[i];
-        console.log("查找",state.id,element.id);
+        // console.log("查找",state.id,element.id);
         if(element.id == state.id){
           element.state = state.state;
           return;
         } 
       }
     }
+
+    //移除角色时，移除其数据。如还原其拾取的武器
+    this.DelPlayer = function(id){
+
+    }
+
+
 
     // 上次选中的角色、npc
     let oldTarget = null;

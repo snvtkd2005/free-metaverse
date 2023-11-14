@@ -488,25 +488,14 @@ class YJLoadUserModelManager {
     }
 
     this.EditorUserModel = function (sceneState) {
-      console.log(" 同步模型 ", sceneState);
+      // console.log(" 同步模型 ", sceneState);
       for (let i = allTransform.length - 1; i >= 0 ; i--) {
         const elment = allTransform[i];
         if (elment.id  == sceneState.id) {
           let state = sceneState.state;
           let transform = elment.transform;
           if(state != undefined){
-            if(!state.display){
-              transform.GetGroup().visible = false;
-              transform.GetComponent("Weapon").DestroyTrigger();
-            }else{
-              transform.GetGroup().position.copy(state.pos);
-              transform.GetGroup().scale.set(1, 1, 1);
-              transform.GetGroup().rotation.set(0, 0, 0);
-              transform.GetGroup().visible = true;
-              if (transform.GetComponent("Weapon") != null) {
-                transform.GetComponent("Weapon").Reset();
-              }
-            }
+            transform.Dync(state); 
           }
         }
       }

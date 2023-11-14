@@ -287,6 +287,35 @@ class YJTransform {
         }
       }
     }
+
+    //同步
+    this.Dync = function(state){
+      let msg = state.msg;
+      if(state.modelType == "装备模型"){
+        if(!msg.display){
+          group.visible = false;
+          if (this.GetComponent("Weapon") != null) {
+            this.GetComponent("Weapon").DestroyTrigger();
+          } 
+        }else{
+          group.position.copy(msg.pos);
+          group.scale.set(1, 1, 1);
+          group.rotation.set(0, 0, 0);
+          group.visible = true;
+          if (this.GetComponent("Weapon") != null) {
+            this.GetComponent("Weapon").Reset();
+          }
+        }
+      }
+      // -----------
+      if(state.modelType == "NPC模型"){
+        if (this.GetComponent("NPC") != null) {
+          this.GetComponent("NPC").Dync(msg);
+        }
+      }
+
+
+    }
     Init();
 
   }

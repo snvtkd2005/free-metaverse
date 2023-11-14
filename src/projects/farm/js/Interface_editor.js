@@ -142,6 +142,15 @@ class Interface {
     }
     _Global.CreateOrLoadPlayerAnimData = this.CreateOrLoadPlayerAnimData;
 
+    
+    this.DyncManager = function () { 
+      return _this._SceneManager.GetDyncManager();
+    }
+    this.YJDync = function () { 
+      return _this.$refs.YJDync;
+    }
+
+
     init();
 
     this.YJ3D = function () {
@@ -593,6 +602,8 @@ class Interface {
         });
       }
       _Global.applyEvent("3d加载完成");
+      _Global.YJDync = this.YJDync();
+      _Global.DyncManager = this.DyncManager();
       if (_Global.load3dComplete == null) { return; }
       _Global.load3dComplete();
     }

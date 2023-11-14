@@ -329,20 +329,21 @@ class YJPlayer {
 
           hasPlayer = true;
           if (inSetDefaltPos) {
-            scope.SetMountName(playerDyncData.defaultMountName);
-            if (playerDyncData.parentName == "scene") {
-              scope.SetPlayerParent();
-            } else {
-              if (_YJGlobal._SceneManager) {
-                scope.SetPlayerParent(_YJGlobal._SceneManager.GetSceneModel(playerDyncData.parentName));
-              }
-            }
-            oldparentName = playerDyncData.parentName;
+            // scope.SetMountName(playerDyncData.defaultMountName);
+            // if (playerDyncData.parentName == "scene") {
+            //   scope.SetPlayerParent();
+            // } else {
+            //   if (_YJGlobal._SceneManager) {
+            //     scope.SetPlayerParent(_YJGlobal._SceneManager.GetSceneModel(playerDyncData.parentName));
+            //   }
+            // }
+            // oldparentName = playerDyncData.parentName;
 
-            playerGroup.position.set(playerDyncData.defultPos.x, playerDyncData.defultPos.y, playerDyncData.defultPos.z);
-            if (playerDyncData.defaultRotateEuler) {
-              group.rotation.set(playerDyncData.defaultRotateEuler.x, playerDyncData.defaultRotateEuler.y, playerDyncData.defaultRotateEuler.z);
-            }
+            // playerGroup.position.set(playerDyncData.defultPos.x, playerDyncData.defultPos.y, playerDyncData.defultPos.z);
+            // if (playerDyncData.defaultRotateEuler) {
+            //   group.rotation.set(playerDyncData.defaultRotateEuler.x, playerDyncData.defaultRotateEuler.y, playerDyncData.defaultRotateEuler.z);
+            // }
+            scope.SetUserData(oldUserData);
           }
 
 
@@ -881,19 +882,22 @@ class YJPlayer {
 
       oldNameTrans = nameTrans;
     }
-
+    this.GetUserData = function(){
+      return oldUserData;
+    }
     let dyncTimes = 0;
     let userDataList = [];
+    let oldUserData = {};
     //接收服务器同步过来的其他用户角色位置、旋转、动作
     this.SetUserData = function (userData) {
 
-      // console.log("同步其他用户的角色镜像  执行 22222 " ,userData);
-      // console.log("同步其他用户的角色镜像  执行 1111 " ,userData.pos);
+      // console.log("同步其他用户的角色镜像  执行 22222 " ,userData); 
       var pos = userData.pos;
       if (userData.pos == undefined) {
         pos = new THREE.Vector3(0, 0, 0);
       } else {
       }
+      oldUserData = userData;
 
       if (!hasPlayer) {
         //在角色没创建完成前，就接收到位置，则先把位置记录下来
@@ -906,7 +910,6 @@ class YJPlayer {
         playerDyncData.parentName = userData.parentName;
 
         // console.log("获取角色镜像同步数据",playerDyncData);
-
         inSetDefaltPos = true;
 
         return;
@@ -1042,6 +1045,9 @@ class YJPlayer {
     }
     // 同步拾取物体
     function dyncPickModel(_weaponData) {
+      if(_weaponData == undefined){
+        return;
+      }
       // console.log(weaponData,_weaponData);
       if(weaponData.weaponId == _weaponData.weaponId){
         return;

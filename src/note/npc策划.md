@@ -91,3 +91,10 @@ merchandiseData:{
     id:"",
     
 }
+
+npc的同步数据
+playerId //目标id
+health //当前生命值
+pos //当前坐标点
+targetPos //目标坐标点
+animName //动作

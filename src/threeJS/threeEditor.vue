@@ -808,11 +808,12 @@ export default {
 
     // 调用设置用户姓名条。
     // 多人同步状态下，由于加入游戏在创建角色之前，所以先做标志位
-    CallCreateNameTrans(e) {
+    CallCreateNameTrans(e,id) {
       this.nickName = e;
 
       if (this.YJPlayer) {
         this.YJPlayer.CreateNameTrans(this.nickName);
+        this.YJPlayer.id = id;
       }
 
     },

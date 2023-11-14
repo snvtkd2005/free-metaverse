@@ -566,7 +566,7 @@ export default {
           // this.ThreejsHumanChat.GeneratePlayer(isLocal, id, platform, nickName);
 
           // 默认没有姓名条，在多人模式中，需调用创建姓名条 
-          this.ThreejsHumanChat.CallCreateNameTrans(nickName);
+          this.ThreejsHumanChat.CallCreateNameTrans(nickName,id);
 
         }
 
@@ -658,12 +658,15 @@ export default {
           this.allPlayer[i].player.SetUserData(user);
           return;
         }
-      }
-
-
-
+      } 
     },
-
+    GetPlayerById(id) {
+      for (let i = 0; i < this.allPlayer.length; i++) {
+        if (this.allPlayer[i].id == id) { 
+          return this.allPlayer[i].player;
+        }
+      }
+    },
     //同步其他角色的操作。扔物品
     DyncPlayerState(id, state) {
       if (!this.hasTRTC) {

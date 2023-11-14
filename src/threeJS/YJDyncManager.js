@@ -589,9 +589,9 @@ class YJDyncManager {
       }
       let sceneState = message.sceneState;
       // if(!_Global.mainUser){
-      //   YJDync.$parent._SceneManager.GetDyncManager().Receive(sceneState);
+      //   _Global.DyncManager.Receive(sceneState);
       // }
-      YJDync.$parent._SceneManager.GetDyncManager().Receive(sceneState);
+      _Global.DyncManager.Receive(sceneState);
 
       // YJDync.UpdateSceneState(message.sceneState);
       // YJDync.$parent._SceneManager.Receive(sceneState);
@@ -774,7 +774,7 @@ class YJDyncManager {
 
         //如果当前角色为主控角色，则主控角色发送整个场景的模型状态
         if(_Global.mainUser){
-          YJDync.$parent._SceneManager.GetDyncManager().SendSceneState();
+          _Global.DyncManager.SendSceneState();
         }
         return;
 
@@ -810,6 +810,7 @@ class YJDyncManager {
             YJDync.DelPlayer(data.id);
             this.hotPoint.splice(j, 1);
             //移除该玩家创建的模型。注释后不在玩家离线时删除他创建的模型
+            _Global.DyncManager.DelPlayer(data.id);
             // YJDync._YJSceneManager.RemoveModelByUserId(data.id);
             // this.addSystemMsg(data.message + " 已下线");
             continue;

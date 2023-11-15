@@ -15,6 +15,7 @@
 import * as THREE from "three";
 
 import TWEEN from '@tweenjs/tween.js';
+import { YJPlayerFireCtrl } from "./YJPlayerFireCtrl.js"; //战斗控制
 
 class YJController {
   constructor(scene, camera, domElement, _this) {
@@ -3133,9 +3134,13 @@ class YJController {
 
     //是否在地面。跳起后，实时检测是否已碰到地面，碰到地面时，不允许下降
     var _YJPlayer = null;
+    var _YJPlayerFireCtrl = null;
     this.SetPlayer = (yjplayer) => {
       _YJPlayer = yjplayer;
       _YJPlayer.owner = scope;
+      if(_YJPlayerFireCtrl == null){
+        _YJPlayerFireCtrl = new YJPlayerFireCtrl(_this,_YJPlayer);
+      }
     }
     this.GetYJPlayer = () => {
       return _YJPlayer;
@@ -3501,6 +3506,9 @@ class YJController {
     let mountName = "";
 
     let updateTimes = 0;
+    this.updateBaseData = function(_baseData){
+      userData.baseData = _baseData;
+    }
     this.updateSend = function () {
       if (_YJPlayer == null || _player == null || _YJAmmoPlayer == null) {
         return null;
@@ -3608,17 +3616,15 @@ class YJController {
     this.DyncPlayerState = function (state) {
       _YJPlayer.DyncPlayerState(state);
     }
- 
     this.ReceiveDamage = function (_targetModel, skillName, strength) {
-      return _YJPlayer.DyncPlayerState({
+      return _YJPlayerFireCtrl.OnPlayerState({
         title:"fire",
         content:"受到伤害",
         msg:{_targetModel:_targetModel, skillName:skillName,strength: strength},
       }); 
     }
-
     this.SetInteractiveNPC = function (_npcTransform) {
-      _YJPlayer.DyncPlayerState({
+      _YJPlayerFireCtrl.OnPlayerState({
         title:"fire",
         content:"设置npc",
         msg:_npcTransform,
@@ -3650,7 +3656,7 @@ class YJController {
       // }
       // _YJPlayer.ChangeAnim(animName);
  
-      _YJPlayer.DyncPlayerState({
+      _YJPlayerFireCtrl.OnPlayerState({
         title:"fire",
         content:"设置玩家状态",
         msg:e,

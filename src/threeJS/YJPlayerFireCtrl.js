@@ -7,11 +7,23 @@ import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 
 
-// 角色战斗控制
+// 战斗相关控制：
+// 角色属性、战斗行为
 
 class YJPlayerFireCtrl {
 	constructor(_this, _YJPlayer) {
 		let scope = this;
+
+		
+		let baseData = {
+			camp: "lm", //阵营
+			speed: 8, //移动速度
+			level: 1, //等级
+			health: 100, //当前剩余生命值
+			maxHealth: 100, //最大生命值
+			strength: 20, //攻击力
+		}
+
 		let animName = "";
 		let weaponData = null;
 		//玩家动作状态机
@@ -25,7 +37,7 @@ class YJPlayerFireCtrl {
 		};
 		var playerState = PLAYERSTATE.NORMAL;
 
-		this.DyncPlayerState = function (state) {
+		this.OnPlayerState = function (state) {
 			switch (state.content) {
 				case "设置玩家状态":
 					scope.SetPlayerState(state.msg);
@@ -48,16 +60,6 @@ class YJPlayerFireCtrl {
 					break;
 			}
 		}
-
-
-		let baseData = {
-			camp: "lm",
-			speed: 8, //移动速度
-			level: 1, //等级
-			health: 100, //生命值
-			strength: 20, //攻击力
-		}
-
 		let npcTransform = null;
 		let npcPos = null;
 		this.ReceiveDamage = function (_targetModel, skillName, strength) {
@@ -77,11 +79,17 @@ class YJPlayerFireCtrl {
 			}
 
 			if (baseData.health <= 0) {
+				baseData.health = 0; 
+			}
+
+			UpdateData();
+			if (baseData.health == 0) {
 				baseData.health = 0;
 				playerState = PLAYERSTATE.DEAD
 				scope.SetPlayerState("death");
 				return true;
 			}
+
 
 			inBlocking = true;
 			scope.SetPlayerState("受伤");
@@ -96,7 +104,10 @@ class YJPlayerFireCtrl {
 			}, 300);
 			return false;
 		}
-
+		// 生命值改变时，同步 
+		function UpdateData(){
+			_this.YJController.updateBaseData(baseData);
+		}
 		this.SetInteractiveNPC = function (_npcTransform) {
 			npcTransform = _npcTransform;
 			if (npcTransform == null) {
@@ -292,7 +303,7 @@ class YJPlayerFireCtrl {
 
 					if (playerState == PLAYERSTATE.DEAD) { 
 						playerState = PLAYERSTATE.NORMAL;
-						baseData.health = 500;
+						baseData.health = baseData.maxHealth;
 					}
 					break;
 				case "停止移动":
@@ -354,7 +365,10 @@ class YJPlayerFireCtrl {
 		// if("" || 0){
 		// 	console.log(" in YJPlayerFireCtrl ");
 		// }
-		// Init();
+		function Init(){
+			UpdateData();
+		}
+		Init();
 		update();
 
 	}

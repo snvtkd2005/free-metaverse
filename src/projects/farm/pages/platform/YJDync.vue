@@ -15,27 +15,42 @@
     </div>
 
     <div class=" mt-10 text-left h-auto max-h-96 overflow-y-auto overscroll-auto text-white">
-      <div v-for="(item, i) in otherUser" :key="i" :index="item.userName" class=" relative w-11/12  pl-2 border-b-2 flex "
+      <div v-for="(item, i) in otherUser" :key="i" :index="item.userName" class=" relative w-11/12  pl-2   "
         :id="item.id">
-        <div class=" w-auto  whitespace-nowrap  truncate "
-          :class="item.id == id ? ' pointer-events-none ' : 'cursor-pointer', (isMainUser && item.id == id) ? ' text-green-400 ' : ''"
-          @click="ClickOtherUser('select', item)">
-          <div>
-            {{ item.userName + (item.id == id ? ' (自己)' : '') }}
+        <div class=" flex ">
+
+          <div class=" w-auto  whitespace-nowrap  truncate "
+            :class="item.id == id ? ' pointer-events-none ' : 'cursor-pointer', (isMainUser && item.id == id) ? ' text-green-400 ' : ''"
+            @click="ClickOtherUser('select', item)">
+            <div>
+              {{ item.userName + (item.id == id ? ' (自己)' : '') }}
+            </div>
           </div>
+
+          <div class=" hidden absolute right-0 z-auto " :class="(isMainUser && item.id != id) ? 'pointer-events-auto cursor-pointer ' : 'pointer-events-none',
+            item.audio ? ' opacity-1 ' : ' opacity-0 '
+            " @click.stop="ToggleAudio(item)">
+            <div class=" w-6 h-6 p-px ">
+              <img class=" w-full h-full " :src="publicUrl + 'images/' + (item.mute ? 'mute' : '') + 'mico.png'" alt="">
+            </div>
+          </div>
+
+          <!-- <div v-if="item.video">{{ (item.video ? ' 有视频 ' : '') }}</div> -->
+          <!-- 新消息 -->
+          <div v-if="item.hasNew" class="absolute top-0 -left-2 w-2 h-2 rounded-full  bg-purple-700"></div>
         </div>
 
-        <div class=" hidden absolute right-0 z-auto " :class="(isMainUser && item.id != id) ? 'pointer-events-auto cursor-pointer ' : 'pointer-events-none',
-          item.audio ? ' opacity-1 ' : ' opacity-0 '
-          " @click.stop="ToggleAudio(item)">
-          <div class=" w-6 h-6 p-px ">
-            <img class=" w-full h-full " :src="publicUrl + 'images/' + (item.mute ? 'mute' : '') + 'mico.png'" alt="">
+        <div v-if="item.user.userData.baseData" class=" mb-1 w-full h-4  border relative ">
+          <div class=" h-full bg-green-500  "
+            :style="'width: ' + (item.user.userData.baseData.health / item.user.userData.baseData.maxHealth) * 100 + '%'">
           </div>
+          <!-- <div class="  ">{{ item.user.userData.baseData.health }}</div> -->
         </div>
 
-        <!-- <div v-if="item.video">{{ (item.video ? ' 有视频 ' : '') }}</div> -->
-        <!-- 新消息 -->
-        <div v-if="item.hasNew" class="absolute top-0 -left-2 w-2 h-2 rounded-full  bg-purple-700"></div>
+        <!-- <div class=" mb-1 w-full h-4 border relative ">
+          <div class=" h-full bg-green-500  " :style="'width: ' + (50 / 100) * 100 + '%'"></div>
+        </div> -->
+
       </div>
     </div>
   </div>
@@ -240,8 +255,7 @@
  
 <script >
 
-import * as THREE from "three";
-
+import { VueElement } from "vue";
 import { YJDyncManager } from "/@/threejs/YJDyncManager.js";
 import { YJPlayer } from "/@/threejs/YJPlayer.js";
 
@@ -342,18 +356,6 @@ export default {
     this.roomName = 'pcwebRoom1';
 
     this.stopDync = false;
-
-    // this.userData = {};
-    // this.userData.modelType = '小孩';
-    // this.userData.platform = this.platform;
-    // this.userData.roomName = this.roomName;
-    // this.userData.userName = this.userName;
-
-    // console.log("启动 同步 ");
-    // this._YJDyncManager = new YJDyncManager(
-    //   this, 
-    //   this.userData
-    // );
 
     // this.ThreejsHumanChat = this.$parent.$refs.YJmetaBase.GetThreejsHumanChat();
 
@@ -461,11 +463,9 @@ export default {
     //#region 初始化并同步角色数据
     InitYJController() {
       this.YJController = this.ThreejsHumanChat.YJController;
-
-      var that = this;
       setInterval(() => {
-        that.UpdateYJController();
-      }, 20);
+        this.UpdateYJController();
+      }, 40);
     },
 
     UpdateYJController() {
@@ -477,6 +477,14 @@ export default {
       let userData = this.YJController.updateSend();
       if (userData != null) {
         this._YJDyncManager.SetUserData(userData);
+
+        if (this.selfNum != undefined) {
+          // let _baseData = this.otherUser[this.selfNum].user.userData.baseData;
+          // _baseData.health = userData.baseData.health;
+          this.otherUser[this.selfNum].user.userData.baseData.health = userData.baseData.health;
+          // console.log(" self user.userData ", userData,
+          //   (_baseData.health / _baseData.maxHealth) * 100 + "%");
+        }
       }
       this.inSend = false;
     },
@@ -566,7 +574,7 @@ export default {
           // this.ThreejsHumanChat.GeneratePlayer(isLocal, id, platform, nickName);
 
           // 默认没有姓名条，在多人模式中，需调用创建姓名条 
-          this.ThreejsHumanChat.CallCreateNameTrans(nickName,id);
+          this.ThreejsHumanChat.CallCreateNameTrans(nickName, id);
 
         }
 
@@ -628,6 +636,12 @@ export default {
     UpdateOnlineUser(_otheruser) {
       this.otherUser = [];
       this.otherUser = _otheruser;
+      for (let i = 0; i < this.otherUser.length; i++) {
+        const element = this.otherUser[i];
+        if (element.id == this.id) {
+          this.selfNum = i;
+        }
+      }
     },
     //断开连接时，删除所有角色
     DelOtherPlayer() {
@@ -658,11 +672,11 @@ export default {
           this.allPlayer[i].player.SetUserData(user);
           return;
         }
-      } 
+      }
     },
     GetPlayerById(id) {
       for (let i = 0; i < this.allPlayer.length; i++) {
-        if (this.allPlayer[i].id == id) { 
+        if (this.allPlayer[i].id == id) {
           return this.allPlayer[i].player;
         }
       }

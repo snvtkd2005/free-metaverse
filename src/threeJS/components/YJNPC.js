@@ -45,7 +45,7 @@ class YJNPC {
 
     let baseData = {
       state: 'normal', //状态
-      camp: "bl",
+      camp: "bl", //阵营
       speed: 8, //移动速度
       level: 1, //等级
       health: 100, //生命值
@@ -453,7 +453,7 @@ class YJNPC {
       fireBeforePos = scope.transform.GetWorldPos();
       console.log("targetModel npc目标 ", targetModel);
 
-      _Global.DyncManager.SendModelState(scope.transform.GetData().id,{modelType:scope.transform.GetData().modelType, msg:{type:"设置目标", playerId:targetModel.id,}});
+      _Global.DyncManager.SendModelState(scope.transform.GetData().id,{modelType:scope.transform.GetData().modelType, msg:{type:"设置目标", playerId:targetModel.id,  health:baseData.health}});
 
     }
 
@@ -569,9 +569,14 @@ class YJNPC {
       return baseData.health;
     }
 
-    // 同步
+    // 接收同步
     this.Dync = function(msg){
       baseData.health = msg.health;
+      if(baseData.health == 0){
+          // 模型渐隐消失
+          scope.transform.Destroy();
+          return;
+      }
       UpdateData();
       if(msg.playerId ){
         if(targetModel == null){
@@ -640,13 +645,13 @@ class YJNPC {
             vaildAttackLater2 = setTimeout(() => {
               //有效攻击
               if (targetModel != null && targetModel.isLocal) {
-                let isDead = targetModel.DyncPlayerState({
-                  title:"fire",
-                  content:"受到伤害",
-                  msg:{_targetModel:targetModel, skillName:skillName,strength: baseData.strength},
-                }); 
+                // let isDead = targetModel.DyncPlayerState({
+                //   title:"fire",
+                //   content:"受到伤害",
+                //   msg:{_targetModel:targetModel, skillName:skillName,strength: baseData.strength},
+                // }); 
 
-                // let isDead = targetModel.owner.ReceiveDamage(scope.transform, skillName, baseData.strength);
+                let isDead = targetModel.owner.ReceiveDamage(scope.transform, skillName, baseData.strength);
                 if (isDead) {
                   targetModel = null;
                   scope.SetTarget(targetModel,true);

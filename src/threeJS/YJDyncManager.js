@@ -91,10 +91,11 @@ class YJDyncManager {
       msg.user = this.user;
       fromData.message = msg;
       this.callRPCFn("_SetUserPos", "other", JSON.stringify(fromData));
+
     }
 
     function _SetUserPos(_this, msg) {
-      // console.log(msg);
+      // console.log("更新位置 " ,msg);
       msg = eval("(" + msg + ")");
       var data = JSON.parse(msg);
 
@@ -107,7 +108,6 @@ class YJDyncManager {
         return;
       }
       // console.log("更新角色位置  ", data);
-
 
       for (let j = 0; j < _this.otherUser.length; j++) {
         if (
@@ -765,7 +765,7 @@ class YJDyncManager {
         }
         YJDync.GeneratePlayer(false, data.id, data.platform, data.userName);
 
-        this.AddPlayerUser(data.id, data.userName, data.roomName);
+        this.AddPlayerUser(data.id, data.userName, data.roomName,data);
 
         YJDync.UpdateOnlineUser(this.otherUser);
 
@@ -792,7 +792,7 @@ class YJDyncManager {
           }
         }
         YJDync.GeneratePlayer(false, data.id, data.platform, data.userName);
-        this.AddPlayerUser(data.id, data.userName, data.roomName);
+        this.AddPlayerUser(data.id, data.userName, data.roomName,data);
 
         YJDync.UpdateOnlineUser(this.otherUser);
 
@@ -852,12 +852,12 @@ class YJDyncManager {
  
         // console.log("刷新所有在线用户数 " + userList.length);
         for (let j = 0; j < userList.length; j++) {
-          let userdata = userList[j];
+          let data = userList[j];
           YJDync.GeneratePlayer(
-            userdata.id == this.id,
-            userdata.id, userdata.platform, userdata.userName
+            data.id == this.id,
+            data.id, data.platform, data.userName
           );
-          this.AddPlayerUser(userdata.id, userdata.userName, userdata.roomName);
+          this.AddPlayerUser(data.id, data.userName, data.roomName,data);
 
         }
 
@@ -874,8 +874,9 @@ class YJDyncManager {
     }
 
 
+
     // 用户连入同步服务器后，把角色镜像数据添加到本地
-    this.AddPlayerUser = function (id, userName, roomName) {
+    this.AddPlayerUser = function (id, userName, roomName,user) {
       this.hotPoint.push({
         id: id,
         nickName: userName,
@@ -885,20 +886,32 @@ class YJDyncManager {
       this.otherUser.push({
         id: id,
         userName: userName,
-        user: {
-          pos: [-100, -100],
-          playerData: {
-            name: "",
-            img: "",
+        user:{
+          userData:{
+            baseData:{
+              health:0,
+              maxHealth:100,
+            },
           },
-        },
+        }, 
+        // user:{
+        //   pos: [-100, -100],
+        //   playerData: {
+        //     name: "",
+        //     img: "",
+        //   },
+        // },
         currentInput: "",
         chatRecode: [],
         roomName: roomName,
         //是否有新消息
         hasNew: false,
         mute: false, //是否禁言
+        // health:0,
+        // maxHealth:100,
       });
+
+
     }
 
 

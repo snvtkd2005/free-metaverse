@@ -33,6 +33,7 @@ class YJGameManagerEditor {
       } 
     }
 
+    // 玩家拾取场景内物体的数据。用来做场景物体同步
     let playerData = [];
     //发送单个物体数据
     this.SendModelState = function(id,state){
@@ -56,10 +57,11 @@ class YJGameManagerEditor {
     }
  
     this.Receive = function(sceneState){
-      // console.log("接收同步信息",sceneState);
       let state = sceneState.state;
 
       if(sceneState.type == "all"){
+        console.log("接收场景同步信息",sceneState);
+
         //整个场景所有模型的更新
         for (let i = 0; i < dyncModelList.length; i++) {
           const element = dyncModelList[i];

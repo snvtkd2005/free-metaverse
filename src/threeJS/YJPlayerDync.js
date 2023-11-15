@@ -10,21 +10,17 @@ import { YJParabola } from "./YJParabola.js";
 
 import { DecalGeometry } from 'three/examples/jsm/geometries/DecalGeometry.js';
 
-import { YJPlayerFireCtrl } from "./YJPlayerFireCtrl.js"; //战斗控制
 
 class YJPlayerDync {
   constructor(_this, scene, YJPlayer, playerGroup) {
 
     var scope = this;
     let oldStateId = 0;
-    let otherthrowObj = null;
-    let _YJPlayerFireCtrl = null;
+    let otherthrowObj = null; 
     this.DyncPlayerState = function (state) {
-      if(state.title == "fire"){
-        if(_YJPlayerFireCtrl == null){
-          _YJPlayerFireCtrl = new YJPlayerFireCtrl(_this,YJPlayer);
-        }
-        return _YJPlayerFireCtrl.DyncPlayerState(state);
+      if(state.title == "fire"){ 
+        console.error(" 战斗控制位置错误 ",state);
+        return ;
       }
       let stateId = state.stateId;
       if (oldStateId != stateId) {

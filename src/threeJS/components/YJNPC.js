@@ -580,7 +580,6 @@ class YJNPC {
         }
       }
       baseData.health = msg.health;
-      UpdateData();
       if(msg.playerId ){
         if(targetModel == null){
           this.SetTarget(_Global.YJDync.GetPlayerById(msg.playerId));
@@ -588,6 +587,7 @@ class YJNPC {
       }else{
         this.SetTarget(null);
       }
+      UpdateData();
     }
     function UpdateData(){
       

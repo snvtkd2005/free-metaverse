@@ -578,7 +578,7 @@ class YJDyncManager {
     function _SendSceneState(_this, msg) {
       msg = eval("(" + msg + ")");
       var data = JSON.parse(msg);
-      // console.log("更新场景状态", data);
+      console.log("更新场景状态",_this.id, data);
       var message = data.message;
 
       if (message.roomName != _this.roomName) {
@@ -772,7 +772,7 @@ class YJDyncManager {
         //只向新加入的id角色发送自身角色数据
         this.updateUserStateSingle(data.id);
 
-        //如果当前角色为主控角色，则主控角色发送整个场景的模型状态
+        //每有新玩家加入，则主控角色发送整个场景的模型状态
         if(_Global.mainUser){
           _Global.DyncManager.SendSceneState();
         }

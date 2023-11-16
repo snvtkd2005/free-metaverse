@@ -938,7 +938,15 @@ class YJPlayer {
       // console.log("获取角色镜像同步数据",userData);
 
 
-      this.ChangeAnim(userData.animName);
+      if(userData.animName.includes("idle")){
+        if(b_lerpChangeView){
+
+        }else{
+          this.ChangeAnim(userData.animName);
+        }
+      }else{
+        this.ChangeAnim(userData.animName);
+      }
 
 
       // 行走动画权重
@@ -976,15 +984,10 @@ class YJPlayer {
         }
       }
 
-
-
-
       // console.log("接收动作和权重 "+userData.animName +"  "+ userData.animWeight );
       var newPos = new THREE.Vector3(pos.x, pos.y, pos.z);
       // console.log("接收 角色 坐标 ",newPos );
       if (oldPos.x != newPos.x || oldPos.z != newPos.z) {
-
-
         if (dyncTimes > 0) {
           targetPos.set(pos.x, pos.y, pos.z);
           b_lerpChangeView = true;
@@ -994,8 +997,6 @@ class YJPlayer {
           playerGroup.position.set(currentTargetPos.x, currentTargetPos.y, currentTargetPos.z);
           dyncTimes++;
         }
-
-
         oldPos = newPos;
         targetPos = oldPos;
         // return;
@@ -1220,40 +1221,19 @@ class YJPlayer {
     let movingTween = null;
     function LerpMovePlayer() {
 
-      // if (b_lerpChangeView) {
-      //   // if (movingTween != null) {
-      //   //   movingTween.stop();
-      //   //   movingTween = null;
-      //   // }
-
-      //   movingTween = new TWEEN.Tween(currentTargetPos).to(targetPos,500).easing(TWEEN.Easing.Cubic.InOut)
-      //   let updateTargetPos = () => {
-      //     playerGroup.position.set(currentTargetPos.x, currentTargetPos.y, currentTargetPos.z);
-      //   }
-      //   movingTween.onUpdate(updateTargetPos);
-      //   movingTween.start() // 启动动画
-      //   movingTween.onComplete(() => {
-      //     ChangeAnimFn(needAnimName);
-      //     b_lerpChangeView = false;
-      //   });
-      // }
-      // return;
-
-
       if (b_lerpChangeView) {
-
         lerpLength += 0.05;
-
         currentTargetPos.lerp(targetPos, lerpLength);
         playerGroup.position.set(currentTargetPos.x, currentTargetPos.y, currentTargetPos.z);
-
         if (Math.abs(targetPos.z - currentTargetPos.z) < 0.01
           && Math.abs(targetPos.x - currentTargetPos.x) < 0.01
           && Math.abs(targetPos.y - currentTargetPos.y) < 0.01
         ) {
           b_lerpChangeView = false;
           lerpLength = 0;
-          console.log("已移动到指定位置");
+          // console.log("已移动到指定位置");
+          scope.ChangeAnim(oldUserData.animName);
+
         }
       }
     }

@@ -19,9 +19,9 @@ class YJPlayerFireCtrl {
 			camp: "lm", //阵营
 			speed: 8, //移动速度
 			level: 1, //等级
-			health: 100, //当前剩余生命值
-			maxHealth: 100, //最大生命值
-			strength: 20, //攻击力
+			health: 200, //当前剩余生命值
+			maxHealth: 200, //最大生命值
+			strength: 30, //攻击力
 		}
 
 		let animName = "";
@@ -87,6 +87,12 @@ class YJPlayerFireCtrl {
 				baseData.health = 0;
 				playerState = PLAYERSTATE.DEAD
 				scope.SetPlayerState("death");
+				
+				if (vaildAttackLater != null) {
+					clearTimeout(vaildAttackLater);
+					clearTimeout(vaildAttackLater2);
+					vaildAttackLater = null;
+				}
 				return true;
 			}
 
@@ -114,6 +120,7 @@ class YJPlayerFireCtrl {
 				playerState = PLAYERSTATE.NORMAL;
 				if (vaildAttackLater != null) {
 					clearTimeout(vaildAttackLater);
+					clearTimeout(vaildAttackLater2);
 					vaildAttackLater = null;
 				}
 				if (toIdelLater != null) {
@@ -131,6 +138,7 @@ class YJPlayerFireCtrl {
 
 		let inBlocking = false;
 		let vaildAttackLater = null;
+		let vaildAttackLater2 = null;
 		let attackStepSpeed = 3; //攻击间隔/攻击速度
 		let toIdelLater = null;
 		let skillName = "";
@@ -169,7 +177,7 @@ class YJPlayerFireCtrl {
 							toIdelLater = null;
 						}
 
-						setTimeout(() => {
+						vaildAttackLater2 = setTimeout(() => {
 							console.log(" 有效攻击目标 ");
 							//有效攻击
 							let health = npcTransform.GetComponent("NPC").ReceiveDamage(_YJPlayer, skillName, baseData.strength);
@@ -205,6 +213,7 @@ class YJPlayerFireCtrl {
 				} else {
 					if (vaildAttackLater != null) {
 						clearTimeout(vaildAttackLater);
+						clearTimeout(vaildAttackLater2);
 						vaildAttackLater = null;
 					}
 					// scope.SetPlayerState("准备战斗");

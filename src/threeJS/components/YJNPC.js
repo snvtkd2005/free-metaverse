@@ -218,10 +218,8 @@ class YJNPC {
         //回到transform原始位置
         navpath = [];
 
-        if (laterNav != null) {
-          clearTimeout(laterNav);
-          laterNav = null;
-        }
+        ClearLater("清除巡逻");
+
         this.SetPlayerState("normal");
         scope.transform.ResetPosRota();
         //巡逻点跟随物体
@@ -241,7 +239,8 @@ class YJNPC {
 
         movePosMeshList = [];
         scope.UpdateNavPos('初始', pos);
-        setTimeout(() => {
+        ClearLater("清除巡逻");
+        laterNav = setTimeout(() => {
           GetNavpath(parent.position.clone(), movePos[radomNum(0, movePos.length - 1)]);
         }, 1000);
         return;
@@ -412,11 +411,10 @@ class YJNPC {
       }else{
         if (targetModel == null) {
           targetModel = _targetModel;
-          console.log("targetModel npc目标 ", targetModel);
           fireBeforePos = scope.transform.GetWorldPos();
         } 
       }
-
+      console.log("targetModel npc目标 ", targetModel);
       let npcPos = parent.position.clone();
 
       if (targetModel == null) {
@@ -425,7 +423,8 @@ class YJNPC {
         doonce = 0;
         baseData.state = stateType.Back;
         scope.SetPlayerState("normal");
-        setTimeout(() => {
+        ClearLater("清除巡逻");
+        laterNav = setTimeout(() => {
           let currentPos = scope.transform.GetWorldPos();
           if (currentPos.distanceTo(fireBeforePos) >= 20) {
             baseData.speed = MISSSPEED;
@@ -450,10 +449,10 @@ class YJNPC {
 
       baseData.speed = RUNSPEED;
       baseData.state = stateType.Fire;
-      fireBeforePos = scope.transform.GetWorldPos();
-      console.log("targetModel npc目标 ", targetModel);
-
-      _Global.DyncManager.SendModelState(scope.transform.GetData().id,{modelType:scope.transform.GetData().modelType, msg:{type:"设置目标", playerId:targetModel.id,  health:baseData.health}});
+      fireBeforePos = scope.transform.GetWorldPos(); 
+      if(isLocal){
+        _Global.DyncManager.SendModelState(scope.transform.GetData().id,{modelType:scope.transform.GetData().modelType, msg:{type:"设置目标", playerId:targetModel.id,  health:baseData.health}});
+      }
 
     }
 
@@ -538,10 +537,8 @@ class YJNPC {
       baseData.health -= strength;
       //_targetModel 是 YJPlayer
       console.log(this.npcName + " 受到 " + _targetModel.GetPlayerName() +" 使用 "+ skillName + " 攻击 剩余 " + baseData.health);
-      if (toIdelLater != null) {
-        clearTimeout(toIdelLater);
-        toIdelLater = null;
-      }
+
+      ClearLater("清除准备战斗");
 
       if (baseData.health <= 0) {
         baseData.health = 0;
@@ -552,6 +549,7 @@ class YJNPC {
       _Global.DyncManager.SendModelState(scope.transform.GetData().id,{modelType:scope.transform.GetData().modelType, msg:{playerId:_targetModel.id, health:baseData.health}});
 
       if (baseData.health == 0) { 
+        ClearLater("清除巡逻");
         return baseData.health;
       }
 
@@ -571,12 +569,17 @@ class YJNPC {
 
     // 接收同步
     this.Dync = function(msg){
-      baseData.health = msg.health;
-      if(baseData.health == 0){
+
+      console.log("接收npc同步数据 ",msg);
+      if(msg.health == 0){
+        if(baseData.health == baseData.maxHealth){
+          baseData.health = msg.health;
           // 模型渐隐消失
           scope.transform.Destroy();
           return;
+        }
       }
+      baseData.health = msg.health;
       UpdateData();
       if(msg.playerId ){
         if(targetModel == null){
@@ -635,10 +638,9 @@ class YJNPC {
           // console.log(" 进入攻击范围内 ，停止跑动，进入战斗状态 ");
           //攻击
           if (!inBlocking) {
-            if (toIdelLater != null) {
-              clearTimeout(toIdelLater);
-              toIdelLater = null;
-            }
+
+            ClearLater("清除准备战斗");
+
             scope.SetPlayerState("普通攻击");
             inBlocking = true;
 
@@ -653,6 +655,7 @@ class YJNPC {
 
                 let isDead = targetModel.owner.ReceiveDamage(scope.transform, skillName, baseData.strength);
                 if (isDead) {
+                  console.log(" npc目标玩家死亡 =====");
                   targetModel = null;
                   scope.SetTarget(targetModel,true);
                   return;
@@ -853,15 +856,26 @@ class YJNPC {
 
       }
     }
-
-    let laterNav = null;
-    function ChangeEvent(e) {
-      if (e == "准备巡逻") {
-        scope.SetPlayerState("normal");
+    //清除延时
+    function ClearLater(e){
+      if(e=="清除巡逻"){
         if (laterNav != null) {
           clearTimeout(laterNav);
           laterNav = null;
         }
+      }
+      if(e=="清除准备战斗"){
+        if (toIdelLater != null) {
+          clearTimeout(toIdelLater);
+          toIdelLater = null;
+        }
+      }
+    }
+    let laterNav = null;
+    function ChangeEvent(e) {
+      if (e == "准备巡逻") {
+        scope.SetPlayerState("normal");
+        ClearLater("清除巡逻");
         laterNav = setTimeout(() => {
           //在正常模式到达目标点，表示在巡逻过程中。再次到下一个巡逻点
           GetNavpath(parent.position.clone(), movePos[radomNum(0, movePos.length - 1)]);

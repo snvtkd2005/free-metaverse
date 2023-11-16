@@ -482,6 +482,7 @@ export default {
           // let _baseData = this.otherUser[this.selfNum].user.userData.baseData;
           // _baseData.health = userData.baseData.health;
           this.otherUser[this.selfNum].user.userData.baseData.health = userData.baseData.health;
+          this.otherUser[this.selfNum].user.userData.baseData.maxHealth = userData.baseData.maxHealth;
           // console.log(" self user.userData ", userData,
           //   (_baseData.health / _baseData.maxHealth) * 100 + "%");
         }

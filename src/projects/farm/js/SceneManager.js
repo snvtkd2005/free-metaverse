@@ -73,6 +73,10 @@ import { DataTextureLoader } from "three";
 import { YJshaderLX } from "../../../threeJS/loader/YJshaderLX.js";
 
 
+ 
+import * as YJTHREE from "/@/utils/utils_threejs.js";
+
+
 import Animation from "../../../threeJS/nothing/Animation.js";
 import Test from "../../../threeJS/nothing/Test.js";
 import { YJAnimator } from "../../../threeJS/components/YJAnimator";
@@ -186,6 +190,15 @@ class SceneManager {
       ]);
       console.log(texture);
     }
+     
+    let floor, floorCollider;
+    // 创建地板、地板碰撞
+    function CreateFloor() {
+      floor = CreateFloorCollider("floor");
+      floorCollider = CreateFloorCollider("landcollider");
+      scope.CreateModelMeshCollider(floorCollider, new THREE.Vector3(1, 1, 1),
+        new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, Math.PI / 2, 0));
+    }
     this.ChangeScene = function (e) {
  
 
@@ -209,6 +222,10 @@ class SceneManager {
 
       if (modelPath.includes("TestScene")) {
 
+        YJTHREE.CreateGrid(scene,100,10);
+        YJTHREE.CreateFloorCollider(scene,"floor");
+        YJTHREE.CreateFloorCollider(scene,"landcollider");
+        
         new YJshaderLX(_this, scene, renderer);
 
         let _YJLoadModel = new YJLoadModel(_this, scene);

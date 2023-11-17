@@ -72,6 +72,12 @@ class Interface {
     _Global.CreateOrLoadPlayerAnimData = this.CreateOrLoadPlayerAnimData;
     
     init();
+    
+    this.YJ3D = function () {
+      return _this.$refs.YJmetaBase.ThreejsHumanChat;
+    }
+    _Global.YJ3D = this.YJ3D();
+
     // 角色选择完成
     this.SelectPlayerCompleted = (selectPlayerName, userName) => {
       if (_Global.setCharacter == null) { return; }
@@ -82,7 +88,7 @@ class Interface {
 
     //设置角色动作
     this.SetPlayerAnim = function (animName) {
-      _this.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetPlayerAnim(animName);
+      _Global.YJ3D.YJController.SetPlayerAnim(animName);
       _this.$refs.YJDync.DirectSendUserData(); 
     }
     //设置角色动作
@@ -99,7 +105,7 @@ class Interface {
     
     // 重力是否开启 EnableGravity 
     this.SetEnableGravity = function(b){
-      _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetAmmo().SetGravityActive(b); 
+      _Global.YJ3D._YJSceneManager.GetAmmo().SetGravityActive(b); 
     }
     _Global.SetEnableGravity = this.SetEnableGravity;
 
@@ -108,12 +114,12 @@ class Interface {
 
     // 传入装置id，视角跳转到装置正前方
     this.ChangeViewById = function (id) {
-      _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.ChangeViewByIdDirect(id);
+      _Global.YJ3D._YJSceneManager.ChangeViewByIdDirect(id);
     }
 
     
     this.ChangeViewByIdNoGravity = function (id) {
-      _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.ChangeViewByIdDirectNoGravity(id);
+      _Global.YJ3D._YJSceneManager.ChangeViewByIdDirectNoGravity(id);
     }
     _Global.ChangeViewByIdNoGravity = this.ChangeViewByIdNoGravity;
 
@@ -134,18 +140,18 @@ class Interface {
         console.log("未查找跳转id " + id);
         return;
       }
-      _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.ChangeViewByIdDirect(id);
+      _Global.YJ3D._YJSceneManager.ChangeViewByIdDirect(id);
 
 
-      _this.$refs.YJmetaBase.ThreejsHumanChat.SetCanAddControllerListner(true);
+      _Global.YJ3D.SetCanAddControllerListner(true);
       _this.$refs.YJmetaBase.addThreeJSfocus();
-      _this.$refs.YJmetaBase.ThreejsHumanChat.YJController.ChangeCtrlState();
+      _Global.YJ3D.YJController.ChangeCtrlState();
 
       _this.otherLoadManager.CloseGame();
       _this.animModelId = "";
 
       if (id == "game") {
-        _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.SetPointObjDisplay(
+        _Global.YJ3D._YJSceneManager.SetPointObjDisplay(
           "game",
           true
         );
@@ -156,12 +162,12 @@ class Interface {
 
     }
     this.ActiveThree3D = function () {
-      _this.$refs.YJmetaBase.ThreejsHumanChat.SetCanAddControllerListner(true);
+      _Global.YJ3D.SetCanAddControllerListner(true);
       _this.$refs.YJmetaBase.addThreeJSfocus();
-      _this.$refs.YJmetaBase.ThreejsHumanChat.YJController.DirectToBeforePos();
+      _Global.YJ3D.YJController.DirectToBeforePos();
       _this.otherLoadManager.CloseGame();
       _this.animModelId = "";
-      // _this.$refs.YJmetaBase.ThreejsHumanChat.YJController.ChangeCtrlState();
+      // _Global.YJ3D.YJController.ChangeCtrlState();
     }
 
     this.BeginGame = function () {
@@ -258,13 +264,13 @@ class Interface {
     // 再次开始游戏，跳转到游戏装置前
     this.BeginAgineGame = function () {
       // 隐藏热点
-      _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.SetPointObjDisplay(
+      _Global.YJ3D._YJSceneManager.SetPointObjDisplay(
         "game",
         false
       );
 
-      _this.$refs.YJmetaBase.ThreejsHumanChat.YJController.SetCamPosAndRota(
-        _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.GetCamPosAndRota(
+      _Global.YJ3D.YJController.SetCamPosAndRota(
+        _Global.YJ3D._YJSceneManager.GetCamPosAndRota(
           "game"
         ), () => {
           this.BeginGame();
@@ -278,7 +284,7 @@ class Interface {
 
     //设置渲染分辨率，默认1，有锯齿但流畅。提高分辨率可能会卡顿
     this.SetPixelRatio = function (f) {
-      _this.$refs.YJmetaBase.ThreejsHumanChat.SetPixelRatio(f);
+      _Global.YJ3D.SetPixelRatio(f);
     }
 
     //发送加载进度
@@ -353,14 +359,14 @@ class Interface {
     _Global.dyncUpdateFrame = 25;
 
     this.Clear3DScene = () => { 
-      _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.Clear3D();
+      _Global.YJ3D._YJSceneManager.Clear3D();
     };
     _Global.Clear3DScene = this.Clear3DScene;
 
     // 清空3d画布
     this.Clear3D = () => {
-      _this.$refs.YJmetaBase.ThreejsHumanChat._YJSceneManager.Clear3D();
-      _this.$refs.YJmetaBase.ThreejsHumanChat.Clear3D();
+      _Global.YJ3D._YJSceneManager.Clear3D();
+      _Global.YJ3D.Clear3D();
     };
     // 清空3d画布
     _Global.Clear3D = this.Clear3D;

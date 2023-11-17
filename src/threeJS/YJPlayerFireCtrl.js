@@ -259,8 +259,8 @@ class YJPlayerFireCtrl {
 		  return _Global.CreateOrLoadPlayerAnimData().GetSkillDataByWeapon(weaponData);
 		}
 		this.SetPlayerState = function (e) {
-			// console.log(" in SetPlayerState  ",e,type);
 			weaponData = _this.YJController.GetUserData().weaponData;
+			// console.log(" in SetPlayerState  ",e,weaponData);
 
 			switch (e) {
 				case "普通攻击":

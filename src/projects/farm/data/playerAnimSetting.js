@@ -190,13 +190,14 @@ export default {
       height: 1.7,
       nameScale: 1,
       // 模型缩放
-      modelScale: 0.01,
+      modelScale: 1,
+      // modelScale: 0.01,
       img: "img/player/farmPlayer.png",
       modelType: "角色",
       modelPath: "models/player/farmplayer/farmPlayer.fbx",
       animationsData: [
         { clipIndex: 0, animName: "idle", timeScale: 1, connected: false, targetIndex: 0 },
-        { clipIndex: 1, animName: "walk", timeScale: 1, connected: false, targetIndex: 1 },
+        { clipIndex: 1, animName: "run", timeScale: 1, connected: false, targetIndex: 1 },
         { clipIndex: 2, animName: "jump", timeScale: 1, connected: false, targetIndex: 3 },
         { clipIndex: 3, animName: "floating", timeScale: 1, connected: false, targetIndex: 4 },
         { clipIndex: 4, animName: "death", timeScale: 1, connected: false, targetIndex: 2 },

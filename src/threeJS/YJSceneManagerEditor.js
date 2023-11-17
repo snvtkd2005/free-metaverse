@@ -728,9 +728,7 @@ class YJSceneManager {
       const divisions = 10;
 
       gridHelper = new THREE.GridHelper(size, divisions);
-      scene.add(gridHelper);
-
-
+      scene.add(gridHelper); 
     }
 
     // 通过模型uuid查找到模型

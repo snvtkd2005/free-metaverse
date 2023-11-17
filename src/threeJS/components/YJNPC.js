@@ -2,6 +2,7 @@ import * as THREE from "three";
 
 import { createText } from 'three/examples/jsm/webxr/Text2D.js';
 
+import { YJshader_dissolve } from "/@/threeJS/loader/YJshader_dissolve";
 
 
 // 可控 角色
@@ -596,6 +597,10 @@ class YJNPC {
         navpath = [];
         baseData.state = stateType.Dead;
         scope.SetPlayerState("death");
+        setTimeout(() => {
+          // 先执行溶解特效
+          new YJshader_dissolve(scope.transform.GetGroup());
+        }, 5000); 
         setTimeout(() => {
           // 模型渐隐消失
           scope.transform.Destroy();

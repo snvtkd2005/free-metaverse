@@ -20,8 +20,8 @@ class YJPlayerAnimData {
           if (_this.$parent.$parent.GetPlayerAnimData) {
             PlayerAnimData = _this.$parent.$parent.GetPlayerAnimData();
           }
-      // console.log(" in yj PlayerAnimData ", PlayerAnimData);
       avatarDataList = PlayerAnimData.avatarData;
+      console.log(" in yj PlayerAnimData ", avatarDataList);
 
       let has = false;
       for (let i = 0; i < avatarDataList.length; i++) {

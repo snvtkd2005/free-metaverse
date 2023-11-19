@@ -36,11 +36,11 @@ void main(){
     
     vec2 uv0=uv;
     float noiseValue = (noise(uv0*3.));
-    vec3 finalColor= vec3(1) - vec3(1) * noiseValue ; 
+    float m = step(sin(u_time), noiseValue );
+    vec3 finalColor= vec3(1) - vec3(1) * m ; 
 
     // vec3 col =vec3(0.8353, 0.1686, 0.1686) * step(sin(u_time)+1., noiseValue ) ;
     // finalColor+=(col);
-    
     vec3 col =vec3(1,1, 1) * (sin(u_time)) ;
 
     finalColor += (col*2.); 

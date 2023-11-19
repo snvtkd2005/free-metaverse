@@ -10,6 +10,8 @@ import { YJLoadModel } from "../YJLoadModel";
 
 import { YJshader_dissolve } from "./YJshader_dissolve";
 
+// import  fragmentShaderGLSL  from "/@/threeJS/shader/fragmentShader.glsl";
+
 /**
  动态模型合批优化： merge 、 instance
  模型本身用instance
@@ -21,110 +23,75 @@ class YJshaderLX {
 
 
     // 顶点着色器
-    let vertexShader = /* glsl */ `
-    
-    uniform float currentFrame; //当前帧
-    uniform float totalFrame;  //总帧数
-    // uniform float boundingBoxRange = 0.0; 
-    // uniform float boundingBoxMin = 0.0; 
-    
-    uniform sampler2D mainTex; 
-   
-    float timeDeta = 0.0;
-
-    varying vec2 vUv;
-    attribute vec2 uv2;
-    void main() { 
-      vUv = uv;
- 
-      // float pu = vUv.x;
-      // float pv = 1.0 - fract( currentFrame / totalFrame );
-      // vec2 shiftUv = vec2( pu, pv ); 
-
-      // boundingBoxRange = boundingBoxMax - boundingBoxMin;
-
-      // vec4 aniPos = texture2D( positionMap, shiftUv );
-      // aniPos.xyz *= boundingBoxRange;
-      // aniPos.xyz += boundingBoxMin;
-
-      // vec3 transformed = aniPos.xyz;
-      // vec3 transformed =  position.xyz +aniPos.xyz;
-      // vec3 transformed =  position.xyz +position.xyz * aniPos.xyz;
-
-      // vec3 transformed = vec4( aniPos.xyz , 1.0 );
-      // vec3 transformed = aniPos.xyz;
-
-      vec3 transformed = position.xyz;
-      timeDeta += 0.01;
-      transformed.x = position.x + timeDeta;
-      
-      // transformed.xz *= sin(position.y + stretch);
-      // transformed.xz *= sin(position.y + time);
-      // transformed.y *= sin(position.y + time);
-      // transformed.y += sin(position.y *time);
-      // transformed.y += sin(aniPos.w *time);
-      // transformed.y += sin(time);
-      // transformed = aniPos;
-      //  position = newPosition;
-
-      // vec4 modelPosition = modelMatrix * vec4(position, 1.0);
-      // vec4 modelPosition = modelMatrix * vec4(position, 1.0);
-      // vec4 modelPosition = modelMatrix * vec4(transformed, 1.0); 
-      // vec4 viewPosition = viewMatrix * modelPosition;
-      // vec4 projectedPosition = projectionMatrix * viewPosition;
-      // gl_Position = projectedPosition;
-
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.0); 
- 
-      // vec4 modelPosition = modelMatrix * vec4(position, 1.0);
-      // vec4 viewPosition = viewMatrix * modelPosition;
-      // vec4 projectedPosition = projectionMatrix * viewPosition;
-      // gl_Position = projectedPosition;
-      // gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); //与上面四行等价
-
-
-    }`;
+    let vertexShaderDef = /* glsl */ `
+        varying vec2 vUv; 
+    `;
 
     // 片元着色器
-    let fragmentShader = /* glsl */ `
-    varying vec2 vUv; 
-    uniform sampler2D mainTex; 
-    uniform vec2 u_resolution;
+    let fragmentShaderDef = /* glsl */ ` 
+    #include <map_pars_fragment> 
     uniform float time;
-    
-vec2 hash( vec2 p ) // replace this by something better
-{
-    p = vec2( dot(p,vec2(127.1,311.7)), dot(p,vec2(269.5,183.3)) );
-    return -1.0 + 2.0*fract(sin(p)*43758.5453123);
-}
+    vec2 hash( vec2 p ) // replace this by something better
+    {
+        p = vec2( dot(p,vec2(127.1,311.7)), dot(p,vec2(269.5,183.3)) );
+        return -1.0 + 2.0*fract(sin(p)*43758.5453123);
+    }
 
-float noise( in vec2 p )
-{
-    const float K1 = 0.366025404; // (sqrt(3)-1)/2;
-    const float K2 = 0.211324865; // (3-sqrt(3))/6;
+    float noise( in vec2 p )
+    {
+        const float K1 = 0.366025404; // (sqrt(3)-1)/2;
+        const float K2 = 0.211324865; // (3-sqrt(3))/6;
 
-    vec2  i = floor( p + (p.x+p.y)*K1 );
-    vec2  a = p - i + (i.x+i.y)*K2;
-    float m = step(a.y,a.x); 
-    vec2  o = vec2(m,1.0-m);
-    vec2  b = a - o + K2;
-    vec2  c = a - 1.0 + 2.0*K2;
-    vec3  h = max( 0.5-vec3(dot(a,a), dot(b,b), dot(c,c) ), 0.0 );
-    vec3  n = h*h*h*h*vec3( dot(a,hash(i+0.0)), dot(b,hash(i+o)), dot(c,hash(i+1.0)));
-    return dot( n, vec3(70.0) );
-} 
-    void main() { 
-      vec2 uv=vUv; 
-      uv=(uv.xy*2.-uv.xy); 
+        vec2  i = floor( p + (p.x+p.y)*K1 );
+        vec2  a = p - i + (i.x+i.y)*K2;
+        float m = step(a.y,a.x); 
+        vec2  o = vec2(m,1.0-m);
+        vec2  b = a - o + K2;
+        vec2  c = a - 1.0 + 2.0*K2;
+        vec3  h = max( 0.5-vec3(dot(a,a), dot(b,b), dot(c,c) ), 0.0 );
+        vec3  n = h*h*h*h*vec3( dot(a,hash(i+0.0)), dot(b,hash(i+o)), dot(c,hash(i+1.0)));
+        return dot( n, vec3(70.0) );
+    } 
+    float dissolve(float time){
+        vec2 uv=vUv; 
+        uv=(uv.xy*2.-uv.xy); 
+        vec2 uv0=vUv; 
+        float noiseValue = (noise(uv0*3.)); 
+        // vec3 finalColor =  vec3(1) * noiseValue*2. ;  
+        vec3 finalColor =  vec3(1) *  step(-1.*(time),noiseValue) ;  
+        // vec3 finalColor =  vec3(1) *  step(noiseValue,(time))*3. ;  
+
+        vec3 col =vec3(1,1, 1) * ((time)) ;
+        // vec3 col =vec3(1,1, 1) * (sin(time)) ;
+        finalColor += (col*1.) ;  
+        return finalColor.r;
+    } 
+    vec3 emission(float time){
       vec2 uv0=vUv; 
       float noiseValue = (noise(uv0*3.)); 
-      vec3 finalColor= vec3(1) - vec3(1) * noiseValue ;  
-      vec3 col =vec3(1,1, 1) * (sin(time)) ;
-      finalColor += (col*2.) ;  
-      gl_FragColor=vec4(texture2D(mainTex, uv0).rgb,finalColor.r); 
+      // float m = step((noiseValue),(1.-time)); 
+      // float m = step((noiseValue),(1.-time)*0.3) * (1.-time); 
+ 
+      // float m = step((time),noiseValue); 
+      // vec3 col =vec3(1,0,0) *  (1.-(step((1.-time),(noiseValue)))) ; 
+ 
+      // vec3 col = vec3(1,0,0) *  ((step(-1.,(noiseValue))))  ; 
+      // vec3 col = vec3(1,0,0) * 0.  ; 
+      vec3 col = vec3(0,0,1) *  ((step((noiseValue),-1.*(time) +0.03 )))  ; 
 
-    }`;
-
+      // vec3 col = vec3(1,0,0) *  ((step((noiseValue),(1.-time))))  ; 
+      // vec3 col = vec3(1,0,0) *  ((step((noiseValue),(1.-time)*0.3)))  ; 
+      // vec3 col =vec3(1,0,0) - vec3(1,0,0) *  ((step((noiseValue),(time+0.04))))  ; 
+      // vec3 col =vec3(1,0,0) - vec3(1,0,0) *  ((step((time+0.04),(noiseValue))))  ; 
+      // vec3 col =vec3(1,0,0) *  ((step((time),(noiseValue)))) ; 
+      return col;
+    }
+    `;
+    let fragmentShaderMain = /* glsl */ `
+        void main() { 
+          gl_FragColor=vec4(texture2D(mainTex, vUv).rgb,dissolve(time)); 
+        }
+    `;
     let mesh;
     let last = performance.now();
 
@@ -153,18 +120,20 @@ float noise( in vec2 p )
     function initBirds() {
 
       // const geometry = new THREE.SphereGeometry(1, 10, 10);
-      const geometry = new THREE.PlaneGeometry(1, 1, 10);
+      const geometry = new THREE.PlaneGeometry(5, 5, 10);
       let texture = new THREE.TextureLoader().load(
-        "./public/images/farm.png", (texture) => {
+        "./public/images/black.png", 
+        // "./public/images/farm.png", 
+        (texture) => {
           console.log("加载图片 ", texture);
         });
       // For Vertex and Fragment
-      // uniforms = {
-      //   // 'color': { value: new THREE.Color(0xff2200) },
-      //   // "size": { value: 1 },
-      //   'mainTex': { value: texture }, 
-      //   'time': { value: 0.0 }, 
-      // };
+      uniforms = {
+        // 'color': { value: new THREE.Color(0xff2200) },
+        // "size": { value: 1 },
+        'mainTex': { value: texture },
+        'time': { value: 1.0 },
+      };
 
       // THREE.ShaderMaterial
       // _ShaderMaterial = new THREE.ShaderMaterial({
@@ -174,44 +143,134 @@ float noise( in vec2 p )
       //   side: THREE.DoubleSide,
       //   transparent:true, 
       // });
-      let mat = new THREE.MeshStandardMaterial({
-        map: texture,
+      _ShaderMaterial = new THREE.MeshStandardMaterial({
+        // map: texture,
+        color:0x000000,
         side: THREE.DoubleSide,
+        transparent: true,
+        emissiveIntensity:10,
       });
-      mesh = new THREE.Mesh(geometry, mat);
 
+      _ShaderMaterial.onBeforeCompile = (shader) => {
+        // console.log("shader ", shader);
+
+        Object.assign(shader.uniforms, uniforms)
+        if(_ShaderMaterial.map == null){
+          shader.vertexShader = shader.vertexShader.replace(
+            '#include <common>',
+            `
+            #include <common>  
+            varying vec2 vUv;
+            `
+          );
+          shader.vertexShader = shader.vertexShader.replace(
+            '#include <uv_vertex>',
+            `
+            #include <uv_vertex>  
+            vUv = uv;
+            `
+          );
+
+          shader.fragmentShader = shader.fragmentShader.replace(
+            '#include <common>',
+            `
+            #include <common>  
+            varying vec2 vUv;
+            ` 
+          );
+        }
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <map_pars_fragment>',
+          fragmentShaderDef
+        );
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <emissivemap_fragment>',
+          ` 
+          // #include <emissivemap_fragment>
+          totalEmissiveRadiance = emission(time);
+          `
+        );
+
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <output_fragment>',
+          ` 
+          // #include <output_fragment>
+          // diffuseColor.a = dissolve(time);
+          // diffuseColor.a =0.1;
+          // gl_FragColor = vec4( outgoingLight, diffuseColor.a );
+          // gl_FragColor = vec4( outgoingLight, (time) );
+          gl_FragColor = vec4( outgoingLight, dissolve(time) );
+          `
+        );
+
+      }
+
+      console.log("_ShaderMaterial ", _ShaderMaterial);
+      mesh = new THREE.Mesh(geometry, _ShaderMaterial);
       mesh.castShadow = true;
       mesh.receiveShadow = true;
 
+      let _ShaderMaterial2 = new THREE.MeshStandardMaterial({
+        map: texture,
+        side: THREE.DoubleSide,
+        transparent: true,
+      });
+      
+      _ShaderMaterial2.onBeforeCompile = (shader) => {
+        Object.assign(shader.uniforms, uniforms)  
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <map_pars_fragment>',
+          fragmentShaderDef
+        );  
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <output_fragment>',
+          `  
+          gl_FragColor = vec4( outgoingLight, dissolve(time) );
+          `
+        );
+
+      }
+      let mesh2 = new THREE.Mesh(geometry, _ShaderMaterial2);
+      scene.add(mesh2);
+      mesh2.visible = true;
+      mesh2.position.set(-4, 3, 2);
+      mesh2.rotation.set(0, 0, 0);
+
+
       scene.add(mesh);
       mesh.visible = true;
-      mesh.position.set(2, 1, 2);
+      mesh.position.set(4, 3, 2);
       mesh.rotation.set(0, 0, 0);
 
       setTimeout(() => {
-        
-        _YJshader_dissolve = new YJshader_dissolve(_Global.YJ3D.YJPlayer.GetPlayerGroup());
+
+        // _YJshader_dissolve = new YJshader_dissolve(_Global.YJ3D.YJPlayer.GetPlayerGroup());
         // _YJshader_dissolve = new YJshader_dissolve(mesh);
-      }, 500);
+      }, 2000);
 
 
 
       // animate();
 
     }
+    this.SetTime = function(e){
+      uniforms['time'].value = e;
+    }
 
-
-    let deltaTime = 0;
+    let deltaTime = 1;
     function animate() {
-      // this._update = function () {
       requestAnimationFrame(animate);
 
       const now = performance.now();
       let delta = (now - last) / 1000;
-      deltaTime += delta * 0.5;
+      deltaTime -= delta * 1;
+      if (deltaTime <= -2) {
+        deltaTime = 1;
+      }
       last = now;
       // 控制动画播放 
-      if (_ShaderMaterial) _ShaderMaterial.uniforms['time'].value = deltaTime;
+      if (_ShaderMaterial) uniforms['time'].value = deltaTime;
+      // if (_ShaderMaterial) _ShaderMaterial.uniforms['time'].value = deltaTime;
       // console.log(deltaTime);
     }
     init();

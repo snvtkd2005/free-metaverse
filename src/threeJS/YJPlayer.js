@@ -554,7 +554,7 @@ class YJPlayer {
       }); // 材质
       resetButtonText.material = mat;
       resetButtonText.renderOrder = 1;
-
+      resetButtonText.name = "nameBar";
 
       resetButton.add(resetButtonText);
       resetButtonText.position.set(0, 0, 0.0051);

@@ -347,6 +347,7 @@ class YJNPC {
       resetButton.add(resetButtonText);
       resetButtonText.position.set(0, 0, 0.0051);
       resetButtonText.scale.set(1, 1, 1);
+      resetButtonText.name = "nameBar";
 
 
       resetButtonText.material.color.set(_Global.user.camp != baseData.camp ? '#ee0000' : '#ffffff');

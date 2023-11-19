@@ -71,6 +71,7 @@ import { YJAnimMeshMergedOnlyshader } from "../../../threeJS/YJAnimMeshMergedOnl
 import { DataTexture } from "three";
 import { DataTextureLoader } from "three";
 import { YJshaderLX } from "../../../threeJS/loader/YJshaderLX.js";
+import { YJshaderLX2 } from "../../../threeJS/loader/YJshaderLX2.js";
 
 
  
@@ -199,6 +200,14 @@ class SceneManager {
       scope.CreateModelMeshCollider(floorCollider, new THREE.Vector3(1, 1, 1),
         new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, Math.PI / 2, 0));
     }
+
+    let _YJshaderLX = null;
+    this.SetMsg = function(type,msg){
+      if(type == "设置shader time"){
+        _YJshaderLX.SetTime(msg);
+      }
+    }
+
     this.ChangeScene = function (e) {
  
 
@@ -226,7 +235,8 @@ class SceneManager {
         YJTHREE.CreateFloorCollider(scene,"floor");
         YJTHREE.CreateFloorCollider(scene,"landcollider");
         
-        new YJshaderLX(_this, scene, renderer);
+        _YJshaderLX = new YJshaderLX(_this, scene, renderer);
+        // new YJshaderLX2(_this, scene, renderer);
 
         let _YJLoadModel = new YJLoadModel(_this, scene);
         let modelPath = "models/TestScene/222.fbx";

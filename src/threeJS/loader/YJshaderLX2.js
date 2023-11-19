@@ -13,7 +13,7 @@ import { YJLoadModel } from "../YJLoadModel";
  模型本身用instance
  模型碰撞用 geometry 合并后生成
  */
-class YJshaderLX {
+class YJshaderLX2 {
   constructor(_this, scene) {
     let scope = this;
 
@@ -303,7 +303,7 @@ class YJshaderLX {
         
         finalColor+=(col*d);
     }
-    gl_FragColor=vec4(finalColor,1);
+    gl_FragColor=vec4(finalColor,finalColor.r);
     
 
     }`;
@@ -374,6 +374,7 @@ class YJshaderLX {
         uniforms: uniforms,
         vertexShader: vertexShader,
         fragmentShader: fragmentShader,
+        transparent:true,
         side: THREE.DoubleSide
 
       });
@@ -385,7 +386,7 @@ class YJshaderLX {
 
       scene.add(mesh);
       mesh.visible = true;
-      mesh.position.set(2, 1, 2);
+      mesh.position.set(4, 1, 2);
       mesh.rotation.set(0, 0, 0);
 
       animate();
@@ -430,4 +431,4 @@ class YJshaderLX {
   }
 }
 
-export { YJshaderLX };
+export { YJshaderLX2 };

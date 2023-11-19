@@ -11,6 +11,9 @@
       <JoystickLeftPanel class="  " ref="JoystickLeftPanel" />
       <!-- <JoystickRightPanel class=" " ref="JoystickRightPanel" /> -->
     </div>
+
+    <InterfaceCtrlShader class="  " ref="InterfaceCtrlShader" />
+
   </div>
 </template>
 
@@ -34,6 +37,7 @@ import YJmetaBase from "/@/views/chat/YJmetaBase.vue";
 
 import { SceneManager } from "../js/SceneManager.js";
 import { Interface } from "../js/Interface.js";
+import  InterfaceCtrlShader  from "./interfaceCtrlShader.vue";
 
 export default {
   name: "index",
@@ -41,6 +45,7 @@ export default {
     loadingPanel,
     JoystickLeftPanel,
     YJmetaBase,
+    InterfaceCtrlShader,
   },
   data() {
     return {

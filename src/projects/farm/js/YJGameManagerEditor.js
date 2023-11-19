@@ -37,6 +37,9 @@ class YJGameManagerEditor {
     let playerData = [];
     //发送单个物体数据
     this.SendModelState = function(id,state){
+      if(!_Global.YJDync){
+        return;
+      }
       for (let i = 0; i < dyncModelList.length; i++) {
         const element = dyncModelList[i];
         if(element.id == id){
@@ -53,7 +56,11 @@ class YJGameManagerEditor {
 
     //发送整个场景数据
     this.SendSceneState = function(){
+      if(!_Global.YJDync){   
+        return;   
+      }
       _Global.YJDync._YJDyncManager.SendSceneState("all",dyncModelList);
+
     }
  
     this.Receive = function(sceneState){

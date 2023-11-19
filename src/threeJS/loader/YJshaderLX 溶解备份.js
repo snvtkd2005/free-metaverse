@@ -21,24 +21,8 @@ class YJshaderLX {
 
 
     // 顶点着色器
-    let vertexShaderMain = /* glsl */ ` 
-      #include <begin_vertex>
-    // #include <common>  
-    // varying vec2 vUv;
-    // attribute vec2 uv2;    
-      // vUv = uv;
-      
-      // vec3 transformed = position.xyz;
-      // transformed = position.xyz; 
-      transformed.z = position.z + time ;
-      transformed.x = vUv.x;
-      transformed.y = vUv.y;
-      
-      // vec4 modelPosition = modelMatrix * vec4(position, 1.0);
-      // vec4 viewPosition = viewMatrix * modelPosition;
-      // vec4 projectedPosition = projectionMatrix * viewPosition;
-      // gl_Position = projectedPosition;
-      // gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.0); //与上面四行等价
+    let vertexShaderDef = /* glsl */ `
+        varying vec2 vUv; 
     `;
 
     // 片元着色器
@@ -130,53 +114,18 @@ class YJshaderLX {
       initBirds();
     }
 
-    function createSphere(radius){
-      const geometry = new THREE.SphereGeometry(radius, 20, 20);
-      let mat = new THREE.MeshStandardMaterial({
-        color:0x333333, 
-      });
-      mesh = new THREE.Mesh(geometry, mat);
-      mesh.castShadow = true;
-      mesh.receiveShadow = true;
-      scene.add(mesh);
-      mesh.visible = true;
-      mesh.position.set(-1, 0, 0); 
-    }
-
-    function createPlane(size,map){
-      
-      const geometry = new THREE.PlaneGeometry(size,size,10, 10);
-      let mat = new THREE.MeshStandardMaterial({
-        color:0x333333, 
-        side:THREE.DoubleSide,
-        map:map,
-        // wireframe:true,
-      });
-      mesh = new THREE.Mesh(geometry, mat);
-      mesh.castShadow = true;
-      mesh.receiveShadow = true;
-      scene.add(mesh);
-      mesh.visible = true;
-      mesh.position.set(-1, 1, 0);  
-      mesh.rotation.set(-Math.PI/2, 0, 0);
-      mesh.add(new THREE.AxesHelper(1));
-      return mat;
-    }
-    
 
     let _ShaderMaterial
     function initBirds() {
 
-      createSphere(0.5);
+      // const geometry = new THREE.SphereGeometry(1, 10, 10);
+      const geometry = new THREE.PlaneGeometry(2,2, 10);
       let texture = new THREE.TextureLoader().load(
-        // "./public/images/black.png", 
-        "./public/images/farm.png", 
+        "./public/images/black.png", 
+        // "./public/images/farm.png", 
         (texture) => {
           console.log("加载图片 ", texture);
         });
-
-      
-
       // For Vertex and Fragment
       uniforms = {
         // 'color': { value: new THREE.Color(0xff2200) },
@@ -193,34 +142,104 @@ class YJshaderLX {
       //   side: THREE.DoubleSide,
       //   transparent:true, 
       // });
-      _ShaderMaterial = createPlane(0.5,texture);
-
+      _ShaderMaterial = new THREE.MeshStandardMaterial({
+        // map: texture,
+        color:0x000000,
+        side: THREE.DoubleSide,
+        transparent: true,
+        emissiveIntensity:10,
+      });
 
       _ShaderMaterial.onBeforeCompile = (shader) => {
         // console.log("shader ", shader);
 
         Object.assign(shader.uniforms, uniforms)
-        
-        shader.vertexShader = shader.vertexShader.replace(
-          '#include <common>',
-          `
-          #include <common>  
-          uniform float time;
-          float timeDeta = 1.0;
+        if(_ShaderMaterial.map == null){
+          shader.vertexShader = shader.vertexShader.replace(
+            '#include <common>',
+            `
+            #include <common>  
+            varying vec2 vUv;
+            `
+          );
+          shader.vertexShader = shader.vertexShader.replace(
+            '#include <uv_vertex>',
+            `
+            #include <uv_vertex>  
+            vUv = uv;
+            `
+          );
+
+          shader.fragmentShader = shader.fragmentShader.replace(
+            '#include <common>',
+            `
+            #include <common>  
+            varying vec2 vUv;
+            ` 
+          );
+        }
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <map_pars_fragment>',
+          fragmentShaderDef
+        );
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <emissivemap_fragment>',
+          ` 
+          // #include <emissivemap_fragment>
+          totalEmissiveRadiance = emission(time);
           `
         );
 
-        shader.vertexShader = shader.vertexShader.replace(
-          '#include <begin_vertex>',
-          vertexShaderMain
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <output_fragment>',
+          ` 
+          // #include <output_fragment>
+          // diffuseColor.a = dissolve(time);
+          // diffuseColor.a =0.1;
+          // gl_FragColor = vec4( outgoingLight, diffuseColor.a );
+          // gl_FragColor = vec4( outgoingLight, (time) );
+          gl_FragColor = vec4( outgoingLight, dissolve(time) );
+          `
         );
-        shader.vertexShader = shader.vertexShader.replace(
-          '#include <project_vertex>',
-          `#include <project_vertex>`
-        );
+
       }
 
       console.log("_ShaderMaterial ", _ShaderMaterial);
+      mesh = new THREE.Mesh(geometry, _ShaderMaterial);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+
+      let _ShaderMaterial2 = new THREE.MeshStandardMaterial({
+        map: texture,
+        side: THREE.DoubleSide,
+        transparent: true,
+      });
+      
+      _ShaderMaterial2.onBeforeCompile = (shader) => {
+        Object.assign(shader.uniforms, uniforms)  
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <map_pars_fragment>',
+          fragmentShaderDef
+        );  
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <output_fragment>',
+          `  
+          gl_FragColor = vec4( outgoingLight, dissolve(time) );
+          `
+        );
+
+      }
+      let mesh2 = new THREE.Mesh(geometry, _ShaderMaterial2);
+      scene.add(mesh2);
+      mesh2.visible = true;
+      mesh2.position.set(-2, 2, 0);
+      mesh2.rotation.set(0, 0, 0);
+
+
+      scene.add(mesh);
+      mesh.visible = true;
+      mesh.position.set(2, 2, 0);
+      mesh.rotation.set(0, 0, 0);
 
       setTimeout(() => {
 

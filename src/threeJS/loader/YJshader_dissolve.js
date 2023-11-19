@@ -119,6 +119,7 @@ class YJshader_dissolve {
           
           Object.assign(shader.uniforms, uniforms)
           if(_ShaderMaterial.map == null){
+            //没有贴图就没有UV，在没有UV的情况下，要增加UV 声明
             shader.vertexShader = shader.vertexShader.replace(
               '#include <common>',
               `

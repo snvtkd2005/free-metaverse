@@ -30,8 +30,8 @@ import loadingPanel from "./loadingPanel2.vue";
 // farm
 import AvatarData from "../data/sceneSetting_test.js";
 
-// import PlayerAnimData from "../data/playerAnimSetting.js";
-import PlayerAnimData from "../data/platform/playerAnimSetting.js";
+import PlayerAnimData from "../data/playerAnimSetting.js";
+// import PlayerAnimData from "../data/platform/playerAnimSetting.js";
 
 import YJmetaBase from "/@/views/chat/YJmetaBase.vue";
 
@@ -87,9 +87,9 @@ export default {
     let avatarName = PlayerAnimData.defaultUser.avatarName;
     this.userName = "aaa";
 
-    if (localStorage.getItem("avatarName")) {
-      avatarName = localStorage.getItem("avatarName");
-    }
+    // if (localStorage.getItem("avatarName")) {
+    //   avatarName = localStorage.getItem("avatarName");
+    // }
     if (localStorage.getItem("userName")) {
       this.userName = localStorage.getItem("userName");
     } 

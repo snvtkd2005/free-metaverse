@@ -19,7 +19,7 @@ class Interface {
     _Global.isSupportedHls = false;
     function init() {
       _Global.isSupportedHls = Hls.isSupported();
-      RequestGetAllModel();
+      // RequestGetAllModel();
     }
 
     async function RequestGetAllModel() {

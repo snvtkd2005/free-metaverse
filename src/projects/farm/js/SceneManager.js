@@ -71,7 +71,6 @@ import { YJAnimMeshMergedOnlyshader } from "../../../threeJS/YJAnimMeshMergedOnl
 import { DataTexture } from "three";
 import { DataTextureLoader } from "three";
 import { YJshaderLX } from "../../../threeJS/loader/YJshaderLX.js";
-import { YJshaderLX2 } from "../../../threeJS/loader/YJshaderLX2.js";
 
 
  
@@ -236,7 +235,6 @@ class SceneManager {
         YJTHREE.CreateFloorCollider(scene,"landcollider");
         
         _YJshaderLX = new YJshaderLX(_this, scene, renderer);
-        // new YJshaderLX2(_this, scene, renderer);
 
         let _YJLoadModel = new YJLoadModel(_this, scene);
         let modelPath = "models/TestScene/222.fbx";

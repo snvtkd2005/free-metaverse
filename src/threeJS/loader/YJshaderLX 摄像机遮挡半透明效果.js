@@ -5,7 +5,7 @@ import * as THREE from "three";
 
 import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
 
-import { YJshader_dissolve } from "./YJshader_dissolve";
+import { YJshader_dissolve } from "./YJshader_dissolve.js";
 import { YJshaderLX2 } from "./YJshaderLX2.js";
 
 // import  fragmentShaderGLSL  from "/@/threeJS/shader/fragmentShader.glsl";
@@ -193,9 +193,8 @@ class YJshaderLX {
           vec3 _vViewPosition = vViewPosition; 
           float _multiply = (_vViewPosition.b * 1. );
 
-          // scenedepth
           // float depth = 1.0/ u_resolution.xy ;
-          float depth = 2.0 ;
+          float depth = 1.0 ;
           // subtract 相减
           float _subtract = (depth - _multiply);
           float _saturate = saturate( _subtract * time);
@@ -206,7 +205,7 @@ class YJshaderLX {
           // outgoingLight = vec3(_vViewPosition.z); 
           // outgoingLight = vec3(depth); 
            
-          gl_FragColor = vec4( outgoingLight,oneMinus  );
+          gl_FragColor = vec4( outgoingLight,1.-oneMinus  );
           `
         );
 

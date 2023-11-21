@@ -202,8 +202,8 @@ class SceneManager {
 
     let _YJshaderLX = null;
     this.SetMsg = function(type,msg){
-      if(type == "设置shader time"){
-        _YJshaderLX.SetTime(msg);
+      if(type == "设置shader"){
+        _YJshaderLX.SetUniform(msg);
       }
     }
 

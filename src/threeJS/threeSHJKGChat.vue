@@ -170,8 +170,8 @@ export default {
     },
 
     PlayVideoVoiceById(id) {
-      const video = document.getElementById(id); 
-      video.muted = false; 
+      const video = document.getElementById(id);
+      video.muted = false;
       video.play();
     },
 
@@ -593,7 +593,7 @@ export default {
         );
       }
 
-      
+
       let myCtrlRbChild = new THREE.Group();
       myCtrlRbChild.name = "myCtrlRbChild";
       this.camera.add(myCtrlRbChild);
@@ -601,7 +601,11 @@ export default {
 
 
 
-      this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); // 渲染器
+      this.renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        logarithmicDepthBuffer: true, //渲染深度
+        alpha: true
+      }); // 渲染器
       this.renderer.setSize(this.windowWidth, this.windowHeight);
       this.renderer.shadowMap.enabled = true; // 开启阴影
       // this.renderer.shadowMap.width = 2048; 
@@ -838,7 +842,7 @@ export default {
         (playerObj, playerGroup) => {
           if (playerObj == undefined) {
             return;
-          } 
+          }
           //在模型加载完成后，把模型放到控制器里面，让控制器来控制模型位置和朝向
           this.YJController.SetPlayerToCamTarget(playerObj);
           this.YJController.SetPlayerGroup(playerGroup);
@@ -905,7 +909,7 @@ export default {
 
       }
     },
-    
+
     Clear3D() {
       cancelAnimationFrame(this.sceneUpdateId);
       this.renderer.forceContextLoss();

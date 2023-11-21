@@ -10,9 +10,9 @@
             v-model="viewFar" type="range" min="-3" max="10" step="0.01">
 
             
-    <div >depth  {{this.depth}} </div>
+    <div >range  {{this.range}} </div>
     <input ref="depthCtrl" class="    outline-none  " @input="depthFn"
-            v-model="depth" type="range" min="-3" max="10" step="0.01">
+            v-model="range" type="range" min="-3" max="10" step="0.01">
   </div>
 </template>
 
@@ -27,7 +27,7 @@ export default {
   data() {
     return {
       viewFar:1,  
-      depth:1,  
+      range:1,  
     };
   },
   created() {
@@ -44,7 +44,7 @@ export default {
       this.$refs.viewFarCtrl.blur();
     }, 
     depthFn(e) {
-      this.$parent._SceneManager.SetMsg("设置shader",{p:'depth',v:this.viewFar});
+      this.$parent._SceneManager.SetMsg("设置shader",{p:'range',v:this.range});
     }, 
   },
 };

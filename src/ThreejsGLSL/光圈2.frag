@@ -36,7 +36,7 @@ vec2 polarMap(vec2 uv, float shift, float inner) {
     
     return vec2(px, py);
 }
-float fire(vec2 n) {
+float fire(vec2 n) { 
     return noise(n) + noise(n * 2.1) * .6 + noise(n * 5.4) * .42;
 }
 
@@ -53,8 +53,8 @@ float shade(vec2 uv, float t) {
 
 vec3 color(float grad) {
     
-    float m2 = u_mouse.x < 0.0001 ? 1.15 : u_mouse.y * 3.0 / u_resolution.y;
-    // float m2 =  1.5;
+    // float m2 = u_mouse.x < 0.0001 ? 1.15 : u_mouse.y * 3.0 / u_resolution.y;
+    float m2 =  1.5;
     grad =sqrt( grad);
     vec3 color = vec3(1.0 / (pow(vec3(0.5, 0.0, .1) + 2.61, vec3(2.0))));
     vec3 color2 = color;
@@ -67,8 +67,8 @@ vec3 color(float grad) {
 
 void main() {
 	
-    float m1 = u_mouse.x < 0.0001 ? 3.6 : u_mouse.x * 5.0 / u_resolution.x;
-    // float m1 =  2.1;
+    // float m1 = u_mouse.x < 0.0001 ? 3.6 : u_mouse.x * 5.0 / u_resolution.x;
+    float m1 =  2.1;
     
     float t = u_time;
     vec2 uv = gl_FragCoord.xy / u_resolution.yy;
@@ -78,9 +78,11 @@ void main() {
     uv2.y = 1.0 - uv2.y;
    	uv = polarMap(uv, 1.3, m1);
    	uv2 = polarMap(uv2, 1.9, m1);
-
+ 
     vec3 c1 = color(shade(uv, t)) * ff;
     vec3 c2 = color(shade(uv2, t)) * (1.0 - ff);
     
-    gl_FragColor = vec4(c1 + c2, 1.0);
+    
+    gl_FragColor = vec4(c1 + c2, c2.z+0.5);
+    // gl_FragColor = vec4(c1 + c2, 1.0);
 }

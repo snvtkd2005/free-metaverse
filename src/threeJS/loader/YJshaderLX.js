@@ -76,9 +76,11 @@ class YJshaderLX {
       initBirds();
     }
 
-    function createSphere(radius) {
+    function createSphere(radius, pos) {
       const geometry = new THREE.SphereGeometry(radius, 20, 20);
-      let mat = new THREE.MeshStandardMaterial({
+      let mat = new THREE.MeshBasicMaterial(
+        // let mat = new THREE.MeshStandardMaterial(
+        {
         color: 0x333333,
         side: THREE.DoubleSide,
         transparent: true,
@@ -88,7 +90,11 @@ class YJshaderLX {
       // mesh.receiveShadow = true;
       scene.add(mesh);
       mesh.visible = true;
-      mesh.position.set(-1, 0, 0);
+      if (pos) {
+        mesh.position.copy(pos);
+      } else {
+        mesh.position.set(-1, 0, 0);
+      }
       return mat;
     }
 
@@ -116,10 +122,11 @@ class YJshaderLX {
     let _ShaderMaterial
     function initBirds() {
       setupRenderTarget();
+      createSphere(1, new THREE.Vector3(2, 1, 1));
 
       // Setup post-processing step
       setupPost();
-      _ShaderMaterial = createSphere(3);
+      _ShaderMaterial = createSphere(2,new THREE.Vector3(1, 1, 1));
       let texture = new THREE.TextureLoader().load(
         // "./public/images/black.png", 
         "./public/images/farm.png",
@@ -140,6 +147,10 @@ class YJshaderLX {
         "cameraFar": { value: camera.far },
         "tDiffuse": { value: null },
         "tDepth": { value: null },
+        "cameraPosX": { value: 0.1 },
+        "cameraPosY": { value: 0.1 },
+        "cameraPosZ": { value: 0.1 },
+
       };
 
       // THREE.ShaderMaterial
@@ -163,8 +174,11 @@ class YJshaderLX {
           `
           #include <common>  
           varying float depth; 
-          
+          varying vec3 vViewPosition;
 			    varying vec2 vUv;
+          uniform float cameraPosX;
+          uniform float cameraPosY;
+          uniform float cameraPosZ;
           `
         );
 
@@ -173,8 +187,15 @@ class YJshaderLX {
           `
           #include <uv_vertex>  
           vUv = uv;
-          vec4 modelPosition = modelViewMatrix * vec4(position, 1.0);
-          depth = modelPosition.z; 
+          vec4 modelPosition = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          vViewPosition = -(viewMatrix * modelMatrix * vec4(position, 1.0)).xyz;
+          float x = modelPosition.x;
+          float y = modelPosition.y;
+          float z = modelPosition.z;
+
+          depth = sqrt(pow((x-cameraPosX),2.) + pow((y-cameraPosY),2.) +pow((z-cameraPosZ),2.) );
+          // depth = distance(modelPosition.xyz,vec3(0.,3.,0.)); 
+          // depth = distance( modelPosition.xyz,vec3(cameraPosX,cameraPosY,cameraPosZ)); 
           `
         );
         shader.fragmentShader = shader.fragmentShader.replace(
@@ -182,9 +203,10 @@ class YJshaderLX {
           `
           #include <common>  
           varying float depth; 
-          
 			    varying vec2 vUv;
           
+          varying vec3 vViewPosition;
+	        varying vec3 vWorldPosition;  
           `
         );
 
@@ -198,38 +220,61 @@ class YJshaderLX {
           uniform float cameraNear;
           uniform float cameraFar;
           
-          float readDepth( sampler2D depthSampler, vec2 coord ) {
-            float fragCoordZ = texture2D( depthSampler, coord ).x;
-            float viewZ = perspectiveDepthToViewZ( fragCoordZ, cameraNear, cameraFar );
-            return viewZToOrthographicDepth( viewZ, cameraNear, cameraFar );
-          }
+          uniform float cameraPosX;
+          uniform float cameraPosY;
+          uniform float cameraPosZ;
+
+          // float readDepth( sampler2D depthSampler, vec2 coord ) {
+          //   float fragCoordZ = texture2D( depthSampler, coord ).x;
+          //   float viewZ = perspectiveDepthToViewZ( fragCoordZ, cameraNear, cameraFar );
+          //   // return viewZToOrthographicDepth( viewZ, cameraNear, cameraFar );
+          //   return viewZ;
+          // }
+
+          float getEyeDepth(sampler2D depthSampler,vec2 coord) {
+            float z = texture2D(depthSampler, coord).x;
+            float depth = z ;
+            vec2 wh = vec2(g_ViewPort.z - g_ViewPort.x, g_ViewPort.w - g_ViewPort.y);
+            vec4 screenPos = vec4(gl_FragCoord.x/wh.x, gl_FragCoord.y/wh.y, depth, 1.0) * 2.0 - 1.0;
+            vec4 viewPosition = projectionMatrix * screenPos;
+            z = -(viewPosition.z / viewPosition.w); // 得到相机与顶点的距离，正值>0
+            // 得到相机坐标
+            viewPosition = viewPosition / viewPosition.w;
+            // 得到世界坐标
+            vec4 worldCoord = viewMatrix * viewPosition;
+            return worldCoord;
+            } 
            `
           //  fragmentShaderDef
         );
 
         shader.fragmentShader = shader.fragmentShader.replace(
           '#include <output_fragment>',
-          ` 
-          outgoingLight = vViewPosition ;
+          `  
           vec3 _vViewPosition = vViewPosition; 
-          float _multiply = (_vViewPosition.b * 1. );
+          float _multiply = (_vViewPosition.z * -1. );
 
           // scenedepth 
-          float depth = gl_FragCoord.z / gl_FragCoord.w;
+          // float depth = gl_FragCoord.z / gl_FragCoord.w;
           // float depth = readDepth( tDepth, vUv );
-          
+          float depth = getEyeDepth( tDepth, vUv );
+
           // subtract 相减
           float _subtract = (depth - _multiply);
           float _saturate = saturate( _subtract * range);
           float oneMinus = 1.-_saturate ; 
           vec3 color = vec3(0.,1.0,.0); 
-          outgoingLight = color * oneMinus ; 
+          outgoingLight = color * oneMinus ;  
           
 
           // outgoingLight = vec3(_vViewPosition.z); 
+          // outgoingLight = vec3(1.) * depth*0.1; 
           // outgoingLight = vec3(depth); 
+          // outgoingLight = vec3(1.-depth); 
            
+          // gl_FragColor = vec4( outgoingLight,1.-depth );
           gl_FragColor = vec4( outgoingLight,oneMinus );
+          // gl_FragColor = vec4( outgoingLight,1.-_vViewPosition.x  );
           `
         );
 
@@ -262,20 +307,32 @@ class YJshaderLX {
       const format = parseFloat(params.format);
       const type = parseFloat(params.type);
 
-      target = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
-      target.texture.minFilter = THREE.NearestFilter;
-      target.texture.magFilter = THREE.NearestFilter;
+      target = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
+        minFilter: THREE.LinearFilter,
+        magFilter: THREE.NearestFilter,
+        format: THREE.DepthStencilFormat,
+      });
       target.stencilBuffer = (format === THREE.DepthStencilFormat) ? true : false;
       target.depthTexture = new THREE.DepthTexture();
       target.depthTexture.format = format;
       target.depthTexture.type = type;
 
+      const dpr = renderer.getPixelRatio();
+      target.setSize(window.innerWidth * dpr, window.innerHeight * dpr);
     }
 
     function setupPost() {
 
       // Setup post processing stage
       postCamera = new THREE.OrthographicCamera(- 1, 1, 1, - 1, 0, 1);
+
+      // postCamera = new THREE.PerspectiveCamera(
+      //   60,
+      //   window.innerWidth /  window.innerHeight,
+      //   0.1,
+      //   1000
+      // );
+
       postMaterial = new THREE.ShaderMaterial({
         vertexShader:
           `varying vec2 vUv;
@@ -301,11 +358,12 @@ class YJshaderLX {
           }
     
           void main() {
-            //vec3 diffuse = texture2D( tDiffuse, vUv ).rgb;
+            // vec3 diffuse = texture2D( tDiffuse, vUv ).rgb;
             float depth = readDepth( tDepth, vUv );
     
+            // gl_FragColor.rgb =   vec3( depth );
             gl_FragColor.rgb = 1.0 - vec3( depth );
-            gl_FragColor.a = 1.0;
+            gl_FragColor.a = 0.2;
           }
           `,
         uniforms: {
@@ -319,7 +377,12 @@ class YJshaderLX {
       const postQuad = new THREE.Mesh(postPlane, postMaterial);
       postScene = new THREE.Scene();
       postScene.add(postQuad);
-
+      postScene.add(postCamera);
+      let pos = camera.getWorldPosition(new THREE.Vector3());
+      let quat = camera.getWorldQuaternion(new THREE.Quaternion());
+      postCamera.position.copy(pos);
+      postCamera.quaternion.copy(quat);
+      postQuad.position.set(1, 1, 1);
     }
 
     this.SetUniform = function (msg) {
@@ -330,17 +393,34 @@ class YJshaderLX {
     function animate() {
       requestAnimationFrame(animate);
 
-      renderer.setRenderTarget(target);
-      renderer.render(scene, camera);
+      // renderer.setRenderTarget(target);
+      // renderer.render(scene, camera);
       if (_ShaderMaterial) {
         // uniforms.tDiffuse.value = target.texture;
         // uniforms.tDepth.value = target.depthTexture;
         uniforms['tDiffuse'].value = target.texture;
         uniforms['tDepth'].value = target.depthTexture;
+
+        let pos = camera.getWorldPosition(new THREE.Vector3());
+        uniforms['cameraPosX'].value = pos.x;
+        uniforms['cameraPosY'].value = pos.y;
+        uniforms['cameraPosZ'].value = pos.z;
+
+
       }
 
-      renderer.setRenderTarget(null);
-      // renderer.render( postScene, postCamera );
+
+      // postMaterial.uniforms.tDiffuse.value = target.texture;
+      // postMaterial.uniforms.tDepth.value = target.depthTexture;
+
+      // renderer.setRenderTarget(null);
+      
+      // let pos = camera.getWorldPosition(new THREE.Vector3());
+      // let quat = camera.getWorldQuaternion(new THREE.Quaternion());
+      // postCamera.position.copy(pos);
+      // postCamera.quaternion.copy(quat);
+      // renderer.render(postScene, camera);
+
       // const now = performance.now();
       // let delta = (now - last) / 1000;
       // deltaTime -= delta * 1;

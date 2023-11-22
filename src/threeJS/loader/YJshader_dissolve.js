@@ -67,6 +67,10 @@ class YJshader_dissolve {
       
       vec3 col = vec3(0,0,1) *  ((step((noiseValue),-1.*(time) +0.03 )))  ; 
       
+      // vec3 eission=(vec3(0.,.0,1.)) *smoothstep(noiseValue,noiseValue-0.2,-1.*(time) +0.03);
+      // eission-=(vec3(1.)) *smoothstep(noiseValue,noiseValue-0.4,-1.*(time)+.03);
+      // return eission*2.;  
+      
       return col;
     }
     `;

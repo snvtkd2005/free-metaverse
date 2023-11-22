@@ -41,7 +41,12 @@ void main(){
     
     // vec3 eission =vec3(0.8353, 0.1686, 0.1686) *( 1.- step(sin(u_time), noiseValue )) ;
     // vec3 eission =vec3(1, 0, 0) * step(time+0.04, noiseValue ) ;
-    vec3 eission=vec3(0.,.0157,1.)*step(noiseValue,time+.03);
+    vec3 eission=(vec3(0.,.0,1.)) *step(noiseValue,time+.03);
+
+    // vec3 eission=(vec3(0.,.0,1.)) *smoothstep(noiseValue,noiseValue-0.2,time+.03);
+    //  eission-=(vec3(1.)) *smoothstep(noiseValue,noiseValue-0.4,time+.03);
+
+    // vec3 eission=vec3(0.,.0157,1.)*step(noiseValue,time+.03);
     // vec3 eission =vec3(1, 0, 0) * step(time,noiseValue ) ;
     
     vec3 col=vec3(1,1,1)*(time);
@@ -52,7 +57,7 @@ void main(){
 
     // finalColor += (col*2.) ;
     // finalColor += (eission) ;
-    finalColor = (eission) ;
+    finalColor = (eission*2.) ;
     
     gl_FragColor=vec4(finalColor,1);
     

@@ -432,14 +432,14 @@ class YJPlayerAnimData {
     //#region 根据武器类型、角色状态得到动作名
 
     let animListData=[
-      {state:"普通攻击", pickType:"twoHand",weaponType:"gun", animName:"shooting"},
+      {state:"普通攻击", pickType:"twoHand",weaponType:"gun", animName:"two hand gun attack"},
       {state:"普通攻击", pickType:"twoHand",weaponType:"sword", animName:"two hand sword attack"},
-      {state:"普通攻击", pickType:"mainHand",weaponType:"arch", animName:"Standing Draw Arrow"},
+      {state:"普通攻击", pickType:"mainHand",weaponType:"arch", animName:"one hand bow attack"},
 
-      {state:"准备战斗", pickType:"twoHand",weaponType:"gun", animName:"shooting"},
+      {state:"准备战斗", pickType:"twoHand",weaponType:"gun", animName:"two hand gun before attack"},
       {state:"准备战斗", pickType:"twoHand",weaponType:"sword", animName:"two hand sword before attack"},
-      {state:"准备战斗", pickType:"mainHand",weaponType:"arch", animName:"Standing Draw Arrow"},
-    
+      {state:"准备战斗", pickType:"mainHand",weaponType:"arch", animName:"one hand bow before attack", animName2:"one hand bow draw attack"},
+
       {state:"受伤", pickType:"twoHand",weaponType:"gun", animName:""},
       {state:"受伤", pickType:"twoHand",weaponType:"sword", animName:"two hand sword hurt"},
       {state:"受伤", pickType:"mainHand",weaponType:"arch", animName:"two hand bow hurt"},

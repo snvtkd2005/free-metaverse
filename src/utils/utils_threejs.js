@@ -17,10 +17,10 @@ export const checkV3Equel = (v1, v2) => {
 export const CreateFloorCollider = (scene,name)=> {
   // 坐标轴
   // let axes = new THREE.AxesHelper(20); // 坐标轴
-  // this.scene.add(axes); // 场景添加坐标轴
+  // scene.add(axes); // 场景添加坐标轴
 
   let planeGeometry = new THREE.PlaneGeometry(100, 100, 10, 10); // 生成平面
-  let planeMaterial = new THREE.MeshLambertMaterial({ color: 0xAAAAAA }); // 材质
+  let planeMaterial = new THREE.MeshStandardMaterial({ color: 0xAAAAAA }); // 材质
   let plane = new THREE.Mesh(planeGeometry, planeMaterial);
   plane.rotation.x = -0.5 * Math.PI;
   plane.position.x = 0;
@@ -29,6 +29,8 @@ export const CreateFloorCollider = (scene,name)=> {
   plane.receiveShadow = true;
   plane.name = name;
   scene.add(plane); // 向该场景中添加物体
+  plane.renderOrder = -100;
+
   return plane;
 }
 

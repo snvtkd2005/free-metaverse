@@ -14,7 +14,7 @@ class YJPlayerFireCtrl {
 	constructor(_this, _YJPlayer) {
 		let scope = this;
 
-		
+
 		let baseData = {
 			camp: "lm", //阵营
 			speed: 8, //移动速度
@@ -55,7 +55,7 @@ class YJPlayerFireCtrl {
 				case "攻击":
 					canAttack = true;
 					break;
- 
+
 				default:
 					break;
 			}
@@ -73,13 +73,9 @@ class YJPlayerFireCtrl {
 			baseData.health -= strength;
 			console.log(" 主角受到 " + skillName + " 攻击 剩余 " + baseData.health);
 
-			if (toIdelLater != null) {
-				clearTimeout(toIdelLater);
-				toIdelLater = null;
-			}
 
 			if (baseData.health <= 0) {
-				baseData.health = 0; 
+				baseData.health = 0;
 			}
 
 			UpdateData();
@@ -87,7 +83,7 @@ class YJPlayerFireCtrl {
 				baseData.health = 0;
 				playerState = PLAYERSTATE.DEAD
 				scope.SetPlayerState("death");
-				
+
 				if (vaildAttackLater != null) {
 					clearTimeout(vaildAttackLater);
 					clearTimeout(vaildAttackLater2);
@@ -96,6 +92,7 @@ class YJPlayerFireCtrl {
 				return true;
 			}
 
+			return;
 
 			inBlocking = true;
 			scope.SetPlayerState("受伤");
@@ -111,7 +108,7 @@ class YJPlayerFireCtrl {
 			return false;
 		}
 		// 生命值改变时，同步 
-		function UpdateData(){
+		function UpdateData() {
 			_this.YJController.updateBaseData(baseData);
 		}
 		this.SetInteractiveNPC = function (_npcTransform) {
@@ -130,9 +127,13 @@ class YJPlayerFireCtrl {
 				scope.SetPlayerState("停止移动");
 				return;
 			}
+
+			playerState = PLAYERSTATE.ATTACK;
+			canAttack = true;
+			readyAttack = true;
 			// 右键点击目标后，使用基础技能攻击
 			scope.SetPlayerState("准备战斗");
-			canAttack = true;
+			console.log(" 右键点击npc 准备战斗 ",canAttack);
 			_this.YJController.PlayerLookatPos(npcTransform.GetWorldPos());
 		}
 
@@ -145,13 +146,13 @@ class YJPlayerFireCtrl {
 		let vaildAttackDis = 3; //有效攻击距离
 		let canAttack = false;
 		let inFire = false; //是否正在战斗状态
+		let readyAttack = true;
 		function CheckState() {
 			if (playerState == PLAYERSTATE.ATTACK) {
 
 			}
 			if (playerState == PLAYERSTATE.ATTACK || playerState == PLAYERSTATE.ATTACKING) {
-				if (npcTransform == null) {
-					// scope.SetPlayerState("idle");
+				if (npcTransform == null) { 
 					return;
 				}
 				let playerPos = _this.YJController.GetPlayerWorldPos();
@@ -163,28 +164,30 @@ class YJPlayerFireCtrl {
 
 				// console.log("距离目标", dis);
 				if (canAttack && dis < vaildAttackDis && !CheckColliderBetween(npcPos, playerPos)) {
-					if (!inBlocking) {
+					// if (!inBlocking) {
+					// 	// _player.lookAt(npcPos);
+					// 	// _player.add(new THREE.AxesHelper(2));
+					// 	//攻击 
+					// 	scope.SetPlayerState("普通攻击");
+					// 	inBlocking = true;
+					// }
+					// 如果准备好攻击，则立即攻击
+					if (readyAttack) {
+						readyAttack = false;
 						inFire = true;
 						playerState = PLAYERSTATE.ATTACK;
-
-						// _player.lookAt(npcPos);
-						// _player.add(new THREE.AxesHelper(2));
-						//攻击 
+						// 立即执行攻击动作
 						scope.SetPlayerState("普通攻击");
-						inBlocking = true;
-						if (toIdelLater != null) {
-							clearTimeout(toIdelLater);
-							toIdelLater = null;
-						}
 
+						// 动作时长的前1/10段时，执行伤害
 						vaildAttackLater2 = setTimeout(() => {
 							console.log(" 有效攻击目标 ");
 							//有效攻击
 							let health = npcTransform.GetComponent("NPC").ReceiveDamage(_YJPlayer, skillName, baseData.strength);
-							
+
 							// _Global.DyncManager.SendModelState(npcTransform.GetData().id,{modelType:npcTransform.GetData().modelType, msg:{playerId:_YJPlayer.id, health:health}});
 
-							
+
 							if (health == 0) {
 								npcTransform = null;
 								playerState = PLAYERSTATE.NORMAL;
@@ -195,20 +198,25 @@ class YJPlayerFireCtrl {
 								scope.SetPlayerState("战斗结束");
 								return;
 							}
-						}, attackStepSpeed * 100);
-
-
-						toIdelLater = setTimeout(() => {
-							scope.SetPlayerState("准备战斗");
-							toIdelLater = null;
 						}, attackStepSpeed * 300);
-					}
 
-					if (vaildAttackLater == null) {
-						vaildAttackLater = setTimeout(() => {
-							inBlocking = false;
-							vaildAttackLater = null;
-						}, attackStepSpeed * 1000);
+						// 动作时长的前3/10段时，表示动作执行完成，切换成准备动作
+						if (toIdelLater == null) {
+							toIdelLater = setTimeout(() => {
+								scope.SetPlayerState("准备战斗");
+								toIdelLater = null;
+							}, attackStepSpeed * 500);
+						}
+
+						if (vaildAttackLater == null) {
+							// 技能施放时间到时，重新立即攻击
+							vaildAttackLater = setTimeout(() => {
+								readyAttack = true;
+								inBlocking = false;
+								vaildAttackLater = null;
+							}, attackStepSpeed * 1000);
+						}
+					} else {
 					}
 				} else {
 					if (vaildAttackLater != null) {
@@ -252,15 +260,15 @@ class YJPlayerFireCtrl {
 			return false;
 		}
 
-		function GetAnimNameByPlayStateAndWeapon(e,weaponData){
-			return _Global.CreateOrLoadPlayerAnimData().GetAnimNameByPlayStateAndWeapon(e,weaponData);
+		function GetAnimNameByPlayStateAndWeapon(e, weaponData) {
+			return _Global.CreateOrLoadPlayerAnimData().GetAnimNameByPlayStateAndWeapon(e, weaponData);
 		}
 		function GetSkillDataByWeapon(weaponData) {
-		  return _Global.CreateOrLoadPlayerAnimData().GetSkillDataByWeapon(weaponData);
+			return _Global.CreateOrLoadPlayerAnimData().GetSkillDataByWeapon(weaponData);
 		}
 		this.SetPlayerState = function (e) {
 			weaponData = _this.YJController.GetUserData().weaponData;
-			// console.log(" in SetPlayerState  ",e,weaponData);
+			// console.log(" in SetPlayerState  ",e,weaponData,playerState);
 
 			switch (e) {
 				case "普通攻击":
@@ -269,65 +277,65 @@ class YJPlayerFireCtrl {
 					skillName = s;
 					vaildAttackDis = v;
 					attackStepSpeed = a;
-					animName = GetAnimNameByPlayStateAndWeapon(e,weaponData);
+					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
 
 					break;
 				case "赤手攻击":
-					playerState = PLAYERSTATE.ATTACK; 
-					animName = GetAnimNameByPlayStateAndWeapon(e,weaponData);
+					playerState = PLAYERSTATE.ATTACK;
+					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					break;
-				case "准备战斗": 
-					playerState = PLAYERSTATE.ATTACK; 
+				case "准备战斗":
+					playerState = PLAYERSTATE.ATTACK;
 					var { s, v, a } = GetSkillDataByWeapon(weaponData);
 					skillName = s;
 					vaildAttackDis = v;
 					attackStepSpeed = a;
-					animName = GetAnimNameByPlayStateAndWeapon(e,weaponData);
+					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
 
 					break;
 				case "受伤":
-					playerState = PLAYERSTATE.ATTACK; 
-					animName = GetAnimNameByPlayStateAndWeapon(e,weaponData);
+					playerState = PLAYERSTATE.ATTACK;
+					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					break;
 				case "death":
-					playerState = PLAYERSTATE.DEAD; 
-					animName = GetAnimNameByPlayStateAndWeapon(e,weaponData);
+					playerState = PLAYERSTATE.DEAD;
+					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					break;
 				case "sitting":
-					playerState = PLAYERSTATE.SITTING; 
-					animName = GetAnimNameByPlayStateAndWeapon(e,weaponData);
+					playerState = PLAYERSTATE.SITTING;
+					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					break;
 				case "normal":
-					playerState = PLAYERSTATE.NORMAL; 
-					animName = GetAnimNameByPlayStateAndWeapon(e,weaponData);
+					playerState = PLAYERSTATE.NORMAL;
+					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					break;
-				case "跳跃": 
+				case "跳跃":
 					canAttack = false;
-					animName = GetAnimNameByPlayStateAndWeapon(e,weaponData);
+					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
 
 					break;
-				case "移动": 
-					canAttack = false; 
-					animName = GetAnimNameByPlayStateAndWeapon(e,weaponData);
+				case "移动":
+					canAttack = false;
+					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
 
-					if (playerState == PLAYERSTATE.DEAD) { 
+					if (playerState == PLAYERSTATE.DEAD) {
 						playerState = PLAYERSTATE.NORMAL;
 						baseData.health = baseData.maxHealth;
 					}
 					break;
 				case "停止移动":
 					if (playerState == PLAYERSTATE.NORMAL) {
-						animName = GetAnimNameByPlayStateAndWeapon(e,weaponData);
+						animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					}
 					if (playerState == PLAYERSTATE.ATTACK) {
-						if(!canAttack){ 
-							animName = GetAnimNameByPlayStateAndWeapon(e,weaponData);
+						if (!canAttack) {
+							animName = GetAnimNameByPlayStateAndWeapon("准备战斗", weaponData);
 						}
 					}
 					break;
 				case "战斗结束":
-					if (playerState == PLAYERSTATE.NORMAL) { 
-						animName = GetAnimNameByPlayStateAndWeapon(e,weaponData);
+					if (playerState == PLAYERSTATE.NORMAL) {
+						animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					}
 
 					break;
@@ -359,7 +367,7 @@ class YJPlayerFireCtrl {
 			}
 			// console.log(" 玩家动作 ",weaponData, e,animName);
 
-			// console.log(" 玩家动作 ",canAttack, e,animName); 
+			console.log(" 玩家动作 ", canAttack, e, animName);
 			_this.YJController.SetPlayerAnimName(animName);
 		}
 		var updateId = null;
@@ -374,7 +382,7 @@ class YJPlayerFireCtrl {
 		// if("" || 0){
 		// 	console.log(" in YJPlayerFireCtrl ");
 		// }
-		function Init(){
+		function Init() {
 			UpdateData();
 		}
 		Init();

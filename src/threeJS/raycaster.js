@@ -174,6 +174,7 @@ class YJRaycaster extends EventDispatcher {
         // console.log("点击筛选",element); 
         if (element.visible == false) { continue; }
         if (element.name == "ignoreRaycast") { continue; }
+        if (element.name == "trigger") { continue; }
         if (element.tag == "helper") { continue; }
         if (element.type == "GridHelper") { continue; }
         if (element.type == "TransformControlsPlane") { continue; }

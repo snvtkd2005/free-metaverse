@@ -56,9 +56,12 @@
 
             <div v-if="!item.has" class="  w-12 cursor-pointer text-white bg-gray-500
             hover:bg-546770" @click="EditorEvent('上传', item, i)">去上传</div>
-            
+
             <div v-if="item.has" class=" ml-2 w-12 cursor-pointer text-white bg-gray-500
             hover:bg-546770" @click="EditorEvent('清除', item, i)">清除</div>
+
+            <!-- <div v-if="item.has" class=" ml-2 w-12 cursor-pointer text-white bg-gray-500
+            hover:bg-546770" @click="EditorEvent('删除', item, i)">删除</div> -->
           </div>
         </div>
         <div class=" absolute -right-5 -top-5 rounded-full w-10 h-10 bg-white text-black flex cursor-pointer "
@@ -205,13 +208,16 @@ export default {
       }
       if (e == "删除") {
         // 技能名为空时，运行删除
-        if (item.name == "") {
-          this.animList.splice(i, 1);
-          this.saveAnim();
-        }
+        // if (item.name == "") {
+        //   this.animList.splice(i, 1);
+        //   this.saveAnim();
+        // }
+
+        this.animList.splice(i, 1);
+        this.saveAnim();
       }
-      
-      if (e == "清除") { 
+
+      if (e == "清除") {
         // 清除角色的这一条动作记录 
         this.$parent.$refs.settingPanel_player.removeAnim(item.animName);
         item.has = false;
@@ -221,11 +227,11 @@ export default {
       if (this.inAdd) {
         if (this.editorIndex == -1) {
           this.animList.push({
-            animName: this.animFrom[0].value, content: this.animFrom[1].value
+            animName: this.animFrom[0].value.trim(), content: this.animFrom[1].value.trim()
           });
         } else {
-          this.animList[this.editorIndex].animName = this.animFrom[0].value;
-          this.animList[this.editorIndex].content = this.animFrom[1].value;
+          this.animList[this.editorIndex].animName = this.animFrom[0].value.trim();
+          this.animList[this.editorIndex].content = this.animFrom[1].value.trim();
         }
       }
       let s = JSON.stringify(this.animList);

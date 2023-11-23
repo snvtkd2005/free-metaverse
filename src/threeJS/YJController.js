@@ -3675,6 +3675,7 @@ class YJController {
 
 
 
+    let inMoving = false;
     this.update = function () {
       const time = performance.now();
       // console.log("in yjcontroller   niaokanCamPos = " ,  niaokanCamPos  );
@@ -3759,6 +3760,7 @@ class YJController {
             //   animName = "run";
             // }
 
+            inMoving = true;
             scope.SetPlayerState("移动");
             userData.onlySetAnim = false;
 
@@ -3771,7 +3773,10 @@ class YJController {
             }
 
           } else {
-            scope.SetPlayerState("停止移动");
+            if(inMoving){
+              inMoving = false;
+              scope.SetPlayerState("停止移动");
+            }
             rotaViewDoonce = 0;
           }
         }

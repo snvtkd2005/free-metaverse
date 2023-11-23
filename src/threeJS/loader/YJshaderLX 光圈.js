@@ -5,7 +5,7 @@ import * as THREE from "three";
 
 import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
 
-import { YJshader_dissolve } from "./YJshader_dissolve";
+import { YJshader_dissolve } from "./YJshader_dissolve.js";
 import { YJshaderLX2 } from "./YJshaderLX2.js";
 
 // import  fragmentShaderGLSL  from "/@/threeJS/shader/fragmentShader.glsl";

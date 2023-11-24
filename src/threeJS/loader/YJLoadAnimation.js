@@ -24,13 +24,13 @@ class YJLoadAnimation {
         modelPath,
         function (object) { 
           animations =  object.animations ; 
-          console.log(" 加载映射模型动画 " ,modelPath,animations ); 
+          // console.log(" 加载映射模型动画 " ,modelPath,animations ); 
           if (callback) {
             callback(animations[0]);
           } 
 
         }, undefined, function (e) {
-          console.error("加载模型出错" , modelPath,e); 
+          // console.error("加载模型出错" , modelPath,e); 
         });
     }
 

@@ -82,6 +82,8 @@
     <div class=" absolute left-24 top-10">
       <headerUI ref="headerUI" />
     </div>
+    <skillProgressUI ref="skillProgressUI" />
+
 
     <!-- 修改名称 -->
     <div class=" absolute left-2 top-12 flex text-white ">
@@ -145,6 +147,7 @@ import settingPanel_npc from "./settingPanel_npc.vue";
 import settingPanel_weapon from "./settingPanel_weapon.vue";
 
 import headerUI from "./common/headerUI.vue";
+import skillProgressUI from "./common/skillProgressUI.vue";
 
 import skillPanel from "./components/skillPanel.vue";
 
@@ -179,6 +182,7 @@ export default {
     settingPanel_weapon,
     skillPanel,
     headerUI,
+    skillProgressUI,
   },
   data() {
     return {
@@ -549,10 +553,10 @@ export default {
 
     if (this.modelData.modelType == undefined) {
       this.RequestGetAllScene(() => {
-        console.log(" this.modelData  = ", this.modelData);
-        console.log(" this.modelData.icon  = ", this.modelData.icon);
+        // console.log(" this.modelData  = ", this.modelData);
+        // console.log(" this.modelData.icon  = ", this.modelData.icon);
         if (this.modelData.icon == undefined) {
-          console.log(" 新建场景  ==== ");
+          // console.log(" 新建场景  ==== ");
 
           this.updateSceneTxtData(() => {
             this.updateSceneData(() => {
@@ -592,7 +596,7 @@ export default {
 
     async RequestGetAllScene(callback) {
       GetAllScene().then((res) => {
-        console.log("获取所有场景数据，查找当前场景数据  ", res);
+        // console.log("获取所有场景数据，查找当前场景数据  ", res);
         //先记录旧照片
         if (res.data.txtDataList) {
           let txtDataList = res.data.txtDataList;

@@ -126,7 +126,7 @@ class YJLoadAvatar {
               playerObj.animations.splice(i, 1);
             }
           }
-          console.log("加载到的 角色模型", modelPath, playerObj);
+          // console.log("加载到的 角色模型", modelPath, playerObj);
 
           if (needCheck) {
             if (_this._YJSceneManager) {
@@ -333,7 +333,7 @@ class YJLoadAvatar {
         mesh = _this._YJSceneManager.checkLoadAvatar_needCheck(modelPath, (mesh) => {
           // console.log("=========加载角色 COPY =======", mesh);
           if (playerObj != undefined && playerObj != null) { return; }
-          console.log("=========加载角色 COPY 加载 =======", mesh);
+          // console.log("=========加载角色 COPY 加载 =======", mesh);
           copyloadGltfFn(animData, callback, mesh);
         });
       }
@@ -364,7 +364,7 @@ class YJLoadAvatar {
           playerObj.tag = "player";
 
 
-          console.log("加载到的 角色模型", gltf);
+          // console.log("加载到的 角色模型", gltf);
 
           playerObj.traverse(function (item) {
             if (item instanceof THREE.Mesh) {

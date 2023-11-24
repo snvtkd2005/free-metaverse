@@ -19,6 +19,7 @@ class YJGameManagerEditor {
     var scope = this;
 
     let dyncModelList = [];
+    let npcModelList = [];
     // 初始化场景中需要同步的模型。每个客户端都执行
     this.InitDyncSceneModels = ()=>{
       //武器、npc 
@@ -30,8 +31,40 @@ class YJGameManagerEditor {
          ){
           dyncModelList.push({id:element.id});
         }
+        if(element.modelType == "NPC模型" ){
+          npcModelList.push(element);
+        }
       } 
+
+      npcModelList = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetAllTransformByModelType("NPC模型");
+      if(_Global.setting.inEditor){
+        return;
+      }
+      setInterval(() => {
+        CheckNpcLookat();
+      }, 500);
     }
+
+    // 巡视NPC是否能发现玩家
+    function CheckNpcLookat(){
+
+      if(_Global.YJ3D.YJController.isInDead()){
+        return;
+      }
+      let playerPos = _Global.YJ3D.YJController.GetPlayerWorldPos();
+      for (let i = 0; i < npcModelList.length; i++) {
+        const element = npcModelList[i];
+        if(element.GetComponent("NPC").isCanSetTarget()){
+          let distance = playerPos.distanceTo(element.GetGroup().position);
+          if(distance<=12){
+            element.GetComponent("NPC").SetTarget(_Global.YJ3D.YJPlayer,true);
+          }
+          // console.log("npc 距离玩家 坐标 {0} 米", distance);
+
+        }
+      }
+    }
+
 
     // 玩家拾取场景内物体的数据。用来做场景物体同步
     let playerData = [];
@@ -48,7 +81,7 @@ class YJGameManagerEditor {
           if(state.modelType == "装备模型"){
             playerData.push({playerId:_Global.YJDync.id,modelType:state.modelType,msg:state.msg});
           }
-          console.log(" 发送单个物体数据 ",state);
+          console.error(" 发送单个物体数据 ",state);
           _Global.YJDync._YJDyncManager.SendSceneState("single",{id:id,state:state});
         } 
       }
@@ -281,15 +314,17 @@ class YJGameManagerEditor {
 
     this.HoverObject = (hoverObject, hoverPoint) => {
 
-      // console.log(" == in GAMEMANAGER hover物体  ", hoverObject);
+      console.log(" == in GAMEMANAGER hover物体  ", hoverObject);
 
       if (hoverObject == null) {
-        _this.SetCursor("default");
+        // _this.SetCursor("default");
+        _Global.ReportTo3D("切换光标","正常");
         return;
-      }
+      } 
       let modelType = hoverObject.tag;
       if (modelType == undefined) {
-        _this.SetCursor("default");
+        // _this.SetCursor("default");
+        _Global.ReportTo3D("切换光标","正常");
         return;
       }
 
@@ -696,6 +731,7 @@ class YJGameManagerEditor {
     }
 
     init();
+
     function update() {
 
       requestAnimationFrame(update);

@@ -85,7 +85,7 @@ class YJUVAnim3 {
       if (msg == null || msg == undefined || msg == "") { return; }
       // data = JSON.parse(msg);
       data = (msg);
-      console.log("in uvanim3 msg = ", data);
+      // console.log("in uvanim3 msg = ", data);
       InitFn( data);
     }
 

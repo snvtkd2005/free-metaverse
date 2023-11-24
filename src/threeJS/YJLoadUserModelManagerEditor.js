@@ -49,6 +49,17 @@ class YJLoadUserModelManager {
       console.error("保存 ", allTransform, modelDataList);
       return modelDataList;
     }
+    this.GetAllTransformByModelType = function (modelType) {
+      let list = []; 
+      for (let i = 0; i < allTransform.length; i++) {
+        const transform = allTransform[i].transform;
+        if(transform.GetData().modelType == modelType){
+          list.push(transform);
+        }
+      } 
+      return list;
+    }
+     
 
     //#region 使用物理模拟判断是否与其他模型重叠，重叠时无法放置模型
     let Ammo = null;
@@ -183,7 +194,7 @@ class YJLoadUserModelManager {
     // 上传模型文件后生成
     this.ImportModel = function (modelData, callback) {
 
-      console.log("上传模型文件后生成 生成模型 ", modelData);
+      // console.log("上传模型文件后生成 生成模型 ", modelData);
       CreateTransform(null, modelData, (object) => {
         if (callback) {
           callback(object);
@@ -193,7 +204,7 @@ class YJLoadUserModelManager {
     // 点击界面生成模型预览
     this.LoadStaticModel = function (modelData, callback) {
 
-      console.log("点击界面生成模型 ", modelData);
+      // console.log("点击界面生成模型 ", modelData);
       CreateTransform(null, modelData, (object) => {
         _this._YJSceneManager._YJTransformManager.attach(object.GetGroup());
         if (callback) {
@@ -299,7 +310,7 @@ class YJLoadUserModelManager {
             return;
           }
         }
-        console.log(" modelPath ", modelPath);
+        // console.log(" modelPath ", modelPath);
 
         MeshRenderer.load(modelPath, (scope) => {
           let Animator = new YJAnimator(scope.GetModel(), scope.GetAnimations());
@@ -420,7 +431,7 @@ class YJLoadUserModelManager {
         return;
       }
       let item = modelDataList[loadIndex];
-      console.log(" 加载模型 ", loadIndex, item);
+      // console.log(" 加载模型 ", loadIndex, item);
 
       // 以上判断是特殊模型，下面加载模型
       CreateSelectModel(scene, item, (model) => {
@@ -463,7 +474,7 @@ class YJLoadUserModelManager {
       return; 
     }
     function LoadError(uuid, callback, e,modelData) {
-      console.log("加载模型出错 22 " + uuid,modelData, e, allTransform);
+      // console.log("加载模型出错 22 " + uuid,modelData, e, allTransform);
       loadIndex++;
       for (let i = allTransform.length - 1; i >= 0; i--) {
         const elment = allTransform[i].transform;
@@ -524,7 +535,7 @@ class YJLoadUserModelManager {
     // 加载单个场景的模型
     this.CallLoadSceneModelByIndex = function (data) {
       modelDataList = data;
-      console.error("  刷新 用户自定义模型 111 ", modelDataList, modelDataList.length);
+      // console.error("  刷新 用户自定义模型 111 ", modelDataList, modelDataList.length);
       if (modelDataList.length == undefined) {
         return;
       }
@@ -577,7 +588,7 @@ class YJLoadUserModelManager {
       // }
 
       // console.error("  刷新 开放世界地图模型 ", metaWorldModelDataList, metaWorldModelDataList.length);
-      console.error("  刷新 开放世界地图模型 ", mapId, modelList, modelList.length);
+      // console.error("  刷新 开放世界地图模型 ", mapId, modelList, modelList.length);
       LoadLoadMetaWorldSceneModelByIndex(group, mapId, modelList);
     }
 
@@ -589,7 +600,7 @@ class YJLoadUserModelManager {
 
 
       let item = modelList[0];
-      console.log(" 加载模型 ", item);
+      // console.log(" 加载模型 ", item);
 
       // 以上判断是特殊模型，下面加载模型
       CreateSelectModel(group, item, (model) => {

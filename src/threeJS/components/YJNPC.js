@@ -81,7 +81,7 @@ class YJNPC {
       if (msg == null || msg == undefined || msg == "") { return; }
       // data = JSON.parse(msg);
       data = (msg);
-      console.log("in NPC msg = ", data);
+      // console.log("in NPC msg = ", data);
       this.npcName = data.name;
       baseData = data.baseData;
       nameScale = data.avatarData.nameScale;
@@ -128,7 +128,7 @@ class YJNPC {
 
           });
         });
-        console.log(" 加载武器 ", data.weaponData);
+        // console.log(" 加载武器 ", data.weaponData);
       }
       if (weaponData == null) {
         _YJAnimator.ChangeAnim("none");
@@ -139,7 +139,7 @@ class YJNPC {
     }
 
     this.GetBoneVague = function (boneName, callback) {
-      console.log("从模型中查找bone ", parent,boneName);
+      // console.log("从模型中查找bone ", parent,boneName);
       let doonce = 0;
       try {
         parent.traverse(function (item) {
@@ -416,7 +416,7 @@ class YJNPC {
           fireBeforePos = scope.transform.GetWorldPos();
         } 
       }
-      console.log("targetModel npc目标 ", targetModel);
+      // console.log("targetModel npc目标 ", targetModel);
       let npcPos = parent.position.clone();
 
       if (targetModel == null) {
@@ -443,6 +443,7 @@ class YJNPC {
         return;
       }
 
+			readyAttack = false;
       scope.SetPlayerState("准备战斗");
 
       let playerPosRef = targetModel.GetWorldPos().clone();
@@ -478,6 +479,16 @@ class YJNPC {
     function GetSkillDataByWeapon(weaponData) {
       return _Global.CreateOrLoadPlayerAnimData().GetSkillDataByWeapon(weaponData);
     }
+    
+		function EventHandler(e) {
+			if (e == "中断技能") { 
+				if (vaildAttackLater != null) {
+					clearTimeout(vaildAttackLater);
+					clearTimeout(vaildAttackLater2);
+					vaildAttackLater = null;
+				} 
+			}
+		}
     this.SetPlayerState = function (e, type) {
       // console.log(" in SetPlayerState  ", e, type);
 
@@ -501,6 +512,14 @@ class YJNPC {
           attackStepSpeed = a;
           animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
 
+          if (vaildAttackLater == null) {
+            vaildAttackLater = setTimeout(() => {
+							readyAttack = true;
+              inBlocking = false;
+              vaildAttackLater = null;
+            }, attackStepSpeed * 1000);
+          }
+
           break;
         case "受伤":
           animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
@@ -515,9 +534,13 @@ class YJNPC {
         case "跑向目标":
           baseData.speed = RUNSPEED;
           animName = GetAnimNameByPlayStateAndWeapon("移动", weaponData);
+					EventHandler("中断技能");
+          
           break;
         case "丢失目标":
           animName = GetAnimNameByPlayStateAndWeapon("移动", weaponData);
+					EventHandler("中断技能");
+          
           break;
         case "巡逻":
           baseData.speed = WALKSPEED;
@@ -538,7 +561,7 @@ class YJNPC {
 
       baseData.health -= strength;
       //_targetModel 是 YJPlayer
-      console.log(this.npcName + " 受到 " + _targetModel.GetPlayerName() +" 使用 "+ skillName + " 攻击 剩余 " + baseData.health);
+      // console.log(this.npcName + " 受到 " + _targetModel.GetPlayerName() +" 使用 "+ skillName + " 攻击 剩余 " + baseData.health);
 
       ClearLater("清除准备战斗");
 
@@ -555,24 +578,22 @@ class YJNPC {
         return baseData.health;
       }
 
-
-      scope.SetPlayerState("受伤");
+      // scope.SetPlayerState("受伤");
 
       if (baseData.state == stateType.Normal) {
         baseData.state = stateType.Fire;
       }
-
-      toIdelLater = setTimeout(() => {
-        scope.SetPlayerState("准备战斗");
-        toIdelLater = null;
-      }, 300);
+ 
       return baseData.health;
     }
-
+    // 不在战斗且未死亡，且不在miss中，才可以设置
+    this.isCanSetTarget = function(){
+      return  baseData.state != stateType.Back && baseData.state != stateType.Fire && baseData.state != stateType.Dead;
+    }
     // 接收同步
     this.Dync = function(msg){
 
-      console.log("接收npc同步数据 ",msg);
+      // console.log("接收npc同步数据 ",msg);
       if(msg.health == 0){
         if(baseData.health == baseData.maxHealth){
           baseData.health = msg.health;
@@ -616,6 +637,8 @@ class YJNPC {
     let toIdelLater = null;
     let skillName = "";
     let vaildAttackDis = 3; //有效攻击距离
+		let readyAttack = false;
+    let readyAttack_doonce = 0;
     function CheckState() {
 
       if (baseData.state == stateType.Normal) {
@@ -641,15 +664,19 @@ class YJNPC {
           navpath = [];
           doonce = 0;
           parent.lookAt(playerPosRef.clone());
+          if(readyAttack_doonce == 0){
+            readyAttack = false;
+            scope.SetPlayerState("准备战斗");
+          }
+          readyAttack_doonce++;
           // console.log(" 进入攻击范围内 ，停止跑动，进入战斗状态 ");
           //攻击
-          if (!inBlocking) {
+          if (readyAttack) {
+						readyAttack = false;
 
             ClearLater("清除准备战斗");
 
             scope.SetPlayerState("普通攻击");
-            inBlocking = true;
-
             vaildAttackLater2 = setTimeout(() => {
               //有效攻击
               if (targetModel != null && targetModel.isLocal) {
@@ -677,23 +704,13 @@ class YJNPC {
 
           }
 
-          if (vaildAttackLater == null) {
-            vaildAttackLater = setTimeout(() => {
-              inBlocking = false;
-              vaildAttackLater = null;
-            }, attackStepSpeed * 1000);
-          }
           getnavpathTimes = 0;
         } else {
-
-          if (vaildAttackLater != null) {
-            clearTimeout(vaildAttackLater);
-            clearTimeout(vaildAttackLater2);
-            vaildAttackLater = null;
-          }
+					EventHandler("中断技能");
           inBlocking = false;
           //跑向目标 
           GetNavpath(npcPos, playerPos);
+          readyAttack_doonce = 0;
         }
         // console.log( scope.npcName + " in fire " + dis);
       }
@@ -704,7 +721,12 @@ class YJNPC {
       if (navpath == null) {
         getnavpathTimes++;
         if (getnavpathTimes >= 100) {
-          scope.SetTarget(null,true);
+          // 无法到达目标点时，3秒后，失去目标
+          if(targetModel != null){
+            targetModel = null;
+            scope.SetTarget(null,true); 
+          }
+          getnavpathTimes = 0; 
         }
       }
       // console.log("查到寻路路径 ", navpath);

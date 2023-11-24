@@ -77,9 +77,14 @@ class YJRaycaster extends EventDispatcher {
       );
       if (intersects.length > 0) {
 
-        hoverObj = intersects[0].object;
+        // hoverObj = intersects[0].object;
         // if(hoverObj == oldHoverObj){return;}
-        hoverHit(hoverObj, intersects[0].point);
+        hoverObj = GetAcitveObjectFromIntersects(intersects);
+        if (hoverObj == null) {
+          hoverHit(null);
+          return;
+        }
+        hoverHit(hoverObj, intersects[hitIndex].point);
 
         // hoverObj = GetAcitveObjectFromIntersects(intersects);
         // if (hoverObj == null) { return; }
@@ -348,6 +353,8 @@ class YJRaycaster extends EventDispatcher {
 
     }
 
+    let hoverTimes = 0;
+    let laterCastHover = null;
     this.onMouseMove = function (event) {
 
       // return;
@@ -356,14 +363,25 @@ class YJRaycaster extends EventDispatcher {
       mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
       mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-      if (mouseDown) {
-        raycasterHover(mouse);
-      }
+      // if (mouseDown) {
+      //   raycasterHover(mouse);
+      // }
+      // if(laterCastHover != null){
+      //   clearTimeout(laterCastHover);
+      // }
+      // laterCastHover = setTimeout(() => {
+      //   raycasterHover(mouse);
+      // }, 100);
+
       // console.log(" in event client    " +event.clientX + " " + event.clientY  );
       // console.log(" in Mouse move  " +mouse.x + " " + mouse.y );
       // console.log(" in Mouse move" ," x = " + mouse.x + " y = " +mouse.y );
 
     };
+
+    setInterval(() => {
+      raycasterHover(mouse);
+    }, 100);
 
     this.onMouseUp = function (event) {
       // console.log(" 抬起鼠标，点击热点 111 ");

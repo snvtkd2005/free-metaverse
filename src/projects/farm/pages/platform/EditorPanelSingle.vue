@@ -105,6 +105,8 @@
       <headerUI ref="headerUI" />
     </div>
 
+    <skillProgressUI ref="skillProgressUI" />
+    
     <!-- 与后台交互的操作提示 -->
     <!---->
     <div v-if="tipData.opening" class="absolute left-0 top-10 w-full flex">
@@ -169,6 +171,7 @@ import settingPanel_avatar from "./settingPanel_avatar.vue";
 import settingPanel_npc from "./settingPanel_npc.vue";
 
 import headerUI from "./common/headerUI.vue";
+import skillProgressUI from "./common/skillProgressUI.vue";
 
 import addComponent from "./components/addComponent.vue";
 
@@ -196,6 +199,7 @@ export default {
     addComponent,
     PanelCut,
     headerUI,
+    skillProgressUI,
   },
   data() {
     return {
@@ -1206,7 +1210,9 @@ export default {
       this._SceneManager.ClickModel(hitObject);
     },
     HoverObject(hoverObject, hoverPoint) {
-      this._SceneManager.HoverObject(hoverObject, hoverPoint);
+      if(this._SceneManager){ 
+        this._SceneManager.HoverObject(hoverObject, hoverPoint);
+      }
     },
 
     CreateHotContent(modelData, owner) {

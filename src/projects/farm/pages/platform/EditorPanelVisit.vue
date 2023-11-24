@@ -24,6 +24,7 @@
       <!-- 左上角血条头像 -->
       <headerUI ref="headerUI" />
     </div>
+    <skillProgressUI ref="skillProgressUI" />
 
     <!-- 多人同步 -->
     <YJDync
@@ -102,6 +103,7 @@ import { Interface } from "../../js/Interface_editor.js";
 import headerUI from "./common/headerUI.vue";
 import skillPanel from "./components/skillPanel.vue";
 
+import skillProgressUI from "./common/skillProgressUI.vue";
 // 摇杆
 import JoystickLeftPanel from "./joystickLeft.vue";
 
@@ -124,6 +126,7 @@ export default {
     settingPanel,
     skillPanel,
     headerUI,
+    skillProgressUI,
   },
   data() {
     return {

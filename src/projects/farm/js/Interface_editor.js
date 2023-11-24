@@ -5,6 +5,8 @@ import { YJPlayerAnimData } from "/@/threeJS/YJPlayerAnimData.js";
 import { GetAllModel, RemoveFolderBase } from "./uploadThreejs.js";
 import { YJPathfindingCtrl } from "/@/threeJS/pathfinding/YJPathfindingCtrl.js";
 
+import IconData from "../data/iconData.js";
+
 // Threejs 中的事件传出接口
 
 //所有 this.functionHandle 用来传出threejs中的操作，由threejs调用。界面开发人员无需关心
@@ -26,32 +28,54 @@ class Interface {
     _Global.user = {
       camp: "lm"
     }
-    
+
+    let cursorUrl = null;
+    // 切换光标
+    function ChangeCursor(content) {
+      if (cursorUrl == content) {
+        return;
+      }
+      cursorUrl = content;
+      // return;
+      // console.log("切换光标", IconData.cursorList, content);
+      for (let i = 0; i < IconData.cursorList.length; i++) {
+        const element = IconData.cursorList[i];
+        // console.log(element.content, content, element.content == content);
+        if (element.content == content) {
+          _Global.YJ3D.SetCursor(element.path==''?'':"./public/images/cursorList" + element.path);
+          return;
+        }
+      }
+    }
+
+
     _Global.MetaworldSize = 100;
     _Global.isSupportedHls = false;
     function init() {
       _Global.isSupportedHls = Hls.isSupported();
       RequestGetAllModel();
+
+
     }
 
     let modelsList = [];
-    this.PickWeapon = function(YJPlayer,id){
+    this.PickWeapon = function (YJPlayer, id) {
       for (let i = 0; i < modelsList.length; i++) {
         const element = modelsList[i];
-        if(element.folderBase == id){
+        if (element.folderBase == id) {
           let weaponData = element.message.data;
-            console.log("weaponData ",weaponData); 
+          console.log("weaponData ", weaponData);
 
           YJPlayer.GetBoneVague(weaponData.boneName, (bone) => {
-            if(YJPlayer.CheckPick(weaponData.boneName)){
-              if(bone.weaponModel){
-                bone.remove(bone.weaponModel); 
+            if (YJPlayer.CheckPick(weaponData.boneName)) {
+              if (bone.weaponModel) {
+                bone.remove(bone.weaponModel);
               }
             }
-            element.pos =  { x: 0, y: 0, z: 0 }; 
+            element.pos = { x: 0, y: 0, z: 0 };
 
             _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().ImportModel(element, (tranform) => {
-              let weaponModel = tranform.GetGroup(); 
+              let weaponModel = tranform.GetGroup();
               bone.attach(weaponModel);
               bone.weaponModel = weaponModel;
               let pos = weaponData.position;
@@ -60,9 +84,9 @@ class Interface {
               weaponModel.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
               weaponModel.scale.set(100, 100, 100);
               // 绑定到骨骼后，清除trigger
-              tranform.GetComponent("Weapon").DestroyTrigger(); 
+              tranform.GetComponent("Weapon").DestroyTrigger();
 
-              YJPlayer.AddPick(weaponData.boneName,bone);
+              YJPlayer.AddPick(weaponData.boneName, bone);
             });
             // console.log("bone ",bone); 
           });
@@ -75,7 +99,7 @@ class Interface {
 
     async function RequestGetAllModel() {
       GetAllModel().then((res) => {
-        console.log("获取所有单品模型 ", res);
+        // console.log("获取所有单品模型 ", res);
         //先记录旧照片
         if (res.data.txtDataList) {
           let txtDataList = res.data.txtDataList;
@@ -119,7 +143,7 @@ class Interface {
         _this.$uploadPlayerUrl + "anim_data.txt" + "?time=" + new Date().getTime()
       );
       _Global.animList = res.data;
-      console.log("_Global.animList = ", _Global.animList);
+      // console.log("_Global.animList = ", _Global.animList);
     }
 
     // 移除folderBase
@@ -142,11 +166,11 @@ class Interface {
     }
     _Global.CreateOrLoadPlayerAnimData = this.CreateOrLoadPlayerAnimData;
 
-    
-    this.DyncManager = function () { 
+
+    this.DyncManager = function () {
       return _this._SceneManager.GetDyncManager();
     }
-    this.YJDync = function () { 
+    this.YJDync = function () {
       return _this.$refs.YJDync;
     }
 
@@ -292,6 +316,15 @@ class Interface {
 
     // 由3d页发出
     this.ReportTo3D = (type, msg) => {
+
+      if (type == "切换光标") {
+        ChangeCursor(msg);
+        return;
+      }
+      if (type == "设置技能进度条") {
+			  _this.$refs.skillProgressUI.SetProgress(msg);
+        return;
+      }
 
       if (type == "锁定目标") {
         _this._SceneManager.SetTargetModel(msg);

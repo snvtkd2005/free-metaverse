@@ -162,7 +162,8 @@ export default {
             { value: 'bl', label: '部落' },
           ], callback: this.ChangeValue,
         },
-        { property: "health", display: false, title: "生命值", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
+        { property: "maxHealth", display: true, title: "生命值", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
+        { property: "strength", display: true, title: "攻击力", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
         { property: "level", display: true, title: "等级", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
         { property: "weapon", display: true, title: "装备", type: "image", value: 1, callback: this.ClickHandler, },
       ],
@@ -279,9 +280,10 @@ export default {
     // 从单品编辑跳转过来后更新UI值
     initValue() {
       this.setSettingItemByProperty("name", this.settingData.name);
-      this.setSettingItemByProperty("health", this.settingData.baseData.health);
+      this.setSettingItemByProperty("maxHealth", this.settingData.baseData.maxHealth);
       this.setSettingItemByProperty("level", this.settingData.baseData.level);
       this.setSettingItemByProperty("camp", this.settingData.baseData.camp);
+      this.setSettingItemByProperty("strength", this.settingData.baseData.strength);
       this.setSettingItemByProperty("height", this.settingData.height);
       
       if(this.settingData.weaponData){
@@ -375,6 +377,21 @@ export default {
         if (element.property == "camp") {
           element.value = this.settingData.baseData.camp;
         }
+        
+        if (element.property == "maxHealth") {
+          element.value = this.settingData.baseData.maxHealth;
+        }
+        if (element.property == "health") {
+          element.value = this.settingData.baseData.maxHealth;
+        }
+        
+        if (element.property == "strength") {
+          element.value = this.settingData.baseData.strength;
+        }
+
+        if (element.property == "camp") {
+          element.value = this.settingData.baseData.camp;
+        }
         if (element.property == "weapon") {
           if(this.settingData.weaponData){
             element.value =this.$uploadUrl + this.settingData.weaponData.icon;
@@ -387,8 +404,14 @@ export default {
     ChangeValue(i, e) {
       this.setting[i].value = e;
       let property = this.setting[i].property;
-      if (property == "camp") {
+      if (property == "camp" 
+      || property == "maxHealth"
+      || property == "strength"
+      ) {
         this.settingData.baseData[property] = e;
+        if(property == "maxHealth"){
+          this.settingData.baseData['health'] = e;
+        }
       } else {
         this.settingData[property] = e;
       }

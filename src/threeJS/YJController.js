@@ -3181,7 +3181,7 @@ class YJController {
         if (_YJPlayer) {
           _YJPlayer.SetFlyMountDisplay(false);
         }
-
+        scope.SetPlayerState("取消跳跃");
         if (playerState != PLAYERSTATE.NORMAL) {
           playerState = PLAYERSTATE.NORMAL;
         }
@@ -3508,6 +3508,10 @@ class YJController {
     let updateTimes = 0;
     this.updateBaseData = function(_baseData){
       userData.baseData = _baseData;
+    }
+    // 是否已死亡
+    this.isInDead = function(){
+      return userData.baseData.health == 0;
     }
     this.updateSend = function () {
       if (_YJPlayer == null || _player == null || _YJAmmoPlayer == null) {

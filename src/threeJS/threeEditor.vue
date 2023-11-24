@@ -2,7 +2,8 @@
   <div tabindex="-1" id="contain" class=" absolute left-0 top-0 w-full h-full " ref="container">
   </div>
   <!-- :style="'height: ' + height + 'px' + ';'" -->
-
+  <img v-if="customCursor" ref="cursor" :src="cursorUrl" class=" pointer-events-none   w-10 h-10 "
+    :style="'  position:absolute; left: ' + cursorLeft + 'px;top: ' + cursorTop + 'px;'" alt="">
   <!-- 视频  hidden-->
   <div id="videoParent" class="   w-1/2 h-1/2 absolute top-0 left-0 pointer-events-none">
     <div v-for="(item, i) in videoList" :key="i" class="video-box w-40 h-40 p-5 rounded-full">
@@ -46,6 +47,10 @@ export default {
   },
   data() {
     return {
+      customCursor: false,
+      cursorLeft: 0,
+      cursorTop: 0,
+      cursorUrl: "",
       hasStats: true,
       // hasStats: false,
       videoList: [],
@@ -118,7 +123,7 @@ export default {
       }
     },
     AddVideo(id, type, callback) {
-      
+
       for (let i = 0; i < this.videoList.length; i++) {
         const element = this.videoList[i];
         if (element.id == id) {
@@ -126,11 +131,11 @@ export default {
           return;
         }
       }
-      
+
       this.videoList.push({ id: id, type: type });
-        setTimeout(() => {
-          callback(this.$refs[id]);
-        }, 200);
+      setTimeout(() => {
+        callback(this.$refs[id]);
+      }, 200);
       console.log("this.$refs ", this.$refs);
 
       // return this.$refs[id];
@@ -246,6 +251,13 @@ export default {
         that.threeJSfocus();
         that.YJController.onMouseDown(e);
 
+      });
+
+      this.$refs.container.addEventListener("mousemove", (e) => {
+        const mouseY = e.clientY;
+        const mouseX = e.clientX;
+        this.cursorLeft = mouseX;
+        this.cursorTop = mouseY;
       });
 
       this.$refs.container.addEventListener("touchstart", function (e) {
@@ -433,31 +445,6 @@ export default {
         },
         (hoverObject, hoverPoint) => {
           this.HoverObject(hoverObject, hoverPoint);
-          // console.log("hover物体 " ,hoverObject);
-          if (hoverObject == null) {
-            // document.body.style.cursor = "default";
-            this._YJSceneManager.HoverObject(hoverObject);
-            return;
-          }
-          let tag = hoverObject.tag;
-          if (tag == "链接logo") {
-            this._YJSceneManager.HoverObject(hoverObject, hoverPoint);
-          }
-
-          // let tag = hoverObject.tag;
-          // if (tag == "hotPoint" || hoverObject.name == "qq") {
-          //   //改变鼠标样式
-          //   document.body.style.cursor = "pointer"; //显示手型光标
-          // } else {
-          //   document.body.style.cursor = "default"; //显示默认光标
-          //   // document.body.style.cursor = 'none'; //无光标
-          // }
-          // if (tag == "player") {
-          //   // 高亮模型
-          //   this._YJSceneManager.AddObjToOutLine(hoverObject.owner);
-          // } else {
-          //   this._YJSceneManager.RemoveObjToOutLine();
-          // }
         },
         (hotPoint, hotPointHitPoint) => {
           let tag = hotPoint.tag;
@@ -483,9 +470,9 @@ export default {
           //     " "
           // );
         },
-        (hit,point) => {
+        (hit, point) => {
           // 右键点击空白位置
-          this.RightClick(hit,point);
+          this.RightClick(hit, point);
           // console.log("点击右键");
         },
         // 点击合批物体 InstancedMesh
@@ -498,11 +485,28 @@ export default {
     },
 
     // 设置光标图标
-    SetCursor(suror) {
-      document.body.style.cursor = suror;
+    SetCursor(cursor) {
+      // console.log("切换光标 2 ", cursor);
+      if (cursor == "") {
+        if (this.customCursor) {
+          document.body.style.cursor = `url(),auto`;
+          this.customCursor = false;
+          this.cursorUrl = cursor;
+        }
+        return;
+      }
+      if (this.cursorUrl == cursor) {
+        return;
+      }
 
-      //   document.body.style.cursor =
-      //     "url(" + this.$publicUrl + cursorUrl + "),auto"; //显示手型光标
+      this.customCursor = true;
+      this.cursorUrl = cursor;
+      // document.body.style.cursor = cursor;
+      // document.body.style.cursor =
+      //   `url(${cursor}),pointer`; //显示手型光标
+
+      document.body.style.cursor = 'none';
+      // "url(" + this.$publicUrl + cursor + "),auto"; //显示手型光标
     },
 
     //点击热点
@@ -545,7 +549,7 @@ export default {
 
     RightClick(hitObject, hitPoint) {
       if (this.$parent.$parent.RightClick) {
-        this.$parent.$parent.RightClick(hitObject,hitPoint);
+        this.$parent.$parent.RightClick(hitObject, hitPoint);
       }
     },
     ClickFloor(hitObject, hitPoint) {
@@ -808,7 +812,7 @@ export default {
 
     // 调用设置用户姓名条。
     // 多人同步状态下，由于加入游戏在创建角色之前，所以先做标志位
-    CallCreateNameTrans(e,id) {
+    CallCreateNameTrans(e, id) {
       this.nickName = e;
 
       if (this.YJPlayer) {

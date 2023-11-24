@@ -180,13 +180,13 @@ class SceneManager {
     let boneAttachList = [];
 
     this.SetTriggerOverlap = (b, id, owner) => {
-      console.log(" in sceneManager ", b, id, owner);
+      // console.log(" in sceneManager ", b, id, owner);
       if (owner.isYJTransform) {
         let msg = owner.GetMessage();
         if (msg.pointType == "weapon") {
 
           let state = _this.YJController.GetUserDataItem("weaponData");
-          console.log(" 碰到武器 ", msg.data,state);
+          // console.log(" 碰到武器 ", msg.data,state);
 
           // 判断角色是否可以拾取武器
           if (state.weaponId != "") {
@@ -222,7 +222,7 @@ class SceneManager {
           });
         }
 
-        console.log(" in overlap yjtransform ", msg);
+        // console.log(" in overlap yjtransform ", msg);
 
       }
     }
@@ -280,7 +280,7 @@ class SceneManager {
     this.RightClick = (hitObject, hitPoint) => {
       
       ClearTarget();
-      console.log(" 右键点击 ", hitObject);
+      // console.log(" 右键点击 ", hitObject);
       if (hitObject.transform) {
         // 点击NPC
         let message = hitObject.transform.GetData().message;
@@ -333,7 +333,31 @@ class SceneManager {
       _YJGameManagerEditor.ClickModel(hitObject);
     }
     this.HoverObject = (hoverObject, hoverPoint) => {
-      _YJGameManagerEditor.HoverObject(hoverObject, hoverPoint);
+      if(hoverObject == null){
+        _Global.ReportTo3D("切换光标","正常");
+        return;
+      }
+      
+      _Global.ReportTo3D("切换光标","正常");
+      if (hoverObject.transform) {
+        // 点击NPC
+        let message = hoverObject.transform.GetData().message;
+        // console.log(" 右键点击 transform ", message);
+        if (message) {
+
+          // console.log(" == in scene manager editor  hover物体  ", hoverObject);
+          // console.log(" == in scene manager editor  hover npc  ", message.pointType == "npc");
+
+          if (message.pointType == "npc") {
+            if (message.data.baseData.camp == "bl") {
+              //敌人  
+              _Global.ReportTo3D("切换光标","可攻击");
+            }
+
+          } 
+        }
+        return;
+      }
     }
     this.CreateHotContent = (modelData, owner) => {
       if (modelData.id.includes("chair")) {

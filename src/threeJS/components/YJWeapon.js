@@ -66,7 +66,7 @@ class YJWeapon {
       if (msg == null || msg == undefined || msg == "") { return; }
       // data = JSON.parse(msg);
       data = (msg);
-      console.log("in weapon msg = ", data);
+      // console.log("in weapon msg = ", data);
 
       meshTrigger = new YJTrigger(_this,parent, transform, "weapon");
       // object.AddComponent("Trigger", meshTrigger);

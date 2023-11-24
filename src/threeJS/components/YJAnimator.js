@@ -112,7 +112,7 @@ class YJAnimator {
       for (let i = 0; i < actions.length; i++) {
         const element = actions[i];
         if (element.animName == animName) {
-          console.log("添加扩展动画 重复 ", animName, animations, actions);
+          // console.log("添加扩展动画 重复 ", animName, animations, actions);
           return;
         }
       }

@@ -117,7 +117,7 @@
               xl:grid-cols-7
               md:grid-cols-5
               grid-cols-3
-             overflow-y-scroll 
+             overflow-y-scroll  
             ">
             <!-- 选择列表 -->
             <div v-for="(item, i) in modelsList" :key="i" class="self-center  w-40 h-auto relative">

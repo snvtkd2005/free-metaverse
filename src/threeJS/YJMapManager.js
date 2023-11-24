@@ -1,10 +1,6 @@
 import * as THREE from "three";
-
-import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
-
-// 九宫格地图
+ 
+// 九宫格地图管理 地图加载和卸载
 
 class YJMapManager {
   constructor(_this, scene, player, _SceneManager) {
@@ -17,101 +13,7 @@ class YJMapManager {
       scene.add(mapGroup);
       mapGroup.position.set(-0 / 2, 0.1, 0 / 2);
       // mapGroup.position.set(-mapSize / 2, 0.01, mapSize / 2);
-      // update();
-      return;
-      const mesh = new THREE.Mesh(
-        new THREE.PlaneGeometry(10, 10, 5, 5),
-        new THREE.MeshStandardMaterial({
-          color: 0xff0000,
-        })
-      );
-      mesh.position.y = 0.1;
-      mesh.rotation.x = -Math.PI / 2;
-      mesh.receiveShadow = true;
-      mesh.name = "10000-10000-10000";
-      scene.add(mesh);
-      return;
-      // console.log("加载门模型");
-      const dracoLoader = new DRACOLoader();
-      dracoLoader.setDecoderPath('/js/draco/gltf/');
-
-      const loader = new GLTFLoader();
-      // loader.setDRACOLoader( dracoLoader );
-      loader.load(modelPath, function (gltf) {
-
-        model = gltf.scene;
-
-        model.traverse(function (item) {
-          if (item instanceof THREE.Mesh) {
-            item.castShadow = true;
-            item.receiveShadow = true;
-          }
-        });
-
-
-        model.position.set(pos.x, pos.y, pos.z); // 
-        model.rotation.set(rota.x, rota.y, rota.z); // 
-        model.scale.set(size, size, size);
-
-
-        model.tag = name;
-        model.name = id;
-        scene.add(model);
-
-        // _this.triggerList.push(model)
-
-        // console.log(model.animations);
-        // console.log(gltf.animations);
-
-        // mixer = new THREE.AnimationMixer( model );
-        // mixer.clipAction( gltf.animations[ 0 ] ).play();
-
-        mixer = new THREE.AnimationMixer(model);
-        openAction = mixer.clipAction(gltf.animations[0]);
-        openAction.loop = THREE.LoopOnce; //不循环播放
-        openAction.timeScale = 0.5; //默认1，可以调节播放速度
-        openAction.clampWhenFinished = true;//暂停在最后一帧播放的状态
-
-        closeAction = mixer.clipAction(gltf.animations[1]);
-        closeAction.loop = THREE.LoopOnce; //不循环播放
-        closeAction.timeScale = 0.5; //默认1，可以调节播放速度
-        closeAction.clampWhenFinished = true;//暂停在最后一帧播放的状态
-
-
-        // setWeight(openAction,1, 1);
-
-        openAction.setEffectiveWeight(0);
-        closeAction.setEffectiveWeight(0);
-
-        openAction.play();
-        closeAction.play();
-        // openAction.paused = false;
-        // closeAction.paused = false;
-
-
-        doorCollider = LoopFindChild("doorCollider", model);
-
-
-
-        if (createCollider) {
-          //创建collider 
-          CreateCollider();
-
-          if (_state != undefined) {
-            _SetState(_state);
-          }
-        }
-
-
-        //动画播放完后，刷新一遍 collider
-
-        update();
-
-      }, undefined, function (e) {
-
-        console.error(e);
-
-      });
+      // update(); 
 
     }
     let oldCenterMapId = "10000-10000-";

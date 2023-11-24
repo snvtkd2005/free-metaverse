@@ -223,7 +223,7 @@ class YJSceneManager {
     this.AddComponent = function (component, data) {
       if (singleTransform == null) { return; }
       if (component == "car") {
-        console.log(singleTransform);
+        // console.log(singleTransform);
         return;
       }
     }
@@ -232,7 +232,7 @@ class YJSceneManager {
       InitSingleSceneFn();
     }
     function InitSingleSceneFn() {
-      console.log("初始化 单品  ");
+      // console.log("初始化 单品  ");
       CreateGrid();
 
       if (_YJ3dScene_margeTexture == null) {
@@ -295,7 +295,7 @@ class YJSceneManager {
         let modelData = JSON.parse(localStorage.getItem("modelData"));
 
         let modelPath = _this.$uploadUrl + modelData.modelPath;
-        console.log("加载模型", modelPath, modelData);
+        // console.log("加载模型", modelPath, modelData);
 
         modelData.pos = { x: 0, y: 0, z: 0 };
         modelData.rotaV3 = { x: 0, y: 0, z: 0 };
@@ -465,7 +465,7 @@ class YJSceneManager {
       modelData.rotaV3 = { x: 0, y: 0, z: 0 };
       modelData.scale = { x: 1, y: 1, z: 1 };
       modelData.modelPath = modelPath;
-      console.log("加载模型 22 ", modelPath, modelData);
+      // console.log("加载模型 22 ", modelPath, modelData);
       this.Create_LoadUserModelManager().ImportModel(modelData, (tranform) => {
         singleTransform = tranform;
         if (callback) {
@@ -569,7 +569,7 @@ class YJSceneManager {
       // if (meshrender == null) {
       //   return;
       // }
-      console.log("更新transform msg 数据 ", msg);
+      // console.log("更新transform msg 数据 ", msg);
       if (msg.pointType == "car") {
 
         if (singleTransform == null) {
@@ -618,7 +618,7 @@ class YJSceneManager {
     function CreateSingleScene() {
 
 
-      console.log(" 初始化创建地图 和 设置角色位置 CreateSingleScene ");
+      // console.log(" 初始化创建地图 和 设置角色位置 CreateSingleScene ");
       //刷新角色换装信息
       if (_this.$parent.$parent.UpdateSkin) {
         _this.$parent.$parent.UpdateSkin(_this.YJPlayer, _this.YJPlayer.GetAvatarName(), localStorage.getItem("playerState"));
@@ -672,7 +672,7 @@ class YJSceneManager {
 
       _this.$nextTick(function () {
 
-        console.log("设置摄像机到鸟瞰位置");
+        // console.log("设置摄像机到鸟瞰位置");
         setTimeout(() => {
 
           if (_this.$parent.$parent.load3dComplete) {
@@ -711,7 +711,7 @@ class YJSceneManager {
     //#endregion
 
     function Init() {
-      console.log("初始化场景 ");
+      // console.log("初始化场景 ");
       let routerPath = _this.$route.path.toLowerCase();
       if (routerPath.includes("visit") || routerPath.includes("scene")) {
         InitFn();
@@ -753,7 +753,7 @@ class YJSceneManager {
       _YJGameManager_DyncScene = new YJGameManager_DyncScene();
 
       sceneData = _this.$parent.$parent.sceneData;
-      console.log(" 获取场景配置222 ", sceneData);
+      // console.log(" 获取场景配置222 ", sceneData);
 
 
       setting = sceneData.setting;
@@ -783,7 +783,7 @@ class YJSceneManager {
       }
 
       if (platform != "ar" && !setting.clearBg) {
-        console.log(" 加载背景色 ", lightData.backgroundColor);
+        // console.log(" 加载背景色 ", lightData.backgroundColor);
         scene.background = new THREE.Color(lightData.backgroundColor != undefined ? lightData.backgroundColor : 0x000000);
         //雾效
         // scene.fog = new THREE.Fog(0xA7D0FF, 30, 300);
@@ -932,7 +932,7 @@ class YJSceneManager {
 
     // 初始化创建地图 和 设置角色位置
     this.CreateMap = function () {
-      console.log(" 初始化创建地图 和 设置角色位置 CreateMap ");
+      // console.log(" 初始化创建地图 和 设置角色位置 CreateMap ");
       return;
       //刷新角色换装信息
       if (_this.$parent.$parent.UpdateSkin) {
@@ -1093,7 +1093,7 @@ class YJSceneManager {
 
       currentLoadCount = 0;
       needLoadCount = sceneModelsData.length;
-      console.log("加载场景模型============", sceneModelsData, sceneModelsData.length);
+      // console.log("加载场景模型============", sceneModelsData, sceneModelsData.length);
 
       _YJLoadUserModelManager.CallLoadSceneModelByIndex(sceneModelsData);
     }
@@ -1103,6 +1103,10 @@ class YJSceneManager {
       allHoverCollider.push(colliderMesh);
     }
     this.GetHoverCollider = function () {
+      // 返回所有非静态模型
+      // if(allHoverCollider.length == 0){
+      // }
+      return scene.children;
       return allHoverCollider;
     }
 
@@ -1929,13 +1933,13 @@ class YJSceneManager {
       if (path == null || path == undefined) { return null; }
       for (let i = loadTexture.length - 1; i >= 0; i--) {
         if (loadTexture[i].path == path) {
-          console.log(" ==找到 copy 图片 ", path);
+          // console.log(" ==找到 copy 图片 ", path);
           return loadTexture[i].texture;
         }
       }
 
       let texture = new THREE.TextureLoader().load(path, (texture) => {
-        console.log(" 加载新图片 ", path);
+        // console.log(" 加载新图片 ", path);
       }, null, () => {
         console.error("图片路径不存在 ======== ", path);
       });

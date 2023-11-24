@@ -304,7 +304,18 @@ export default {
       chatTargetUser: "",
       chatTargetId: "",
       // 其他用户
-      otherUser: [],
+      otherUser: [
+        {
+          user: {
+            userData: {
+              baseData: {
+                health: 0,
+                maxHealth: 0,
+              }
+            }
+          }
+        }
+      ],
       //系统消息
       systemMsg: [],
 
@@ -1411,5 +1422,4 @@ export default {
   -khtml-user-select: text;
   /*早期浏览器*/
   user-select: text;
-}
-</style>
+}</style>

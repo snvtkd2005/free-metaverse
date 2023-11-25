@@ -3,7 +3,7 @@
   </div>
   <!-- :style="'height: ' + height + 'px' + ';'" -->
   <img v-if="customCursor" ref="cursor" :src="cursorUrl" class=" pointer-events-none   w-10 h-10 "
-    :style="'  position:absolute; left: ' + cursorLeft + 'px;top: ' + cursorTop + 'px;'" alt="">
+    :style="'  position:absolute; z-index:999999; left: ' + cursorLeft + 'px;top: ' + cursorTop + 'px;'" alt="">
   <!-- 视频  hidden-->
   <div id="videoParent" class="   w-1/2 h-1/2 absolute top-0 left-0 pointer-events-none">
     <div v-for="(item, i) in videoList" :key="i" class="video-box w-40 h-40 p-5 rounded-full">
@@ -253,12 +253,19 @@ export default {
 
       });
 
-      this.$refs.container.addEventListener("mousemove", (e) => {
+      window.addEventListener("mousemove", (e) => {
         const mouseY = e.clientY;
         const mouseX = e.clientX;
         this.cursorLeft = mouseX;
         this.cursorTop = mouseY;
       });
+
+      // this.$refs.container.addEventListener("mousemove", (e) => {
+      //   const mouseY = e.clientY;
+      //   const mouseX = e.clientX;
+      //   this.cursorLeft = mouseX;
+      //   this.cursorTop = mouseY;
+      // });
 
       this.$refs.container.addEventListener("touchstart", function (e) {
         that.threeJSfocus();

@@ -548,7 +548,7 @@ class YJPlayer {
 
       let mat = new THREE.MeshBasicMaterial({
         transparent: true,
-        color: 0xffffff,
+        color: 0x000066,
         depthWrite: false,
         map: resetButtonText.material.map,
       }); // 材质

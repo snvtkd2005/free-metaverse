@@ -19,9 +19,9 @@ const router = createRouter({
       // component:()=>import('../views/chat/city/index43dchat_city.vue'),
       // redirect: '/singleModel',  //重定向 
       // redirect: '/login',  //重定向
-      // redirect: '/selfpanel',  //重定向
+      redirect: '/selfpanel',  //重定向
       // redirect: '/multifarm',  //重定向
-      redirect: '/shader',  //重定向
+      // redirect: '/shader',  //重定向
       // redirect: '/chatGPTsingle',  //重定向  
       // component: () => import('../pages/platform/settingPanel_screen.vue'),
 

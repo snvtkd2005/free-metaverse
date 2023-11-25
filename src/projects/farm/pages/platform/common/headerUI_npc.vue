@@ -3,12 +3,10 @@
   <!-- 左上角血条头像 -->
   <div v-if="display"
     class="  absolute left-2 top-2 h-20 flex text-white origin-top-left transform scale-50 xl:scale-100 "
-    style="width:189px;height:66px;"
     @mouseenter="hover = true" @mouseleave="hover = false">
 
     
-    <!-- 生命法术条 -->
-    <div class=" absolute left-1 top-8  w-28 h-auto    " style="width: 116px;"> 
+    <div class=" absolute right-px bottom-0  w-28 h-12 mt-1   "> 
       <div class=" relative ">
         <div class=" h-2   relative ">
           <div class=" h-full bg-green-500  " :style="'width: ' + this.healthPerc + '%'"></div>
@@ -23,33 +21,21 @@
       </div>
     </div>
 
-    <!-- 姓名栏背景 -->
-    <div class=" relative w-28 h-4 ml-1.5 mt-3   ">
-      <div class=" absolute h-full w-full bg-red-200  " ></div>
-    </div>
-
-    <!-- 整个背景ui -->
-    <img class=" absolute left-0 top-0 transform   " style="width:189px;height:66px; transform:rotateY(180deg);"  :src="headerBGUrl" alt="">
+    <img class=" absolute left-0 top-0    " style="width:189px;height:66px;"  :src="headerBGUrl" alt="">
     
+    <div class=" w-16 h-16 relative   ">
+      <img class=" p-2 w-16 h-16 rounded-full " :src="icon" alt="">
+      <img class="  absolute left-0 bottom-0 w-6 h-6  " :src="levelBGUrl" alt="">
 
-
-    <div class=" absolute right-1 mt-px w-16 h-16     ">
-      <!-- 头像 -->
-      <img class=" absolute right-0 p-2 w-16 h-16 rounded-full " :src="icon" alt="">
-      <!-- 等级ui背景 -->
-      <img class="  absolute right-0 bottom-0 w-6 h-6  " :src="levelBGUrl" alt="">
-
-      <!-- 等级文字 -->
-      <div class=" absolute right-0 bottom-0 w-6 h-6 rounded-full text-center text-xs flex ">
-        <div class=" text-white self-center mx-auto">
+      <div class=" absolute left-0 bottom-0 w-6 h-6 rounded-full text-center text-xs flex ">
+        <div class=" text-yellow-500 self-center mx-auto">
           {{ level }}
         </div>
       </div>
     </div>
 
 
-    <!-- npc名称 -->
-    <div class=" absolute left-0 w-28 h-4 ml-1 mt-3   ">
+    <div class="  w-28 h-16 mt-3   ">
       <div class="  h-4 text-xs transform scale-90 text-center truncate">{{ targetName }}</div> 
     </div>
 

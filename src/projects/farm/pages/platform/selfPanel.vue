@@ -117,7 +117,7 @@
               xl:grid-cols-7
               md:grid-cols-5
               grid-cols-3
-             overflow-y-scroll  
+             overflow-y-auto  
             ">
             <!-- 选择列表 -->
             <div v-for="(item, i) in modelsList" :key="i" class="self-center  w-40 h-auto relative">
@@ -178,7 +178,8 @@
             </div>
           </div>
 
-          <div class="gap-6 grid xl:grid-cols-7 md:grid-cols-5 flex-row-reverse">
+          <div class="gap-6 grid xl:grid-cols-7 md:grid-cols-5 flex-row-reverse 
+               overflow-y-auto  ">
             <!-- 选择列表 -->
             <div v-for="(item, i) in jpgList" :key="i" class="self-center w-40 h-auto relative">
               <div class="w-40 h-20 self-center mx-auto cursor-pointer">

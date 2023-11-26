@@ -29,7 +29,7 @@
     <!-- 多人同步 -->
     <YJDync
       v-if="inLoadCompleted"
-      class="absolute z-50 left-0 top-0"
+      class="absolute z-50 left-0 top-0 w-full h-full"
       :hasTRTC="this.hasTRTC"
       ref="YJDync"
     />
@@ -47,7 +47,7 @@
       type="video/mp4"
     />
 
-    <div
+    <div v-if="false"
       class="
         hidden
         xl:flex

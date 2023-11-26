@@ -88,7 +88,7 @@
                       ">
 
     <div class="w-full h-auto max-h-80 flex flex-col justify-between relative">
-      <div ref="roomChateRecode" class=" w-72  xl:w-full h-auto max-h-72  overflow-y-scroll overscroll-auto">
+      <div ref="roomChateRecode" class=" w-72  xl:w-full h-auto max-h-72 overflow-y-auto  ">
         <div v-for="(item, i) in currentChatRecode" :key="i" :index="item.fromId"
           class="h-auto chatContent px-1 text-left break-all " :class="id == item.fromId
             ? ' '
@@ -96,9 +96,9 @@
             " @click="ShowChat(item)">
           <!-- 在大厅中说话 -->
           <div v-if="item.targetUser == ''" class="flex leading-5">
-            <div class=" whitespace-nowrap w-32  h-5 ">[{{ item.fromUser + (item.fromId == id ? '(自己)' : '') }}]：</div>
+            <div class=" whitespace-nowrap truncate w-32  h-5 ">[{{ item.fromUser + (item.fromId == id ? '(自己)' : '') }}</div>
             <div class=" pr-1 flex-grow ">
-              {{ item.message }}
+              ]：{{ item.message }}
             </div>
           </div>
 
@@ -131,23 +131,13 @@
         </div>
         <div @click="chatTargetUser = ''" class="pr-5 cursor-pointer">X</div>
       </div>
-
-      <!-- 输入激活按钮 -->
-      <div class=" relative ">
-      </div>
+ 
     </div>
   </div>
 
-  <!-- 输入框激活按钮 -->
-  <div class=" absolute z-50 left-4 bottom-10 xl:bottom-4 origin-bottom-left transform scale-50 xl:scale-75 ">
-    <div class=" absolute left-0 top-0 w-20 h-20 " @click="canInputChar = !canInputChar">
-    </div>
-    <div class=" origin-left ">
-      <img :src="publicUrl + 'images/gameUI/' + (canInputChar ? 'xx_laing' : 'xx_an') + '.png'" alt="">
-    </div>
 
     <!-- 输入区域 -->
-    <div v-if="canInputChar" class=" absolute left-24 top-6 w-auto h-10 flex">
+    <div  class=" absolute left-2 bottom-2 bg-gray-300 bg-opacity-70 rounded-lg text-white w-auto h-10 flex">
       <!-- 输入框 -->
       <div class="w-full h-10 ">
         <input ref="roomInput" class="
@@ -160,36 +150,37 @@
                                 h-full 
                                 resize-none
                               " type="text" placeholder="请输入聊天内容" v-model="currentChatStr" @focus="removeThreeJSfocus"
-          @blur="addThreeJSfocus" />
+          @blur="addThreeJSfocus"  @keyup.enter="SendChat" />
       </div>
 
-      <div class=" opacity-0
+      <div class="
                               ml-8
                               w-16
                               h-full
                               bg-gray-400
                               cursor-pointer
                               flex
-                              rounded-full
+                              rounded-sm
                               text-white text-sm
                             " @click="SendChat()">
         <p class="self-center mx-auto">{{ language.content.sendMsg }}</p>
       </div>
 
-      <div class=" opacity-0
+      <div class=" 
                               ml-2
                               w-16
                               h-full
                               bg-gray-400
                               cursor-pointer
                               flex
-                              rounded-full
+                              rounded-sm
                               text-white text-sm
                             " @click="ClearChat()">
         <p class="self-center mx-auto">{{ language.content.clearMsg }}</p>
       </div>
     </div>
-  </div>
+
+
 
   <!-- 连接websocket 提示文字 -->
   <div v-if="!connected" class="absolute z-60 w-full h-full top-0 left-0 flex pointer-events-none">
@@ -213,34 +204,6 @@
       </div>
     </div>
   </div>
-
-  <!-- 会议邀请对话框 -->
-  <div v-if="meetingInvitation" class="absolute z-60 w-full h-32 top-1/2 left-0 flex ">
-    <div class=" w-96 flex mx-auto 
-                    rounded-md
-                    shadow-md
-                    bg-blue-300">
-
-      <div class=" p-4
-                    mx-auto
-                    h-8
-                    leading-8
-                    text-xl
-                    cursor-pointer
-                    w-full
-                  inline-block
-                  ">
-        <div class="  px-3  self-center mx-auto   ">
-          {{ meetingData.fromUser + ' 邀请你参加会议 ' }}
-        </div>
-        <div class=" mt-2 w-5/6 flex justify-between text-black mx-auto ">
-          <div class=" rounded-md shadow-md p-2 bg-white " @click="meetingHandler('接受')">立即接受</div>
-          <div class=" rounded-md shadow-md p-2 bg-white " @click="meetingHandler('拒绝')">拒绝</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
 
   <div v-if="this.hasTRTC">
     <!-- 音视频 -->

@@ -590,6 +590,9 @@ class YJNPC {
     this.isCanSetTarget = function(){
       return  baseData.state != stateType.Back && baseData.state != stateType.Fire && baseData.state != stateType.Dead;
     }
+    this.GetCamp = function(){
+      return baseData.camp;
+    }
     // 接收同步
     this.Dync = function(msg){
 

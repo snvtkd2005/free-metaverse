@@ -54,10 +54,14 @@ class YJGameManagerEditor {
       let playerPos = _Global.YJ3D.YJController.GetPlayerWorldPos();
       for (let i = 0; i < npcModelList.length; i++) {
         const element = npcModelList[i];
-        if(element.GetComponent("NPC").isCanSetTarget()){
+        let npcComponent = element.GetComponent("NPC");
+        if(npcComponent.GetCamp() == _Global.user.camp){
+          continue;
+        }
+        if(npcComponent.isCanSetTarget()){
           let distance = playerPos.distanceTo(element.GetGroup().position);
           if(distance<=12){
-            element.GetComponent("NPC").SetTarget(_Global.YJ3D.YJPlayer,true);
+            npcComponent.SetTarget(_Global.YJ3D.YJPlayer,true);
           }
           // console.log("npc 距离玩家 坐标 {0} 米", distance);
 

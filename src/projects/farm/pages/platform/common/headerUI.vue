@@ -12,13 +12,9 @@
       <div class=" relative ">
         <div class=" h-2   relative ">
           <div class=" h-full bg-green-500  " :style="'width: ' + this.healthPerc + '%'"></div>
-          <div v-if="hover" class=" absolute  left-0 top-0 w-full text-center text-xs  ">
-            {{ this.baseData.health + "/" + this.baseData.maxHealth }}</div>
         </div>
         <div class=" mt-px h-2   relative ">
           <div class=" h-full bg-blue-500  " :style="'width: ' + GetEnergy() + '%'"></div>
-          <div v-if="hover" class=" absolute  left-0 top-0 w-full text-center text-xs  ">
-            {{ this.energy + "/" + this.maxEnergy }}</div>
         </div>
       </div>
     </div>
@@ -32,6 +28,19 @@
     <img class=" absolute left-0 top-0 transform   " style="width:189px;height:66px; transform:rotateY(180deg);"  :src="headerBGUrl" alt="">
     
 
+    <!-- 生命法术条文字 -->
+    <div class=" absolute left-1 top-7  w-28 h-auto    " style="width: 116px;"> 
+      <div class=" relative ">
+        <div class=" h-2   relative ">
+          <div v-if="hover" class=" absolute  left-0 top-0 w-full text-center text-xs transform scale-90  ">
+            {{ this.baseData.health + "/" + this.baseData.maxHealth }}</div>
+        </div>
+        <div class=" mt-px h-2   relative ">
+          <div v-if="hover" class=" absolute  left-0 top-0 w-full text-center text-xs transform scale-90  ">
+            {{ this.energy + "/" + this.maxEnergy }}</div>
+        </div>
+      </div>
+    </div>
 
     <div class=" absolute right-1 mt-px w-16 h-16     ">
       <!-- 头像 -->

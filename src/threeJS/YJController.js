@@ -3506,8 +3506,11 @@ class YJController {
     let mountName = "";
 
     let updateTimes = 0;
+    let directUpate = true; //强制刷新
     this.updateBaseData = function(_baseData){
       userData.baseData = _baseData;
+      directUpate = true;
+
     }
     // 是否已死亡
     this.isInDead = function(){
@@ -3557,15 +3560,14 @@ class YJController {
         && oldAnimName == animName
         && oldAnimWeight == animWeight
         && oldMountName == mountName
-
         && oldPos.distanceTo(newPos) < 0.01
         && olddyncDisplay == userData.dyncDisplay
-
+        && !directUpate
       ) {
         // console.log(" 角色状态不变，不发送更新 ");
         return;
       }
-
+      directUpate = false;
 
       if (oldPos.x != newPos.x || oldPos.y != newPos.y || oldPos.z != newPos.z) {
         userData.pos = { x: newPos.x, y: newPos.y - playerHeight / 2, z: newPos.z };

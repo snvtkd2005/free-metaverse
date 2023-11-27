@@ -309,7 +309,16 @@ export default {
   mounted() {
     this.inSend = false;
     this.connected = false;
-    this.otherUser = [];
+    this.otherUser = [{
+          user: {
+            userData: {
+              baseData: {
+                health: 0,
+                maxHealth: 0,
+              }
+            }
+          }
+        }];
 
     //所有其他玩家
     this.allPlayer = [];
@@ -567,7 +576,7 @@ export default {
 
 
         _YJPlayer.CreateNameTrans(nickName);
-
+        _YJPlayer.id = id;
         this.allPlayer.push({
           player: _YJPlayer,
           id: id,

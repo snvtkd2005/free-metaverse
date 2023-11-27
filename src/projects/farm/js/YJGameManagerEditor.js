@@ -42,7 +42,7 @@ class YJGameManagerEditor {
       }, 500);
     }
 
-    // 巡视NPC是否能发现玩家
+    // 每0.5秒检测一次。巡视NPC是否能发现玩家。每个玩家独立计算，计算后再做npc目标同步
     function CheckNpcLookat(){
 
       if(_Global.YJ3D.YJController.isInDead()){
@@ -52,13 +52,14 @@ class YJGameManagerEditor {
       for (let i = 0; i < npcModelList.length; i++) {
         const element = npcModelList[i].transform;
         let npcComponent = element.GetComponent("NPC");
-        // 相同阵营的返回
+        // 相同阵营的不计算
         if(npcComponent.GetCamp() == _Global.user.camp){
           continue;
         }
         if(npcComponent.isCanSetTarget()){
           let distance = playerPos.distanceTo(element.GetGroup().position);
           if(distance<=12){
+            // 第三个参数表示是否查找npc附近的npc，让附近的npc一起攻击玩家
             npcComponent.SetTarget(_Global.YJ3D.YJPlayer,true,true);
           }
           // console.log("npc 距离玩家 坐标 {0} 米", distance);
@@ -206,15 +207,23 @@ class YJGameManagerEditor {
             console.log("npc查找同一战斗的玩家 ",fireId,playerId);
             const player = _Global.YJDync.GetPlayerById(playerId);
             console.log(player.GetUserData());
-            if(player.GetUserData().baseData.health > 0){
-              //发送npc目标
-              npcComponent.SetTarget(player,true,false); 
-              return; 
+            if(player.isLocal){
+              if(_this.YJController.GetUserData().baseData.health > 0){
+                //发送npc目标
+                npcComponent.SetTarget(player,true,false); 
+                return; 
+              }
+            }else{
+              if(player.GetUserData().baseData.health > 0){
+                //发送npc目标
+                npcComponent.SetTarget(player,true,false); 
+                return; 
+              }
             }
           }
         }
       }  
-      npcComponent.SetTarget(null,true,false); 
+      npcComponent.SetTargetToNone(true,false); 
 
     }
 
@@ -233,8 +242,9 @@ class YJGameManagerEditor {
           if(state.modelType == "装备模型"){
             playerData.push({playerId:_Global.YJDync.id,modelType:state.modelType,msg:state.msg});
           }
-          console.error(" 发送单个物体数据 ",state);
-          _Global.YJDync._YJDyncManager.SendSceneState("single",{id:id,state:state});
+          console.error(" 发送单个物体数据 ",state); 
+          this.SendSceneState("single",{id:id,state:state});
+
         } 
       }
     }
@@ -249,14 +259,18 @@ class YJGameManagerEditor {
       }
       if(type == "场景模型状态"){
         _Global.YJDync._YJDyncManager.SendSceneState("all",dyncModelList);
+        return;
       }
       if(type == "战斗状态"){
-        _Global.YJDync._YJDyncManager.SendSceneState("战斗状态",fireGroup);
+        _Global.YJDync._YJDyncManager.SendSceneState(type,fireGroup);
+        return;
       }
       if(type == "请求下一个目标"){
-        _Global.YJDync._YJDyncManager.SendSceneState("请求下一个目标",msg);
+        _Global.YJDync._YJDyncManager.SendSceneState(type,msg);
+        return;
       }
-       
+      _Global.YJDync._YJDyncManager.SendSceneState(type,msg);
+      
     }
  
     this.Receive = function(sceneState){
@@ -273,6 +287,7 @@ class YJGameManagerEditor {
         }
         return;
       }
+
       
       if(sceneState.type == "all"){
         console.log("接收场景同步信息",sceneState);

@@ -411,28 +411,8 @@ class YJNPC {
     }
 
     let fireBeforePos = null;
-    // 设置NPC的战斗目标
-    this.SetTarget = function (_targetModel, isLocal, checkNear) {
-      console.log(" npc进入战斗 00 ", baseData.state == stateType.Back);
-
-      if ( scope.fireId == -1 && baseData.state == stateType.Back) {
-        return;
-      }
-
-      if (_targetModel == null) {
-        targetModel = _targetModel;
-      } else {
-        if (targetModel == null) {
-          targetModel = _targetModel;
-          fireBeforePos = scope.transform.GetWorldPos();
-          //加入战斗
-          if (isLocal && checkNear) {
-            _Global.DyncManager.NPCAddFire(scope, targetModel);
-          }
-        }
-      }
-      let npcPos = parent.position.clone();
-
+    this.SetTargetToNone = function(isLocal){
+      targetModel = null;
       if (targetModel == null) {
         // 暂停1秒
         navpath = [];
@@ -440,12 +420,13 @@ class YJNPC {
         baseData.state = stateType.Back;
         scope.SetPlayerState("normal");
         ClearLater("清除巡逻");
+         
         laterNav = setTimeout(() => {
           let currentPos = scope.transform.GetWorldPos();
           if (currentPos.distanceTo(fireBeforePos) >= 20) {
             baseData.speed = MISSSPEED;
           }
-          GetNavpath(npcPos, fireBeforePos);
+          GetNavpath(parent.position.clone(), fireBeforePos);
         }, 1000);
         baseData.health = baseData.maxHealth;
         scope.transform.UpdateData();
@@ -456,6 +437,32 @@ class YJNPC {
 
         return;
       }
+    }
+    // 设置NPC的战斗目标
+    this.SetTarget = function (_targetModel, isLocal, checkNear) {
+      if(_targetModel == null){
+        this.SetTargetToNone(isLocal, checkNear);
+        return;
+      }
+      console.log(" npc进入战斗 00 ", baseData.state == stateType.Back);
+
+      if (scope.fireId == -1 && baseData.state == stateType.Back) {
+        return;
+      }
+      if (targetModel == null) {
+        targetModel = _targetModel;
+        fireBeforePos = scope.transform.GetWorldPos();
+        //加入战斗
+        if (isLocal && checkNear) {
+          _Global.DyncManager.NPCAddFire(scope, targetModel);
+        }
+      }
+
+      targetModel = _targetModel;
+
+      
+      let npcPos = parent.position.clone();
+
 
       readyAttack = false;
       scope.SetPlayerState("准备战斗");
@@ -475,7 +482,7 @@ class YJNPC {
             msg: {
               type: "设置目标",
               playerId: targetModel.id,
-              fireId:scope.fireId,
+              fireId: scope.fireId,
               health: baseData.health
             }
           });
@@ -621,7 +628,7 @@ class YJNPC {
         }
       }
       baseData.health = msg.health;
-      if(msg.fireId){
+      if (msg.fireId) {
         scope.fireId = msg.fireId;
       }
       if (msg.playerId) {
@@ -629,7 +636,7 @@ class YJNPC {
           this.SetTarget(_Global.YJDync.GetPlayerById(msg.playerId));
         }
       } else {
-        this.SetTarget(null);
+        this.SetTargetToNone();
       }
       UpdateData();
     }
@@ -651,10 +658,9 @@ class YJNPC {
       }
     }
     function CheckNextTarget() {
-      console.log(" npc目标玩家死亡,查找下一个 =====",scope.fireId);
+      console.log(" npc目标玩家死亡,查找下一个 =====", scope.fireId);
       targetModel = null;
       scope.SetTarget(targetModel, true);
-
       // 向主控请求下一个目标
       // 获取战斗组中的其他玩家作为目标。 没有时，npc结束战斗
       _Global.DyncManager.RequestNextFireIdPlayer(scope.transform.id, scope.fireId);
@@ -675,6 +681,7 @@ class YJNPC {
 
       if (baseData.state == stateType.Fire) {
         if (targetModel == null) {
+          scope.SetPlayerState("准备战斗");
           return;
         }
         // 逻辑见note/npc策划.md 战斗策略
@@ -750,8 +757,7 @@ class YJNPC {
         if (getnavpathTimes >= 100) {
           // 无法到达目标点时，3秒后，失去目标
           if (targetModel != null) {
-            targetModel = null;
-            scope.SetTarget(null, true);
+            scope.SetTargetToNone(true);
           }
           getnavpathTimes = 0;
         }

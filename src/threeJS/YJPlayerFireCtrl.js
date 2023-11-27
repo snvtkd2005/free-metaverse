@@ -62,9 +62,16 @@ class YJPlayerFireCtrl {
 		}
 		let npcTransform = null;
 		let npcPos = null;
+		function PlayerAddFire() {
+			if (_YJPlayer.fireId!=-1 ) {
+				return;
+			}
+			_Global.DyncManager.PlayerAddFire(npcTransform.GetComponent("NPC"),_YJPlayer);
+		}
 		this.ReceiveDamage = function (_targetModel, skillName, strength) {
 			if (npcTransform == null) {
 				npcTransform = _targetModel;
+				PlayerAddFire();
 				console.log("targetModel 角色目标 ", npcTransform);
 				//自动显示其头像
 				_Global.ReportTo3D("锁定目标", npcTransform);
@@ -185,7 +192,7 @@ class YJPlayerFireCtrl {
 							console.log(" 有效攻击目标 ");
 							//有效攻击
 							let health = npcTransform.GetComponent("NPC").ReceiveDamage(_YJPlayer, skillName, baseData.strength);
-
+							PlayerAddFire();
 							// _Global.DyncManager.SendModelState(npcTransform.GetData().id,{modelType:npcTransform.GetData().modelType, msg:{playerId:_YJPlayer.id, health:health}});
 
 

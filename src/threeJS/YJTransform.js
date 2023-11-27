@@ -147,7 +147,7 @@ class YJTransform {
     function Init() {
       group = new THREE.Group();
       scene.add(group);
-
+      group.owner = scope;
       data.uuid = group.uuid;
       // group.add(new THREE.AxesHelper(100));
     }

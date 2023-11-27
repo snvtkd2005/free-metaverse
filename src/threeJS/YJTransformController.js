@@ -29,10 +29,18 @@ class YJTransformController {
         if(_this.YJController){
           _this.YJController.enabled = !event.value;
         }
+        // console.log("正在拖拽 ",event);
+        // console.log("正在拖拽 ",selectMesh.owner);
         console.log("正在拖拽 ",selectMesh.position);
         console.log("正在拖拽 ",selectMesh.rotation);
-        
+        // event.value true:开始   false:结束
+        if(event.value && selectMesh.owner.isYJTransform){
+          if(selectMesh.owner.GetComponent("NPC")){
+            selectMesh.owner.GetComponent("NPC").UpdateNavPos('停止巡逻');
+          }
+        }
       });
+
       transformController.name = "ignoreRaycast";
       let control = transformController;
       control.setSpace('local');

@@ -54,7 +54,8 @@ class YJLoadUserModelManager {
       for (let i = 0; i < allTransform.length; i++) {
         const transform = allTransform[i].transform;
         if(transform.GetData().modelType == modelType){
-          list.push(transform);
+          transform.id = i;
+          list.push({id:i,transform:transform});
         }
       } 
       return list;

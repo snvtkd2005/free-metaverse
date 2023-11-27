@@ -17,6 +17,8 @@ class YJPlayer {
 
     var scope = this;
     this.isLocal = local;
+    this.fireId = -1; 
+    
     // 创建一个时钟对象Clock
     var clock = new THREE.Clock();
 

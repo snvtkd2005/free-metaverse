@@ -247,7 +247,7 @@ export default {
       if (e == "设置为npc目标") {
         _Global.YJ3D._YJSceneManager
           .GetSingleTransformComponent("NPC")
-          .SetTarget(_Global.YJ3D.YJPlayer);
+          .SetTarget(_Global.YJ3D.YJPlayer,true,true);
       }
       if (e == "设置npc失去目标") {
         _Global.YJ3D._YJSceneManager

@@ -650,6 +650,8 @@ export default {
       }
     },
     GetPlayerById(id) {
+      console.log("获取同一战斗组中的玩家 ",this.allPlayer,this.ThreejsHumanChat.YJPlayer.id,id);
+      if(this.ThreejsHumanChat.YJPlayer.id == id ){return this.ThreejsHumanChat.YJPlayer;}
       for (let i = 0; i < this.allPlayer.length; i++) {
         if (this.allPlayer[i].id == id) {
           return this.allPlayer[i].player;

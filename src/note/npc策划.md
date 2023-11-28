@@ -98,3 +98,4 @@ health //当前生命值
 pos //当前坐标点
 targetPos //目标坐标点
 animName //动作
+camp // 阵营： 联盟npc、部落npc、怪物、中立（由玩家相对npc友好度决定）

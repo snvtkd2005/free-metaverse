@@ -21,20 +21,20 @@ class YJGameManagerEditor {
     let dyncModelList = [];
     let npcModelList = [];
     // 初始化场景中需要同步的模型。每个客户端都执行
-    this.InitDyncSceneModels = ()=>{
+    this.InitDyncSceneModels = () => {
       //武器、npc 
       let modelDataList = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetModelList();
       for (let i = 0; i < modelDataList.length; i++) {
         const element = modelDataList[i];
-        if(element.modelType == "NPC模型" 
-        || element.modelType == "装备模型"
-         ){
-          dyncModelList.push({id:element.id});
-        } 
-      } 
+        if (element.modelType == "NPC模型"
+          || element.modelType == "装备模型"
+        ) {
+          dyncModelList.push({ id: element.id, modelType: element.modelType, state: {} });
+        }
+      }
 
       npcModelList = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetAllTransformByModelType("NPC模型");
-      if(_Global.setting.inEditor){
+      if (_Global.setting.inEditor) {
         return;
       }
       setInterval(() => {
@@ -43,9 +43,9 @@ class YJGameManagerEditor {
     }
 
     // 每0.5秒检测一次。巡视NPC是否能发现玩家。每个玩家独立计算，计算后再做npc目标同步
-    function CheckNpcLookat(){
+    function CheckNpcLookat() {
 
-      if(_Global.YJ3D.YJController.isInDead()){
+      if (_Global.YJ3D.YJController.isInDead()) {
         return;
       }
       let playerPos = _Global.YJ3D.YJController.GetPlayerWorldPos();
@@ -53,14 +53,14 @@ class YJGameManagerEditor {
         const element = npcModelList[i].transform;
         let npcComponent = element.GetComponent("NPC");
         // 相同阵营的不计算
-        if(npcComponent.GetCamp() == _Global.user.camp){
+        if (npcComponent.GetCamp() == _Global.user.camp) {
           continue;
         }
-        if(npcComponent.isCanSetTarget()){
+        if (npcComponent.isCanSetTarget()) {
           let distance = playerPos.distanceTo(element.GetGroup().position);
-          if(distance<=12){
+          if (distance <= 12) {
             // 第三个参数表示是否查找npc附近的npc，让附近的npc一起攻击玩家
-            npcComponent.SetTarget(_Global.YJ3D.YJPlayer,true,true);
+            npcComponent.SetTarget(_Global.YJ3D.YJPlayer, true, true);
           }
           // console.log("npc 距离玩家 坐标 {0} 米", distance);
 
@@ -68,18 +68,18 @@ class YJGameManagerEditor {
       }
     }
     // 设置npc1附近的npc共同攻击npc1的目标
-    this.SetNearNPCTarget = function(npcComponent1,targetModel){
+    this.SetNearNPCTarget = function (npcComponent1, targetModel) {
       for (let i = 0; i < npcModelList.length; i++) {
         const element = npcModelList[i].transform;
         let npcComponent = element.GetComponent("NPC");
         // 相同阵营的返回
-        if(npcComponent != npcComponent1 && npcComponent.GetCamp() == npcComponent1.GetCamp()){
-          console.log("查找附近npc ",npcComponent);
-          if(npcComponent.isCanSetTarget()){
+        if (npcComponent != npcComponent1 && npcComponent.GetCamp() == npcComponent1.GetCamp()) {
+          console.log("查找附近npc ", npcComponent);
+          if (npcComponent.isCanSetTarget()) {
             let distance = npcComponent1.transform.GetGroup().position.distanceTo(element.GetGroup().position);
-            if(distance<=12){
-              npcComponent.SetTarget(targetModel,true,false); 
-              scope.NPCAddFireById(npcComponent,npcComponent1.fireGroup);
+            if (distance <= 12) {
+              npcComponent.SetTarget(targetModel, true, false);
+              scope.NPCAddFireById(npcComponent, npcComponent1.fireGroup);
             }
           }
         }
@@ -91,7 +91,7 @@ class YJGameManagerEditor {
       // {fireId:0,playerList:[],npcList:[]},
     ];
     // NPC加入战斗.由NPC受伤调用开启战斗
-    this.NPCAddFire = function(npcComponent,targetModel){
+    this.NPCAddFire = function (npcComponent, targetModel) {
       let hasGroup = false;
 
       for (let i = 0; i < fireGroup.length; i++) {
@@ -104,193 +104,203 @@ class YJGameManagerEditor {
         //     element.npcList.push(npcComponent); 
         //   }
         // }
-        
+
         let cPlayer = false;
         for (let j = 0; j < element.playerList.length && !cPlayer; j++) {
           const player = element.playerList[j];
-          if(player == targetModel.id){
+          if (player == targetModel.id) {
             cPlayer = true;
             element.npcList.push(npcComponent.transform.id);
             this.SendSceneState("战斗状态");
 
           }
         }
-        if(cPlayer){
+        if (cPlayer) {
           npcComponent.fireId = element.fireId;
           hasGroup = true;
-          console.log(" npc 加入战斗 11 ",element.fireId);
+          console.log(" npc 加入战斗 11 ", element.fireId);
         }
-      } 
-      if(hasGroup){
+      }
+      if (hasGroup) {
         return;
       }
       let fireId = new Date().getTime();
-      fireGroup.push({fireId:fireId,playerList:[targetModel.id],npcList:[npcComponent.transform.id]});
+      fireGroup.push({ fireId: fireId, playerList: [targetModel.id], npcList: [npcComponent.transform.id] });
       targetModel.fireId = fireId;
       npcComponent.fireId = fireId;
-      console.log(" 开始新的战斗 ",fireGroup[fireGroup.length-1]);
+      console.log(" 开始新的战斗 ", fireGroup[fireGroup.length - 1]);
       this.SendSceneState("战斗状态");
 
     }
     // 玩家加入正在进行的战斗。 如果玩家和npc都未在战斗中，则有NPC触发生成战斗组
-    this.PlayerAddFire = function(npcComponent,targetModel){
+    this.PlayerAddFire = function (npcComponent, targetModel) {
       for (let i = 0; i < fireGroup.length; i++) {
         const element = fireGroup[i];
         let cNpc = false;
         for (let j = 0; j < element.npcList.length && !cNpc; j++) {
           const npc = element.npcList[j];
-          if(npc == npcComponent.transform.id){
+          if (npc == npcComponent.transform.id) {
             cNpc = true;
-            
+
             let hasPlayer = false;
             for (let k = 0; k < element.playerList.length && !hasPlayer; k++) {
               const player = element.playerList[k];
-              if(player == targetModel.id){
+              if (player == targetModel.id) {
                 hasPlayer = true;
-              } 
+              }
             }
-            if(!hasPlayer){
+            if (!hasPlayer) {
               targetModel.fireId = element.fireId;
-              element.playerList.push(targetModel.id); 
-              console.log(" 玩家 加入战斗 ",element.fireId);
+              element.playerList.push(targetModel.id);
+              console.log(" 玩家 加入战斗 ", element.fireId);
             }
           }
-        } 
-      } 
+        }
+      }
       this.SendSceneState("战斗状态");
 
     }
-    this.NPCAddFireById = function(npcComponent,fireId){
+    this.NPCAddFireById = function (npcComponent, fireId) {
       for (let i = 0; i < fireGroup.length; i++) {
         const element = fireGroup[i];
-        if(element.fireId == fireId){
-          element.npcList.push(npcComponent.transform.id); 
-          console.log(" npc 加入战斗 22 ",element.fireId); 
+        if (element.fireId == fireId) {
+          element.npcList.push(npcComponent.transform.id);
+          console.log(" npc 加入战斗 22 ", element.fireId);
         }
-      } 
+      }
       this.SendSceneState("战斗状态");
 
     }
 
     // 未受伤、未被npc攻击，强制设置玩家进入战斗id
-    this.PlayerAddFireById = function(player,fireId){
+    this.PlayerAddFireById = function (player, fireId) {
       for (let i = 0; i < fireGroup.length; i++) {
         const element = fireGroup[i];
-        if(element.fireId == fireId){
-          element.playerList.push(player.id); 
-          console.log(" 玩家 加入战斗 22 ",element.fireId);
+        if (element.fireId == fireId) {
+          element.playerList.push(player.id);
+          console.log(" 玩家 加入战斗 22 ", element.fireId);
         }
-      } 
+      }
       this.SendSceneState("战斗状态");
     }
-    this.RequestNextFireIdPlayer = function(npcId,fireId){
-      if(_Global.mainUser){
-        GetFireIdPlayer({npcId:npcId,fireId:fireId});
-      }else{
-        this.SendSceneState("请求下一个目标",{npcId:npcId,fireId:fireId}); 
+    this.RequestNextFireIdPlayer = function (npcId, fireId) {
+      if (_Global.mainUser) {
+        GetFireIdPlayer({ npcId: npcId, fireId: fireId });
+      } else {
+        this.SendSceneState("请求下一个目标", { npcId: npcId, fireId: fireId });
       }
     }
-    function GetFireIdPlayer(state){
-      let {npcId,fireId} = state;
+    function GetFireIdPlayer(state) {
+      let { npcId, fireId } = state;
       let npcComponent = null;
       for (let i = 0; i < npcModelList.length; i++) {
         const element = npcModelList[i].transform;
-        if(element.id == npcId){
-          npcComponent = element.GetComponent("NPC"); 
-        } 
+        if (element.id == npcId) {
+          npcComponent = element.GetComponent("NPC");
+        }
       }
       for (let i = 0; i < fireGroup.length; i++) {
         const element = fireGroup[i];
-        if(element.fireId == fireId){
+        if (element.fireId == fireId) {
           for (let j = 0; j < element.playerList.length; j++) {
             const playerId = element.playerList[j];
-            console.log("npc查找同一战斗的玩家 ",fireId,playerId);
+            console.log("npc查找同一战斗的玩家 ", fireId, playerId);
+
             const player = _Global.YJDync.GetPlayerById(playerId);
-            console.log(player.GetUserData());
-            if(player.isLocal){
-              if(_this.YJController.GetUserData().baseData.health > 0){
-                //发送npc目标
-                npcComponent.SetTarget(player,true,false); 
-                return; 
-              }
-            }else{
-              if(player.GetUserData().baseData.health > 0){
-                //发送npc目标
-                npcComponent.SetTarget(player,true,false); 
-                return; 
+            if(player){
+              console.log(player.GetUserData());
+              if (player.isLocal) {
+                if (_this.YJController.GetUserData().baseData.health > 0) {
+                  //发送npc目标
+                  npcComponent.SetTarget(player, true, false);
+                  return;
+                }
+              } else {
+                if (player.GetUserData().baseData.health > 0) {
+                  //发送npc目标
+                  npcComponent.SetTarget(player, true, false);
+                  return;
+                }
               }
             }
           }
         }
-      }  
-      npcComponent.SetTargetToNone(true,false); 
+      }
+      npcComponent.SetTargetToNone(true, false);
 
     }
-
+    this.SendSceneStateToServer = () => {
+      _Global.YJDync._YJDyncManager.SendSceneState("初始化", dyncModelList);
+    }
+    this.UpdateModelPos = (id,data) => {
+      _Global.YJDync._YJDyncManager.UpdateModelPos(id,data);
+    }
     // 玩家拾取场景内物体的数据。用来做场景物体同步
     let playerData = [];
     //发送单个物体数据
-    this.SendModelState = function(id,state){
-      if(!_Global.YJDync){
+    this.SendModelState = function (id, state) {
+      if (!_Global.YJDync) {
         return;
       }
-      for (let i = 0; i < dyncModelList.length; i++) {
-        const element = dyncModelList[i];
-        if(element.id == id){
-          element.state = state;
+      _Global.YJDync._YJDyncManager.SendSceneState("更新single", { id: id, modelType: state.modelType, state: state.msg });
 
-          if(state.modelType == "装备模型"){
-            playerData.push({playerId:_Global.YJDync.id,modelType:state.modelType,msg:state.msg});
-          }
-          console.error(" 发送单个物体数据 ",state); 
-          this.SendSceneState("single",{id:id,state:state});
+      // for (let i = 0; i < dyncModelList.length; i++) {
+      //   const element = dyncModelList[i];
+      //   if (element.id == id) {
+      //     element.state = state;
 
-        } 
-      }
+      //     if (state.modelType == "装备模型") {
+      //       playerData.push({ playerId: _Global.YJDync.id, modelType: state.modelType, msg: state.msg });
+      //     }
+      //     console.error(" 发送单个物体数据 ", state);
+      //   }
+      // }
+
     }
 
     //发送整个场景数据
-    this.SendSceneState = function(type,msg){
-      if(!_Global.YJDync){   
-        return;   
-      }
-      if(type == undefined){
-        type = "场景模型状态";
-      }
-      if(type == "场景模型状态"){
-        _Global.YJDync._YJDyncManager.SendSceneState("all",dyncModelList);
+    this.SendSceneState = function (type, msg) {
+      if (!_Global.YJDync) {
         return;
       }
-      if(type == "战斗状态"){
-        _Global.YJDync._YJDyncManager.SendSceneState(type,fireGroup);
+      if (type == undefined) {
+        type = "all";
+      }
+      if (type == "all") {
+        _Global.YJDync._YJDyncManager.SendSceneState("转发", { type: type, state: dyncModelList });
         return;
       }
-      if(type == "请求下一个目标"){
-        _Global.YJDync._YJDyncManager.SendSceneState(type,msg);
+      if (type == "战斗状态") {
+        _Global.YJDync._YJDyncManager.SendSceneState("转发", { type: type, state: fireGroup });
         return;
       }
-      _Global.YJDync._YJDyncManager.SendSceneState(type,msg);
-      
+      if (type == "请求下一个目标") {
+        _Global.YJDync._YJDyncManager.SendSceneState("转发", { type: type, state: msg });
+        return;
+      }
+      _Global.YJDync._YJDyncManager.SendSceneState("转发", { type: type, state: msg });
+
     }
- 
-    this.Receive = function(sceneState){
+
+    this.Receive = function (sceneState) {
       let state = sceneState.state;
-      if(sceneState.type == "战斗状态"){
+
+      if (sceneState.type == "战斗状态") {
         fireGroup = state;
-        console.log("战斗状态同步改变 ",fireGroup);
+        console.log("战斗状态同步改变 ", fireGroup);
         return;
       }
-      if(sceneState.type == "请求下一个目标"){
-        if(_Global.mainUser){
-          console.log("设置下一个目标 ",state);
+      if (sceneState.type == "请求下一个目标") {
+        if (_Global.mainUser) {
+          console.log("设置下一个目标 ", state);
           GetFireIdPlayer(state);
         }
         return;
       }
 
-      
-      if(sceneState.type == "all"){
-        console.log("接收场景同步信息",sceneState);
+
+      if (sceneState.type == "获取场景状态") {
+        console.log("获取场景状态 222 ", sceneState);
 
         //整个场景所有模型的更新
         for (let i = 0; i < dyncModelList.length; i++) {
@@ -298,35 +308,82 @@ class YJGameManagerEditor {
           let has = false;
           for (let j = 0; j < state.length && !has; j++) {
             const _state = state[j];
-            if(element.id == _state.id){
-              element.state = _state.state; 
+            if (element.id == _state.id) {
+              element.state = _state.state;
               has = true;
-            } 
-          } 
+            }
+          }
         }
 
         for (let i = 0; i < state.length; i++) {
-          const element = state[i]; 
+          const element = state[i];
           _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().EditorUserModel(element);
         }
         return;
       }
 
+
+      if (sceneState.type == "all") {
+        console.log("接收场景同步信息", sceneState);
+
+        //整个场景所有模型的更新
+        for (let i = 0; i < dyncModelList.length; i++) {
+          const element = dyncModelList[i];
+          let has = false;
+          for (let j = 0; j < state.length && !has; j++) {
+            const _state = state[j];
+            if (element.id == _state.id) {
+              element.state = _state.state;
+              has = true;
+            }
+          }
+        }
+
+        for (let i = 0; i < state.length; i++) {
+          const element = state[i];
+          _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().EditorUserModel(element);
+        }
+        return;
+      }
+
+      if (sceneState.type == "服务器下发") {
+
+        // return;
+      }
+      console.log("更新单个模型 ", sceneState);
       //单个模型的更新
       _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().EditorUserModel(state);
       for (let i = 0; i < dyncModelList.length; i++) {
         const element = dyncModelList[i];
         // console.log("查找",state.id,element.id);
-        if(element.id == state.id){
+        if (element.id == state.id) {
           element.state = state.state;
           return;
-        } 
+        }
       }
     }
+    //接收服务器下发
+    this.ReceiveFromServer = function (sceneState) {
+      let state = sceneState.state;
+      console.log(" 接收服务器下发 更新单个模型 ", sceneState,state);
+      _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().EditorUserModel(state);
+    }
+
+    this.ReceiveModelPos = function (id,data) {
+      _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().ReceiveModelPos(id,data);
+    }
+
 
     //移除角色时，移除其数据。如还原其拾取的武器
-    this.DelPlayer = function(id){
-
+    this.DelPlayer = function (id) { 
+      for (let i = 0; i < npcModelList.length; i++) {
+        const element = npcModelList[i].transform;
+        let npcComponent = element.GetComponent("NPC");
+        // 如果npc的目标离线，则让npc查找下一个目标
+        if (npcComponent.GetTargetModelId() == id) {
+          npcComponent.CheckNextTarget();
+        }
+      }
     }
 
 
@@ -508,13 +565,13 @@ class YJGameManagerEditor {
 
       if (hoverObject == null) {
         // _this.SetCursor("default");
-        _Global.ReportTo3D("切换光标","正常");
+        _Global.ReportTo3D("切换光标", "正常");
         return;
-      } 
+      }
       let modelType = hoverObject.tag;
       if (modelType == undefined) {
         // _this.SetCursor("default");
-        _Global.ReportTo3D("切换光标","正常");
+        _Global.ReportTo3D("切换光标", "正常");
         return;
       }
 
@@ -659,7 +716,7 @@ class YJGameManagerEditor {
 
       // console.error(" 初始化 YJGameManager Editor ");
       new YJKeyboard((key) => {
-        if(inInputing){
+        if (inInputing) {
           return;
         }
         if (key == "Escape") {
@@ -670,46 +727,46 @@ class YJGameManagerEditor {
           }
           return;
         }
-        if (key == "Digit1") { 
-          parentUI.$refs.skillPanel.ClickSkillIndex(0); 
+        if (key == "Digit1") {
+          parentUI.$refs.skillPanel.ClickSkillIndex(0);
           return;
         }
-        if (key == "Digit2") { 
-          parentUI.$refs.skillPanel.ClickSkillIndex(1); 
+        if (key == "Digit2") {
+          parentUI.$refs.skillPanel.ClickSkillIndex(1);
           return;
         }
 
-        if (key == "Digit3") { 
-          parentUI.$refs.skillPanel.ClickSkillIndex(2); 
+        if (key == "Digit3") {
+          parentUI.$refs.skillPanel.ClickSkillIndex(2);
           return;
         }
-        if (key == "Digit4") { 
-          parentUI.$refs.skillPanel.ClickSkillIndex(3); 
+        if (key == "Digit4") {
+          parentUI.$refs.skillPanel.ClickSkillIndex(3);
           return;
         }
-        if (key == "Digit5") { 
-          parentUI.$refs.skillPanel.ClickSkillIndex(4); 
+        if (key == "Digit5") {
+          parentUI.$refs.skillPanel.ClickSkillIndex(4);
           return;
         }
-        if (key == "Digit6") { 
-          parentUI.$refs.skillPanel.ClickSkillIndex(5); 
+        if (key == "Digit6") {
+          parentUI.$refs.skillPanel.ClickSkillIndex(5);
           return;
         }
-        if (key == "Digit7") { 
-          parentUI.$refs.skillPanel.ClickSkillIndex(6); 
+        if (key == "Digit7") {
+          parentUI.$refs.skillPanel.ClickSkillIndex(6);
           return;
         }
-        if (key == "Digit8") { 
-          parentUI.$refs.skillPanel.ClickSkillIndex(7); 
+        if (key == "Digit8") {
+          parentUI.$refs.skillPanel.ClickSkillIndex(7);
           return;
         }
         if (key == "KeyT") {
           // if (_this._YJSceneManager) {
           //   _this._YJSceneManager.ClickInteractive();
           // }
-           
-          _this.YJController.SetUserDataItem("weaponData","weaponId","");
-          _this.YJController.SetUserDataItem("weaponData","weaponType","");
+
+          _this.YJController.SetUserDataItem("weaponData", "weaponId", "");
+          _this.YJController.SetUserDataItem("weaponData", "weaponType", "");
 
           _Global.SendMsgTo3D("放下武器");
 

@@ -50,17 +50,16 @@ class YJLoadUserModelManager {
       return modelDataList;
     }
     this.GetAllTransformByModelType = function (modelType) {
-      let list = []; 
+      let list = [];
       for (let i = 0; i < allTransform.length; i++) {
         const transform = allTransform[i].transform;
-        if(transform.GetData().modelType == modelType){
-          transform.id = i;
-          list.push({id:i,transform:transform});
+        if (transform.GetData().modelType == modelType) {
+          list.push({ id: transform.id, transform: transform });
         }
-      } 
+      }
       return list;
     }
-     
+
 
     //#region 使用物理模拟判断是否与其他模型重叠，重叠时无法放置模型
     let Ammo = null;
@@ -211,7 +210,7 @@ class YJLoadUserModelManager {
         if (callback) {
           callback(object);
         }
-      }); 
+      });
     }
 
     function CreateTransform(parent, modelData, callback) {
@@ -231,18 +230,21 @@ class YJLoadUserModelManager {
         if (modelData.modelPath.includes("http")) {
 
         } else if (modelData.modelPath.includes("models/player")) {
-          modelPath = _this.$publicUrl+"farm/" + modelData.modelPath
+          modelPath = _this.$publicUrl + "farm/" + modelData.modelPath
         } else {
           modelPath = uploadUrl + modelData.modelPath;
         }
       }
 
       modelId++;
+      object.id = modelId;
       let uuid = object.GetUUID();
-      allTransform.push({ uuid: uuid,id:modelId, transform: object });
+      allTransform.push({ uuid: uuid, id: modelId, transform: object });
       object.SetPosRota(modelData.pos, modelData.rotaV3, modelData.scale);
       object.SetModelPath(modelData.modelPath);
-      object.SetData(modelData.folderBase, modelData.modelType,modelId);
+      object.SetData(modelData.folderBase, modelData.modelType, modelId);
+      object.modelData = JSON.parse(JSON.stringify(modelData));
+
       // if (modelData.message != undefined) {
       //   object.SetMessage(modelData.message);
       // }
@@ -279,32 +281,32 @@ class YJLoadUserModelManager {
           LoadError(uuid, callback, e);
         });
       } else if (modelData.modelType == "角色模型") {
-        
+
         MeshRenderer.load(modelPath, (scope) => {
           let component = new YJAnimator(scope.GetModel(), scope.GetAnimations());
           object.AddComponent("Animator", component);
 
           let avatar = new YJAvatar(_this, object.GetGroup(), component);
-          object.AddComponent("Avatar", avatar); 
+          object.AddComponent("Avatar", avatar);
 
           if (modelData.message != undefined) {
             object.SetMessage(modelData.message);
           }
-    
+
           if (callback) {
             callback(object);
           }
         }, (e) => {
-          LoadError(uuid, callback, e,modelData);
+          LoadError(uuid, callback, e, modelData);
         });
       } else if (modelData.modelType == "NPC模型") {
 
-        if (modelData.message == undefined) { 
+        if (modelData.message == undefined) {
           if (modelPath == undefined) {
             LoadError(uuid, callback);
             return;
           }
-        }else{
+        } else {
           modelPath = modelData.message.data.avatarData.modelPath;
           if (modelPath == undefined) {
             LoadError(uuid, callback);
@@ -318,7 +320,7 @@ class YJLoadUserModelManager {
           object.AddComponent("Animator", Animator);
 
           let NPC = new YJNPC(_this, object.GetGroup(), Animator);
-          object.AddComponent("NPC", NPC); 
+          object.AddComponent("NPC", NPC);
 
           if (modelData.message != undefined) {
             object.SetMessage(modelData.message);
@@ -332,7 +334,7 @@ class YJLoadUserModelManager {
         });
       } else if (modelData.modelType == "uv模型") {
         MeshRenderer.load(modelPath, (scope) => {
-          let uvanim = new YJUVAnim3(_this,scope.GetModel());
+          let uvanim = new YJUVAnim3(_this, scope.GetModel());
           object.AddComponent("UVAnim", uvanim);
           if (modelData.message != undefined) {
             object.SetMessage(modelData.message);
@@ -354,7 +356,7 @@ class YJLoadUserModelManager {
           modelData.pos,
           modelData.rotaV3,
           new THREE.Vector3(1, 1, 1),
-          null, (scope) => { 
+          null, (scope) => {
             if (callback) {
               callback(object);
             }
@@ -367,7 +369,7 @@ class YJLoadUserModelManager {
         }
       } else if (modelData.modelType == "装备模型") {
         MeshRenderer.load(modelPath, (scope) => {
-          
+
           let _YJWeapon = new YJWeapon(_this, object.GetGroup(), object);
           // let meshTrigger = new YJTrigger(_this, object.GetGroup(), object, "weapon");
           // object.AddComponent("Trigger", meshTrigger);
@@ -385,7 +387,7 @@ class YJLoadUserModelManager {
         MeshRenderer.load(modelPath, (scope) => {
           let _YJScreen = new YJScreen(_this, scope.GetModel(), "screen" + uuid);
           object.AddComponent("Screen", _YJScreen);
-          
+
           if (modelData.message != undefined) {
             object.SetMessage(modelData.message);
           }
@@ -405,7 +407,7 @@ class YJLoadUserModelManager {
           object.AddComponent("Particle", _YJParticle);
           if (modelData.message != undefined) {
             object.SetMessage(modelData.message);
-          } 
+          }
 
           if (callback) {
             callback(object);
@@ -472,9 +474,9 @@ class YJLoadUserModelManager {
           callback(object);
         }
       });
-      return; 
+      return;
     }
-    function LoadError(uuid, callback, e,modelData) {
+    function LoadError(uuid, callback, e, modelData) {
       // console.log("加载模型出错 22 " + uuid,modelData, e, allTransform);
       loadIndex++;
       for (let i = allTransform.length - 1; i >= 0; i--) {
@@ -498,16 +500,27 @@ class YJLoadUserModelManager {
 
 
     }
-
-    this.EditorUserModel = function (sceneState) {
-      // console.log(" 同步模型 ", sceneState);
-      for (let i = allTransform.length - 1; i >= 0 ; i--) {
+    // 由主控发送坐标到服务器，服务器转发进行同步
+    this.ReceiveModelPos = function (id, data) {
+      let { pos, rotaV3 } = data;
+      for (let i = allTransform.length - 1; i >= 0; i--) {
         const elment = allTransform[i];
-        if (elment.id  == sceneState.id) {
+        if (elment.id == id) {
+          let transform = elment.transform;
+          transform.SetPos(pos, rotaV3);
+          return;
+        }
+      }
+    }
+    this.EditorUserModel = function (sceneState) {
+      for (let i = allTransform.length - 1; i >= 0; i--) {
+        const elment = allTransform[i];
+        if (elment.id == sceneState.id) {
+          // console.log(" 同步模型 ",elment.id, sceneState.id,sceneState);
           let state = sceneState.state;
           let transform = elment.transform;
-          if(state != undefined){
-            transform.Dync(state); 
+          if (state != undefined) {
+            transform.Dync(sceneState);
           }
         }
       }
@@ -716,10 +729,10 @@ class YJLoadUserModelManager {
 
     function Init() {
 
-      _Global.addEventListener("3d加载完成",()=>{
+      _Global.addEventListener("3d加载完成", () => {
         for (let i = 0; i < allTransform.length; i++) {
           const transform = allTransform[i].transform;
-          transform.Start(); 
+          transform.Start();
         }
       });
 

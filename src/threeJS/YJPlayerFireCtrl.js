@@ -193,8 +193,6 @@ class YJPlayerFireCtrl {
 							//有效攻击
 							let health = npcTransform.GetComponent("NPC").ReceiveDamage(_YJPlayer, skillName, baseData.strength);
 							PlayerAddFire();
-							// _Global.DyncManager.SendModelState(npcTransform.GetData().id,{modelType:npcTransform.GetData().modelType, msg:{playerId:_YJPlayer.id, health:health}});
-
 
 							if (health == 0) {
 								npcTransform = null;

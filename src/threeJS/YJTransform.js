@@ -14,6 +14,8 @@ class YJTransform {
   constructor(_this, scene, id, pos, rota, name, callback) {
     let scope = this;
     this.isYJTransform = true;
+    this.modelData = null;
+    this.id = -1;
     var model = null;
     let data = {
       id: id, //资源id
@@ -29,14 +31,15 @@ class YJTransform {
       message: null, //模型热点信息
       uuid: "",//在场景中的唯一标识
     }
-    this.SetData = function (folderBase, modelType,id) {
+    this.SetData = function (folderBase, modelType, id) {
       data.folderBase = folderBase;
       data.modelType = modelType;
       data.id = id;
+      this.id = id;
     }
     this.SetMessage = function (message) {
       data.message = message;
-      
+
       if (message.pointType == "npc") {
         let com = this.GetComponent("NPC");
         com.SetMessage(message.data);
@@ -60,7 +63,7 @@ class YJTransform {
         com.SetMessage(message.data);
       }
 
-       
+
     }
     let handlerList = [];
     this.AddHandle = function (handler) {
@@ -77,7 +80,7 @@ class YJTransform {
         element(data.message.data);
       }
 
-      if (data.message.pointType == "npc") { 
+      if (data.message.pointType == "npc") {
         // 死亡时清空回调
         if (data.message.data.baseData.health == 0) {
           handlerList = [];
@@ -93,15 +96,22 @@ class YJTransform {
     this.SetActive = function (b) {
       group.visible = b;
 
-
-      let _Animator = this.GetComponent("Animator");
-      if (_Animator != null) {
-        if (b) {
-          _Animator.ResetPlay();
-        } else {
-          _Animator.Stop();
-        }
+      if (b) {
+        _this._YJSceneManager.AddNeedUpdateJS(scope);
+      } else {
+        _this._YJSceneManager.RemoveNeedUpdateJS(scope);
       }
+      let modelData = JSON.parse(JSON.stringify(scope.modelData));
+      scope.SetPosRota(modelData.pos, modelData.rotaV3, modelData.scale);
+
+      // let _Animator = this.GetComponent("Animator");
+      // if (_Animator != null) {
+      //   if (b) {
+      //     _Animator.ResetPlay();
+      //   } else {
+      //     _Animator.Stop();
+      //   }
+      // }
     }
 
     this.GetModel = function () {
@@ -174,9 +184,9 @@ class YJTransform {
 
 
 
-    this.ResetPosRota = function(){
-      let pos = data.pos ;
-      let rota = data.rotaV3 ;
+    this.ResetPosRota = function () {
+      let pos = data.pos;
+      let rota = data.rotaV3;
       group.position.set(pos.x, pos.y, pos.z); // 
       group.rotation.set(rota.x, rota.y, rota.z); // 
     }
@@ -195,9 +205,12 @@ class YJTransform {
       data.pos = pos;
       data.rotaV3 = rota;
     }
+    this.SetPos = function (pos) {
+      group.position.set(pos.x, pos.y, pos.z); //  
+    }
     this.SetSize = function (size) {
-      group.scale.set(size.x, size.y, size.z); 
-      data.scale = {x:size.x,y:size.y,z:size.z}; 
+      group.scale.set(size.x, size.y, size.z);
+      data.scale = { x: size.x, y: size.y, z: size.z };
     }
     this.SetModelPath = function (modelPath) {
       data.modelPath = modelPath;
@@ -244,6 +257,7 @@ class YJTransform {
       scene.remove(group);
     }
 
+
     //创建碰撞体
     function CreateColliderFn(colliderVisible) {
 
@@ -268,9 +282,9 @@ class YJTransform {
         }
       }
     }
-    
-    
-    this.Start = function(){  
+
+
+    this.Start = function () {
       for (let i = 0; i < components.length; i++) {
         const element = components[i];
         if (element.js.Start) {
@@ -289,16 +303,19 @@ class YJTransform {
     }
 
     //同步
-    this.Dync = function(state){
-      let msg = state.msg;
-      if(state.modelType == "装备模型"){
-        if(!msg.display){
+    this.Dync = function (_model) {
+      let state = _model.state;
+      if (_model.modelType == "装备模型") {
+        if (state.display == undefined) {
+          return;
+        }
+        if (!state.display) {
           group.visible = false;
           if (this.GetComponent("Weapon") != null) {
             this.GetComponent("Weapon").DestroyTrigger();
-          } 
-        }else{
-          group.position.copy(msg.pos);
+          }
+        } else {
+          group.position.copy(state.pos);
           group.scale.set(1, 1, 1);
           group.rotation.set(0, 0, 0);
           group.visible = true;
@@ -308,9 +325,9 @@ class YJTransform {
         }
       }
       // -----------
-      if(state.modelType == "NPC模型"){
+      if (_model.modelType == "NPC模型") {
         if (this.GetComponent("NPC") != null) {
-          this.GetComponent("NPC").Dync(msg);
+          this.GetComponent("NPC").Dync(state);
         }
       }
 

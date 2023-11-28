@@ -157,9 +157,11 @@ export default {
       setting: [
         { property: "name", display: true, title: "npc名称", type: "text", value: "", callback: this.ChangeValue, },
         {
-          property: "camp", display: true, title: "阵营", type: "drop", value: "lm", options: [
-            { value: 'lm', label: '联盟' },
-            { value: 'bl', label: '部落' },
+          property: "camp", display: true, title: "阵营", type: "drop", value: "dd", options: [
+            { value: 'lm', label: '联盟npc' },
+            { value: 'bl', label: '部落npc' },
+            { value: 'dd', label: '敌对' },
+            { value: 'zl', label: '中立' },
           ], callback: this.ChangeValue,
         },
         { property: "maxHealth", display: true, title: "生命值", type: "int", step: 1, value: 1, callback: this.ChangeValue, },

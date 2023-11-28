@@ -349,7 +349,7 @@ class SceneManager {
           // console.log(" == in scene manager editor  hover npc  ", message.pointType == "npc");
 
           if (message.pointType == "npc") {
-            if (message.data.baseData.camp == "bl") {
+            if (message.data.baseData.camp != _Global.user.camp) {
               //敌人  
               _Global.ReportTo3D("切换光标","可攻击");
             }

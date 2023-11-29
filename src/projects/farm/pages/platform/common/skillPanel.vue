@@ -80,8 +80,7 @@ export default {
 
   },
   mounted() {
-
-    this.publicUrl = this.$parent.GetPublicUrl();
+ 
 
     // setTimeout(() => {
     //   _Global.YJ3D._YJSceneManager.CreateOrLoadPlayerAnimData().GetSkillList("小孩", this.SetSkillList);

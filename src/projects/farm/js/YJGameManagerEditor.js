@@ -15,11 +15,12 @@ import { YJParabola } from "/@/threeJS/YJParabola.js";
 // 场景同步数据
 
 class YJGameManagerEditor {
-  constructor(_this, parentUI, npcManager) {
+  constructor(_this, parentUI, camera) {
     var scope = this;
 
     let dyncModelList = [];
-    let npcModelList = [];
+    let npcModelList = []; 
+
     // 初始化场景中需要同步的模型。每个客户端都执行
     this.InitDyncSceneModels = () => {
       //武器、npc 
@@ -32,7 +33,7 @@ class YJGameManagerEditor {
           dyncModelList.push({ id: element.id, modelType: element.modelType, state: {} });
         }
       }
-
+ 
       npcModelList = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetAllTransformByModelType("NPC模型");
       if (_Global.setting.inEditor) {
         return;
@@ -207,7 +208,7 @@ class YJGameManagerEditor {
             console.log("npc查找同一战斗的玩家 ", fireId, playerId);
 
             const player = _Global.YJDync.GetPlayerById(playerId);
-            if(player){
+            if (player) {
               console.log(player.GetUserData());
               if (player.isLocal) {
                 if (_this.YJController.GetUserData().baseData.health > 0) {
@@ -231,9 +232,6 @@ class YJGameManagerEditor {
     }
     this.SendSceneStateToServer = () => {
       _Global.YJDync._YJDyncManager.SendSceneState("初始化", dyncModelList);
-    }
-    this.UpdateModelPos = (id,data) => {
-      _Global.YJDync._YJDyncManager.UpdateModelPos(id,data);
     }
     // 玩家拾取场景内物体的数据。用来做场景物体同步
     let playerData = [];
@@ -365,17 +363,30 @@ class YJGameManagerEditor {
     //接收服务器下发
     this.ReceiveFromServer = function (sceneState) {
       let state = sceneState.state;
-      console.log(" 接收服务器下发 更新单个模型 ", sceneState,state);
+      console.log(" 接收服务器下发 更新单个模型 ", sceneState, state);
       _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().EditorUserModel(state);
     }
 
-    this.ReceiveModelPos = function (id,data) {
-      _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().ReceiveModelPos(id,data);
+
+    // 由主控发送模型同步信息
+    /**
+     * 
+     * @param {模型唯一id} id 模型唯一id
+     * @param {同步类型标题} title 同步类型标题
+     * @param {同步数据} data 同步数据
+     */
+    this.UpdateModel = (id, title, data) => {
+      _Global.YJDync._YJDyncManager.UpdateModel(id, title, data);
+    }
+    // 接收服务器转发过来的由主控发送的模型同步信息
+    this.ReceiveModel = function (id, title, data) {
+      _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().ReceiveModel(id, title, data);
     }
 
 
+
     //移除角色时，移除其数据。如还原其拾取的武器
-    this.DelPlayer = function (id) { 
+    this.DelPlayer = function (id) {
       for (let i = 0; i < npcModelList.length; i++) {
         const element = npcModelList[i].transform;
         let npcComponent = element.GetComponent("NPC");
@@ -386,7 +397,17 @@ class YJGameManagerEditor {
       }
     }
 
+    //#region 
+    //#endregion
 
+    //#region 对npc的伤害显示在屏幕上
+    this.UpdateNpcDamageValue = function (owner, type, value, pos) {
+      let _pos = _Global.YJ3D._YJSceneManager.WorldPosToScreenPos(pos);
+      console.log("伤害和坐标", value, _pos);
+      parentUI.$refs.HUD.$refs.damageUI.AddDamage(owner, type, value, _pos);
+    } 
+
+    //#endregion
 
     // 上次选中的角色、npc
     let oldTarget = null;
@@ -728,36 +749,36 @@ class YJGameManagerEditor {
           return;
         }
         if (key == "Digit1") {
-          parentUI.$refs.skillPanel.ClickSkillIndex(0);
+          parentUI.$refs.HUD.$refs.skillPanel.ClickSkillIndex(0);
           return;
         }
         if (key == "Digit2") {
-          parentUI.$refs.skillPanel.ClickSkillIndex(1);
+          parentUI.$refs.HUD.$refs.skillPanel.ClickSkillIndex(1);
           return;
         }
 
         if (key == "Digit3") {
-          parentUI.$refs.skillPanel.ClickSkillIndex(2);
+          parentUI.$refs.HUD.$refs.skillPanel.ClickSkillIndex(2);
           return;
         }
         if (key == "Digit4") {
-          parentUI.$refs.skillPanel.ClickSkillIndex(3);
+          parentUI.$refs.HUD.$refs.skillPanel.ClickSkillIndex(3);
           return;
         }
         if (key == "Digit5") {
-          parentUI.$refs.skillPanel.ClickSkillIndex(4);
+          parentUI.$refs.HUD.$refs.skillPanel.ClickSkillIndex(4);
           return;
         }
         if (key == "Digit6") {
-          parentUI.$refs.skillPanel.ClickSkillIndex(5);
+          parentUI.$refs.HUD.$refs.skillPanel.ClickSkillIndex(5);
           return;
         }
         if (key == "Digit7") {
-          parentUI.$refs.skillPanel.ClickSkillIndex(6);
+          parentUI.$refs.HUD.$refs.skillPanel.ClickSkillIndex(6);
           return;
         }
         if (key == "Digit8") {
-          parentUI.$refs.skillPanel.ClickSkillIndex(7);
+          parentUI.$refs.HUD.$refs.skillPanel.ClickSkillIndex(7);
           return;
         }
         if (key == "KeyT") {

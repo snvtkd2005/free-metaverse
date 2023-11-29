@@ -1030,7 +1030,8 @@ class YJSceneManager {
       });
     }
 
-    let windowHeight, windowWidth;
+    let windowHeight = window.innerHeight;
+    let windowWidth = window.innerWidth;
     this.onWindowResize = function (w, h) {
       windowHeight = h;
       windowWidth = w;
@@ -1040,6 +1041,10 @@ class YJSceneManager {
         _YJBloomManager2.onWindowResize(w, h);
       }
     }
+    this.GetWindowSize = function(){
+      return {w:windowWidth,h:windowHeight};
+    }
+
 
     this.BeginEnter = function () {
 
@@ -1737,14 +1742,32 @@ class YJSceneManager {
       }
     }
     //世界坐标转屏幕坐标。 世界坐标要从模型包裹盒中获取
+
+    //世界坐标转屏幕坐标。 世界坐标要从模型包裹盒中获取
     function getScreenPosition(world_vector) {
       // let projector = new THREE.Projector();
-      let vector = world_vector.project(camera);
-      let halfWidth = windowWidth / 2;
-      let halfHeight = windowHeight / 2;
+      let camPos = camera.getWorldPosition(new THREE.Vector3());
+      let playerPos = _YJAmmo.GetPlayerPos();
+
+      // npcPointToCamDistance = camPos.distanceTo(world_vector);
+      // console.log("相机到npc的距离 ",npcPointToCamDistance ); 
+
+      let wc = camPos.clone().sub(world_vector);
+      let pc = camPos.clone().sub(playerPos);
+      let value = wc.dot(pc) / (wc.length() * pc.length());
+      // console.log("物体到相机到角色",value ); 
+      if (value >= 0.4) {
+        let vector = world_vector.project(camera);
+        let halfWidth = windowWidth / 2;
+        let halfHeight = windowHeight / 2;
+        return {
+          x: Math.round(vector.x * halfWidth + halfWidth),
+          y: Math.round(-vector.y * halfHeight + halfHeight),
+        };
+      }
       return {
-        x: Math.round(vector.x * halfWidth + halfWidth),
-        y: Math.round(-vector.y * halfHeight + halfHeight),
+        x: -500,
+        y: -500,
       };
     }
     //#endregion

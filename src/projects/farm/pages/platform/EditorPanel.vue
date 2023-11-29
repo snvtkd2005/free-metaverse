@@ -74,16 +74,9 @@
     <modelSelectPanel ref="modelSelectPanel" />
 
 
-    <skillPanel ref="skillPanel" />
+    <HUD ref="HUD" />
 
     <hierarchy ref="hierarchyPanel" class=" hidden " :modelList="modelList" />
-
-    <!-- 左上角血条头像 -->
-    <div class=" absolute left-24 top-10">
-      <headerUI ref="headerUI" />
-    </div>
-    <skillProgressUI ref="skillProgressUI" />
-
 
     <!-- 修改名称 -->
     <div class=" absolute left-2 top-12 flex text-white ">
@@ -146,10 +139,7 @@ import settingPanel_npc from "./settingPanel_npc.vue";
 
 import settingPanel_weapon from "./settingPanel_weapon.vue";
 
-import headerUI from "./common/headerUI.vue";
-import skillProgressUI from "./common/skillProgressUI.vue";
-
-import skillPanel from "./components/skillPanel.vue";
+import HUD from "./common/HUD.vue";
 
 import hierarchy from "./Hierarchy.vue";
 
@@ -180,9 +170,7 @@ export default {
     settingPanel_particle,
     settingPanel_npc,
     settingPanel_weapon,
-    skillPanel,
-    headerUI,
-    skillProgressUI,
+    HUD,
   },
   data() {
     return {

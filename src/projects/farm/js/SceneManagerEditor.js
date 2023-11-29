@@ -168,7 +168,7 @@ class SceneManager {
       // render();
       _this._YJSceneManager.AddNeedUpdateJS(scope);
 
-      _YJGameManagerEditor = new YJGameManagerEditor(_this, indexVue);
+      _YJGameManagerEditor = new YJGameManagerEditor(_this, indexVue,camera);
       _YJGameManagerEditor.AddChangeTargetListener((b) => {
         if (indexVue.$refs.gameUI) {
           indexVue.$refs.gameUI.SetTargetVaild(b);
@@ -257,19 +257,19 @@ class SceneManager {
       targetModel = transform;
 
       if (targetModel == null) {
-        indexVue.$refs.headerUI.display = false;
+        indexVue.$refs.HUD.$refs.headerUI.display = false;
         return;
       }
       // console.log(" targetModel ",targetModel);
       let message = targetModel.GetData().message;
       targetModel.AddHandle((data) => {
         if (data.baseData.health == 0) {
-          indexVue.$refs.headerUI.display = false;
+          indexVue.$refs.HUD.$refs.headerUI.display = false;
           return;
         }
-        indexVue.$refs.headerUI.SetTarget(data);
+        indexVue.$refs.HUD.$refs.headerUI.SetTarget(data);
       });
-      indexVue.$refs.headerUI.SetTarget(message.data);
+      indexVue.$refs.HUD.$refs.headerUI.SetTarget(message.data);
     }
 
     function ClearTarget(){

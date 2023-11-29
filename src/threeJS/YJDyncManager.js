@@ -221,8 +221,8 @@ class YJDyncManager {
         ReceiveFromServer(this, (data));
       }
       
-      if (data.fnName == "_UpdateModelPos") {
-        _UpdateModelPos(this, JSON.stringify(data.params));
+      if (data.fnName == "_UpdateModel") {
+        _UpdateModel(this, JSON.stringify(data.params));
       }
       
       return;
@@ -570,23 +570,24 @@ class YJDyncManager {
       }
     }
 
-    this.UpdateModelPos = function(id,data){
+    this.UpdateModel = function(id,title,data){
       let fromData = {};
       fromData.type = "更新模型坐标";
       fromData.message = this.InitMsg();
       fromData.id = id;
+      fromData.title = title;
       fromData.data = data;
-      this.callRPCFn("_UpdateModelPos", "other", JSON.stringify(fromData));
+      this.callRPCFn("_UpdateModel", "other", JSON.stringify(fromData));
     }
-    function _UpdateModelPos(_this, msg) {
+    function _UpdateModel(_this, msg) {
       msg = eval("(" + msg + ")");
       var data = JSON.parse(msg);
       var message = data.message;
       if (message.id == _this.id) {
         return;
       }
-      console.log("接收模型坐标", _this.id, data);
-      _Global.DyncManager.ReceiveModelPos(data.id,data.data);
+      // console.log("接收模型坐标", _this.id, data);
+      _Global.DyncManager.ReceiveModel(data.id,data.title,data.data);
 
       // if(!_Global.mainUser){
       //   _Global.DyncManager.Receive(sceneState);

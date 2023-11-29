@@ -31,7 +31,7 @@ class YJNPC {
     const clock = new THREE.Clock();
     const WALKSPEED = 3;
     const RUNSPEED = 8;
-    const MISSSPEED = 20;
+    const MISSSPEED = 12;
     let playerPosition = new THREE.Vector3(0, 0, 0);
 
     let fromGroup;
@@ -87,7 +87,7 @@ class YJNPC {
       if (msg == null || msg == undefined || msg == "") { return; }
       // data = JSON.parse(msg);
       data = (msg);
-      console.log("in NPC msg = ", data);
+      // console.log("in NPC msg = ", data);
       this.npcName = data.name;
       baseData = data.baseData;
       nameScale = data.avatarData.nameScale;
@@ -262,7 +262,7 @@ class YJNPC {
           return;
         }
         laterNav = setTimeout(() => {
-          scope.Start();
+          scope.RadomNavPos();
         }, 1000);
         return;
       }
@@ -331,8 +331,14 @@ class YJNPC {
     }
 
     //#endregion
-    this.Start = function () {
-      GetNavpath(parent.position.clone(), movePos[radomNum(0, movePos.length - 1)]);
+    // 随机寻路点
+    this.RadomNavPos = function () {
+      if (_Global.mainUser) {
+        let navPosIndex = radomNum(0, movePos.length - 1);
+        GetNavpath(parent.position.clone(), movePos[navPosIndex]);
+        _Global.DyncManager.UpdateModel(scope.transform.id, "navPosIndex",
+          { navPosIndex: navPosIndex });
+      }
       // console.log("navpath ", navpath);
 
       // let fromPos = new THREE.Vector3(p1.x, p1.y, p1.z);
@@ -343,6 +349,9 @@ class YJNPC {
       //   GetNavpath(fromPos, targetPos);
       //   console.log("navpath ", navpath);
       // }, 5000);
+    }
+    this.SetNavPosByPosIndex = function (navPosIndex) {
+      GetNavpath(parent.position.clone(), movePos[navPosIndex]);
     }
 
 
@@ -590,12 +599,19 @@ class YJNPC {
     let targetModelList = [];
 
     this.ReceiveDamage = function (_targetModel, skillName, strength) {
+      //_targetModel 是 YJPlayer
+
       if (targetModel == null) {
         this.SetTarget(_targetModel, true, true);
       }
 
       baseData.health -= strength;
-      //_targetModel 是 YJPlayer
+
+      // 对npc的伤害显示在屏幕上
+      let pos = parent.position.clone();
+      pos.y += playerHeight;
+      _Global.DyncManager.UpdateNpcDamageValue("self", "normal", strength,pos );
+
       // console.log(this.npcName + " 受到 " + _targetModel.GetPlayerName() +" 使用 "+ skillName + " 攻击 剩余 " + baseData.health);
 
       ClearLater("清除准备战斗");
@@ -708,7 +724,7 @@ class YJNPC {
       baseData.state = stateType.Normal;
       _YJAnimator.ChangeAnim("none");
       scope.SetPlayerState("normal");
-      scope.Start();
+      scope.RadomNavPos();
     }
     function UpdateData() {
       scope.transform.UpdateData(); // 触发更新数据的回调事件
@@ -848,10 +864,11 @@ class YJNPC {
       CheckState();
       tick(clock.getDelta());
     }
+    // 主控实时发送坐标来同步。后期优化掉
     setInterval(() => {
       if (_Global.mainUser) {
-        _Global.DyncManager.UpdateModelPos(scope.transform.id, 
-          {pos:parent.position,rotaV3:parent.rotation});
+        _Global.DyncManager.UpdateModel(scope.transform.id, "pos",
+          { pos: parent.position, rotaV3: parent.rotation });
       }
     }, 1000);
     this.ChangeAnim = function (v) {
@@ -1017,7 +1034,7 @@ class YJNPC {
         }
         laterNav = setTimeout(() => {
           //在正常模式到达目标点，表示在巡逻过程中。再次到下一个巡逻点
-          scope.Start();
+          scope.RadomNavPos();
         }, 2000);
       }
 

@@ -500,14 +500,24 @@ class YJLoadUserModelManager {
 
 
     }
-    // 由主控发送坐标到服务器，服务器转发进行同步
-    this.ReceiveModelPos = function (id, data) {
-      let { pos, rotaV3 } = data;
+    // 由主控发送单个模型同步信息到服务器，服务器转发进行同步
+    this.ReceiveModel = function (id,title, data) {
       for (let i = allTransform.length - 1; i >= 0; i--) {
         const elment = allTransform[i];
         if (elment.id == id) {
-          let transform = elment.transform;
-          transform.SetPos(pos, rotaV3);
+          // npc坐标
+          if(title == "pos"){
+            let { pos, rotaV3 } = data;
+            let transform = elment.transform;
+            transform.SetPos(pos, rotaV3);
+          }
+          // npc巡逻点索引
+          if(title == "navPosIndex"){
+            let { navPosIndex } = data;
+            let transform = elment.transform;
+            let npcComponent = transform.GetComponent("NPC");
+            npcComponent.SetNavPosByPosIndex(navPosIndex);
+          }
           return;
         }
       }

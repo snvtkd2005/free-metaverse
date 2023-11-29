@@ -17,14 +17,8 @@
     </div>
 
     <loadingPanel class="absolute z-50 left-0 top-0" ref="loadingPanel" />
-
-    <skillPanel ref="skillPanel" />
-
-    <div class=" absolute left-24 top-10">
-      <!-- 左上角血条头像 -->
-      <headerUI ref="headerUI" />
-    </div>
-    <skillProgressUI ref="skillProgressUI" />
+ 
+    <HUD ref="HUD" />
 
     <!-- 多人同步 -->
     <YJDync
@@ -100,10 +94,7 @@ import loadingPanel from "./loadingPanel2.vue";
 import { SceneManager } from "../../js/SceneManagerEditor.js";
 import { Interface } from "../../js/Interface_editor.js";
 
-import headerUI from "./common/headerUI.vue";
-import skillPanel from "./components/skillPanel.vue";
-
-import skillProgressUI from "./common/skillProgressUI.vue";
+import HUD from "./common/HUD.vue";
 // 摇杆
 import JoystickLeftPanel from "./joystickLeft.vue";
 
@@ -119,14 +110,11 @@ export default {
     loadingPanel,
     YJmetaBase,
     modelPanel,
-
     JoystickLeftPanel,
     playVideo,
     YJDync,
     settingPanel,
-    skillPanel,
-    headerUI,
-    skillProgressUI,
+    HUD,
   },
   data() {
     return {

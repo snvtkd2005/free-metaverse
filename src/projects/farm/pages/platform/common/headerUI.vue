@@ -8,7 +8,7 @@
 
     
     <!-- 生命法术条 -->
-    <div class=" absolute left-1 top-8  w-28 h-auto    " style="width: 116px;"> 
+    <div class=" absolute left-1 top-8 w-28 h-auto    " style="width: 116px;"> 
       <div class=" relative ">
         <div class=" h-2   relative ">
           <div class=" h-full bg-green-500  " :style="'width: ' + this.healthPerc + '%'"></div>
@@ -68,10 +68,6 @@
 </template>
 
 <script>
-
-// import { YJ3dScene_playerHeader } from "/@/threeJS/YJ3dScene_playerHeader.js";
-
-
 export default {
   name: "headerUI",
   components: {
@@ -104,10 +100,7 @@ export default {
   created() {
 
   },
-  mounted() {
-    // this._YJ3dScene_playerHeader = null;
-
-    this.publicUrl = this.$parent.GetPublicUrl();
+  mounted() { 
 
   },
   methods: {
@@ -146,14 +139,5 @@ export default {
 };
 </script>
  
-<style scoped>
-.bg-color {
-  background: #28cad9;
-}
-
-.mask {
-  /* -webkit-mask-image:url('/@/assets/headerimage.png');
-  mask-image: url('/@/assets/headerimage.png'); */
-
-}
+<style scoped> 
 </style>

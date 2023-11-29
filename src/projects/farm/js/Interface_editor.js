@@ -322,7 +322,7 @@ class Interface {
         return;
       }
       if (type == "设置技能进度条") {
-			  _this.$refs.skillProgressUI.SetProgress(msg);
+			  _this.$refs.HUD.$refs.skillProgressUI.SetProgress(msg);
         return;
       }
 

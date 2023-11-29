@@ -2,7 +2,7 @@
 <template>
   <!-- 技能进度条 -->
   <div v-if="display"
-    class="  absolute w-full left-0 bottom-2 h-20 flex text-white  pointer-events-none  "
+    class=" h-20 flex text-white  pointer-events-none  "
     >
     <div class="  w-32 h-16 mt-3 mx-auto   ">
       <div class=" relative ">

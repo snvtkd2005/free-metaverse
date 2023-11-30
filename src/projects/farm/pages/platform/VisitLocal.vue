@@ -20,8 +20,7 @@
 
     <loadingPanel class="absolute z-50 left-0 top-0" ref="loadingPanel" />
 
-
-    <skillPanel ref="skillPanel" />
+ 
     <!-- 多人同步 -->
     <YJDync v-if="inLoadCompleted" class="absolute z-50 left-0 top-0 " :hasTRTC="this.hasTRTC" ref="YJDync" />
 
@@ -70,8 +69,7 @@ import loadingPanel from "./loadingPanel2.vue";
 
 import { SceneManager } from "../../js/SceneManagerEditor.js";
 import { Interface } from "../../js/Interface_editor.js";
-
-import skillPanel from "./components/skillPanel.vue";
+ 
 
 // 摇杆 
 import JoystickLeftPanel from "./joystickLeft.vue";
@@ -89,8 +87,7 @@ export default {
     JoystickLeftPanel,
     playVideo,
     YJDync,
-    settingPanel,
-    skillPanel,
+    settingPanel, 
   },
   data() {
     return { 

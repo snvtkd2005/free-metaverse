@@ -3629,10 +3629,10 @@ class YJController {
         msg:{_targetModel:_targetModel, skillName:skillName,strength: strength},
       }); 
     }
-    this.SetInteractiveNPC = function (_npcTransform) {
+    this.SetInteractiveNPC = function (content,_npcTransform) {
       _YJPlayerFireCtrl.OnPlayerState({
         title:"fire",
-        content:"设置npc",
+        content:content,
         msg:_npcTransform,
       }); 
     }

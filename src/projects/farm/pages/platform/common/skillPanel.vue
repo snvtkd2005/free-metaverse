@@ -3,7 +3,7 @@
 <template>
   <!-- 底部技能栏 -->
   <div v-if="actionBar"
-    class=" flex  absolute bottom-2  xl:bottom-10 w-full pointer-events-none  h-12 text-sm text-white">
+    class=" md:hidden flex  absolute bottom-2  xl:bottom-10 w-full pointer-events-none  h-12 text-sm text-white">
 
 
     <div class=" w-auto px-2 mx-auto h-full flex gap-2 pointer-events-auto bg-color rounded-lg ">
@@ -30,6 +30,17 @@
 
     </div>
   </div>
+
+  <div v-if="actionBar"
+    class="  flex  absolute right-0 bottom-0 w-40 pointer-events-auto  h-40 text-sm text-white">
+
+    <div class=" absolute left-0 top-0 w-16 h-16 flex bg-black bg-opacity-50 rounded-full "
+    @click="clickSkill('攻击')">
+        <!-- <img class=" w-10 h-10 rounded-full" :src="item.icon" alt=""> -->
+        <div class="  self-center mx-auto  "> 攻击 </div>
+      </div>
+  </div>
+
 
   <div v-if="hover" class=" absolute w-2 h-2  text-white  " :style="' position:absolute; left:' +
     (hoverPanelOffset.x) +
@@ -60,9 +71,9 @@ export default {
     return {
       hover: false,
       hoverPanelOffset: { x: 120, y: 120 },
-      actionBar: false, //底部动作栏 
+      actionBar: true, //底部动作栏 
       skillList: [
-        // { id: 10000, type: "attack", name: "南瓜", count: 10 },
+        { id: 10000, type: "attack", name: "南瓜", count: 10 },
         // { id: 10001, type: "attack", name: "胡萝卜", count: 10 },
         // { id: 0, name: "" },
         // { id: 0, name: "" },
@@ -81,7 +92,6 @@ export default {
   },
   mounted() {
  
-
     // setTimeout(() => {
     //   _Global.YJ3D._YJSceneManager.CreateOrLoadPlayerAnimData().GetSkillList("小孩", this.SetSkillList);
     // }, 5000);
@@ -108,8 +118,12 @@ export default {
       // console.log("鼠标悬浮在技能上 ", item);
       // console.log("鼠标悬浮在技能上 2 ", e, this.hoverPanelOffset);
     },
-    ClickSkillIndex(index) {
-      this.UserModel(this.skillList[index]);
+    clickSkill(e) {
+      console.log("点击技能 ",e);
+      if(e=="攻击"){
+        // this.UserModel(this.skillList[index]);
+        _Global.YJ3D.YJController.SetInteractiveNPC("点击技能");
+      }
     },
     //动作栏。 使用技能或物体
     UserModel(item) {

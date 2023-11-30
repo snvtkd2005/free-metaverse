@@ -55,7 +55,13 @@ class YJPlayerFireCtrl {
 				case "攻击":
 					canAttack = true;
 					break;
-
+				case "点击技能":
+					if(npcTransform==null){
+						_Global.DyncManager.FireState("我没有目标");
+						return;
+					}
+					ReadyFire();
+					break;
 				default:
 					break;
 			}
@@ -134,7 +140,9 @@ class YJPlayerFireCtrl {
 				scope.SetPlayerState("停止移动");
 				return;
 			}
-
+			ReadyFire();
+		}
+		function ReadyFire(){
 			// 右键点击目标后，使用基础技能攻击
 			scope.SetPlayerState("准备战斗");
 			// console.log(" 右键点击npc 准备战斗 ",canAttack);
@@ -145,12 +153,13 @@ class YJPlayerFireCtrl {
 					playerState = PLAYERSTATE.NORMAL;
 					scope.SetPlayerState("停止移动");
 				}, 500);
-			}else{
+			} else {
 				playerState = PLAYERSTATE.ATTACK;
 				canAttack = true;
 				readyAttack = false;
 			}
 		}
+
 		function shootTarget(taget, time) {
 			_Global.DyncManager.shootTarget(_this.YJController.GetPlayerWorldPos(), taget, time);
 		}
@@ -165,7 +174,7 @@ class YJPlayerFireCtrl {
 		let inFire = false; //是否正在战斗状态
 		let readyAttack = false;
 		// 检测有效攻击距离
-		function CheckDis(dis) { 
+		function CheckDis(dis) {
 			return dis < vaildAttackDis;
 		}
 		function CheckCanAttack() {
@@ -191,7 +200,7 @@ class YJPlayerFireCtrl {
 				}
 
 				// console.log("距离目标", dis);
-				if (canAttack &&  CheckCanAttack()) {
+				if (canAttack && CheckCanAttack()) {
 					// if (!inBlocking) {
 					// 	// _player.lookAt(npcPos);
 					// 	// _player.add(new THREE.AxesHelper(2));

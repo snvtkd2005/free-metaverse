@@ -275,7 +275,7 @@ class SceneManager {
     function ClearTarget(){
       // 点击空白位置 
       scope.SetTargetModel(null);
-      _this.YJController.SetInteractiveNPC(null);
+      _this.YJController.SetInteractiveNPC("设置npc",null);
     }
     this.RightClick = (hitObject, hitPoint) => {
       
@@ -294,7 +294,7 @@ class SceneManager {
               //敌人  
               //进入战斗状态
               if (message.data.baseData.health > 0) {
-                _this.YJController.SetInteractiveNPC(hitObject.transform);
+                _this.YJController.SetInteractiveNPC("设置npc",hitObject.transform);
               }
             }
           }

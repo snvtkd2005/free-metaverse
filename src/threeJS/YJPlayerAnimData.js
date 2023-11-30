@@ -585,7 +585,7 @@ class YJPlayerAnimData {
 
     let skillListData = [
       { pickType:"twoHand",weaponType:"gun", dis:30,speed:1}, 
-      { pickType:"twoHand",weaponType:"sword", dis:3,speed:3.2}, 
+      { pickType:"twoHand",weaponType:"sword", dis:3,speed:2.5}, 
       { pickType:"mainHand",weaponType:"arch", dis:20,speed:1.5}, 
     ];
     

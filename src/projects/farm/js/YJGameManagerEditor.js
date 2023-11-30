@@ -10,6 +10,7 @@ import { GetPathFolders, LoadFile } from "/@/utils/api.js";
 import TWEEN from '@tweenjs/tween.js';
 import { YJLoadModel } from "/@/threeJS/YJLoadModel.js";
 import { YJParabola } from "/@/threeJS/YJParabola.js";
+import { YJTrailRenderer } from "/@/threeJS/components/YJTrailRenderer.js";
 
 
 // 场景同步数据
@@ -19,7 +20,7 @@ class YJGameManagerEditor {
     var scope = this;
 
     let dyncModelList = [];
-    let npcModelList = []; 
+    let npcModelList = [];
 
     // 初始化场景中需要同步的模型。每个客户端都执行
     this.InitDyncSceneModels = () => {
@@ -33,7 +34,7 @@ class YJGameManagerEditor {
           dyncModelList.push({ id: element.id, modelType: element.modelType, state: {} });
         }
       }
- 
+
       npcModelList = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetAllTransformByModelType("NPC模型");
       if (_Global.setting.inEditor) {
         return;
@@ -380,6 +381,13 @@ class YJGameManagerEditor {
     }
     // 接收服务器转发过来的由主控发送的模型同步信息
     this.ReceiveModel = function (id, title, data) {
+      // console.log("接收 同步信息 ",id, title, data);
+
+      if (title == "同步trail") {
+        let { startPos, targetPos, time } = data;
+        shootTargetFn(startPos, targetPos, time);
+        return;
+      }
       _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().ReceiveModel(id, title, data);
     }
 
@@ -400,13 +408,51 @@ class YJGameManagerEditor {
     //#region 
     //#endregion
 
+    //#region 
+    this.FireState = function (e) {
+      // if (e == "太远了") {
+      // }
+      parentUI.$refs.HUD.$refs.fireStateUI.Add("提示",e);
+
+    }
+    //#endregion
+
+
     //#region 对npc的伤害显示在屏幕上
     this.UpdateNpcDamageValue = function (owner, type, value, pos) {
       let _pos = _Global.YJ3D._YJSceneManager.WorldPosToScreenPos(pos);
       console.log("伤害和坐标", value, _pos);
       parentUI.$refs.HUD.$refs.damageUI.AddDamage(owner, type, value, _pos);
-    } 
+    }
 
+    //#endregion
+
+
+    //#region
+    let _YJTrailRenderer = [];
+    this.shootTarget = function (startPos, taget, time) {
+      scope.UpdateModel("", "同步trail", { startPos: startPos, targetPos: taget.GetWorldPos(), time: time });
+      shootTargetFn(startPos.clone(), taget.GetWorldPos(), time);
+    }
+    function shootTargetFn(startPos, targetPos, time) {
+      for (let i = 0; i < _YJTrailRenderer.length; i++) {
+        const element = _YJTrailRenderer[i];
+        if (!element.trail.used) {
+          MoveToPosTweenFn(startPos, targetPos, time, (pos) => {
+            element.group.position.copy(pos);
+          });
+          element.trail.start();
+          return;
+        }
+      }
+      let group = new THREE.Group();
+      _Global.YJ3D.scene.add(group);
+      MoveToPosTweenFn(startPos, targetPos, time, (pos) => {
+        group.position.copy(pos);
+      });
+      _YJTrailRenderer.push({ group: group, trail: new YJTrailRenderer(_this, _Global.YJ3D.scene, group) });
+
+    }
     //#endregion
 
     // 上次选中的角色、npc
@@ -952,6 +998,23 @@ class YJGameManagerEditor {
       let updateTargetPos = () => {
         model.position.copy(fromPos);
         parentUI.UpdateIconTo(model.name, _this._YJSceneManager.GetObjectPosToScreenPos(model));
+      }
+      movingTween.onUpdate(updateTargetPos);
+      movingTween.start() // 启动动画
+      movingTween.onComplete(() => {
+        if (callback) {
+          callback();
+        }
+      });
+
+    }
+    function MoveToPosTweenFn(fromPos, targetPos, length, updateCB, callback) {
+
+      let movingTween = new TWEEN.Tween(fromPos).to(targetPos, length).easing(TWEEN.Easing.Cubic.InOut)
+      let updateTargetPos = () => {
+        if (updateCB) {
+          updateCB(fromPos);
+        }
       }
       movingTween.onUpdate(updateTargetPos);
       movingTween.start() // 启动动画

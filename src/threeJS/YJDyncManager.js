@@ -586,7 +586,6 @@ class YJDyncManager {
       if (message.id == _this.id) {
         return;
       }
-      // console.log("接收模型坐标", _this.id, data);
       _Global.DyncManager.ReceiveModel(data.id,data.title,data.data);
 
       // if(!_Global.mainUser){

@@ -71,6 +71,7 @@ import { YJAnimMeshMergedOnlyshader } from "../../../threeJS/YJAnimMeshMergedOnl
 import { DataTexture } from "three";
 import { DataTextureLoader } from "three";
 import { YJshaderLX } from "../../../threeJS/loader/YJshaderLX.js";
+import { YJTrailRenderer } from "../../../threeJS/components/YJTrailRenderer.js";
 
 
  
@@ -165,13 +166,7 @@ class SceneManager {
         console.log(texture);
         let _YJAnimMeshMergedOnlyshader = new YJAnimMeshMergedOnlyshader(_this, modelParent, renderer, model, texture);
         _this._YJSceneManager.AddNeedUpdateJS(_YJAnimMeshMergedOnlyshader);
-
-
-
-
-
-
-
+ 
         let _YJAnimMeshMerged = new YJAnimMeshMerged(_this, modelParent, renderer, texture, (dataTexture) => {
           // CreateBox(new THREE.Vector3(10, 1.5, 10),
           //   new THREE.Vector3(0, 1.55, -1.28),
@@ -234,8 +229,9 @@ class SceneManager {
         YJTHREE.CreateFloorCollider(scene,"floor");
         YJTHREE.CreateFloorCollider(scene,"landcollider");
         
-        _YJshaderLX = new YJshaderLX(_this, scene,camera,renderer );
-
+        // _YJshaderLX = new YJshaderLX(_this, scene,camera,renderer );
+        let _YJTrailRenderer = new YJTrailRenderer(_this, scene, _this.YJController.GetAmmoPlayer() );
+        
         let _YJLoadModel = new YJLoadModel(_this, scene);
         let modelPath = "models/TestScene/222.fbx";
         _YJLoadModel.load("222", _this.GetPublicUrl() + modelPath, new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0),

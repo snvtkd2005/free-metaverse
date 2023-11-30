@@ -12,6 +12,7 @@
     </div>
 
     <damageUI ref="damageUI" />
+    <fireStateUI ref="fireStateUI" />
   </div>
 </template>
 
@@ -22,6 +23,7 @@ import headerUI from "./headerUI.vue";
 import skillPanel from "./skillPanel.vue";
 import skillProgressUI from "./skillProgressUI.vue";
 import damageUI from "./damageUI.vue";
+import fireStateUI from "./fireStateUI.vue";
 
 export default {
   name: "HUD",
@@ -30,6 +32,7 @@ export default {
     headerUI,
     skillProgressUI,
     damageUI,
+    fireStateUI,
   },
   data() {
     return { 

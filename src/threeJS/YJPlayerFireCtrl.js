@@ -63,10 +63,10 @@ class YJPlayerFireCtrl {
 		let npcTransform = null;
 		let npcPos = null;
 		function PlayerAddFire() {
-			if (_YJPlayer.fireId!=-1 ) {
+			if (_YJPlayer.fireId != -1) {
 				return;
 			}
-			_Global.DyncManager.PlayerAddFire(npcTransform.GetComponent("NPC"),_YJPlayer);
+			_Global.DyncManager.PlayerAddFire(npcTransform.GetComponent("NPC"), _YJPlayer);
 		}
 		this.ReceiveDamage = function (_targetModel, skillName, strength) {
 			if (npcTransform == null) {
@@ -135,15 +135,25 @@ class YJPlayerFireCtrl {
 				return;
 			}
 
-			playerState = PLAYERSTATE.ATTACK;
-			canAttack = true;
-			readyAttack = false;
 			// 右键点击目标后，使用基础技能攻击
 			scope.SetPlayerState("准备战斗");
 			// console.log(" 右键点击npc 准备战斗 ",canAttack);
 			_this.YJController.PlayerLookatPos(npcTransform.GetWorldPos());
+			//距离目标超过技能有效距离时，回到默认动作
+			if (!CheckCanAttack()) {
+				setTimeout(() => {
+					playerState = PLAYERSTATE.NORMAL;
+					scope.SetPlayerState("停止移动");
+				}, 500);
+			}else{
+				playerState = PLAYERSTATE.ATTACK;
+				canAttack = true;
+				readyAttack = false;
+			}
 		}
-
+		function shootTarget(taget, time) {
+			_Global.DyncManager.shootTarget(_this.YJController.GetPlayerWorldPos(), taget, time);
+		}
 		let inBlocking = false;
 		let vaildAttackLater = null;
 		let vaildAttackLater2 = null;
@@ -154,6 +164,23 @@ class YJPlayerFireCtrl {
 		let canAttack = false;
 		let inFire = false; //是否正在战斗状态
 		let readyAttack = false;
+		// 检测有效攻击距离
+		function CheckDis(dis) { 
+			return dis < vaildAttackDis;
+		}
+		function CheckCanAttack() {
+			let playerPos = _this.YJController.GetPlayerWorldPos();
+			playerPos.y = 1;
+			npcPos = npcTransform.GetWorldPos();
+			npcPos.y = 1;
+			// 与目标之间有遮挡
+			let b2 = CheckColliderBetween(npcPos, playerPos);
+			if (b2) { _Global.DyncManager.FireState("无法攻击目标"); return false; }
+			// 不在攻击范围内
+			let b = CheckDis(playerPos.distanceTo(npcPos));
+			if (!b) { _Global.DyncManager.FireState("太远了"); return false; }
+			return b && !b2;
+		}
 		function CheckState() {
 			if (playerState == PLAYERSTATE.ATTACK) {
 
@@ -162,15 +189,9 @@ class YJPlayerFireCtrl {
 				if (npcTransform == null) {
 					return;
 				}
-				let playerPos = _this.YJController.GetPlayerWorldPos();
-				playerPos.y = 1;
-				npcPos = npcTransform.GetWorldPos();
-				npcPos.y = 1;
-				let dis = playerPos.distanceTo(npcPos);
-
 
 				// console.log("距离目标", dis);
-				if (canAttack && dis < vaildAttackDis && !CheckColliderBetween(npcPos, playerPos)) {
+				if (canAttack &&  CheckCanAttack()) {
 					// if (!inBlocking) {
 					// 	// _player.lookAt(npcPos);
 					// 	// _player.add(new THREE.AxesHelper(2));
@@ -186,7 +207,8 @@ class YJPlayerFireCtrl {
 						// 立即执行攻击动作
 						scope.SetPlayerState("普通攻击");
 
-
+						//射出去的子弹
+						shootTarget(npcTransform, attackStepSpeed * 300);
 						// 动作时长的前1/10段时，执行伤害
 						vaildAttackLater2 = setTimeout(() => {
 							console.log(" 有效攻击目标 ");
@@ -261,11 +283,14 @@ class YJPlayerFireCtrl {
 		}
 		function EventHandler(e) {
 			if (e == "中断技能") {
-				_Global.ReportTo3D("设置技能进度条", "中断");
+				if (vaildAttackLater2 != null) {
+					clearTimeout(vaildAttackLater2);
+					vaildAttackLater2 = null;
+				}
 				if (vaildAttackLater != null) {
 					clearTimeout(vaildAttackLater);
-					clearTimeout(vaildAttackLater2);
 					vaildAttackLater = null;
+					_Global.ReportTo3D("设置技能进度条", "中断");
 				}
 				npcTransform = null;
 			}

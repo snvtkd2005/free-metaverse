@@ -6,7 +6,7 @@ import * as THREE from "three";
 import TWEEN from '@tweenjs/tween.js';
 
  
-import { YJProjector } from "/@/threeJS/YJProjector.js";
+import { YJProjector } from "/@/threeJS/components/YJProjector.js";
 
 
 class SceneManager {

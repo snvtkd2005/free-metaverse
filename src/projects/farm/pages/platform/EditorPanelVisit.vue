@@ -143,9 +143,6 @@ export default {
       // hasTRTC: true,
       hasTRTC: false,
 
-      // 是否有左上角头像、姓名、血条
-      hasGameUI: false,
-
       isInsertPanel: false,
       // 是否显示姓名条
       displayUserNameUI: false,
@@ -600,54 +597,9 @@ export default {
         this._SceneManager.SetTriggerOverlap(b, id, owner);
       }
       this.Interface.SetTriggerOverlap(b, id, name);
-
-      if (b) {
-        if (id == "portal_001" || id == "portal_002") {
-          if (id == "portal_001") {
-            _Global.YJ3D._YJSceneManager.ChangeViewByIdDirect(
-              "playerPos_001"
-            );
-          }
-          if (id == "portal_002") {
-            _Global.YJ3D._YJSceneManager.ChangeViewByIdDirect(
-              "playerPos_002"
-            );
-          }
-
-          _Global.YJ3D._YJSceneManager.UpdateLightPos();
-
-          _Global.YJ3D.YJController.SetTransmit(true);
-          if (this.$refs.YJDync) {
-            this.$refs.YJDync.DirectSendUserData();
-          }
-          _Global.YJ3D.YJController.SetTransmit();
-        }
-      }
-      if (id == "car") {
-        let userd = false;
-        if (b && !this.InDriving) {
-          userd = this._SceneManager.SetCar(owner);
-        } else {
-        }
-
-        if (this.$refs.modelPanel && !userd && !this.InDriving) {
-          this.$refs.modelPanel.CallDriving(b);
-        }
-      }
-    },
-    InCar() {
-      this._SceneManager.InCar();
-      this.InDriving = true;
-    },
-    OutCar() {
-      this._SceneManager.OutCar();
-      this.InDriving = false;
-    },
-
+    }, 
     LoadingProcess(f) {
-      // 3d加载进度   0-1
-      // console.log(" 加载场景进度 " ,f);
-
+      // console.log(" 加载场景进度 " ,f); // 3d加载进度   0-1
       if (this.$refs.scenePanel) {
         this.$refs.scenePanel.LoadingProcess(f);
       }
@@ -655,23 +607,11 @@ export default {
 
     load3dComplete(callback) {
       console.log("场景加载完成------------");
-
       if (!this.initCompleted) {
         _Global.YJ3D.PlayVideo();
         _Global.YJ3D.AddVideoListener();
-
-        this.hasGameUI = true;
-        this.$nextTick(() => {
-          if (this.$refs.gameUI) {
-            this.$refs.gameUI.SetPlayerName(this.userName, this.avatarName);
-            this.$refs.gameUI.InitPlayerHeader();
-          }
-
-          this.Interface.SelectPlayerCompleted(this.avatarName, this.userName);
-        });
-
+        this.Interface.SelectPlayerCompleted(this.avatarName, this.userName);
         this._SceneManager.ChangeScene(this.sceneData);
-
         this.$nextTick(() => {
           if (this.$refs.YJDync) {
             this.$refs.YJDync.InitDync(this.userData);
@@ -683,26 +623,9 @@ export default {
         if (this.$refs.YJDync) {
           this.$refs.YJDync.ChangeRoom(this.sceneData.roomName);
         }
-      }
-
+      } 
       this.initCompleted = true;
-
-      if (this.$refs.gameUI) {
-      }
-      this.$nextTick(() => {
-        if (this.$refs.gameUI) {
-          this.$refs.gameUI.ChangeScene(this.sceneData.roomName);
-        }
-      });
-
-      this.Interface.load3dComplete();
-
-      // new SceneManager_MaterialSetting(
-      // _Global.YJ3D.scene,
-      // _Global.YJ3D.renderer,
-      // _Global.YJ3D.camera,
-      // _Global.YJ3D
-      // );
+      this.Interface.load3dComplete(); 
     },
     // 3转2坐标
     UpdateProjectionUI(_projectionList) {
@@ -712,10 +635,7 @@ export default {
         for (let ii = 0; ii < this.projectionList.length; ii++) {
           if (_projectionList[i].id == this.projectionList[ii].id) {
             this.projectionList[ii].pos = _projectionList[i].pos;
-          }
-          // if(_projectionList[i].id == this.projectionList[i].id){
-          //   this.projectionList[i].pos = _projectionList[i].pos;
-          // }
+          } 
         }
       }
       // console.log(" 3转2 ",_projectionList);
@@ -738,21 +658,7 @@ export default {
       if (this._SceneManager) {
         this._SceneManager.ClickPlayer(owner);
       }
-      // console.log(owner);
-      //点击npc,显示与npc的聊天框
-      if (this.$refs.chatPanel && owner.GetName() == "ChatGPT001号") {
-        this.$refs.chatPanel.SetDisplay(true);
-      }
-      if (
-        this.$refs.chatPanelNPC &&
-        (owner.GetName() == "咕叽" || owner.GetName() == "坐")
-      ) {
-        this.$refs.chatPanelNPC.SetYJNPC(owner, this.userName);
-        this.$refs.chatPanelNPC.SetDisplay(true);
-      }
     },
-
-    
     RightClick(hitObject, hitPoint) {
       this._SceneManager.RightClick(hitObject, hitPoint);
     },

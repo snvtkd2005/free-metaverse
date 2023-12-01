@@ -93,7 +93,7 @@ class YJNPC {
       nameScale = data.avatarData.nameScale;
       playerHeight = data.avatarData.height;
       CreateNameTrans(this.npcName);
-
+      scope.transform.isIgnoreRaycast = true;
       // 第一次加载时，把数据加入到全局角色数据中
       _Global.CreateOrLoadPlayerAnimData().AddAvatarData(data.avatarData);
 
@@ -403,6 +403,9 @@ class YJNPC {
     this.GetPosRota = function (callback) {
       callback(group.position, group.rotation);
     }
+    this.GetBaseModel = () => {
+      return { group, playerHeight }
+    }
 
     Init();
 
@@ -610,7 +613,6 @@ class YJNPC {
       // 对npc的伤害显示在屏幕上
       let pos = parent.position.clone();
       pos.y += playerHeight;
-      _Global.DyncManager.UpdateNpcDamageValue("self", "normal", strength,pos );
 
       // console.log(this.npcName + " 受到 " + _targetModel.GetPlayerName() +" 使用 "+ skillName + " 攻击 剩余 " + baseData.health);
 
@@ -619,6 +621,7 @@ class YJNPC {
       if (baseData.health <= 0) {
         baseData.health = 0;
       }
+      _Global.SceneManager.UpdateNpcDamageValue("self", "normal", strength,pos );
 
       UpdateData();
 
@@ -697,6 +700,7 @@ class YJNPC {
       baseData.state = stateType.Dead;
       scope.SetPlayerState("death");
       setTimeout(() => {
+        _Global.SceneManager.ReceiveEvent("npc尸体消失");
         // 执行溶解特效
         new YJshader_dissolve(scope.transform.GetGroup());
       }, 5000);

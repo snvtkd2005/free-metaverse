@@ -3,8 +3,7 @@ import * as THREE from "three";
 import { createText } from 'three/examples/jsm/webxr/Text2D.js';
 import { YJKeyboard } from "./YJKeyboard.js";
 
-import { YJLoadAvatar } from "./YJLoadAvatar.js";
-import { YJProjector } from "./YJProjector.js";
+import { YJLoadAvatar } from "./YJLoadAvatar.js"; 
 
 import { GetPathFolders, LoadFile } from "/@/utils/api.js";
 import TWEEN from '@tweenjs/tween.js';

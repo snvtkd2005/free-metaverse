@@ -170,6 +170,9 @@ class Interface {
     this.DyncManager = function () {
       return _this._SceneManager.GetDyncManager();
     }
+    this.SceneManager = function () {
+      return _this._SceneManager;
+    }
     this.YJDync = function () {
       return _this.$refs.YJDync;
     }
@@ -323,11 +326,6 @@ class Interface {
       }
       if (type == "设置技能进度条") {
 			  _this.$refs.HUD.$refs.skillProgressUI.SetProgress(msg);
-        return;
-      }
-
-      if (type == "锁定目标") {
-        _this._SceneManager.SetTargetModel(msg);
         return;
       }
 
@@ -637,6 +635,8 @@ class Interface {
       _Global.applyEvent("3d加载完成");
       _Global.YJDync = this.YJDync();
       _Global.DyncManager = this.DyncManager();
+      _Global.SceneManager = this.SceneManager();
+      
       if (_Global.load3dComplete == null) { return; }
       _Global.load3dComplete();
     }

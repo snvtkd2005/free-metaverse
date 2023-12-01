@@ -68,6 +68,8 @@ class YJWeapon {
       data = (msg);
       // console.log("in weapon msg = ", data);
 
+      scope.transform.isIgnoreRaycast = true;
+      
       meshTrigger = new YJTrigger(_this,parent, transform, "weapon");
       // object.AddComponent("Trigger", meshTrigger);
     }

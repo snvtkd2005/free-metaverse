@@ -52,6 +52,7 @@ import { YJ2dScene } from "/@/threeJS/YJ2dScene.js";
 // import { YJ3dPhotoPlane } from "/@/threeJS/YJ3dPhotoPlane.js";
 import { YJ3dPhotoPlane } from "./YJ3dPhotoPlane.js";
 
+import { YJProjector } from "/@/threeJS/components/YJProjector.js";
 import { ReflectorMesh } from "/@/js/ReflectorMesh.js";
 
 import { YJSprite } from "/@/threeJS/YJSprite.js";
@@ -62,7 +63,7 @@ import carData from "../data/carData.js";
 
 import { getSceneData } from "./sceneApi.js"
 
-import { YJGameManagerEditor } from "./YJGameManagerEditor.js";
+import { YJSceneDyncManagerEditor } from "./YJSceneDyncManagerEditor.js";
 
 class SceneManager {
   constructor(scene, renderer, camera, _this, modelParent, indexVue, callback) {
@@ -84,9 +85,9 @@ class SceneManager {
     const listener = new THREE.AudioListener();
     let _YJMinMap = null;
     let _YJ3dPhotoPlane = null;
-    let _YJGameManagerEditor = null;
-    this.GetDyncManager = function(){
-      return _YJGameManagerEditor;
+    let _SceneDyncManager = null;
+    this.GetDyncManager = function () {
+      return _SceneDyncManager;
     }
     // 需要执行update的脚本
     let needUpdateJS = [];
@@ -101,22 +102,37 @@ class SceneManager {
     let ambient = null;
     // 刚体高度
     let playerHeight = 0;
-
     let cube = null;
 
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
     this.Init = function () {
-
-
       InitFn();
-
-
     }
 
 
     let InDriving = false;
+    let inInputing = false;
+
+    // 上次选中的角色、npc
+    let oldTarget = null;
+
+    let _YJProjector = null;
+
+
+    let targetCallback;
+    // 改变目标时执行
+    function ChangeTarget() {
+      if (targetCallback) {
+        targetCallback(oldTarget != null);
+      }
+    }
+    // 点击选中不同角色
+    this.AddChangeTargetListener = (callback) => {
+      targetCallback = callback;
+    }
+
     function InitFn() {
 
       // setTimeout(() => {
@@ -126,18 +142,96 @@ class SceneManager {
 
       _YJGlobal._SceneManager = scope;
 
+      _YJProjector = new YJProjector(_this, scene);
       // AddTestMat();
       // window.addEventListener('mousemove', onPointerDown);
 
 
       new YJKeyboard((key) => {
+        if (inInputing) {
+          return;
+        }
         inJoystick = false;
         if (_YJCar != null) {
           _YJCar.SetKeyboard(key);
         }
-        
+
         if (key == "Escape") {
           ClearTarget();
+
+          if (oldTarget != null) {
+            _YJProjector.SetActive(false);
+            oldTarget = null;
+            ChangeTarget();
+          }
+          return;
+        }
+
+        if (key == "Digit1") {
+          parentUI.$refs.HUD.$refs.skillPanel.ClickSkillIndex(0);
+          return;
+        }
+        if (key == "Digit2") {
+          parentUI.$refs.HUD.$refs.skillPanel.ClickSkillIndex(1);
+          return;
+        }
+
+        if (key == "Digit3") {
+          parentUI.$refs.HUD.$refs.skillPanel.ClickSkillIndex(2);
+          return;
+        }
+        if (key == "Digit4") {
+          parentUI.$refs.HUD.$refs.skillPanel.ClickSkillIndex(3);
+          return;
+        }
+        if (key == "Digit5") {
+          parentUI.$refs.HUD.$refs.skillPanel.ClickSkillIndex(4);
+          return;
+        }
+        if (key == "Digit6") {
+          parentUI.$refs.HUD.$refs.skillPanel.ClickSkillIndex(5);
+          return;
+        }
+        if (key == "Digit7") {
+          parentUI.$refs.HUD.$refs.skillPanel.ClickSkillIndex(6);
+          return;
+        }
+        if (key == "Digit8") {
+          parentUI.$refs.HUD.$refs.skillPanel.ClickSkillIndex(7);
+          return;
+        }
+
+        if (key == "KeyF") {
+          // if (_this._YJSceneManager) {
+          //   _this._YJSceneManager.ClickInteractive();
+          // }
+          return;
+        }
+        if (key == "KeyM") {
+          //   //  开关地图
+          //   if (setting.keyM != undefined && setting.keyM && _this.$parent.clickOpenPanel) {
+          //     _this.$parent.clickOpenPanel("小地图");
+          //   }
+          return;
+        }
+        // if (key == "Digit3") {
+        //   scope.UserModel("attack", "南瓜");
+        //   return;
+        // }
+        // if (key == "Digit4") {
+        //   scope.UserModel("attack", "胡萝卜");
+        //   return;
+        // }
+        if (key == "KeyT") {
+          // if (_this._YJSceneManager) {
+          //   _this._YJSceneManager.ClickInteractive();
+          // }
+
+          _this.YJController.SetUserDataItem("weaponData", "weaponId", "");
+          _this.YJController.SetUserDataItem("weaponData", "weaponType", "");
+
+          _Global.SendMsgTo3D("放下武器");
+
           return;
         }
         if (key == "KeyF") {
@@ -168,13 +262,49 @@ class SceneManager {
       // render();
       _this._YJSceneManager.AddNeedUpdateJS(scope);
 
-      _YJGameManagerEditor = new YJGameManagerEditor(_this, indexVue,camera);
-      _YJGameManagerEditor.AddChangeTargetListener((b) => {
+      _SceneDyncManager = new YJSceneDyncManagerEditor(_this, indexVue, camera);
+      scope.AddChangeTargetListener((b) => {
         if (indexVue.$refs.gameUI) {
           indexVue.$refs.gameUI.SetTargetVaild(b);
         }
       });
 
+
+      _this.YJController.AddMovingListener(() => {
+        if (pickTimeout != null) {
+          clearTimeout(pickTimeout);
+          pickTimeout = null;
+        }
+        if (throwTimeout != null) {
+          clearTimeout(throwTimeout);
+          throwTimeout = null;
+          console.log("清除投掷协程");
+        }
+
+        if (laterSitting != null) {
+          clearTimeout(laterSitting);
+          laterSitting = null;
+        }
+
+        if (throwObj != null) {
+          throwObj.parent.remove(throwObj);
+          _this._YJSceneManager.clearGroup(throwObj);
+          throwObj = null;
+          parentUI.$refs.YJDync._YJDyncManager.SetPlayerState({
+            stateId: 10000
+          });
+        }
+
+        inThrowing = false;
+
+        // console.log(throwTimeout);
+
+      });
+
+      // posRef_huluobu = CreatePosRef(0.33, -0.953);
+      // posRef_nangua = CreatePosRef(0.20, -0.953);
+      // posRef_nangua = CreatePosRef(-0.33, -0.93);
+      // posRef_huluobu = CreatePosRef(-0.20, -0.93);
     }
 
     let boneAttachList = [];
@@ -213,11 +343,11 @@ class SceneManager {
             weaponModel.scale.set(100, 100, 100);
             // 绑定到骨骼后，清除trigger
             owner.GetComponent("Weapon").DestroyTrigger();
-            _this.YJController.SetUserDataItem("weaponData","pickType",msg.data.pickType);
-            _this.YJController.SetUserDataItem("weaponData","weaponType",msg.data.weaponType);
-            _this.YJController.SetUserDataItem("weaponData","weaponId",msg.data.id);
+            _this.YJController.SetUserDataItem("weaponData", "pickType", msg.data.pickType);
+            _this.YJController.SetUserDataItem("weaponData", "weaponType", msg.data.weaponType);
+            _this.YJController.SetUserDataItem("weaponData", "weaponId", msg.data.id);
 
-            _YJGameManagerEditor.SendModelState(owner.GetData().id,{modelType:owner.GetData().modelType, msg:{ display:false}});
+            _SceneDyncManager.SendModelState(owner.GetData().id, { modelType: owner.GetData().modelType, msg: { display: false } });
             // console.log("bone ",bone); 
           });
         }
@@ -225,6 +355,230 @@ class SceneManager {
         // console.log(" in overlap yjtransform ", msg);
 
       }
+      return;
+
+      if (b) {
+        if (id == "portal_001" || id == "portal_002") {
+          if (id == "portal_001") {
+            _Global.YJ3D._YJSceneManager.ChangeViewByIdDirect(
+              "playerPos_001"
+            );
+          }
+          if (id == "portal_002") {
+            _Global.YJ3D._YJSceneManager.ChangeViewByIdDirect(
+              "playerPos_002"
+            );
+          }
+
+          _Global.YJ3D._YJSceneManager.UpdateLightPos();
+
+          _Global.YJ3D.YJController.SetTransmit(true);
+          if (this.$refs.YJDync) {
+            this.$refs.YJDync.DirectSendUserData();
+          }
+          _Global.YJ3D.YJController.SetTransmit();
+        }
+      }
+      if (id == "car") {
+        let userd = false;
+        if (b && !this.InDriving) {
+          userd = this._SceneManager.SetCar(owner);
+        } else {
+        }
+
+        if (this.$refs.modelPanel && !userd && !this.InDriving) {
+          this.$refs.modelPanel.CallDriving(b);
+        }
+      }
+      if (id == undefined) { return; }
+      if (id.includes("chair")) {
+        if (b) {
+          //点击热点坐椅子
+          this.SetSittingModelLater(owner.GetGroup());
+          owner.SetPointVisible(false);
+        } else {
+          if (laterSitting != null) {
+            clearTimeout(laterSitting);
+            laterSitting = null;
+          }
+        }
+      }
+    }
+
+    let oldStateId = 0;
+    let otherthrowObj = null;
+    let posRef_huluobu;
+    let posRef_nangua;
+    let pickTimeout;
+    let throwTimeout;
+    let throwObj = null;
+    let animName;
+    let oldAnimName;
+    let inThrowing = false;
+    // 使用物品、扔出物品
+    this.UserModel = (e, f, callback) => {
+
+      if (e == "attack") {
+        if (f != undefined) {
+
+          if (inThrowing) { return; }
+          if (throwObj != null) {
+            if (oldAnimName == f) {
+              return;
+            }
+
+            throwObj.parent.remove(throwObj);
+            _this._YJSceneManager.clearGroup(throwObj);
+            throwObj = null;
+            if (throwTimeout != null) {
+              clearTimeout(throwTimeout);
+            }
+
+            if (f == "胡萝卜") {
+              animName = "throw";
+            }
+            if (f == "南瓜") {
+              animName = "throw2";
+            }
+
+          }
+          oldAnimName = f;
+          inThrowing = true;
+          _this.YJPlayer.GetBone("mixamorigRightHandIndex1", (bone) => {
+            throwObj = CreateThrowObj(bone, f);
+            let latertime = 650;
+            if (f == "胡萝卜") {
+              latertime = 800;
+            }
+
+
+            if (throwTimeout != null) {
+              clearTimeout(throwTimeout);
+              throwTimeout = null;
+            }
+
+
+            //让角色朝向模型位置
+            _this.YJController.PlayerLookatPos(oldTarget.GetWorldPos());
+
+
+            throwTimeout = setTimeout(() => {
+              _this.scene.attach(throwObj);
+              let parabola = new THREE.Group();
+              _this.scene.add(parabola);
+              parabola.position.copy(throwObj.position.clone());
+
+              // parabola.add(new THREE.AxesHelper(1));
+
+              let target = new THREE.Group();
+              // target.add(new THREE.AxesHelper(1));
+              _this.scene.add(target);
+
+              let targetPos = oldTarget.GetWorldPos();
+              if (oldTarget != null) {
+
+              } else {
+                targetPos.set(0, 0, 0);
+              }
+              target.position.copy(targetPos);
+
+
+              parabola.attach(target);
+
+              parabola.attach(throwObj);
+              //扔出拾取物品。抛物线移动
+              new YJParabola(_this, parabola, throwObj, throwObj.position.clone(), target.position.clone());
+
+              throwObj = null;
+
+              setTimeout(() => {
+                inThrowing = false;
+              }, 2000);
+              if (callback) {
+                callback();
+              }
+
+
+              parentUI.$refs.YJDync._YJDyncManager.SetPlayerState({
+                stateId: 1212,
+                boneName: "mixamorigRightHandIndex1",
+                modelName: f,
+                targetPos: { x: targetPos.x, y: targetPos.y, z: targetPos.z }
+              });
+
+
+            }, latertime);
+          });
+
+          //发送同步数据。 骨骼名、物品名
+          parentUI.$refs.YJDync._YJDyncManager.SetPlayerState({
+            stateId: 1212,
+            boneName: "mixamorigRightHandIndex1",
+            modelName: f
+          });
+
+        }
+
+      }
+
+      _this.YJController.SetPlayerState(e, f);
+    }
+
+    let laterSitting = null;
+    this.TriggerModel = (triggerObj) => {
+      if (triggerObj != null) {
+        console.log("进入物体trigger ", triggerObj.modelId);
+        // 进入椅子trigger区域内，1秒后坐下
+        if (triggerObj.modelId.includes("chair")) {
+          if (laterSitting != null) {
+            clearTimeout(laterSitting);
+            laterSitting = null;
+          }
+          laterSitting = setTimeout(() => {
+            SetSittingModel(triggerObj);
+          }, 1000);
+
+        }
+      } else {
+        if (laterSitting != null) {
+          clearTimeout(laterSitting);
+          laterSitting = null;
+        }
+      }
+
+    }
+    this.SetSittingModelLater = function (model) {
+      if (laterSitting != null) {
+        clearTimeout(laterSitting);
+        laterSitting = null;
+      }
+      laterSitting = setTimeout(() => {
+        SetSittingModel(model);
+      }, 1000);
+    }
+
+
+    this.SetSittingModel = function (model) {
+      SetSittingModel(model);
+    }
+
+    let tempEnpty = new THREE.Group();
+    // 设置角色坐到椅子上
+    function SetSittingModel(model) {
+      // 设置角色坐到椅子上
+      let modelPos = _this._YJSceneManager.GetWorldPosition(model);
+
+      _this._YJSceneManager.GetAmmo().SetEnabled(false);
+      _this._YJSceneManager.SetPlayerPosDirect(modelPos);
+      _this.YJController.SetOnlyRotaView(true);
+      _this.YJController.SetPlayerState("sitting", "sitting");
+
+
+      // unity和threejs中Z轴相差180度
+      tempEnpty.quaternion.copy(model.getWorldQuaternion(new THREE.Quaternion()));
+      tempEnpty.rotation.y += Math.PI;
+
+      _this.YJController.SetPlayerQuaternion(tempEnpty.getWorldQuaternion(new THREE.Quaternion()));
     }
 
     this.PickDownWeapon = function () {
@@ -241,30 +595,64 @@ class SceneManager {
       }
       boneAttachList = [];
       //同步放下武器
-      _YJGameManagerEditor.SendModelState(transform.GetData().id,{modelType:transform.GetData().modelType,msg:{display:true,pos:pos}});
+      _SceneDyncManager.SendModelState(transform.GetData().id, { modelType: transform.GetData().modelType, msg: { display: true, pos: pos } });
 
     }
 
+    //#region 
+    this.FireState = function (e) {
+      // if (e == "太远了") {
+      // }
+      indexVue.$refs.HUD.$refs.fireStateUI.Add("提示", e);
+    }
+
+    //#region 对npc的伤害显示在屏幕上
+    this.UpdateNpcDamageValue = function (owner, type, value, pos) {
+      let _pos = _Global.YJ3D._YJSceneManager.WorldPosToScreenPos(pos);
+      console.log("伤害和坐标", value, _pos);
+      indexVue.$refs.HUD.$refs.damageUI.AddDamage(owner, type, value, _pos);
+
+    }
+
+    //#endregion
+
+    //#endregion
     let targetModel = null;
     this.SetTargetModel = function (transform) {
-      if(targetModel != null){
-        if(targetModel != transform){
+      if (targetModel != null) {
+        if (targetModel != transform) {
           targetModel.RemoveHandle();
-        }else{
+        } else {
           return;
         }
       }
       targetModel = transform;
+      oldTarget = targetModel;
 
       if (targetModel == null) {
         indexVue.$refs.HUD.$refs.headerUI.display = false;
+        ClearProjector();
         return;
       }
-      // console.log(" targetModel ",targetModel);
+      let npcComponent = targetModel.GetComponent("NPC");
+      let camp = "normal";
+      // 相同阵营的不计算
+      if (npcComponent.GetCamp() != _Global.user.camp) {
+        camp = "enmity";
+      }
+
       let message = targetModel.GetData().message;
+      if (message.data.baseData.health == 0) {
+        camp = "dead";
+      }
+      let { group, playerHeight } = npcComponent.GetBaseModel();
+      _YJProjector.Active(group, playerHeight, camp);
+
+      console.log(" 设置目标头像 targetModel ", targetModel);
       targetModel.AddHandle((data) => {
         if (data.baseData.health == 0) {
           indexVue.$refs.HUD.$refs.headerUI.display = false;
+          ClearProjector();
           return;
         }
         indexVue.$refs.HUD.$refs.headerUI.SetTarget(data);
@@ -272,14 +660,24 @@ class SceneManager {
       indexVue.$refs.HUD.$refs.headerUI.SetTarget(message.data);
     }
 
-    function ClearTarget(){
+    function ClearTarget() {
       // 点击空白位置 
       scope.SetTargetModel(null);
-      _this.YJController.SetInteractiveNPC("设置npc",null);
+      _this.YJController.SetInteractiveNPC("设置npc", null);
+      ClearProjector();
     }
+    // 删除脚下光标
+    function ClearProjector() {
+      _YJProjector.SetActive(false);
+    }
+    this.ReceiveEvent = function (title, msg) {
+      if (title == "npc尸体消失") { 
+        ClearTarget();
+      }
+    }
+
     this.RightClick = (hitObject, hitPoint) => {
-      
-      ClearTarget();
+
       // console.log(" 右键点击 ", hitObject);
       if (hitObject.transform) {
         // 点击NPC
@@ -294,7 +692,7 @@ class SceneManager {
               //敌人  
               //进入战斗状态
               if (message.data.baseData.health > 0) {
-                _this.YJController.SetInteractiveNPC("设置npc",hitObject.transform);
+                _this.YJController.SetInteractiveNPC("设置npc", hitObject.transform);
               }
             }
           }
@@ -315,30 +713,116 @@ class SceneManager {
 
     }
     this.ClickPlayer = (owner) => {
-      _YJGameManagerEditor.ClickPlayer(owner);
+
+      // 自身角色除外
+      if (owner.isLocal) { return; }
+      if (oldTarget != null) {
+
+      }
+      if (owner.GetBaseModel) {
+        let { group, playerHeight } = owner.GetBaseModel();
+        _YJProjector.Active(group, playerHeight);
+      }
+
+      // 点击npc，播放其音效
+      // console.log(owner);
+      if (owner.npcName) {
+        parentUI.SetNpcMusicUrl(owner.npcName);
+      }
+
+      oldTarget = owner;
+      ChangeTarget();
+      return;
+      // console.log(owner);
+      //点击npc,显示与npc的聊天框
+      if (indexVue.$refs.chatPanel && owner.GetName() == "ChatGPT001号") {
+        indexVue.$refs.chatPanel.SetDisplay(true);
+      }
+      if (
+        indexVue.$refs.chatPanelNPC &&
+        (owner.GetName() == "咕叽" || owner.GetName() == "坐")
+      ) {
+        indexVue.$refs.chatPanelNPC.SetYJNPC(owner, indexVue.userName);
+        indexVue.$refs.chatPanelNPC.SetDisplay(true);
+      }
     }
     this.ClickModel = (hitObject) => {
+      // console.log("点击模型 ",hitObject);
+      // console.log("点击模型.transform ", hitObject.transform);
       if (hitObject.transform) {
         // 点击NPC
         let message = hitObject.transform.GetData().message;
-        // console.log(" 右键点击 transform ", message);
         if (message) {
           if (message.pointType == "npc") {
             // 头像
             this.SetTargetModel(hitObject.transform);
+            // console.log(" 点击NPC 在脚下显示光圈 ", message);
+            _this.YJController.SetInteractiveNPC("选中npc", hitObject.transform);
           }
         }
+
         return;
       }
-      _YJGameManagerEditor.ClickModel(hitObject);
+      let modelType = hitObject.tag;
+      if (modelType == undefined) {
+        return;
+      }
+      console.log("点击物体 ", modelType);
+      if (modelType == "chair") {
+        if (hitObject.owner != undefined) {
+
+        }
+        // 设置角色坐到椅子上
+        SetSittingModel(hitObject);
+        return;
+      }
+      // 拾取物品
+      if (modelType.indexOf('交互物品') > -1) {
+
+        let modelPos = _this._YJSceneManager.GetWorldPosition(hitObject);
+        //让角色朝向模型位置
+        _this.YJController.PlayerLookatPos(modelPos);
+
+        //判断角色与物品的距离，超过1米，则不交互
+        let distance = modelPos.distanceTo(_this._YJSceneManager.GetPlayerPos());
+        console.log("物品与角色的距离 ", distance);
+        if (distance >= 1.7) { return; }
+
+        let sp = modelType.split('-');
+        _this.YJController.SetPlayerState("interactive", sp[1]);
+
+        if (pickTimeout != null) {
+          clearTimeout(pickTimeout);
+        }
+        pickTimeout = setTimeout(() => {
+          // console.log("删除物品 " + hitObject.modelName);
+          // 把删除物体的材质球备份，防止其他相同材质引用的模型材质也被清除
+          hitObject.traverse(function (item) {
+            if (item.type === 'Mesh') {
+              let cloneMat = item.material.clone();
+              item.material = cloneMat;
+            }
+          })
+          _this._YJSceneManager.clearGroup(hitObject);
+
+          //在模型位置相对于界面2d坐标，生成图标。 
+          // parentUI.CreateIconTo(hitObject.modelName,_this._YJSceneManager.WorldPosToScreenPos(modelPos));
+          // moveModels.push({ model: CreateObj(modelPos),currentTargetPos:modelPos, target: posRef_huluobu, lerpLength: 0 });
+          // b_lerpMoving = true;
+
+          // AddModel(hitObject.modelName, hitObject.modelPath);
+          MoveTween(CreateObj(modelPos, hitObject.modelName), hitObject.modelName == "南瓜" ? posRef_nangua : posRef_huluobu);
+        }, 1500);
+
+      }
     }
     this.HoverObject = (hoverObject, hoverPoint) => {
-      if(hoverObject == null){
-        _Global.ReportTo3D("切换光标","正常");
+      if (hoverObject == null) {
+        _Global.ReportTo3D("切换光标", "正常");
         return;
       }
-      
-      _Global.ReportTo3D("切换光标","正常");
+
+      _Global.ReportTo3D("切换光标", "正常");
       if (hoverObject.transform) {
         // 点击NPC
         let message = hoverObject.transform.GetData().message;
@@ -351,18 +835,35 @@ class SceneManager {
           if (message.pointType == "npc") {
             if (message.data.baseData.camp != _Global.user.camp && message.data.baseData.health != 0) {
               //敌人  
-              _Global.ReportTo3D("切换光标","可攻击");
+              _Global.ReportTo3D("切换光标", "可攻击");
             }
 
-          } 
+          }
         }
         return;
+      }
+      return;
+      if (hoverObject == null) {
+        // _this.SetCursor("default");
+        _Global.ReportTo3D("切换光标", "正常");
+        return;
+      }
+      let modelType = hoverObject.tag;
+      if (modelType == undefined) {
+        // _this.SetCursor("default");
+        _Global.ReportTo3D("切换光标", "正常");
+        return;
+      }
+      if (modelType.indexOf('交互物品') > -1) {
+        _this.SetCursor("pointer");
+      } else {
+        _this.SetCursor("default");
       }
     }
     this.CreateHotContent = (modelData, owner) => {
       if (modelData.id.includes("chair")) {
         //点击热点坐椅子
-        _YJGameManagerEditor.SetSittingModel(owner.GetGroup());
+        scope.SetSittingModel(owner.GetGroup());
         owner.SetPointVisible(false);
       }
     }
@@ -411,8 +912,20 @@ class SceneManager {
 
     this.ChangeScene = function (e) {
 
-      _YJGameManagerEditor.InitDyncSceneModels();
+      _SceneDyncManager.InitDyncSceneModels();
 
+      indexVue.$nextTick(() => {
+        if (indexVue.$refs.gameUI) {
+          indexVue.$refs.gameUI.SetPlayerName(indexVue.userName, indexVue.avatarName);
+          indexVue.$refs.gameUI.InitPlayerHeader();
+        }
+      });
+
+      indexVue.$nextTick(() => {
+        if (indexVue.$refs.gameUI) {
+          indexVue.$refs.gameUI.ChangeScene(e.roomName);
+        }
+      });
       return;
       let modelPath = e.modelPath;
       let npcTexPath = e.npcTexPath;
@@ -992,7 +1505,129 @@ class SceneManager {
     }
 
 
+    function CreatePosRef(x, y) {
 
+      //在2d物品栏对应的3d位置生成模型
+      let cubeGeometry = new THREE.SphereGeometry(0.00, 50, 50);
+      let cubeMaterial = new THREE.MeshStandardMaterial({
+        color: 0x808080,
+      });
+      let cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+      _this.camera.add(cube);
+
+      cube.translateZ(-2);
+
+      cube.translateX(x);
+      cube.translateY(y);
+      return cube;
+    }
+
+
+
+    function CreateObj(modelPos, modelName) {
+      //在2d物品栏对应的3d位置生成模型
+      let cubeGeometry = new THREE.SphereGeometry(0, 50, 50);
+      let cubeMaterial = new THREE.MeshStandardMaterial({
+        color: 0x808080,
+      });
+      let cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+      _this.scene.add(cube);
+      modelPos.y += 1;
+      cube.position.copy(modelPos);
+      _this.camera.attach(cube);
+      cube.name = modelName;
+      parentUI.CreateIconTo(cube.name, _this._YJSceneManager.GetObjectPosToScreenPos(cube));
+      return cube;
+    }
+
+    function CreateThrowObj(parent, modelName) {
+      let mesh = _this._YJSceneManager.checkLoadMesh(_this.GetPublicModelUrl() + _this._YJSceneManager.GetModelPath(modelName));
+      let cube = LoadMesh(mesh);
+      cube.scale.set(100, 100, 100);
+      // //在2d物品栏对应的3d位置生成模型
+      // let cubeGeometry = new THREE.SphereGeometry(10, 50, 50);
+      // let cubeMaterial = new THREE.MeshStandardMaterial({
+      //   color: 0x808080,
+      // });
+      // let cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+      parent.add(cube);
+      cube.position.set(0, 0, 0);
+      cube.name = modelName;
+      return cube;
+    }
+
+    function LoadMesh(mesh) {
+      // console.log(" 已存在mesh ,复用之 ！", name);
+      let group = mesh.clone();
+      let model = group.children[0];
+      model.traverse(function (item) {
+        if (item.type === 'Mesh') {
+          let cloneMat = item.material.clone();
+          item.material = cloneMat;
+        }
+      })
+      return model;
+    }
+
+
+    function MoveTween(model, targetObj) {
+
+      let fromPos = model.position.clone();
+      fromPos.y += 1;
+      let targetPos = targetObj.position.clone();
+      MoveToPosTween(model, fromPos, 1000, () => {
+        MoveToPosTween(model, targetPos, 2000, () => {
+          _this._YJSceneManager.clearGroup(model);
+          _this.camera.remove(model);
+          parentUI.DelIconTo(model.name);
+
+        });
+      });
+    }
+
+    function MoveToPosTween(model, targetPos, length, callback) {
+
+      let fromPos = model.position.clone();
+      let movingTween = new TWEEN.Tween(fromPos).to(targetPos, length).easing(TWEEN.Easing.Cubic.InOut)
+      let updateTargetPos = () => {
+        model.position.copy(fromPos);
+        parentUI.UpdateIconTo(model.name, _this._YJSceneManager.GetObjectPosToScreenPos(model));
+      }
+      movingTween.onUpdate(updateTargetPos);
+      movingTween.start() // 启动动画
+      movingTween.onComplete(() => {
+        if (callback) {
+          callback();
+        }
+      });
+
+    }
+
+    let moveModels = [];
+    let b_lerpMoving = false;
+    function LerpMove() {
+
+      if (b_lerpMoving && moveModels.length > 0) {
+
+        for (let i = 0; i < moveModels.length; i++) {
+          const moveModelData = moveModels[i];
+
+          // let targetPos = _this._YJSceneManager.GetWorldPosition(moveModelData.target);
+          // let targetPos = _this._YJSceneManager.GetWorldPosition(moveModelData.target);
+
+          moveModelData.lerpLength += 0.001;
+          moveModelData.currentTargetPos.lerp(moveModelData.targetPos, moveModelData.lerpLength);
+          moveModelData.model.position.copy(moveModelData.currentTargetPos);
+          if (Math.abs(targetPos.z - moveModelData.currentTargetPos.z) < 0.01
+            && Math.abs(targetPos.x - moveModelData.currentTargetPos.x) < 0.01
+            && Math.abs(targetPos.y - moveModelData.currentTargetPos.y) < 0.01
+          ) {
+            moveModels.splice(i, 1);
+            // console.log("已移动到指定位置");
+          }
+        }
+      }
+    }
     this.StopScreenStreamVideo = function () {
 
       if (sceneName == "Scene2") {

@@ -4,7 +4,7 @@ import { createText } from 'three/examples/jsm/webxr/Text2D.js';
 import { YJKeyboard } from "/@/threeJS/YJKeyboard.js";
 
 import { YJLoadAvatar } from "/@/threeJS/YJLoadAvatar.js";
-import { YJProjector } from "/@/threeJS/YJProjector.js";
+import { YJProjector } from "/@/threeJS/components/YJProjector.js";
 
 import { GetPathFolders, LoadFile } from "/@/utils/api.js";
 import TWEEN from '@tweenjs/tween.js';

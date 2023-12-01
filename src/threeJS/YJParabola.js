@@ -5,7 +5,7 @@ import * as THREE from "three";
 
 
 import { YJLoadAvatar } from "./YJLoadAvatar.js";
-import { YJProjector } from "./YJProjector.js";
+import { YJProjector } from "./components/YJProjector.js";
 
 import TWEEN from '@tweenjs/tween.js';
 import { YJLoadModel } from "./YJLoadModel.js";

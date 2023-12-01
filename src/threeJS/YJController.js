@@ -39,7 +39,7 @@ class YJController {
       ATTACK: 1000,
       ATTACKING: 1001,
       INTERACTIVE: 2,
-      SITTING: 3, 
+      SITTING: 3,
     };
     var playerState = PLAYERSTATE.NORMAL;
     // true :鼠标左键只旋转视角
@@ -2090,9 +2090,9 @@ class YJController {
       // posToString(targetPos)+ "this.wheelCurrentValue = " + this.wheelCurrentValue );
     }
     this.SetTargetHeight = (y) => {
-      camOffsetY = y/2;
+      camOffsetY = y / 2;
       // camTarget.position.y = y;
-      console.log(" 设置中心点高度 " ,y);
+      console.log(" 设置中心点高度 ", y);
 
     }
 
@@ -3138,8 +3138,8 @@ class YJController {
     this.SetPlayer = (yjplayer) => {
       _YJPlayer = yjplayer;
       _YJPlayer.owner = scope;
-      if(_YJPlayerFireCtrl == null){
-        _YJPlayerFireCtrl = new YJPlayerFireCtrl(_this,_YJPlayer);
+      if (_YJPlayerFireCtrl == null) {
+        _YJPlayerFireCtrl = new YJPlayerFireCtrl(_this, _YJPlayer);
       }
     }
     this.GetYJPlayer = () => {
@@ -3203,28 +3203,37 @@ class YJController {
     //#region 检测角色与摄像机之间的是否有碰撞物体，让角色与摄像机之间始终无遮挡
 
     let transparentMat = null;
-
+    let hitIndex = 0;
     let old_castArray = [];
     function GetInvaildCastObj(intersects_collider) {
-
 
       if (setting.camRaycastMode == undefined || setting.camRaycastMode == "near") {
         for (let i = 0; i < intersects_collider.length; i++) {
           let hit_collider = intersects_collider[i].object;
-          if (hit_collider.parent.name == "player" ||
+          if (
+            hit_collider.parent.name == "player" ||
             hit_collider.name.indexOf("air") > -1 ||
             hit_collider.name.indexOf("trigger") > -1 ||
             hit_collider.name.indexOf("point") > -1 ||
             hit_collider.name.indexOf("hit") > -1 ||
-            (hit_collider.tag != undefined && hit_collider.tag.indexOf("particle")) > -1 ||
-            (hit_collider.tag != undefined && hit_collider.tag.indexOf("player")) > -1 ||
+            (hit_collider.tag != undefined && hit_collider.tag.indexOf("particle")> -1)  ||
+            (hit_collider.tag != undefined && hit_collider.tag.indexOf("player")> -1)  ||
             hit_collider.parent.name == "ignoreRaycast" ||
             (hit_collider.isLine != null && hit_collider.isLine == true) ||
             (hit_collider.parent.parent && hit_collider.parent.parent.isTransformControlsGizmo) ||
-            hit_collider.name == "ignoreRaycast"
-          ) { return null; }
+            (hit_collider.isTransformControlsPlane) ||
+            hit_collider.name == "ignoreRaycast" ||
+            hit_collider.name.includes("navMesh")  ||
+            (hit_collider.transform != undefined && hit_collider.transform.isIgnoreRaycast)
+          ) {
+            // console.log("hit_collider = ", hit_collider);
+            continue;
+          }
+          // console.log("hit_collider 22 = ", hit_collider);
+          hitIndex = i;
           return hit_collider;
         }
+        return null;
       }
       if (setting.camRaycastMode == "transparent") {
 
@@ -3296,7 +3305,7 @@ class YJController {
 
       }
     }
-    let hasCamRaycast = false;
+    let hasCamRaycast = true; //是否激活摄像机视角障碍检测
     function CheckCameraLine() {
       // console.log("摄像机障碍检测", hasCamRaycast, viewState);
 
@@ -3312,14 +3321,14 @@ class YJController {
       if (intersects_collider.length > 0) {
 
         let hit_collider = GetInvaildCastObj(intersects_collider);
-        // let hit_collider = intersects_collider[0].object;
-        if (hit_collider == null) { return; }
+        if (hit_collider != null) { 
+          // intersects_collider[hitIndex].point
+          camera.position.set(-intersects_collider[hitIndex].distance + 0.5, 0, 0);
+          return; 
+        }
         // console.log("摄像机障碍检测",hit_collider);
-
-        camera.position.set(-intersects_collider[0].distance + 0.5, 0, 0);
         // console.log("检测角色与摄像机之间碰撞 "+ intersects_collider.length +"  "+ hit_collider.name + "  " );
         // console.log("检测角色与摄像机之间碰撞 ", intersects_collider , hit_collider.name + "  " );
-        return;
       }
 
       if (old_castArray.length != 0) {
@@ -3439,11 +3448,11 @@ class YJController {
       avatarDisplay: true,
 
       //武器
-      weaponData:{
+      weaponData: {
         pickType: "",
         weaponType: "",
         weaponId: "",
-      }, 
+      },
     };
 
     this.SetNameTransOffsetAndScale = function (h, scale) {
@@ -3470,8 +3479,8 @@ class YJController {
     this.GetUserData = function () {
       return userData;
     }
-    this.SetUserDataItem = function (property, value,value2) {
-      if(value2 != undefined){
+    this.SetUserDataItem = function (property, value, value2) {
+      if (value2 != undefined) {
         userData[property][value] = value2;
         return;
       }
@@ -3507,13 +3516,13 @@ class YJController {
 
     let updateTimes = 0;
     let directUpate = true; //强制刷新
-    this.updateBaseData = function(_baseData){
+    this.updateBaseData = function (_baseData) {
       userData.baseData = _baseData;
       directUpate = true;
 
     }
     // 是否已死亡
-    this.isInDead = function(){
+    this.isInDead = function () {
       return userData.baseData.health == 0;
     }
     this.updateSend = function () {
@@ -3599,11 +3608,11 @@ class YJController {
 
 
     this.SetPlayerAnimName = function (_animName) {
-      animName = _animName; 			
+      animName = _animName;
       _YJPlayer.ChangeAnim(animName);
     }
     this.ChangeAnimDirect = function (_animName) {
-      animName = _animName; 
+      animName = _animName;
       _YJPlayer.ChangeAnimDirect(animName);
     }
     // 角色lookat坐标
@@ -3617,32 +3626,32 @@ class YJController {
       oldrotateY = -100;
       // _player.add(new THREE.AxesHelper(2));
       scene.remove(temp);
-    } 
+    }
 
     this.DyncPlayerState = function (state) {
       _YJPlayer.DyncPlayerState(state);
     }
     this.ReceiveDamage = function (_targetModel, skillName, strength) {
       return _YJPlayerFireCtrl.OnPlayerState({
-        title:"fire",
-        content:"受到伤害",
-        msg:{_targetModel:_targetModel, skillName:skillName,strength: strength},
-      }); 
+        title: "fire",
+        content: "受到伤害",
+        msg: { _targetModel: _targetModel, skillName: skillName, strength: strength },
+      });
     }
-    this.SetInteractiveNPC = function (content,_npcTransform) {
+    this.SetInteractiveNPC = function (content, _npcTransform) {
       _YJPlayerFireCtrl.OnPlayerState({
-        title:"fire",
-        content:content,
-        msg:_npcTransform,
-      }); 
+        title: "fire",
+        content: content,
+        msg: _npcTransform,
+      });
     }
 
 
     this.SetPlayerState = function (e, type) {
       // console.log(" in SetPlayerState  ",e,type);
-      if(playerState == PLAYERSTATE.INTERACTIVE){
+      if (playerState == PLAYERSTATE.INTERACTIVE) {
         return;
-      }  
+      }
 
       // switch (e) { 
       //   case "normal": 
@@ -3661,11 +3670,11 @@ class YJController {
       //     break;
       // }
       // _YJPlayer.ChangeAnim(animName);
- 
+
       _YJPlayerFireCtrl.OnPlayerState({
-        title:"fire",
-        content:"设置玩家状态",
-        msg:e,
+        title: "fire",
+        content: "设置玩家状态",
+        msg: e,
       });
 
 
@@ -3779,7 +3788,7 @@ class YJController {
             }
 
           } else {
-            if(inMoving){
+            if (inMoving) {
               inMoving = false;
               scope.SetPlayerState("停止移动");
             }

@@ -52,8 +52,9 @@ class YJProjector {
       update();
     }
 
+    let scaleByHeight = 0.8; //光圈大小随高度变化的比例
     // 在选中npc、其他玩家下，生成光圈
-    this.Active = (parent, height) => {
+    this.Active = (parent, height, camp) => {
       if (group == null) {
         group = new THREE.Group();
         CreatePlane();
@@ -63,19 +64,36 @@ class YJProjector {
       }
       // console.log(group);
       parent.add(group);
-      group.scale.set(height * 0.5, 0.02, height * 0.5);
+      group.scale.set(height * scaleByHeight, 0.02, height * scaleByHeight);
       group.position.set(0, 0.02, 0);
+
+      switch (camp) {
+        case 'enmity':
+          camp = 0xff0000;
+          break;
+        case 'normal':
+          camp = 0x0000ff;
+          break;
+        case 'dead':
+          camp = 0xaaaaaa;
+          break; 
+        default:
+          break;
+      }
+      projectMat.color.setHex(camp);
       group.visible = true;
     }
     this.SetActive = (b) => {
       group.visible = b;
+      scene.add(group); 
     }
+    let projectMat = null;
     function CreatePlane() {
 
       const map = new THREE.TextureLoader().load(
         _this.GetPublicUrl() + "checkPoint.png"
       );
-      let projectMat = new THREE.MeshBasicMaterial({
+      projectMat = new THREE.MeshBasicMaterial({
         map: map,
         color: 0x00ffff,
         transparent: true,
@@ -140,7 +158,7 @@ class YJProjector {
         decalMesh = new THREE.Mesh(new DecalGeometry(baseMesh, position, origin, size), material);
         scene.add(decalMesh);
       } else {
-        
+
         decalMesh.geometry.dispose();
         decalMesh.geometry = new DecalGeometry(baseMesh, position, origin, size);
       }

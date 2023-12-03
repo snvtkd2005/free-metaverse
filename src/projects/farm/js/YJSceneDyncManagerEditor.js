@@ -10,7 +10,7 @@ import { YJTrailRenderer } from "/@/threeJS/components/YJTrailRenderer.js";
 // 场景同步数据
 
 class YJSceneDyncManagerEditor {
-  constructor(_this, parentUI, camera) {
+  constructor(_this, indexVue, camera) {
     var scope = this;
 
     let dyncModelList = [];
@@ -24,6 +24,7 @@ class YJSceneDyncManagerEditor {
         const element = modelDataList[i];
         if (element.modelType == "NPC模型"
           || element.modelType == "装备模型"
+          || element.modelType == "交互模型"
         ) {
           dyncModelList.push({ id: element.id, modelType: element.modelType, state: {} });
         }
@@ -251,6 +252,12 @@ class YJSceneDyncManagerEditor {
 
     }
 
+    this.SendModel = function (model) {
+      if (!_Global.YJDync) {
+        return;
+      }
+      _Global.YJDync._YJDyncManager.SendSceneState("更新single", model);
+    }
     //发送整个场景数据
     this.SendSceneState = function (type, msg) {
       if (!_Global.YJDync) {
@@ -296,17 +303,26 @@ class YJSceneDyncManagerEditor {
         console.log("获取场景状态 222 ", sceneState);
 
         //整个场景所有模型的更新
-        for (let i = 0; i < dyncModelList.length; i++) {
-          const element = dyncModelList[i];
+        for (let j = 0; j < state.length; j++) {
+          const _state = state[j];
           let has = false;
-          for (let j = 0; j < state.length && !has; j++) {
-            const _state = state[j];
+          for (let i = 0; i < dyncModelList.length && !has; i++) {
+            const element = dyncModelList[i];
             if (element.id == _state.id) {
               element.state = _state.state;
               has = true;
             }
           }
+          if (_state.modelType == "交互模型") {
+            indexVue.$refs.HUD.$refs.skillPanel_virus.SetSkillCount({ type: _state.id, value: _state.state.value, count: _state.state.count });
+          }
+          if (!has) {
+            dyncModelList.push(_state);
+          }
         }
+        console.log(" 更新场景同步数据 ", dyncModelList);
+
+
 
         for (let i = 0; i < state.length; i++) {
           const element = state[i];
@@ -357,8 +373,25 @@ class YJSceneDyncManagerEditor {
     }
     //接收服务器下发
     this.ReceiveFromServer = function (sceneState) {
-      let state = sceneState.state;
-      console.log(" 接收服务器下发 更新单个模型 ", sceneState, state);
+      console.log(" 接收服务器下发 更新单个模型 ", sceneState);
+      let model = sceneState.state;
+      switch (sceneState.title) {
+        case "更新道具数量":
+          if (model.modelType == "交互模型") {
+            indexVue.$refs.HUD.$refs.skillPanel_virus.SetSkillCount({ type: model.id, value: model.state.value, count: model.state.count });
+          }
+          return;
+          break;
+        case "生成道具":
+          if (model.modelType == "交互模型") {
+            _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().EditorUserModel(model);
+          }
+          return;
+          break;
+
+        default:
+          break;
+      }
       _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().EditorUserModel(state);
     }
 
@@ -371,7 +404,10 @@ class YJSceneDyncManagerEditor {
      * @param {同步数据} data 同步数据
      */
     this.UpdateModel = (id, title, data) => {
-      _Global.YJDync._YJDyncManager.UpdateModel(id, title, data);
+      if (_Global.YJDync) {
+        _Global.YJDync._YJDyncManager.UpdateModel(id, title, data);
+      }
+
     }
     // 接收服务器转发过来的由主控发送的模型同步信息
     this.ReceiveModel = function (id, title, data) {
@@ -431,10 +467,10 @@ class YJSceneDyncManagerEditor {
 
     }
     //#endregion
-    
+
     this.DyncPlayerState = function (YJPlayer, state) {
       YJPlayer.DyncPlayerState(state); return;
-    } 
+    }
 
     function MoveToPosTweenFn(fromPos, targetPos, length, updateCB, callback) {
       let movingTween = new TWEEN.Tween(fromPos).to(targetPos, length).easing(TWEEN.Easing.Cubic.InOut)
@@ -449,15 +485,15 @@ class YJSceneDyncManagerEditor {
         if (callback) {
           callback();
         }
-      }); 
-    } 
+      });
+    }
 
-    function init() { 
-      update(); 
+    function init() {
+      update();
     }
     function update() {
       requestAnimationFrame(update);
-      TWEEN.update(); 
+      TWEEN.update();
     }
     init();
 

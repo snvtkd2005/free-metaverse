@@ -2,6 +2,7 @@
 <template>
   <div class=" absolute left-0 top-0 w-full h-full pointer-events-none ">
 
+    <skillPanel_virus ref="skillPanel_virus" />
     <skillPanel ref="skillPanel" />
     <div class=" absolute left-24 top-10">
       <!-- 左上角血条头像 -->
@@ -24,6 +25,7 @@ import skillPanel from "./skillPanel.vue";
 import skillProgressUI from "./skillProgressUI.vue";
 import damageUI from "./damageUI.vue";
 import fireStateUI from "./fireStateUI.vue";
+import skillPanel_virus from "./skillPanel_virus.vue";
 
 export default {
   name: "HUD",
@@ -33,6 +35,7 @@ export default {
     skillProgressUI,
     damageUI,
     fireStateUI,
+    skillPanel_virus,
   },
   data() {
     return { 

@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 
-import { YJTrigger } from "/@/threeJS/YJTrigger.js";
+import { YJTrigger } from "./YJTrigger.js";
 // 武器
 
 class YJWeapon {

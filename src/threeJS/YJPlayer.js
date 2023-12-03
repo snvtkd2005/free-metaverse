@@ -733,9 +733,11 @@ class YJPlayer {
     // 生成光圈时调用，返回父物体、角色高度
     this.GetBaseModel = () => {
       // let group = playerGroup.clone();
-      return { group, playerHeight }
+      return { group, playerHeight };
     }
-
+    this.GetBaseData = () => { 
+      return oldUserData.baseData;
+    }
     function makeButtonMesh(x, y, z, color) {
       const geometry = new THREE.BoxGeometry(x, y, z);
       const material = new THREE.MeshPhongMaterial({ color: color });
@@ -887,6 +889,15 @@ class YJPlayer {
     this.GetUserData = function(){
       return oldUserData;
     }
+    
+    let handlerList = [];
+    this.AddHandle = function (handler) {
+      handlerList.push(handler);
+    }
+    this.RemoveHandle = function () {
+      handlerList = [];
+    }
+
     let dyncTimes = 0;
     let userDataList = [];
     let oldUserData = {};
@@ -932,7 +943,11 @@ class YJPlayer {
 
 
       }
-
+      
+      for (let i = 0; i < handlerList.length; i++) {
+        const element = handlerList[i];
+        element(oldUserData.baseData);
+      }
 
       // 同步拾取物体
       dyncPickModel(userData.weaponData);

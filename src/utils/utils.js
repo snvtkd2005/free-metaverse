@@ -1,6 +1,26 @@
 import { SaveImgGetFileName, SaveTxtGetFileName, SaveFileOSSAPI, DelFileAPI } from "./api.js";
 
 
+
+export const SetSettingItemByProperty = (object,property,value) => {
+  for (let i = 0; i < object.length; i++) {
+    const element = object[i];
+    if (element.property == property) {
+      element.value = value;
+    }
+  }
+}
+export const GetSettingItemValueByProperty = (object,property) => {
+  for (let i = 0; i < object.length; i++) {
+    const element = object[i];
+    if (element.property == property) {
+      return element.value;
+    }
+  }
+  return null;
+}
+
+
 //获取 文章简介数据 。传入 文章所属分类， 多个分类用|隔开
 export const FormatDate = () => {
   var g = new Date().getTime(); //1637120820767

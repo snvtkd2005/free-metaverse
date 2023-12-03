@@ -63,6 +63,10 @@
       <div v-if="panelState.weapon" class="mt-10 w-80 border-t max-w-md">
         <settingPanel_weapon ref="settingPanel_weapon" />
       </div>
+      
+      <div v-if="panelState.interactive" class="mt-10 w-80 border-t max-w-md">
+        <settingPanel_interactive ref="settingPanel_interactive" />
+      </div>
     </div>
 
     <!-- 浮框按钮 -->
@@ -130,14 +134,14 @@ import modelPanel from "./modelPanel.vue";
 
 import modelSelectPanel from "./modelSelectPanel.vue";
 
-import settingPanel from "./settingPanel.vue";
+import settingPanel from "./settingPanel/settingPanel.vue";
 import sceneSettingPanel from "./sceneSettingPanel.vue";
-import settingPanel_uvAnim from "./settingPanel_uvAnim.vue";
-import settingPanel_screen from "./settingPanel_screen.vue";
-import settingPanel_particle from "./settingPanel_particle.vue";
-import settingPanel_npc from "./settingPanel_npc.vue";
-
-import settingPanel_weapon from "./settingPanel_weapon.vue";
+import settingPanel_uvAnim from "./settingPanel/settingPanel_uvAnim.vue";
+import settingPanel_screen from "./settingPanel/settingPanel_screen.vue";
+import settingPanel_particle from "./settingPanel/settingPanel_particle.vue";
+import settingPanel_npc from "./settingPanel/settingPanel_npc.vue";
+import settingPanel_weapon from "./settingPanel/settingPanel_weapon.vue";
+import settingPanel_interactive from "./settingPanel/settingPanel_interactive.vue";
 
 import HUD from "./common/HUD.vue";
 
@@ -170,6 +174,7 @@ export default {
     settingPanel_particle,
     settingPanel_npc,
     settingPanel_weapon,
+    settingPanel_interactive,
     HUD,
   },
   data() {
@@ -182,6 +187,7 @@ export default {
         screen: false,
         particle: false,
         npc: false,
+        interactive: false,
       },
       hover: false,
       infloating: false,
@@ -1361,6 +1367,16 @@ export default {
         // });
         // console.log(component);
         console.log("武器请到武器单品中设置");
+        return;
+      }
+      component = this.clickModelJS.GetComponent("Interactive");
+      if (component != null) {
+        this.ChangePanel('interactive');
+        let msg = this.clickModelJS.GetMessage();
+        this.$nextTick(() => {
+          this.$refs.settingPanel_interactive.Init(msg.data);
+        });
+        console.log(component);
         return;
       }
     },

@@ -16,15 +16,15 @@ import { YJUVanim } from "./YJUVanim";
 import { YJUVanim2 } from "./YJUVanim2";
 import { YJLoadModel } from "./YJLoadModel";
 import { MeshBasicMaterial } from "three";
-import { YJTransform } from "./YJTransform";
+import { YJTransform } from "./components/YJTransform";
 import { YJMeshRenderer } from "./components/YJMeshRenderer";
 import { YJAnimator } from "./components/YJAnimator";
 import { YJUVAnim3 } from "./components/YJUVAnim3.js";
 import { YJScreen } from "./components/YJScreen.js";
 import { YJWeapon } from "./components/YJWeapon.js";
+import { YJInteractive } from "./components/YJInteractive.js";
 
-import { YJCar } from "./model/YJCar.js";
-import { YJTrigger } from "./YJTrigger.js";
+import { YJCar } from "./model/YJCar.js"; 
 import YJParticle from "./components/YJParticle";
 import { YJAvatar } from "./components/YJAvatar";
 import { YJNPC } from "./components/YJNPC";
@@ -214,11 +214,12 @@ class YJLoadUserModelManager {
     }
 
     function CreateTransform(parent, modelData, callback) {
+      console.error(" 加载模型 ", modelData);
 
       let object = new YJTransform(_this, scene, "", null, null, modelData.name);
       let modelPath = modelData.modelPath;
       if (modelPath == undefined) {
-        if (modelData.modelType == "NPC模型") {
+        if (modelData.modelType == "NPC模型" || modelData.modelType == "交互模型") {
 
         } else {
           if (callback) {
@@ -371,8 +372,6 @@ class YJLoadUserModelManager {
         MeshRenderer.load(modelPath, (scope) => {
 
           let _YJWeapon = new YJWeapon(_this, object.GetGroup(), object);
-          // let meshTrigger = new YJTrigger(_this, object.GetGroup(), object, "weapon");
-          // object.AddComponent("Trigger", meshTrigger);
           object.AddComponent("Weapon", _YJWeapon);
 
           if (modelData.message != undefined) {
@@ -383,6 +382,19 @@ class YJLoadUserModelManager {
             callback(object);
           }
         });
+      } else if (modelData.modelType == "交互模型") {
+        if (modelPath != undefined) {
+          MeshRenderer.load(modelPath, (scope) => {
+          });
+        }
+        let _YJInteractive = new YJInteractive(_this, object.GetGroup(), object);
+        object.AddComponent("Interactive", _YJInteractive);
+        if (modelData.message != undefined) {
+          object.SetMessage(modelData.message);
+        }
+        if (callback) {
+          callback(object);
+        }
       } else if (modelData.modelType == "屏幕模型") {
         MeshRenderer.load(modelPath, (scope) => {
           let _YJScreen = new YJScreen(_this, scope.GetModel(), "screen" + uuid);
@@ -501,18 +513,18 @@ class YJLoadUserModelManager {
 
     }
     // 由主控发送单个模型同步信息到服务器，服务器转发进行同步
-    this.ReceiveModel = function (id,title, data) {
+    this.ReceiveModel = function (id, title, data) {
       for (let i = allTransform.length - 1; i >= 0; i--) {
         const elment = allTransform[i];
         if (elment.id == id) {
           // npc坐标
-          if(title == "pos"){
+          if (title == "pos") {
             let { pos, rotaV3 } = data;
             let transform = elment.transform;
             transform.SetPos(pos, rotaV3);
           }
           // npc巡逻点索引
-          if(title == "navPosIndex"){
+          if (title == "navPosIndex") {
             let { navPosIndex } = data;
             let transform = elment.transform;
             let npcComponent = transform.GetComponent("NPC");

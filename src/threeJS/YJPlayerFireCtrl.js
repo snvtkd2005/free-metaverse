@@ -22,6 +22,7 @@ class YJPlayerFireCtrl {
 			health: 200, //当前剩余生命值
 			maxHealth: 200, //最大生命值
 			strength: 30, //攻击力
+			armor: 0, //护甲
 		}
 
 		let animName = "";
@@ -80,16 +81,20 @@ class YJPlayerFireCtrl {
 			}
 			_Global.DyncManager.PlayerAddFire(npcTransform.GetComponent("NPC"), _YJPlayer);
 		}
+		// 计算伤害。受到的攻击力-护甲值
+		function RealyDamage(strength){
+			let v = strength - baseData.armor;
+			return v>=0?v:1;
+		}
 		this.ReceiveDamage = function (_targetModel, skillName, strength) {
 			if (npcTransform == null) { 
 				SelectNPC(_targetModel);
-
 				PlayerAddFire();
 				//自动显示其头像 
 				_Global.SceneManager.SetTargetModel(npcTransform); 
 			}
 
-			baseData.health -= strength;
+			baseData.health -= RealyDamage(strength);
 			console.log(" 主角受到 " + skillName + " 攻击 剩余 " + baseData.health);
 
 

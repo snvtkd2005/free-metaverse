@@ -3315,6 +3315,7 @@ class YJController {
 
       // console.log("检测角色与摄像机之间 是否碰撞 ",fromPos,direction);
       var raycaster_cameraLine = new THREE.Raycaster(fromPos, direction, 0, -wheelCurrentValue - 0.5);
+      raycaster_cameraLine.camera = camera;
       //只检测pointParent物体的子物体
       var intersects_collider = raycaster_cameraLine.intersectObjects(scene.children, true);
 
@@ -3486,9 +3487,12 @@ class YJController {
       }
       userData[property] = value;
     }
-    this.GetUserDataItem = function (property) {
+    this.GetUserDataItem = function (property,property2) {
+      if (property2 != undefined) {
+        return userData[property][property2] ;
+      }
       return userData[property];
-    }
+    } 
     // 显示隐藏的同步
     let olddyncDisplay = true;
     this.SetDyncDisplay = function (b) {
@@ -3519,7 +3523,9 @@ class YJController {
     this.updateBaseData = function (_baseData) {
       userData.baseData = _baseData;
       directUpate = true;
-
+    }
+    this.directUpate = function () { 
+      directUpate = true;
     }
     // 是否已死亡
     this.isInDead = function () {

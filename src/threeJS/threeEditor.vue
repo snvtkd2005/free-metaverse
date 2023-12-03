@@ -595,7 +595,6 @@ export default {
         0.1,
         1000
       );
-
       let myCtrlRbChild = new THREE.Group();
       myCtrlRbChild.name = "myCtrlRbChild";
       this.camera.add(myCtrlRbChild);

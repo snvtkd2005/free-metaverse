@@ -77,7 +77,10 @@
       <div v-if="panelState.npc" class="mt-10 w-80 border-t max-w-md">
         <settingPanel_npc ref="settingPanel_npc" />
       </div>
-
+      <div v-if="panelState.interactive" class="mt-10 w-80 border-t max-w-md">
+        <settingPanel_interactive ref="settingPanel_interactive" />
+      </div>
+      
       <!-- <div class=" mt-10 w-80 h-10 border-t text-white cursor-pointer " @click.stop="inAddComponent=true;">
         <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">Add Component</div>
       </div>
@@ -161,14 +164,15 @@ import boneConvertPanel from "./boneConvertPanel.vue";
 
 // 加载进度页
 import loadingPanel from "./loadingPanel2.vue";
-import settingPanel_uvAnim from "./settingPanel_uvAnim.vue";
-import settingPanel_car from "./settingPanel_car.vue";
-import settingPanel_weapon from "./settingPanel_weapon.vue";
-import settingPanel_player from "./settingPanel_player.vue";
-import settingPanel_screen from "./settingPanel_screen.vue";
-import settingPanel_particle from "./settingPanel_particle.vue";
-import settingPanel_avatar from "./settingPanel_avatar.vue";
-import settingPanel_npc from "./settingPanel_npc.vue";
+import settingPanel_uvAnim from "./settingPanel/settingPanel_uvAnim.vue";
+import settingPanel_car from "./settingPanel/settingPanel_car.vue";
+import settingPanel_weapon from "./settingPanel/settingPanel_weapon.vue";
+import settingPanel_player from "./settingPanel/settingPanel_player.vue";
+import settingPanel_screen from "./settingPanel/settingPanel_screen.vue";
+import settingPanel_particle from "./settingPanel/settingPanel_particle.vue";
+import settingPanel_avatar from "./settingPanel/settingPanel_avatar.vue";
+import settingPanel_npc from "./settingPanel/settingPanel_npc.vue";
+import settingPanel_interactive from "./settingPanel/settingPanel_interactive.vue";
 
 import headerUI from "./common/headerUI.vue";
 import skillProgressUI from "./common/skillProgressUI.vue";
@@ -196,6 +200,7 @@ export default {
     settingPanel_particle,
     settingPanel_avatar,
     settingPanel_npc,
+    settingPanel_interactive,
     addComponent,
     PanelCut,
     headerUI,
@@ -216,6 +221,7 @@ export default {
         particle: false,
         avatar: false,
         npc: false,
+        interactive: false,
       },
       hover: false,
       infloating: false,

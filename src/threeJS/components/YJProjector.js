@@ -77,8 +77,7 @@ class YJProjector {
         case 'dead':
           camp = 0xaaaaaa;
           break; 
-        default:
-          break;
+        default: 
       }
       projectMat.color.setHex(camp);
       group.visible = true;

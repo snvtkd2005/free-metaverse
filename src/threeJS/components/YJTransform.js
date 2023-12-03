@@ -62,7 +62,10 @@ class YJTransform {
         let com = this.GetComponent("Weapon");
         com.SetMessage(message.data);
       }
-
+      if (message.pointType == "interactive") {
+        let com = this.GetComponent("Interactive");
+        com.SetMessage(message.data);
+      }
 
     }
     let handlerList = [];
@@ -104,6 +107,20 @@ class YJTransform {
       let modelData = JSON.parse(JSON.stringify(scope.modelData));
       scope.SetPosRota(modelData.pos, modelData.rotaV3, modelData.scale);
 
+
+      let message = data.message;
+
+      if(b){
+        if (message.pointType == "interactive") {
+          let com = this.GetComponent("Interactive");
+          com.Reset();
+        }
+      }else{
+        if (message.pointType == "interactive") {
+          let com = this.GetComponent("Interactive");
+          com.DestroyTrigger();
+        }
+      }
       // let _Animator = this.GetComponent("Animator");
       // if (_Animator != null) {
       //   if (b) {
@@ -330,7 +347,11 @@ class YJTransform {
           this.GetComponent("NPC").Dync(state);
         }
       }
-
+      if (_model.modelType == "交互模型") {
+        if (this.GetComponent("Interactive") != null) {
+          this.GetComponent("Interactive").Dync(state);
+        }
+      }
 
     }
     Init();

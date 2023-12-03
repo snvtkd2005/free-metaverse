@@ -99,15 +99,15 @@
 
 <script>
 
-import YJinput_color from "./components/YJinput_color.vue";
-import YJinput_range from "./components/YJinput_range.vue";
-import YJinput_number from "./components/YJinput_number.vue";
-import YJinput_text from "./components/YJinput_text.vue";
-import YJinput_toggle from "./components/YJinput_toggle.vue";
-import YJinput_drop from "./components/YJinput_drop.vue";
-import YJinput_vector3 from "./components/YJinput_vector3.vue";
+import YJinput_color from "../components/YJinput_color.vue";
+import YJinput_range from "../components/YJinput_range.vue";
+import YJinput_number from "../components/YJinput_number.vue";
+import YJinput_text from "../components/YJinput_text.vue";
+import YJinput_toggle from "../components/YJinput_toggle.vue";
+import YJinput_drop from "../components/YJinput_drop.vue";
+import YJinput_vector3 from "../components/YJinput_vector3.vue";
 
-import { GetAllUVAnim } from "../../js/uploadThreejs.js";
+import { GetAllUVAnim } from "../../../js/uploadThreejs.js";
 
 export default {
   name: "settingpanel_uvanim",

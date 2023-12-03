@@ -135,8 +135,8 @@
 </template>
 
 <script>
-import YJinput_text from "./components/YJinput_text.vue";
-import YJinput_number from "./components/YJinput_number.vue";
+import YJinput_text from "../components/YJinput_text.vue";
+import YJinput_number from "../components/YJinput_number.vue";
 
 export default {
   name: "settingpanel_uvanim",

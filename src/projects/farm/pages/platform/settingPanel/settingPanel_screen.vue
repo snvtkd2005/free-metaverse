@@ -70,12 +70,12 @@
 
 <script>
 
-// import YJinput_text from "./components/YJinput_text.vue";
-import YJinput_text from "./components/YJinput_textarea.vue";
-import YJinput_drop from "./components/YJinput_drop.vue";
-import YJinput_upload from "./components/YJinput_upload.vue";
+// import YJinput_text from "../components/YJinput_text.vue";
+import YJinput_text from "../components/YJinput_textarea.vue";
+import YJinput_drop from "../components/YJinput_drop.vue";
+import YJinput_upload from "../components/YJinput_upload.vue";
 
-import YJmedia from "./components/YJmedia.vue";
+import YJmedia from "../components/YJmedia.vue";
 
 export default {
   name: "settingpanel_uvanim",

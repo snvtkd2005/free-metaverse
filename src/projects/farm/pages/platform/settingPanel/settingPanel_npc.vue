@@ -96,9 +96,9 @@
 </template>
 
 <script>
-import YJinput_text from "./components/YJinput_text.vue";
-import YJinput_number from "./components/YJinput_number.vue";
-import YJinput_drop from "./components/YJinput_drop.vue";
+import YJinput_text from "../components/YJinput_text.vue";
+import YJinput_number from "../components/YJinput_number.vue";
+import YJinput_drop from "../components/YJinput_drop.vue";
 import settingPanel_npcSkill from "./settingPanel_npcSkill.vue";
 
 export default {

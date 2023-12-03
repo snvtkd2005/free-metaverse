@@ -43,9 +43,8 @@ import { TextureLoader } from "three";
 
 import { YJGameManager_DyncScene } from "./YJGameManager_DyncScene.js";
 import { YJ3dScene_margeTexture } from "/@/threeJS/YJ3dScene_margeTexture.js";
-import { YJTransform } from "./YJTransform.js";
+import { YJTransform } from "./components/YJTransform.js";
 import { YJMeshRenderer } from "./components/YJMeshRenderer.js";
-import { YJTrigger } from "./YJTrigger.js";
 import { YJAnimator } from "./components/YJAnimator.js";
 import { YJUVAnim3 } from "./components/YJUVAnim3.js";
 
@@ -232,7 +231,7 @@ class YJSceneManager {
       InitSingleSceneFn();
     }
     function InitSingleSceneFn() {
-      // console.log("初始化 单品  ");
+      console.log("初始化 单品  ");
       CreateGrid();
 
       if (_YJ3dScene_margeTexture == null) {
@@ -306,107 +305,7 @@ class YJSceneManager {
           // if (callback) {
           //   callback();
           // }
-        });
-        return;
-        // _this.GetPublicUrl() +
-        // _this.$uploadUrl +
-        // if (modelData.modelPath == undefined) {return;}
-        // if (modelPath == undefined) { return; }
-
-        if (modelData.modelType == "静态模型" || modelData.modelType == "装备模型" || modelData.modelType == "屏幕模型") {
-          let object = new YJTransform(_this, scene, "", null, null, modelData.name);
-
-          object.SetPosRota(new THREE.Vector3(0, 0, 0));
-          object.SetModelPath(modelPath);
-          // object.SetData(item.folderBase,item.modelType);
-          object.SetMessage(modelData.message);
-
-          let MeshRenderer = new YJMeshRenderer(_this, object.GetGroup(), object);
-          object.AddComponent("MeshRenderer", MeshRenderer);
-          MeshRenderer.load(modelPath, (scope) => {
-            singleModel = scope.GetModel();
-            console.log("singleModel ", singleModel);
-          });
-
-          if (modelData.modelType == "装备模型") {
-            let meshTrigger = new YJTrigger(_this, object.GetGroup(), object, "weapon");
-            object.AddComponent("Trigger", meshTrigger);
-          }
-
-
-          singleTransform = object;
-
-        }
-
-        if (modelData.modelType == "动画模型") {
-
-          let object = new YJTransform(_this, scene, "", null, null, modelData.name);
-
-          object.SetPosRota(new THREE.Vector3(0, 0, 0));
-          object.SetModelPath(modelPath);
-          // object.SetData(item.folderBase,item.modelType);
-
-          let MeshRenderer = new YJMeshRenderer(_this, object.GetGroup(), object);
-          object.AddComponent("MeshRenderer", MeshRenderer);
-          MeshRenderer.load(modelPath, (scope) => {
-            singleModel = scope.GetModel();
-            new YJAnimator(scope.GetModel(), scope.GetAnimations());
-          });
-          singleTransform = object;
-
-        }
-
-
-        if (modelData.modelType == "uv模型") {
-
-          let object = new YJTransform(_this, scene, "", null, null, modelData.name);
-
-          object.SetPosRota(new THREE.Vector3(0, 0, 0));
-          object.SetModelPath(modelPath);
-          // object.SetData(item.folderBase,item.modelType);
-
-          let MeshRenderer = new YJMeshRenderer(_this, object.GetGroup(), object);
-          object.AddComponent("MeshRenderer", MeshRenderer);
-          MeshRenderer.load(modelPath, (scope) => {
-
-            let uvanim = new YJUVAnim3(_this);;
-            object.AddComponent("UVAnim", uvanim);
-            if (modelData.message != undefined) {
-              if (modelData.message.pointType == "UV动画") {
-                let gifData = modelData.message.data;
-                gifData.gifPath = gifData.gifPath;
-                uvanim.Init(scope.GetModel(), gifData);
-
-              }
-            }
-          });
-
-
-          singleTransform = object;
-        }
-
-        if (modelData.modelType == "汽车模型") {
-          if (modelData.message == undefined) {
-            return;
-          }
-          let object = new YJTransform(_this, scene, "", null, null, modelData.name);
-          object.SetPosRota(new THREE.Vector3(0, 0, 0));
-          singleTransform = object;
-          let car = singleTransform.GetComponent("Car");
-          if (car == null) {
-            car = new YJCar(_this, singleTransform.GetGroup(), "dd", modelData.message.data,
-              new THREE.Vector3(0, 0, 0),
-              new THREE.Vector3(0, 0, 0),
-              new THREE.Vector3(1, 1, 1),
-              null, (scope) => {
-                needUpdateJS.push(scope);
-              }, singleTransform
-            );
-            singleTransform.AddComponent("Car", car);
-          }
-
-        }
-
+        }); 
       });
 
     }

@@ -700,7 +700,7 @@ class YJNPC {
       baseData.state = stateType.Dead;
       scope.SetPlayerState("death");
       setTimeout(() => {
-        _Global.SceneManager.ReceiveEvent("npc尸体消失");
+        _Global.SceneManager.ReceiveEvent("npc尸体消失",scope.transform);
         // 执行溶解特效
         new YJshader_dissolve(scope.transform.GetGroup());
       }, 5000);

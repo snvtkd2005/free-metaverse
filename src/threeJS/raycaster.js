@@ -41,8 +41,7 @@ class YJRaycaster extends EventDispatcher {
 
     var targetPageX = 0;
     var targetPageY = 0;
-    var raycaster = new THREE.Raycaster();
-
+    var raycaster = new THREE.Raycaster(); 
     var hit;
     this.CallClick = function () {
       raycasterClick(mouse);
@@ -51,8 +50,7 @@ class YJRaycaster extends EventDispatcher {
     var pointPlane = null;
     var hoverObj;
     var canMovePos = new THREE.Vector3();
-    var raycasterHoverray = new THREE.Raycaster();
-
+    var raycasterHoverray = new THREE.Raycaster(); 
     var laterHiddenPoint = null;
 
 
@@ -67,8 +65,7 @@ class YJRaycaster extends EventDispatcher {
         return;
       }
 
-      // 悬浮热点
-      // raycaster = new THREE.Raycaster();
+      // 悬浮热点 
       raycaster.setFromCamera(pos, camera);
       //只检测pointsParent物体的子物体
       var intersects = raycaster.intersectObjects( 
@@ -117,7 +114,7 @@ class YJRaycaster extends EventDispatcher {
 
       // console.log(  " in  raycaster Click 点击热点 "  );
 
-      raycaster = new THREE.Raycaster();
+      raycaster = new THREE.Raycaster(); 
       raycaster.setFromCamera(pos, camera);
       //只检测pointsParent物体的子物体
       var intersects = raycaster.intersectObjects(
@@ -213,7 +210,8 @@ class YJRaycaster extends EventDispatcher {
       //   return false;
       // }
 
-      raycaster = new THREE.Raycaster();
+      raycaster = new THREE.Raycaster(); 
+
       raycaster.setFromCamera(pos, camera);
       // console.log("可点击模型列表为 " ,  _this.canHitModelList);
       //只检测pointsParent物体的子物体

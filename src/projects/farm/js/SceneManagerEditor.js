@@ -314,15 +314,12 @@ class SceneManager {
       if (owner.isYJTransform) {
         let msg = owner.GetMessage();
         if (msg.pointType == "weapon") {
-
           let state = _this.YJController.GetUserDataItem("weaponData");
           // console.log(" 碰到武器 ", msg.data,state);
-
           // 判断角色是否可以拾取武器
           if (state.weaponId != "") {
             return;
           }
-
 
           // 碰到武器就拾取
           _this.YJPlayer.GetBoneVague(msg.data.boneName, (bone) => {
@@ -351,8 +348,39 @@ class SceneManager {
             // console.log("bone ",bone); 
           });
         }
+        if (msg.pointType == "interactive") {
+          if (!b) { return; }
+          let data = msg.data;
+          if (data.imgPath) {
+            //收集道具
+            // 碰到就隐藏、发送其事件
+            owner.SetActive(false);
 
-        // console.log(" in overlap yjtransform ", msg);
+            if (_Global.YJDync) {
+              _SceneDyncManager.SendModel({ id: owner.GetData().id, modelType: "交互模型", state: { display: false } });
+              _SceneDyncManager.SendModel({ id: data.type, modelType: "交互模型", state: { type: "add", value: data.buffValue } });
+            } else {
+              if (data.buff == "addHealth") {
+                //加生命值
+                // data.buffValue
+                let v = _this.YJController.GetUserDataItem("baseData", "health") + data.buffValue;
+                let maxHealth = _this.YJController.GetUserDataItem("baseData", "maxHealth");
+                if (v >= maxHealth) {
+                  v = maxHealth;
+                }
+                _this.YJController.SetUserDataItem("baseData", "health", v);
+              }
+              if (data.buff == "addArmor") {
+                //加生命值
+                // data.buffValue
+                let v = _this.YJController.GetUserDataItem("baseData", "addArmor") + data.buffValue;
+                _this.YJController.SetUserDataItem("baseData", "armor", v);
+              }
+            }
+
+          }
+        }
+        console.log(" in overlap yjtransform ", msg);
 
       }
       return;
@@ -415,8 +443,31 @@ class SceneManager {
     let animName;
     let oldAnimName;
     let inThrowing = false;
-    // 使用物品、扔出物品
-    this.UserModel = (e, f, callback) => {
+    // 使用物品、扔出物品、使用技能
+    this.UserModel = (model, e, f, callback) => {
+      let data = model;
+      if (data.buff == "addHealth") {
+        //加生命值
+        // data.buffValue
+        let v = _this.YJController.GetUserDataItem("baseData", "health") + data.buffValue;
+        let maxHealth = _this.YJController.GetUserDataItem("baseData", "maxHealth");
+        if (v >= maxHealth) {
+          v = maxHealth;
+        }
+        _this.YJController.SetUserDataItem("baseData", "health", v);
+
+      }
+      if (data.buff == "addArmor") {
+        //加生命值
+        // data.buffValue
+        let v = _this.YJController.GetUserDataItem("baseData", "addArmor") + data.buffValue;
+        _this.YJController.SetUserDataItem("baseData", "armor", v);
+      }
+
+      if (_Global.YJDync) {
+        _SceneDyncManager.SendModel({ id: data.type, modelType: "交互模型", state: { type: "redius", value: data.buffValue } });
+      }
+      return;
 
       if (e == "attack") {
         if (f != undefined) {
@@ -622,6 +673,7 @@ class SceneManager {
       if (targetModel != null) {
         if (targetModel != transform) {
           targetModel.RemoveHandle();
+
         } else {
           return;
         }
@@ -671,8 +723,10 @@ class SceneManager {
       _YJProjector.SetActive(false);
     }
     this.ReceiveEvent = function (title, msg) {
-      if (title == "npc尸体消失") { 
-        ClearTarget();
+      if (title == "npc尸体消失") {
+        if (targetModel == msg) {
+          ClearTarget();
+        }
       }
     }
 
@@ -712,25 +766,52 @@ class SceneManager {
       ClearTarget();
 
     }
-    this.ClickPlayer = (owner) => {
-
+    this.ClickPlayer = (player) => {
+      console.log("点击玩家", player);
       // 自身角色除外
-      if (owner.isLocal) { return; }
-      if (oldTarget != null) {
+      if (player.isLocal) { return; }
+ 
+      if (targetModel != null) {
+        if (targetModel != player) {
+          targetModel.RemoveHandle();
+        } else {
+          return;
+        }
+      }
+      let { group, playerHeight } = player.GetBaseModel();
 
+      let baseData = player.GetBaseData();
+      let camp = "normal";
+      if (baseData.camp != _Global.user.camp) {
+        camp = "enmity";
       }
-      if (owner.GetBaseModel) {
-        let { group, playerHeight } = owner.GetBaseModel();
-        _YJProjector.Active(group, playerHeight);
+      if (baseData.health == 0) {
+        camp = "dead";
       }
+      _YJProjector.Active(group, playerHeight, camp);
+      let data = {};
+      data.name = player.GetNickName();
+      data.avatarData = player.GetavatarData();
+      data.baseData = baseData;
+      player.AddHandle((baseData) => {
+        if (baseData.health == 0) {
+          indexVue.$refs.HUD.$refs.headerUI.display = false;
+          ClearProjector();
+          return;
+        }
+        data.baseData = baseData;
+        indexVue.$refs.HUD.$refs.headerUI.SetTarget(data);
+      });
+      indexVue.$refs.HUD.$refs.headerUI.SetTarget(data);
 
       // 点击npc，播放其音效
       // console.log(owner);
-      if (owner.npcName) {
-        parentUI.SetNpcMusicUrl(owner.npcName);
+      if (player.npcName) {
+        parentUI.SetNpcMusicUrl(player.npcName);
       }
+      targetModel = player;
+      oldTarget = targetModel;
 
-      oldTarget = owner;
       ChangeTarget();
       return;
       // console.log(owner);
@@ -1264,48 +1345,6 @@ class SceneManager {
       }, 500);
     }
 
-    async function RequestSceneData() {
-      console.error("加载场景配置",);
-
-      let config = {
-        header: {
-          "Content-Type": "application/json",
-          'Accept': '*/*'
-        }
-      }
-
-      let data = {
-        "ActID": "AGBceHZifbTkmVvnNkgXnqPqnEDzWx",
-      }
-
-      getSceneData(JSON.stringify(data)).then(res => {
-        console.log('====scenedata', res);
-        if (res.status == 200) {
-          if (res.data.code == 1) {
-            let data = JSON.parse(res.data.data);
-            console.log(" 获取场景配置 ", data);
-
-            return;
-          }
-        }
-        console.log(" 获取场景配置 ", res);
-      })
-
-
-      // const res = await _this.$axios.post("/worldActivity",
-      //   JSON.stringify(data), config
-      // );
-
-
-      // if(res.status == 200){
-      //   if(res.data.code == 1){
-      //     let data = JSON.parse(res.data.data);
-      //     console.log(" 获取场景配置 ", data);
-      //     return;
-      //   }
-      // }
-
-    }
     this.GetSceneModel = function (id) {
 
       // console.log("查找场景模型  ", id);

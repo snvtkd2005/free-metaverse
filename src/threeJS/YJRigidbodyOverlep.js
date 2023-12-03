@@ -16,7 +16,7 @@ import { YJUVanim } from "./YJUVanim";
 import { YJUVanim2 } from "./YJUVanim2";
 import { YJLoadModel } from "./YJLoadModel";
 import { MeshBasicMaterial } from "three";
-import { YJTransform } from "./YJTransform";
+import { YJTransform } from "./components/YJTransform";
 import { YJMeshRenderer } from "./loader/YJMeshRenderer";
 import { YJAnimator } from "./components/YJAnimator";
 import { YJUVAnim3 } from "./YJUVAnim3.js";

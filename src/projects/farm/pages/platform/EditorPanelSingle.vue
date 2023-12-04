@@ -1190,12 +1190,27 @@ export default {
 
       this.Interface.load3dComplete();
 
+      this.$refs.YJmetaBase.OpenThreejs();
+      setTimeout(() => {
+        this.OpenThreejs();
+      }, 1000);
       // new SceneManager_MaterialSetting(
       // _Global.YJ3D.scene,
       // _Global.YJ3D.renderer,
       // _Global.YJ3D.camera,
       // _Global.YJ3D
       // );
+    },
+    
+    OpenThreejs() {
+      this.inThreejs = true;
+      if (this.$refs.loadingPanel) {
+        this.$refs.loadingPanel.DisplayLoading(false);
+      } 
+
+      // setTimeout(() => {
+      //   this.ChangeViewById(10004);
+      // }, 2000);
     },
     // 3转2坐标
     UpdateProjectionUI(_projectionList) {
@@ -1250,15 +1265,7 @@ export default {
     GetMinMapData() {
       let minMapData = this.avatarData.minMapData;
       return minMapData;
-    },
-    OpenThreejs() {
-      this.inThreejs = true;
-      this.$refs.YJmetaBase.OpenThreejs();
-
-      // setTimeout(() => {
-      //   this.ChangeViewById(10004);
-      // }, 2000);
-    },
+    }, 
     ClickNiaokan() {
       _Global.YJ3D.YJController.ResetToNiaokanView();
     },

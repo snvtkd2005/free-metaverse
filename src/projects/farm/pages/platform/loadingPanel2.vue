@@ -2,7 +2,7 @@
 // 在线聊天室 聊天界面 3d形象 聊天
 <template>
   <!-- 场景加载进度条 -->
-  <div v-if="diplayerLoading" class=" absolute bg-gray-400 w-full h-full top-0 left-0 z-50    text-white">
+  <div v-if="displayerLoading" class=" absolute bg-gray-400 w-full h-full top-0 left-0 z-50    text-white">
 
     <!-- 圆形进度条 -->
     <div class=" hidden absolute self-center w-96 h-96
@@ -45,7 +45,7 @@ export default {
   data() {
     return {
       canEnter: false,
-      diplayerLoading: true,
+      displayerLoading: true,
 
       loadingCircleBar: null,
       loadingProcessValue: 0,
@@ -59,13 +59,16 @@ export default {
     };
   },
   mounted() {
-    if (!this.diplayerLoading) { return; }
+    if (!this.displayerLoading) { return; }
     this.loadingCircleBar = new circlebar(this.$refs.circlebar);
 
   },
   methods: {
+    DisplayLoading(b){
+      this.displayerLoading = false;
+    },
     LoadingState(state) {
-      if (!this.diplayerLoading) { return; }
+      if (!this.displayerLoading) { return; }
 
       if (state == "success") {
         this.loading = false;
@@ -77,32 +80,33 @@ export default {
     },
 
     LoadState(state) {
-      if (!this.diplayerLoading) { return; }
+      if (!this.displayerLoading) { return; }
       if (state == "success") {
         this.canEnter = true;
-        setTimeout(() => {
-          this.OpenThreejs();
-        }, 20);
+        console.log(" 加载成功 隐藏loading ");
+        // setTimeout(() => {
+        //   this.OpenThreejs();
+        // }, 20);
       }
       if (state == "begin") {
-        this.diplayerLoading = true;
+        this.displayerLoading = true;
       }
     },
     LoadingProcess(process) {
       if (this.$parent.LoadingProcess) {
         this.$parent.LoadingProcess(process / 100);
       }
-      if (!this.diplayerLoading) { return; }
+      if (!this.displayerLoading) { return; }
       this.loadingProcessValue = process;
       // if (process == 100) { 
-      //   this.diplayerLoading = false;
+      //   this.displayerLoading = false;
       // }
 
       this.loadingCircleBar.UpdateCircle(process);
     },
     OpenThreejs() {
       this.$parent.OpenThreejs();
-      this.diplayerLoading = false;
+      this.displayerLoading = false;
     },
   },
 };

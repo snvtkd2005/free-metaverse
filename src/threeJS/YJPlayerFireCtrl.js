@@ -87,14 +87,24 @@ class YJPlayerFireCtrl {
 			_Global.DyncManager.PlayerAddFire(npcTransform.GetComponent("NPC"), _YJPlayer);
 		}
 		// 计算伤害。受到的攻击力-护甲值
-		function RealyDamage(strength) {
-			let v = strength - baseData.armor;
-			return v >= 0 ? v : 1;
+		function RealyDamage(strength) { 
+			let v = 0;
+			if(baseData.armor>=strength){
+				baseData.armor -= strength;
+				return 0;
+			}else{
+				// 至少会受到1点伤害
+				v = strength - baseData.armor;
+				baseData.armor = 0;
+				v = v > 0 ? v : 1;
+			} 
+			return v ;
 		}
 		this.ReceiveDamageDync = function (npcName, skillName, strength) {
-			console.log(" 主角受到 "+npcName + " " + skillName + " 攻击 剩余 " + baseData.health);
 
 			baseData.health -= RealyDamage(strength);
+			console.log(" 主角受到 "+npcName + " " + skillName + " 攻击 剩余 " + baseData.health);
+
 			if (baseData.health <= 0) {
 				baseData.health = 0;
 			}

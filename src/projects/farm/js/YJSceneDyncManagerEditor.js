@@ -344,6 +344,9 @@ class YJSceneDyncManagerEditor {
           const element = state[i];
           _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().EditorUserModel(element);
         }
+
+        //此时同步完成， 隐藏loading页
+        indexVue.OpenThreejs();
         return;
       }
 

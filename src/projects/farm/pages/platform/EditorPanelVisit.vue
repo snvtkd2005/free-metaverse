@@ -631,6 +631,7 @@ export default {
       } 
       this.initCompleted = true;
       this.Interface.load3dComplete(); 
+      this.$refs.YJmetaBase.OpenThreejs();
     },
     // 3转2坐标
     UpdateProjectionUI(_projectionList) {
@@ -746,8 +747,9 @@ export default {
     },
     OpenThreejs() {
       this.inThreejs = true;
-      this.$refs.YJmetaBase.OpenThreejs();
-
+      if (this.$refs.loadingPanel) {
+        this.$refs.loadingPanel.DisplayLoading(false);
+      } 
       // setTimeout(() => {
       //   this.ChangeViewById(10004);
       // }, 2000);

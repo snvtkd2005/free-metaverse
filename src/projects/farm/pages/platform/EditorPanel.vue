@@ -1222,6 +1222,20 @@ export default {
 
       this.Interface.load3dComplete();
 
+      this.$refs.YJmetaBase.OpenThreejs();
+      setTimeout(() => {
+        this.OpenThreejs();
+      }, 1000);
+    },
+    OpenThreejs() {
+      this.inThreejs = true;
+      if (this.$refs.loadingPanel) {
+        this.$refs.loadingPanel.DisplayLoading(false);
+      } 
+
+      // setTimeout(() => {
+      //   this.ChangeViewById(10004);
+      // }, 2000);
     },
     // 3转2坐标
     UpdateProjectionUI(_projectionList) {
@@ -1486,15 +1500,6 @@ export default {
     GetMinMapData() {
       let minMapData = this.sceneData.minMapData;
       return minMapData;
-    },
-    OpenThreejs() {
-      this.inThreejs = true;
-      this.$refs.YJmetaBase.OpenThreejs();
-
-
-      // setTimeout(() => {
-      //   this.ChangeViewById(10004);
-      // }, 2000);
     },
     ClickNiaokan() {
       _Global.YJ3D.YJController.ResetToNiaokanView();

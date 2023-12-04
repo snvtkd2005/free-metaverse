@@ -6,7 +6,7 @@
     class="  flex  absolute bottom-2  xl:bottom-10 w-full pointer-events-none  h-12 text-sm text-white">
 
 
-    <div class=" w-auto px-2 mx-auto h-full flex gap-2 pointer-events-auto bg-color rounded-lg ">
+    <div class=" w-auto px-2 mx-auto h-full flex gap-2 pointer-events-auto rounded-lg ">
 
       <div v-for="(item, i) in skillList" :key="i" class=" p-1 w-12 h-12 text-left " :class="0 == item.id
         ? ' '
@@ -46,16 +46,17 @@
 
   <div v-if="hover" class=" absolute w-2 h-2  text-white  " :style="' position:absolute; left:' +
     (hoverPanelOffset.x) +
-    'px;top:' +
+    'px;bottom:' +
     (hoverPanelOffset.y) +
     'px'
     ">
-    <div class=" absolute  text-center left-0 top-0 origin-bottom transform -translate-y-6 -translate-x-10 w-32 h-6 bg-black bg-opacity-40 ">
-      <div class=" px-px text-yellow-100">
-        {{ skillDescribe.title }}
-      </div>
+    <div class=" absolute  text-center left-0 top-0 origin-bottom transform -translate-y-6 -translate-x-10 w-32 h-auto bg-black bg-opacity-40 ">
+      
       <div class=" text-yellow-100">
         {{ skillDescribe.describe }}
+      </div>
+      <div class=" px-px text-yellow-100">
+        {{ skillDescribe.title }}
       </div>
     </div>
   </div>
@@ -72,7 +73,7 @@ export default {
     return {
       actionBar: true, //底部动作栏 
       hover: false,
-      hoverPanelOffset: { x: 120, y: 120 },
+      hoverPanelOffset: { x: 120, y: 220 },
       skillList: [
         { id: 10000,buff:"addArmor", type:"kouzhao", name: "口罩",describe:"防护", count: 0,buffValue:0 ,icon:"" },
         { id: 10001,buff:"addArmor", type: "fanghufu", name: "防护服",describe:"防护", count: 0,buffValue:0,icon:"" }, 
@@ -105,7 +106,7 @@ export default {
         if(item.type == skill.type){
           item.count = skill.count;
           item.buffValue = skill.value;
-          item.describe = item.buff=="addArmor"?"护甲":"生命" + " +"+item.buffValue;
+          item.describe = (item.buff=="addArmor"?"护甲":"生命") + " +"+item.buffValue;
         }
       } 
     },
@@ -124,7 +125,7 @@ export default {
       this.skillDescribe.title = item.name;
       this.skillDescribe.describe = item.describe;
       this.hoverPanelOffset.x = e.clientX;
-      this.hoverPanelOffset.y = 840;
+      this.hoverPanelOffset.y = 100;
       // this.hoverPanelOffset.y = e.clientY;
       // console.log("鼠标悬浮在技能上 ", item);
       // console.log("鼠标悬浮在技能上 2 ", e, this.hoverPanelOffset);

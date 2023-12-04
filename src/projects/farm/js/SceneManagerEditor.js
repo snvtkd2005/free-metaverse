@@ -586,9 +586,9 @@ class SceneManager {
 
       }
       if (model.buff == "addArmor") {
-        //加生命值
+        //加护甲值
         // data.buffValue
-        let v = _this.YJController.GetUserDataItem("baseData", "addArmor") + model.buffValue;
+        let v = _this.YJController.GetUserDataItem("baseData", "armor") + model.buffValue;
         _this.YJController.SetUserDataItem("baseData", "armor", v);
       }
     }

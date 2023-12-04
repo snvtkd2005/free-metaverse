@@ -71,7 +71,7 @@ export default {
     return {
       hover: false,
       hoverPanelOffset: { x: 120, y: 120 },
-      actionBar: true, //底部动作栏 
+      actionBar: false, //底部动作栏 
       skillList: [
         { id: 10000, type: "attack", name: "南瓜", count: 10 },
         // { id: 10001, type: "attack", name: "胡萝卜", count: 10 },

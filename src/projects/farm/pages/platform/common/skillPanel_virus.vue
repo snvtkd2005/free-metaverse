@@ -131,8 +131,7 @@ export default {
     },
     clickSkill(e) {
       console.log("点击技能 ",e);
-      if(e=="攻击"){
-        // this.UserModel(this.skillList[index]);
+      if(e=="攻击"){ 
         _Global.YJ3D.YJController.SetInteractiveNPC("点击技能");
       }
     },
@@ -140,6 +139,10 @@ export default {
     UserModel(item) {
       //播放角色动作
       console.log(" 点击技能栏 ", item);
+      if(item.count<=0){
+        console.log(" 道具数量为0");
+        return;
+      }
       _Global.SceneManager.UserModel(item);
       return;
       _Global.SendMsgTo3D("点击技能栏", item.animList[0].animName);

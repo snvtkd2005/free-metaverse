@@ -96,7 +96,8 @@
             " @click="ShowChat(item)">
           <!-- 在大厅中说话 -->
           <div v-if="item.targetUser == ''" class="flex leading-5">
-            <div class=" whitespace-nowrap truncate w-32  h-5 ">[{{ item.fromUser + (item.fromId == id ? '(自己)' : '') }}</div>
+            <div class=" whitespace-nowrap truncate w-32  h-5 ">[{{ item.fromUser + (item.fromId == id ? '(自己)' : '') }}
+            </div>
             <div class=" pr-1 flex-grow ">
               ]：{{ item.message }}
             </div>
@@ -131,16 +132,16 @@
         </div>
         <div @click="chatTargetUser = ''" class="pr-5 cursor-pointer">X</div>
       </div>
- 
+
     </div>
   </div>
 
 
-    <!-- 输入区域 -->
-    <div  class=" absolute left-2 bottom-2 bg-gray-300 bg-opacity-70 rounded-lg text-white w-auto h-10 flex">
-      <!-- 输入框 -->
-      <div class="w-full h-10 ">
-        <input ref="roomInput" class="
+  <!-- 输入区域 -->
+  <div class=" absolute left-2 bottom-2 bg-gray-300 bg-opacity-70 rounded-lg text-white w-auto h-10 flex">
+    <!-- 输入框 -->
+    <div class="w-full h-10 ">
+      <input ref="roomInput" class="
                           w-72 xl:w-64
                                 text-left
                                 align-top
@@ -150,10 +151,10 @@
                                 h-full 
                                 resize-none
                               " type="text" placeholder="请输入聊天内容" v-model="currentChatStr" @focus="removeThreeJSfocus"
-          @blur="addThreeJSfocus"  @keyup.enter="SendChat" />
-      </div>
+        @blur="addThreeJSfocus" @keyup.enter="SendChat" />
+    </div>
 
-      <div class="
+    <div class="
                               ml-8
                               w-16
                               h-full
@@ -163,10 +164,10 @@
                               rounded-sm
                               text-white text-sm
                             " @click="SendChat()">
-        <p class="self-center mx-auto">{{ language.content.sendMsg }}</p>
-      </div>
+      <p class="self-center mx-auto">{{ language.content.sendMsg }}</p>
+    </div>
 
-      <div class=" 
+    <div class=" 
                               ml-2
                               w-16
                               h-full
@@ -176,9 +177,9 @@
                               rounded-sm
                               text-white text-sm
                             " @click="ClearChat()">
-        <p class="self-center mx-auto">{{ language.content.clearMsg }}</p>
-      </div>
+      <p class="self-center mx-auto">{{ language.content.clearMsg }}</p>
     </div>
+  </div>
 
 
 
@@ -310,15 +311,15 @@ export default {
     this.inSend = false;
     this.connected = false;
     this.otherUser = [{
-          user: {
-            userData: {
-              baseData: {
-                health: 0,
-                maxHealth: 0,
-              }
-            }
+      user: {
+        userData: {
+          baseData: {
+            health: 0,
+            maxHealth: 0,
           }
-        }];
+        }
+      }
+    }];
 
     //所有其他玩家
     this.allPlayer = [];
@@ -550,7 +551,7 @@ export default {
 
 
     //添加到服务器后，生成角色
-    GeneratePlayer(isLocal, id, platform, nickName) {
+    GeneratePlayer(isLocal, id, platform, nickName, userData) {
       if (isLocal) {
         this.id = id;
 
@@ -569,7 +570,14 @@ export default {
       if (platform == "pcweb") {
         // console.log("生成 其他角色镜像 角色 " + id);
 
-        let _YJPlayer = new YJPlayer(this.ThreejsHumanChat, this.ThreejsHumanChat.scene, false, nickName);
+        let _YJPlayer = new YJPlayer(this.ThreejsHumanChat, this.ThreejsHumanChat.scene,
+          false, nickName, null, (scope) => {
+            if (userData) {
+              setTimeout(() => {
+                scope.ChangeAnim(userData.animName);
+              }, 100);
+            }
+          });
 
 
         _YJPlayer.setPlayerDefaultPos(this._YJSceneManager.getPlayerDefaultPos());
@@ -659,8 +667,8 @@ export default {
       }
     },
     GetPlayerById(id) {
-      console.log("获取同一战斗组中的玩家 ",this.allPlayer,this.ThreejsHumanChat.YJPlayer.id,id);
-      if(this.ThreejsHumanChat.YJPlayer.id == id ){return this.ThreejsHumanChat.YJPlayer;}
+      console.log("获取同一战斗组中的玩家 ", this.allPlayer, this.ThreejsHumanChat.YJPlayer.id, id);
+      if (this.ThreejsHumanChat.YJPlayer.id == id) { return this.ThreejsHumanChat.YJPlayer; }
       for (let i = 0; i < this.allPlayer.length; i++) {
         if (this.allPlayer[i].id == id) {
           return this.allPlayer[i].player;
@@ -1396,4 +1404,5 @@ export default {
   -khtml-user-select: text;
   /*早期浏览器*/
   user-select: text;
-}</style>
+}
+</style>

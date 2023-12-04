@@ -10,7 +10,7 @@ import { YJTrailRenderer } from "/@/threeJS/components/YJTrailRenderer.js";
 // 场景同步数据
 
 class YJSceneDyncManagerEditor {
-  constructor(_this, indexVue, camera) {
+  constructor(_this, indexVue, _SceneManager) {
     var scope = this;
 
     let dyncModelList = [];
@@ -227,6 +227,11 @@ class YJSceneDyncManagerEditor {
 
     }
     this.SendSceneStateToServer = () => {
+      dyncModelList.push ({ id: "kouzhao", modelType: "交互模型", state:  { value: 0, count: 0 } });
+      dyncModelList.push ({ id: "fanghufu", modelType: "交互模型", state:  { value: 0, count: 0 } });
+      dyncModelList.push ({ id: "zhongcaoyao", modelType: "交互模型", state:  { value: 0, count: 0 } });
+      dyncModelList.push ({ id: "jiujingpenghu", modelType: "交互模型", state:  { value: 0, count: 0 } });
+      dyncModelList.push ({ id: "offsetTime", modelType: "offsetTime", state:  { offsetTime: 0, startTime: 1675586194683} });
       _Global.YJDync._YJDyncManager.SendSceneState("初始化", dyncModelList);
     }
     // 玩家拾取场景内物体的数据。用来做场景物体同步
@@ -258,6 +263,18 @@ class YJSceneDyncManagerEditor {
       }
       _Global.YJDync._YJDyncManager.SendSceneState("更新single", model);
     }
+    this.SendModelPlayer = function (model) {
+      if (!_Global.YJDync) {
+        return;
+      }
+      _Global.YJDync._YJDyncManager.SendSceneState("玩家对玩家", model);
+    }
+    this.SendNpcToPlayer = function (model) {
+      if (!_Global.YJDync) {
+        return;
+      }
+      _Global.YJDync._YJDyncManager.SendSceneState("NPC对玩家", model);
+    }
     //发送整个场景数据
     this.SendSceneState = function (type, msg) {
       if (!_Global.YJDync) {
@@ -281,7 +298,6 @@ class YJSceneDyncManagerEditor {
       _Global.YJDync._YJDyncManager.SendSceneState("转发", { type: type, state: msg });
 
     }
-
     this.Receive = function (sceneState) {
       let state = sceneState.state;
 
@@ -359,7 +375,7 @@ class YJSceneDyncManagerEditor {
 
         // return;
       }
-      console.log("更新单个模型 ", sceneState);
+      // console.log("更新单个模型 ", sceneState);
       //单个模型的更新
       _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().EditorUserModel(state);
       for (let i = 0; i < dyncModelList.length; i++) {
@@ -373,7 +389,7 @@ class YJSceneDyncManagerEditor {
     }
     //接收服务器下发
     this.ReceiveFromServer = function (sceneState) {
-      console.log(" 接收服务器下发 更新单个模型 ", sceneState);
+      // console.log(" 接收服务器下发 更新单个模型 ", sceneState);
       let model = sceneState.state;
       switch (sceneState.title) {
         case "更新道具数量":
@@ -388,11 +404,17 @@ class YJSceneDyncManagerEditor {
           }
           return;
           break;
+        case "还原装备":
+          if (model.modelType == "装备模型") {
+            _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().EditorUserModel(model);
+          }
+          return;
+          break;
 
         default:
           break;
       }
-      _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().EditorUserModel(state);
+      _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().EditorUserModel(model);
     }
 
 
@@ -407,7 +429,17 @@ class YJSceneDyncManagerEditor {
       if (_Global.YJDync) {
         _Global.YJDync._YJDyncManager.UpdateModel(id, title, data);
       }
+    }
 
+    this.ReceiveNpcToPlayer = function (sceneState) {
+      // _SceneManager.ReceivePlayer(sceneState.state);
+      _this.YJController.ReceiveDamageDync(sceneState.npcName, sceneState.skillName, sceneState.strength);
+      // console.log(" 接收 npc 对玩家 ", sceneState);
+    }
+    // 接收玩家对玩家
+    this.ReceivePlayer = function (sceneState) {
+      _SceneManager.ReceivePlayer(sceneState.state);
+      // console.log(" 接收玩家对玩家 ", sceneState);
     }
     // 接收服务器转发过来的由主控发送的模型同步信息
     this.ReceiveModel = function (id, title, data) {

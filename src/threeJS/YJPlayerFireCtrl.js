@@ -53,6 +53,11 @@ class YJPlayerFireCtrl {
 					let { _targetModel, skillName, strength } = state.msg;
 					return scope.ReceiveDamage(_targetModel, skillName, strength);
 					break;
+				case "受到伤害Dync":
+					let msg = state.msg;
+					return scope.ReceiveDamageDync(msg.npcName, msg.skillName, msg.strength);
+					break;
+
 				case "设置武器":
 					weaponData = state.msg;
 					// var {v} = GetSkillDataByWeapon(weaponData);
@@ -82,16 +87,39 @@ class YJPlayerFireCtrl {
 			_Global.DyncManager.PlayerAddFire(npcTransform.GetComponent("NPC"), _YJPlayer);
 		}
 		// 计算伤害。受到的攻击力-护甲值
-		function RealyDamage(strength){
+		function RealyDamage(strength) {
 			let v = strength - baseData.armor;
-			return v>=0?v:1;
+			return v >= 0 ? v : 1;
+		}
+		this.ReceiveDamageDync = function (npcName, skillName, strength) {
+			console.log(" 主角受到 "+npcName + " " + skillName + " 攻击 剩余 " + baseData.health);
+
+			baseData.health -= RealyDamage(strength);
+			if (baseData.health <= 0) {
+				baseData.health = 0;
+			}
+			UpdateData();
+			if (baseData.health == 0) {
+				baseData.health = 0;
+				playerState = PLAYERSTATE.DEAD
+				scope.SetPlayerState("death");
+
+				if (vaildAttackLater != null) {
+					clearTimeout(vaildAttackLater);
+					clearTimeout(vaildAttackLater2);
+					vaildAttackLater = null;
+				}
+				return true;
+			}
+			return false;
+
 		}
 		this.ReceiveDamage = function (_targetModel, skillName, strength) {
-			if (npcTransform == null) { 
+			if (npcTransform == null) {
 				SelectNPC(_targetModel);
 				PlayerAddFire();
 				//自动显示其头像 
-				_Global.SceneManager.SetTargetModel(npcTransform); 
+				_Global.SceneManager.SetTargetModel(npcTransform);
 			}
 
 			baseData.health -= RealyDamage(strength);
@@ -160,7 +188,7 @@ class YJPlayerFireCtrl {
 			}
 		}
 		function ReadyFire() {
-			
+
 			var { s, v, a } = GetSkillDataByWeapon(weaponData);
 			skillName = s;
 			vaildAttackDis = v;
@@ -218,7 +246,7 @@ class YJPlayerFireCtrl {
 			let b2 = CheckColliderBetween(npcPos, playerPos);
 			if (b2) { _Global.SceneManager.FireState("无法攻击目标"); return false; }
 			// 不在攻击范围内
-			let b = CheckDis(playerPos.distanceTo(npcPos)); 
+			let b = CheckDis(playerPos.distanceTo(npcPos));
 			if (!b) { _Global.SceneManager.FireState("太远了"); return false; }
 			return b && !b2;
 		}
@@ -259,7 +287,7 @@ class YJPlayerFireCtrl {
 
 							if (health == 0) {
 								npcTransform = null;
-								_Global.SceneManager.SetTargetModel(npcTransform); 
+								_Global.SceneManager.SetTargetModel(npcTransform);
 
 								playerState = PLAYERSTATE.NORMAL;
 								if (toIdelLater != null) {

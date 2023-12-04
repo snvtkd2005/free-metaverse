@@ -558,7 +558,7 @@ export default {
 
 
     //添加到服务器后，生成角色
-    GeneratePlayer(isLocal, id, platform, nickName) {
+    GeneratePlayer(isLocal, id, platform, nickName,userData) {
       if (isLocal) {
         this.id = id;
 
@@ -575,16 +575,20 @@ export default {
       }
 
       if (platform == "pcweb") {
-        // console.log("生成 其他角色镜像 角色 " + id);
+        console.log("生成 其他角色镜像 角色 " + id,userData);
 
-        let _YJPlayer = new YJPlayer(this.ThreejsHumanChat, this.ThreejsHumanChat.scene, false, nickName);
-        
-
+        let _YJPlayer = new YJPlayer(this.ThreejsHumanChat, this.ThreejsHumanChat.scene,
+         false, nickName,null,(scope)=>{
+          
+        });
         _YJPlayer.setPlayerDefaultPos(this._YJSceneManager.getPlayerDefaultPos());
-
-
         _YJPlayer.CreateNameTrans(nickName);
 
+        if(userData){
+          setTimeout(() => {
+            _YJPlayer.ChangeAnim(userData.animName);
+          }, 1000);
+        }
         this.allPlayer.push({
           player: _YJPlayer,
           id: id,

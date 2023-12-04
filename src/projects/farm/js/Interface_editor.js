@@ -219,7 +219,6 @@ class Interface {
       }
 
       if (type == "放下武器") {
-        _this._SceneManager.PickDownWeapon();
         let singleTransform = _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
         if (singleTransform == null) { return; }
         let message = singleTransform.GetMessage();

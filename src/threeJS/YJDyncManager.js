@@ -86,7 +86,7 @@ class YJDyncManager {
     //更新角色信息 位置、形象等
     this.updateUser = function () {
       let fromData = {};
-      fromData.type = "更新位置";
+      fromData.type = "更新角色位置";
       let msg = this.InitMsg();
       msg.user = this.user;
       fromData.message = msg;
@@ -614,6 +614,12 @@ class YJDyncManager {
       if (title == "转发") {
         fromData.sceneState = msg;
       }
+      if (title == "玩家对玩家") {
+        fromData.sceneState = msg;
+      }
+      if (title == "NPC对玩家") {
+        fromData.sceneState = msg;
+      }
       this.callRPCFn("_SendSceneState", "other", JSON.stringify(fromData));
 
     }
@@ -644,7 +650,18 @@ class YJDyncManager {
         _Global.DyncManager.Receive(data.sceneState);
         return;
       }
-
+      if (data.title == "玩家对玩家") {
+        if(data.sceneState.targetId == _this.id){
+          _Global.DyncManager.ReceivePlayer(data.sceneState);
+        }
+        return;
+      }
+      if (data.title == "NPC对玩家") {
+        if(data.sceneState.targetId == _this.id){
+          _Global.DyncManager.ReceiveNpcToPlayer(data.sceneState);
+        }
+        return;
+      }
       // if(!_Global.mainUser){
       //   _Global.DyncManager.Receive(sceneState);
       // }
@@ -932,7 +949,7 @@ class YJDyncManager {
           let data = userList[j];
           YJDync.GeneratePlayer(
             data.id == this.id,
-            data.id, data.platform, data.userName
+            data.id, data.platform, data.userName,data.userData
           );
           this.AddPlayerUser(data.id, data.userName, data.roomName, data);
 

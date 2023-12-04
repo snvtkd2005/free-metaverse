@@ -480,14 +480,13 @@ class YJNPC {
       }
 
       targetModel = _targetModel;
-
+      if (targetModel == null) {
+        return;
+      }
 
       let npcPos = parent.position.clone();
-
-
       readyAttack = false;
       scope.SetPlayerState("准备战斗");
-
       let playerPosRef = targetModel.GetWorldPos().clone();
       playerPosRef.y = npcPos.y;
       parent.lookAt(playerPosRef);
@@ -558,9 +557,18 @@ class YJNPC {
           vaildAttackDis = v;
           attackStepSpeed = a;
           animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
-
+          if(targetModel != null && targetModel.isDead){
+            CheckNextTarget();
+            return;
+          }
           if (vaildAttackLater == null) {
             vaildAttackLater = setTimeout(() => {
+              
+              if(targetModel != null && targetModel.isDead){
+                CheckNextTarget();
+                return;
+              }
+
               readyAttack = true;
               inBlocking = false;
               vaildAttackLater = null;
@@ -798,22 +806,33 @@ class YJNPC {
             readyAttack = false;
 
             ClearLater("清除准备战斗");
-
+            
             scope.SetPlayerState("普通攻击");
             vaildAttackLater2 = setTimeout(() => {
-              //有效攻击
-              if (targetModel != null && targetModel.isLocal) {
+              //有效攻击 && 
+              if (targetModel != null ) {
                 // let isDead = targetModel.DyncPlayerState({
                 //   title:"fire",
                 //   content:"受到伤害",
                 //   msg:{_targetModel:targetModel, skillName:skillName,strength: baseData.strength},
                 // }); 
-
-                let isDead = targetModel.owner.ReceiveDamage(scope.transform, skillName, baseData.strength);
-                if (isDead) {
-                  CheckNextTarget();
-                  return;
+                if(targetModel.isLocal){
+                  if(targetModel.owner){
+                    let isDead = targetModel.owner.ReceiveDamage(scope.transform, skillName, baseData.strength);
+                    if (isDead) {
+                      CheckNextTarget();
+                      return;
+                    }
+                  }
+                }else{
+                  // 当主控玩家窗口在后台运行时，由玩家镜像接收后发送服务器同步给主控玩家
+                  if(targetModel != null && targetModel.isDead){
+                    CheckNextTarget();
+                    return;
+                  }
+                  _Global.DyncManager.SendNpcToPlayer({targetId:targetModel.id,npcId:scope.transform.id,npcName:scope.npcName,skillName:skillName, strength:baseData.strength});
                 }
+
               }
 
             }, attackStepSpeed * 100);

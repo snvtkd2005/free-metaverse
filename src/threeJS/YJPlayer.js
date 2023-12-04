@@ -13,12 +13,13 @@ import { YJPlayerChat } from "./YJPlayerChat.js";
 import TWEEN from '@tweenjs/tween.js';
 
 class YJPlayer {
-  constructor(_this, scene, local, nickName, controllerCallback) {
+  constructor(_this, scene, local, nickName, controllerCallback,loadAvatarMirrorCompleted) {
 
     var scope = this;
     this.isLocal = local;
     this.fireId = -1; 
-    
+    this.isPlayer = true;
+    this.isDead = false;
     // 创建一个时钟对象Clock
     var clock = new THREE.Clock();
 
@@ -164,8 +165,8 @@ class YJPlayer {
       } else {
         playerObj.rotation.set(0, 0, 0); // 
       }
-      mountAvatar.ClearMesh();
-      avatar.ChangeAnim(oldAnimName);
+      mountAvatar.ClearMesh(); 
+      this.ChangeAnim(oldAnimName);
       mountName = "";
 
       if (createdName) {
@@ -202,7 +203,8 @@ class YJPlayer {
       let modelPath = avatarData.modelPath;
       let animationsData = avatarData.animationsData;
       if (avatar) {
-        avatar.ChangeAnim("idle");
+        this.ChangeAnim("idle");
+
       }
 
       if (modelPath.includes("http")) {
@@ -351,6 +353,11 @@ class YJPlayer {
 
           if (hasName) {
             CreateNameTransFn();
+          }
+
+          
+          if (loadAvatarMirrorCompleted) {
+            loadAvatarMirrorCompleted(scope);
           }
         },
         (animName) => {
@@ -763,7 +770,6 @@ class YJPlayer {
     var oldAnimName = "";
     //切换动画
     this.ChangeAnim = function (animName) {
-
       // console.log("切换动画 ", animName);
       ChangeAnimFn(animName);
     }
@@ -947,6 +953,9 @@ class YJPlayer {
       for (let i = 0; i < handlerList.length; i++) {
         const element = handlerList[i];
         element(oldUserData.baseData);
+      }
+      if(oldUserData.baseData){
+        this.isDead = oldUserData.baseData.health <= 0;
       }
 
       // 同步拾取物体

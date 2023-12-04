@@ -86,9 +86,7 @@
     <div class=" mt-2 w-80 h-10 text-white cursor-pointer " @click="ClickHandler('保存偏移旋转')">
       <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">保存偏移旋转</div>
     </div>
-    <!-- <div class=" mt-2 w-80 h-10 text-white cursor-pointer " @click="pickDown()">
-      <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">放下</div>
-    </div> -->
+    
 
     <!-- <div  class=" flex gap-2 text-black ">
       <YJinput_number :value="carData.param.chassisHeight" />
@@ -434,10 +432,6 @@ export default {
         //取消编辑
         _Global.SendMsgTo3D("取消编辑");
       })
-    },
-
-    pickDown() {
-      _Global.SendMsgTo3D("放下武器");
     },
 
     saveFn() {

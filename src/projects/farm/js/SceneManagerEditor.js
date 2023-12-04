@@ -229,7 +229,10 @@ class SceneManager {
 
           _this.YJController.SetUserDataItem("weaponData", "weaponId", "");
           _this.YJController.SetUserDataItem("weaponData", "weaponType", "");
+          _this.YJController.SetUserDataItem("weaponData", "transId", "");
 
+          
+          scope.PickDownWeapon();
           _Global.SendMsgTo3D("放下武器");
 
           return;
@@ -262,7 +265,7 @@ class SceneManager {
       // render();
       _this._YJSceneManager.AddNeedUpdateJS(scope);
 
-      _SceneDyncManager = new YJSceneDyncManagerEditor(_this, indexVue, camera);
+      _SceneDyncManager = new YJSceneDyncManagerEditor(_this, indexVue, scope );
       scope.AddChangeTargetListener((b) => {
         if (indexVue.$refs.gameUI) {
           indexVue.$refs.gameUI.SetTargetVaild(b);
@@ -343,6 +346,7 @@ class SceneManager {
             _this.YJController.SetUserDataItem("weaponData", "pickType", msg.data.pickType);
             _this.YJController.SetUserDataItem("weaponData", "weaponType", msg.data.weaponType);
             _this.YJController.SetUserDataItem("weaponData", "weaponId", msg.data.id);
+            _this.YJController.SetUserDataItem("weaponData", "transId", owner.id);
 
             _SceneDyncManager.SendModelState(owner.GetData().id, { modelType: owner.GetData().modelType, msg: { display: false } });
             // console.log("bone ",bone); 
@@ -360,27 +364,12 @@ class SceneManager {
               _SceneDyncManager.SendModel({ id: owner.GetData().id, modelType: "交互模型", state: { display: false } });
               _SceneDyncManager.SendModel({ id: data.type, modelType: "交互模型", state: { type: "add", value: data.buffValue } });
             } else {
-              if (data.buff == "addHealth") {
-                //加生命值
-                // data.buffValue
-                let v = _this.YJController.GetUserDataItem("baseData", "health") + data.buffValue;
-                let maxHealth = _this.YJController.GetUserDataItem("baseData", "maxHealth");
-                if (v >= maxHealth) {
-                  v = maxHealth;
-                }
-                _this.YJController.SetUserDataItem("baseData", "health", v);
-              }
-              if (data.buff == "addArmor") {
-                //加生命值
-                // data.buffValue
-                let v = _this.YJController.GetUserDataItem("baseData", "addArmor") + data.buffValue;
-                _this.YJController.SetUserDataItem("baseData", "armor", v);
-              }
+              this.ReceivePlayer(data); 
             }
 
           }
         }
-        console.log(" in overlap yjtransform ", msg);
+        // console.log(" in overlap yjtransform ", msg);
 
       }
       return;
@@ -445,27 +434,28 @@ class SceneManager {
     let inThrowing = false;
     // 使用物品、扔出物品、使用技能
     this.UserModel = (model, e, f, callback) => {
-      let data = model;
-      if (data.buff == "addHealth") {
-        //加生命值
-        // data.buffValue
-        let v = _this.YJController.GetUserDataItem("baseData", "health") + data.buffValue;
-        let maxHealth = _this.YJController.GetUserDataItem("baseData", "maxHealth");
-        if (v >= maxHealth) {
-          v = maxHealth;
-        }
-        _this.YJController.SetUserDataItem("baseData", "health", v);
 
+      if(oldTarget != null){
+        if(oldTarget.isPlayer){
+          //目标是玩家
+          let data = {};
+          data.fromId = _this.YJPlayer.id;
+          data.targetId = oldTarget.id;
+          let msg = {};
+          msg.buff = model.buff;
+          msg.buffValue = model.buffValue;
+          data.state = msg;
+          _SceneDyncManager.SendModelPlayer(data);
+          if (_Global.YJDync) {
+            _SceneDyncManager.SendModel({ id: model.type, modelType: "交互模型", state: { type: "redius", value: model.buffValue } });
+          }
+          return;
+        }
       }
-      if (data.buff == "addArmor") {
-        //加生命值
-        // data.buffValue
-        let v = _this.YJController.GetUserDataItem("baseData", "addArmor") + data.buffValue;
-        _this.YJController.SetUserDataItem("baseData", "armor", v);
-      }
+      this.ReceivePlayer(model);
 
       if (_Global.YJDync) {
-        _SceneDyncManager.SendModel({ id: data.type, modelType: "交互模型", state: { type: "redius", value: data.buffValue } });
+        _SceneDyncManager.SendModel({ id: model.type, modelType: "交互模型", state: { type: "redius", value: model.buffValue } });
       }
       return;
 
@@ -573,6 +563,34 @@ class SceneManager {
       }
 
       _this.YJController.SetPlayerState(e, f);
+    }
+
+    // 主控玩家接受道具效果
+    this.ReceivePlayer = function(model){
+      // 
+      console.log("接收道具 ",model);
+
+      if(_this.YJController.isInDead()){
+        // 角色死亡后不接收道具效果
+        return;
+      }
+      if (model.buff == "addHealth") {
+        //加生命值
+        // data.buffValue
+        let v = _this.YJController.GetUserDataItem("baseData", "health") + model.buffValue;
+        let maxHealth = _this.YJController.GetUserDataItem("baseData", "maxHealth");
+        if (v >= maxHealth) {
+          v = maxHealth;
+        }
+        _this.YJController.SetUserDataItem("baseData", "health", v);
+
+      }
+      if (model.buff == "addArmor") {
+        //加生命值
+        // data.buffValue
+        let v = _this.YJController.GetUserDataItem("baseData", "addArmor") + model.buffValue;
+        _this.YJController.SetUserDataItem("baseData", "armor", v);
+      }
     }
 
     let laterSitting = null;

@@ -264,6 +264,11 @@ export default {
       this.RequestGetAllSceneData();
       this.$refs.YJmetaBase.SetloadingPanel(this.$refs.loadingPanel);
     });
+
+    document.addEventListener("visibilitychange", () => { 
+      _Global.inFocus = !document.hidden;
+      console.log(" _Global.inFocus ", _Global.inFocus);
+    });
   },
   methods: {
     // 获取所有单品

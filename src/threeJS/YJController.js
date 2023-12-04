@@ -3452,7 +3452,8 @@ class YJController {
       weaponData: {
         pickType: "",
         weaponType: "",
-        weaponId: "",
+        weaponId: "", //武器模型
+        transId:"", //武器模型在场景中的id
       },
     };
 
@@ -3486,6 +3487,7 @@ class YJController {
         return;
       }
       userData[property] = value;
+      directUpate = true;
     }
     this.GetUserDataItem = function (property,property2) {
       if (property2 != undefined) {
@@ -3642,6 +3644,17 @@ class YJController {
         title: "fire",
         content: "受到伤害",
         msg: { _targetModel: _targetModel, skillName: skillName, strength: strength },
+      });
+    }
+    this.ReceiveDamageDync = function (npcName, skillName, strength) {
+      // 如果窗口在焦点，则不执行
+      if(_Global.inFocus){
+        return;
+      }
+      _YJPlayer.isDead = _YJPlayerFireCtrl.OnPlayerState({
+        title: "fire",
+        content: "受到伤害Dync",
+        msg: { npcName: npcName, skillName: skillName, strength: strength },
       });
     }
     this.SetInteractiveNPC = function (content, _npcTransform) {

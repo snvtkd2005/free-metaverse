@@ -28,6 +28,8 @@ class Interface {
     _Global.user = {
       camp: "lm"
     }
+    _Global.inFocus = true;
+
 
     let cursorUrl = null;
     // 切换光标

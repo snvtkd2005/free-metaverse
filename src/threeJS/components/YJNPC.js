@@ -823,7 +823,7 @@ class YJNPC {
               //有效攻击 && 
               if (targetModel != null) {
                 
-                if (targetModel.isLocal) {
+                if (targetModel.isLocal && _Global.inFocus) {
                   if (targetModel.owner) {
                     let isDead = targetModel.owner.ReceiveDamage(scope.transform, skillName, baseData.strength);
                     if (isDead) {
@@ -837,7 +837,9 @@ class YJNPC {
                     CheckNextTarget();
                     return;
                   }
-                  _Global.DyncManager.SendNpcToPlayer({ targetId: targetModel.id, npcId: scope.transform.id, npcName: scope.npcName, skillName: skillName, strength: baseData.strength });
+                  if(_Global.mainUser){
+                    _Global.DyncManager.SendNpcToPlayer({ targetId: targetModel.id, npcId: scope.transform.id, npcName: scope.npcName, skillName: skillName, strength: baseData.strength });
+                  }
                 }
 
               }

@@ -484,6 +484,11 @@ class YJNPC {
         return;
       }
 
+      if (laterNav != null) {
+        clearTimeout(laterNav);
+        laterNav = null;
+      }
+
       let npcPos = parent.position.clone();
       readyAttack = false;
       scope.SetPlayerState("准备战斗");
@@ -557,14 +562,14 @@ class YJNPC {
           vaildAttackDis = v;
           attackStepSpeed = a;
           animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
-          if(targetModel != null && targetModel.isDead){
+          if (targetModel != null && targetModel.isDead) {
             CheckNextTarget();
             return;
           }
           if (vaildAttackLater == null) {
             vaildAttackLater = setTimeout(() => {
-              
-              if(targetModel != null && targetModel.isDead){
+
+              if (targetModel != null && targetModel.isDead) {
                 CheckNextTarget();
                 return;
               }
@@ -629,7 +634,7 @@ class YJNPC {
       if (baseData.health <= 0) {
         baseData.health = 0;
       }
-      _Global.SceneManager.UpdateNpcDamageValue("self", "normal", strength,pos );
+      _Global.SceneManager.UpdateNpcDamageValue("self", "normal", strength, pos);
 
       UpdateData();
 
@@ -702,13 +707,16 @@ class YJNPC {
     }
     // 死亡
     function dead() {
+
+      _Global.DyncManager.RemoveNPCFireId(scope);
+
       // 停止寻路
       navpath = [];
       // 设为死亡状态
       baseData.state = stateType.Dead;
       scope.SetPlayerState("death");
       setTimeout(() => {
-        _Global.SceneManager.ReceiveEvent("npc尸体消失",scope.transform);
+        _Global.SceneManager.ReceiveEvent("npc尸体消失", scope.transform);
         // 执行溶解特效
         new YJshader_dissolve(scope.transform.GetGroup());
       }, 5000);
@@ -755,7 +763,10 @@ class YJNPC {
     function CheckNextTarget() {
       console.log(" npc目标玩家死亡,查找下一个 =====", scope.fireId);
       targetModel = null;
-      scope.SetTarget(targetModel, true);
+      scope.SetTarget(null, true);
+
+      // setTimeout(() => {
+      // }, 1000);
       // 向主控请求下一个目标
       // 获取战斗组中的其他玩家作为目标。 没有时，npc结束战斗
       _Global.DyncManager.RequestNextFireIdPlayer(scope.transform.id, scope.fireId);
@@ -806,31 +817,27 @@ class YJNPC {
             readyAttack = false;
 
             ClearLater("清除准备战斗");
-            
+
             scope.SetPlayerState("普通攻击");
             vaildAttackLater2 = setTimeout(() => {
               //有效攻击 && 
-              if (targetModel != null ) {
-                // let isDead = targetModel.DyncPlayerState({
-                //   title:"fire",
-                //   content:"受到伤害",
-                //   msg:{_targetModel:targetModel, skillName:skillName,strength: baseData.strength},
-                // }); 
-                if(targetModel.isLocal){
-                  if(targetModel.owner){
+              if (targetModel != null) {
+                
+                if (targetModel.isLocal) {
+                  if (targetModel.owner) {
                     let isDead = targetModel.owner.ReceiveDamage(scope.transform, skillName, baseData.strength);
                     if (isDead) {
                       CheckNextTarget();
                       return;
                     }
                   }
-                }else{
+                } else {
                   // 当主控玩家窗口在后台运行时，由玩家镜像接收后发送服务器同步给主控玩家
-                  if(targetModel != null && targetModel.isDead){
+                  if (targetModel != null && targetModel.isDead) {
                     CheckNextTarget();
                     return;
                   }
-                  _Global.DyncManager.SendNpcToPlayer({targetId:targetModel.id,npcId:scope.transform.id,npcName:scope.npcName,skillName:skillName, strength:baseData.strength});
+                  _Global.DyncManager.SendNpcToPlayer({ targetId: targetModel.id, npcId: scope.transform.id, npcName: scope.npcName, skillName: skillName, strength: baseData.strength });
                 }
 
               }

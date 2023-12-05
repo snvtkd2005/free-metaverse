@@ -100,7 +100,7 @@ export default {
   },
   methods: {
     SetSkillCount(skill) {
-      console.log("in skill panel ", skill);
+      // console.log("in skill panel ", skill);
       for (let i = 0; i < this.skillList.length; i++) {
         const item =  this.skillList[i];
         if(item.type == skill.type){

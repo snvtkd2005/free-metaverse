@@ -129,6 +129,46 @@ class YJSceneDyncManagerEditor {
       this.SendSceneState("战斗状态");
 
     }
+
+    this.RemoveNPCFireId = function (npcComponent) {
+      for (let i = 0; i < fireGroup.length; i++) {
+        const element = fireGroup[i];
+        if (element.fireId == npcComponent.fireId) {
+          let cNpc = false;
+          for (let j = element.npcList.length - 1; j >= 0 && !cNpc; j--) {
+            const npc = element.npcList[j];
+            if (npc == npcComponent.transform.id) {
+              npcComponent.fireId = -1;
+              element.npcList.splice(j, 1);
+              cNpc = true;
+            }
+            if (!cNpc) { 
+              console.log(" NPC 离开战斗 ", element.fireId);
+            }
+          }
+        }
+      }
+    }
+
+    this.RemovePlayerFireId = function (targetModel) {
+      for (let i = 0; i < fireGroup.length; i++) {
+        const element = fireGroup[i];
+        if (element.fireId == targetModel.fireId) {
+          let hasPlayer = false;
+          for (let k = element.playerList.length - 1; k >= 0 && !hasPlayer; k--) {
+            const player = element.playerList[k];
+            if (player == targetModel.id) {
+              targetModel.fireId = -1;
+              element.playerList.splice(k, 1);
+              hasPlayer = true;
+            }
+          }
+          if (hasPlayer) {
+            console.log(" 玩家 离开战斗 ", element.fireId);
+          }
+        }
+      }
+    }
     // 玩家加入正在进行的战斗。 如果玩家和npc都未在战斗中，则有NPC触发生成战斗组
     this.PlayerAddFire = function (npcComponent, targetModel) {
       for (let i = 0; i < fireGroup.length; i++) {
@@ -227,11 +267,11 @@ class YJSceneDyncManagerEditor {
 
     }
     this.SendSceneStateToServer = () => {
-      dyncModelList.push ({ id: "kouzhao", modelType: "交互模型", state:  { value: 0, count: 0 } });
-      dyncModelList.push ({ id: "fanghufu", modelType: "交互模型", state:  { value: 0, count: 0 } });
-      dyncModelList.push ({ id: "zhongcaoyao", modelType: "交互模型", state:  { value: 0, count: 0 } });
-      dyncModelList.push ({ id: "jiujingpenghu", modelType: "交互模型", state:  { value: 0, count: 0 } });
-      dyncModelList.push ({ id: "offsetTime", modelType: "offsetTime", state:  { offsetTime: 0, startTime: 1675586194683} });
+      dyncModelList.push({ id: "kouzhao", modelType: "交互模型", state: { value: 0, count: 0 } });
+      dyncModelList.push({ id: "fanghufu", modelType: "交互模型", state: { value: 0, count: 0 } });
+      dyncModelList.push({ id: "zhongcaoyao", modelType: "交互模型", state: { value: 0, count: 0 } });
+      dyncModelList.push({ id: "jiujingpenghu", modelType: "交互模型", state: { value: 0, count: 0 } });
+      dyncModelList.push({ id: "offsetTime", modelType: "offsetTime", state: { offsetTime: 0, startTime: 1675586194683 } });
       _Global.YJDync._YJDyncManager.SendSceneState("初始化", dyncModelList);
     }
     // 玩家拾取场景内物体的数据。用来做场景物体同步

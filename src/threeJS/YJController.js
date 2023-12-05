@@ -3544,6 +3544,7 @@ class YJController {
     this.resetLife = function () {
       _this._YJSceneManager.ResetPlayerPos();
       setTimeout(() => {
+        _YJPlayer.isDead = false;
         this.SetInteractiveNPC("重生");
         this.SetCanMoving(true); 
         this.directUpate(); 

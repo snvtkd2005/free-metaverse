@@ -40,10 +40,13 @@
           <div v-if="item.hasNew" class="absolute top-0 -left-2 w-2 h-2 rounded-full  bg-purple-700"></div>
         </div>
 
-        <div v-if="item.user.userData.baseData" class=" mb-1 w-full h-auto border  relative ">
-          <div class="  bg-green-500  h-4  "
-            :style="'width: ' + (item.user.userData.baseData.health / item.user.userData.baseData.maxHealth) * 100 + '%'">
+        <div v-if="item.user.userData.baseData" class=" mb-1 w-full h-auto   relative ">
+          <div class=" w-full border ">
+            <div class="  bg-green-500  h-4  "
+              :style="'width: ' + (item.user.userData.baseData.health / item.user.userData.baseData.maxHealth) * 100 + '%'">
+            </div>
           </div>
+
           <!-- <div class="  ">{{ item.user.userData.baseData.health }}</div> -->
           <div v-if="item.user.userData.baseData.armor>0" class="  ">护甲+{{ item.user.userData.baseData.armor }}</div>
         </div>
@@ -637,7 +640,7 @@ export default {
           this.selfNum = i;
         }
       }
-      console.log(" this.otherUser ", this.otherUser);
+      // console.log(" this.otherUser ", this.otherUser);
     },
     //断开连接时，删除所有角色
     DelOtherPlayer() {

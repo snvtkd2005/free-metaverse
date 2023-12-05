@@ -429,6 +429,8 @@ class YJPlayerFireCtrl {
 					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					EventHandler("中断技能");
 					
+					_Global.DyncManager.RemovePlayerFireId(_YJPlayer);
+
 					//角色不可控制、显示倒计时
 					_this.YJController.SetCanMoving(false);
 					_Global.ReportTo3D("角色死亡");

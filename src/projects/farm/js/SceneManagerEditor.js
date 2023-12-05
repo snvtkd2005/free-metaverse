@@ -437,6 +437,10 @@ class SceneManager {
 
       if(oldTarget != null){
         if(oldTarget.isPlayer){
+          // 如果玩家已死亡，则不使用道具
+          if( oldTarget.GetUserData().baseData.health <= 0 ){
+            return;
+          }
           //目标是玩家
           let data = {};
           data.fromId = _this.YJPlayer.id;

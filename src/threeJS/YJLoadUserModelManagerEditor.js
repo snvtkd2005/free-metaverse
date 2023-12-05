@@ -214,7 +214,7 @@ class YJLoadUserModelManager {
     }
 
     function CreateTransform(parent, modelData, callback) {
-      console.error(" 加载模型 ", modelData);
+      // console.error(" 加载模型 ", modelData);
 
       let object = new YJTransform(_this, scene, "", null, null, modelData.name);
       let modelPath = modelData.modelPath;

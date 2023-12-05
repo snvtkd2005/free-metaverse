@@ -327,7 +327,12 @@ class Interface {
 			  _this.$refs.HUD.$refs.skillProgressUI.SetProgress(msg);
         return;
       }
-
+      if (type == "角色死亡") {
+			  _this.$refs.HUD.$refs.fireStateUI.SetState("inDead",true);
+				// 放下武器
+        _Global.SceneManager.PickDownWeapon();
+        return;
+      }
       if (type == "坐标转地图id") {
         return _Global.YJ3D._YJSceneManager.CallPosToMapId(msg);
       }

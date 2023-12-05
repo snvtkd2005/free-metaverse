@@ -3216,14 +3216,14 @@ class YJController {
             hit_collider.name.indexOf("trigger") > -1 ||
             hit_collider.name.indexOf("point") > -1 ||
             hit_collider.name.indexOf("hit") > -1 ||
-            (hit_collider.tag != undefined && hit_collider.tag.indexOf("particle")> -1)  ||
-            (hit_collider.tag != undefined && hit_collider.tag.indexOf("player")> -1)  ||
+            (hit_collider.tag != undefined && hit_collider.tag.indexOf("particle") > -1) ||
+            (hit_collider.tag != undefined && hit_collider.tag.indexOf("player") > -1) ||
             hit_collider.parent.name == "ignoreRaycast" ||
             (hit_collider.isLine != null && hit_collider.isLine == true) ||
             (hit_collider.parent.parent && hit_collider.parent.parent.isTransformControlsGizmo) ||
             (hit_collider.isTransformControlsPlane) ||
             hit_collider.name == "ignoreRaycast" ||
-            hit_collider.name.includes("navMesh")  ||
+            hit_collider.name.includes("navMesh") ||
             (hit_collider.transform != undefined && hit_collider.transform.isIgnoreRaycast)
           ) {
             // console.log("hit_collider = ", hit_collider);
@@ -3322,10 +3322,10 @@ class YJController {
       if (intersects_collider.length > 0) {
 
         let hit_collider = GetInvaildCastObj(intersects_collider);
-        if (hit_collider != null) { 
+        if (hit_collider != null) {
           // intersects_collider[hitIndex].point
           camera.position.set(-intersects_collider[hitIndex].distance + 0.5, 0, 0);
-          return; 
+          return;
         }
         // console.log("摄像机障碍检测",hit_collider);
         // console.log("检测角色与摄像机之间碰撞 "+ intersects_collider.length +"  "+ hit_collider.name + "  " );
@@ -3453,8 +3453,19 @@ class YJController {
         pickType: "",
         weaponType: "",
         weaponId: "", //武器模型
-        transId:"", //武器模型在场景中的id
+        transId: "", //武器模型在场景中的id
       },
+
+      baseData: {
+        camp: "lm", //阵营
+        speed: 8, //移动速度
+        level: 1, //等级
+        health: 200, //当前剩余生命值
+        maxHealth: 200, //最大生命值
+        strength: 30, //攻击力
+        armor: 0, //护甲
+      }
+
     };
 
     this.SetNameTransOffsetAndScale = function (h, scale) {
@@ -3484,17 +3495,18 @@ class YJController {
     this.SetUserDataItem = function (property, value, value2) {
       if (value2 != undefined) {
         userData[property][value] = value2;
+        directUpate = true;
         return;
       }
       userData[property] = value;
       directUpate = true;
     }
-    this.GetUserDataItem = function (property,property2) {
+    this.GetUserDataItem = function (property, property2) {
       if (property2 != undefined) {
-        return userData[property][property2] ;
+        return userData[property][property2];
       }
       return userData[property];
-    } 
+    }
     // 显示隐藏的同步
     let olddyncDisplay = true;
     this.SetDyncDisplay = function (b) {
@@ -3526,8 +3538,16 @@ class YJController {
       userData.baseData = _baseData;
       directUpate = true;
     }
-    this.directUpate = function () { 
+    this.directUpate = function () {
       directUpate = true;
+    }
+    this.resetLife = function () {
+      _this._YJSceneManager.ResetPlayerPos();
+      setTimeout(() => {
+        this.SetInteractiveNPC("重生");
+        this.SetCanMoving(true); 
+        this.directUpate(); 
+      }, 200);
     }
     // 是否已死亡
     this.isInDead = function () {
@@ -3584,6 +3604,8 @@ class YJController {
         // console.log(" 角色状态不变，不发送更新 ");
         return;
       }
+      console.log(" 角色状态 改变，发送更新 ");
+
       directUpate = false;
 
       if (oldPos.x != newPos.x || oldPos.y != newPos.y || oldPos.z != newPos.z) {
@@ -3648,7 +3670,7 @@ class YJController {
     }
     this.ReceiveDamageDync = function (npcName, skillName, strength) {
       // 如果窗口在焦点，则不执行
-      if(_Global.inFocus){
+      if (_Global.inFocus) {
         return;
       }
       _YJPlayer.isDead = _YJPlayerFireCtrl.OnPlayerState({
@@ -3757,6 +3779,9 @@ class YJController {
       // 独立移动摄像机
       OnlyMoveCamera();
       TWEEN.update();
+
+
+
 
       //同步角色动作
       if (_YJPlayer != null && _player != null) {

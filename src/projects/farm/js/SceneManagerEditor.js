@@ -227,13 +227,8 @@ class SceneManager {
           //   _this._YJSceneManager.ClickInteractive();
           // }
 
-          _this.YJController.SetUserDataItem("weaponData", "weaponId", "");
-          _this.YJController.SetUserDataItem("weaponData", "weaponType", "");
-          _this.YJController.SetUserDataItem("weaponData", "transId", "");
-
           
           scope.PickDownWeapon();
-          _Global.SendMsgTo3D("放下武器");
 
           return;
         }
@@ -317,6 +312,11 @@ class SceneManager {
       if (owner.isYJTransform) {
         let msg = owner.GetMessage();
         if (msg.pointType == "weapon") {
+          
+          if(_this.YJController.isInDead()){
+            // 角色死亡后不接收道具效果
+            return;
+          }
           let state = _this.YJController.GetUserDataItem("weaponData");
           // console.log(" 碰到武器 ", msg.data,state);
           // 判断角色是否可以拾取武器
@@ -588,7 +588,11 @@ class SceneManager {
       if (model.buff == "addArmor") {
         //加护甲值
         // data.buffValue
-        let v = _this.YJController.GetUserDataItem("baseData", "armor") + model.buffValue;
+        let oldV = _this.YJController.GetUserDataItem("baseData", "armor");
+        console.log(" 旧护甲值为 ", oldV," 加 "+ model.buffValue);
+        let v = oldV + model.buffValue;
+        console.log(" 新护甲值为 ", v);
+        
         _this.YJController.SetUserDataItem("baseData", "armor", v);
       }
     }
@@ -651,7 +655,15 @@ class SceneManager {
     }
 
     this.PickDownWeapon = function () {
+      
+
       if (boneAttachList.length == 0) { return; }
+      
+      _this.YJController.SetUserDataItem("weaponData", "weaponId", "");
+      _this.YJController.SetUserDataItem("weaponData", "weaponType", "");
+      _this.YJController.SetUserDataItem("weaponData", "transId", "");
+      _Global.SendMsgTo3D("放下武器");
+
       let transform = boneAttachList[0].transform;
       boneAttachList[0].parent.attach(transform.GetGroup());
       let pos = _this._YJSceneManager.GetPlayerPosReduceHeight();

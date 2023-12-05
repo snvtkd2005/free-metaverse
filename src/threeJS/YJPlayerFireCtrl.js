@@ -15,18 +15,9 @@ class YJPlayerFireCtrl {
 		let scope = this;
 
 
-		let baseData = {
-			camp: "lm", //阵营
-			speed: 8, //移动速度
-			level: 1, //等级
-			health: 200, //当前剩余生命值
-			maxHealth: 200, //最大生命值
-			strength: 30, //攻击力
-			armor: 0, //护甲
-		}
-
 		let animName = "";
 		let weaponData = null;
+		let baseData = null;
 		//玩家动作状态机
 		var PLAYERSTATE = {
 			NORMAL: -1,
@@ -39,12 +30,23 @@ class YJPlayerFireCtrl {
 		var playerState = PLAYERSTATE.NORMAL;
 
 		this.OnPlayerState = function (state) {
+			if (baseData == null) {
+				baseData = _this.YJController.GetUserData().baseData;
+			}
 			switch (state.content) {
 				case "设置玩家状态":
 					scope.SetPlayerState(state.msg);
 					break;
 				case "设置npc":
 					scope.SetInteractiveNPC(state.msg);
+					break;
+				case "重生":
+					if (playerState == PLAYERSTATE.DEAD) {
+						playerState = PLAYERSTATE.NORMAL;
+						baseData.health = baseData.maxHealth;
+					}
+					scope.SetPlayerState("normal");
+
 					break;
 				case "选中npc":
 					SelectNPC(state.msg);
@@ -87,23 +89,23 @@ class YJPlayerFireCtrl {
 			_Global.DyncManager.PlayerAddFire(npcTransform.GetComponent("NPC"), _YJPlayer);
 		}
 		// 计算伤害。受到的攻击力-护甲值
-		function RealyDamage(strength) { 
+		function RealyDamage(strength) {
 			let v = 0;
-			if(baseData.armor>=strength){
+			if (baseData.armor >= strength) {
 				baseData.armor -= strength;
 				return 0;
-			}else{
+			} else {
 				// 至少会受到1点伤害
 				v = strength - baseData.armor;
 				baseData.armor = 0;
 				v = v > 0 ? v : 1;
-			} 
-			return v ;
+			}
+			return v;
 		}
 		this.ReceiveDamageDync = function (npcName, skillName, strength) {
 
 			baseData.health -= RealyDamage(strength);
-			console.log(" 主角受到 "+npcName + " " + skillName + " 攻击 剩余 " + baseData.health);
+			console.log(" 主角受到 " + npcName + " " + skillName + " 攻击 剩余 " + baseData.health);
 
 			if (baseData.health <= 0) {
 				baseData.health = 0;
@@ -171,7 +173,9 @@ class YJPlayerFireCtrl {
 		}
 		// 生命值改变时，同步 
 		function UpdateData() {
-			_this.YJController.updateBaseData(baseData);
+			_this.YJController.directUpate();
+			// _this.YJController.updateBaseData(baseData);
+
 		}
 		this.SetInteractiveNPC = function (_npcTransform) {
 			SelectNPC(_npcTransform);
@@ -375,8 +379,11 @@ class YJPlayerFireCtrl {
 				}
 			}
 		}
+
 		this.SetPlayerState = function (e) {
-			weaponData = _this.YJController.GetUserData().weaponData;
+			if (weaponData == null) {
+				weaponData = _this.YJController.GetUserData().weaponData;
+			}
 			// console.log(" in SetPlayerState  ",e,weaponData,playerState);
 
 			switch (e) {
@@ -420,8 +427,11 @@ class YJPlayerFireCtrl {
 				case "death":
 					playerState = PLAYERSTATE.DEAD;
 					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
-
 					EventHandler("中断技能");
+					
+					//角色不可控制、显示倒计时
+					_this.YJController.SetCanMoving(false);
+					_Global.ReportTo3D("角色死亡");
 					break;
 				case "sitting":
 					playerState = PLAYERSTATE.SITTING;
@@ -444,10 +454,6 @@ class YJPlayerFireCtrl {
 					canAttack = false;
 					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
 
-					if (playerState == PLAYERSTATE.DEAD) {
-						playerState = PLAYERSTATE.NORMAL;
-						baseData.health = baseData.maxHealth;
-					}
 					EventHandler("中断技能");
 
 					break;

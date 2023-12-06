@@ -37,6 +37,13 @@ class YJTransform {
       data.id = id;
       this.id = id;
     }
+    
+    this.GetData = function () {
+      return data;
+    }
+    this.GetMessage = function () {
+      return data.message;
+    }
     this.SetMessage = function (message) {
       data.message = message;
 
@@ -89,12 +96,6 @@ class YJTransform {
           handlerList = [];
         }
       }
-    }
-    this.GetData = function () {
-      return data;
-    }
-    this.GetMessage = function () {
-      return data.message;
     }
     this.SetActive = function (b) {
       group.visible = b;

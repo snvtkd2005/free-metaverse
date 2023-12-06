@@ -807,7 +807,7 @@ class YJNPC {
           doonce = 0;
         }
         let dis = playerPosRef.distanceTo(npcPos);
-        if (dis < vaildAttackDis && !CheckColliderBetween(npcPos, playerPosRef)) {
+        if (dis < vaildAttackDis + scope.transform.GetData().scale.x && !CheckColliderBetween(npcPos, playerPosRef)) {
           navpath = [];
           doonce = 0;
           parent.lookAt(playerPosRef.clone());

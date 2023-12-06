@@ -238,9 +238,9 @@ class YJPlayerFireCtrl {
 		let inFire = false; //是否正在战斗状态
 		let readyAttack = false;
 		let npcComponent = null;
-		// 检测有效攻击距离
-		function CheckDis(dis) {
-			return dis < vaildAttackDis;
+		// 是否有效攻击距离
+		function inVaildArea(dis) {
+			return dis < vaildAttackDis + npcTransform.GetData().scale.x;
 		}
 		function CheckCamp() {
 			return npcComponent.GetCamp() != _Global.user.camp;
@@ -260,7 +260,7 @@ class YJPlayerFireCtrl {
 			let b2 = CheckColliderBetween(npcPos, playerPos);
 			if (b2) { _Global.SceneManager.FireState("无法攻击目标"); return false; }
 			// 不在攻击范围内
-			let b = CheckDis(playerPos.distanceTo(npcPos));
+			let b = inVaildArea(playerPos.distanceTo(npcPos));
 			if (!b) { _Global.SceneManager.FireState("太远了"); return false; }
 			return b && !b2;
 		}

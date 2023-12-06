@@ -85,7 +85,7 @@ class YJshader_dissolve {
     let deltaTime = 1;
     let newMats = [];
     function init() {
-      console.log(" 进入 溶解 shader  ");
+      // console.log(" 进入 溶解 shader  ");
       initBirds();
     }
 

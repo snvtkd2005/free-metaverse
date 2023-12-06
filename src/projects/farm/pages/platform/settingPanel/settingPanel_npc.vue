@@ -19,11 +19,14 @@
         <div v-if="item.type == 'int'" class="flex gap-2 text-black">
           <YJinput_number :value="item.value" :type="item.type" :step="item.step" :index="i" :callback="item.callback" />
         </div>
-        
+        <div v-if="item.type == 'num'" class=" flex gap-2 text-black "> 
+          <YJinput_number :value="item.value"  :type="item.type" :step="item.step" :index="i" :callback="item.callback" />
+        </div>
         <div v-if="item.type == 'image'" class="flex gap-2 text-black">
-          <div @click="item.callback('加载武器模型')">
-            <img :src="item.value"   />
+          <div @click="item.callback('加载武器模型')" class=" w-10 h-10 bg-black cursor-pointer ">
+            <img class=" w-full h-full" :src="item.value"   />
           </div>
+          <div v-if="item.value" class=" h-4 w-10 bg-white cursor-pointer"  @click="item.callback('移除武器模型',item)">移除</div>
         </div>
       </div>
     </div>
@@ -100,6 +103,7 @@ import YJinput_text from "../components/YJinput_text.vue";
 import YJinput_number from "../components/YJinput_number.vue";
 import YJinput_drop from "../components/YJinput_drop.vue";
 import settingPanel_npcSkill from "./settingPanel_npcSkill.vue";
+ 
 
 export default {
   name: "settingpanel_uvanim",
@@ -121,7 +125,7 @@ export default {
         speed: 8, //移动速度
         level: 1, //等级
         health: 100, //生命值
-        maxHealth: 100, //生命值
+        maxHealth: 100, //生命值 
         strength: 20, //攻击力
       },
       settingData: {
@@ -136,6 +140,8 @@ export default {
           strength: 20, //攻击力
         },
         defaultAnim: "idle", //默认动作
+        relifeTime:0,//重新生成间隔时间 秒
+
         avatarData: {},
         eventType: "no",//事件类型 
         contentData: {},//事件内容数据
@@ -168,6 +174,7 @@ export default {
         { property: "strength", display: true, title: "攻击力", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
         { property: "level", display: true, title: "等级", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
         { property: "weapon", display: true, title: "装备", type: "image", value: 1, callback: this.ClickHandler, },
+        { property: "relifeTime", display: true, title: "重新生成间隔时间", type: "num", step: 1,value: 0, callback: this.ChangeValue },
       ],
       isMoving:true,
 
@@ -239,6 +246,13 @@ export default {
       if (e == "加载武器模型") {
         this.$parent.$refs.modelSelectPanel.Init("装备模型");
       }
+      if (e == "移除武器模型") {
+        item.value = ""; 
+        this.settingData.weaponData = undefined;
+        let singleTransform = _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
+        singleTransform.GetComponent("NPC").RemoveWeapon();
+      }
+      
       if (e == "加载角色模型") {
         this.$parent.$refs.modelSelectPanel.Init("角色模型");
       }
@@ -261,35 +275,19 @@ export default {
     removeThreeJSfocus() {
       this.$parent.removeThreeJSfocus();
     },
-    addThreeJSfocus() { },
-    setSettingItemByProperty(property, value) {
-      for (let i = 0; i < this.setting.length; i++) {
-        const element = this.setting[i];
-        if (element.property == property) {
-          element.value = value;
-        }
-      }
-    },
-    getSettingItemByProperty(property) {
-      for (let i = 0; i < this.setting.length; i++) {
-        const element = this.setting[i];
-        if (element.property == property) {
-          return element.value;
-        }
-      }
-      return null;
-    },
+    addThreeJSfocus() { }, 
     // 从单品编辑跳转过来后更新UI值
     initValue() {
-      this.setSettingItemByProperty("name", this.settingData.name);
-      this.setSettingItemByProperty("maxHealth", this.settingData.baseData.maxHealth);
-      this.setSettingItemByProperty("level", this.settingData.baseData.level);
-      this.setSettingItemByProperty("camp", this.settingData.baseData.camp);
-      this.setSettingItemByProperty("strength", this.settingData.baseData.strength);
-      this.setSettingItemByProperty("height", this.settingData.height);
+      this.Utils.SetSettingItemByProperty(this.setting,"name", this.settingData.name);
+      this.Utils.SetSettingItemByProperty(this.setting,"maxHealth", this.settingData.baseData.maxHealth);
+      this.Utils.SetSettingItemByProperty(this.setting,"level", this.settingData.baseData.level);
+      this.Utils.SetSettingItemByProperty(this.setting,"camp", this.settingData.baseData.camp);
+      this.Utils.SetSettingItemByProperty(this.setting,"strength", this.settingData.baseData.strength);
+      this.Utils.SetSettingItemByProperty(this.setting,"height", this.settingData.height);
+      this.Utils.SetSettingItemByProperty(this.setting,"relifeTime",  this.settingData.relifeTime);
       
       if(this.settingData.weaponData){
-        this.setSettingItemByProperty("weapon",this.$uploadUrl + this.settingData.weaponData.icon );
+        this.Utils.SetSettingItemByProperty(this.setting,"weapon",this.$uploadUrl + this.settingData.weaponData.icon );
       }
 
     }, 
@@ -300,7 +298,7 @@ export default {
 
         this.settingData.weaponData = item;
         //加载武器并让角色使用
-        this.setSettingItemByProperty("weapon",this.$uploadUrl + this.settingData.weaponData.icon );
+        this.Utils.SetSettingItemByProperty(this.setting,"weapon",this.$uploadUrl + this.settingData.weaponData.icon );
         
         let singleTransform =
           _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
@@ -308,6 +306,7 @@ export default {
 
         return;
       }
+
 
 
       if(modelType != "角色模型"){ return; }
@@ -368,6 +367,20 @@ export default {
     },
     Init(_settingData) {
       this.settingData = _settingData;
+       this.Utils.SetSettingItemByProperty(this.setting,"name", this.settingData.name);
+       this.Utils.SetSettingItemByProperty(this.setting,"maxHealth", this.settingData.baseData.maxHealth);
+       this.Utils.SetSettingItemByProperty(this.setting,"level", this.settingData.baseData.level);
+       this.Utils.SetSettingItemByProperty(this.setting,"camp", this.settingData.baseData.camp);
+       this.Utils.SetSettingItemByProperty(this.setting,"strength", this.settingData.baseData.strength);
+       this.Utils.SetSettingItemByProperty(this.setting,"height", this.settingData.height);
+       this.Utils.SetSettingItemByProperty(this.setting,"relifeTime",  this.settingData.relifeTime);
+      
+      if(this.settingData.weaponData){
+        this.Utils.SetSettingItemByProperty(this.setting,"weapon",this.$uploadUrl + this.settingData.weaponData.icon );
+      }
+
+      console.log(" npc setting data ", _settingData);
+      return;
       for (let i = 0; i < this.setting.length; i++) {
         const element = this.setting[i];
         if (element.property == "name") {
@@ -382,11 +395,7 @@ export default {
         
         if (element.property == "maxHealth") {
           element.value = this.settingData.baseData.maxHealth;
-        }
-        if (element.property == "health") {
-          element.value = this.settingData.baseData.maxHealth;
-        }
-        
+        } 
         if (element.property == "strength") {
           element.value = this.settingData.baseData.strength;
         }
@@ -394,13 +403,16 @@ export default {
         if (element.property == "camp") {
           element.value = this.settingData.baseData.camp;
         }
+        
+        if (element.property == "relifeTime") {
+          element.value = this.settingData.relifeTime;
+        }
         if (element.property == "weapon") {
           if(this.settingData.weaponData){
             element.value =this.$uploadUrl + this.settingData.weaponData.icon;
           }
         }
       }
-      console.log(" npc setting data ", _settingData);
     },
     // 改变UI输入值后刷新
     ChangeValue(i, e) {

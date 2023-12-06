@@ -312,7 +312,7 @@ class SceneManager {
       if (owner.isYJTransform) {
         let msg = owner.GetMessage();
         if (msg.pointType == "weapon") {
-          
+
           if(_this.YJController.isInDead()){
             // 角色死亡后不接收道具效果
             return;
@@ -599,6 +599,17 @@ class SceneManager {
         
         _this.YJController.SetUserDataItem("baseData", "armor", v);
       }
+      
+      if (model.buff == "addEnergy") {
+        //加能量值
+        // data.buffValue
+        let oldV = _this.YJController.GetUserDataItem("baseData", "energy");
+        console.log(" 旧能量值为 ", oldV," 加 "+ model.buffValue);
+        let v = oldV + model.buffValue;
+        console.log(" 新能量值为 ", v);
+        
+        _this.YJController.SetUserDataItem("baseData", "energy", v);
+      }
     }
 
     let laterSitting = null;
@@ -694,7 +705,7 @@ class SceneManager {
     //#region 对npc的伤害显示在屏幕上
     this.UpdateNpcDamageValue = function (owner, type, value, pos) {
       let _pos = _Global.YJ3D._YJSceneManager.WorldPosToScreenPos(pos);
-      console.log("伤害和坐标", value, _pos);
+      // console.log("伤害和坐标", value, _pos);
       indexVue.$refs.HUD.$refs.damageUI.AddDamage(owner, type, value, _pos);
 
     }
@@ -734,7 +745,7 @@ class SceneManager {
       let { group, playerHeight } = npcComponent.GetBaseModel();
       _YJProjector.Active(group, playerHeight, camp);
 
-      console.log(" 设置目标头像 targetModel ", targetModel);
+      // console.log(" 设置目标头像 targetModel ", targetModel);
       targetModel.AddHandle((data) => {
         if (data.baseData.health == 0) {
           indexVue.$refs.HUD.$refs.headerUI.display = false;

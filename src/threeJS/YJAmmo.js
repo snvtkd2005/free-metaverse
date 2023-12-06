@@ -1430,7 +1430,7 @@ class YJAmmo {
           let tag = newItem.userData.tag;
           if (tag == "trigger") {
             inTrigger = true;
-            console.log(" 进入 碰撞到物体的 trigger, ", newItem.triggerName, newItem.modelId);
+            // console.log(" 进入 碰撞到物体的 trigger, ", newItem.triggerName, newItem.modelId);
             if (newItem.triggerName == "platform") {
               SetMyCtrlRbParent(newItem.owner.GetModel(), newItem.modelId);
               continue;
@@ -1438,7 +1438,7 @@ class YJAmmo {
             _this._YJSceneManager.ChangeJiaohuArea(true, newItem.modelId, newItem.triggerName, newItem);
           }
           if (tag == "car") {
-            console.log(" 进入 碰撞到 car, ", newItem.triggerName, newItem.modelId);
+            // console.log(" 进入 碰撞到 car, ", newItem.triggerName, newItem.modelId);
             _this._YJSceneManager.ChangeJiaohuArea(true, tag, newItem.triggerName, newItem);
           }
         }
@@ -1461,7 +1461,7 @@ class YJAmmo {
           let tag = newItem.userData.tag;
           if (tag == "trigger") {
             inTrigger = false;
-            console.log("离开 碰撞到物体的 trigger, ", newItem.triggerName, newItem.modelId);
+            // console.log("离开 碰撞到物体的 trigger, ", newItem.triggerName, newItem.modelId);
             if (newItem.triggerName == "platform") {
               SetMyCtrlRbParent(scene, "scene");
               continue;
@@ -1471,7 +1471,7 @@ class YJAmmo {
           }
 
           if (tag == "car") {
-            console.log("  离开 碰撞到 car, ", newItem.triggerName, newItem.modelId);
+            // console.log("  离开 碰撞到 car, ", newItem.triggerName, newItem.modelId);
             _this._YJSceneManager.ChangeJiaohuArea(false, tag, newItem.triggerName, newItem);
 
           }

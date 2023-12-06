@@ -77,7 +77,7 @@ class YJPlayer {
     this.setPlayerDefaultPos = function (playerSetting) {
       defaultplayerSetting = playerSetting;
 
-      console.error(" defaultplayerSetting  ", defaultplayerSetting);
+      // console.error(" defaultplayerSetting  ", defaultplayerSetting);
       playerGroup.position.copy(playerSetting.pos);
       if (playerSetting.rotaY) {
         group.rotation.set(0, playerSetting.rotaY, 0);

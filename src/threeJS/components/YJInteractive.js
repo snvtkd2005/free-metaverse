@@ -18,19 +18,24 @@ class YJInteractive {
 
     let data = null;
     let meshTrigger = null;
+    let sprite = null;
     this.SetMessage = function (msg) {
       if (msg == null || msg == undefined || msg == "") { return; }
       // data = JSON.parse(msg);
       data = (msg);
-      console.log("in Interactive msg = ", data);
+      // console.log("in Interactive msg = ", data);
 
       scope.transform.isIgnoreRaycast = true;
-
-      meshTrigger = new YJTrigger(_this, parent, transform, "interactive"); 
+      if(meshTrigger == null){
+        meshTrigger = new YJTrigger(_this, parent, transform, "interactive"); 
+      }
+      if(sprite != null){
+        group.remove(sprite);
+      }
       let map = _this._YJSceneManager.checkLoadTexture(_this.$uploadUVAnimUrl + data.imgPath);
       const material = new THREE.SpriteMaterial({ map: map, color: 0xffffff });
       setTimeout(() => { 
-        let sprite = new THREE.Sprite(material);
+        sprite = new THREE.Sprite(material);
         sprite.center.set(0.5, 0.5); 
         sprite.scale.set(1, 1, 1);
         group.add(sprite);
@@ -56,7 +61,7 @@ class YJInteractive {
     } 
     // 接收同步
     this.Dync = function (msg) {
-      console.log("接收 道具 同步数据 ", msg);
+      // console.log("接收 道具 同步数据 ", msg);
       // if (msg.display) { 
       //   return;
       // }

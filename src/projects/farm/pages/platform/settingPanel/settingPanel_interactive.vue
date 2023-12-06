@@ -96,6 +96,7 @@ export default {
         imgPath: '',
         buff:"",
         buffValue: 0,
+        relifeTime:0,//重新生成间隔时间 秒
         type:"",
         color: "#ffffff",
         row: 14,
@@ -116,6 +117,7 @@ export default {
           property: "buff", display: true, title: "触发效果", type: "drop", value: "加护甲", options: [
             { value: 'addArmor', label: '加护甲' },
             { value: 'addHealth', label: '加生命' }, 
+            { value: 'addEnergy', label: '加能量' }, 
           ], callback: this.ChangeValue,
         },
         {
@@ -124,9 +126,11 @@ export default {
             { value: 'fanghufu', label: '防护服' }, 
             { value: 'zhongcaoyao', label: '中草药汤剂' }, 
             { value: 'jiujingpenghu', label: '酒精喷壶' }, 
+            { value: 'nengliang', label: '能量补给' }, 
           ], callback: this.ChangeValue,
         },
         {property: "buffValue", title: "触发效果值", type: "num", value: 0, callback: this.ChangeValue },
+        {property: "relifeTime", title: "重新生成间隔时间", type: "num", value: 0, callback: this.ChangeValue },
 
       ],
 
@@ -165,6 +169,7 @@ export default {
       Utils.SetSettingItemByProperty(this.setting,"buff",  this.settingData.buff);
       Utils.SetSettingItemByProperty(this.setting,"buffValue",  this.settingData.buffValue);
       Utils.SetSettingItemByProperty(this.setting,"type",  this.settingData.type);
+      Utils.SetSettingItemByProperty(this.setting,"relifeTime",  this.settingData.relifeTime);
       
     },
     ChangeValue(i, e) {

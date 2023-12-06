@@ -53,7 +53,7 @@ export default {
 
     AddDamage(owner, type, value, pos) {
       this.damageList.push({ owner: owner, type: type, value: value, pos: pos, opacity: 1,time:0 });
-      console.log(" ", this.damageList[this.damageList.length - 1]);
+      // console.log(" ", this.damageList[this.damageList.length - 1]);
     },
     animate() {
       requestAnimationFrame(this.animate);

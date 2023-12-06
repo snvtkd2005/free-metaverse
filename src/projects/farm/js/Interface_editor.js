@@ -682,7 +682,7 @@ class Interface {
 
 
     this.SetTriggerOverlap = (b, id, name) => {
-      console.log(" 设置trigger 重叠状态 ", b, " id = ", id);
+      // console.log(" 设置trigger 重叠状态 ", b, " id = ", id);
     }
     //发送3d转2d对应的id和坐标
     this.SendProjectionUI = function (data) {

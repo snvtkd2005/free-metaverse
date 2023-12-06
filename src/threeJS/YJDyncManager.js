@@ -627,7 +627,7 @@ class YJDyncManager {
     function _SendSceneState(_this, msg) {
       msg = eval("(" + msg + ")");
       var data = JSON.parse(msg);
-      console.log("同步场景状态", _this.id, data);
+      // console.log("同步场景状态", _this.id, data);
       var message = data.message;
 
       if (message.roomName != _this.roomName) {
@@ -679,11 +679,9 @@ class YJDyncManager {
       _Global.DyncManager.ReceiveFromServer(sceneState);
  
     }
-    function _SendUpdateSceneModels(_this, msg) {
-      // msg = eval("(" + msg + ")");
-      // var data = JSON.parse(msg);
+    function _SendUpdateSceneModels(_this, msg) { 
       var data = (msg);
-      console.log("获取场景状态", _this.id, data);
+      // console.log("获取场景状态", _this.id, data);
       let sceneState = {};
       sceneState.type = "获取场景状态";
       sceneState.state = data.sceneModels;

@@ -83,6 +83,18 @@ class YJNPC {
       this.npcName = v;
       CreateNameTrans(this.npcName);
     }
+    // 移除武器
+    this.RemoveWeapon = function(){
+      if (weaponData != null) {
+        //移除旧武器
+        scope.GetBoneVague(weaponData.boneName, (bone) => {
+          if (bone.weaponModel) {
+            bone.remove(bone.weaponModel);
+          }
+        });
+        weaponData = null;
+      }
+    }
     this.SetMessage = function (msg) {
       if (msg == null || msg == undefined || msg == "") { return; }
       // data = JSON.parse(msg);
@@ -104,14 +116,7 @@ class YJNPC {
         this.UpdateNavPos("停止巡逻", data.movePos);
         // AddDirectPosToNavmesh(data.movePos);
       }
-      if (weaponData != null) {
-        //移除旧武器
-        scope.GetBoneVague(weaponData.boneName, (bone) => {
-          if (bone.weaponModel) {
-            bone.remove(bone.weaponModel);
-          }
-        });
-      }
+      this.RemoveWeapon();
       if (data.weaponData && data.weaponData.message) {
         weaponData = data.weaponData.message.data;
 
@@ -465,7 +470,7 @@ class YJNPC {
         this.SetTargetToNone(isLocal, checkNear);
         return;
       }
-      console.log(" npc进入战斗 00 ", baseData.state == stateType.Back);
+      // console.log(" npc进入战斗 00 ", baseData.state == stateType.Back);
 
       if (scope.fireId == -1 && baseData.state == stateType.Back) {
         return;
@@ -521,7 +526,7 @@ class YJNPC {
         baseData.state = stateType.Fire;
       }
 
-      console.log(" npc进入战斗  ", scope.fireId);
+      // console.log( this.npcName +" npc进入战斗  ", scope.fireId);
     }
 
     function GetAnimNameByPlayStateAndWeapon(e, weaponData) {
@@ -666,7 +671,7 @@ class YJNPC {
     }
     // 接收同步
     this.Dync = function (msg) {
-      console.log("接收npc同步数据 ", msg);
+      // console.log("接收npc同步数据 ", msg);
       if (msg.title == "重新生成") {
         resetLife();
         return;

@@ -51,7 +51,9 @@
     'px'
     ">
     <div class=" absolute  text-center left-0 top-0 origin-bottom transform -translate-y-6 -translate-x-10 w-32 h-auto bg-black bg-opacity-40 ">
-      
+      <div class=" text-yellow-100 text-left text-sm">
+        {{ skillDescribe.describe2 }}
+      </div>
       <div class=" text-yellow-100">
         {{ skillDescribe.describe }}
       </div>
@@ -75,14 +77,16 @@ export default {
       hover: false,
       hoverPanelOffset: { x: 120, y: 220 },
       skillList: [
-        { id: 10000,buff:"addArmor", type:"kouzhao", name: "口罩",describe:"防护", count: 0,buffValue:0 ,icon:"" },
-        { id: 10001,buff:"addArmor", type: "fanghufu", name: "防护服",describe:"防护", count: 0,buffValue:0,icon:"" }, 
-        { id: 10002,buff:"addHealth", type: "zhongcaoyao", name: "中草药汤剂",describe:"生命", count: 0,buffValue:0 ,icon:""}, 
-        { id: 10003,buff:"addArmor", type: "jiujingpenghu", name: "酒精喷壶",describe:"防护", count: 0,buffValue:0,icon:"" }, 
+        { id: 10000,buff:"addArmor", type:"kouzhao", name: "口罩",describe:"防护",describe2:"", count: 0,buffValue:0 ,icon:"" },
+        { id: 10001,buff:"addArmor", type: "fanghufu", name: "防护服",describe:"防护",describe2:"", count: 0,buffValue:0,icon:"" }, 
+        { id: 10002,buff:"addHealth", type: "zhongcaoyao", name: "中草药汤剂",describe:"生命",describe2:"", count: 0,buffValue:0 ,icon:""}, 
+        { id: 10003,buff:"addArmor", type: "jiujingpenghu", name: "酒精喷壶",describe:"防护",describe2:"", count: 0,buffValue:0,icon:"" }, 
+        { id: 10004,buff:"addEnergy", type: "nengliang", name: "能量补给",describe:"能量",describe2:"每次攻击消耗30点能量，对最多3个目标造成伤害", count: 0,buffValue:0,icon:"" }, 
       ],
       skillDescribe: {
         title: "技能名",
         describe: "",
+        describe2: "",
       },
       // 是否有目标，目标为npc、其他玩家
       hasTarget: false,
@@ -106,7 +110,7 @@ export default {
         if(item.type == skill.type){
           item.count = skill.count;
           item.buffValue = skill.value;
-          item.describe = (item.buff=="addArmor"?"护甲":"生命") + " +"+item.buffValue;
+          item.describe = (item.buff=="addArmor"?"护甲":item.buff=="addHealth"?"生命":"能量") + " +"+item.buffValue;
         }
       } 
     },
@@ -124,6 +128,7 @@ export default {
 
       this.skillDescribe.title = item.name;
       this.skillDescribe.describe = item.describe;
+      this.skillDescribe.describe2 = item.describe2;
       this.hoverPanelOffset.x = e.clientX;
       this.hoverPanelOffset.y = 100;
       // this.hoverPanelOffset.y = e.clientY;

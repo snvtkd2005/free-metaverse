@@ -48,7 +48,10 @@
           </div>
 
           <!-- <div class="  ">{{ item.user.userData.baseData.health }}</div> -->
-          <div v-if="item.user.userData.baseData.armor>0" class="  ">护甲+{{ item.user.userData.baseData.armor }}</div>
+          <div class=" flex ">
+            <div v-if="item.user.userData.baseData.armor > 0" class="  ">护甲+{{ item.user.userData.baseData.armor }}</div>
+            <div v-if="item.user.userData.baseData.energy > 0" class="  ">能量+{{ item.user.userData.baseData.energy }}</div>
+          </div>
         </div>
 
         <!-- <div class=" mb-1 w-full h-4 border relative ">
@@ -467,14 +470,14 @@ export default {
         this._YJDyncManager.SetUserData(userData);
 
         if (this.selfNum != undefined) {
-          // let _baseData = this.otherUser[this.selfNum].user.userData.baseData;
-          // _baseData.health = userData.baseData.health;
+          
           this.otherUser[this.selfNum].user.userData.baseData.health = userData.baseData.health;
           this.otherUser[this.selfNum].user.userData.baseData.maxHealth = userData.baseData.maxHealth;
 
           this.otherUser[this.selfNum].user.userData.baseData.armor = userData.baseData.armor;
-          // console.log(" self user.userData ", userData,
-          //   (_baseData.health / _baseData.maxHealth) * 100 + "%");
+          this.otherUser[this.selfNum].user.userData.baseData.energy = userData.baseData.energy;
+          
+          // console.log(" self user.userData ", userData.baseData );
         }
       }
       this.inSend = false;

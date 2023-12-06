@@ -103,6 +103,7 @@ import {
   GetAllScene,
   GetAllModel,
 } from "../../js/uploadThreejs.js";
+import { Timer } from "postprocessing";
 
 export default {
   name: "EditorPanel",
@@ -267,7 +268,7 @@ export default {
 
     document.addEventListener("visibilitychange", () => { 
       _Global.inFocus = !document.hidden;
-      console.log(" _Global.inFocus ", _Global.inFocus);
+      // console.log(" _Global.inFocus ", _Global.inFocus);
     });
   },
   methods: {
@@ -365,7 +366,7 @@ export default {
           this.folderBase +
           "/" +
           this.folderBase +
-          "_setting.txt"
+          "_setting.txt" + "?time="+new Date().getTime()
       );
 
       // console.log(" 获取场景配置 ", res.data);

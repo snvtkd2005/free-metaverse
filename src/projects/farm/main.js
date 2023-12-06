@@ -17,6 +17,7 @@ import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 
+import * as Utils from "/@/utils/utils.js";
 
 import UIData from "./data/UIData_cn.js";
 // import UIData from "./data/UIData_en.js"; 
@@ -65,6 +66,7 @@ app.config.globalProperties.$axios = axios;
 
 app.config.globalProperties.$GPTURL = GPTURL;
 app.config.globalProperties.UIData = UIData;
+app.config.globalProperties.Utils = Utils;
 
 app.config.globalProperties.$uploadFile = UploadFile;
 //删除文件

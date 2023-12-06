@@ -135,7 +135,7 @@ class YJPlayerFireCtrl {
 			}
 
 			baseData.health -= RealyDamage(strength);
-			console.log(" 主角受到 " + skillName + " 攻击 剩余 " + baseData.health);
+			// console.log(" 主角受到 " + skillName + " 攻击 剩余 " + baseData.health);
 
 
 			if (baseData.health <= 0) {
@@ -290,13 +290,32 @@ class YJPlayerFireCtrl {
 						// 立即执行攻击动作
 						scope.SetPlayerState("普通攻击");
 
-						//射出去的子弹
+						//射出去的子弹特效
 						shootTarget(npcTransform, attackStepSpeed * 300);
+
+
+						let max = 1;
+						if(baseData.energy>=30){
+							max = 3;
+							baseData.energy -= 30; 
+						}
+						// 范围攻击。 max为1时，表示不使用范围攻击
+						let npcs = _Global.DyncManager.GetPlayerForwardNPCInFireId(_YJPlayer.fireId,vaildAttackDis,max,npcTransform.id);
+						for (let i = 0; i < npcs.length; i++) {
+							shootTarget(npcs[i].transform, attackStepSpeed * 300);
+						}
+
 						// 动作时长的前1/10段时，执行伤害
 						vaildAttackLater2 = setTimeout(() => {
-							console.log(" 有效攻击目标 ");
+							// console.log(" 有效攻击目标 ");
 							//有效攻击
 							let health = npcComponent.ReceiveDamage(_YJPlayer, skillName, baseData.strength);
+							
+							// 范围攻击
+							for (let i = 0; i < npcs.length; i++) {
+								npcs[i].ReceiveDamage(_YJPlayer, skillName, baseData.strength);
+							}
+
 							PlayerAddFire();
 
 							if (health == 0) {

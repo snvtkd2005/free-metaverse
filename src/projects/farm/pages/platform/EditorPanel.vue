@@ -679,7 +679,7 @@ export default {
 
     async RequestGetAllSceneData() {
       let res = await this.$axios.get(
-        this.sceneLoadUrl + this.folderBase + "/" + this.folderBase + "_setting.txt" + "?" + new Date().getTime()
+        this.sceneLoadUrl + this.folderBase + "/" + this.folderBase + "_setting.txt" + "?time=" + new Date().getTime()
       );
 
       console.log(" 获取场景配置 ", res.data);
@@ -701,7 +701,7 @@ export default {
       // let path = this.sceneLoadUrl + this.folderBase + "/" + this.folderBase + "_scene.txt";
       // console.log(" 获取场景 模型文本路径 ", path);
       let res = await this.$axios.get(
-        this.sceneLoadUrl + this.folderBase + "/" + this.folderBase + "_scene.txt" + "?" + new Date().getTime()
+        this.sceneLoadUrl + this.folderBase + "/" + this.folderBase + "_scene.txt" + "?time=" + new Date().getTime()
       );
 
       this.modelList.splice(0, this.modelList.length);

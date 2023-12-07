@@ -95,7 +95,7 @@
     <div class="mt-2 w-80 h-10 text-white cursor-pointer" @click="ClickHandler('保存')">
       <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">保存</div>
     </div>
-  </div>
+  </div> 
 </template>
 
 <script>
@@ -382,7 +382,7 @@ export default {
        this.Utils.SetSettingItemByProperty(this.setting,"strength", this.settingData.baseData.strength);
        this.Utils.SetSettingItemByProperty(this.setting,"height", this.settingData.height);
        this.Utils.SetSettingItemByProperty(this.setting,"relifeTime",  this.settingData.relifeTime);
-       this.Utils.SetSettingItemByProperty(this.setting,"type",  this.settingData.baseData.type);
+      //  this.Utils.SetSettingItemByProperty(this.setting,"type",  this.settingData.baseData.type);
       
       if(this.settingData.weaponData){
         this.Utils.SetSettingItemByProperty(this.setting,"weapon",this.$uploadUrl + this.settingData.weaponData.icon );

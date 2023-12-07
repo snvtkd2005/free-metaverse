@@ -117,6 +117,9 @@ class YJNPC {
         // AddDirectPosToNavmesh(data.movePos);
       }
       this.RemoveWeapon();
+
+        console.log(" 加载武器 ", data.weaponData);
+
       if (data.weaponData && data.weaponData.message) {
         weaponData = data.weaponData.message.data;
 
@@ -143,12 +146,13 @@ class YJNPC {
             }
           });
         });
-        // console.log(" 加载武器 ", data.weaponData);
       }
       if (weaponData == null) {
         _YJAnimator.ChangeAnim("none");
         scope.SetPlayerState("normal");
-        this.UpdateNavPos("开始巡逻", data.movePos);
+        setTimeout(() => {
+          this.UpdateNavPos("开始巡逻", data.movePos);
+        }, 1000);
 
         // 记录材质
         if (materials.length == 0) {

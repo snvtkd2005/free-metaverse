@@ -58,7 +58,7 @@
                 <img class="w-full h-full rounded-lg object-fill hover:opacity-70" :src="uploadSceneUrl + item.icon" />
               </div>
 
-              <div class="mt-2 px-2 flex text-sm justify-between cursor-pointer">
+              <div class="mt-2 px-2 flex text-sm justify-between cursor-pointer truncate">
                 <div>{{ item.name }}</div>
               </div>
 
@@ -125,7 +125,7 @@
                 <img class="w-full h-full rounded-lg object-fill hover:opacity-70" :src="uploadUrl + item.icon" />
               </div>
 
-              <div class="mt-2 px-2 flex text-sm justify-between">
+              <div class="mt-2 px-2 flex text-sm justify-between truncate ">
                 <div>{{ item.name }}</div>
               </div>
               <div class="mt-2 px-2 flex text-sm justify-between ">

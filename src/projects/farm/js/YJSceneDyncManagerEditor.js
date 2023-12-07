@@ -40,6 +40,10 @@ class YJSceneDyncManagerEditor {
             }else{
               state.relifeTime = 6;
             }
+            let model = element.message.data;
+            console.log("交互模型",model);
+            indexVue.$refs.HUD.$refs.skillPanel_virus.initIcon({type: model.type, value: model.buffValue, imgPath:  model.imgPath });
+
           }
           dyncModelList.push({ id: element.id, modelType: element.modelType, state:state });
         }
@@ -515,7 +519,7 @@ class YJSceneDyncManagerEditor {
       switch (sceneState.title) {
         case "更新道具数量":
           if (model.modelType == "交互模型") {
-            indexVue.$refs.HUD.$refs.skillPanel_virus.SetSkillCount({ type: model.id, value: model.state.value, count: model.state.count });
+            indexVue.$refs.HUD.$refs.skillPanel_virus.SetSkillCount({type: model.id, value: model.state.value, count: model.state.count });
           }
           return;
           break;

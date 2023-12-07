@@ -301,12 +301,21 @@ class YJTransform {
       }
     }
 
-
     this.Start = function () {
       for (let i = 0; i < components.length; i++) {
         const element = components[i];
         if (element.js.Start) {
           element.js.Start();
+        }
+      }
+    }
+
+    // 寻路网格完成后执行
+    this.PathfindingCompleted = function () {
+      for (let i = 0; i < components.length; i++) {
+        const element = components[i];
+        if (element.js.PathfindingCompleted) {
+          element.js.PathfindingCompleted();
         }
       }
     }

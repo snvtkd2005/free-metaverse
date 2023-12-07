@@ -15,7 +15,7 @@
 
         <div class=" relative flex w-full h-full   ">
           <div class=" self-center mx-auto w-full h-full  bg-white rounded-xl ">
-            <!-- <img class=" w-10 h-10 rounded-lg" :src="item.icon" alt=""> -->
+            <img class=" w-10 h-10 rounded-lg" :src="item.icon" alt="">
           </div>
           <div v-if="item.count>0" class=" absolute -right-1 -top-1 w-4 h-4 flex bg-yellow-600 rounded-xl ">
             <div class=" self-center mx-auto ">
@@ -38,7 +38,6 @@
 
     <div class=" absolute left-0 top-0 w-16 h-16 flex bg-black bg-opacity-50 rounded-full "
     @click="clickSkill('攻击')">
-        <!-- <img class=" w-10 h-10 rounded-full" :src="item.icon" alt=""> -->
         <div class="  self-center mx-auto  "> 攻击 </div>
       </div>
   </div>
@@ -103,14 +102,24 @@ export default {
 
   },
   methods: {
+    initIcon(skill){
+      // console.log("in skill panel 22 ", skill);
+      for (let i = 0; i < this.skillList.length; i++) {
+        const item =  this.skillList[i];
+        if(item.type == skill.type){
+          item.count = skill.count;
+          item.buffValue = skill.value;
+          item.icon = this.$uploadUVAnimUrl + skill.imgPath;
+          item.describe = (item.buff=="addArmor"?"护甲":item.buff=="addHealth"?"生命":"能量") + " +"+item.buffValue;
+        }
+      } 
+    },
     SetSkillCount(skill) {
       // console.log("in skill panel ", skill);
       for (let i = 0; i < this.skillList.length; i++) {
         const item =  this.skillList[i];
         if(item.type == skill.type){
           item.count = skill.count;
-          item.buffValue = skill.value;
-          item.describe = (item.buff=="addArmor"?"护甲":item.buff=="addHealth"?"生命":"能量") + " +"+item.buffValue;
         }
       } 
     },

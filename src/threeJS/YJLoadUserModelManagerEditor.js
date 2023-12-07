@@ -60,6 +60,14 @@ class YJLoadUserModelManager {
       return list;
     }
 
+    this.AllNpcTransformNav = function () {
+      for (let i = 0; i < allTransform.length; i++) {
+        const transform = allTransform[i].transform;
+        if (transform.GetData().modelType == "NPC模型") {
+          transform.PathfindingCompleted(); 
+        }
+      } 
+    }
 
     //#region 使用物理模拟判断是否与其他模型重叠，重叠时无法放置模型
     let Ammo = null;

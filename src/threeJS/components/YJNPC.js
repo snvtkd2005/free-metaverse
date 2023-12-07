@@ -118,8 +118,6 @@ class YJNPC {
       }
       this.RemoveWeapon();
 
-        console.log(" 加载武器 ", data.weaponData);
-
       if (data.weaponData && data.weaponData.message) {
         weaponData = data.weaponData.message.data;
 
@@ -138,8 +136,7 @@ class YJNPC {
             weaponModel.scale.set(100, 100, 100);
             _YJAnimator.ChangeAnim("none");
             scope.SetPlayerState("normal");
-            this.UpdateNavPos("开始巡逻", data.movePos);
-
+            this.PathfindingCompleted();
             // 记录材质
             if (materials.length == 0) {
               recodeMat();
@@ -150,10 +147,7 @@ class YJNPC {
       if (weaponData == null) {
         _YJAnimator.ChangeAnim("none");
         scope.SetPlayerState("normal");
-        setTimeout(() => {
-          this.UpdateNavPos("开始巡逻", data.movePos);
-        }, 1000);
-
+        this.PathfindingCompleted();
         // 记录材质
         if (materials.length == 0) {
           recodeMat();
@@ -232,7 +226,10 @@ class YJNPC {
       return false;
     }
 
-
+    // 寻路网格准备完成调用 或 直接调用开始巡逻
+    this.PathfindingCompleted = function(){
+      this.UpdateNavPos("开始巡逻", data.movePos);
+    }
 
     let posMesh = _Global.setting.navPointMesh;
 
@@ -342,6 +339,7 @@ class YJNPC {
     //#endregion
     // 随机寻路点
     this.RadomNavPos = function () {
+
       if (_Global.mainUser) {
         let navPosIndex = radomNum(0, movePos.length - 1);
         GetNavpath(parent.position.clone(), movePos[navPosIndex]);
@@ -359,13 +357,11 @@ class YJNPC {
       //   console.log("navpath ", navpath);
       // }, 5000);
     }
+
     this.SetNavPosByPosIndex = function (navPosIndex) {
       GetNavpath(parent.position.clone(), movePos[navPosIndex]);
     }
-
-
-
-
+ 
     //创建姓名条参考物体
     let namePosTrans = null;
     function CreateNameTrans(content) {

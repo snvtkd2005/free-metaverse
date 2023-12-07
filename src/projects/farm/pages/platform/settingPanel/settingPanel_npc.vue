@@ -12,8 +12,8 @@
           <YJinput_text class="w-full h-auto" :value="item.value" :index="i" :callback="item.callback" />
         </div>
 
-        <div v-if="item.type == 'drop'" class=" w-20 h-16 text-black ">
-          <YJinput_drop class=" w-32 h-16 " :value="item.value" :options="item.options" :index="i"
+        <div v-if="item.type == 'drop'" class=" w-16 h-12 text-black ">
+          <YJinput_drop class=" w-32 h-12 " :value="item.value" :options="item.options" :index="i"
             :callback="item.callback" />
         </div>
         <div v-if="item.type == 'int'" class="flex gap-2 text-black">
@@ -382,7 +382,7 @@ export default {
        this.Utils.SetSettingItemByProperty(this.setting,"strength", this.settingData.baseData.strength);
        this.Utils.SetSettingItemByProperty(this.setting,"height", this.settingData.height);
        this.Utils.SetSettingItemByProperty(this.setting,"relifeTime",  this.settingData.relifeTime);
-      //  this.Utils.SetSettingItemByProperty(this.setting,"type",  this.settingData.baseData.type);
+       this.Utils.SetSettingItemByProperty(this.setting,"type",  this.settingData.baseData.type? this.settingData.baseData.type:"normal");
       
       if(this.settingData.weaponData){
         this.Utils.SetSettingItemByProperty(this.setting,"weapon",this.$uploadUrl + this.settingData.weaponData.icon );

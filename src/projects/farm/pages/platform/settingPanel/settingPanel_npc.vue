@@ -132,6 +132,7 @@ export default {
         name: "",
         baseData: {
           camp: "bl",
+          type: "normal", //类型：普通无边框、稀有、精英，normal\rare\elite
           state: 'normal', //状态
           speed: 8, //移动速度
           level: 1, //等级
@@ -141,8 +142,7 @@ export default {
         },
         defaultAnim: "idle", //默认动作
         relifeTime:0,//重新生成间隔时间 秒
-
-        avatarData: {},
+        avatarData: {}, //avatar模型数据
         eventType: "no",//事件类型 
         contentData: {},//事件内容数据
         movePos: [
@@ -168,6 +168,13 @@ export default {
             { value: 'bl', label: '部落npc' },
             { value: 'dd', label: '敌对' },
             { value: 'zl', label: '中立' },
+          ], callback: this.ChangeValue,
+        },
+        {
+          property: "type", display: true, title: "难度", type: "drop", value: "普通", options: [
+            { value: 'normal', label: '普通' },
+            { value: 'rare', label: '稀有' },
+            { value: 'elite', label: '精英' }, 
           ], callback: this.ChangeValue,
         },
         { property: "maxHealth", display: true, title: "生命值", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
@@ -285,6 +292,7 @@ export default {
       this.Utils.SetSettingItemByProperty(this.setting,"strength", this.settingData.baseData.strength);
       this.Utils.SetSettingItemByProperty(this.setting,"height", this.settingData.height);
       this.Utils.SetSettingItemByProperty(this.setting,"relifeTime",  this.settingData.relifeTime);
+      this.Utils.SetSettingItemByProperty(this.setting,"type",  this.settingData.baseData.type);
       
       if(this.settingData.weaponData){
         this.Utils.SetSettingItemByProperty(this.setting,"weapon",this.$uploadUrl + this.settingData.weaponData.icon );
@@ -374,45 +382,13 @@ export default {
        this.Utils.SetSettingItemByProperty(this.setting,"strength", this.settingData.baseData.strength);
        this.Utils.SetSettingItemByProperty(this.setting,"height", this.settingData.height);
        this.Utils.SetSettingItemByProperty(this.setting,"relifeTime",  this.settingData.relifeTime);
+       this.Utils.SetSettingItemByProperty(this.setting,"type",  this.settingData.baseData.type);
       
       if(this.settingData.weaponData){
         this.Utils.SetSettingItemByProperty(this.setting,"weapon",this.$uploadUrl + this.settingData.weaponData.icon );
       }
 
-      console.log(" npc setting data ", _settingData);
-      return;
-      for (let i = 0; i < this.setting.length; i++) {
-        const element = this.setting[i];
-        if (element.property == "name") {
-          element.value = this.settingData.name;
-        }
-        if (element.property == "level") {
-          element.value = this.settingData.baseData.level;
-        }
-        if (element.property == "camp") {
-          element.value = this.settingData.baseData.camp;
-        }
-        
-        if (element.property == "maxHealth") {
-          element.value = this.settingData.baseData.maxHealth;
-        } 
-        if (element.property == "strength") {
-          element.value = this.settingData.baseData.strength;
-        }
-
-        if (element.property == "camp") {
-          element.value = this.settingData.baseData.camp;
-        }
-        
-        if (element.property == "relifeTime") {
-          element.value = this.settingData.relifeTime;
-        }
-        if (element.property == "weapon") {
-          if(this.settingData.weaponData){
-            element.value =this.$uploadUrl + this.settingData.weaponData.icon;
-          }
-        }
-      }
+      console.log(" npc setting data ", _settingData); 
     },
     // 改变UI输入值后刷新
     ChangeValue(i, e) {
@@ -421,6 +397,7 @@ export default {
       if (property == "camp" 
       || property == "maxHealth"
       || property == "strength"
+      || property == "type"
       ) {
         this.settingData.baseData[property] = e;
         if(property == "maxHealth"){

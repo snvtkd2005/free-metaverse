@@ -11,11 +11,11 @@
       <div v-for="(item, i) in skillList" :key="i" class=" p-1 w-12 h-12 text-left " :class="0 == item.id
         ? ' '
         : ' cursor-pointer '
-        " @click="UserModel(item)" @mouseover="LookSkill($event, item); hover = true;" @mouseleave="hover = false;">
+        " @click="UserModel(item)" @mouseover="LookSkill($event, item); " @mouseleave="hover = false;">
 
         <div class=" relative flex w-full h-full   ">
           <div class=" self-center mx-auto w-full h-full  bg-white rounded-xl ">
-            <img class=" w-10 h-10 rounded-lg" :src="item.icon" alt="">
+            <img v-if="item.active" class=" w-10 h-10 rounded-lg" :src="item.imgPath" alt="">
           </div>
           <div v-if="item.count>0" class=" absolute -right-1 -top-1 w-4 h-4 flex bg-yellow-600 rounded-xl ">
             <div class=" self-center mx-auto ">
@@ -76,11 +76,11 @@ export default {
       hover: false,
       hoverPanelOffset: { x: 120, y: 220 },
       skillList: [
-        { id: 10000,buff:"addArmor", type:"kouzhao", name: "口罩",describe:"防护",describe2:"", count: 0,buffValue:0 ,icon:"" },
-        { id: 10001,buff:"addArmor", type: "fanghufu", name: "防护服",describe:"防护",describe2:"", count: 0,buffValue:0,icon:"" }, 
-        { id: 10002,buff:"addHealth", type: "zhongcaoyao", name: "中草药汤剂",describe:"生命",describe2:"", count: 0,buffValue:0 ,icon:""}, 
-        { id: 10003,buff:"addArmor", type: "jiujingpenghu", name: "酒精喷壶",describe:"防护",describe2:"", count: 0,buffValue:0,icon:"" }, 
-        { id: 10004,buff:"addEnergy", type: "nengliang", name: "能量补给",describe:"能量",describe2:"每次攻击消耗30点能量，对最多3个目标造成伤害", count: 0,buffValue:0,icon:"" }, 
+        // { id: 10000,buff:"addArmor",active:false, type:"kouzhao", name: "口罩",describe:"防护",describe2:"", count: 0,buffValue:0 ,imgPath:"" },
+        // { id: 10001,buff:"addArmor",active:false, type: "fanghufu", name: "防护服",describe:"防护",describe2:"", count: 0,buffValue:0,imgPath:"" }, 
+        // { id: 10002,buff:"addHealth",active:false, type: "zhongcaoyao", name: "中草药汤剂",describe:"生命",describe2:"", count: 0,buffValue:0 ,imgPath:""}, 
+        // { id: 10003,buff:"addArmor",active:false, type: "jiujingpenghu", name: "酒精喷壶",describe:"防护",describe2:"", count: 0,buffValue:0,imgPath:"" }, 
+        // { id: 10004,buff:"addEnergy",active:false, type: "nengliang", name: "能量补给",describe:"能量",describe2:"", count: 0,buffValue:0,imgPath:"" }, 
       ],
       skillDescribe: {
         title: "技能名",
@@ -104,15 +104,26 @@ export default {
   methods: {
     initIcon(skill){
       // console.log("in skill panel 22 ", skill);
-      for (let i = 0; i < this.skillList.length; i++) {
+      let has = false;
+      for (let i = 0; i < this.skillList.length && !has; i++) {
         const item =  this.skillList[i];
         if(item.type == skill.type){
-          item.count = skill.count;
-          item.buffValue = skill.value;
-          item.icon = this.$uploadUVAnimUrl + skill.imgPath;
-          item.describe = (item.buff=="addArmor"?"护甲":item.buff=="addHealth"?"生命":"能量") + " +"+item.buffValue;
+          return; 
         }
       } 
+      this.skillList.push(
+        {
+          name:skill.name,
+          active:true,
+          count:0,
+          type:skill.type,
+          buff:skill.buff,
+          buffValue:skill.buffValue,
+          describe:(skill.buff=="addArmor"?"护甲":skill.buff=="addHealth"?"生命":"能量") + " +"+skill.buffValue,
+          describe2:skill.describe,
+          imgPath: this.$uploadUVAnimUrl + skill.imgPath,
+        }
+      );
     },
     SetSkillCount(skill) {
       // console.log("in skill panel ", skill);
@@ -134,12 +145,15 @@ export default {
       this.hasTarget = b;
     },
     LookSkill(e, item) {
-
+      if(!item.active){
+        return;
+      }
       this.skillDescribe.title = item.name;
       this.skillDescribe.describe = item.describe;
       this.skillDescribe.describe2 = item.describe2;
       this.hoverPanelOffset.x = e.clientX;
       this.hoverPanelOffset.y = 100;
+      this.hover = true;
       // this.hoverPanelOffset.y = e.clientY;
       // console.log("鼠标悬浮在技能上 ", item);
       // console.log("鼠标悬浮在技能上 2 ", e, this.hoverPanelOffset);

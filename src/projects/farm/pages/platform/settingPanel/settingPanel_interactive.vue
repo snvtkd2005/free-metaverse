@@ -32,7 +32,12 @@
           </div>
         </div>
 
-
+        <div v-if="item.type == 'textarea'" class=" w-32 h-auto text-black ">
+          <YJinput_textarea class=" w-full h-auto " :value="item.value" :index="i" :callback="item.callback" />
+        </div>
+        <div v-if="item.type == 'text'" class=" w-32 h-auto text-black ">
+          <YJinput_text class=" w-full h-auto " :value="item.value" :index="i" :callback="item.callback" />
+        </div>
         <div v-if="item.type == 'drop'" class=" w-20 h-18 text-black ">
           <YJinput_drop class=" w-32 h-18 " :value="item.value" :options="item.options" :index="i"
             :callback="item.callback" />
@@ -76,6 +81,8 @@ import YJinput_number from "../components/YJinput_number.vue";
 import YJinput_toggle from "../components/YJinput_toggle.vue";
 import { GetAllUVAnim } from "../../../js/uploadThreejs.js";
 import YJinput_drop from "../components/YJinput_drop.vue";
+import YJinput_textarea from "../components/YJinput_textarea.vue";
+import YJinput_text from "../components/YJinput_text.vue";
 
 import * as Utils from "/@/utils/utils.js";
 
@@ -88,6 +95,8 @@ export default {
     YJinput_color,
     YJinput_toggle,
     YJinput_drop,
+    YJinput_textarea,
+    YJinput_text,
   },
   data() {
     return {
@@ -97,7 +106,9 @@ export default {
         buff:"",
         buffValue: 0,
         relifeTime:0,//重新生成间隔时间 秒
-        type:"",
+        type:"", //道具类型唯一id
+        describe:"",//道具描述
+        name:"",//道具名
         color: "#ffffff",
         row: 14,
         col: 1,
@@ -106,7 +117,7 @@ export default {
         isBlack: false,
       },
       setting: [
-
+        {property: "name", title: "道具名", type: "text", value: "", callback: this.ChangeValue },
         {property: "imgPath", title: "选择图片", type: "file", value: null },
         // {property: "color", title: "叠加色", type: "color", value: "#ffffff", callback: this.ChangeColor },
         // {property: "row", title: "UV X", type: "num", value: 14, callback: this.ChangeX },
@@ -120,17 +131,21 @@ export default {
             { value: 'addEnergy', label: '加能量' }, 
           ], callback: this.ChangeValue,
         },
-        {
-          property: "type", display: true, title: "道具名", type: "drop", value: "口罩", options: [
-            { value: 'kouzhao', label: '口罩' },
-            { value: 'fanghufu', label: '防护服' }, 
-            { value: 'zhongcaoyao', label: '中草药汤剂' }, 
-            { value: 'jiujingpenghu', label: '酒精喷壶' }, 
-            { value: 'nengliang', label: '能量补给' }, 
-          ], callback: this.ChangeValue,
-        },
+        {property: "type", title: "道具类型(同一种道具类型保持一致)", type: "text", value: "", callback: this.ChangeValue },
+
+        // {
+        //   property: "type", display: true, title: "道具类型(同一种道具类型保持一致)", type: "drop", value: "口罩", options: [
+        //     { value: 'kouzhao', label: '口罩' },
+        //     { value: 'fanghufu', label: '防护服' }, 
+        //     { value: 'zhongcaoyao', label: '中草药汤剂' }, 
+        //     { value: 'jiujingpenghu', label: '酒精喷壶' }, 
+        //     { value: 'nengliang', label: '能量补给' }, 
+        //   ], callback: this.ChangeValue,
+        // },
+
         {property: "buffValue", title: "触发效果值", type: "num", value: 0, callback: this.ChangeValue },
         {property: "relifeTime", title: "重新生成间隔时间", type: "num", value: 0, callback: this.ChangeValue },
+        {property: "describe", title: "道具描述", type: "textarea", value: "", callback: this.ChangeValue },
 
       ],
 
@@ -165,11 +180,13 @@ export default {
     },
     Init(data) {
       this.settingData = data;
+      Utils.SetSettingItemByProperty(this.setting,"name",  this.settingData.name);
       Utils.SetSettingItemByProperty(this.setting,"imgPath",  this.settingData.imgPath);
       Utils.SetSettingItemByProperty(this.setting,"buff",  this.settingData.buff);
       Utils.SetSettingItemByProperty(this.setting,"buffValue",  this.settingData.buffValue);
       Utils.SetSettingItemByProperty(this.setting,"type",  this.settingData.type);
       Utils.SetSettingItemByProperty(this.setting,"relifeTime",  this.settingData.relifeTime);
+      Utils.SetSettingItemByProperty(this.setting,"describe",  this.settingData.describe);
       
     },
     ChangeValue(i, e) {

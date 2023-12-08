@@ -42,8 +42,9 @@ class YJSceneDyncManagerEditor {
             }
             let model = element.message.data;
             console.log("交互模型",model);
-            indexVue.$refs.HUD.$refs.skillPanel_virus.initIcon({type: model.type, value: model.buffValue, imgPath:  model.imgPath });
-
+            // indexVue.$refs.HUD.$refs.skillPanel_virus.initIcon({describe: model.describe,type: model.type, value: model.buffValue, imgPath:  model.imgPath });
+            indexVue.$refs.HUD.$refs.skillPanel_virus.initIcon(model);
+            addVirus(model);
           }
           dyncModelList.push({ id: element.id, modelType: element.modelType, state:state });
         }
@@ -56,6 +57,26 @@ class YJSceneDyncManagerEditor {
       setInterval(() => {
         CheckNpcLookat();
       }, 500);
+    }
+    function addVirus(model){
+      for (let i = 0; i < dyncModelList.length; i++) {
+        const element = dyncModelList[i];
+        if(element.id ==  model.type){
+          return;
+        }
+      }
+      dyncModelList.push({ id: model.type, modelType: "交互模型", state: { value: 0, count: 0 } });
+    }
+    // 第一个进入房间的玩家调用
+    this.SendSceneStateToServer = () => {
+      // dyncModelList.push({ id: "kouzhao", modelType: "交互模型", state: { value: 0, count: 0 } });
+      // dyncModelList.push({ id: "fanghufu", modelType: "交互模型", state: { value: 0, count: 0 } });
+      // dyncModelList.push({ id: "zhongcaoyao", modelType: "交互模型", state: { value: 0, count: 0 } });
+      // dyncModelList.push({ id: "jiujingpenghu", modelType: "交互模型", state: { value: 0, count: 0 } });
+      // dyncModelList.push({ id: "nengliang", modelType: "交互模型", state: { value: 0, count: 0 } });
+      
+      dyncModelList.push({ id: "offsetTime", modelType: "offsetTime", state: { offsetTime: 0, startTime: 1675586194683 } });
+      _Global.YJDync._YJDyncManager.SendSceneState("初始化", dyncModelList);
     }
 
     let playerPos = new THREE.Vector3(0, 0, 0);
@@ -346,15 +367,6 @@ class YJSceneDyncManagerEditor {
       }
       npcComponent.SetTargetToNone(true, false);
 
-    }
-    this.SendSceneStateToServer = () => {
-      dyncModelList.push({ id: "kouzhao", modelType: "交互模型", state: { value: 0, count: 0 } });
-      dyncModelList.push({ id: "fanghufu", modelType: "交互模型", state: { value: 0, count: 0 } });
-      dyncModelList.push({ id: "zhongcaoyao", modelType: "交互模型", state: { value: 0, count: 0 } });
-      dyncModelList.push({ id: "jiujingpenghu", modelType: "交互模型", state: { value: 0, count: 0 } });
-      dyncModelList.push({ id: "nengliang", modelType: "交互模型", state: { value: 0, count: 0 } });
-      dyncModelList.push({ id: "offsetTime", modelType: "offsetTime", state: { offsetTime: 0, startTime: 1675586194683 } });
-      _Global.YJDync._YJDyncManager.SendSceneState("初始化", dyncModelList);
     }
     // 玩家拾取场景内物体的数据。用来做场景物体同步
     let playerData = [];

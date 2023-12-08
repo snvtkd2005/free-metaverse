@@ -1,7 +1,7 @@
 
 // 场景设置
 <template>
-   <textarea name=""  class=" w-full" id="" ref="input" :value="value"  cols="30" rows="10"
+   <textarea name=""  class=" w-full" id="" ref="input" :value="value"  cols="10" rows="10"
            @focus="focus"
         @blur="blur"></textarea>
 </template>

@@ -83,6 +83,9 @@ class YJProjector {
       group.visible = true;
     }
     this.SetActive = (b) => {
+      if (group == null) {
+        return;
+      }
       group.visible = b;
       scene.add(group); 
     }

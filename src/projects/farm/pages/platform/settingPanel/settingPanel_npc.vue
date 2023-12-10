@@ -284,20 +284,8 @@ export default {
     },
     addThreeJSfocus() { }, 
     // 从单品编辑跳转过来后更新UI值
-    initValue() {
-      this.Utils.SetSettingItemByProperty(this.setting,"name", this.settingData.name);
-      this.Utils.SetSettingItemByProperty(this.setting,"maxHealth", this.settingData.baseData.maxHealth);
-      this.Utils.SetSettingItemByProperty(this.setting,"level", this.settingData.baseData.level);
-      this.Utils.SetSettingItemByProperty(this.setting,"camp", this.settingData.baseData.camp);
-      this.Utils.SetSettingItemByProperty(this.setting,"strength", this.settingData.baseData.strength);
-      this.Utils.SetSettingItemByProperty(this.setting,"height", this.settingData.height);
-      this.Utils.SetSettingItemByProperty(this.setting,"relifeTime",  this.settingData.relifeTime);
-      this.Utils.SetSettingItemByProperty(this.setting,"type",  this.settingData.baseData.type);
-      
-      if(this.settingData.weaponData){
-        this.Utils.SetSettingItemByProperty(this.setting,"weapon",this.$uploadUrl + this.settingData.weaponData.icon );
-      }
-
+    initValue() { 
+      this.Init(this.settingData);
     }, 
     load(item,modelType) {
       console.log(item,modelType);
@@ -398,6 +386,7 @@ export default {
       || property == "maxHealth"
       || property == "strength"
       || property == "type"
+      || property == "level"
       ) {
         this.settingData.baseData[property] = e;
         if(property == "maxHealth"){

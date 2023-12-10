@@ -5,10 +5,9 @@
   <!-- 模型库 模型列表选择 -->
   <div v-if="isOpen" class="
                                   absolute
-                                  md:w-2/3
+                                  md:w-auto
                                   w-32
-                                  right-24
-                                  max-w-md
+                                  right-24 
                                   h-60
                                   md:right-80
                                   bg-445760
@@ -37,8 +36,7 @@
                                     grid-cols-1
                                     gap-px
                                     mt-1
-                                    w-full
-                                    max-w-md
+                                    w-full 
                                     px-1
                                     mx-auto
                                     h-48

@@ -101,10 +101,10 @@
 
 <script>
 
-import YJinput_toggle from "./components/YJinput_toggle.vue";
+import YJinput_toggle from "../components/YJinput_toggle.vue";
 
 
-import { GetAllHDR, RequestMetaWorld } from "../../js/uploadThreejs.js";
+import { GetAllHDR, RequestMetaWorld } from "../../../js/uploadThreejs.js";
 
 export default {
   name: "settingpanel",

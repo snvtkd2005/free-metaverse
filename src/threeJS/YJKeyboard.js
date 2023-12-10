@@ -3,12 +3,13 @@
 
 
 class YJKeyboard {
-  constructor(keyCallback,keyUpCallback) {
+  constructor(keyCallback, keyUpCallback) {
 
     let inShiftLeft = false;
-    this.onKeyDown = function (event) {
+    let inControlLeft = false;
+    this.onKeyDown = function (e) {
       // console.log(event.code);
-      switch (event.code) {
+      switch (e.code) {
         case 'KeyT':
           if (inShiftLeft) {
             keyCallback("ShiftLeft+T");
@@ -22,19 +23,30 @@ class YJKeyboard {
           }
           break;
 
+        case 'KeyD':
+          if (inControlLeft) {
+            e.preventDefault();
+            keyCallback("ControlLeft+D");
+          }
+          return;
         case 'KeyZ':
           if (inShiftLeft) {
             keyCallback("ShiftLeft+Z");
           }
           return;
+
           break;
 
         case 'ShiftLeft':
           inShiftLeft = true;
           break;
 
+        case 'ControlLeft':
+          inControlLeft = true;
+          break;
+
       }
-      keyCallback(event.code);
+      keyCallback(e.code);
 
     };
 
@@ -44,8 +56,11 @@ class YJKeyboard {
         case 'ShiftLeft':
           inShiftLeft = false;
           break;
+        case 'ControlLeft':
+          inControlLeft = false;
+          break;
       }
-      if(keyUpCallback){
+      if (keyUpCallback) {
         keyUpCallback(event.code);
       }
     };

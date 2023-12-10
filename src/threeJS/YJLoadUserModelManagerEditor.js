@@ -68,6 +68,13 @@ class YJLoadUserModelManager {
         }
       } 
     }
+    this.GetTransformByUUID = function(uuid){
+      for (let i = 0; i < allTransform.length; i++) {
+        if (allTransform[i].uuid == uuid) {
+          return allTransform[i].transform; 
+        }
+      } 
+    }
 
     //#region 使用物理模拟判断是否与其他模型重叠，重叠时无法放置模型
     let Ammo = null;
@@ -574,6 +581,13 @@ class YJLoadUserModelManager {
           transform.Destroy();
         }
       }
+    }
+    this.DuplicateModel = function(modelData,callback){
+      CreateTransform(null,modelData, (object) => {
+        if (callback) {
+          callback(object);
+        }
+      });
     }
 
     // 加载单个场景的模型

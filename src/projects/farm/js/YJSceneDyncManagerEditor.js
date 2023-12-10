@@ -41,7 +41,7 @@ class YJSceneDyncManagerEditor {
               state.relifeTime = 6;
             }
             let model = element.message.data;
-            console.log("交互模型",model);
+            // console.log("交互模型",model);
             // indexVue.$refs.HUD.$refs.skillPanel_virus.initIcon({describe: model.describe,type: model.type, value: model.buffValue, imgPath:  model.imgPath });
             indexVue.$refs.HUD.$refs.skillPanel_virus.initIcon(model);
             addVirus(model);

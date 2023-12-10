@@ -1,38 +1,35 @@
 
 <template>
+  <!-- 左上角血条头像 -->
   <div v-if="display"
-    class="  absolute left-2 top-2  flex text-white origin-top-left transform scale-50 xl:scale-100 "
-    style="width:273px;height:109px;"
+    class="  absolute left-2 top-2 h-20 flex text-white origin-top-left transform scale-50 xl:scale-100 "
+    style="width:189px;height:66px;"
     @mouseenter="hover = true" @mouseleave="hover = false">
+
     
     <!-- 生命法术条 -->
-    <div class=" absolute left-2 top-12 h-auto w-health    "  > 
+    <div class=" absolute left-1 top-8 w-28 h-auto    " style="width: 116px;"> 
       <div class=" relative ">
-        <div class=" h-3   relative ">
+        <div class=" h-2   relative ">
           <div class=" h-full bg-green-500  " :style="'width: ' + this.healthPerc + '%'"></div>
         </div>
-        <div class=" mt-px h-3   relative ">
+        <div class=" mt-px h-2   relative ">
           <div class=" h-full bg-blue-500  " :style="'width: ' + GetEnergy() + '%'"></div>
         </div>
       </div>
     </div>
 
     <!-- 姓名栏背景 -->
-    <div class=" relative w-health h-4 ml-1.5 mt-7   ">
-      <div class=" absolute h-full w-full   " :class="selfCamp?' bg-blue-100 ':' bg-red-500 '"    ></div>
+    <div class=" relative w-28 h-4 ml-1.5 mt-3   ">
+      <div class=" absolute h-full w-full bg-red-200  " ></div>
     </div>
-
-      <!-- 头像 -->
-    <div class=" absolute right-12 mt-2 w-20 h-20     ">
-      <img class=" absolute right-0 p-2 w-20 h-20 rounded-full " :src="icon" alt=""> 
-    </div>
-
 
     <!-- 整个背景ui -->
-    <img class=" absolute left-0 top-0 w-full h-full  "  :src="headerBGUrl" alt="">
+    <img class=" absolute left-0 top-0 transform   " style="width:189px;height:66px; transform:rotateY(180deg);"  :src="headerBGUrl" alt="">
+    
 
     <!-- 生命法术条文字 -->
-    <div class=" absolute left-1 top-7 w-health h-auto    " > 
+    <div class=" absolute left-1 top-7  w-28 h-auto    " style="width: 116px;"> 
       <div class=" relative ">
         <div class=" h-2   relative ">
           <div v-if="hover" class=" absolute  left-0 top-0 w-full text-center text-xs transform scale-90  ">
@@ -45,9 +42,14 @@
       </div>
     </div>
 
-    <div class=" absolute right-12 mt-2 w-20 h-20     "> 
+    <div class=" absolute right-1 mt-px w-16 h-16     ">
+      <!-- 头像 -->
+      <img class=" absolute right-0 p-2 w-16 h-16 rounded-full " :src="icon" alt="">
+      <!-- 等级ui背景 -->
+      <img class="  absolute right-0 bottom-0 w-6 h-6  " :src="levelBGUrl" alt="">
+
       <!-- 等级文字 -->
-      <div class=" absolute right-px  bottom-px w-6 h-6 text-xs flex ">
+      <div class=" absolute right-0 bottom-0 w-6 h-6 rounded-full text-center text-xs flex ">
         <div class=" text-white self-center mx-auto">
           {{ baseData.level }}
         </div>
@@ -56,9 +58,8 @@
 
 
     <!-- npc名称 -->
-    <div class=" absolute left-0 w-health h-4 ml-1 mt-7   ">
-      <div class="  h-4 text-xs transform scale-90 text-center truncate  tracking-widest "
-      :class="selfCamp?' text-white ':' text-yellow-300 '" >{{ targetName }}</div> 
+    <div class=" absolute left-0 w-28 h-4 ml-1 mt-3   ">
+      <div class="  h-4 text-xs transform scale-90 text-center truncate">{{ targetName }}</div> 
     </div>
 
 
@@ -96,8 +97,8 @@ export default {
         normal:"./public/images/cursorList/headerBG_normal.png", //头像背景图 普通
         rare:"./public/images/cursorList/headerBG_rare.png", //  稀有
         elite:"./public/images/cursorList/headerBG_elite.png", //   精英
-      } , 
-      selfCamp:false,
+      } ,
+      levelBGUrl:"./public/images/cursorList/levelBG.png", //头像背景图
     };
   },
   created() {
@@ -114,10 +115,6 @@ export default {
 
       this.targetName = npcData.name;
       this.baseData = npcData.baseData;
-
-
-      this.selfCamp = this.baseData.camp == _Global.user.camp;
-
       this.headerBGUrl = this.headerBGUrlData[this.baseData.type|| "normal"] ;
       this.GetHealth();
       let avatarId = npcData.avatarData.id;
@@ -148,7 +145,4 @@ export default {
 </script>
  
 <style scoped> 
-.w-health{
-  width:139px;
-}
 </style>

@@ -29,7 +29,7 @@
 
       <div class=" absolute left-0 bottom-0 w-6 h-6 rounded-full text-center text-xs flex ">
         <div class=" text-yellow-500 self-center mx-auto">
-          {{ level }}
+          {{ baseData.level }}
         </div>
       </div>
     </div>
@@ -58,7 +58,6 @@ export default {
       display: false,
       //npc头像
       hover: false,
-      level: 1,
       playerImg: "",
       targetName: "hhh",
       energy: 100, //能量值
@@ -91,7 +90,7 @@ export default {
 
     // 设置头像框上的角色名
     SetTarget(npcData) {
-      // console.log(  " 设置头像框上数据更新",npcData);
+      console.log(  " 设置头像框上数据更新",npcData);
 
       this.targetName = npcData.name;
       this.baseData = npcData.baseData;

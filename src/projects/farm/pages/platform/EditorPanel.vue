@@ -80,7 +80,7 @@
 
     <HUD ref="HUD" />
 
-    <hierarchy ref="hierarchyPanel" class=" hidden " :modelList="modelList" />
+    <hierarchy ref="hierarchyPanel" class="  " :modelList="modelList" />
 
     <!-- 修改名称 -->
     <div class=" absolute left-2 top-12 flex text-white ">
@@ -135,7 +135,7 @@ import modelPanel from "./modelPanel.vue";
 import modelSelectPanel from "./modelSelectPanel.vue";
 
 import settingPanel from "./settingPanel/settingPanel.vue";
-import sceneSettingPanel from "./sceneSettingPanel.vue";
+import sceneSettingPanel from "./settingPanel/sceneSettingPanel.vue";
 import settingPanel_uvAnim from "./settingPanel/settingPanel_uvAnim.vue";
 import settingPanel_screen from "./settingPanel/settingPanel_screen.vue";
 import settingPanel_particle from "./settingPanel/settingPanel_particle.vue";
@@ -1310,18 +1310,18 @@ export default {
           _Global.YJ3D._YJSceneManager._YJTransformManager.detach();
           this.clickModelJS = null;
         }
-
-
         this.SetSelectTransform(hitObject.transform);
-
-      }
-
+      } 
     },
     CreateNewTransfrom(transform) {
       this.ClickFloor();
       //添加到模型列表
       this.editorModelList("增加", transform.GetData());
       this.SetSelectTransform(transform);
+    },
+    SetSelectTransformByUUID(uuid){
+      this.ClickFloor();
+      this.SetSelectTransform(_Global.YJ3D._YJSceneManager.GetLoadUserModelManager().GetTransformByUUID(uuid));
     },
     SetSelectTransform(transform) {
       this.clickModelJS = transform;
@@ -1405,6 +1405,14 @@ export default {
         this.clickModelJS = null;
         this.ChangePanel('');
 
+      }
+    },
+    DuplicateModel(){
+      if (this.clickModelJS != null) {
+        _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().DuplicateModel(this.clickModelJS.GetData(),(transform)=>{
+          _Global.YJ3D._YJSceneManager._YJTransformManager.attach(transform.GetGroup());
+          this.clickModelJS = transform;
+        });
       }
     },
     ClickFloor() {

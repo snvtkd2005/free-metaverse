@@ -39,6 +39,12 @@ class YJTransformController {
             selectMesh.owner.GetComponent("NPC").UpdateNavPos('停止巡逻');
           }
         }
+        if(!event.value && selectMesh.owner.isYJTransform){
+          if(selectMesh.owner){
+            console.log("拖拽结束");
+            selectMesh.owner.DragEnd();
+          }
+        }
       });
 
       transformController.name = "ignoreRaycast";

@@ -2050,7 +2050,11 @@ class YJSceneManager {
             _this.$parent.$parent.DelModel();
           }
         }
-
+        if (key == "ControlLeft+D") {
+          if (_this.$parent.$parent.DuplicateModel) {
+            _this.$parent.$parent.DuplicateModel();
+          }
+        }
         // 取消选中
         if (key == "Escape") {
           if (_this.$parent.$parent.ClickFloor) {

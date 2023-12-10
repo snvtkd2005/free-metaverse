@@ -1,11 +1,13 @@
 
 <template>
+  <!-- HUD -->
   <div class=" absolute left-0 top-0 w-full h-full pointer-events-none ">
 
     <skillPanel_virus ref="skillPanel_virus" />
     <skillPanel ref="skillPanel" />
+
+    <!-- 左上角血条头像 -->
     <div class=" absolute left-24 top-10">
-      <!-- 左上角血条头像 -->
       <headerUI ref="headerUI" />
     </div>
     <div class="  absolute w-full left-0 bottom-2">

@@ -435,6 +435,11 @@ class SceneManager {
     // 使用物品、扔出物品、使用技能
     this.UserModel = (model, e, f, callback) => {
 
+      // 自身死亡不能使用道具
+      if(_this.YJController.isInDead()){
+        return;
+      }
+
       if(oldTarget != null){
         if(oldTarget.isPlayer){
           // 如果玩家已死亡，则不使用道具
@@ -787,7 +792,7 @@ class SceneManager {
             // 头像
             this.SetTargetModel(hitObject.transform);
 
-            if (message.data.baseData.camp == "bl") {
+            if (message.data.baseData.camp != _Global.user.camp) {
               //敌人  
               //进入战斗状态
               if (message.data.baseData.health > 0) {
@@ -876,6 +881,11 @@ class SceneManager {
       // console.log("点击模型 ",hitObject);
       // console.log("点击模型.transform ", hitObject.transform);
       if (hitObject.transform) {
+
+        if(indexVue.$refs.hierarchyPanel){
+          indexVue.$refs.hierarchyPanel.SelectModelBy3d(hitObject.transform.GetUUID()); 
+        }
+
         // 点击NPC
         let message = hitObject.transform.GetData().message;
         if (message) {

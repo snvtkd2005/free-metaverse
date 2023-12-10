@@ -5,14 +5,19 @@
         <!-- 单品名:{{ folderBase }} 总模型数量： {{modelList.length}} -->
   <div class=" absolute z-10 left-0 top-32 mt-10 w-auto h-auto max-h-96 overflow-y-scroll bg-gray-600 text-gray-100 ">
     <div>场景模型列表</div>
-    <div v-for="(item, i) in modelList" :key="i" class=" w-52 text-left hover:bg-black px-2   h-6   "
-      @click="SelectModel(item)">
+    <div v-for="(item, i) in modelList" :key="i" class=" w-auto text-left hover:bg-gray-500 px-2   h-6   "
+      @click="SelectModel(item)" :class="selectUUID==item.uuid?' bg-black ':''">
       <div class=" flex justify-between ">
-
-        <div class=" self-center">
-          {{ item.name }}
+ 
+        <div class=" w-60 flex  justify-between ">
+          <div class=" self-center truncate">
+            {{ item.name }}
+          </div>
+          <div class=" self-center truncate">
+            {{ item.modelType }}
+          </div>
         </div>
-        <div class=" ">
+        <div class=" ml-2 w-8 ">
           <div>锁定</div>
         </div>
       </div>
@@ -32,7 +37,7 @@ export default {
   },
   data() {
     return {
-
+      selectUUID:"",
     };
   },
   created() {
@@ -43,11 +48,20 @@ export default {
 
   },
   methods: {
-
-
+    // 在3d中点击模型，反向设置检视面板选中状态
+    SelectModelBy3d(uuid){
+      for (let i = 0; i < this.modelList.length; i++) {
+        const element = this.modelList[i];
+        if(element.uuid == uuid){
+          this.selectUUID = uuid;
+        }
+      }
+    },
+    // 点击检视面板选中模型
     SelectModel(item) {
-
-      _Global.YJ3D._YJSceneManager.SelectModel(item.uuid);
+      console.log(" 点击检视面板选中模型 ",item);
+      this.selectUUID = item.uuid; 
+      this.$parent.SetSelectTransformByUUID(item.uuid);
     },
 
 

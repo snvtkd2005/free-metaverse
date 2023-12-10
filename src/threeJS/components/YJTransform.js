@@ -39,6 +39,8 @@ class YJTransform {
     }
     
     this.GetData = function () {
+      let pos = group.position;  
+      data.pos = { x:pos.x, y: pos.y, z: pos.z };
       return data;
     }
     this.GetMessage = function () {
@@ -207,6 +209,8 @@ class YJTransform {
       let rota = data.rotaV3;
       group.position.set(pos.x, pos.y, pos.z); // 
       group.rotation.set(rota.x, rota.y, rota.z); // 
+
+
     }
     //用户摆放自定义的模型，位置跟随鼠标悬浮的地面位置
     this.SetPosRota = function (pos, rota, size) {
@@ -225,6 +229,7 @@ class YJTransform {
     }
     this.SetPos = function (pos) {
       group.position.set(pos.x, pos.y, pos.z); //  
+      data.pos = { x: pos.x, y: pos.y, z: pos.z };
     }
     this.SetSize = function (size) {
       group.scale.set(size.x, size.y, size.z);
@@ -247,15 +252,18 @@ class YJTransform {
     this.GetPosRota = function (callback) {
       callback(model.position, model.rotation);
     }
-    // 编辑完成，更新数据、生成碰撞体
-    this.EditorEnd = function () {
+    this.DragEnd = function () {
       data.pos = group.position.clone();
       data.rotaV3.x = group.rotation.x;
       data.rotaV3.y = group.rotation.y;
       data.rotaV3.z = group.rotation.z;
       data.scale.x = group.scale.x;
       data.scale.y = group.scale.y;
-      data.scale.z = group.scale.z;
+      data.scale.z = group.scale.z; 
+    }
+    // 编辑完成，更新数据、生成碰撞体
+    this.EditorEnd = function () {
+      this.DragEnd();
       CreateColliderFn();
     }
     this.EditorStart = function () {

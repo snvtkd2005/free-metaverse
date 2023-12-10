@@ -80,7 +80,7 @@ export default {
         // { id: 10001,buff:"addArmor",active:false, type: "fanghufu", name: "防护服",describe:"防护",describe2:"", count: 0,buffValue:0,imgPath:"" }, 
         // { id: 10002,buff:"addHealth",active:false, type: "zhongcaoyao", name: "中草药汤剂",describe:"生命",describe2:"", count: 0,buffValue:0 ,imgPath:""}, 
         // { id: 10003,buff:"addArmor",active:false, type: "jiujingpenghu", name: "酒精喷壶",describe:"防护",describe2:"", count: 0,buffValue:0,imgPath:"" }, 
-        // { id: 10004,buff:"addEnergy",active:false, type: "nengliang", name: "能量补给",describe:"能量",describe2:"", count: 0,buffValue:0,imgPath:"" }, 
+        // { id: 10004,buff:"addEnergy",active:false, type: "nengliang", name: "能量补给",describe:"能量",describe2:"消耗30点能量对最多3个目标造成伤害", count: 0,buffValue:0,imgPath:"" }, 
       ],
       skillDescribe: {
         title: "技能名",

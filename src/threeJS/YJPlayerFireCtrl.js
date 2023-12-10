@@ -44,6 +44,8 @@ class YJPlayerFireCtrl {
 					if (playerState == PLAYERSTATE.DEAD) {
 						playerState = PLAYERSTATE.NORMAL;
 						baseData.health = baseData.maxHealth;
+						baseData.armor = 0;
+						baseData.energy = 0;
 					}
 					scope.SetPlayerState("normal");
 

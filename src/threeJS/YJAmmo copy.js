@@ -1404,15 +1404,12 @@ class YJAmmo {
 
         }
 
-
         // console.log(" 腾空！！！ " ,oldoverlapArray, overlapArray,downForce);
         // laterDownForce = setTimeout(() => {
         //   SetGravityValue(jumpGravity);
         // }, 100);
 
       }
-
-
 
       //提取增加的
       for (let i = 0; i < overlapArray.length; i++) {
@@ -1901,7 +1898,7 @@ class YJAmmo {
         } else {
           // moveForce.setY(gravity);
           // moveForce.setY(normalGravity);
-          moveForce.setY(0);
+          moveForce.setY(-3);
 
           // CheckForwardCollider();
         }

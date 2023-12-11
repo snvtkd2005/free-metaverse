@@ -646,7 +646,9 @@ class Interface {
       _Global.SceneManager = this.SceneManager();
       // 场景加载完成后，重新更新相机射线偏移，
       // 窗口大小位置不一样会导致射线偏移,所以需要重新计算
-      _this.setPanelSize();
+      if(_this.setPanelSize){
+        _this.setPanelSize();
+      } 
 
       // 调用2d的
       if (_Global.load3dComplete == null) { return; }

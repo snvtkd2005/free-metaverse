@@ -789,7 +789,7 @@ class YJNPC {
     function SetNavPathToNone() {
       navpath = [];
       doonce = 0;
-      console.error("清空寻路路径");
+      // console.error("清空寻路路径");
     }
     function CheckState() {
 
@@ -883,7 +883,7 @@ class YJNPC {
     function GetNavpath(fromPos, targetPos) {
       let _navpath = _Global.GetNavpath(fromPos, targetPos);
       if (_navpath == null) {
-        console.log("查到寻路路径 为空 ", _navpath, getnavpathTimes, navpath);
+        // console.log("查到寻路路径 为空 ", _navpath, getnavpathTimes, navpath);
         if (targetModel != null) { 
           getnavpathTimes++;
           if (getnavpathTimes >= 5) {

@@ -137,8 +137,7 @@ class YJPathfindingCtrl {
       // console.log("groupId " + groupId);
       const closest = pathfinding.getClosestNode(fromPos, ZONE, groupId); //返回离目标位置最近的节点
       // console.log("closest ", closest);
-      // navpath = pathfinding.findPath(closest.centroid, targetPos, ZONE, groupId);
-      navpath = pathfinding.findPath(fromPos, targetPos, ZONE, groupId);
+      navpath = pathfinding.findPath(closest.centroid, targetPos, ZONE, groupId);
       getTimes++;
       if (navpath == null && getTimes < 3) {
         // targetPos.x += 0.5;

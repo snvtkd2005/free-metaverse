@@ -5,7 +5,7 @@
 
   <!-- 角色设置面板 -->
   <div class="
-              w-80
+              w-full
               max-w-md
                p-2
              text-white 

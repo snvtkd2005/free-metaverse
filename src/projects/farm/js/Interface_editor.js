@@ -644,7 +644,8 @@ class Interface {
       _Global.YJDync = this.YJDync();
       _Global.DyncManager = this.DyncManager();
       _Global.SceneManager = this.SceneManager();
-      
+      // 场景加载完成后，重新更新屏幕长宽比
+      _Global.YJ3D.$parent.ForcedUpdateSize();
       if (_Global.load3dComplete == null) { return; }
       _Global.load3dComplete();
     }

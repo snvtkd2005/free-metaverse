@@ -1,44 +1,39 @@
 
-// 右上角的场景按钮。场景切换界面
-<template>
-  <!-- 顶部 -->
+<template> 
+  <!-- 右上角按钮 -->
+  <div class="h-10 flex gap-x-1  text-gray-200">
 
-  <div class=" mt-11 mr-1 ">
-
-    <!-- 右侧按钮 -->
-    <div class="h-10 flex gap-x-1  text-gray-200">
-
-      <!-- :class="panelState.setting ? ' bg-blue-400 text-gray-200 ' : 'bg-gray-200 text-gray-500'" -->
-      <div class="cursor-pointer  bg-black bg-opacity-40 " @click=" ChangePanel('导出')">
-        <p class="p-2">导出</p>
+    <!-- :class="panelState.setting ? ' bg-blue-400 text-gray-200 ' : 'bg-gray-200 text-gray-500'" -->
+    <div class="cursor-pointer  bg-black bg-opacity-40 " @click=" ChangePanel('导出')">
+      <p class="p-2">导出</p>
+    </div>
+    <div class="cursor-pointer  bg-black bg-opacity-40 " @click=" ChangePanel('设置')">
+      <p class="p-2">设置</p>
+    </div>
+    <div class="   p-2 flex  h-10 text-center  cursor-pointer  bg-black bg-opacity-40  "
+      :class="panelState.model ? ' bg-opacity-80 ' : 'bg-opacity-40'" @click=" ChangePanel('模型')">
+      <div class=" self-center">
+        模型库
       </div>
-      <div class="cursor-pointer  bg-black bg-opacity-40 " @click=" ChangePanel('设置')">
-        <p class="p-2">设置</p>
-      </div>
-      <div class="   p-2 flex  h-10 text-center  cursor-pointer  bg-black bg-opacity-40  "
-        :class="panelState.model ? ' bg-opacity-80 ' : 'bg-opacity-40'"
-        @click=" ChangePanel('模型')">
-        <div class=" self-center">
-          模型库
-        </div> 
-      </div>
-
-      <div class=" p-2 flex  h-10 text-center  cursor-pointer  bg-black bg-opacity-40  "
-        :class="sceneSetting.hasDirectionalLight ? ' bg-opacity-80 ' : 'bg-opacity-40 '" @click="ChangeSetting('太阳光')">
-        <div class=" self-center">
-          太阳光
-        </div>
-      </div>
-
-      <div class=" p-2 flex h-10 text-center cursor-pointer  bg-black bg-opacity-40 "
-        @click="ChangeSetting('启动')">
-        <div class=" self-center">
-          启动
-        </div>
-      </div>
-
     </div>
 
+    <div class=" p-2 flex  h-10 text-center  cursor-pointer  bg-black bg-opacity-40  "
+      :class="sceneSetting.hasDirectionalLight ? ' bg-opacity-80 ' : 'bg-opacity-40 '" @click="ChangeSetting('太阳光')">
+      <div class=" self-center">
+        太阳光
+      </div>
+    </div>
+
+    <div class=" p-2 flex h-10 text-center cursor-pointer  bg-black bg-opacity-40 " @click="ChangeSetting('启动')">
+      <div class=" self-center">
+        启动
+      </div>
+    </div>
+    <div class=" p-2 flex h-10 text-center cursor-pointer  bg-black bg-opacity-40 " @click="ChangePanel('全屏')">
+      <div class=" self-center">
+        {{fullScreen?'缩小':'全屏'}}
+      </div>
+    </div>
   </div>
 </template>
 
@@ -63,8 +58,8 @@ export default {
       panelState: {
         setting: true,
         model: true,
-      }
-
+      },
+      fullScreen:false,
     };
   },
   created() {
@@ -76,13 +71,19 @@ export default {
   methods: {
 
     ChangePanel(e) {
+      
+      if ("全屏" == e) {
+        this.fullScreen = !this.fullScreen; 
+        this.$parent.setMaxMin(this.fullScreen);
+        return;
+      }
       if ("导出" == e) {
         // 由服务器把场景配置、场景模型数据、模型文件夹、程序文件夹等打包成zip压缩包下载
         // 
         return;
       }
       if ("设置" == e) {
-        this.$parent.ChangePanel('setting'); 
+        this.$parent.ChangePanel('setting');
         return;
       }
       if ("模型" == e) {

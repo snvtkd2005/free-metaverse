@@ -2,13 +2,13 @@
 // UV动画设置
 <template>
   <!-- avatar设置 -->
-  <div class="w-80 max-w-md p-2 text-white rounded-lg overflow-hidden">
+  <div class="w-full max-w-md p-2 text-white rounded-lg overflow-hidden">
     <div class="text-left">动作映射</div>
 
     <div
       v-for="(item, i) in setting"
       :key="i"
-      class="text-xs text-left flex w-80 h-auto mb-2"
+      class="text-xs text-left flex w-full h-auto mb-2"
     >
       <div class="self-center w-40 truncate" v-show="item.display">
         {{ item.title }}
@@ -120,7 +120,7 @@
     </div>
 
     <div
-      class="hidden mt-10 w-80 h-10 text-white cursor-pointer"
+      class="hidden mt-10 w-full h-10 text-white cursor-pointer"
       @click="load()"
     >
       <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">
@@ -128,7 +128,7 @@
       </div>
     </div>
 
-    <div class="mt-2 w-80 h-10 text-white cursor-pointer" @click="save()">
+    <div class="mt-2 w-full h-10 text-white cursor-pointer" @click="save()">
       <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">保存</div>
     </div>
   </div>

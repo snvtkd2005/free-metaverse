@@ -3,7 +3,7 @@
 <template>
   <!-- 场景设置面板 -->
   <div class="
-              w-80
+              w-full
               max-w-md
              p-2
              text-white 
@@ -12,11 +12,11 @@
             ">
     <div class=" text-left ">交互模型设置</div>
 
-    <div v-for="(item, i) in setting" :key="i" class=" text-xs  text-left flex w-80 h-auto pb-2   ">
+    <div v-for="(item, i) in setting" :key="i" class=" text-xs  text-left flex w-full h-auto pb-2 pr-2   ">
       <div class=" self-center w-1/3">
         {{ item.title }}
       </div>
-      <div class=" self-center w-2/3 pr-10">
+      <div class=" self-center w-2/3 ">
         <div v-if="item.type == 'color'" class=" flex gap-2 ">
           <YJinput_color :value="item.value" :callback="item.callback" />
         </div>

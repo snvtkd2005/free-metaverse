@@ -4,7 +4,7 @@
   <settingPanel_avatar ref="settingPanel_avatar" /> 
   <!-- 角色设置面板 -->
   <div class="
-              w-80
+              w-full
               max-w-md
                p-2
              text-white 

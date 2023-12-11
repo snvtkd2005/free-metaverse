@@ -3,23 +3,10 @@
 <template>
 
   <!-- 模型库 模型列表选择 -->
-  <div v-if="isOpen" class="
-                                  absolute
-                                  md:w-auto
-                                  w-32
-                                  right-24 
-                                  h-60
-                                  md:right-80
-                                  bg-445760
-                                 text-white
-                                  bottom-0
-                                 rounded-tr-lg
-                                 rounded-tl-lg
-                                 overflow-hidden
-                                ">
+  <div v-if="isOpen" class=" w-full h-full bg-445760  ">
     <!-- 分类table -->
     <div class="flex bg-546770">
-      <div v-for="(item, i) in modelTable" :key="i" :index="item.name" class=" text-sm w-auto h-8 self-center  cursor-pointer flex"
+      <div v-for="(item, i) in modelTable" :key="i" :index="item.name" class=" mr-2 text-sm w-auto h-8 self-center  cursor-pointer flex"
         :class="selectModelTable == item.name ? 'bg-445760 text-white ' : ' text-gray-400 '" @click="SelectTable(item.name)">
         <div class="self-center mx-auto px-1">
           {{ item.name }}
@@ -28,27 +15,12 @@
     </div>
 
     <!-- 模型库 分类筛选后列表 -->
-    <div class="
-                                    overflow-y-auto
-                                    overscroll-auto
-                                    grid 
-                                    md:grid-cols-5
-                                    grid-cols-1
-                                    gap-px
-                                    mt-1
-                                    w-full 
-                                    px-1
-                                    mx-auto
-                                    h-48
+    <div class="   overflow-y-auto  overscroll-auto  flex flex-wrap
+                    mt-1  w-full   h-40  text-white
                                   ">
       <div v-for="(item, i) in modelsList" :key="i" :index="item.icon" class="
-                                      w-20
-                                      h-20 
-                                      mx-auto
-                                      rounded-md
-                                      hover:bg-blue-400
-                                      cursor-pointer
-                                      flex flex-col text-xs
+                w-20 h-20 rounded-md  hover:bg-blue-400
+                                      cursor-pointer  flex flex-col text-xs
                                     " v-show="item.modelType == selectModelTable" :class="selectModelItem.name == item.name ? 'bg-blue-400' : ' '
                                       " @click="ChangeSceneByUI(item)">
         <div class=" w-full h-full  rounded-md self-center mx-auto">

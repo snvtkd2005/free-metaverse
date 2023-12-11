@@ -2,7 +2,6 @@
 <template>
   <!-- HUD -->
   <div class=" absolute left-0 top-0 w-full h-full pointer-events-none ">
-
     <skillPanel_virus ref="skillPanel_virus" />
     <skillPanel ref="skillPanel" />
 

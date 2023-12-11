@@ -3,17 +3,16 @@
   <!-- 场景模型列表 -->
   
         <!-- 单品名:{{ folderBase }} 总模型数量： {{modelList.length}} -->
-  <div class=" absolute z-10 left-0 top-32 mt-10 w-auto h-auto max-h-96 overflow-y-scroll bg-gray-600 text-gray-100 ">
-    <div>场景模型列表</div>
-    <div v-for="(item, i) in modelList" :key="i" class=" w-auto text-left hover:bg-gray-500 px-2   h-6   "
+  <div class="  w-full h-full  overflow-y-auto  overscroll-auto bg-gray-600 text-gray-100  ">
+    <div class=" font-bold ">场景模型列表</div>
+    <div v-for="(item, i) in modelList" :key="i" class=" w-auto text-left text-xs hover:bg-gray-500 px-1   "
       @click="SelectModel(item)" :class="selectUUID==item.uuid?' bg-black ':''">
-      <div class=" flex justify-between ">
- 
-        <div class=" w-60 flex  justify-between ">
+      <div class=" flex justify-between h-6 ">
+        <div class=" w-2/3 flex  justify-between ">
           <div class=" self-center truncate">
             {{ item.name }}
           </div>
-          <div class=" self-center truncate">
+          <div class=" self-center text-left truncate w-4">
             {{ item.modelType }}
           </div>
         </div>

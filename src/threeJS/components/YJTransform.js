@@ -39,8 +39,6 @@ class YJTransform {
     }
     
     this.GetData = function () {
-      let pos = group.position;  
-      data.pos = { x:pos.x, y: pos.y, z: pos.z };
       return data;
     }
     this.GetMessage = function () {
@@ -252,8 +250,17 @@ class YJTransform {
     this.GetPosRota = function (callback) {
       callback(model.position, model.rotation);
     }
+
+    // 拖拽开始
+    this.DragStart = function () {
+      if(this.GetComponent("NPC")){
+        this.GetComponent("NPC").UpdateNavPos('停止巡逻');
+      }
+    }
+    // 拖拽结束
     this.DragEnd = function () {
-      data.pos = group.position.clone();
+      let pos = group.position;  
+      data.pos = { x:pos.x, y: pos.y, z: pos.z }; 
       data.rotaV3.x = group.rotation.x;
       data.rotaV3.y = group.rotation.y;
       data.rotaV3.z = group.rotation.z;

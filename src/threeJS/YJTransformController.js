@@ -12,38 +12,34 @@ class YJTransformController {
     InitTransformController();
 
     let axisData = {
-      rota:{
-        x:false,
-        y:true,
-        z:false,
+      rota: {
+        x: false,
+        y: true,
+        z: false,
       }
     }
-    this.SetRotaAxis = function(bx,by,bz){
-      axisData.rota = {x:bx,y:by,z:bz};
+    this.SetRotaAxis = function (bx, by, bz) {
+      axisData.rota = { x: bx, y: by, z: bz };
     }
     // 创建 transform 控制器
     function InitTransformController() {
       transformController = new TransformControls(camera, renderer.domElement);
       // transformController.addEventListener( 'change', render );
       transformController.addEventListener('dragging-changed', function (event) {
-        if(_this.YJController){
+        if (_this.YJController) {
           _this.YJController.enabled = !event.value;
         }
         // console.log("正在拖拽 ",event);
         // console.log("正在拖拽 ",selectMesh.owner);
-        console.log("正在拖拽 ",selectMesh.position);
-        console.log("正在拖拽 ",selectMesh.rotation);
+        // console.log("正在拖拽 ",selectMesh.position);
+        // console.log("正在拖拽 ",selectMesh.rotation);
         // event.value true:开始   false:结束
-        if(event.value && selectMesh.owner.isYJTransform){
-          if(selectMesh.owner.GetComponent("NPC")){
-            selectMesh.owner.GetComponent("NPC").UpdateNavPos('停止巡逻');
-          }
+        if (event.value && selectMesh.owner.isYJTransform) {
+          selectMesh.owner.DragStart();
         }
-        if(!event.value && selectMesh.owner.isYJTransform){
-          if(selectMesh.owner){
-            console.log("拖拽结束");
-            selectMesh.owner.DragEnd();
-          }
+        if (!event.value && selectMesh.owner.isYJTransform) {
+          // console.log("拖拽结束");
+          selectMesh.owner.DragEnd();
         }
       });
 
@@ -83,7 +79,7 @@ class YJTransformController {
             break;
 
           case 82: // R
-            control.setMode( 'scale' );
+            control.setMode('scale');
             control.showY = true;
             control.showX = true;
             control.showZ = true;
@@ -166,7 +162,7 @@ class YJTransformController {
       detachFn();
     }
     function detachFn() {
-      if(selectMesh==null){return;}
+      if (selectMesh == null) { return; }
       transformController.detach();
       selectMesh = null;
       transformController.visible = false;

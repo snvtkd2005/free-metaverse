@@ -1,10 +1,10 @@
 
 <template>
-  <div class="w-80 max-w-md p-2 text-white rounded-lg overflow-hidden">
+  <div class="w-full max-w-md p-2 text-white rounded-lg overflow-hidden">
     <div class="text-left">npc 设置</div>
 
-    <div v-for="(item, i) in setting" :key="i" class="text-xs text-left flex w-80 h-auto mb-2">
-      <div class="self-center w-40 truncate" v-show="item.display">
+    <div v-for="(item, i) in setting" :key="i" class="text-xs text-left flex w-full h-auto mb-2">
+      <div class="self-center w-1/2 truncate" v-show="item.display">
         {{ item.title }}
       </div>
       <div class="self-center w-20" v-show="item.display">
@@ -68,31 +68,31 @@
     <settingPanel_npcSkill ref="settingPanel_npcSkill" />
 
 
-    <div class="mt-10 w-80 h-10 text-white cursor-pointer" @click="ClickHandler(isMoving?'停止巡逻':'开始巡逻')">
+    <div class="mt-10 w-full h-10 text-white cursor-pointer" @click="ClickHandler(isMoving?'停止巡逻':'开始巡逻')">
       <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">
         {{ isMoving?'停止巡逻':'开始巡逻' }}
       </div>
     </div>
 
-    <div class=" w-80 h-10 text-white cursor-pointer" @click="ClickHandler('设置为npc目标')">
+    <div class=" w-full h-10 text-white cursor-pointer" @click="ClickHandler('设置为npc目标')">
       <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">
         你过来呀
       </div>
     </div>
 
-    <div class=" w-80 h-10 text-white cursor-pointer" @click="ClickHandler('设置npc失去目标')">
+    <div class=" w-full h-10 text-white cursor-pointer" @click="ClickHandler('设置npc失去目标')">
       <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">
         饶命啊
       </div>
     </div>
     
-    <div class=" w-80 h-10 text-white cursor-pointer" @click="ClickHandler('加载角色模型')">
+    <div class=" w-full h-10 text-white cursor-pointer" @click="ClickHandler('加载角色模型')">
       <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">
         加载角色模型
       </div>
     </div>
 
-    <div class="mt-2 w-80 h-10 text-white cursor-pointer" @click="ClickHandler('保存')">
+    <div class="mt-2 w-full h-10 text-white cursor-pointer" @click="ClickHandler('保存')">
       <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">保存</div>
     </div>
   </div> 

@@ -11,7 +11,7 @@ import {
 
 class YJRaycaster extends EventDispatcher {
   constructor(_this, scene, camera, domElement, clickHit,
-     hoverHit, hotPointObject, rightMouseUpCallback, hitInstancedMesh) {
+    hoverHit, hotPointObject, rightMouseUpCallback, hitInstancedMesh) {
     super();
     if (domElement === undefined) {
 
@@ -41,7 +41,7 @@ class YJRaycaster extends EventDispatcher {
 
     var targetPageX = 0;
     var targetPageY = 0;
-    var raycaster = new THREE.Raycaster(); 
+    var raycaster = new THREE.Raycaster();
     var hit;
     this.CallClick = function () {
       raycasterClick(mouse);
@@ -50,25 +50,45 @@ class YJRaycaster extends EventDispatcher {
     var pointPlane = null;
     var hoverObj;
     var canMovePos = new THREE.Vector3();
-    var raycasterHoverray = new THREE.Raycaster(); 
+    var raycasterHoverray = new THREE.Raycaster();
     var laterHiddenPoint = null;
 
 
     let oldHotObj = null;
     let oldHoverObj = null;
+
+    let offset = {
+      left:0,
+      top:0,
+    }
+    this.getOffset = function(){
+      return offset;
+    }
+    
+    this.SetOffset = function(left,top){
+      offset.left = left;
+      offset.top = top; 
+      // console.log(" 设置3d画面偏移 ", offset);
+    }
+    let containerWidth = window.innerWidth;
+    let containerHeight = window.innerHeight;
+    this.SetContainerSize = function(w,h){
+      containerWidth = w;
+      containerHeight = h;
+    }
     //鼠标实时位置的射线检测
     const raycasterHover = (pos) => {
       // hover会实时检测scene所有子物体, 影响性能导致卡顿，先关闭
       // return;
- 
-      if (scene == null ||  _this._YJSceneManager.GetHoverCollider().length==0) {
+
+      if (scene == null || _this._YJSceneManager.GetHoverCollider().length == 0) {
         return;
       }
 
       // 悬浮热点 
       raycaster.setFromCamera(pos, camera);
       //只检测pointsParent物体的子物体
-      var intersects = raycaster.intersectObjects( 
+      var intersects = raycaster.intersectObjects(
         _this._YJSceneManager.GetHoverCollider(),
         true
       );
@@ -114,7 +134,7 @@ class YJRaycaster extends EventDispatcher {
 
       // console.log(  " in  raycaster Click 点击热点 "  );
 
-      raycaster = new THREE.Raycaster(); 
+      raycaster = new THREE.Raycaster();
       raycaster.setFromCamera(pos, camera);
       //只检测pointsParent物体的子物体
       var intersects = raycaster.intersectObjects(
@@ -145,7 +165,7 @@ class YJRaycaster extends EventDispatcher {
           return;
         }
         clickCallback(hit, intersects[hitIndex].point);
-        
+
         //判断是否双击
         if (oldHitObjName == hit.name && doubleClickTime < 0.5) {
           //双击模型
@@ -187,21 +207,21 @@ class YJRaycaster extends EventDispatcher {
       return null;
     }
 
-    function clickCallback(hit,point){
-      if(state == STATE.ROTATE){
-        if(hit==null){
+    function clickCallback(hit, point) {
+      if (state == STATE.ROTATE) {
+        if (hit == null) {
           clickHit(null);
           return;
         }
-        clickHit(hit,point);
+        clickHit(hit, point);
         return;
       }
-      if(state == STATE.PAN){
-        if(hit==null){
+      if (state == STATE.PAN) {
+        if (hit == null) {
           rightMouseUpCallback(null);
           return;
         }
-        rightMouseUpCallback(hit,point);
+        rightMouseUpCallback(hit, point);
         return;
       }
     }
@@ -210,7 +230,7 @@ class YJRaycaster extends EventDispatcher {
       //   return false;
       // }
 
-      raycaster = new THREE.Raycaster(); 
+      raycaster = new THREE.Raycaster();
 
       raycaster.setFromCamera(pos, camera);
       // console.log("可点击模型列表为 " ,  _this.canHitModelList);
@@ -222,7 +242,7 @@ class YJRaycaster extends EventDispatcher {
       );
       if (intersects.length > 0) {
         hit = intersects[0].object;
- 
+
         clickCallback(hit, intersects[0].point);
         // hotPointObject(hit, intersects[0].point);
         oldHotObj = hit;
@@ -323,8 +343,8 @@ class YJRaycaster extends EventDispatcher {
 
     this.onMouseDown = function (event) {
       event.preventDefault();
-      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      UpdateMousePos(event); 
+      
       clickMousePosX = mouse.x;
       clickMousePosY = mouse.y;
       targetPageX = event.clientX;
@@ -353,13 +373,19 @@ class YJRaycaster extends EventDispatcher {
 
     let hoverTimes = 0;
     let laterCastHover = null;
+    function UpdateMousePos(event){ 
+      // mouse.x = (event.clientX / containerWidth) * 2 - 1;
+      // mouse.y = -(event.clientY / containerHeight) * 2 + 1;
+      
+      mouse.x = ((event.clientX-offset.left) / containerWidth) * 2 - 1;
+      mouse.y = -((event.clientY-offset.top) / containerHeight) * 2 + 1;
+    }
     this.onMouseMove = function (event) {
 
       // return;
 
       event.preventDefault();
-      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      UpdateMousePos(event); 
 
       // if (mouseDown) {
       //   raycasterHover(mouse);
@@ -388,9 +414,7 @@ class YJRaycaster extends EventDispatcher {
 
       // console.log(" mouse down " ," x = " +clickMousePosX + " y = " +clickMousePosY );
 
-      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
+      UpdateMousePos(event); 
       // console.log(" mouse up " ," x = " + mouse.x + " y = " +mouse.y );
       oldHoverObj = null;
 
@@ -429,8 +453,8 @@ class YJRaycaster extends EventDispatcher {
       var touch = event.touches[0];
       // console.log(" onTouchStart " , touch );
 
-      mouse.x = (Number(touch.pageX) / window.innerWidth) * 2 - 1;
-      mouse.y = -(Number(touch.pageY) / window.innerHeight) * 2 + 1;
+      mouse.x = (Number(touch.pageX) / containerWidth) * 2 - 1;
+      mouse.y = -(Number(touch.pageY) / containerHeight) * 2 + 1;
       clickMousePosX = mouse.x;
       clickMousePosY = mouse.y;
 
@@ -440,8 +464,8 @@ class YJRaycaster extends EventDispatcher {
 
       var touch = event.touches[0];
 
-      mouse.x = (Number(touch.pageX) / window.innerWidth) * 2 - 1;
-      mouse.y = -(Number(touch.pageY) / window.innerHeight) * 2 + 1;
+      mouse.x = (Number(touch.pageX) / containerWidth) * 2 - 1;
+      mouse.y = -(Number(touch.pageY) / containerHeight) * 2 + 1;
       if (mouseDown) {
         raycasterHover(mouse);
       }
@@ -461,8 +485,8 @@ class YJRaycaster extends EventDispatcher {
       // console.log(" onTouchEnd " , event );
       // console.log(" touch start " ," x = " +clickMousePosX + " y = " +clickMousePosY );
 
-      mouse.x = (Number(touch.pageX) / window.innerWidth) * 2 - 1;
-      mouse.y = -(Number(touch.pageY) / window.innerHeight) * 2 + 1;
+      mouse.x = (Number(touch.pageX) / containerWidth) * 2 - 1;
+      mouse.y = -(Number(touch.pageY) / containerHeight) * 2 + 1;
 
       // console.log(" touch end " ," x = " + mouse.x + " y = " +mouse.y );
 

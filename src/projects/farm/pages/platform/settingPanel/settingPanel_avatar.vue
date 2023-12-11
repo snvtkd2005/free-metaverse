@@ -2,7 +2,7 @@
 // UV动画设置
 <template>
   <!-- avatar设置 -->
-  <div class="w-80 max-w-md p-2 text-white rounded-lg overflow-hidden">
+  <div class="w-full max-w-md p-2 text-white rounded-lg overflow-hidden">
     <div class=" flex justify-between">
       <div class="text-left">自带动作映射</div>
       <div class=" cursor-pointer " @click="fold = !fold;">{{ fold ? '展开' : '折叠' }}</div>

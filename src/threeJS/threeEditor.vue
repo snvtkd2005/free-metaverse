@@ -1,5 +1,5 @@
 <template>
-  <div tabindex="-1" id="contain" class=" absolute left-0 top-0 w-full h-full " ref="container">
+  <div tabindex="-1" id="contain" class=" w-full h-full " ref="container">
   </div>
   <!-- :style="'height: ' + height + 'px' + ';'" -->
   <img v-if="customCursor" ref="cursor" :src="cursorUrl" class=" pointer-events-none   w-10 h-10 "
@@ -253,19 +253,23 @@ export default {
 
       });
 
-      window.addEventListener("mousemove", (e) => {
-        const mouseY = e.clientY;
-        const mouseX = e.clientX;
-        this.cursorLeft = mouseX;
-        this.cursorTop = mouseY;
-      });
-
-      // this.$refs.container.addEventListener("mousemove", (e) => {
+      // window.addEventListener("mousemove", (e) => {
       //   const mouseY = e.clientY;
       //   const mouseX = e.clientX;
       //   this.cursorLeft = mouseX;
       //   this.cursorTop = mouseY;
       // });
+ 
+      this.$refs.container.addEventListener("mousemove", (e) => {
+        let offset = {left:0, top:0,};
+        if(this.YJRaycaster){
+          offset = this.YJRaycaster.getOffset();
+        } 
+        const mouseX = e.clientX - offset.left;
+        const mouseY = e.clientY - offset.top;
+        this.cursorLeft = mouseX;
+        this.cursorTop = mouseY;
+      });
 
       this.$refs.container.addEventListener("touchstart", function (e) {
         that.threeJSfocus();
@@ -318,7 +322,7 @@ export default {
       this.windowWidth = w;
       this.windowHeight = h;
 
-      // console.log("改变窗口大小");
+      console.log("改变窗口大小",w,h);
 
       if (this.camera == null) {
         return;

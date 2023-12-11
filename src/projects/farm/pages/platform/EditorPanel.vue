@@ -4,12 +4,11 @@
   <div class="  absolute left-0 top-0  w-full h-full flex flex-col ">
 
     <!-- 顶部 -->
-    <div class=" absolute z-20 left-0 top-0 h-10 w-full flex bg-445760  text-gray-200    ">
-      <!-- 顶部工具栏 -->
-      <!-- table -->
+    <div class=" absolute z-20 left-0 top-0 w-full flex bg-445760  text-gray-200 " :style="topStyle">
+      <!-- 顶部工具栏 --> 
       <div class=" flex ">
         <div v-for="(item, i) in tableList" :key="i" :index="item.id"
-          class=" px-12 flex  h-10 text-center cursor-pointer  hover:bg-546770  " @click="ChangeTable(item)">
+          class=" px-12 flex  h-full text-center cursor-pointer  hover:bg-546770  " @click="ChangeTable(item)">
           <div class=" self-center">
             {{ item.content }}
           </div>
@@ -17,105 +16,115 @@
             (item.id == 'save_thrumb' && !item.value)">
             *
           </div>
-        </div>
-
-      </div>
-
-
-
+        </div> 
+      </div> 
     </div>
 
     <!-- 中部 -->
 
     <!-- 摆放模型 -->
 
-    <YJmetaBase class=" absolute left-0 top-0 w-1/2 " ref="YJmetaBase" />
+    <div class=" absolute " :style="panel3dStyle">
+      <YJmetaBase ref="YJmetaBase" />
+      <div class="  absolute left-0 top-0 w-full h-full pointer-events-none ">
+        <HUD ref="HUD" />
+      </div>
 
-    <div class=" hidden absolute top-0 left-0 cutimg overflow-hidden">
-      <canvas id="nowcanvas" class="bg-white"> </canvas>
+      <!-- 修改名称 -->
+      <div class=" absolute left-2 top-2 flex text-white ">
+        <div class="   w-auto h-6 mt-1">
+          场景名:
+        </div>
+        <input class=" bg-transparent placeholder-gray-400 p-1" type="text" v-model="modelData.name"
+          :placeholder="modelData.name" @focus="removeThreeJSfocus" @blur="addThreeJSfocus" />
+      </div>
+
+      <!-- <div ref="container" class=" absolute z-auto left-0 top-0 w-1/2 h-1/2 bg-black "></div> -->
+      <!-- 与后台交互的操作提示 -->
+      <!---->
+      <div v-if="tipData.opening" class=" absolute left-0 top-10 w-full flex  ">
+        <div class=" mx-auto flex w-auto  bg-blue-400 text-white text-xl rounded-lg h-10">
+          <div class=" px-4  mx-auto self-center ">
+            {{ tipData.tipContent }}
+          </div>
+        </div>
+      </div>
+
+      <!-- 操作提示 -->
+      <div class=" hidden md:flex absolute left-0 bottom-2 w-auto pointer-events-none  ">
+        <div class="  flex w-auto text-white text-md rounded-lg h-auto">
+          <div class=" px-4 text-left mx-auto self-center ">
+            键盘操作：<br>
+            G:重力开关<br>
+            Esc:取消选中<br>
+            F:上下车<br>
+            T:扔掉武器<br>
+            Ctrl+D:原地复制选中模型<br>
+          </div>
+        </div>
+      </div>
+
+
+      <div class=" hidden absolute top-0 left-0 cutimg overflow-hidden">
+        <canvas id="nowcanvas" class="bg-white"> </canvas>
+      </div>
+      <!-- 右上角按钮 -->
+      <div class=" absolute right-2 top-2 ">
+        <settingPanel ref="settingPanel" />
+      </div>
     </div>
+
 
     <loadingPanel class="absolute z-50 left-0 top-0" ref="loadingPanel" />
 
     <!-- 右侧检视面板 -->
-    <div class=" absolute right-0 top-0 w-80 h-full bg-546770">
+    <div class=" absolute right-0 top-0 h-full bg-546770" :style="settingPanelStyle">
+
       <!-- 场景设置面板 -->
-      <div v-show="panelState.setting" class=" absolute  w-80 border-t-2 mt-1 right-0 max-w-md  h-2/3  top-20  ">
+      <div v-show="panelState.setting" class=" absolute  w-full border-t-2 mt-1 right-0 max-w-md  h-2/3  top-20  ">
         <sceneSettingPanel ref="sceneSettingPanel" />
       </div>
       <!-- uv动画设置面板 -->
-      <div v-if="panelState.uvAnim" class=" absolute  w-80 border-t-2 mt-1 right-0 max-w-md  h-2/3  top-20  ">
+      <div v-if="panelState.uvAnim" class=" absolute  w-full border-t-2 mt-1 right-0 max-w-md  h-2/3  top-20  ">
         <settingPanel_uvAnim ref="settingPanel_uvAnim" />
       </div>
       <!-- 图片视频直播流设置面板 -->
-      <div v-if="panelState.screen" class=" mt-10  w-80 border-t max-w-md  ">
+      <div v-if="panelState.screen" class=" mt-10  w-full border-t max-w-md  ">
         <settingPanel_screen ref="settingPanel_screen" />
       </div>
       <!-- 粒子系统设置面板 -->
-      <div v-if="panelState.particle" class=" mt-10  w-80 border-t max-w-md  ">
+      <div v-if="panelState.particle" class=" mt-10  w-full border-t max-w-md  ">
         <settingPanel_particle ref="settingPanel_particle" />
       </div>
 
-      <div v-if="panelState.npc" class="mt-10 w-80 border-t max-w-md">
+      <div v-if="panelState.npc" class="mt-10 w-full border-t max-w-md">
         <settingPanel_npc ref="settingPanel_npc" />
       </div>
 
-      <div v-if="panelState.weapon" class="mt-10 w-80 border-t max-w-md">
+      <div v-if="panelState.weapon" class="mt-10 w-full border-t max-w-md">
         <settingPanel_weapon ref="settingPanel_weapon" />
       </div>
-      
-      <div v-if="panelState.interactive" class="mt-10 w-80 border-t max-w-md">
+
+      <div v-if="panelState.interactive" class="mt-10 w-full border-t max-w-md">
         <settingPanel_interactive ref="settingPanel_interactive" />
       </div>
     </div>
 
-    <!-- 浮框按钮 -->
-    <div class=" absolute right-80 top-0 ">
-      <settingPanel ref="settingPanel" />
+    <div :style="modelPanelStyle">
+      <modelPanel ref="modelPanel" />
     </div>
 
-    <modelPanel ref="modelPanel" />
     <modelSelectPanel ref="modelSelectPanel" />
 
-
-    <HUD ref="HUD" />
-
-    <hierarchy ref="hierarchyPanel" class="  " :modelList="modelList" />
-
-    <!-- 修改名称 -->
-    <div class=" absolute left-2 top-12 flex text-white ">
-      <div class="   w-auto h-6 mt-1">
-        场景名:
-      </div>
-      <input class=" bg-transparent placeholder-gray-400 p-1" type="text" v-model="modelData.name"
-        :placeholder="modelData.name" @focus="removeThreeJSfocus" @blur="addThreeJSfocus" />
+    <div class=" absolute z-10 left-0  " :style="hierarchyStyle">
+      <hierarchy ref="hierarchyPanel" :modelList="modelList" />
     </div>
+
 
     <!-- 截图区域安全区域 -->
     <PanelCut @cancel="CancelCut" ref="PanelCut" />
 
-    <!-- <div ref="container" class=" absolute z-auto left-0 top-0 w-1/2 h-1/2 bg-black "></div> -->
-    <!-- 与后台交互的操作提示 -->
-    <!---->
-    <div v-if="tipData.opening" class=" absolute left-0 top-10 w-full flex  ">
-      <div class=" mx-auto flex w-auto  bg-blue-400 text-white text-xl rounded-lg h-10">
-        <div class=" px-4  mx-auto self-center ">
-          {{ tipData.tipContent }}
-        </div>
-      </div>
-    </div>
 
-    <div class=" hidden md:flex absolute left-0 bottom-10 w-auto pointer-events-none  ">
-      <div class="  flex w-auto   text-white text-md rounded-lg h-10">
-        <div class=" px-4 text-left mx-auto self-center ">
-          键盘操作：<br>
-          G:重力开关<br>
-          Esc:取消选中<br>
-          F:上下车<br>
-          T:扔掉武器<br>
-        </div>
-      </div>
-    </div>
 
   </div>
 </template>
@@ -179,6 +188,38 @@ export default {
   },
   data() {
     return {
+      panelData: {
+        topStyle:{
+          height:0,
+        },
+        settingPanelStyle: {
+          width: 0,
+        },
+        modelPanelStyle: {
+          left: 0,
+          top: 0,
+          width: 500,
+          height: 500,
+        },
+        hierarchyStyle: {
+          left: 0,
+          top: 0,
+          width: 500,
+          height: 500,
+        },
+        panel3dStyle: {
+          left: 0,
+          top: 0,
+          width: 500,
+          height: 500,
+        },
+      },
+      panel3dStyle: "",
+      hierarchyStyle: "",
+      modelPanelStyle: "",
+      settingPanelStyle: "",
+      topStyle: "",
+      
       panelState: {
         // setting: false,
         setting: true,
@@ -496,7 +537,7 @@ export default {
   },
   created() {
 
-
+    this.setPanelSize();
 
 
 
@@ -509,7 +550,7 @@ export default {
       window.location.reload();
       _Global.reloadTimes = 0;
     }
-    this.Interface = new Interface(this,true);
+    this.Interface = new Interface(this, true);
 
     if (this.$route.path.toLowerCase().includes("editorscene")) {
       localStorage.setItem("modelType", "场景");
@@ -567,10 +608,108 @@ export default {
       });
     }
 
+
   },
   methods: {
+    setMaxMin(isMax) {
+      if (isMax) {
 
+        this.panelData.settingPanelStyle.width = 0;
+        this.panelData.topStyle.height = 0;
+        this.panelData.topStyle.display = "none";
 
+        this.panelData.hierarchyStyle.left = 0;
+        this.panelData.hierarchyStyle.top = 0;
+        this.panelData.hierarchyStyle.width = 0;
+        this.panelData.hierarchyStyle.height = 0;
+
+        this.panelData.modelPanelStyle.left = 0;
+        this.panelData.modelPanelStyle.bottom = 0;
+        this.panelData.modelPanelStyle.width = 0;
+        this.panelData.modelPanelStyle.height = 0;
+        this.panelData.modelPanelStyle.display = "none";
+
+        this.panelData.panel3dStyle.left = 0;
+        this.panelData.panel3dStyle.top = 0;
+        this.panelData.panel3dStyle.width = window.innerWidth;
+        this.panelData.panel3dStyle.height = window.innerHeight;
+        // console.log("界面全部尺寸 ", this.panelData);
+
+        if (_Global.YJ3D && _Global.YJ3D.YJRaycaster) {
+          _Global.YJ3D.YJRaycaster.SetOffset(0, 0);
+        }
+
+        this.resizePanel();
+        return;
+      }
+      this.setPanelSize();
+    },
+    // 计算各个panel的宽高
+    setPanelSize() {
+      this.panelData.settingPanelStyle.width = 280;
+
+      this.panelData.topStyle.height = 40;
+      this.panelData.topStyle.display = "";
+
+      this.panelData.hierarchyStyle.left = 0;
+      this.panelData.hierarchyStyle.top = this.panelData.topStyle.height;
+      this.panelData.hierarchyStyle.width = 240;
+      this.panelData.hierarchyStyle.height = window.innerHeight - this.panelData.topStyle.height;
+
+      this.panelData.modelPanelStyle.left = this.panelData.hierarchyStyle.width;
+      this.panelData.modelPanelStyle.bottom = 0;
+      this.panelData.modelPanelStyle.width = window.innerWidth - this.panelData.settingPanelStyle.width - this.panelData.hierarchyStyle.width;
+      this.panelData.modelPanelStyle.height = 200;
+      this.panelData.modelPanelStyle.display = "";
+
+      this.panelData.panel3dStyle.left = this.panelData.hierarchyStyle.width;
+      this.panelData.panel3dStyle.top = this.panelData.topStyle.height;
+      this.panelData.panel3dStyle.width = window.innerWidth - this.panelData.settingPanelStyle.width - this.panelData.hierarchyStyle.width;
+      this.panelData.panel3dStyle.height = window.innerHeight - this.panelData.topStyle.height - this.panelData.modelPanelStyle.height;
+      // console.log("界面全部尺寸 ", this.panelData);
+
+      if (_Global.YJ3D && _Global.YJ3D.YJRaycaster) {
+        _Global.YJ3D.YJRaycaster.SetOffset(this.panelData.hierarchyStyle.width, this.panelData.topStyle.height);
+      }
+      if (this.$refs.settingPanel) {
+        this.$refs.settingPanel.fullScreen = false;
+      }
+
+      this.resizePanel();
+    },
+    resizePanel() {
+      this.panel3dStyle = `
+      position: absolute; 
+      left: ${this.panelData.panel3dStyle.left}px;
+      top: ${this.panelData.panel3dStyle.top}px;
+      width: ${this.panelData.panel3dStyle.width}px;
+      height: ${this.panelData.panel3dStyle.height}px;`;
+
+      this.hierarchyStyle = `
+      position: absolute; 
+      left: ${this.panelData.hierarchyStyle.left}px;
+      top: ${this.panelData.hierarchyStyle.top}px;
+      width: ${this.panelData.hierarchyStyle.width}px;
+      height: ${this.panelData.hierarchyStyle.height}px;`;
+
+      this.modelPanelStyle = `
+      position: absolute; 
+      display: ${this.panelData.modelPanelStyle.display}; 
+      left: ${this.panelData.modelPanelStyle.left}px;
+      bottom: ${this.panelData.modelPanelStyle.bottom}px;
+      width: ${this.panelData.modelPanelStyle.width}px;
+      height: ${this.panelData.modelPanelStyle.height}px;`;
+
+      this.settingPanelStyle = ` 
+      width: ${this.panelData.settingPanelStyle.width}px; 
+      `;
+
+      this.topStyle = ` 
+      display: ${this.panelData.topStyle.display}; 
+      height: ${this.panelData.topStyle.height}px; 
+      `;
+      
+    },
 
     GetPlayerAnimData() {
       return PlayerAnimData;
@@ -1231,7 +1370,7 @@ export default {
       this.inThreejs = true;
       if (this.$refs.loadingPanel) {
         this.$refs.loadingPanel.DisplayLoading(false);
-      } 
+      }
 
       // setTimeout(() => {
       //   this.ChangeViewById(10004);
@@ -1311,7 +1450,7 @@ export default {
           this.clickModelJS = null;
         }
         this.SetSelectTransform(hitObject.transform);
-      } 
+      }
     },
     CreateNewTransfrom(transform) {
       this.ClickFloor();
@@ -1319,7 +1458,7 @@ export default {
       this.editorModelList("增加", transform.GetData());
       this.SetSelectTransform(transform);
     },
-    SetSelectTransformByUUID(uuid){
+    SetSelectTransformByUUID(uuid) {
       this.ClickFloor();
       this.SetSelectTransform(_Global.YJ3D._YJSceneManager.GetLoadUserModelManager().GetTransformByUUID(uuid));
     },
@@ -1328,9 +1467,12 @@ export default {
       _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().EditorStart(this.clickModelJS);
       _Global.YJ3D._YJSceneManager._YJTransformManager.attach(transform.GetGroup());
       this.UpdateComponentPanel();
+
+
     },
     UpdateComponentPanel() {
       _Global.YJ3D._YJSceneManager.SetSelectTransform(this.clickModelJS);
+      this._SceneManager.SetTargetModel(null);
 
       let component = this.clickModelJS.GetComponent("UVAnim");
       if (component != null) {
@@ -1370,6 +1512,8 @@ export default {
           this.$refs.settingPanel_npc.Init(msg.data);
         });
         console.log(component);
+        // 
+        this._SceneManager.SetTargetModel(this.clickModelJS);
         return;
       }
       component = this.clickModelJS.GetComponent("Weapon");
@@ -1407,9 +1551,9 @@ export default {
 
       }
     },
-    DuplicateModel(){
+    DuplicateModel() {
       if (this.clickModelJS != null) {
-        _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().DuplicateModel(this.clickModelJS.GetData(),(transform)=>{
+        _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().DuplicateModel(this.clickModelJS.GetData(), (transform) => {
           _Global.YJ3D._YJSceneManager._YJTransformManager.attach(transform.GetGroup());
           this.clickModelJS = transform;
         });

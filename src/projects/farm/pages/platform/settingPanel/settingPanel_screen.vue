@@ -3,7 +3,7 @@
 <template>
   <!-- 场景设置面板 -->
   <div class="
-              w-80
+              w-full
               max-w-md
                p-2
              text-white
@@ -12,9 +12,9 @@
             ">
     <div class=" text-left ">屏幕设置</div>
 
-    <div v-for="(item, i) in setting" :key="i" class=" text-xs  text-left flex w-80 h-auto mb-2     ">
+    <div v-for="(item, i) in setting" :key="i" class=" text-xs  text-left flex w-full h-auto mb-2     ">
 
-      <div class=" self-center w-40  truncate" v-show="item.display">
+      <div class=" self-center w-1/2  truncate" v-show="item.display">
         {{ item.title }}
       </div>
       <div class=" self-center w-20 ">

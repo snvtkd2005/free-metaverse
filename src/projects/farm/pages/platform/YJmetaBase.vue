@@ -1,7 +1,9 @@
 
 // 在线聊天室 聊天界面 3d形象 聊天
 <template>
-  <ThreejsHumanChat tabindex="-1" class="w-full h-full" ref="ThreejsHumanChat" id="ThreejsHumanChat" />
+  <div class=" w-full h-full " ref="container">
+    <ThreejsHumanChat tabindex="-1" class="w-full h-full" ref="ThreejsHumanChat" id="ThreejsHumanChat" />
+  </div>
 </template>
 
 <script>
@@ -58,6 +60,9 @@ export default {
       windowWidth: 0,
       windowHeight: 0,
 
+      containerWidth: 0,
+      containerHeight: 0,
+
       loadingPanel: null,
 
       ThreejsHumanChat: null,
@@ -73,21 +78,17 @@ export default {
   mounted() {
     this.CheckInMobile();
 
-    // this.playerImgPath = this.sceneData.playerImgPath;
-    // this.roomName = this.sceneData.roomName;
-    // this.selectPlayerName = this.sceneData.defaultUser.avatarName;
-
-
     this.ThreejsHumanChat = this.GetThreejsHumanChat();
 
-    // this.windowWidth = window.innerWidth;
-    // this.windowHeight = window.innerHeight;
 
     this.windowWidth = 0;
     this.windowHeight = 0;
 
+    // console.log(" 屏幕尺寸 ", window.innerWidth, window.innerHeight);
+
     // window.addEventListener('resize',this.UpdateCheckWindowResize,false);
-    // window.addEventListener("resize", this.onWindowResize);
+    window.addEventListener("resize", this.onWindowResize);
+
 
     setInterval(() => {
       this.UpdateCheckWindowResize();
@@ -112,13 +113,22 @@ export default {
       this.$refs.ThreejsHumanChat.SetforcedLandscape(this.onlyLandscape);
     },
     UpdateCheckWindowResize() {
+
+      // this.containerWidth = window.innerWidth;
+      // this.containerHeight = window.innerHeight;
+      this.containerWidth = this.$refs.container.clientWidth;
+      this.containerHeight = this.$refs.container.clientHeight;
+      if(this.ThreejsHumanChat.YJRaycaster){
+        this.ThreejsHumanChat.YJRaycaster.SetContainerSize(this.containerWidth,this.containerHeight);
+      }
+
       if (
-        this.windowWidth == window.innerWidth &&
-        this.windowHeight == window.innerHeight
+        this.windowWidth == this.containerWidth &&
+        this.windowHeight == this.containerHeight
       ) {
       } else {
-        this.windowWidth = window.innerWidth;
-        this.windowHeight = window.innerHeight;
+        this.windowWidth = this.containerWidth;
+        this.windowHeight = this.containerHeight;
         if (this.onlyLandscape) {
           if (this.windowWidth <= this.windowHeight) {
             this.onWindowResizeFn(this.windowHeight, this.windowWidth, true);
@@ -136,14 +146,18 @@ export default {
       this.windowHeight = 0;
       this.UpdateCheckWindowResize();
     },
-    onWindowResize() { },
+    onWindowResize() {
+      if(this.$parent.setPanelSize){
+        this.$parent.setPanelSize();
+      }
+     },
     // 浏览器窗口变动触发的方法
     onWindowResizeFn(w, h, forcedLandscape) {
       // console.log("改变窗口大小 111 ", forcedLandscape);
 
       this.$refs.ThreejsHumanChat.SetforcedLandscape(forcedLandscape);
       this.$refs.ThreejsHumanChat.onWindowResize(w, h);
-
+ 
       if (!this.isMobile) {
         return;
       }

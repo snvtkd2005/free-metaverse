@@ -110,7 +110,7 @@ export default {
 
     // 设置头像框上的角色名
     SetTarget(npcData) {
-      console.log(  " 设置头像框上数据更新 111 ",npcData);
+      // console.log(  " 设置头像框上数据更新 111 ",npcData);
 
       this.targetName = npcData.name;
       this.baseData = npcData.baseData;

@@ -469,7 +469,7 @@ export default {
       if (userData != null) {
         this._YJDyncManager.SetUserData(userData);
 
-        if (this.selfNum != undefined) {
+        if (this.selfNum != undefined && this.selfNum<this.otherUser.length) {
           
           this.otherUser[this.selfNum].user.userData.baseData.health = userData.baseData.health;
           this.otherUser[this.selfNum].user.userData.baseData.maxHealth = userData.baseData.maxHealth;

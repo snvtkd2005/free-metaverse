@@ -41,14 +41,10 @@ class YJPlayerFireCtrl {
 					scope.SetInteractiveNPC(state.msg);
 					break;
 				case "重生":
-					if (playerState == PLAYERSTATE.DEAD) {
-						playerState = PLAYERSTATE.NORMAL;
-						baseData.health = baseData.maxHealth;
-						baseData.armor = 0;
-						baseData.energy = 0;
-					}
-					scope.SetPlayerState("normal");
-
+					this.SetPlayerState("normal");
+					baseData.health = baseData.maxHealth;
+					baseData.armor = 0;
+					baseData.energy = 0;
 					break;
 				case "选中npc":
 					SelectNPC(state.msg);
@@ -114,8 +110,7 @@ class YJPlayerFireCtrl {
 			}
 			UpdateData();
 			if (baseData.health == 0) {
-				baseData.health = 0;
-				playerState = PLAYERSTATE.DEAD
+				baseData.health = 0; 
 				scope.SetPlayerState("death");
 
 				if (vaildAttackLater != null) {
@@ -146,10 +141,9 @@ class YJPlayerFireCtrl {
 
 			UpdateData();
 			if (baseData.health == 0) {
-				baseData.health = 0;
-				playerState = PLAYERSTATE.DEAD
+				baseData.health = 0; 
 				scope.SetPlayerState("death");
-
+				
 				if (vaildAttackLater != null) {
 					clearTimeout(vaildAttackLater);
 					clearTimeout(vaildAttackLater2);
@@ -454,6 +448,7 @@ class YJPlayerFireCtrl {
 
 					//角色不可控制、显示倒计时
 					_this.YJController.SetCanMoving(false);
+					_this.YJController.CancelMoving();
 					_Global.ReportTo3D("角色死亡");
 					break;
 				case "sitting":
@@ -497,27 +492,9 @@ class YJPlayerFireCtrl {
 
 					break;
 
-				case "attack":
-					// playerState = PLAYERSTATE.ATTACK;
-					// if (type == undefined) {
-					// 	animName = "attack";
-					// } else if (type == "胡萝卜") {
-					// 	animName = "throw";
-					// } else if (type == "南瓜") {
-					// 	animName = "throw2";
-					// }
-					// setTimeout(() => {
-					// 	playerState = PLAYERSTATE.NORMAL;
-					// }, 2000);
+				case "attack": 
 					break;
-				case "interactive":
-					// playerState = PLAYERSTATE.INTERACTIVE;
-					// if (type == "地上拾取") {
-					// 	animName = "collection";
-					// 	setTimeout(() => {
-					// 		playerState = PLAYERSTATE.NORMAL;
-					// 	}, 2000);
-					// }
+				case "interactive": 
 					break;
 				default:
 					break;

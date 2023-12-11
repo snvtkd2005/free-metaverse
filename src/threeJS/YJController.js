@@ -3544,8 +3544,9 @@ class YJController {
     }
     this.resetLife = function () {
       _this._YJSceneManager.ResetPlayerPos();
+
       setTimeout(() => {
-        _YJPlayer.isDead = false;
+        _YJPlayer.isDead = false; 
         this.SetInteractiveNPC("重生");
         this.SetCanMoving(true); 
         this.directUpate(); 
@@ -3682,6 +3683,10 @@ class YJController {
       });
     }
     this.SetInteractiveNPC = function (content, _npcTransform) {
+      if(content != "重生" && this.isInDead()){
+        // 角色死亡后不接收道具效果
+        return;
+      }
       _YJPlayerFireCtrl.OnPlayerState({
         title: "fire",
         content: content,

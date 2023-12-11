@@ -791,7 +791,6 @@ class SceneManager {
           if (message.pointType == "npc") {
             // 头像
             this.SetTargetModel(hitObject.transform);
-
             if (message.data.baseData.camp != _Global.user.camp) {
               //敌人  
               //进入战斗状态

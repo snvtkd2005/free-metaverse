@@ -36,7 +36,7 @@
   <div v-if="actionBar"
     class="  flex  absolute right-0 bottom-0 w-40 pointer-events-auto  h-40 text-sm text-white">
 
-    <div class=" absolute left-0 top-0 w-16 h-16 flex bg-black bg-opacity-50 rounded-full "
+    <div class=" absolute left-0 top-0 w-16 h-16 flex bg-black bg-opacity-50 rounded-full cursor-pointer "
     @click="clickSkill('攻击')">
         <div class="  self-center mx-auto  "> 攻击 </div>
       </div>

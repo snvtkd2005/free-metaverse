@@ -43,20 +43,13 @@ export default {
         inDead: false,
       },
       textList: [
-        {
-          type: '提示', // 
-          value: "太远了",
-          pos: { x: 464, y: 50 },
-          opacity: 1,
-          time: 0,
-        },
-        {
-          type: '提示', // 
-          value: "太远了2",
-          pos: { x: 464, y: 50 },
-          opacity: 1,
-          time: 0,
-        },
+        // {
+        //   type: '提示', // 
+        //   value: "太远了",
+        //   pos: { x: 464, y: 50 },
+        //   opacity: 1,
+        //   time: 0,
+        // }, 
       ],
       speed: 0.03,
       last: 0,

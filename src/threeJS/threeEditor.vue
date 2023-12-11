@@ -322,8 +322,6 @@ export default {
       this.windowWidth = w;
       this.windowHeight = h;
 
-      console.log("改变窗口大小",w,h);
-
       if (this.camera == null) {
         return;
       }

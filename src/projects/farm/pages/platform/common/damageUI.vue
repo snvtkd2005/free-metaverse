@@ -31,14 +31,14 @@ export default {
     return {
       display: false,
       damageList: [
-        {
-          owner: '自身', //自身还是宠物
-          type: '普通', //普通、暴击
-          value: 100,
-          pos: { x: 464, y: 245 },
-          opacity:1,
-          time:0,
-        },
+        // {
+        //   owner: '自身', //自身还是宠物
+        //   type: '普通', //普通、暴击
+        //   value: 100,
+        //   pos: { x: 464, y: 245 },
+        //   opacity:1,
+        //   time:0,
+        // },
       ],
       speed:0.03,
     };

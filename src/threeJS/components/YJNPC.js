@@ -613,6 +613,7 @@ class YJNPC {
           animName = GetAnimNameByPlayStateAndWeapon("停止移动", weaponData);
           break;
         case "death":
+          EventHandler("中断技能");
           animName = "death";
           break;
         case "跑向目标":
@@ -798,7 +799,7 @@ class YJNPC {
       if (baseData.state == stateType.Normal) {
         baseData.state = stateType.Fire;
         //首次进入战斗时，计算其技能
-        CheckSkill();
+        // CheckSkill();
       }
       // console.log( this.npcName +" npc进入战斗  ", scope.fireId);
     }
@@ -891,7 +892,7 @@ class YJNPC {
 		function shootTarget(taget, time) {
       let pos = parent.position.clone();
       pos.y += playerHeight/2;
-			_Global.DyncManager.shootTarget(pos, taget, time);
+			_Global.DyncManager.shootTarget(pos, taget, time,"player");
 		}
 
     function SendDamageToTarget(targetModel, damageValue) {

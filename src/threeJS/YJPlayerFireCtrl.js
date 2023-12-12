@@ -227,7 +227,7 @@ class YJPlayerFireCtrl {
 		}
 
 		function shootTarget(taget, time) {
-			_Global.DyncManager.shootTarget(_this.YJController.GetPlayerWorldPos(), taget, time);
+			_Global.DyncManager.shootTarget(_this.YJController.GetPlayerWorldPos(), taget, time,"npc");
 		}
 		let inBlocking = false;
 		let vaildAttackLater = null;

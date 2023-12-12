@@ -88,6 +88,12 @@ class YJTrailRenderer {
             count = 0;
             animate();
         }
+        this.stop = function(){
+            scope.used = false;
+            cancelAnimationFrame(updateId);
+            splinePath = []; 
+            addTube();
+        }
         function animate() {
             updateId = requestAnimationFrame(animate);
             let newPos = parent.position.clone();

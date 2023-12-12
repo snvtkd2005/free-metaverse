@@ -27,17 +27,17 @@ class YJSceneDyncManagerEditor {
           || element.modelType == "装备模型"
           || element.modelType == "交互模型"
         ) {
-          if( element.modelType == "NPC模型" ){
-            if(element.message.data.relifeTime){
+          if (element.modelType == "NPC模型") {
+            if (element.message.data.relifeTime) {
               state.relifeTime = 8 + element.message.data.relifeTime
-            }else{
+            } else {
               state.relifeTime = 8 + 1;
             }
           }
-          if( element.modelType == "交互模型"){
-            if(element.message.data.relifeTime){
+          if (element.modelType == "交互模型") {
+            if (element.message.data.relifeTime) {
               state.relifeTime = element.message.data.relifeTime
-            }else{
+            } else {
               state.relifeTime = 6;
             }
             let model = element.message.data;
@@ -46,7 +46,7 @@ class YJSceneDyncManagerEditor {
             indexVue.$refs.HUD.$refs.skillPanel_virus.initIcon(model);
             addVirus(model);
           }
-          dyncModelList.push({ id: element.id, modelType: element.modelType, state:state });
+          dyncModelList.push({ id: element.id, modelType: element.modelType, state: state });
         }
       }
 
@@ -58,10 +58,10 @@ class YJSceneDyncManagerEditor {
         CheckNpcLookat();
       }, 500);
     }
-    function addVirus(model){
+    function addVirus(model) {
       for (let i = 0; i < dyncModelList.length; i++) {
         const element = dyncModelList[i];
-        if(element.id ==  model.type){
+        if (element.id == model.type) {
           return;
         }
       }
@@ -74,7 +74,7 @@ class YJSceneDyncManagerEditor {
       // dyncModelList.push({ id: "zhongcaoyao", modelType: "交互模型", state: { value: 0, count: 0 } });
       // dyncModelList.push({ id: "jiujingpenghu", modelType: "交互模型", state: { value: 0, count: 0 } });
       // dyncModelList.push({ id: "nengliang", modelType: "交互模型", state: { value: 0, count: 0 } });
-      
+
       dyncModelList.push({ id: "offsetTime", modelType: "offsetTime", state: { offsetTime: 0, startTime: 1675586194683 } });
       _Global.YJDync._YJDyncManager.SendSceneState("初始化", dyncModelList);
     }
@@ -124,6 +124,18 @@ class YJSceneDyncManagerEditor {
       }
 
     }
+
+    this.GetNpcById = function (npcId) {
+      for (let i = 0; i < npcModelList.length; i++) {
+        const element = npcModelList[i].transform;
+        // 相同阵营的返回
+        if (element.id == npcId) {
+          return element;
+        }
+      }
+    }
+
+
     // 战斗组，用来做npc的攻击目标，第一目标死亡，攻击第二目标
     let fireGroup = [
       // {fireId:0,playerList:[],npcList:[]},
@@ -391,8 +403,8 @@ class YJSceneDyncManagerEditor {
 
     }
     // 发送一条战斗记录
-    this.SendFireRecode = function(msg){
-      console.log("战斗记录 ",msg);
+    this.SendFireRecode = function (msg) {
+      console.log("战斗记录 ", msg);
     }
     this.SendModel = function (model) {
       if (!_Global.YJDync) {
@@ -534,7 +546,7 @@ class YJSceneDyncManagerEditor {
       switch (sceneState.title) {
         case "更新道具数量":
           if (model.modelType == "交互模型") {
-            indexVue.$refs.HUD.$refs.skillPanel_virus.SetSkillCount({type: model.id, value: model.state.value, count: model.state.count });
+            indexVue.$refs.HUD.$refs.skillPanel_virus.SetSkillCount({ type: model.id, value: model.state.value, count: model.state.count });
           }
           return;
           break;
@@ -583,11 +595,22 @@ class YJSceneDyncManagerEditor {
     }
     // 接收服务器转发过来的由主控发送的模型同步信息
     this.ReceiveModel = function (id, title, data) {
-      console.log("接收 同步信息 ",id, title, data);
+      console.log("接收 同步信息 ", id, title, data);
 
       if (title == "同步trail") {
-        let { startPos, targetPos, time } = data;
-        shootTargetFn(startPos, targetPos, time);
+        let { startPos, targetId, targetType, time } = data;
+        //根据id查找模型
+        let target = null;
+        if (targetType == "player") {
+          target = _Global.YJDync.GetPlayerById(targetId);
+        }
+        if (targetType == "npc") {
+          target = this.GetNpcById(targetId);
+        }
+        if (target != null) {
+          let _startPos = new THREE.Vector3(startPos.x,startPos.y,startPos.z);
+          shootTargetFn(_startPos, target, time);
+        }
         return;
       }
       _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().ReceiveModel(id, title, data);
@@ -612,34 +635,62 @@ class YJSceneDyncManagerEditor {
 
     //#region
     let _YJTrailRenderer = [];
-    this.shootTarget = function (startPos, taget, time) {
-      scope.UpdateModel("", "同步trail", { startPos: startPos, targetPos: taget.GetWorldPos(), time: time });
-      shootTargetFn(startPos.clone(), taget.GetWorldPos(), time);
+    let shootTargetList = [];
+    this.shootTarget = function (startPos, target, time, targetType) {
+      console.log(" 同步trail target ", target.id, targetType);
+      scope.UpdateModel("", "同步trail", { startPos: startPos, targetId: target.id, targetType: targetType, time: time });
+      shootTargetFn(startPos.clone(), target, time);
     }
-    function shootTargetFn(startPos, targetPos, time) {
-      for (let i = 0; i < _YJTrailRenderer.length; i++) {
-        const element = _YJTrailRenderer[i];
-        if (!element.trail.used) {
-          MoveToPosTweenFn(startPos, targetPos, time, (pos) => {
-            element.group.position.copy(pos);
-          });
-          element.trail.start();
+    function shootTargetFn(startPos, target, time) {
+      for (let i = 0; i < shootTargetList.length; i++) {
+        const element = shootTargetList[i];
+        if (!element.trailRenderer.trail.used) {
+          element.startPos = startPos;
+          element.target = target;
+          element.time = 0;
+          element.trailRenderer.trail.start();
           return;
         }
       }
+
       let group = new THREE.Group();
       _Global.YJ3D.scene.add(group);
-      MoveToPosTweenFn(startPos, targetPos, time, (pos) => {
-        group.position.copy(pos);
-      });
-      _YJTrailRenderer.push({ group: group, trail: new YJTrailRenderer(_this, _Global.YJ3D.scene, group) });
-
+      let trailRenderer = { group: group, trail: new YJTrailRenderer(_this, _Global.YJ3D.scene, group) };
+      _YJTrailRenderer.push(trailRenderer);
+      shootTargetList.push({ startPos: startPos, target: target, time: 0, trailRenderer: trailRenderer });
     }
-    //#endregion
-
-    this.DyncPlayerState = function (YJPlayer, state) {
-      YJPlayer.DyncPlayerState(state); return;
+    function UpdateTrailRenderer() {
+      for (let i = shootTargetList.length - 1; i >= 0; i--) {
+        const item = shootTargetList[i];
+        if (item.trailRenderer.trail.used) {
+          item.time += 0.03;
+          if (item.time >= 1) {
+            item.trailRenderer.trail.stop();
+            return;
+          }
+          item.startPos.lerp(item.target.GetWorldPos(), item.time);
+          item.trailRenderer.group.position.copy(item.startPos);
+        }
+      }
     }
+    // function shootTargetFn(startPos, targetPos, time) {
+    //   for (let i = 0; i < _YJTrailRenderer.length; i++) {
+    //     const element = _YJTrailRenderer[i];
+    //     if (!element.trail.used) {
+    //       MoveToPosTweenFn(startPos, targetPos, time, (pos) => {
+    //         element.group.position.copy(pos);
+    //       });
+    //       element.trail.start();
+    //       return;
+    //     }
+    //   }
+    //   let group = new THREE.Group();
+    //   _Global.YJ3D.scene.add(group);
+    //   MoveToPosTweenFn(startPos, targetPos, time, (pos) => {
+    //     group.position.copy(pos);
+    //   });
+    //   _YJTrailRenderer.push({ group: group, trail: new YJTrailRenderer(_this, _Global.YJ3D.scene, group) });
+    // }
 
     function MoveToPosTweenFn(fromPos, targetPos, length, updateCB, callback) {
       let movingTween = new TWEEN.Tween(fromPos).to(targetPos, length).easing(TWEEN.Easing.Cubic.InOut)
@@ -657,12 +708,19 @@ class YJSceneDyncManagerEditor {
       });
     }
 
+    //#endregion
+
+    this.DyncPlayerState = function (YJPlayer, state) {
+      YJPlayer.DyncPlayerState(state); return;
+    }
+
     function init() {
       update();
     }
     function update() {
       requestAnimationFrame(update);
       TWEEN.update();
+      UpdateTrailRenderer();
     }
     init();
 

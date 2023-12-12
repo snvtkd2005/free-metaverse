@@ -582,7 +582,11 @@ class YJDyncManager {
     function _UpdateModel(_this, msg) {
       msg = eval("(" + msg + ")");
       var data = JSON.parse(msg);
+
       var message = data.message;
+      if (message.roomName != _this.roomName) { 
+        return;
+      }
       if (message.id == _this.id) {
         return;
       }

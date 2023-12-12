@@ -114,12 +114,15 @@ export default {
     },
     UpdateCheckWindowResize() {
 
-      // this.containerWidth = window.innerWidth;
-      // this.containerHeight = window.innerHeight;
-      this.containerWidth = this.$refs.container.clientWidth;
-      this.containerHeight = this.$refs.container.clientHeight;
-      if(this.ThreejsHumanChat.YJRaycaster){
-        this.ThreejsHumanChat.YJRaycaster.SetContainerSize(this.containerWidth,this.containerHeight);
+      if (this.$refs.container) {
+        this.containerWidth = this.$refs.container.clientWidth;
+        this.containerHeight = this.$refs.container.clientHeight;
+      } else {
+        this.containerWidth = window.innerWidth;
+        this.containerHeight = window.innerHeight;
+      }
+      if (this.ThreejsHumanChat.YJRaycaster) {
+        this.ThreejsHumanChat.YJRaycaster.SetContainerSize(this.containerWidth, this.containerHeight);
       }
 
       if (
@@ -147,17 +150,17 @@ export default {
       this.UpdateCheckWindowResize();
     },
     onWindowResize() {
-      if(this.$parent.setPanelSize){
+      if (this.$parent.setPanelSize) {
         this.$parent.setPanelSize();
       }
-     },
+    },
     // 浏览器窗口变动触发的方法
     onWindowResizeFn(w, h, forcedLandscape) {
       // console.log("改变窗口大小 111 ", forcedLandscape);
 
       this.$refs.ThreejsHumanChat.SetforcedLandscape(forcedLandscape);
       this.$refs.ThreejsHumanChat.onWindowResize(w, h);
- 
+
       if (!this.isMobile) {
         return;
       }

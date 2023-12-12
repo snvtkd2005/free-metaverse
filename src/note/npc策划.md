@@ -99,4 +99,48 @@ maxHealth //最大生命值
 pos //当前坐标点
 targetPos //目标坐标点
 animName //动作
-camp // 阵营： 联盟npc、部落npc、怪物、中立（由玩家相对npc友好度决定）
+camp // 阵营：1001联盟npc、1002部落npc、10000怪物、9000中立、8000友善（由玩家相对npc友好度决定）
+
+技能策划
+技能触发时机{
+    perSecond每隔n秒触发,
+    health血量到达n%触发,
+}
+技能效果{
+    damage 造成n点伤害,
+    冻结,
+    眩晕,
+    震退,
+    perDamage 每m秒造成n点伤害,
+}
+技能目标{
+    随机一人,
+    目标一人,
+    最多n人,
+    所有人,
+}
+技能效果增强{
+    none,
+    infect传染,
+}
+技能效果持续时间{ 
+    n秒,
+}
+
+整个战斗技能
+skillList = [
+    {
+        //技能名
+        skillName:"精准打击",
+        //触发时机
+        trigger:{type:"perSecond",value:10},
+        //目标
+        target:{ type: "target", value: 1 },// random  target all
+        //效果
+        effect:{type:"damage",value:10}, //
+        //效果增强
+        effectEnhance:"none",
+        //持续时间。perDamage、冻结、眩晕等状态效果才需要持续时间
+        duration:0,
+    },
+];

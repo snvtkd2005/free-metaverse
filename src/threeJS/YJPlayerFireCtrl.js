@@ -101,7 +101,9 @@ class YJPlayerFireCtrl {
 			return v;
 		}
 		this.ReceiveDamageDync = function (npcName, skillName, strength) {
-
+			if (baseData.health == 0) {
+				return true;
+			}
 			baseData.health -= RealyDamage(strength);
 			console.log(" 主角受到 " + npcName + " " + skillName + " 攻击 剩余 " + baseData.health);
 
@@ -110,7 +112,7 @@ class YJPlayerFireCtrl {
 			}
 			UpdateData();
 			if (baseData.health == 0) {
-				baseData.health = 0; 
+				baseData.health = 0;
 				scope.SetPlayerState("death");
 
 				if (vaildAttackLater != null) {
@@ -124,6 +126,10 @@ class YJPlayerFireCtrl {
 
 		}
 		this.ReceiveDamage = function (_targetModel, skillName, strength) {
+			if (baseData.health == 0) {
+				return true;
+			}
+
 			if (npcTransform == null) {
 				SelectNPC(_targetModel);
 				PlayerAddFire();
@@ -141,9 +147,9 @@ class YJPlayerFireCtrl {
 
 			UpdateData();
 			if (baseData.health == 0) {
-				baseData.health = 0; 
+				baseData.health = 0;
 				scope.SetPlayerState("death");
-				
+
 				if (vaildAttackLater != null) {
 					clearTimeout(vaildAttackLater);
 					clearTimeout(vaildAttackLater2);
@@ -291,12 +297,12 @@ class YJPlayerFireCtrl {
 
 
 						let max = 1;
-						if(baseData.energy>=30){
+						if (baseData.energy >= 30) {
 							max = 3;
-							baseData.energy -= 30; 
+							baseData.energy -= 30;
 						}
 						// 范围攻击。 max为1时，表示不使用范围攻击
-						let npcs = _Global.DyncManager.GetPlayerForwardNPCInFireId(_YJPlayer.fireId,vaildAttackDis,max,npcTransform.id);
+						let npcs = _Global.DyncManager.GetPlayerForwardNPCInFireId(_YJPlayer.fireId, vaildAttackDis, max, npcTransform.id);
 						for (let i = 0; i < npcs.length; i++) {
 							shootTarget(npcs[i].transform, attackStepSpeed * 300);
 						}
@@ -306,7 +312,7 @@ class YJPlayerFireCtrl {
 							// console.log(" 有效攻击目标 ");
 							//有效攻击
 							let health = npcComponent.ReceiveDamage(_YJPlayer, skillName, baseData.strength);
-							
+
 							// 范围攻击
 							for (let i = 0; i < npcs.length; i++) {
 								npcs[i].ReceiveDamage(_YJPlayer, skillName, baseData.strength);
@@ -443,7 +449,7 @@ class YJPlayerFireCtrl {
 					playerState = PLAYERSTATE.DEAD;
 					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					EventHandler("中断技能");
-					
+
 					_Global.DyncManager.RemovePlayerFireId(_YJPlayer);
 
 					//角色不可控制、显示倒计时
@@ -492,9 +498,9 @@ class YJPlayerFireCtrl {
 
 					break;
 
-				case "attack": 
+				case "attack":
 					break;
-				case "interactive": 
+				case "interactive":
 					break;
 				default:
 					break;

@@ -188,6 +188,12 @@ class YJLoadUserModelManager {
       // return;
       requestAnimationFrame(update);
       centerPosRaycast();
+      // for (let i = 0; i < allTransform.length; i++) {
+      //   const transform = allTransform[i].transform;
+      //   if(transform.GetData().name == "cs场景模型001"){
+      //     console.log( " cs场景模型001 " + transform.id);
+      //   }
+      // }
     }
 
     // 取消创建
@@ -279,7 +285,7 @@ class YJLoadUserModelManager {
       // }
 
 
-      let MeshRenderer = new YJMeshRenderer(_this, object.GetGroup(), object, true);
+      let MeshRenderer = new YJMeshRenderer(_this, object.GetGroup(), object, false);
       object.AddComponent("MeshRenderer", MeshRenderer);
 
       if (modelData.modelType == "动画模型") {
@@ -543,7 +549,9 @@ class YJLoadUserModelManager {
             let { navPosIndex } = data;
             let transform = elment.transform;
             let npcComponent = transform.GetComponent("NPC");
-            npcComponent.SetNavPosByPosIndex(navPosIndex);
+            if(npcComponent){
+              npcComponent.SetNavPosByPosIndex(navPosIndex);
+            }
           }
           return;
         }

@@ -104,7 +104,6 @@ class YJMeshRenderer {
           model = object;
           model.transform = owner;
 
-
           animations = model.animations;
           for (let i = animations.length - 1; i >= 0; i--) {
             const element = animations[i];
@@ -116,37 +115,14 @@ class YJMeshRenderer {
 
           model.scale.set(1 * meshScale, 1 * meshScale, 1 * meshScale);
 
-          model.traverse(function (item) {
-            if (item instanceof THREE.Mesh) {
-              if (item.name.indexOf("collider") > -1) {
-                item.visible = false;
-              } else {
-                if (item.name.includes("trigger")) {
-                  item.visible = false;
-                  return;
-                }
-                if (noShadow) {
-
-                } else {
-                  item.castShadow = true;
-                  item.receiveShadow = true;
-                }
-                item.transform = owner;
-
-              }
-            }
-            // if (item instanceof THREE.Bone) {
-            //   if (item.name.includes("Hips")) {
-            //     item.add(new THREE.AxesHelper(1000));
-            //   }
-            // }
-          });
-
-
           scene.add(model);
           // console.log(" 加载模型完成 ", model);
           _this._YJSceneManager.addLoadMesh(modelPath, model);
-
+          
+          TraverseOwner(model);
+          if (hasCollider) {
+            CreateColliderFn(model);
+          }
           if (callback) {
             callback(scope);
           }
@@ -367,7 +343,7 @@ class YJMeshRenderer {
 
             } else {
               item.castShadow = true;
-              // item.receiveShadow = true;
+              item.receiveShadow = true;
             }
 
 

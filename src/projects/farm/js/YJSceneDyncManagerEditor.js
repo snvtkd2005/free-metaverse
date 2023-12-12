@@ -390,7 +390,10 @@ class YJSceneDyncManagerEditor {
       // }
 
     }
-
+    // 发送一条战斗记录
+    this.SendFireRecode = function(msg){
+      console.log("战斗记录 ",msg);
+    }
     this.SendModel = function (model) {
       if (!_Global.YJDync) {
         return;
@@ -580,7 +583,7 @@ class YJSceneDyncManagerEditor {
     }
     // 接收服务器转发过来的由主控发送的模型同步信息
     this.ReceiveModel = function (id, title, data) {
-      // console.log("接收 同步信息 ",id, title, data);
+      console.log("接收 同步信息 ",id, title, data);
 
       if (title == "同步trail") {
         let { startPos, targetPos, time } = data;
@@ -606,9 +609,6 @@ class YJSceneDyncManagerEditor {
 
     //#region 
     //#endregion
-
-
-
 
     //#region
     let _YJTrailRenderer = [];

@@ -719,6 +719,13 @@ class SceneManager {
 
     //#endregion
     let targetModel = null;
+    this.SetTargetSkill = function(npcId,skill){
+      if(targetModel == null){ return;}
+      if(targetModel.id == npcId){
+        indexVue.$refs.HUD.$refs.headerUI.SetSkill(skill);
+      }
+      //
+    }
     this.SetTargetModel = function (transform) {
       if (targetModel != null) {
         if (targetModel != transform) {

@@ -403,7 +403,7 @@ class YJNPC {
 
     let _offsetTime = 0;
     let cutStartTime = 0;
-    function EventHandler(e) {
+    function EventHandler(e, cutSkill = true) {
       if (e == "中断技能") {
         if (vaildAttackLater != null || vaildAttackLater2 != null || toIdelLater != null) {
           clearTimeout(vaildAttackLater);
@@ -416,7 +416,13 @@ class YJNPC {
           _offsetTime = new Date().getTime() - cutStartTime;
           cutStartTime = new Date().getTime();
 
-          inSkill = false;
+          if (cutSkill) {
+            if (inSkill) {
+              _Global.DyncManager.SendDataToServer("npc技能",
+                { npcId: scope.transform.id, skill: "中断" });
+              inSkill = false;
+            }
+          }
           // console.log(" 记录中断的时间 ",cutStartTime);
         }
       }
@@ -424,14 +430,47 @@ class YJNPC {
 
     let skillList = [
       {
+        skillName: "吐息",
+        // 该结构表示：每10秒对当前目标造成10点伤害
+        //触发时机 每间隔n秒触发、血量达到n%触发
+        trigger: { type: "health", value: 90 },
+        //目标
+        target: { type: "target", value: 3 },// random随机 target目标 all所有
+        //效果 直接伤害、每秒伤害、冻结、眩晕等状态
+        effect: {
+          type: "perDamage",
+          value: 10,
+          time: 1,
+          duration: 3,
+          describe: "每秒造成10点伤害，持续3秒",
+          icon: "",
+        }, //describe技能描述，duration持续时间。perDamage、冻结、眩晕等状态效果才需要持续时间
+        //有效范围
+        vaildDis: 100, //  
+        //施放时间
+        castTime: 3, // 施法时间。 秒, 0表示瞬发
+        animNameReady: "two hand gun before attack", // 施法准备/读条动作
+        animName: "two hand gun attack", // 施法施放动作
+        //效果增强
+        effectEnhance: "none",
+        icon: "", //技能图标
+      },
+      {
         skillName: "精准打击",
         // 该结构表示：每10秒对当前目标造成10点伤害
-        //触发时机
-        trigger: { type: "perSecond", value: 10 },
+        //触发时机 每间隔n秒触发、血量达到n%触发
+        trigger: { type: "health", value: 10 },
         //目标
-        target: { type: "target", value: 1 },// random target all
-        //效果
-        effect: { type: "damage", value: 30 }, //
+        target: { type: "target", value: 1 },// random随机 target目标 all所有
+        //效果 直接伤害、每秒伤害、冻结、眩晕等状态
+        effect: {
+          type: "perDamage",
+          value: 10,
+          time: 1,
+          duration: 3,
+          describe: "每秒造成10点伤害，持续3秒",
+          icon: "",
+        }, //describe技能描述，duration持续时间。perDamage、冻结、眩晕等状态效果才需要持续时间
         //有效范围
         vaildDis: 100, //  
         //施放时间
@@ -440,8 +479,33 @@ class YJNPC {
         animName: "two hand gun attack", // 施法施放动作
         //效果增强
         effectEnhance: "none",
-        //持续时间。perDamage、冻结、眩晕等状态效果才需要持续时间
-        duration: 0,
+        icon: "", //技能图标
+      },
+      {
+        skillName: "感染",
+        // 该结构表示：每10秒对当前目标造成10点伤害
+        //触发时机 每间隔n秒触发、血量达到n%触发
+        trigger: { type: "perSecond", value: 10 },
+        //目标
+        target: { type: "target", value: 1 },// random随机 target目标 all所有
+        //效果 直接伤害、每秒伤害、冻结、眩晕等状态
+        effect: {
+          type: "perDamage",
+          value: 10,
+          time: 1,
+          duration: 3,
+          describe: "每秒造成10点伤害，持续3秒",
+          icon: "",
+        }, //describe技能描述，duration持续时间。perDamage、冻结、眩晕等状态效果才需要持续时间
+        //有效范围
+        vaildDis: 100, //  
+        //施放时间
+        castTime: 2, // 施法时间。 秒, 0表示瞬发
+        animNameReady: "two hand gun before attack", // 施法准备/读条动作
+        animName: "two hand gun attack", // 施法施放动作
+        //效果增强
+        effectEnhance: "none",
+        icon: "", //技能图标
       },
     ];
 
@@ -519,7 +583,7 @@ class YJNPC {
     let fireLater = [];
     let inSkill = false;//是否在使用施法技能攻击
 
-    this.SetPlayerState = function (e, castTime,animNameReady,_animName,strength) {
+    this.SetPlayerState = function (e, castTime, animNameReady, _animName, effect) {
 
       switch (e) {
         case "普通攻击":
@@ -535,7 +599,7 @@ class YJNPC {
 
         case "法术准备":
 
-          EventHandler("中断技能");
+          EventHandler("中断技能", false);
 
           animName = animNameReady;
           if (vaildAttackLater == null) {
@@ -544,27 +608,32 @@ class YJNPC {
                 CheckNextTarget();
                 return;
               }
-              this.SetPlayerState("法术攻击","","",_animName,strength);
+              this.SetPlayerState("法术攻击", "", "", _animName, effect);
               vaildAttackLater = null;
-            }, attackStepSpeed*1000);
+            }, attackStepSpeed * 1000);
           }
 
           break;
         case "法术攻击":
+
           animName = _animName;
           vaildAttackLater2 = setTimeout(() => {
+
+            if (targetModel.isDead) {
+              EventHandler("中断技能");
+              return;
+            }
             //有效攻击 && 
-            SendDamageToTarget(targetModel, strength);
+            SendDamageToTarget(targetModel, effect);
           }, attackStepSpeed * 100);
 
           toIdelLater = setTimeout(() => {
-            console.log(" 准备战斗 ");
             scope.SetPlayerState("准备战斗");
             toIdelLater = null;
             inSkill = false;
           }, attackStepSpeed * 400);//间隔等于攻击动作时长
 
-          
+
           break;
         case "准备战斗":
 
@@ -648,7 +717,7 @@ class YJNPC {
           scope.SetPlayerState("准备战斗");
           return;
         }
-        if(inSkill){
+        if (inSkill) {
           return;
         }
 
@@ -664,7 +733,7 @@ class YJNPC {
         // }
 
         let dis = playerPosRef.distanceTo(npcPos);
-        if (dis < vaildAttackDis + scope.transform.GetData().scale.x ) {
+        if (dis < vaildAttackDis + scope.transform.GetData().scale.x) {
           SetNavPathToNone();
           parent.lookAt(playerPosRef.clone());
           if (readyAttack_doonce == 0) {
@@ -682,7 +751,7 @@ class YJNPC {
             scope.SetPlayerState("普通攻击");
             vaildAttackLater2 = setTimeout(() => {
               //有效攻击 && 
-              SendDamageToTarget(targetModel, baseData.strength);
+              SendDamageToTarget(targetModel, { type: "damage", value: baseData.strength });
             }, attackStepSpeed * 100);
 
             toIdelLater = setTimeout(() => {
@@ -710,32 +779,156 @@ class YJNPC {
     }
 
     // 每次进入战斗，初始化其技能
-    function CheckSkill(){
+    function CheckSkill() {
       for (let i = 0; i < skillList.length; i++) {
         const skillItem = skillList[i];
+        // 触发方式 每间隔n秒触发。在进入战斗时调用
         if (skillItem.trigger.type == "perSecond") {
           fireLater.push({
             type: "interval", fn:
               setInterval(() => {
                 if (_Global.mainUser) {
+                  if (targetModel.isDead) {
+                    return;
+                  }
+                  if (inSkill) {
+                    return;
+                  }
                   inSkill = true;
                   skillName = skillItem.skillName;
+
+                  if (skillItem.castTime > 0) {
+                    // 需要施法的技能才发送技能同步，瞬发技能无需同步
+                    _Global.DyncManager.SendDataToServer("npc技能",
+                      { npcId: scope.transform.id, skill: skillItem });
+                  }
+
                   if (skillItem.target.type == "target" && skillItem.target.value == 1) {
-                    if (skillItem.effect.type == "damage") {
-                      SetNavPathToNone();
-                      if (skillItem.castTime > 0) {
-                        vaildAttackDis = skillItem.vaildDis;
-                        attackStepSpeed = skillItem.castTime;
-                        scope.SetPlayerState("法术准备", skillItem.castTime, skillItem.animNameReady, skillItem.animName,skillItem.effect.value);
-                      } else {
-                        scope.SetPlayerState("法术攻击","","",skillItem.animName,skillItem.effect.value);
-                      }
+                    SetNavPathToNone();
+                    if (skillItem.castTime > 0) {
+                      vaildAttackDis = skillItem.vaildDis;
+                      attackStepSpeed = skillItem.castTime;
+                      scope.SetPlayerState("法术准备", skillItem.castTime, skillItem.animNameReady, skillItem.animName, skillItem.effect);
+                    } else {
+                      scope.SetPlayerState("法术攻击", "", "", skillItem.animName, skillItem.effect);
                     }
                   }
                 }
-              }, skillItem.trigger.value * 1000)
+              }, (skillItem.trigger.value + skillItem.castTime) * 1000)
           }
           );
+        }
+      }
+    }
+    //监听生命触发技能。
+    // 血量触发时，每个血量只能触发一次，如果正在施放其他触发技能，则本次血量触发失效
+    let healthTrigger = [];
+    function CheckHealth() {
+      let healthPerc = parseInt(baseData.health / baseData.maxHealth * 100);
+      for (let i = 0; i < skillList.length; i++) {
+        const skillItem = skillList[i];
+        // 触发方式  血量达到n%触发，血量改变时调用
+        if (skillItem.trigger.type == "health") {
+          if (healthPerc <= skillItem.trigger.value) {
+            if (_Global.mainUser) {
+              if (targetModel.isDead) {
+                return;
+              }
+              for (let j = 0; j < healthTrigger.length; j++) {
+                const element = healthTrigger[j];
+                if(element == skillItem.trigger.value){
+                  return;
+                }
+              }
+              healthTrigger.push(skillItem.trigger.value);
+              if (inSkill) {
+                return;
+              }
+              inSkill = true;
+              skillName = skillItem.skillName;
+
+              if (skillItem.castTime > 0) {
+                // 需要施法的技能才发送技能同步，瞬发技能无需同步
+                _Global.DyncManager.SendDataToServer("npc技能",
+                  { npcId: scope.transform.id, skill: skillItem });
+              }
+
+              if (skillItem.target.type == "target" && skillItem.target.value == 1) {
+                SetNavPathToNone();
+                if (skillItem.castTime > 0) {
+                  vaildAttackDis = skillItem.vaildDis;
+                  attackStepSpeed = skillItem.castTime;
+                  scope.SetPlayerState("法术准备", skillItem.castTime, skillItem.animNameReady, skillItem.animName, skillItem.effect);
+                } else {
+                  scope.SetPlayerState("法术攻击", "", "", skillItem.animName, skillItem.effect);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+
+    // 向玩家发送技能特效
+    function shootTarget(taget, time) {
+      let pos = parent.position.clone();
+      pos.y += playerHeight / 2;
+      _Global.DyncManager.shootTarget(pos, taget, time, "player");
+    }
+
+    // 根据技能数据计算对目标造成伤害
+    function SendDamageToTarget(targetModel, effect) {
+      if (targetModel == null) {
+        return;
+      }
+      let { type, value, time, duration } = effect;
+
+      // 发送战斗记录
+      _Global.DyncManager.SendFireRecode({ targetId: targetModel.id, npcId: scope.transform.id, npcName: scope.npcName, skillName: skillName, strength: value });
+      // 发送技能特效
+      shootTarget(targetModel, attackStepSpeed * 300);
+
+      if (targetModel.isLocal && _Global.inFocus) {
+        if (targetModel.owner) {
+          let isDead = targetModel.owner.ReceiveDamage(scope.transform, skillName, effect);
+          if (isDead) {
+            CheckNextTarget();
+            return;
+          }
+        }
+      } else {
+        // 当主控玩家窗口在后台运行时，由玩家镜像接收后发送服务器同步给主控玩家
+        if (targetModel != null && targetModel.isDead) {
+          CheckNextTarget();
+          return;
+        }
+        if (_Global.mainUser) {
+          _Global.DyncManager.SendNpcToPlayer({ targetId: targetModel.id, npcId: scope.transform.id, npcName: scope.npcName, skillName: skillName, strength: value });
+        }
+      }
+
+      return;
+      if (targetModel != null) {
+        _Global.DyncManager.SendFireRecode({ targetId: targetModel.id, npcId: scope.transform.id, npcName: scope.npcName, skillName: skillName, strength: value });
+        shootTarget(targetModel, attackStepSpeed * 300);
+        if (targetModel.isLocal && _Global.inFocus) {
+          if (targetModel.owner) {
+            let isDead = targetModel.owner.ReceiveDamage(scope.transform, skillName, value);
+            if (isDead) {
+              CheckNextTarget();
+              return;
+            }
+          }
+        } else {
+          // 当主控玩家窗口在后台运行时，由玩家镜像接收后发送服务器同步给主控玩家
+          if (targetModel != null && targetModel.isDead) {
+            CheckNextTarget();
+            return;
+          }
+          if (_Global.mainUser) {
+            _Global.DyncManager.SendNpcToPlayer({ targetId: targetModel.id, npcId: scope.transform.id, npcName: scope.npcName, skillName: skillName, strength: value });
+          }
         }
       }
     }
@@ -799,7 +992,7 @@ class YJNPC {
       if (baseData.state == stateType.Normal) {
         baseData.state = stateType.Fire;
         //首次进入战斗时，计算其技能
-        // CheckSkill();
+        CheckSkill();
       }
       // console.log( this.npcName +" npc进入战斗  ", scope.fireId);
     }
@@ -814,12 +1007,12 @@ class YJNPC {
       }
 
       baseData.health -= strength;
-
+      CheckHealth();
       // 对npc的伤害显示在屏幕上
       let pos = parent.position.clone();
       pos.y += playerHeight;
 
-      // console.log(this.npcName + " 受到 " + _targetModel.GetPlayerName() +" 使用 "+ skillName + " 攻击 剩余 " + baseData.health);
+      console.log(this.npcName + " 受到 " + _targetModel.GetPlayerName() + " 使用 " + skillName + " 攻击 剩余 " + baseData.health);
 
       ClearLater("清除准备战斗");
 
@@ -850,21 +1043,26 @@ class YJNPC {
       return baseData.health;
     }
 
+
+
+    function ClearFireLater() {
+      for (let i = 0; i < fireLater.length; i++) {
+        if (fireLater[i].type == "interval") {
+          clearInterval(fireLater[i].fn);
+        }
+        if (fireLater[i].type == "timeout") {
+          clearTimeout(fireLater[i].fn);
+        }
+      }
+      fireLater = [];
+      healthTrigger = [];
+    }
     let fireBeforePos = null;
     this.SetTargetToNone = function (isLocal) {
       targetModel = null;
       if (targetModel == null) {
 
-        for (let i = 0; i < fireLater.length; i++) {
-          if (fireLater[i].type == "interval") {
-            clearInterval(fireLater[i].fn);
-          }
-          if (fireLater[i].type == "timeout") {
-            clearTimeout(fireLater[i].fn);
-          }
-        }
-        fireLater = [];
-
+        ClearFireLater();
         // 暂停1秒
         SetNavPathToNone();
         baseData.state = stateType.Back;
@@ -889,38 +1087,6 @@ class YJNPC {
       }
     }
 
-		function shootTarget(taget, time) {
-      let pos = parent.position.clone();
-      pos.y += playerHeight/2;
-			_Global.DyncManager.shootTarget(pos, taget, time,"player");
-		}
-
-    function SendDamageToTarget(targetModel, damageValue) {
-
-
-      if (targetModel != null) {
-        _Global.DyncManager.SendFireRecode({ targetId: targetModel.id, npcId: scope.transform.id, npcName: scope.npcName, skillName: skillName, strength: damageValue });
-        shootTarget(targetModel, attackStepSpeed * 300);
-        if (targetModel.isLocal && _Global.inFocus) {
-          if (targetModel.owner) {
-            let isDead = targetModel.owner.ReceiveDamage(scope.transform, skillName, damageValue);
-            if (isDead) {
-              CheckNextTarget();
-              return;
-            }
-          }
-        } else {
-          // 当主控玩家窗口在后台运行时，由玩家镜像接收后发送服务器同步给主控玩家
-          if (targetModel != null && targetModel.isDead) {
-            CheckNextTarget();
-            return;
-          }
-          if (_Global.mainUser) {
-            _Global.DyncManager.SendNpcToPlayer({ targetId: targetModel.id, npcId: scope.transform.id, npcName: scope.npcName, skillName: skillName, strength: damageValue });
-          }
-        }
-      }
-    }
     // 不在战斗且未死亡，且不在miss中，才可以设置
     this.isCanSetTarget = function () {
       return baseData.state != stateType.Back && baseData.state != stateType.Fire && baseData.state != stateType.Dead;
@@ -971,13 +1137,14 @@ class YJNPC {
     }
     // 死亡
     function dead() {
-
-      _Global.DyncManager.RemoveNPCFireId(scope);
-
-      // 停止寻路
-      SetNavPathToNone();
       // 设为死亡状态
       baseData.state = stateType.Dead;
+      // 从一场战斗中移除npc
+      _Global.DyncManager.RemoveNPCFireId(scope);
+      // 清除技能触发
+      ClearFireLater();
+      // 停止寻路
+      SetNavPathToNone();
       scope.SetPlayerState("death");
       setTimeout(() => {
         _Global.SceneManager.ReceiveEvent("npc尸体消失", scope.transform);
@@ -992,7 +1159,7 @@ class YJNPC {
         // setTimeout(() => {
         //   resetLife();
         // }, 60000);
-      }, 8000);
+      }, 7000);
     }
     // 死亡后重新生成
     function resetLife() {

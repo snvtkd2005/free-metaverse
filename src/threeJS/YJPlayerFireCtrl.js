@@ -45,13 +45,14 @@ class YJPlayerFireCtrl {
 					baseData.health = baseData.maxHealth;
 					baseData.armor = 0;
 					baseData.energy = 0;
+					baseData.debuffList = [];
 					break;
 				case "选中npc":
 					SelectNPC(state.msg);
 					break;
 				case "受到伤害":
-					let { _targetModel, skillName, strength } = state.msg;
-					return scope.ReceiveDamage(_targetModel, skillName, strength);
+					let { _targetModel, skillName, effect } = state.msg;
+					return scope.ReceiveDamage(_targetModel, skillName, effect);
 					break;
 				case "受到伤害Dync":
 					let msg = state.msg;
@@ -117,7 +118,6 @@ class YJPlayerFireCtrl {
 
 				if (vaildAttackLater != null) {
 					clearTimeout(vaildAttackLater);
-					clearTimeout(vaildAttackLater2);
 					vaildAttackLater = null;
 				}
 				return true;
@@ -125,7 +125,47 @@ class YJPlayerFireCtrl {
 			return false;
 
 		}
-		this.ReceiveDamage = function (_targetModel, skillName, strength) {
+		function CheckHealth() {
+			if (baseData.health <= 0) {
+				baseData.health = 0;
+			}
+			UpdateData();
+
+			if (baseData.health == 0) {
+				_YJPlayer.isDead = true; 
+				scope.SetPlayerState("death");
+				// 清除技能触发
+				ClearFireLater();
+				if (vaildAttackLater != null) {
+					clearTimeout(vaildAttackLater);
+					vaildAttackLater = null;
+				}
+				return true;
+			}
+		}
+
+		let fireLater = [];
+		function ClearFireLater() {
+			for (let i = 0; i < fireLater.length; i++) {
+				if (fireLater[i].type == "interval") {
+					clearInterval(fireLater[i].fn);
+				}
+				if (fireLater[i].type == "timeout") {
+					clearTimeout(fireLater[i].fn);
+				}
+			}
+			fireLater = [];
+		}
+		function removeDebuffById(id){
+			for (let i = baseData.debuffList.length -1 ; i >= 0 ; i--) {
+				const item = baseData.debuffList[i];
+				if(item.id == id){
+					baseData.debuffList.splice(i,1);
+				}
+			}
+		}
+									 
+		this.ReceiveDamage = function (_targetModel, skillName, effect) {
 			if (baseData.health == 0) {
 				return true;
 			}
@@ -136,42 +176,41 @@ class YJPlayerFireCtrl {
 				//自动显示其头像 
 				_Global.SceneManager.SetTargetModel(npcTransform);
 			}
+			let { type, value, time, duration,describe,icon } = effect;
 
-			baseData.health -= RealyDamage(strength);
-			// console.log(" 主角受到 " + skillName + " 攻击 剩余 " + baseData.health);
-
-
-			if (baseData.health <= 0) {
-				baseData.health = 0;
+			// 直接伤害
+			if (type == "damage") {
+				baseData.health -= RealyDamage(value);
 			}
-
-			UpdateData();
-			if (baseData.health == 0) {
-				baseData.health = 0;
-				scope.SetPlayerState("death");
-
-				if (vaildAttackLater != null) {
-					clearTimeout(vaildAttackLater);
-					clearTimeout(vaildAttackLater2);
-					vaildAttackLater = null;
+			// 每n秒伤害，持续m秒
+			if (type == "perDamage") {
+				
+				//每秒伤技能是debuff，显示在角色状态上
+				if(baseData.debuffList == undefined){
+					baseData.debuffList = [];
 				}
-				return true;
+				let id = new Date().getTime();
+				let count = parseInt(duration / time);
+				let num = 0;
+				for (let i = 0; i < count; i++) {
+					fireLater.push({
+						type: "timeout", fn:
+							setTimeout(() => {
+								baseData.health -= RealyDamage(value);
+								num++;
+								if(num == count){
+									removeDebuffById(id);
+								}
+								CheckHealth();
+							}, time * 1000 * i)
+					}
+					);
+				}
+				baseData.debuffList.push({id:id, icon:icon,describe:describe});
+				return;
 			}
-
-			return;
-
-			inBlocking = true;
-			scope.SetPlayerState("受伤");
-
-			if (playerState == PLAYERSTATE.NORMAL) {
-				playerState = PLAYERSTATE.ATTACK;
-			}
-
-			toIdelLater = setTimeout(() => {
-				scope.SetPlayerState("准备战斗");
-				toIdelLater = null;
-			}, 300);
-			return false;
+			// console.log(" 主角受到 " + skillName + " 攻击 剩余 " + baseData.health);
+			return CheckHealth();
 		}
 		// 生命值改变时，同步 
 		function UpdateData() {
@@ -185,7 +224,6 @@ class YJPlayerFireCtrl {
 				playerState = PLAYERSTATE.NORMAL;
 				if (vaildAttackLater != null) {
 					clearTimeout(vaildAttackLater);
-					clearTimeout(vaildAttackLater2);
 					vaildAttackLater = null;
 				}
 				if (toIdelLater != null) {
@@ -227,7 +265,7 @@ class YJPlayerFireCtrl {
 		}
 
 		function shootTarget(taget, time) {
-			_Global.DyncManager.shootTarget(_this.YJController.GetPlayerWorldPos(), taget, time,"npc");
+			_Global.DyncManager.shootTarget(_this.YJController.GetPlayerWorldPos(), taget, time, "npc");
 		}
 		let inBlocking = false;
 		let vaildAttackLater = null;
@@ -389,10 +427,12 @@ class YJPlayerFireCtrl {
 		}
 		function EventHandler(e) {
 			if (e == "中断技能") {
-				if (vaildAttackLater2 != null) {
-					clearTimeout(vaildAttackLater2);
-					vaildAttackLater2 = null;
-				}
+
+				// 无法中断已经施放出去的技能
+				// if (vaildAttackLater2 != null) {
+				// 	clearTimeout(vaildAttackLater2);
+				// 	vaildAttackLater2 = null;
+				// }
 				if (vaildAttackLater != null) {
 					clearTimeout(vaildAttackLater);
 					vaildAttackLater = null;

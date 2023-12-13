@@ -6,8 +6,11 @@
     >
     <div class="  w-32 h-16 mt-3 mx-auto   ">
       <div class=" relative ">
+        <div>
+          {{skillName}}
+        </div>
         <div class=" h-4  border relative ">
-          <div class=" h-full bg-blue-500  " :style="'width: ' + GetProgress() + '%'"></div>
+          <div class=" h-full " :class="color=='blue'?' bg-blue-500 ':' bg-yellow-500 '" :style="'width: ' + GetProgress() + '%'"></div>
           <div v-if="false" class=" absolute  left-0 top-0 w-full text-center text-xs  ">
             {{ this.current + "/" + this.length }}</div>
         </div>
@@ -21,6 +24,7 @@
 
 export default {
   name: "skillProgress",
+  props:['color'],
   components: {
   },
   data() {
@@ -31,6 +35,7 @@ export default {
       updateId:null,
       deltaTime:0,
       last:null,
+      skillName:"",
     };
   },
   created() {
@@ -40,16 +45,16 @@ export default {
     // this.SetProgress(0,30);
   },
   methods: {
-    SetProgress(e) {
+    SetProgress(e,skillName) {
       if(e=="中断" || e=="完成"){
         this.display = false;
         cancelAnimationFrame(this.updateId);
         return;
-      }
-      
+      } 
       this.last = performance.now();
       this.current = 0;
       this.length = e;
+      this.skillName = skillName;
       this.animate();
       this.display = true;
     }, 
@@ -62,6 +67,7 @@ export default {
       let delta = (now - this.last) / 1000;
       this.current += delta * 1;
       if(this.current>=this.length){
+        this.display = false;
         cancelAnimationFrame(this.updateId); 
       }
       this.last = now;

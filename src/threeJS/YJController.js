@@ -3664,11 +3664,11 @@ class YJController {
     this.DyncPlayerState = function (state) {
       _YJPlayer.DyncPlayerState(state);
     }
-    this.ReceiveDamage = function (_targetModel, skillName, strength) {
+    this.ReceiveDamage = function (_targetModel, skillName, effect) {
       return _YJPlayerFireCtrl.OnPlayerState({
         title: "fire",
         content: "受到伤害",
-        msg: { _targetModel: _targetModel, skillName: skillName, strength: strength },
+        msg: { _targetModel: _targetModel, skillName: skillName, effect: effect },
       });
     }
     this.ReceiveDamageDync = function (npcName, skillName, strength) {

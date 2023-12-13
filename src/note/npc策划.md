@@ -128,19 +128,49 @@ camp // 阵营：1001联盟npc、1002部落npc、10000怪物、9000中立、8000
 }
 
 整个战斗技能
-skillList = [
-    {
-        //技能名
-        skillName:"精准打击",
-        //触发时机
-        trigger:{type:"perSecond",value:10},
+    let skillList = [
+      {
+        skillName: "精准打击",
+        // 该结构表示：每10秒对当前目标造成10点伤害
+        //触发时机 每间隔n秒触发、血量达到n%触发
+        trigger: { type: "perSecond", value: 10 },
         //目标
-        target:{ type: "target", value: 1 },// random  target all
-        //效果
-        effect:{type:"damage",value:10}, //
+        target: { type: "target", value: 1 },// random随机 target目标 all所有
+        //效果 直接伤害、每秒伤害、冻结、眩晕等状态
+        effect: { type: "damage", value: 30, duration: 0, }, //duration持续时间。perDamage、冻结、眩晕等状态效果才需要持续时间
+        //有效范围
+        vaildDis: 100, //  
+        //施放时间
+        castTime: 2, // 施法时间。 秒, 0表示瞬发
+        animNameReady: "two hand gun before attack", // 施法准备/读条动作
+        animName: "two hand gun attack", // 施法施放动作
         //效果增强
-        effectEnhance:"none",
-        //持续时间。perDamage、冻结、眩晕等状态效果才需要持续时间
-        duration:0,
-    },
-];
+        effectEnhance: "none", 
+      },
+      {
+        skillName: "精准打击",
+        // 该结构表示：每10秒对当前目标造成10点伤害
+        //触发时机 每间隔n秒触发、血量达到n%触发
+        trigger: { type: "perSecond", value: 4 },
+        //目标
+        target: { type: "target", value: 1 },// random随机 target目标 all所有
+        //效果 直接伤害、每秒伤害、冻结、眩晕等状态
+        effect: { 
+          type: "perDamage", 
+          value: 10, 
+          time: 1, 
+          duration: 3,
+          describe:"每秒造成20点伤害，持续10秒",
+          icon: "", 
+        }, //describe技能描述，duration持续时间。perDamage、冻结、眩晕等状态效果才需要持续时间
+        //有效范围
+        vaildDis: 100, //  
+        //施放时间
+        castTime: 2, // 施法时间。 秒, 0表示瞬发
+        animNameReady: "two hand gun before attack", // 施法准备/读条动作
+        animName: "two hand gun attack", // 施法施放动作
+        //效果增强
+        effectEnhance: "none",
+        icon: "", //技能图标
+      },
+    ];

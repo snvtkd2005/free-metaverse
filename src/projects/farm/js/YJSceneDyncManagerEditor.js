@@ -65,18 +65,24 @@ class YJSceneDyncManagerEditor {
           return;
         }
       }
+      // 增加额外的同步信息
       dyncModelList.push({ id: model.type, modelType: "交互模型", state: { value: 0, count: 0 } });
     }
-    // 第一个进入房间的玩家调用
-    this.SendSceneStateToServer = () => {
-      // dyncModelList.push({ id: "kouzhao", modelType: "交互模型", state: { value: 0, count: 0 } });
-      // dyncModelList.push({ id: "fanghufu", modelType: "交互模型", state: { value: 0, count: 0 } });
-      // dyncModelList.push({ id: "zhongcaoyao", modelType: "交互模型", state: { value: 0, count: 0 } });
-      // dyncModelList.push({ id: "jiujingpenghu", modelType: "交互模型", state: { value: 0, count: 0 } });
-      // dyncModelList.push({ id: "nengliang", modelType: "交互模型", state: { value: 0, count: 0 } });
+    this.SendDataToServer = (type,data) => {
+      console.log(" 发送 ",type,data);
+      if(type == "npc技能"){
+        let {npcId,skill} = data;
+        _SceneManager.SetTargetSkill(npcId,skill);
+        _Global.YJDync._YJDyncManager.SendSceneState("转发",{type:type,state: data} );
+        return;
+      }
 
-      dyncModelList.push({ id: "offsetTime", modelType: "offsetTime", state: { offsetTime: 0, startTime: 1675586194683 } });
-      _Global.YJDync._YJDyncManager.SendSceneState("初始化", dyncModelList);
+      if(type == "主控发送初始化"){
+        // 第一个进入房间的玩家调用
+        dyncModelList.push({ id: "offsetTime", modelType: "offsetTime", state: { offsetTime: 0, startTime: 1675586194683 } });
+        _Global.YJDync._YJDyncManager.SendSceneState("初始化", dyncModelList);
+        return;
+      }
     }
 
     let playerPos = new THREE.Vector3(0, 0, 0);
@@ -447,15 +453,24 @@ class YJSceneDyncManagerEditor {
       _Global.YJDync._YJDyncManager.SendSceneState("转发", { type: type, state: msg });
 
     }
-    this.Receive = function (sceneState) {
-      let state = sceneState.state;
 
-      if (sceneState.type == "战斗状态") {
+    // 接收 转发 数据
+    this.Receive = function (data) {
+      let {type,state}  = data;
+      console.log(" 接收 ",type,state);
+
+      if (type == "npc技能") {
+        let {npcId,skill} = state;
+        _SceneManager.SetTargetSkill(npcId,skill);
+        return;
+      }
+
+      if (type == "战斗状态") {
         fireGroup = state;
         console.log("战斗状态同步改变 ", fireGroup);
         return;
       }
-      if (sceneState.type == "请求下一个目标") {
+      if (type == "请求下一个目标") {
         if (_Global.mainUser) {
           console.log("设置下一个目标 ", state);
           GetFireIdPlayer(state);
@@ -464,8 +479,8 @@ class YJSceneDyncManagerEditor {
       }
 
 
-      if (sceneState.type == "获取场景状态") {
-        console.log("获取场景状态 222 ", sceneState);
+      if (type == "获取场景状态") {
+        console.log("获取场景状态 222 ", data);
 
         //整个场景所有模型的更新
         for (let j = 0; j < state.length; j++) {
@@ -500,7 +515,7 @@ class YJSceneDyncManagerEditor {
       }
 
 
-      if (sceneState.type == "all") {
+      if (type == "all") {
         console.log("接收场景同步信息", sceneState);
 
         //整个场景所有模型的更新
@@ -523,7 +538,7 @@ class YJSceneDyncManagerEditor {
         return;
       }
 
-      if (sceneState.type == "服务器下发") {
+      if (type == "服务器下发") {
 
         // return;
       }
@@ -637,7 +652,7 @@ class YJSceneDyncManagerEditor {
     let _YJTrailRenderer = [];
     let shootTargetList = [];
     this.shootTarget = function (startPos, target, time, targetType) {
-      console.log(" 同步trail target ", target.id, targetType);
+      // console.log(" 同步trail target ", target.id, targetType);
       scope.UpdateModel("", "同步trail", { startPos: startPos, targetId: target.id, targetType: targetType, time: time });
       shootTargetFn(startPos.clone(), target, time);
     }

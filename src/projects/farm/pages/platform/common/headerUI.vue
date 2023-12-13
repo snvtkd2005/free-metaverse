@@ -61,18 +61,31 @@
       :class="selfCamp?' text-white ':' text-yellow-300 '" >{{ targetName }}</div> 
     </div>
 
-
+    <!-- 技能施法条 -->
+    <div class=" absolute left-4 -bottom-6 h-auto w-health    "  > 
+      <div class=" relative ">
+        <div class=" h-3  relative ">
+          <skillProgressUI color="yellow"  ref="skillProgressUI" />
+        </div> 
+      </div>
+    </div>
 
   </div>
 </template>
 
 <script>
+
+import skillProgressUI from "./skillProgressUI.vue";
+
+
 export default {
   name: "headerUI",
   components: {
+    skillProgressUI,
   },
   data() {
     return {
+      // display: true,
       display: false,
       //npc头像
       hover: false,
@@ -97,7 +110,8 @@ export default {
         rare:"./public/images/cursorList/headerBG_rare.png", //  稀有
         elite:"./public/images/cursorList/headerBG_elite.png", //   精英
       } , 
-      selfCamp:false,
+      selfCamp:false, 
+      skillPerc:0,
     };
   },
   created() {
@@ -123,6 +137,14 @@ export default {
       let avatarId = npcData.avatarData.id;
       this.icon = this.$uploadUrl + avatarId + "/" + avatarId + "_thumb.png";
       this.display = true;
+    },
+    SetSkill(npcSkill){
+      console.log(" 设置技能进度条 npcSkill ",npcSkill);
+      if(npcSkill=="中断"){
+        this.$refs.skillProgressUI.SetProgress(npcSkill);
+        return;
+      }
+      this.$refs.skillProgressUI.SetProgress(npcSkill.castTime,npcSkill.skillName);
     },
     SetHealth(e, t) {
       this.health = e;

@@ -50,17 +50,39 @@
           <!-- <div class="  ">{{ item.user.userData.baseData.health }}</div> -->
           <div class=" flex ">
             <div v-if="item.user.userData.baseData.armor > 0" class="  ">护甲+{{ item.user.userData.baseData.armor }}</div>
-            <div v-if="item.user.userData.baseData.energy > 0" class="  ">能量+{{ item.user.userData.baseData.energy }}</div>
+            <div v-if="item.user.userData.baseData.energy > 0" class="  ">能量+{{ item.user.userData.baseData.energy }}
+            </div>
           </div>
+
+          <div v-if="item.user.userData.baseData.debuffList && item.user.userData.baseData.debuffList.length"
+            class=" flex ">
+            <div v-for="(debuff, i) in item.user.userData.baseData.debuffList " :key="i" class=" flex mr-1 ">
+              <div class=" w-5 h-5 bg-gray-500" @mouseenter="HoverDebuff(item); debuffHover = true; debuffDescribe = debuff.describe;"
+                @mouseleave="debuffHover = false">
+                <img class=" w-full h-full" :src=debuff.icon alt="">
+              </div>
+            </div>
+          </div>
+
         </div>
 
+        <!-- 生命条文字 -->
         <!-- <div class=" mb-1 w-full h-4 border relative ">
           <div class=" h-full bg-green-500  " :style="'width: ' + (50 / 100) * 100 + '%'"></div>
         </div> -->
 
       </div>
     </div>
+
   </div>
+
+  <!-- 鼠标悬浮debuff上 -->
+  <div v-if="debuffHover" class="absolute left-0 top-0 w-32 h-auto text-sm bg-gray-100" :style="otherUserPanelStyle">
+    <div class="cursor-pointer border pl-2 ">
+      {{ debuffDescribe }}
+    </div>
+  </div>
+
 
   <!-- 点击用户名：显示悄悄话 和 传送 -->
   <div v-if="otherUserItem != null" class="absolute left-0 top-0 w-32 h-auto text-sm bg-gray-100"
@@ -243,7 +265,8 @@ export default {
       // 是否开启音视频
       hasTRTC: false,
       // hasTRTC: true,
-
+      debuffHover: false,
+      debuffDescribe: "",
       // 会议邀请对话框
       meetingInvitation: false, meetingData: { fromUser: 'haha' },
       language: {
@@ -282,6 +305,7 @@ export default {
               baseData: {
                 health: 0,
                 maxHealth: 0,
+                debuffList: [],
               }
             }
           }
@@ -323,6 +347,7 @@ export default {
           baseData: {
             health: 0,
             maxHealth: 0,
+            debuffList: [],
           }
         }
       }
@@ -469,14 +494,18 @@ export default {
       if (userData != null) {
         this._YJDyncManager.SetUserData(userData);
 
-        if (this.selfNum != undefined && this.selfNum<this.otherUser.length) {
-          
+        if (this.selfNum != undefined && this.selfNum < this.otherUser.length) {
+
           this.otherUser[this.selfNum].user.userData.baseData.health = userData.baseData.health;
           this.otherUser[this.selfNum].user.userData.baseData.maxHealth = userData.baseData.maxHealth;
 
           this.otherUser[this.selfNum].user.userData.baseData.armor = userData.baseData.armor;
           this.otherUser[this.selfNum].user.userData.baseData.energy = userData.baseData.energy;
-          
+          this.otherUser[this.selfNum].user.userData.baseData.debuffList = userData.baseData.debuffList;
+           
+          if(this.debuffHover && userData.baseData.debuffList && userData.baseData.debuffList.length == 0){
+            this.debuffHover = false;
+          }
           // console.log(" self user.userData ", userData.baseData );
         }
       }
@@ -892,7 +921,19 @@ export default {
         return;
       }
     },
-
+    HoverDebuff(item) {
+      let panelX = document.getElementById("userListPanel").offsetLeft;
+      let panelY = document.getElementById("userListPanel").offsetTop;
+      let left_x = document.getElementById(item.id).offsetLeft;
+      let left_y = document.getElementById(item.id).offsetTop;
+      // console.log("点击的用户名ui坐标为 " , left_x,left_y);
+      this.otherUserPanelStyle =
+        "left:" +
+        (panelX + left_x - 80) +
+        "px;top:" +
+        (panelY + left_y) +
+        "px;";
+    },
     //点击其他用户名，显示与其的聊天窗口
     ClickOtherUser(type, item) {
       if (type == "select") {

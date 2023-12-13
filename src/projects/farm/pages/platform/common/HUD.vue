@@ -10,7 +10,7 @@
       <headerUI ref="headerUI" />
     </div>
     <div class="  absolute w-full left-0 bottom-2">
-      <skillProgressUI ref="skillProgressUI" />
+      <skillProgressUI color="blue" ref="skillProgressUI" />
     </div>
 
     <damageUI ref="damageUI" />

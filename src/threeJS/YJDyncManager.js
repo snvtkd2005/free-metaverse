@@ -631,7 +631,7 @@ class YJDyncManager {
     function _SendSceneState(_this, msg) {
       msg = eval("(" + msg + ")");
       var data = JSON.parse(msg);
-      // console.log("同步场景状态", _this.id, data);
+      // console.log("接收同步信息", _this.id, data);
       var message = data.message;
 
       if (message.roomName != _this.roomName) {
@@ -942,7 +942,7 @@ class YJDyncManager {
 
         if (userList.length == 1) {
           _Global.mainUser = true;
-          _Global.DyncManager.SendSceneStateToServer();
+          _Global.DyncManager.SendDataToServer("主控发送初始化");
           YJDync.SetMainUser(_Global.mainUser);
         }
 

@@ -438,17 +438,17 @@ class YJNPC {
         target: { type: "target", value: 3 },// random随机 target目标 all所有
         //效果 直接伤害、每秒伤害、冻结、眩晕等状态
         effect: {
-          type: "perDamage",
+          type: "contDamage",
           value: 10,
-          time: 1,
-          duration: 3,
+          time: 0.3,
+          duration: 10,
           describe: "每秒造成10点伤害，持续3秒",
           icon: "",
         }, //describe技能描述，duration持续时间。perDamage、冻结、眩晕等状态效果才需要持续时间
         //有效范围
         vaildDis: 100, //  
         //施放时间
-        castTime: 3, // 施法时间。 秒, 0表示瞬发
+        castTime: 10, // 施法时间。 秒, 0表示瞬发
         animNameReady: "two hand gun before attack", // 施法准备/读条动作
         animName: "two hand gun attack", // 施法施放动作
         //效果增强
@@ -635,6 +635,15 @@ class YJNPC {
 
 
           break;
+
+        case "持续伤害法术":
+          animName = _animName;
+          toIdelLater = setTimeout(() => {
+            scope.SetPlayerState("准备战斗");
+            toIdelLater = null;
+            inSkill = false;
+          }, attackStepSpeed * 1000);//间隔等于攻击动作时长
+          break;
         case "准备战斗":
 
           var { s, v, a } = GetSkillDataByWeapon(weaponData);
@@ -755,7 +764,6 @@ class YJNPC {
             }, attackStepSpeed * 100);
 
             toIdelLater = setTimeout(() => {
-              console.log(" 准备战斗 ");
               scope.SetPlayerState("准备战斗");
               toIdelLater = null;
             }, attackStepSpeed * 400);//间隔等于攻击动作时长
@@ -803,7 +811,7 @@ class YJNPC {
                       { npcId: scope.transform.id, skill: skillItem });
                   }
 
-                  if (skillItem.target.type == "target" && skillItem.target.value == 1) {
+                  if (true || skillItem.target.type == "target" && skillItem.target.value == 1) {
                     SetNavPathToNone();
                     if (skillItem.castTime > 0) {
                       vaildAttackDis = skillItem.vaildDis;
@@ -836,7 +844,7 @@ class YJNPC {
               }
               for (let j = 0; j < healthTrigger.length; j++) {
                 const element = healthTrigger[j];
-                if(element == skillItem.trigger.value){
+                if (element == skillItem.trigger.value) {
                   return;
                 }
               }
@@ -852,15 +860,37 @@ class YJNPC {
                 _Global.DyncManager.SendDataToServer("npc技能",
                   { npcId: scope.transform.id, skill: skillItem });
               }
-
-              if (skillItem.target.type == "target" && skillItem.target.value == 1) {
-                SetNavPathToNone();
+              //取消寻路，让npc站住施法
+              SetNavPathToNone();
+              let effect = skillItem.effect;
+              // 持续伤害
+              if (effect.type == "contDamage") {
+                let num = 0;
+                let count = parseInt(effect.duration / effect.time);
+                // console.log(" ===== 设置持续伤害 ", count);
+                attackStepSpeed = effect.duration;
+                for (let k = 0; k < count; k++) {
+                  setTimeout(() => {
+                    if (targetModel.isDead) {
+                      return;
+                    }
+                    SendDamageToTarget(targetModel, effect);
+                    num++;
+                    if (num == count) {
+                      
+                    }
+                  }, effect.time * k * 1000);
+                }
+                scope.SetPlayerState("持续伤害法术", "", "", skillItem.animName, effect);
+                return;
+              }
+              if (true || skillItem.target.type == "target" && skillItem.target.value == 1) {
                 if (skillItem.castTime > 0) {
                   vaildAttackDis = skillItem.vaildDis;
                   attackStepSpeed = skillItem.castTime;
-                  scope.SetPlayerState("法术准备", skillItem.castTime, skillItem.animNameReady, skillItem.animName, skillItem.effect);
+                  scope.SetPlayerState("法术准备", skillItem.castTime, skillItem.animNameReady, skillItem.animName, effect);
                 } else {
-                  scope.SetPlayerState("法术攻击", "", "", skillItem.animName, skillItem.effect);
+                  scope.SetPlayerState("法术攻击", "", "", skillItem.animName, effect);
                 }
               }
             }
@@ -1393,7 +1423,7 @@ class YJNPC {
         }
       }
       if (e == "清除准备战斗") {
-        console.log(" 清除准备战斗 ");
+        // console.log(" 清除准备战斗 ");
         // if (toIdelLater != null) {
         //   clearTimeout(toIdelLater);
         //   toIdelLater = null;

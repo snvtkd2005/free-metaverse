@@ -178,8 +178,8 @@ class YJPlayerFireCtrl {
 			}
 			let { type, value, time, duration,describe,icon } = effect;
 
-			// 直接伤害
-			if (type == "damage") {
+			// 直接伤害 或 持续伤害
+			if (type == "damage" || type == "contDamage") {
 				baseData.health -= RealyDamage(value);
 			}
 			// 每n秒伤害，持续m秒

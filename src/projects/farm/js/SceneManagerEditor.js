@@ -577,7 +577,7 @@ class SceneManager {
     // 主控玩家接受道具效果
     this.ReceivePlayer = function(model){
       // 
-      console.log("接收道具 ",model);
+      // console.log("接收道具 ",model);
 
       if(_this.YJController.isInDead()){
         // 角色死亡后不接收道具效果
@@ -598,9 +598,9 @@ class SceneManager {
         //加护甲值
         // data.buffValue
         let oldV = _this.YJController.GetUserDataItem("baseData", "armor");
-        console.log(" 旧护甲值为 ", oldV," 加 "+ model.buffValue);
+        // console.log(" 旧护甲值为 ", oldV," 加 "+ model.buffValue);
         let v = oldV + model.buffValue;
-        console.log(" 新护甲值为 ", v);
+        // console.log(" 新护甲值为 ", v);
         
         _this.YJController.SetUserDataItem("baseData", "armor", v);
       }
@@ -609,9 +609,9 @@ class SceneManager {
         //加能量值
         // data.buffValue
         let oldV = _this.YJController.GetUserDataItem("baseData", "energy");
-        console.log(" 旧能量值为 ", oldV," 加 "+ model.buffValue);
+        // console.log(" 旧能量值为 ", oldV," 加 "+ model.buffValue);
         let v = oldV + model.buffValue;
-        console.log(" 新能量值为 ", v);
+        // console.log(" 新能量值为 ", v);
         
         _this.YJController.SetUserDataItem("baseData", "energy", v);
       }

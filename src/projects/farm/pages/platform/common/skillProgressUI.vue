@@ -36,6 +36,7 @@ export default {
       deltaTime:0,
       last:null,
       skillName:"",
+      reverse:false, //进度条是否反向
     };
   },
   created() {
@@ -45,14 +46,19 @@ export default {
     // this.SetProgress(0,30);
   },
   methods: {
-    SetProgress(e,skillName) {
+    SetProgress(e,skillName,reverse) {
       if(e=="中断" || e=="完成"){
         this.display = false;
         cancelAnimationFrame(this.updateId);
         return;
       } 
       this.last = performance.now();
-      this.current = 0;
+      this.reverse = reverse;
+      if(reverse){
+        this.current = e; 
+      }else{
+        this.current = 0;
+      }
       this.length = e;
       this.skillName = skillName;
       this.animate();
@@ -65,10 +71,18 @@ export default {
       this.updateId = requestAnimationFrame(this.animate);
       const now = performance.now();
       let delta = (now - this.last) / 1000;
-      this.current += delta * 1;
-      if(this.current>=this.length){
-        this.display = false;
-        cancelAnimationFrame(this.updateId); 
+      if(this.reverse){
+        this.current -= delta * 1;
+        if(this.current<=0){
+          this.display = false;
+          cancelAnimationFrame(this.updateId); 
+        }
+      }else{
+        this.current += delta * 1;
+        if(this.current>=this.length){
+          this.display = false;
+          cancelAnimationFrame(this.updateId); 
+        }
       }
       this.last = now;
     },

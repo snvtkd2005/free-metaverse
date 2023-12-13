@@ -139,12 +139,12 @@ export default {
       this.display = true;
     },
     SetSkill(npcSkill){
-      console.log(" 设置技能进度条 npcSkill ",npcSkill);
+      // console.log(" 设置技能进度条 npcSkill ",npcSkill);
       if(npcSkill=="中断"){
         this.$refs.skillProgressUI.SetProgress(npcSkill);
         return;
       }
-      this.$refs.skillProgressUI.SetProgress(npcSkill.castTime,npcSkill.skillName);
+      this.$refs.skillProgressUI.SetProgress(npcSkill.castTime,npcSkill.skillName,npcSkill.effect.type=="contDamage");
     },
     SetHealth(e, t) {
       this.health = e;

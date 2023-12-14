@@ -68,16 +68,16 @@ class YJSceneDyncManagerEditor {
       // 增加额外的同步信息
       dyncModelList.push({ id: model.type, modelType: "交互模型", state: { value: 0, count: 0 } });
     }
-    this.SendDataToServer = (type,data) => {
-      console.log(" 发送 ",type,data);
-      if(type == "npc技能"){
-        let {npcId,skill} = data;
-        _SceneManager.SetTargetSkill(npcId,skill);
-        _Global.YJDync._YJDyncManager.SendSceneState("转发",{type:type,state: data} );
+    this.SendDataToServer = (type, data) => {
+      console.log(" 发送 ", type, data);
+      if (type == "npc技能") {
+        let { npcId, skill } = data;
+        _SceneManager.SetTargetSkill(npcId, skill);
+        _Global.YJDync._YJDyncManager.SendSceneState("转发", { type: type, state: data });
         return;
       }
 
-      if(type == "主控发送初始化"){
+      if (type == "主控发送初始化") {
         // 第一个进入房间的玩家调用
         dyncModelList.push({ id: "offsetTime", modelType: "offsetTime", state: { offsetTime: 0, startTime: 1675586194683 } });
         _Global.YJDync._YJDyncManager.SendSceneState("初始化", dyncModelList);
@@ -110,6 +110,10 @@ class YJSceneDyncManagerEditor {
 
         }
       }
+    }
+    // 添加增生的npc
+    this.AddNpc = function(npcTransform){
+      npcModelList.push({ id: npcTransform.id, transform: npcTransform });
     }
     // 设置npc1附近的npc共同攻击npc1的目标
     this.SetNearNPCTarget = function (npcComponent1, targetModel) {
@@ -186,6 +190,69 @@ class YJSceneDyncManagerEditor {
 
     }
 
+    function CheckPlayerInNpcForward(npcTransform, vaildDistance, playerId) {
+      let players = _Global.YJDync.GetAllPlayer();
+      for (let i = 0; i < players.length; i++) {
+        const element = players[i];
+        if (element.id == playerId) {
+          // 未判断npc是否在玩家前方
+          let distance = npcTransform.GetWorldPos().distanceTo(element.GetWorldPos());
+          if (distance <= vaildDistance) {
+            return element;
+          }
+        }
+      }
+      return null;
+    }
+    function CheckPlayersInNpcForward(npcTransform, vaildDistance) {
+      let npcs = [];
+      let players = _Global.YJDync.GetAllPlayer();
+      for (let i = 0; i < players.length; i++) {
+        const element = players[i];
+        let distance = npcTransform.GetWorldPos().distanceTo(element.GetWorldPos());
+        if (distance <= vaildDistance) {
+          npcs.push(element);
+        }
+      }
+      return npcs;
+    }
+
+    // npc范围攻击。 获取npc范围内的玩家
+    this.GetPlayerByNpcForwardInFireId = function (npcTransform, fireId, vaildDistance, max, ingorePlayerId) {
+      let num = 0;
+      if (ingorePlayerId != undefined) {
+        // 群攻设置最多数量的目标时，且存在忽略npcId时，数量-1
+        num = 1;
+        if (max <= num) {
+          return [];
+        }
+      }
+      return CheckPlayersInNpcForward(npcTransform, vaildDistance);
+      return [];
+
+      for (let i = 0; i < fireGroup.length; i++) {
+        const element = fireGroup[i];
+        if (element.fireId == fireId || true) {
+          let npcs = [];
+          for (let j = element.playerList.length - 1; j >= 0; j--) {
+            const playerId = element.playerList[j];
+            if (ingorePlayerId != playerId) {
+              let vaildNpc = CheckPlayerInNpcForward(npcTransform, vaildDistance, playerId);
+              if (vaildNpc != null) {
+                num++;
+                npcs.push(vaildNpc);
+                if (num >= max) {
+                  return npcs;
+                }
+              }
+            }
+          }
+          return npcs;
+        }
+      }
+      return [];
+    }
+
 
     // 在一场战斗中，获取玩家前方技能有效范围内的npc
     function CheckNpcInPlayerForward(vaildDistance, npcId) {
@@ -202,8 +269,9 @@ class YJSceneDyncManagerEditor {
       }
       return null;
     }
-    // 在一场战斗中，玩家施放技能，获取玩家前方技能有效范围内的最多max数量的npc
-    this.GetPlayerForwardNPCInFireId = function (fireId, vaildDistance, max, ingoreNpcId) {
+
+    // 玩家范围攻击npc。 在一场战斗中，玩家施放技能，获取玩家前方技能有效范围内的最多max数量的npc
+    this.GetNpcByPlayerForwardInFireId = function (fireId, vaildDistance, max, ingoreNpcId) {
       let num = 0;
       if (ingoreNpcId != undefined) {
         // 群攻设置最多数量的目标时，且存在忽略npcId时，数量-1
@@ -456,12 +524,13 @@ class YJSceneDyncManagerEditor {
 
     // 接收 转发 数据
     this.Receive = function (data) {
-      let {type,state}  = data;
-      console.log(" 接收 ",type,state);
+      let { type, state } = data;
+      console.log(" 接收 ", type, state);
 
       if (type == "npc技能") {
-        let {npcId,skill} = state;
-        _SceneManager.SetTargetSkill(npcId,skill);
+        let { npcId, skill } = state;
+        _SceneManager.SetTargetSkill(npcId, skill);
+        _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().EditorUserModel({id:npcId,modelType:"NPC模型",state:{title:type,skill:skill} });
         return;
       }
 
@@ -610,7 +679,7 @@ class YJSceneDyncManagerEditor {
     }
     // 接收服务器转发过来的由主控发送的模型同步信息
     this.ReceiveModel = function (id, title, data) {
-      console.log("接收 同步信息 ", id, title, data);
+      // console.log("接收 同步信息 ", id, title, data);
 
       if (title == "同步trail") {
         let { startPos, targetId, targetType, time } = data;
@@ -623,7 +692,7 @@ class YJSceneDyncManagerEditor {
           target = this.GetNpcById(targetId);
         }
         if (target != null) {
-          let _startPos = new THREE.Vector3(startPos.x,startPos.y,startPos.z);
+          let _startPos = new THREE.Vector3(startPos.x, startPos.y, startPos.z);
           shootTargetFn(_startPos, target, time);
         }
         return;

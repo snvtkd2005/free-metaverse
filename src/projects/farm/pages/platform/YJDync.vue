@@ -7,7 +7,7 @@
 
     <!-- 透明度背景 -->
     <div class="absolute left-0 top-0 z-0 w-full h-full ">
-      <img :src="publicUrl + 'images/gameUI/zaixianrensu.png'" alt="">
+      <!-- <img :src="publicUrl + 'images/gameUI/zaixianrensu.png'" alt=""> -->
     </div>
 
     <div class=" absolute left-16 w-20 top-3 z-10 text-black  ">
@@ -31,7 +31,7 @@
             item.audio ? ' opacity-1 ' : ' opacity-0 '
             " @click.stop="ToggleAudio(item)">
             <div class=" w-6 h-6 p-px ">
-              <img class=" w-full h-full " :src="publicUrl + 'images/' + (item.mute ? 'mute' : '') + 'mico.png'" alt="">
+              <!-- <img class=" w-full h-full " :src="publicUrl + 'images/' + (item.mute ? 'mute' : '') + 'mico.png'" alt=""> -->
             </div>
           </div>
 
@@ -706,13 +706,21 @@ export default {
       }
     },
     GetPlayerById(id) {
-      console.log("获取同一战斗组中的玩家 ", this.allPlayer, this.ThreejsHumanChat.YJPlayer.id, id);
+      // console.log("获取同一战斗组中的玩家 ", this.allPlayer, this.ThreejsHumanChat.YJPlayer.id, id);
       if (this.ThreejsHumanChat.YJPlayer.id == id) { return this.ThreejsHumanChat.YJPlayer; }
       for (let i = 0; i < this.allPlayer.length; i++) {
         if (this.allPlayer[i].id == id) {
           return this.allPlayer[i].player;
         }
       }
+    },
+    GetAllPlayer() {
+      let players = [];
+      players.push(this.ThreejsHumanChat.YJPlayer);
+      for (let i = 0; i < this.allPlayer.length; i++) {
+        players.push(this.allPlayer[i].player); 
+      }
+      return players;
     },
     //同步其他角色的操作。扔物品
     DyncPlayerState(id, state) {

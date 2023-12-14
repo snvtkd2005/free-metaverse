@@ -799,6 +799,7 @@ class SceneManager {
             // 头像
             this.SetTargetModel(hitObject.transform);
             if (message.data.baseData.camp != _Global.user.camp) {
+              // console.log(" 选中npc 000 ",message.data.baseData);
               //敌人  
               //进入战斗状态
               if (message.data.baseData.health > 0) {

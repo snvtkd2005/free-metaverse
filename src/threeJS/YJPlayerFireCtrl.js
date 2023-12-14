@@ -132,7 +132,7 @@ class YJPlayerFireCtrl {
 			UpdateData();
 
 			if (baseData.health == 0) {
-				_YJPlayer.isDead = true; 
+				_YJPlayer.isDead = true;
 				scope.SetPlayerState("death");
 				// 清除技能触发
 				ClearFireLater();
@@ -156,15 +156,15 @@ class YJPlayerFireCtrl {
 			}
 			fireLater = [];
 		}
-		function removeDebuffById(id){
-			for (let i = baseData.debuffList.length -1 ; i >= 0 ; i--) {
+		function removeDebuffById(id) {
+			for (let i = baseData.debuffList.length - 1; i >= 0; i--) {
 				const item = baseData.debuffList[i];
-				if(item.id == id){
-					baseData.debuffList.splice(i,1);
+				if (item.id == id) {
+					baseData.debuffList.splice(i, 1);
 				}
 			}
 		}
-									 
+
 		this.ReceiveDamage = function (_targetModel, skillName, effect) {
 			if (baseData.health == 0) {
 				return true;
@@ -172,11 +172,12 @@ class YJPlayerFireCtrl {
 
 			if (npcTransform == null) {
 				SelectNPC(_targetModel);
+				ReadyFire(); //被攻击且没有目标时，自动攻击
 				PlayerAddFire();
 				//自动显示其头像 
 				_Global.SceneManager.SetTargetModel(npcTransform);
 			}
-			let { type, value, time, duration,describe,icon } = effect;
+			let { type, value, time, duration, describe, icon } = effect;
 
 			// 直接伤害 或 持续伤害
 			if (type == "damage" || type == "contDamage") {
@@ -184,9 +185,9 @@ class YJPlayerFireCtrl {
 			}
 			// 每n秒伤害，持续m秒
 			if (type == "perDamage") {
-				
+
 				//每秒伤技能是debuff，显示在角色状态上
-				if(baseData.debuffList == undefined){
+				if (baseData.debuffList == undefined) {
 					baseData.debuffList = [];
 				}
 				let id = new Date().getTime();
@@ -198,7 +199,7 @@ class YJPlayerFireCtrl {
 							setTimeout(() => {
 								baseData.health -= RealyDamage(value);
 								num++;
-								if(num == count){
+								if (num == count) {
 									removeDebuffById(id);
 								}
 								CheckHealth();
@@ -206,7 +207,7 @@ class YJPlayerFireCtrl {
 					}
 					);
 				}
-				baseData.debuffList.push({id:id, icon:icon,describe:describe});
+				baseData.debuffList.push({ id: id, icon: icon, describe: describe });
 				return;
 			}
 			// console.log(" 主角受到 " + skillName + " 攻击 剩余 " + baseData.health);
@@ -266,8 +267,7 @@ class YJPlayerFireCtrl {
 
 		function shootTarget(taget, time) {
 			_Global.DyncManager.shootTarget(_this.YJController.GetPlayerWorldPos(), taget, time, "npc");
-		}
-		let inBlocking = false;
+		} 
 		let vaildAttackLater = null;
 		let vaildAttackLater2 = null;
 		let attackStepSpeed = 3; //攻击间隔/攻击速度
@@ -314,14 +314,7 @@ class YJPlayerFireCtrl {
 				}
 
 				// console.log("距离目标", dis);
-				if (canAttack && CheckCanAttack()) {
-					// if (!inBlocking) {
-					// 	// _player.lookAt(npcPos);
-					// 	// _player.add(new THREE.AxesHelper(2));
-					// 	//攻击 
-					// 	scope.SetPlayerState("普通攻击");
-					// 	inBlocking = true;
-					// }
+				if (canAttack && CheckCanAttack()) { 
 					// 如果准备好攻击，则立即攻击
 					if (readyAttack) {
 						readyAttack = false;
@@ -336,11 +329,11 @@ class YJPlayerFireCtrl {
 
 						let max = 1;
 						if (baseData.energy >= 30) {
-							max = 3;
+							max = 23;
 							baseData.energy -= 30;
 						}
 						// 范围攻击。 max为1时，表示不使用范围攻击
-						let npcs = _Global.DyncManager.GetPlayerForwardNPCInFireId(_YJPlayer.fireId, vaildAttackDis, max, npcTransform.id);
+						let npcs = _Global.DyncManager.GetNpcByPlayerForwardInFireId(_YJPlayer.fireId, vaildAttackDis, max, npcTransform.id);
 						for (let i = 0; i < npcs.length; i++) {
 							shootTarget(npcs[i].transform, attackStepSpeed * 300);
 						}
@@ -474,8 +467,7 @@ class YJPlayerFireCtrl {
 					if (vaildAttackLater == null) {
 						// 技能施放时间到时，重新立即攻击
 						vaildAttackLater = setTimeout(() => {
-							readyAttack = true;
-							inBlocking = false;
+							readyAttack = true; 
 							vaildAttackLater = null;
 						}, attackStepSpeed * 1000);
 					}
@@ -528,6 +520,9 @@ class YJPlayerFireCtrl {
 					if (playerState == PLAYERSTATE.ATTACK) {
 						if (!canAttack) {
 							animName = GetAnimNameByPlayStateAndWeapon("准备战斗", weaponData);
+							if (npcTransform != null) { 
+								ReadyFire(); //有目标停止移动时，自动攻击
+							}
 						}
 					}
 					break;

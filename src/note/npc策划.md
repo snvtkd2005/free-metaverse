@@ -133,41 +133,84 @@ camp // 阵营：1001联盟npc、1002部落npc、10000怪物、9000中立、8000
 damage, //直接伤害
 perDamage, //每秒伤害 给玩家加上 debuff
 contDamage, //持续伤害 范围攻击
+hyperplasia, // 增生
 } 
+目标:{
+    none 不需要目标
+    random 随机 
+    target 目标 
+    area 范围攻击
+}
+
+
     let skillList = [
       {
-        skillName: "精准打击",
+        skillName: "吐息",
+        // 该结构表示：每10秒对当前目标造成10点伤害
+        //触发时机 每间隔n秒触发、血量达到n%触发
+        trigger: { type: "health", value: 90 },
+        //目标
+        target: { type: "area", value: 30 },// random随机 target目标 area范围攻击
+        //效果 damage直接伤害、perDamage每秒伤害、contDamage持续伤害、冻结、眩晕等状态
+        effect: {
+          type: "contDamage",
+          value: 20,
+          time: 0.2,
+          duration: 10,
+          describe: "每秒造成10点伤害，持续3秒",
+          icon: "",
+        }, //describe技能描述，duration持续时间。perDamage、冻结、眩晕等状态效果才需要持续时间
+        //技能施放的有效范围 或 范围攻击的游戏范围
+        vaildDis: 100, //  
+        //施放时间
+        castTime: 4, // 施法时间。 秒, 0表示瞬发
+        animNameReady: "two hand gun before attack", // 施法准备/读条动作
+        animName: "two hand gun attack", // 施法施放动作
+        //效果增强
+        effectEnhance: "none",
+        icon: "", //技能图标
+      },
+      {
+        skillName: "致命一击",
+        // 该结构表示：每10秒对当前目标造成10点伤害
+        //触发时机 每间隔n秒触发、血量达到n%触发
+        trigger: { type: "health", value: 60 },
+        //目标
+        target: { type: "target", value: 1 },// random随机 target目标 area范围攻击
+        //效果 直接伤害、每秒伤害、冻结、眩晕等状态
+        effect: {
+          type: "damage",
+          value: 100,
+          time: 1,
+          duration: 3,
+          describe: "对目标造成100点伤害",
+          icon: "",
+        }, //describe技能描述，duration持续时间。perDamage、冻结、眩晕等状态效果才需要持续时间
+        //有效范围
+        vaildDis: 100, //  
+        //施放时间
+        castTime: 1, // 施法时间。 秒, 0表示瞬发
+        animNameReady: "two hand gun before attack", // 施法准备/读条动作
+        animName: "two hand gun attack", // 施法施放动作
+        //效果增强
+        effectEnhance: "none",
+        icon: "", //技能图标
+      },
+      {
+        skillName: "感染",
         // 该结构表示：每10秒对当前目标造成10点伤害
         //触发时机 每间隔n秒触发、血量达到n%触发
         trigger: { type: "perSecond", value: 10 },
         //目标
-        target: { type: "target", value: 1 },// random随机 target目标 all所有
+        target: { type: "target", value: 1 },// random随机 target目标 area范围攻击
         //效果 直接伤害、每秒伤害、冻结、眩晕等状态
-        effect: { type: "damage", value: 30, duration: 0, }, //duration持续时间。perDamage、冻结、眩晕等状态效果才需要持续时间
-        //有效范围
-        vaildDis: 100, //  
-        //施放时间
-        castTime: 2, // 施法时间。 秒, 0表示瞬发
-        animNameReady: "two hand gun before attack", // 施法准备/读条动作
-        animName: "two hand gun attack", // 施法施放动作
-        //效果增强
-        effectEnhance: "none", 
-      },
-      {
-        skillName: "精准打击",
-        // 该结构表示：每10秒对当前目标造成10点伤害
-        //触发时机 每间隔n秒触发、血量达到n%触发
-        trigger: { type: "perSecond", value: 4 },
-        //目标
-        target: { type: "target", value: 1 },// random随机 target目标 all所有
-        //效果 直接伤害、每秒伤害、冻结、眩晕等状态
-        effect: { 
-          type: "perDamage", 
-          value: 10, 
-          time: 1, 
+        effect: {
+          type: "perDamage",
+          value: 10,
+          time: 1,
           duration: 3,
-          describe:"每秒造成20点伤害，持续10秒",
-          icon: "", 
+          describe: "每秒造成10点伤害，持续3秒",
+          icon: "",
         }, //describe技能描述，duration持续时间。perDamage、冻结、眩晕等状态效果才需要持续时间
         //有效范围
         vaildDis: 100, //  

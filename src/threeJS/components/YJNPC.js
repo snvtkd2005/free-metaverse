@@ -1392,7 +1392,7 @@ class YJNPC {
     function resetLife() {
       targetModel = null;
       scope.transform.SetActive(true);
-      CreateNameTrans(this.npcName);
+      CreateNameTrans(scope.npcName);
       // 还原材质
       materials.forEach(item => {
         item.mesh.material = item.mat;

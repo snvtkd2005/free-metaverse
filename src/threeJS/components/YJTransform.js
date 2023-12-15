@@ -37,7 +37,7 @@ class YJTransform {
       data.id = id;
       this.id = id;
     }
-    
+
     this.GetData = function () {
       return data;
     }
@@ -111,12 +111,12 @@ class YJTransform {
 
       let message = data.message;
 
-      if(b){
+      if (b) {
         if (message.pointType == "interactive") {
           let com = this.GetComponent("Interactive");
           com.Reset();
         }
-      }else{
+      } else {
         if (message.pointType == "interactive") {
           let com = this.GetComponent("Interactive");
           com.DestroyTrigger();
@@ -225,9 +225,39 @@ class YJTransform {
       data.pos = pos;
       data.rotaV3 = rota;
     }
-    this.SetPos = function (pos) {
+    this.SetPos = function (pos, rotaV3) {
+      // console.log(" 接收npc坐标", pos, rotaV3);
       group.position.set(pos.x, pos.y, pos.z); //  
+      group.rotation.set(rotaV3.x, rotaV3.y, rotaV3.z); //  
       data.pos = { x: pos.x, y: pos.y, z: pos.z };
+      data.rotaV3 = { x: rotaV3.x, y: rotaV3.y, z: rotaV3.z };
+    }
+
+    let oldTransData = {
+      pos: { x: 0, y: 0, z: 0 },
+      rotaV3: { x: 0, y: 0, z: 0 },
+    }
+    // 有新玩家加入时，清空旧数据，让transform同步
+    this.ClearOldTransData = function () {
+      oldTransData = {
+        pos: { x: 0, y: 0, z: 0 },
+        rotaV3: { x: 0, y: 0, z: 0 },
+      }
+    }
+    this.CheckSamePos = function () {
+      let rotaV3 = { x: 0, y: 0, z: 0 };
+      rotaV3.x = group.rotation.x;
+      rotaV3.y = group.rotation.y;
+      rotaV3.z = group.rotation.z;
+      let pos = group.position.clone();
+      if (oldTransData.pos.x == pos.x &&
+        oldTransData.pos.y == pos.y &&
+        oldTransData.pos.z == pos.z) {
+        return null;
+      }
+      oldTransData.pos = pos;
+      oldTransData.rotaV3 = rotaV3;
+      return oldTransData;
     }
     this.SetSize = function (size) {
       group.scale.set(size.x, size.y, size.z);
@@ -253,20 +283,20 @@ class YJTransform {
 
     // 拖拽开始
     this.DragStart = function () {
-      if(this.GetComponent("NPC")){
+      if (this.GetComponent("NPC")) {
         this.GetComponent("NPC").UpdateNavPos('停止巡逻');
       }
     }
     // 拖拽结束
     this.DragEnd = function () {
-      let pos = group.position;  
-      data.pos = { x:pos.x, y: pos.y, z: pos.z }; 
+      let pos = group.position;
+      data.pos = { x: pos.x, y: pos.y, z: pos.z };
       data.rotaV3.x = group.rotation.x;
       data.rotaV3.y = group.rotation.y;
       data.rotaV3.z = group.rotation.z;
       data.scale.x = group.scale.x;
       data.scale.y = group.scale.y;
-      data.scale.z = group.scale.z; 
+      data.scale.z = group.scale.z;
     }
     // 编辑完成，更新数据、生成碰撞体
     this.EditorEnd = function () {

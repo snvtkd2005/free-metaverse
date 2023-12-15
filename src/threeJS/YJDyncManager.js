@@ -169,28 +169,39 @@ class YJDyncManager {
 
       if (data.fnName == "_SetUserPos") {
         _SetUserPos(this, JSON.stringify(data.params));
+        return;
       }
       if (data.fnName == "_updateUserState") {
         _updateUserState(this, JSON.stringify(data.params));
+        return;
       }
 
       if (data.fnName == "_updateUserStateSingle") {
         _updateUserStateSingle(this, JSON.stringify(data.params));
+        return;
       }
 
 
       if (data.fnName == "_SendSceneState") {
         // console.error("接收场景状态 111 ");
         _SendSceneState(this, JSON.stringify(data.params));
+        return;
+      }
+      if (data.fnName == "_SendSceneStateAll") {
+        // console.error("接收场景状态 111 ");
+        _SendSceneStateAll(this, JSON.stringify(data.params));
+        return;
       }
 
       if (data.fnName == "_DyncSceneFromServer") {
         // console.log("接收场景状态 111 ");
         _DyncSceneFromServer(this, JSON.stringify(data.params));
+        return;
       }
       //同步角色父物体
       if (data.fnName == "_SendPlayerParent") {
         _SendPlayerParent(this, JSON.stringify(data.params));
+        return;
       }
 
       if (data.fnName == "_SendAddOrDelModel") {
@@ -198,33 +209,41 @@ class YJDyncManager {
         // console.log(" 添加或删除模型 ");
 
         _SendAddOrDelModel(this, JSON.stringify(data.params));
+        return;
       }
 
       if (data.fnName == "receiveMsg") {
         YJDync.receiveMsg(YJDync, JSON.stringify(data.params));
+        return;
       }
       if (data.fnName == "_changeRoom") {
         _changeRoom(this, JSON.stringify(data.params));
+        return;
       }
 
       // 同步用户添加模型
       if (data.fnName == "_SendUserModels") {
         _SendUserModels(this, JSON.stringify(data.params));
+        return;
       }
       if (data.fnName == "_SendUpdateUserModels") {
         _SendUpdateUserModels(this, (data));
+        return;
       }
       if (data.fnName == "_SendUpdateSceneModels") {
         _SendUpdateSceneModels(this, (data));
+        return;
       }
       if (data.fnName == "ReceiveFromServer") {
         ReceiveFromServer(this, (data));
+        return;
       }
-      
+
       if (data.fnName == "_UpdateModel") {
         _UpdateModel(this, JSON.stringify(data.params));
+        return;
       }
-      
+
       return;
 
 
@@ -570,7 +589,7 @@ class YJDyncManager {
       }
     }
 
-    this.UpdateModel = function(id,title,data){
+    this.UpdateModel = function (id, title, data) {
       let fromData = {};
       fromData.type = "更新模型坐标";
       fromData.message = this.InitMsg();
@@ -584,14 +603,81 @@ class YJDyncManager {
       var data = JSON.parse(msg);
 
       var message = data.message;
-      if (message.roomName != _this.roomName) { 
+      if (message.roomName != _this.roomName) {
         return;
       }
       if (message.id == _this.id) {
         return;
       }
-      _Global.DyncManager.ReceiveModel(data.id,data.title,data.data);
+      _Global.DyncManager.ReceiveModel(data.id, data.title, data.data);
 
+      // if(!_Global.mainUser){
+      //   _Global.DyncManager.Receive(sceneState);
+      // }
+
+      // YJDync.UpdateSceneState(message.sceneState);
+      // YJDync.$parent._SceneManager.Receive(sceneState);
+
+    }
+    this.SendSceneStateAll = function (title, msg) {
+      let fromData = {};
+      fromData.type = "同步场景状态";
+      fromData.title = title;
+      fromData.message = this.InitMsg();
+      if (title == "初始化") {
+        fromData.sceneModels = msg;
+      }
+      if (title == "更新single") {
+        fromData.model = msg;
+      }
+      if (title == "转发") {
+        fromData.sceneState = msg;
+      }
+      if (title == "玩家对玩家") {
+        fromData.sceneState = msg;
+      }
+      if (title == "NPC对玩家") {
+        fromData.sceneState = msg;
+      }
+      this.callRPCFn("_SendSceneStateAll", "all", JSON.stringify(fromData));
+    }
+
+    //接收场景状态 同步到所有，包含自身
+    function _SendSceneStateAll(_this, msg) {
+      msg = eval("(" + msg + ")");
+      var data = JSON.parse(msg);
+      // console.log("接收同步信息", _this.id, data);
+      var message = data.message;
+
+      if (message.roomName != _this.roomName) {
+        return;
+      } 
+      if (data.title == "初始化") {
+        return;
+      }
+      if (data.title == "更新single") {
+        let sceneState = {};
+        sceneState.type = "更新single";
+        sceneState.state = data.model;
+        _Global.DyncManager.Receive(sceneState);
+        return;
+      }
+      if (data.title == "转发") {
+        _Global.DyncManager.Receive(data.sceneState);
+        return;
+      }
+      if (data.title == "玩家对玩家") {
+        if (data.sceneState.targetId == _this.id) {
+          _Global.DyncManager.ReceivePlayerToPlayer(data.sceneState);
+        }
+        return;
+      }
+      if (data.title == "NPC对玩家") {
+        if (data.sceneState.targetId == _this.id) {
+          _Global.DyncManager.Receive({type:"NPC对玩家", state:data.sceneState });
+        }
+        return;
+      }
       // if(!_Global.mainUser){
       //   _Global.DyncManager.Receive(sceneState);
       // }
@@ -625,7 +711,6 @@ class YJDyncManager {
         fromData.sceneState = msg;
       }
       this.callRPCFn("_SendSceneState", "other", JSON.stringify(fromData));
-
     }
     //接收场景状态
     function _SendSceneState(_this, msg) {
@@ -655,13 +740,13 @@ class YJDyncManager {
         return;
       }
       if (data.title == "玩家对玩家") {
-        if(data.sceneState.targetId == _this.id){
-          _Global.DyncManager.ReceivePlayer(data.sceneState);
+        if (data.sceneState.targetId == _this.id) {
+          _Global.DyncManager.ReceivePlayerToPlayer(data.sceneState);
         }
         return;
       }
       if (data.title == "NPC对玩家") {
-        if(data.sceneState.targetId == _this.id){
+        if (data.sceneState.targetId == _this.id) {
           _Global.DyncManager.ReceiveNpcToPlayer(data.sceneState);
         }
         return;
@@ -681,9 +766,9 @@ class YJDyncManager {
       sceneState.title = data.title;
       sceneState.state = data.model;
       _Global.DyncManager.ReceiveFromServer(sceneState);
- 
+
     }
-    function _SendUpdateSceneModels(_this, msg) { 
+    function _SendUpdateSceneModels(_this, msg) {
       var data = (msg);
       // console.log("获取场景状态", _this.id, data);
       let sceneState = {};
@@ -867,10 +952,9 @@ class YJDyncManager {
         this.updateUserStateSingle(data.id);
 
         //每有新玩家加入，则主控角色发送整个场景的模型状态
-        //改为由服务器发送
-        // if(_Global.mainUser){
-        //   _Global.DyncManager.SendSceneState();
-        // }
+        if(_Global.mainUser){
+          _Global.DyncManager.UpdateTransfrom();
+        }
         return;
 
         // this.addSystemMsg(data.message + " 已上线");
@@ -951,7 +1035,7 @@ class YJDyncManager {
           let data = userList[j];
           YJDync.GeneratePlayer(
             data.id == this.id,
-            data.id, data.platform, data.userName,data.userData
+            data.id, data.platform, data.userName, data.userData
           );
           this.AddPlayerUser(data.id, data.userName, data.roomName, data);
 

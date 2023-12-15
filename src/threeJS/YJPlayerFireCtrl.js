@@ -1,11 +1,6 @@
 
 
 import * as THREE from 'three';
-import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
-import { Flow } from 'three/examples/jsm/modifiers/CurveModifier.js';
-import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
-import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
-
 
 // 战斗相关控制：
 // 角色属性、战斗行为
@@ -54,11 +49,6 @@ class YJPlayerFireCtrl {
 					let { _targetModel, skillName, effect } = state.msg;
 					return scope.ReceiveDamage(_targetModel, skillName, effect);
 					break;
-				case "受到伤害Dync":
-					let msg = state.msg;
-					return scope.ReceiveDamageDync(msg.npcName, msg.skillName, msg.strength);
-					break;
-
 				case "设置武器":
 					weaponData = state.msg;
 					// var {v} = GetSkillDataByWeapon(weaponData);
@@ -100,30 +90,6 @@ class YJPlayerFireCtrl {
 				v = v > 0 ? v : 1;
 			}
 			return v;
-		}
-		this.ReceiveDamageDync = function (npcName, skillName, strength) {
-			if (baseData.health == 0) {
-				return true;
-			}
-			baseData.health -= RealyDamage(strength);
-			console.log(" 主角受到 " + npcName + " " + skillName + " 攻击 剩余 " + baseData.health);
-
-			if (baseData.health <= 0) {
-				baseData.health = 0;
-			}
-			UpdateData();
-			if (baseData.health == 0) {
-				baseData.health = 0;
-				scope.SetPlayerState("death");
-
-				if (vaildAttackLater != null) {
-					clearTimeout(vaildAttackLater);
-					vaildAttackLater = null;
-				}
-				return true;
-			}
-			return false;
-
 		}
 		function CheckHealth() {
 			if (baseData.health <= 0) {
@@ -173,10 +139,11 @@ class YJPlayerFireCtrl {
 			if (npcTransform == null) {
 				SelectNPC(_targetModel);
 				ReadyFire(); //被攻击且没有目标时，自动攻击
-				PlayerAddFire();
 				//自动显示其头像 
 				_Global.SceneManager.SetTargetModel(npcTransform);
 			}
+			PlayerAddFire();
+
 			let { type, value, time, duration, describe, icon } = effect;
 
 			// 直接伤害 或 持续伤害
@@ -267,7 +234,7 @@ class YJPlayerFireCtrl {
 
 		function shootTarget(taget, time) {
 			_Global.DyncManager.shootTarget(_this.YJController.GetPlayerWorldPos(), taget, time, "npc");
-		} 
+		}
 		let vaildAttackLater = null;
 		let vaildAttackLater2 = null;
 		let attackStepSpeed = 3; //攻击间隔/攻击速度
@@ -286,10 +253,14 @@ class YJPlayerFireCtrl {
 			return npcComponent.GetCamp() != _Global.user.camp;
 		}
 		function CheckCanAttack() {
+			if (!npcTransform) {
+				return false;
+			}
 			//如果目标阵营不可攻击
 			let b0 = CheckCamp();
 			if (!b0) {
 				_Global.SceneManager.FireState("不能攻击这个目标");
+				canAttack = false;
 				return false;
 			}
 			let playerPos = _this.YJController.GetPlayerWorldPos();
@@ -298,10 +269,10 @@ class YJPlayerFireCtrl {
 			npcPos.y = 1;
 			// 与目标之间有遮挡
 			let b2 = CheckColliderBetween(npcPos, playerPos);
-			if (b2) { _Global.SceneManager.FireState("无法攻击目标"); return false; }
+			if (b2) { _Global.SceneManager.FireState("无法攻击目标"); canAttack = false; return false; }
 			// 不在攻击范围内
 			let b = inVaildArea(playerPos.distanceTo(npcPos));
-			if (!b) { _Global.SceneManager.FireState("太远了"); return false; }
+			if (!b) { _Global.SceneManager.FireState("太远了"); canAttack = false; return false; }
 			return b && !b2;
 		}
 		function CheckState() {
@@ -314,7 +285,7 @@ class YJPlayerFireCtrl {
 				}
 
 				// console.log("距离目标", dis);
-				if (canAttack && CheckCanAttack()) { 
+				if (canAttack && CheckCanAttack()) {
 					// 如果准备好攻击，则立即攻击
 					if (readyAttack) {
 						readyAttack = false;
@@ -329,11 +300,13 @@ class YJPlayerFireCtrl {
 
 						let max = 1;
 						if (baseData.energy >= 30) {
-							max = 23;
+							max = 8;
 							baseData.energy -= 30;
 						}
 						// 范围攻击。 max为1时，表示不使用范围攻击
 						let npcs = _Global.DyncManager.GetNpcByPlayerForwardInFireId(_YJPlayer.fireId, vaildAttackDis, max, npcTransform.id);
+						console.log(" 查找玩家攻击范围内的npc 222 ",npcs);
+						
 						for (let i = 0; i < npcs.length; i++) {
 							shootTarget(npcs[i].transform, attackStepSpeed * 300);
 						}
@@ -342,27 +315,29 @@ class YJPlayerFireCtrl {
 						vaildAttackLater2 = setTimeout(() => {
 							// console.log(" 有效攻击目标 ");
 							//有效攻击
-							let health = npcComponent.ReceiveDamage(_YJPlayer, skillName, baseData.strength);
-
+							// let health = npcComponent.ReceiveDamage(_YJPlayer, skillName, baseData.strength);
+							_Global.DyncManager.SendSceneStateAll("玩家对NPC",
+								{
+									playerId: _YJPlayer.id,
+									npcId: npcComponent.transform.id,
+									skillName: skillName,
+									strength: baseData.strength
+								});
 							// 范围攻击
 							for (let i = 0; i < npcs.length; i++) {
-								npcs[i].ReceiveDamage(_YJPlayer, skillName, baseData.strength);
+								// npcs[i].ReceiveDamage(_YJPlayer, skillName, baseData.strength);
+								_Global.DyncManager.SendSceneStateAll("玩家对NPC",
+									{
+										playerId: _YJPlayer.id,
+										npcId: npcs[i].transform.id,
+										skillName: skillName,
+										strength: baseData.strength
+									});
 							}
 
 							PlayerAddFire();
 
-							if (health == 0) {
-								npcTransform = null;
-								_Global.SceneManager.SetTargetModel(npcTransform);
 
-								playerState = PLAYERSTATE.NORMAL;
-								if (toIdelLater != null) {
-									clearTimeout(toIdelLater);
-									toIdelLater = null;
-								}
-								scope.SetPlayerState("战斗结束");
-								return;
-							}
 						}, attackStepSpeed * 300);
 
 						// 动作时长的前3/10段时，表示动作执行完成，切换成准备动作
@@ -434,6 +409,20 @@ class YJPlayerFireCtrl {
 			}
 		}
 
+		function CheckTargetDead(){
+
+			if (npcComponent.isDead) {
+				npcTransform = null;
+				_Global.SceneManager.SetTargetModel(npcTransform);
+				playerState = PLAYERSTATE.NORMAL;
+				if (toIdelLater != null) {
+					clearTimeout(toIdelLater);
+					toIdelLater = null;
+				}
+				scope.SetPlayerState("战斗结束");
+				return;
+			}
+		}
 		this.SetPlayerState = function (e) {
 			if (weaponData == null) {
 				weaponData = _this.YJController.GetUserData().weaponData;
@@ -450,6 +439,7 @@ class YJPlayerFireCtrl {
 					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					_Global.ReportTo3D("设置技能进度条", "完成");
 
+					CheckTargetDead();
 					break;
 				case "赤手攻击":
 					playerState = PLAYERSTATE.ATTACK;
@@ -467,11 +457,11 @@ class YJPlayerFireCtrl {
 					if (vaildAttackLater == null) {
 						// 技能施放时间到时，重新立即攻击
 						vaildAttackLater = setTimeout(() => {
-							readyAttack = true; 
+							readyAttack = true;
 							vaildAttackLater = null;
 						}, attackStepSpeed * 1000);
 					}
-
+					CheckTargetDead();
 					break;
 				case "受伤":
 					playerState = PLAYERSTATE.ATTACK;
@@ -520,7 +510,7 @@ class YJPlayerFireCtrl {
 					if (playerState == PLAYERSTATE.ATTACK) {
 						if (!canAttack) {
 							animName = GetAnimNameByPlayStateAndWeapon("准备战斗", weaponData);
-							if (npcTransform != null) { 
+							if (npcTransform != null) {
 								ReadyFire(); //有目标停止移动时，自动攻击
 							}
 						}

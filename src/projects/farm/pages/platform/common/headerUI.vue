@@ -1,12 +1,10 @@
 
 <template>
-  <div v-if="display"
-    class="  absolute left-2 top-2  flex text-white origin-top-left transform scale-50 xl:scale-100 "
-    style="width:273px;height:109px;"
-    @mouseenter="hover = true" @mouseleave="hover = false">
-    
+  <div v-if="display" class="  absolute left-2 top-2  flex text-white origin-top-left transform scale-50 xl:scale-100 "
+    style="width:273px;height:109px;" @mouseenter="hover = true" @mouseleave="hover = false">
+
     <!-- 生命法术条 -->
-    <div class=" absolute left-2 top-12 h-auto w-health    "  > 
+    <div class=" absolute left-2 top-12 h-auto w-health    ">
       <div class=" relative ">
         <div class=" h-3   relative ">
           <div class=" h-full bg-green-500  " :style="'width: ' + this.healthPerc + '%'"></div>
@@ -19,20 +17,20 @@
 
     <!-- 姓名栏背景 -->
     <div class=" relative w-health h-4 ml-1.5 mt-7   ">
-      <div class=" absolute h-full w-full   " :class="selfCamp?' bg-blue-100 ':' bg-red-500 '"    ></div>
+      <div class=" absolute h-full w-full   " :class="selfCamp ? ' bg-blue-100 ' : ' bg-red-500 '"></div>
     </div>
 
-      <!-- 头像 -->
+    <!-- 头像 -->
     <div class=" absolute right-12 mt-2 w-20 h-20     ">
-      <img class=" absolute right-0 p-2 w-20 h-20 rounded-full " :src="icon" alt=""> 
+      <img class=" absolute right-0 p-2 w-20 h-20 rounded-full " :src="icon" alt="">
     </div>
 
 
     <!-- 整个背景ui -->
-    <img class=" absolute left-0 top-0 w-full h-full  "  :src="headerBGUrl" alt="">
+    <img class=" absolute left-0 top-0 w-full h-full  " :src="headerBGUrl" alt="">
 
     <!-- 生命法术条文字 -->
-    <div class=" absolute left-1 top-7 w-health h-auto    " > 
+    <div class=" absolute left-1 top-7 w-health h-auto    ">
       <div class=" relative ">
         <div class=" h-2   relative ">
           <div v-if="hover" class=" absolute  left-0 top-0 w-full text-center text-xs transform scale-90  ">
@@ -45,7 +43,7 @@
       </div>
     </div>
 
-    <div class=" absolute right-12 mt-2 w-20 h-20     "> 
+    <div class=" absolute right-12 mt-2 w-20 h-20     ">
       <!-- 等级文字 -->
       <div class=" absolute right-px  bottom-px w-6 h-6 text-xs flex ">
         <div class=" text-white self-center mx-auto">
@@ -58,15 +56,15 @@
     <!-- npc名称 -->
     <div class=" absolute left-0 w-health h-4 ml-1 mt-7   ">
       <div class="  h-4 text-xs transform scale-90 text-center truncate  tracking-widest "
-      :class="selfCamp?' text-white ':' text-yellow-300 '" >{{ targetName }}</div> 
+        :class="selfCamp ? ' text-white ' : ' text-yellow-300 '">{{ targetName }}</div>
     </div>
 
     <!-- 技能施法条 -->
-    <div class=" absolute left-4 -bottom-6 h-auto w-health    "  > 
+    <div class=" absolute left-4 -bottom-6 h-auto w-health    ">
       <div class=" relative ">
         <div class=" h-3  relative ">
-          <skillProgressUI color="yellow"  ref="skillProgressUI" />
-        </div> 
+          <skillProgressUI color="yellow" ref="skillProgressUI" />
+        </div>
       </div>
     </div>
 
@@ -94,7 +92,7 @@ export default {
       energy: 100, //能量值
       maxEnergy: 100, //最大能量值
       icon: '',
-      healthPerc:100,
+      healthPerc: 100,
       baseData: {
         state: 'normal', //状态
         camp: "bl",
@@ -104,20 +102,20 @@ export default {
         maxHealth: 100, //最大生命值
         strength: 20, //攻击力
       },
-      headerBGUrl:"",
-      headerBGUrlData:{
-        normal:"./public/images/cursorList/headerBG_normal.png", //头像背景图 普通
-        rare:"./public/images/cursorList/headerBG_rare.png", //  稀有
-        elite:"./public/images/cursorList/headerBG_elite.png", //   精英
-      } , 
-      selfCamp:false, 
-      skillPerc:0,
+      headerBGUrl: "",
+      headerBGUrlData: {
+        normal: "./public/images/cursorList/headerBG_normal.png", //头像背景图 普通
+        rare: "./public/images/cursorList/headerBG_rare.png", //  稀有
+        elite: "./public/images/cursorList/headerBG_elite.png", //   精英
+      },
+      selfCamp: false,
+      skillPerc: 0,
     };
   },
   created() {
 
   },
-  mounted() { 
+  mounted() {
 
   },
   methods: {
@@ -132,19 +130,23 @@ export default {
 
       this.selfCamp = this.baseData.camp == _Global.user.camp;
 
-      this.headerBGUrl = this.headerBGUrlData[this.baseData.type|| "normal"] ;
+      this.headerBGUrl = this.headerBGUrlData[this.baseData.type || "normal"];
       this.GetHealth();
       let avatarId = npcData.avatarData.id;
       this.icon = this.$uploadUrl + avatarId + "/" + avatarId + "_thumb.png";
       this.display = true;
     },
-    SetSkill(npcSkill){
+    SetSkill(npcSkill) {
       // console.log(" 设置技能进度条 npcSkill ",npcSkill);
-      if(npcSkill=="中断"){
-        this.$refs.skillProgressUI.SetProgress(npcSkill);
+      if (npcSkill == "中断") {
+        if (this.$refs.skillProgressUI) {
+          this.$refs.skillProgressUI.SetProgress(npcSkill);
+        }
         return;
       }
-      this.$refs.skillProgressUI.SetProgress(npcSkill.castTime,npcSkill.skillName,npcSkill.effect.type=="contDamage");
+      if (this.$refs.skillProgressUI) {
+        this.$refs.skillProgressUI.SetProgress(npcSkill.castTime, npcSkill.skillName, npcSkill.effect.type == "contDamage");
+      }
     },
     SetHealth(e, t) {
       this.health = e;
@@ -169,8 +171,7 @@ export default {
 };
 </script>
  
-<style scoped> 
-.w-health{
-  width:139px;
-}
+<style scoped> .w-health {
+   width: 139px;
+ }
 </style>

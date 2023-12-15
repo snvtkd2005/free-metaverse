@@ -3670,18 +3670,7 @@ class YJController {
         content: "受到伤害",
         msg: { _targetModel: _targetModel, skillName: skillName, effect: effect },
       });
-    }
-    this.ReceiveDamageDync = function (npcName, skillName, strength) {
-      // 如果窗口在焦点，则不执行
-      if (_Global.inFocus) {
-        return;
-      }
-      _YJPlayer.isDead = _YJPlayerFireCtrl.OnPlayerState({
-        title: "fire",
-        content: "受到伤害Dync",
-        msg: { npcName: npcName, skillName: skillName, strength: strength },
-      });
-    }
+    } 
     this.SetInteractiveNPC = function (content, _npcTransform) {
       if(content != "重生" && this.isInDead()){
         // 角色死亡后不接收道具效果

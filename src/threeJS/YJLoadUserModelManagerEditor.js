@@ -234,7 +234,7 @@ class YJLoadUserModelManager {
       });
     }
 
-    function CreateTransform(parent, modelData, callback) {
+    function CreateTransform(parent, modelData, callback,_modelId) {
       // console.error(" 加载模型 ", modelData);
 
       let object = new YJTransform(_this, scene, "", null, null, modelData.name);
@@ -257,14 +257,19 @@ class YJLoadUserModelManager {
           modelPath = uploadUrl + modelData.modelPath;
         }
       }
-
-      modelId++;
-      object.id = modelId;
+      let id = 0;
+      if(_modelId != undefined){
+        id = _modelId;
+      }else{
+         modelId++;
+         id = modelId;
+      }
+      object.id = id;
       let uuid = object.GetUUID();
-      allTransform.push({ uuid: uuid, id: modelId, transform: object });
+      allTransform.push({ uuid: uuid, id: id, transform: object });
       object.SetPosRota(modelData.pos, modelData.rotaV3, modelData.scale);
       object.SetModelPath(modelData.modelPath);
-      object.SetData(modelData.folderBase, modelData.modelType, modelId);
+      object.SetData(modelData.folderBase, modelData.modelType, id);
       object.modelData = JSON.parse(JSON.stringify(modelData));
 
       // if (modelData.message != undefined) {
@@ -528,7 +533,7 @@ class YJLoadUserModelManager {
     //#endregion
 
     //#region 添加 删除 修改 用户摆放模型
-
+    
     this.AddUserModel = function (item, local, model) {
 
 
@@ -570,6 +575,12 @@ class YJLoadUserModelManager {
         }
       }
     }
+    
+    this.UpdateTransfrom = function () {
+      for (let i = allTransform.length - 1; i >= 0; i--) {
+        allTransform[i].transform.ClearOldTransData();
+      }
+    }
     let delModelCallback;
     this.SetDelModelHandler = function (callback) {
       delModelCallback = callback;
@@ -590,12 +601,12 @@ class YJLoadUserModelManager {
         }
       }
     }
-    this.DuplicateModel = function(modelData,callback){
+    this.DuplicateModel = function(modelData,callback,id){
       CreateTransform(null,modelData, (object) => {
         if (callback) {
           callback(object);
         }
-      });
+      },id);
     }
 
     // 加载单个场景的模型

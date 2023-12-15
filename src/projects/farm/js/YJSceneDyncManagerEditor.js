@@ -58,6 +58,12 @@ class YJSceneDyncManagerEditor {
         CheckNpcLookat();
       }, 500);
     }
+
+    this.UpdateTransfrom = function () {
+      _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().UpdateTransfrom();
+    }
+
+
     function addVirus(model) {
       for (let i = 0; i < dyncModelList.length; i++) {
         const element = dyncModelList[i];
@@ -70,9 +76,11 @@ class YJSceneDyncManagerEditor {
     }
     this.SendDataToServer = (type, data) => {
       console.log(" 发送 ", type, data);
-      if (type == "npc技能") {
+      if (type == "npc技能" || type == "npc技能攻击") {
         let { npcId, skill } = data;
-        _SceneManager.SetTargetSkill(npcId, skill);
+        if (type == "npc技能") {
+          _SceneManager.SetTargetSkill(npcId, skill);
+        }
         _Global.YJDync._YJDyncManager.SendSceneState("转发", { type: type, state: data });
         return;
       }
@@ -104,7 +112,13 @@ class YJSceneDyncManagerEditor {
           let distance = playerPos.distanceTo(element.GetGroup().position);
           if (distance <= 12) {
             // 第三个参数表示是否查找npc附近的npc，让附近的npc一起攻击玩家
-            npcComponent.SetTarget(_Global.YJ3D.YJPlayer, true, true);
+            if (_Global.mainUser) {
+              npcComponent.SetNpcTarget(_Global.YJ3D.YJPlayer, true, true);
+            } else {
+              //向主控发送npc发现玩家
+              _Global.YJDync._YJDyncManager.SendSceneState("转发", { type: "npc发现玩家", state: { npcId: element.id, playerId: _Global.YJ3D.YJPlayer.id } });
+
+            }
           }
           // console.log("npc 距离玩家 坐标 {0} 米", distance);
 
@@ -112,7 +126,7 @@ class YJSceneDyncManagerEditor {
       }
     }
     // 添加增生的npc
-    this.AddNpc = function(npcTransform){
+    this.AddNpc = function (npcTransform) {
       npcModelList.push({ id: npcTransform.id, transform: npcTransform });
     }
     // 设置npc1附近的npc共同攻击npc1的目标
@@ -126,7 +140,7 @@ class YJSceneDyncManagerEditor {
             let distance = npcComponent1.transform.GetGroup().position.distanceTo(element.GetGroup().position);
             // console.log("查找到附近npc ", npcComponent.npcName,distance);
             if (distance <= 12) {
-              npcComponent.SetTarget(targetModel, true, false);
+              npcComponent.SetNpcTarget(targetModel, true, false);
               scope.NPCAddFireById(npcComponent, npcComponent1.fireId);
             }
           }
@@ -144,7 +158,6 @@ class YJSceneDyncManagerEditor {
         }
       }
     }
-
 
     // 战斗组，用来做npc的攻击目标，第一目标死亡，攻击第二目标
     let fireGroup = [
@@ -188,6 +201,20 @@ class YJSceneDyncManagerEditor {
       console.log(" 开始新的战斗 ", fireGroup[fireGroup.length - 1]);
       this.SendSceneState("战斗状态");
 
+    }
+    function radomNum(minNum, maxNum) {
+      return parseInt(Math.random() * (maxNum - minNum + 1) + minNum, 10);
+    }
+    this.GetPlayerByRandom = function () {
+      let players = _Global.YJDync.GetAllPlayer();
+      let player = players[radomNum(0, players.length - 1)];
+      return {
+        playerId: player.id,
+        player: player,
+      }
+    }
+    this.GetPlayerById = function (playerId) {
+      return _Global.YJDync.GetPlayerById(playerId)
     }
 
     function CheckPlayerInNpcForward(npcTransform, vaildDistance, playerId) {
@@ -262,6 +289,9 @@ class YJSceneDyncManagerEditor {
           let npcComponent = element.GetComponent("NPC");
           // 未判断npc是否在玩家前方
           let distance = playerPos.distanceTo(element.GetGroup().position);
+
+          console.log(" 查找玩家攻击范围内的npc 1122 ", vaildDistance, distance);
+
           if (distance <= vaildDistance) {
             return npcComponent;
           }
@@ -280,14 +310,18 @@ class YJSceneDyncManagerEditor {
           return [];
         }
       }
+
+      console.log(" 查找玩家攻击范围内的npc 11 ",fireId, vaildDistance, max);
       for (let i = 0; i < fireGroup.length; i++) {
         const element = fireGroup[i];
         if (element.fireId == fireId) {
           let npcs = [];
           for (let j = element.npcList.length - 1; j >= 0; j--) {
-            const npc = element.npcList[j];
-            if (ingoreNpcId != npc) {
-              let vaildNpc = CheckNpcInPlayerForward(vaildDistance, npc);
+            const npcId = element.npcList[j];
+            if (ingoreNpcId != npcId) {
+              console.log(" 查找玩家攻击范围内的npc 1111 ", npcId);
+
+              let vaildNpc = CheckNpcInPlayerForward(vaildDistance, npcId);
               if (vaildNpc != null) {
                 num++;
                 npcs.push(vaildNpc);
@@ -437,13 +471,13 @@ class YJSceneDyncManagerEditor {
               if (player.isLocal) {
                 if (_this.YJController.GetUserData().baseData.health > 0) {
                   //发送npc目标
-                  npcComponent.SetTarget(player, true, false);
+                  npcComponent.SetNpcTarget(player, true, false);
                   return;
                 }
               } else {
                 if (player.GetUserData().baseData.health > 0) {
                   //发送npc目标
-                  npcComponent.SetTarget(player, true, false);
+                  npcComponent.SetNpcTarget(player, true, false);
                   return;
                 }
               }
@@ -451,7 +485,7 @@ class YJSceneDyncManagerEditor {
           }
         }
       }
-      npcComponent.SetTargetToNone(true, false);
+      npcComponent.SetNpcTargetToNone(true, false);
 
     }
     // 玩家拾取场景内物体的数据。用来做场景物体同步
@@ -478,7 +512,7 @@ class YJSceneDyncManagerEditor {
     }
     // 发送一条战斗记录
     this.SendFireRecode = function (msg) {
-      console.log("战斗记录 ", msg);
+      // console.log("战斗记录 ", msg);
     }
     this.SendModel = function (model) {
       if (!_Global.YJDync) {
@@ -490,14 +524,24 @@ class YJSceneDyncManagerEditor {
       if (!_Global.YJDync) {
         return;
       }
-      _Global.YJDync._YJDyncManager.SendSceneState("玩家对玩家", model);
+      _Global.YJDync._YJDyncManager.SendSceneStateAll("玩家对玩家", model);
     }
-    this.SendNpcToPlayer = function (model) {
+
+    this.SendSceneStateAll = function (type, msg) {
       if (!_Global.YJDync) {
         return;
       }
-      _Global.YJDync._YJDyncManager.SendSceneState("NPC对玩家", model);
+      if (type == "NPC对玩家") {
+        _Global.YJDync._YJDyncManager.SendSceneStateAll("NPC对玩家", msg);
+        return;
+      }
+      if (type == "玩家对NPC") {
+        _Global.YJDync._YJDyncManager.SendSceneStateAll("转发", { type: "玩家对NPC", state: msg });
+        return;
+      }
+
     }
+
     //发送整个场景数据
     this.SendSceneState = function (type, msg) {
       if (!_Global.YJDync) {
@@ -525,12 +569,46 @@ class YJSceneDyncManagerEditor {
     // 接收 转发 数据
     this.Receive = function (data) {
       let { type, state } = data;
-      console.log(" 接收 ", type, state);
+      // console.log(" 接收 ", type, state);
 
-      if (type == "npc技能") {
+
+      if (type == "玩家对NPC") {
+        let { npcId, playerId, skillName, strength } = state;
+
+        if (_Global.mainUser) {
+          this.GetNpcById(npcId).GetComponent("NPC").ReceiveDamage((playerId), skillName, strength);
+        }
+
+        if (_Global.YJ3D.YJPlayer.id == playerId) {
+          // 对npc的伤害显示在屏幕上
+          let pos = this.GetNpcById(npcId).GetWorldPos().clone();
+          pos.y += this.GetNpcById(npcId).GetComponent("NPC").GetBaseModel().playerHeight;
+          // 伤害显示在屏幕上
+          _Global.SceneManager.UpdateNpcDamageValue("self", "normal", strength, pos);
+
+        }
+        return;
+      }
+      if (type == "NPC对玩家") {
+        _this.YJController.ReceiveDamage(this.GetNpcById(state.npcId), state.skillName, state.effect);
+        return;
+      }
+
+      if (type == "npc技能" || type == "npc技能攻击") {
         let { npcId, skill } = state;
-        _SceneManager.SetTargetSkill(npcId, skill);
-        _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().EditorUserModel({id:npcId,modelType:"NPC模型",state:{title:type,skill:skill} });
+        if (type == "npc技能") {
+          // npc技能施法/吟唱状态
+          _SceneManager.SetTargetSkill(npcId, skill);
+        }
+        _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().EditorUserModel({ id: npcId, modelType: "NPC模型", state: { title: type, skill: skill } });
+        return;
+      }
+
+      if (type == "npc发现玩家") {
+        if (_Global.mainUser) {
+          let { npcId, playerId } = state;
+          this.GetNpcById(npcId).GetComponent("NPC").SetNpcTarget(this.GetPlayerById(playerId), true, true);
+        }
         return;
       }
 
@@ -666,14 +744,8 @@ class YJSceneDyncManagerEditor {
         _Global.YJDync._YJDyncManager.UpdateModel(id, title, data);
       }
     }
-
-    this.ReceiveNpcToPlayer = function (sceneState) {
-      // _SceneManager.ReceivePlayer(sceneState.state);
-      _this.YJController.ReceiveDamageDync(sceneState.npcName, sceneState.skillName, sceneState.strength);
-      // console.log(" 接收 npc 对玩家 ", sceneState);
-    }
-    // 接收玩家对玩家
-    this.ReceivePlayer = function (sceneState) {
+    // 接收 玩家 对 玩家
+    this.ReceivePlayerToPlayer = function (sceneState) {
       _SceneManager.ReceivePlayer(sceneState.state);
       // console.log(" 接收玩家对玩家 ", sceneState);
     }

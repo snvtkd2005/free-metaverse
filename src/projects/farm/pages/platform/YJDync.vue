@@ -40,14 +40,18 @@
           <div v-if="item.hasNew" class="absolute top-0 -left-2 w-2 h-2 rounded-full  bg-purple-700"></div>
         </div>
 
+        <!-- 生命条 -->
         <div v-if="item.user.userData.baseData" class=" mb-1 w-full h-auto   relative ">
-          <div class=" w-full border ">
-            <div class="  bg-green-500  h-4  "
+          <div class=" w-full border relative h-5  ">
+            <div class="  bg-green-500  h-full "
               :style="'width: ' + (item.user.userData.baseData.health / item.user.userData.baseData.maxHealth) * 100 + '%'">
             </div>
+            <!-- 生命条文字 -->
+            <div class=" absolute left-0 top-0 w-full flex h-full  ">
+              <div class=" self-center mx-auto text-xs truncate ">{{item.user.userData.baseData.health}}/{{item.user.userData.baseData.maxHealth}}</div>
+            </div>
           </div>
-
-          <!-- <div class="  ">{{ item.user.userData.baseData.health }}</div> -->
+ 
           <div class=" flex ">
             <div v-if="item.user.userData.baseData.armor > 0" class="  ">护甲+{{ item.user.userData.baseData.armor }}</div>
             <div v-if="item.user.userData.baseData.energy > 0" class="  ">能量+{{ item.user.userData.baseData.energy }}
@@ -57,7 +61,8 @@
           <div v-if="item.user.userData.baseData.debuffList && item.user.userData.baseData.debuffList.length"
             class=" flex ">
             <div v-for="(debuff, i) in item.user.userData.baseData.debuffList " :key="i" class=" flex mr-1 ">
-              <div class=" w-5 h-5 bg-gray-500" @mouseenter="HoverDebuff(item); debuffHover = true; debuffDescribe = debuff.describe;"
+              <div class=" w-5 h-5 bg-gray-500"
+                @mouseenter="HoverDebuff(item); debuffHover = true; debuffDescribe = debuff.describe;"
                 @mouseleave="debuffHover = false">
                 <img class=" w-full h-full" :src=debuff.icon alt="">
               </div>
@@ -66,10 +71,7 @@
 
         </div>
 
-        <!-- 生命条文字 -->
-        <!-- <div class=" mb-1 w-full h-4 border relative ">
-          <div class=" h-full bg-green-500  " :style="'width: ' + (50 / 100) * 100 + '%'"></div>
-        </div> -->
+
 
       </div>
     </div>
@@ -502,8 +504,8 @@ export default {
           this.otherUser[this.selfNum].user.userData.baseData.armor = userData.baseData.armor;
           this.otherUser[this.selfNum].user.userData.baseData.energy = userData.baseData.energy;
           this.otherUser[this.selfNum].user.userData.baseData.debuffList = userData.baseData.debuffList;
-           
-          if(this.debuffHover && userData.baseData.debuffList && userData.baseData.debuffList.length == 0){
+
+          if (this.debuffHover && userData.baseData.debuffList && userData.baseData.debuffList.length == 0) {
             this.debuffHover = false;
           }
           // console.log(" self user.userData ", userData.baseData );
@@ -718,7 +720,7 @@ export default {
       let players = [];
       players.push(this.ThreejsHumanChat.YJPlayer);
       for (let i = 0; i < this.allPlayer.length; i++) {
-        players.push(this.allPlayer[i].player); 
+        players.push(this.allPlayer[i].player);
       }
       return players;
     },

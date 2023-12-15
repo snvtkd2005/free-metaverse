@@ -145,6 +145,32 @@ hyperplasia, // 增生
 
     let skillList = [
       {
+        skillName: "繁殖",
+        // 该结构表示：每10秒对当前目标造成10点伤害
+        //触发时机 每间隔n秒触发、血量达到n%触发
+        trigger: { type: "health", value: 30 },
+        //目标
+        target: { type: "none", value: 30 },// random随机 target目标 area范围攻击
+        //效果 damage直接伤害、perDamage每秒伤害、contDamage持续伤害、冻结、眩晕等状态
+        effect: {
+          type: "hyperplasia",
+          value: 3,
+          time: 0.2,
+          duration: 10,
+          describe: "生成3个镜像",
+          icon: "",
+        }, //describe技能描述，duration持续时间。perDamage、冻结、眩晕等状态效果才需要持续时间
+        //技能施放的有效范围 或 范围攻击的游戏范围
+        vaildDis: 100, //  
+        //施放时间
+        castTime: 1, // 施法时间。 秒, 0表示瞬发
+        animNameReady: "two hand gun before attack", // 施法准备/读条动作
+        animName: "two hand gun attack", // 施法施放动作
+        //效果增强
+        effectEnhance: "none",
+        icon: "", //技能图标
+      },
+      {
         skillName: "吐息",
         // 该结构表示：每10秒对当前目标造成10点伤害
         //触发时机 每间隔n秒触发、血量达到n%触发
@@ -202,7 +228,7 @@ hyperplasia, // 增生
         //触发时机 每间隔n秒触发、血量达到n%触发
         trigger: { type: "perSecond", value: 10 },
         //目标
-        target: { type: "target", value: 1 },// random随机 target目标 area范围攻击
+        target: { type: "random", value: 1 },// random随机 target目标 area范围攻击
         //效果 直接伤害、每秒伤害、冻结、眩晕等状态
         effect: {
           type: "perDamage",

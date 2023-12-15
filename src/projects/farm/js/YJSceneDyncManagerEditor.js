@@ -289,9 +289,6 @@ class YJSceneDyncManagerEditor {
           let npcComponent = element.GetComponent("NPC");
           // 未判断npc是否在玩家前方
           let distance = playerPos.distanceTo(element.GetGroup().position);
-
-          console.log(" 查找玩家攻击范围内的npc 1122 ", vaildDistance, distance);
-
           if (distance <= vaildDistance) {
             return npcComponent;
           }
@@ -310,8 +307,6 @@ class YJSceneDyncManagerEditor {
           return [];
         }
       }
-
-      console.log(" 查找玩家攻击范围内的npc 11 ",fireId, vaildDistance, max);
       for (let i = 0; i < fireGroup.length; i++) {
         const element = fireGroup[i];
         if (element.fireId == fireId) {
@@ -319,8 +314,6 @@ class YJSceneDyncManagerEditor {
           for (let j = element.npcList.length - 1; j >= 0; j--) {
             const npcId = element.npcList[j];
             if (ingoreNpcId != npcId) {
-              console.log(" 查找玩家攻击范围内的npc 1111 ", npcId);
-
               let vaildNpc = CheckNpcInPlayerForward(vaildDistance, npcId);
               if (vaildNpc != null) {
                 num++;
@@ -397,6 +390,11 @@ class YJSceneDyncManagerEditor {
               const player = element.playerList[k];
               if (player == targetModel.id) {
                 hasPlayer = true;
+                if(targetModel.fireId == -1){
+                  targetModel.fireId = element.fireId;
+                  console.log(" 玩家 加入战斗 ", element);
+                  return;
+                }
               }
             }
             if (!hasPlayer) {

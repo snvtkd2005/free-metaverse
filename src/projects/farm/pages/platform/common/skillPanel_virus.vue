@@ -108,6 +108,9 @@ export default {
       for (let i = 0; i < this.skillList.length && !has; i++) {
         const item =  this.skillList[i];
         if(item.type == skill.type){
+          if(skill.describe){
+            item.describe2 = skill.describe;
+          }
           return; 
         }
       } 

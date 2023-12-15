@@ -133,7 +133,8 @@ camp // 阵营：1001联盟npc、1002部落npc、10000怪物、9000中立、8000
 damage, //直接伤害
 perDamage, //每秒伤害 给玩家加上 debuff
 contDamage, //持续伤害 范围攻击
-hyperplasia, // 增生
+hyperplasia, // 增生 生成3个镜像
+evolution, //进化 所有技能造成的伤害提高v% 
 } 
 目标:{
     none 不需要目标

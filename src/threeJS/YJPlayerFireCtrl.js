@@ -139,10 +139,11 @@ class YJPlayerFireCtrl {
 			if (npcTransform == null) {
 				SelectNPC(_targetModel);
 				ReadyFire(); //被攻击且没有目标时，自动攻击
+				
+				PlayerAddFire();
 				//自动显示其头像 
 				_Global.SceneManager.SetTargetModel(npcTransform);
 			}
-			PlayerAddFire();
 
 			let { type, value, time, duration, describe, icon } = effect;
 
@@ -174,7 +175,7 @@ class YJPlayerFireCtrl {
 					}
 					);
 				}
-				baseData.debuffList.push({ id: id, icon: icon, describe: describe });
+				baseData.debuffList.push({ id: id, icon:_this.$uploadUVAnimUrl +icon, describe: describe });
 				return;
 			}
 			// console.log(" 主角受到 " + skillName + " 攻击 剩余 " + baseData.health);
@@ -222,6 +223,9 @@ class YJPlayerFireCtrl {
 					scope.SetPlayerState("停止移动");
 				}, 500);
 			} else {
+				if (npcTransform == null) {
+					return;
+				}
 				// 右键点击目标后，使用基础技能攻击
 				scope.SetPlayerState("准备战斗");
 				// console.log(" 右键点击npc 准备战斗 ",canAttack);
@@ -305,8 +309,6 @@ class YJPlayerFireCtrl {
 						}
 						// 范围攻击。 max为1时，表示不使用范围攻击
 						let npcs = _Global.DyncManager.GetNpcByPlayerForwardInFireId(_YJPlayer.fireId, vaildAttackDis, max, npcTransform.id);
-						console.log(" 查找玩家攻击范围内的npc 222 ",npcs);
-						
 						for (let i = 0; i < npcs.length; i++) {
 							shootTarget(npcs[i].transform, attackStepSpeed * 300);
 						}

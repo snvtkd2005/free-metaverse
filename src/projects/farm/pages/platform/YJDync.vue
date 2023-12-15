@@ -10,7 +10,7 @@
       <!-- <img :src="publicUrl + 'images/gameUI/zaixianrensu.png'" alt=""> -->
     </div>
 
-    <div class=" absolute left-16 w-20 top-3 z-10 text-black  ">
+    <div class=" absolute left-16 w-20 top-3 z-10 text-white  ">
       {{ language.content.onlineList }} {{ otherUser.length }}
     </div>
 

@@ -458,7 +458,7 @@ class YJNPC {
         //效果 damage直接伤害、perDamage每秒伤害、contDamage持续伤害、冻结、眩晕等状态
         effect: {
           type: "evolution",
-          value: 500,
+          value: 50,
           time: 0.2,
           duration: 10,
           describe: "所有技能造成的伤害提高500% ",
@@ -504,7 +504,7 @@ class YJNPC {
         skillName: "吐息",
         // 该结构表示：每10秒对当前目标造成10点伤害
         //触发时机 每间隔n秒触发、血量达到n%触发
-        trigger: { type: "perSecond", value: 30 },
+        trigger: { type: "perSecond", value: 40 },
         //目标
         target: { type: "area", value: 30 },// random随机 target目标 area范围攻击
         //效果 damage直接伤害、perDamage每秒伤害、contDamage持续伤害、冻结、眩晕等状态
@@ -562,10 +562,10 @@ class YJNPC {
         //效果 直接伤害、每秒伤害、冻结、眩晕等状态
         effect: {
           type: "perDamage",
-          value: 10,
+          value: 20,
           time: 1,
           duration: 10,
-          describe: "每秒造成10点伤害，持续3秒",
+          describe: "每秒造成50点伤害，持续10秒",
           icon: "1702644211071/bingdu_64x64.png",
         }, //describe技能描述，duration持续时间。perDamage、冻结、眩晕等状态效果才需要持续时间
         //有效范围
@@ -1142,6 +1142,7 @@ class YJNPC {
       _Global.DyncManager.SendSceneStateAll("NPC对玩家", { targetId: target.id, npcId: scope.transform.id, npcName: scope.npcName, skillName: skillName, effect: effect });
     }
 
+    let oldSkillList = [];
     let hyperplasiaTimes = 0;
     // 施放不需要目标的技能 如 增生
     function SendSkill(effect) {
@@ -1154,6 +1155,8 @@ class YJNPC {
       }
       //进化
       if (type == "evolution") {
+        oldSkillList = JSON.parse(JSON.stringify(skillList));
+
         // 所有技能伤害增加v%
         for (let i = 0; i < skillList.length; i++) {
           const skillItem = skillList[i];
@@ -1317,6 +1320,9 @@ class YJNPC {
       }
       fireLater = [];
       healthTrigger = [];
+      if(oldSkillList.length != 0){
+        skillList = JSON.parse(JSON.stringify(oldSkillList));
+      } 
     }
     let fireBeforePos = null;
     this.SetNpcTargetToNone = function (isLocal) {
@@ -1386,6 +1392,8 @@ class YJNPC {
         //进化
         if (effect.type == "evolution") {
           let { value } = effect;
+          
+          oldSkillList = JSON.parse(JSON.stringify(skillList));
           // 所有技能伤害增加v%
           for (let i = 0; i < skillList.length; i++) {
             const skillItem = skillList[i];

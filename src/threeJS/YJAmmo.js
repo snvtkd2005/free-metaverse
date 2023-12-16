@@ -1863,6 +1863,7 @@ class YJAmmo {
     }
 
 
+    let oladPos = new THREE.Vector3(0, 0, 0);
     function MoveRigidbody(fb, lr, x, y) {
       let dir = new THREE.Vector3(0, 0, 0); //前后方向
       let dirChild = new THREE.Vector3(0, 0, 0); //左右方向
@@ -1898,10 +1899,16 @@ class YJAmmo {
         if (inJumping) {
           // downForce -= 0.15;
           // moveForce.setY(downForce);
-        } else {
-          // moveForce.setY(gravity);
-          // moveForce.setY(normalGravity);
-          moveForce.setY(0);
+        } else { 
+
+          // 上坡时不使用向下的力；下坡时增加向下的力防止抖动
+          let newPos = myCtrlRb.getWorldPosition(new THREE.Vector3());
+          if(oladPos.y > newPos.y){
+            moveForce.setY(-3);
+          }else{
+            moveForce.setY(0);
+          }
+          oladPos = newPos.clone();
 
           // CheckForwardCollider();
         }

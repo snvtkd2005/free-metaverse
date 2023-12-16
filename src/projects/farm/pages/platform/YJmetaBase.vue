@@ -105,11 +105,6 @@ export default {
       this.onlyLandscape = this.sceneData.setting.onlyLandscape;
 
       this.publicUrl = this.$publicUrl + this.sceneData.setting.localPath;
-
-      // console.log(this.sceneData);
-      this.contrlState = this.sceneData.setting.contrlState;
-      // 强制横屏
-      this.onlyLandscape = this.sceneData.setting.onlyLandscape;
       this.$refs.ThreejsHumanChat.SetforcedLandscape(this.onlyLandscape);
     },
     UpdateCheckWindowResize() {

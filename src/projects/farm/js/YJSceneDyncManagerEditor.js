@@ -172,6 +172,9 @@ class YJSceneDyncManagerEditor {
         for (let j = 0; j < element.npcList.length; j++) {
           const npc = element.npcList[j];
           if (npc == npcComponent.transform.id) {
+            if(npcComponent.fireId == -1){
+              npcComponent.fireId = element.fireId;
+            }
             return;
           }
         }
@@ -417,6 +420,9 @@ class YJSceneDyncManagerEditor {
           for (let j = 0; j < element.npcList.length; j++) {
             const npc = element.npcList[j];
             if (npc == npcComponent.transform.id) {
+              if(npcComponent.fireId == -1){
+                npcComponent.fireId = element.fireId;
+              }
               return;
             }
           }

@@ -1669,6 +1669,17 @@ class YJSceneManager {
         y: -500,
       };
     }
+    this.checkPlayerForward = function(world_vector){
+      let camPos = camera.getWorldPosition(new THREE.Vector3());
+      let playerPos = _YJAmmo.GetPlayerPos(); 
+      let wc = camPos.clone().sub(world_vector);
+      let pc = camPos.clone().sub(playerPos);
+      let value = wc.dot(pc) / (wc.length() * pc.length());
+      // console.log("物体到相机到角色",value );  
+      return value >= 0.7 ; //摄像机前方范围屏幕左右两端叉乘值大于0.7
+    }
+
+
     //#endregion
 
 

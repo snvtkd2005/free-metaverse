@@ -167,6 +167,10 @@ export default {
         _Global.YJ3D.YJController.SetInteractiveNPC("点击技能");
       }
     },
+    // 快捷键点击调用
+    ClickSkillIndex(i){
+      this.UserModel(this.skillList[i]);
+    },
     //动作栏。 使用技能或物体
     UserModel(item) {
       //播放角色动作

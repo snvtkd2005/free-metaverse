@@ -562,7 +562,7 @@ class YJNPC {
         //效果 直接伤害、每秒伤害、冻结、眩晕等状态
         effect: {
           type: "perDamage",
-          value: 20,
+          value: 10,
           time: 1,
           duration: 10,
           describe: "每秒造成50点伤害，持续10秒",
@@ -1180,9 +1180,11 @@ class YJNPC {
       modelData.pos.y = pos.y;
       modelData.pos.z = pos.z;
       data.isCopy = true;
-      if (data.baseData.maxHealth > 300) {
+      if (data.baseData.maxHealth > 200) {
         data.baseData.maxHealth = 200;
       }
+
+      data.baseData.strength = 20;
       data.baseData.health = data.baseData.maxHealth;
 
       console.log("创建增生 ", data.name);

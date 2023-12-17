@@ -148,6 +148,7 @@ class SceneManager {
 
 
       new YJKeyboard((key) => {
+        
         if (inInputing) {
           return;
         }
@@ -167,39 +168,46 @@ class SceneManager {
           return;
         }
 
+        
+        if (key == "Tab") {
+          // tab切换目标
+          _SceneDyncManager.TabChangeTarget();
+          return;
+        }
+
         if (key == "Digit1") {
-          parentUI.$refs.HUD.$refs.skillPanel.ClickSkillIndex(0);
+          indexVue.$refs.HUD.$refs.skillPanel_virus.ClickSkillIndex(0);
           return;
         }
         if (key == "Digit2") {
-          parentUI.$refs.HUD.$refs.skillPanel.ClickSkillIndex(1);
+          indexVue.$refs.HUD.$refs.skillPanel_virus.ClickSkillIndex(1);
           return;
         }
 
         if (key == "Digit3") {
-          parentUI.$refs.HUD.$refs.skillPanel.ClickSkillIndex(2);
+          indexVue.$refs.HUD.$refs.skillPanel_virus.ClickSkillIndex(2);
           return;
         }
         if (key == "Digit4") {
-          parentUI.$refs.HUD.$refs.skillPanel.ClickSkillIndex(3);
+          indexVue.$refs.HUD.$refs.skillPanel_virus.ClickSkillIndex(3);
           return;
         }
         if (key == "Digit5") {
-          parentUI.$refs.HUD.$refs.skillPanel.ClickSkillIndex(4);
+          indexVue.$refs.HUD.$refs.skillPanel_virus.ClickSkillIndex(4);
           return;
         }
-        if (key == "Digit6") {
-          parentUI.$refs.HUD.$refs.skillPanel.ClickSkillIndex(5);
-          return;
-        }
-        if (key == "Digit7") {
-          parentUI.$refs.HUD.$refs.skillPanel.ClickSkillIndex(6);
-          return;
-        }
-        if (key == "Digit8") {
-          parentUI.$refs.HUD.$refs.skillPanel.ClickSkillIndex(7);
-          return;
-        }
+        // if (key == "Digit6") {
+        //   indexVue.$refs.HUD.$refs.skillPanel.ClickSkillIndex(5);
+        //   return;
+        // }
+        // if (key == "Digit7") {
+        //   indexVue.$refs.HUD.$refs.skillPanel.ClickSkillIndex(6);
+        //   return;
+        // }
+        // if (key == "Digit8") {
+        //   indexVue.$refs.HUD.$refs.skillPanel.ClickSkillIndex(7);
+        //   return;
+        // }
 
         if (key == "KeyF") {
           // if (_this._YJSceneManager) {
@@ -288,7 +296,7 @@ class SceneManager {
           throwObj.parent.remove(throwObj);
           _this._YJSceneManager.clearGroup(throwObj);
           throwObj = null;
-          parentUI.$refs.YJDync._YJDyncManager.SetPlayerState({
+          indexVue.$refs.YJDync._YJDyncManager.SetPlayerState({
             stateId: 10000
           });
         }
@@ -549,7 +557,7 @@ class SceneManager {
               }
 
 
-              parentUI.$refs.YJDync._YJDyncManager.SetPlayerState({
+              indexVue.$refs.YJDync._YJDyncManager.SetPlayerState({
                 stateId: 1212,
                 boneName: "mixamorigRightHandIndex1",
                 modelName: f,
@@ -561,7 +569,7 @@ class SceneManager {
           });
 
           //发送同步数据。 骨骼名、物品名
-          parentUI.$refs.YJDync._YJDyncManager.SetPlayerState({
+          indexVue.$refs.YJDync._YJDyncManager.SetPlayerState({
             stateId: 1212,
             boneName: "mixamorigRightHandIndex1",
             modelName: f
@@ -864,7 +872,7 @@ class SceneManager {
       // 点击npc，播放其音效
       // console.log(owner);
       if (player.npcName) {
-        parentUI.SetNpcMusicUrl(player.npcName);
+        indexVue.SetNpcMusicUrl(player.npcName);
       }
       targetModel = player;
       oldTarget = targetModel;
@@ -884,28 +892,31 @@ class SceneManager {
         indexVue.$refs.chatPanelNPC.SetDisplay(true);
       }
     }
+    this.ClickModelTransform = function(transform){
+      if(indexVue.$refs.hierarchyPanel){
+        indexVue.$refs.hierarchyPanel.SelectModelBy3d(transform.GetUUID()); 
+      }
+      // 点击NPC
+      let message = transform.GetData().message;
+      if (message) {
+        if (message.pointType == "npc") {
+          // 头像
+          this.SetTargetModel(transform);
+          // console.log(" 点击NPC 在脚下显示光圈 ", message);
+          _this.YJController.SetInteractiveNPC("选中npc", transform);
+        }
+      }
+
+    }
     this.ClickModel = (hitObject) => {
       // console.log("点击模型 ",hitObject);
       // console.log("点击模型.transform ", hitObject.transform);
       if (hitObject.transform) {
-
-        if(indexVue.$refs.hierarchyPanel){
-          indexVue.$refs.hierarchyPanel.SelectModelBy3d(hitObject.transform.GetUUID()); 
-        }
-
-        // 点击NPC
-        let message = hitObject.transform.GetData().message;
-        if (message) {
-          if (message.pointType == "npc") {
-            // 头像
-            this.SetTargetModel(hitObject.transform);
-            // console.log(" 点击NPC 在脚下显示光圈 ", message);
-            _this.YJController.SetInteractiveNPC("选中npc", hitObject.transform);
-          }
-        }
-
+        this.ClickModelTransform(hitObject.transform);
         return;
       }
+
+
       let modelType = hitObject.tag;
       if (modelType == undefined) {
         return;
@@ -949,7 +960,7 @@ class SceneManager {
           _this._YJSceneManager.clearGroup(hitObject);
 
           //在模型位置相对于界面2d坐标，生成图标。 
-          // parentUI.CreateIconTo(hitObject.modelName,_this._YJSceneManager.WorldPosToScreenPos(modelPos));
+          // indexVue.CreateIconTo(hitObject.modelName,_this._YJSceneManager.WorldPosToScreenPos(modelPos));
           // moveModels.push({ model: CreateObj(modelPos),currentTargetPos:modelPos, target: posRef_huluobu, lerpLength: 0 });
           // b_lerpMoving = true;
 
@@ -1637,7 +1648,7 @@ class SceneManager {
       cube.position.copy(modelPos);
       _this.camera.attach(cube);
       cube.name = modelName;
-      parentUI.CreateIconTo(cube.name, _this._YJSceneManager.GetObjectPosToScreenPos(cube));
+      indexVue.CreateIconTo(cube.name, _this._YJSceneManager.GetObjectPosToScreenPos(cube));
       return cube;
     }
 
@@ -1680,7 +1691,7 @@ class SceneManager {
         MoveToPosTween(model, targetPos, 2000, () => {
           _this._YJSceneManager.clearGroup(model);
           _this.camera.remove(model);
-          parentUI.DelIconTo(model.name);
+          indexVue.DelIconTo(model.name);
 
         });
       });
@@ -1692,7 +1703,7 @@ class SceneManager {
       let movingTween = new TWEEN.Tween(fromPos).to(targetPos, length).easing(TWEEN.Easing.Cubic.InOut)
       let updateTargetPos = () => {
         model.position.copy(fromPos);
-        parentUI.UpdateIconTo(model.name, _this._YJSceneManager.GetObjectPosToScreenPos(model));
+        indexVue.UpdateIconTo(model.name, _this._YJSceneManager.GetObjectPosToScreenPos(model));
       }
       movingTween.onUpdate(updateTargetPos);
       movingTween.start() // 启动动画

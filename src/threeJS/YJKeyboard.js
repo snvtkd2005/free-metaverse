@@ -37,6 +37,11 @@ class YJKeyboard {
 
           break;
 
+        case 'Tab':
+          e.preventDefault();
+          keyCallback(e.code);
+          return;
+          break;
         case 'ShiftLeft':
           inShiftLeft = true;
           break;

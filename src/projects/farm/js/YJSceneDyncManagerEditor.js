@@ -117,14 +117,56 @@ class YJSceneDyncManagerEditor {
             } else {
               //向主控发送npc发现玩家
               _Global.YJDync._YJDyncManager.SendSceneState("转发", { type: "npc发现玩家", state: { npcId: element.id, playerId: _Global.YJ3D.YJPlayer.id } });
-
             }
           }
           // console.log("npc 距离玩家 坐标 {0} 米", distance);
-
         }
       }
     }
+
+    // 当前选中的npcid
+    let oldTabSelectNpcId = 0;
+    let tabSelectIndex = 0;
+    // tab键切换选择玩家前方的敌人
+    this.TabChangeTarget = function(){
+      if (_Global.YJ3D.YJController.isInDead()) {
+        return;
+      }
+      playerPos = _Global.YJ3D.YJController.GetPlayerWorldPos();
+
+      let canSelectNpc = [];
+      for (let i = 0; i < npcModelList.length; i++) {
+        const element = npcModelList[i].transform;
+        let npcComponent = element.GetComponent("NPC");
+        // 相同阵营的不计算
+        if (npcComponent.GetCamp() == _Global.user.camp) {
+          continue;
+        }
+        if (npcComponent.isDead) {
+          continue;
+        }
+        let npcPos = element.GetWorldPos();
+        let distance = playerPos.distanceTo(npcPos);
+        // console.log("切换目标 22 ",distance);
+        if (distance <= 20 && _Global.YJ3D._YJSceneManager.checkPlayerForward(npcPos)) {
+          canSelectNpc.push(npcComponent.transform);
+          // if(oldTabSelectNpcId == npcComponent.transform.id){
+          //   continue;
+          // }
+          // oldTabSelectNpcId = npcComponent.transform.id;
+          // _SceneManager.ClickModelTransform(npcComponent.transform); 
+          // return;
+        }
+      }
+      tabSelectIndex++;
+      if(tabSelectIndex>=canSelectNpc.length){
+        tabSelectIndex = 0;
+      }
+      _SceneManager.ClickModelTransform(canSelectNpc[tabSelectIndex]); 
+      canSelectNpc = [];
+    }
+
+
     // 添加增生的npc
     this.AddNpc = function (npcTransform) {
       npcModelList.push({ id: npcTransform.id, transform: npcTransform });

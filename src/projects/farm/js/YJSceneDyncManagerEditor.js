@@ -89,6 +89,10 @@ class YJSceneDyncManagerEditor {
         // 第一个进入房间的玩家调用
         dyncModelList.push({ id: "offsetTime", modelType: "offsetTime", state: { offsetTime: 0, startTime: 1675586194683 } });
         _Global.YJDync._YJDyncManager.SendSceneState("初始化", dyncModelList);
+
+        // 调用所有npc的寻路
+        _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().AllNpcTransformNav();
+
         return;
       }
     }

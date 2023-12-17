@@ -315,11 +315,10 @@ class YJNPC {
         movePosMeshList = [];
         scope.UpdateNavPos('初始', pos);
         ClearLater("清除巡逻");
-
         if (movePos.length <= 1) {
           return;
-        }
-        laterNav = setTimeout(() => {
+        } 
+        laterNav = setTimeout(() => { 
           scope.RadomNavPos();
         }, 1000);
         return;
@@ -1235,6 +1234,10 @@ class YJNPC {
         return;
       }
 
+      
+      // 停止寻路
+      SetNavPathToNone();
+
       if (laterNav != null) {
         clearTimeout(laterNav);
         laterNav = null;
@@ -1531,6 +1534,7 @@ class YJNPC {
     let getnavpathTimes = 0;
     // 清空寻路路径
     function SetNavPathToNone() {
+      // console.log(" 清空寻路路径 ");
       navpath = [];
       doonce = 0;
     }
@@ -1661,6 +1665,7 @@ class YJNPC {
     //清除延时
     function ClearLater(e) {
       if (e == "清除巡逻") {
+        // console.log("清除巡逻 66 ");
         if (laterNav != null) {
           clearTimeout(laterNav);
           laterNav = null;

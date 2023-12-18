@@ -157,6 +157,67 @@ export default {
 .to-color {
   --tw-gradient-to: #033258;
 }
+
+
+
+
+::-webkit-scrollbar {
+  /* 滚动条整体部分 */
+  /* width:0px; */
+  border-radius: 10px;
+  width: 6px;
+  margin-right: 2px;
+  /* display: block !important; */
+  /* 控制滑动条是否显示 */
+  /* display: none; */
+}
+
+::-webkit-scrollbar-button {
+  /* 滚动条两端的按钮 */
+  width: 10px;
+  background-color: #606266;
+  display: none;
+}
+
+::-webkit-scrollbar:horizontal {
+  height: 10px;
+  margin-bottom: 2px;
+}
+
+::-webkit-scrollbar-track {
+  /* 外层轨道 */
+  border-radius: 10px;
+  background-color: #606266;
+  display: none;
+
+}
+
+::-webkit-scrollbar-track-piece {
+  /*内层轨道，滚动条中间部分背景 */
+  background-color: #ffffff;
+  border-radius: 10px;
+  display: none;
+
+}
+
+::-webkit-scrollbar-thumb {
+  /* 滑块 */
+  width: 6px;
+  border-radius: 5px;
+  background: #606266;
+}
+
+::-webkit-scrollbar-corner {
+  /* 边角 */
+  width: 10px;
+  background-color: #cbcbcb;
+  display: none;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  /* 鼠标移入滑块 */
+  background: #606266;
+}
 </style>
 
 

@@ -136,7 +136,7 @@ import YJDync from "./YJDync.vue";
 
 import playerAvatarPanel from "/@/views/chat/playerAvatarPanel.vue";
 import scenePanel from "./scenePanel.vue";
-// import modelPanel from "./modelPanel.vue";
+// import modelPanel from "./panels/modelPanel.vue";
 
 import playVideo from "./playVideo.vue";
 

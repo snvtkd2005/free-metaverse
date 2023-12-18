@@ -85,7 +85,7 @@ import YJDync from "./YJDync.vue";
 
 import YJmetaBase from "./YJmetaBase.vue";
 
-import modelPanel from "./modelPanel.vue";
+import modelPanel from "./panels/modelPanel.vue";
 import settingPanel from "./settingPanel/settingPanel.vue";
 
 // 加载进度页

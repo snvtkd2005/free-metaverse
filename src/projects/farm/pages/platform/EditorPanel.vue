@@ -115,6 +115,7 @@
     </div>
 
     <modelSelectPanel ref="modelSelectPanel" />
+    <skillSettingPanel ref="skillSettingPanel" />
 
     <div class=" absolute z-10 left-0  " :style="hierarchyStyle">
       <hierarchy ref="hierarchyPanel" :modelList="modelList" />
@@ -139,9 +140,10 @@ import YJmetaBase from "./YJmetaBase.vue";
 
 import PanelCut from "./PanelCut.vue";
 
-import modelPanel from "./modelPanel.vue";
+import modelPanel from "./panels/modelPanel.vue";
 
-import modelSelectPanel from "./modelSelectPanel.vue";
+import modelSelectPanel from "./panels/modelSelectPanel.vue";
+import skillSettingPanel from "./panels/skillSettingPanel.vue";
 
 import settingPanel from "./settingPanel/settingPanel.vue";
 import sceneSettingPanel from "./settingPanel/sceneSettingPanel.vue";
@@ -174,6 +176,7 @@ export default {
     loadingPanel, YJmetaBase,
     modelPanel,
     modelSelectPanel,
+    skillSettingPanel,
     settingPanel,
     PanelCut,
     hierarchy,

@@ -37,7 +37,7 @@
 
 <script>
  
-import { GetAllModel } from "../../js/uploadThreejs.js";
+import { GetAllModel } from "../../../js/uploadThreejs.js";
 
 export default {
   name: "index",

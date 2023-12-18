@@ -5,15 +5,15 @@
     <!-- 中部 -->
     <div class="flex absolute left-0 top-0 mt-0 w-full  bg-gray-100 ">
       <!-- 右 -->
-      <div class="flex-grow flex-col py-10 xl:px-20 md:px-5 mx-auto ">
+      <div class="flex-grow flex-col p-10 mx-auto ">
         <div class="flex h-20 justify-between">
           <div class="w-auto text-3xl text-black font-bold self-center">
             {{ title }}
           </div>
         </div>
 
+        <!-- table 选择列表 -->
         <div class="flex text-lg mb-10">
-          <!-- 选择列表 -->
           <div v-for="(item, i) in tableList" :key="i" class="self-center w-40 h-auto relative">
             <div class="w-40 h-10 self-center flex cursor-pointer" :class="currentTable == item.content ? ' bg-gray-300' : ' bg-gray-100'
               " @click="currentTable = item.content">
@@ -30,12 +30,13 @@
         </div>
 
         <div v-if="currentTable == tableList[0].content" class="flex gap-6">
-          <!-- 新建按钮 -->
-          <div class="self-center w-40 h-auto relative border-2">
-            <div class="w-40 h-40 self-center mx-auto cursor-pointer" @click="CreateNew(tableList[0].content)">
-              <!-- <img class=" w-full h-full    object-fill hover:opacity-70 " src="publicUrl + item.icon" /> -->
-            </div>
-            <div class="
+          <div class="gap-6 flex flex-wrap">
+            <!-- 新建按钮 -->
+            <div class="self-center w-40 h-auto relative border-2">
+              <div class="w-40 h-40 self-center mx-auto cursor-pointer" @click="CreateNew(tableList[0].content)">
+                <!-- <img class=" w-full h-full    object-fill hover:opacity-70 " src="publicUrl + item.icon" /> -->
+              </div>
+              <div class="
                 absolute
                 left-0
                 top-0
@@ -44,13 +45,11 @@
                 flex
                 pointer-events-none
               ">
-              <div class="self-center mx-auto">
-                {{ customPanel.createNewScene }}
+                <div class="self-center mx-auto">
+                  {{ customPanel.createNewScene }}
+                </div>
               </div>
             </div>
-          </div>
-
-          <div class="gap-6 grid xl:grid-cols-7 md:grid-cols-5 flex-row-reverse">
             <!-- 选择列表 -->
             <div v-for="(item, i) in sceneList" :key="i" class="self-center w-40 h-auto relative">
               <div class="w-40 h-28  bg-blue-200 rounded-lg  self-center mx-auto cursor-pointer"
@@ -88,9 +87,11 @@
           </div>
         </div>
 
-        <div v-if="currentTable == tableList[1].content" class="relative flex gap-6">
+
+        <div v-if="currentTable == tableList[1].content"
+          class=" gap-6 flex flex-wrap  overflow-y-auto  overscroll-auto h-2/3 ">
           <!-- 新建按钮 -->
-          <div class="absolute left-0 top-0 self-center w-40 h-40 border-2">
+          <div class=" w-40 h-40 border-2 relative ">
             <div class="w-40 h-40 self-center mx-auto cursor-pointer" @click="CreateNew(tableList[1].content)">
               <!-- <img class=" w-full h-full    object-fill hover:opacity-70 " src="publicUrl + item.icon" /> -->
             </div>
@@ -109,42 +110,31 @@
             </div>
           </div>
 
-          <div class="
-              ml-44
-              h-710px
-              gap-6
-              grid
-              xl:grid-cols-7
-              md:grid-cols-5
-              grid-cols-3
-             overflow-y-auto  
-            ">
-            <!-- 选择列表 -->
-            <div v-for="(item, i) in modelsList" :key="i" class="self-center  w-40 h-auto relative">
-              <div class="w-40 h-28 bg-blue-200 rounded-lg self-center mx-auto cursor-pointer" @click="SelectModel(item)">
-                <img class="w-full h-full rounded-lg object-fill hover:opacity-70" :src="uploadUrl + item.icon" />
-              </div>
+          <!-- 选择列表 -->
+          <div v-for="(item, i) in modelsList" :key="i" class="self-center  w-40 h-auto relative">
+            <div class="w-40 h-28 bg-blue-200 rounded-lg self-center mx-auto cursor-pointer" @click="SelectModel(item)">
+              <img class="w-full h-full rounded-lg object-fill hover:opacity-70" :src="uploadUrl + item.icon" />
+            </div>
 
-              <div class="mt-2 px-2 flex text-sm justify-between truncate ">
-                <div>{{ item.name }}</div>
+            <div class="mt-2 px-2 flex text-sm justify-between truncate ">
+              <div>{{ item.name }}</div>
+            </div>
+            <div class="mt-2 px-2 flex text-sm justify-between ">
+              <text>{{ item.folderBase }}</text>
+            </div>
+            <div class="mt-2 px-2 flex text-xs justify-between">
+              <div>{{ item.modelType }}</div>
+            </div>
+            <div class=" hidden mt-2 px-2 flex text-xs justify-between">
+              <div>{{ base.good }} 158</div>
+              <div>{{ base.visite }} 177</div>
+            </div>
+            <div class="mt-2 px-2 flex text-xs justify-between">
+              <div class="cursor-pointer" @click="Editor(item)">
+                {{ base.editor }}
               </div>
-              <div class="mt-2 px-2 flex text-sm justify-between ">
-                <text>{{ item.folderBase }}</text>
-              </div>
-              <div class="mt-2 px-2 flex text-xs justify-between">
-                <div>{{ item.modelType }}</div>
-              </div>
-              <div class=" hidden mt-2 px-2 flex text-xs justify-between">
-                <div>{{ base.good }} 158</div>
-                <div>{{ base.visite }} 177</div>
-              </div>
-              <div class="mt-2 px-2 flex text-xs justify-between">
-                <div class="cursor-pointer" @click="Editor(item)">
-                  {{ base.editor }}
-                </div>
-                <div class="cursor-pointer" @click="Delete(item)">
-                  {{ base.delete }}
-                </div>
+              <div class="cursor-pointer" @click="Delete(item)">
+                {{ base.delete }}
               </div>
             </div>
           </div>
@@ -350,7 +340,7 @@
           <div v-for="(item, i) in sceneTemplate" :key="i" class="self-center w-auto h-auto relative">
             <div class="w-12 h-12 self-center mx-auto cursor-pointer relative" @click="createForm.template = item.name">
               <img class="w-full h-full object-fill hover:opacity-70" />
-              
+
               <div v-if="createForm.template == item.name" class="absolute -top-1 -right-2">
                 <img class="w-2 h-2 xl:w-6 xl:h-6 object-fill" :src="publicUrl + 'images/spUI/select.png'" />
               </div>
@@ -370,7 +360,7 @@
               ">
               <div>{{ item.content }}</div>
             </div>
- 
+
           </div>
         </div>
 

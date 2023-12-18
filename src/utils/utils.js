@@ -2,7 +2,23 @@ import { SaveImgGetFileName, SaveTxtGetFileName, SaveFileOSSAPI, DelFileAPI } fr
 
 
 
-export const SetSettingItemByProperty = (object,property,value) => {
+export const SetSettingItemByPropertyAll = (setting, settingData) => {
+  let names = Object.getOwnPropertyNames(settingData);
+  for (let i = 0; i < names.length; i++) {
+    const element = names[i];
+    let names2 = Object.getOwnPropertyNames(settingData[element]);
+    if (typeof settingData[element] === 'object') {
+      for (let j = 0; j < names2.length; j++) {
+        const element2 = names2[j];
+        SetSettingItemByProperty(setting, element + '-' + element2, settingData[element][element2]);
+      }
+      continue;
+    }
+    SetSettingItemByProperty(setting, element, settingData[element]);
+  }
+}
+
+export const SetSettingItemByProperty = (object, property, value) => {
   for (let i = 0; i < object.length; i++) {
     const element = object[i];
     if (element.property == property) {
@@ -10,7 +26,7 @@ export const SetSettingItemByProperty = (object,property,value) => {
     }
   }
 }
-export const GetSettingItemValueByProperty = (object,property) => {
+export const GetSettingItemValueByProperty = (object, property) => {
   for (let i = 0; i < object.length; i++) {
     const element = object[i];
     if (element.property == property) {
@@ -19,7 +35,25 @@ export const GetSettingItemValueByProperty = (object,property) => {
   }
   return null;
 }
+export const GetSettingItemByProperty = (object, property) => {
+  for (let i = 0; i < object.length; i++) {
+    const element = object[i];
+    if (element.property == property) {
+      return element;
+    }
+  }
+  return null;
+}
 
+export const SetSettingItemPropertyValueByProperty = (object, property, property2, value) => {
+  for (let i = 0; i < object.length; i++) {
+    const element = object[i];
+    if (element.property == property) {
+      element[property2] = value;
+      return;
+    }
+  }
+}
 
 //获取 文章简介数据 。传入 文章所属分类， 多个分类用|隔开
 export const FormatDate = () => {
@@ -41,7 +75,7 @@ export const FormatDate = () => {
     hour +
     ":" +
     minute
-      // +  ":" +  second
+    // +  ":" +  second
   );
 }
 
@@ -50,7 +84,7 @@ export const GetDateH = () => {
   var g = new Date().getTime(); //1637120820767
   var now = new Date(g); //创建一个指定的日期对象 
   var hour = now.getHours(); //返回日期中的小时数（0到23） 
-  return ( hour
+  return (hour
   );
 }
 
@@ -127,7 +161,7 @@ export const stringtoBlob = (content, name) => {
 /**
  * 对象深拷贝
  */
- export const deepClone = data => {
+export const deepClone = data => {
   var type = getObjType(data);
   var obj = null;
   if (type === 'array') {
@@ -151,13 +185,13 @@ export const stringtoBlob = (content, name) => {
 }
 function getObjType(obj) {
   if (obj === null) {
-      return String(obj)
+    return String(obj)
   }
   const toType = (obj) => {
-      // '[object RealType]' => realtype
-      return Object.prototype.toString.call(obj).replace('[object ', '').replace(']', '').toLowerCase()
+    // '[object RealType]' => realtype
+    return Object.prototype.toString.call(obj).replace('[object ', '').replace(']', '').toLowerCase()
   }
   return typeof obj === 'object' ?
-      toType(obj) :
-      typeof obj;
+    toType(obj) :
+    typeof obj;
 }

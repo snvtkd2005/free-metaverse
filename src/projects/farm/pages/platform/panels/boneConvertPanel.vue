@@ -70,8 +70,8 @@
 
 <script>
 
-import YJinput_text from "./components/YJinput_text.vue";
-import { GetAllModel, UploadPlayerFile } from "../../js/uploadThreejs.js";
+import YJinput_text from "../components/YJinput_text.vue";
+import { GetAllModel, UploadPlayerFile } from "../../../js/uploadThreejs.js";
 
 export default {
   name: "index",

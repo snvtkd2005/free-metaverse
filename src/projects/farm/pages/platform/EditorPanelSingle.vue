@@ -158,9 +158,9 @@ import YJmetaBase from "./YJmetaBase.vue";
 
 import PanelCut from "./PanelCut.vue";
 
-import modelSelectPanel from "./modelSelectPanel.vue";
-import animPanel from "./animPanel.vue";
-import boneConvertPanel from "./boneConvertPanel.vue";
+import modelSelectPanel from "./panels/modelSelectPanel.vue";
+import animPanel from "./panels/animPanel.vue";
+import boneConvertPanel from "./panels/boneConvertPanel.vue";
 
 // 加载进度页
 import loadingPanel from "./loadingPanel2.vue";

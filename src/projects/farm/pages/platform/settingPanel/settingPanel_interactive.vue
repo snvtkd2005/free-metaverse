@@ -60,16 +60,18 @@
     </div>
 
 
-    <div v-if="inSelect" class=" grid grid-cols-2">
+    <div v-if="inSelect" class=" flex flex-wrap">
       <div v-for="(item, i) in imgList" :key="i" class="
-                  self-center w-40 h-auto relative
+                  self-center w-20 h-auto relative
                 ">
-        <div class=" w-20 h-20 self-center mx-auto 
+        <div class=" w-16 h-16 self-center mx-auto 
                   cursor-pointer " @click="ClickUVAnim(item)">
           <img class=" w-full h-full    object-fill hover:opacity-70 " :src="$uploadUVAnimUrl + item" />
         </div>
       </div>
     </div>
+
+
   </div>
 </template>
 

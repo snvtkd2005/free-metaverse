@@ -145,7 +145,14 @@ class Interface {
         _this.$uploadPlayerUrl + "anim_data.txt" + "?time=" + new Date().getTime()
       );
       _Global.animList = res.data;
+
+      res = await _this.$axios.get(
+        _this.$uploadPlayerUrl + "skill_data.txt" + "?time=" + new Date().getTime()
+      );
+      _Global.skillList = res.data;
+
       // console.log("_Global.animList = ", _Global.animList);
+      console.log("_Global.skillList = ", _Global.skillList);
     }
 
     // 移除folderBase
@@ -183,7 +190,9 @@ class Interface {
     init();
 
     this.YJ3D = function () {
-      return _this.$refs.YJmetaBase.ThreejsHumanChat;
+      if(_this.$refs.YJmetaBase){
+        return _this.$refs.YJmetaBase.ThreejsHumanChat;
+      }
     }
     _Global.YJ3D = this.YJ3D();
 

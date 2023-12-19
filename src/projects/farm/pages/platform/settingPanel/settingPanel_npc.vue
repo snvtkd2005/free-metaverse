@@ -270,12 +270,12 @@ export default {
       if (e == "设置为npc目标") {
         _Global.YJ3D._YJSceneManager
           .GetSingleTransformComponent("NPC")
-          .SetTarget(_Global.YJ3D.YJPlayer,true,true);
+          .SetNpcTarget(_Global.YJ3D.YJPlayer,true,true);
       }
       if (e == "设置npc失去目标") {
         _Global.YJ3D._YJSceneManager
           .GetSingleTransformComponent("NPC")
-          .SetTarget(null);
+          .SetNpcTarget(null);
       }
 
     },
@@ -376,6 +376,9 @@ export default {
         this.Utils.SetSettingItemByProperty(this.setting,"weapon",this.$uploadUrl + this.settingData.weaponData.icon );
       }
 
+      if(this.$refs.settingPanel_npcSkill){
+        this.$refs.settingPanel_npcSkill.initValue();
+      }
       console.log(" npc setting data ", _settingData); 
     },
     // 改变UI输入值后刷新

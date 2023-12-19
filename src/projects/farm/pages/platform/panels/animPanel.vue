@@ -245,7 +245,7 @@ export default {
       UploadPlayerFile(fromData).then((res) => {
         //先记录旧照片
         if (res.data == "SUCCESS") {
-          console.log(" 上传 角色 技能数据 文件成功 ");
+          console.log(" 上传 角色 动作数据 文件成功 ");
           this.inAdd = false;
         }
       });

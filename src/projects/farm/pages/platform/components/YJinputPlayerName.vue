@@ -57,7 +57,9 @@ export default {
 
 
     focus() {
-      this.$parent.$parent.removeThreeJSfocus();
+      if(this.$parent.$parent.removeThreeJSfocus){
+        this.$parent.$parent.removeThreeJSfocus();
+      }
     },
     blur() {},
   },

@@ -37,6 +37,7 @@ export default {
       { content: "单品" },
       { content: "HDR" },
       { content: "通用图片" },
+      { content: "技能" },
     ],
     // 场景模板
     sceneTemplate: [

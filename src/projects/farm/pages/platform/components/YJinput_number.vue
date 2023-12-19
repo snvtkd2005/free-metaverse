@@ -3,7 +3,7 @@
 <template>
   <!-- 顶部 -->
   <input
-    class="w-full"
+    class="w-full  px-1"
     ref="input"
     type="number"
     :step="step"
@@ -37,7 +37,9 @@ export default {
   },
   methods: {
     focus() {
-      this.$parent.$parent.removeThreeJSfocus();
+      if(this.$parent.$parent.removeThreeJSfocus){
+        this.$parent.$parent.removeThreeJSfocus();
+      }
     },
     blur() {},
   },

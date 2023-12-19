@@ -241,6 +241,11 @@
             </div>
           </div>
         </div>
+
+        <div v-if="currentTable == tableList[4].content" class="flex gap-6 w-full h-full">
+          <skillSettingPanel></skillSettingPanel> 
+        </div>
+
       </div>
     </div>
 
@@ -486,6 +491,10 @@
 <script>
 import PlayerAnimData from "../../data/playerAnimSetting.js";
 
+
+import skillSettingPanel from "./panels/skillSettingPanel.vue";
+
+import { Interface } from "../../js/Interface_editor.js";
 import SceneData from "../../data/sceneData.js";
 
 import ModelListData from "../../data/modelData.js";
@@ -504,7 +513,9 @@ import {
 
 export default {
   name: "gameUI",
-  components: {},
+  components: {
+    skillSettingPanel,
+  },
   data() {
     return {
       title: "",
@@ -578,6 +589,7 @@ export default {
     this.uploadSceneUrl = this.$uploadSceneUrl;
     this.publicUrl = this.$publicUrl + this.avatarData.localPath;
 
+    new Interface(this, true);
     // this.sceneList = SceneData.sceneList;
 
     this.RequestGetAllModel();

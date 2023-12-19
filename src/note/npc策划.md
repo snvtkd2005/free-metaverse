@@ -143,13 +143,38 @@ evolution, //进化 所有技能造成的伤害提高v%
     area 范围攻击
 }
 
-
-    let skillList = [
+ let skillList = [
+      {
+        skillName: "进化",
+        // 该结构表示：每10秒对当前目标造成10点伤害
+        //触发时机 每间隔n秒触发、血量达到n%触发 perSecond  health
+        trigger: { type: "health", value: 50 },
+        //目标
+        target: { type: "none", value: 30 },// random随机 target目标 area范围攻击
+        //效果 damage直接伤害、perDamage每秒伤害、contDamage持续伤害、冻结、眩晕等状态
+        effect: {
+          type: "evolution",
+          value: 50,
+          time: 0.2,
+          duration: 10,
+          describe: "所有技能造成的伤害提高500% ",
+          icon: "",
+        }, //describe技能描述，duration持续时间。perDamage、冻结、眩晕等状态效果才需要持续时间
+        //技能施放的有效范围 或 范围攻击的游戏范围
+        vaildDis: 100, //  
+        //施放时间
+        castTime: 2, // 施法时间。 秒, 0表示瞬发
+        animNameReady: "two hand gun before attack", // 施法准备/读条动作
+        animName: "two hand gun attack", // 施法施放动作
+        //效果增强
+        effectEnhance: "none",
+        icon: "", //技能图标
+      },
       {
         skillName: "繁殖",
         // 该结构表示：每10秒对当前目标造成10点伤害
         //触发时机 每间隔n秒触发、血量达到n%触发
-        trigger: { type: "health", value: 30 },
+        trigger: { type: "perSecond", value: 30 },
         //目标
         target: { type: "none", value: 30 },// random随机 target目标 area范围攻击
         //效果 damage直接伤害、perDamage每秒伤害、contDamage持续伤害、冻结、眩晕等状态
@@ -175,7 +200,7 @@ evolution, //进化 所有技能造成的伤害提高v%
         skillName: "吐息",
         // 该结构表示：每10秒对当前目标造成10点伤害
         //触发时机 每间隔n秒触发、血量达到n%触发
-        trigger: { type: "health", value: 90 },
+        trigger: { type: "perSecond", value: 40 },
         //目标
         target: { type: "area", value: 30 },// random随机 target目标 area范围攻击
         //效果 damage直接伤害、perDamage每秒伤害、contDamage持续伤害、冻结、眩晕等状态
@@ -190,18 +215,19 @@ evolution, //进化 所有技能造成的伤害提高v%
         //技能施放的有效范围 或 范围攻击的游戏范围
         vaildDis: 100, //  
         //施放时间
-        castTime: 4, // 施法时间。 秒, 0表示瞬发
+        castTime: 5, // 施法时间。 秒, 0表示瞬发
         animNameReady: "two hand gun before attack", // 施法准备/读条动作
         animName: "two hand gun attack", // 施法施放动作
         //效果增强
         effectEnhance: "none",
         icon: "", //技能图标
+        describe: "", //描述总结
       },
       {
         skillName: "致命一击",
         // 该结构表示：每10秒对当前目标造成10点伤害
         //触发时机 每间隔n秒触发、血量达到n%触发
-        trigger: { type: "health", value: 60 },
+        trigger: { type: "health", value: 20 },
         //目标
         target: { type: "target", value: 1 },// random随机 target目标 area范围攻击
         //效果 直接伤害、每秒伤害、冻结、眩晕等状态
@@ -227,7 +253,7 @@ evolution, //进化 所有技能造成的伤害提高v%
         skillName: "感染",
         // 该结构表示：每10秒对当前目标造成10点伤害
         //触发时机 每间隔n秒触发、血量达到n%触发
-        trigger: { type: "perSecond", value: 10 },
+        trigger: { type: "perSecond", value: 15 },
         //目标
         target: { type: "random", value: 1 },// random随机 target目标 area范围攻击
         //效果 直接伤害、每秒伤害、冻结、眩晕等状态
@@ -235,9 +261,9 @@ evolution, //进化 所有技能造成的伤害提高v%
           type: "perDamage",
           value: 10,
           time: 1,
-          duration: 3,
-          describe: "每秒造成10点伤害，持续3秒",
-          icon: "",
+          duration: 10,
+          describe: "每秒造成50点伤害，持续10秒",
+          icon: "1702644211071/bingdu_64x64.png",
         }, //describe技能描述，duration持续时间。perDamage、冻结、眩晕等状态效果才需要持续时间
         //有效范围
         vaildDis: 100, //  

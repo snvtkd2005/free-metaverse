@@ -75,11 +75,15 @@ class YJSceneDyncManagerEditor {
       dyncModelList.push({ id: model.type, modelType: "交互模型", state: { value: 0, count: 0 } });
     }
     this.SendDataToServer = (type, data) => {
+
       console.log(" 发送 ", type, data);
       if (type == "npc技能" || type == "npc技能攻击") {
         let { npcId, skill } = data;
         if (type == "npc技能") {
           _SceneManager.SetTargetSkill(npcId, skill);
+        }
+        if (!_Global.YJDync) {
+          return;
         }
         _Global.YJDync._YJDyncManager.SendSceneState("转发", { type: type, state: data });
         return;
@@ -132,7 +136,7 @@ class YJSceneDyncManagerEditor {
     let oldTabSelectNpcId = 0;
     let tabSelectIndex = 0;
     // tab键切换选择玩家前方的敌人
-    this.TabChangeTarget = function(){
+    this.TabChangeTarget = function () {
       if (_Global.YJ3D.YJController.isInDead()) {
         return;
       }
@@ -163,10 +167,10 @@ class YJSceneDyncManagerEditor {
         }
       }
       tabSelectIndex++;
-      if(tabSelectIndex>=canSelectNpc.length){
+      if (tabSelectIndex >= canSelectNpc.length) {
         tabSelectIndex = 0;
       }
-      _SceneManager.ClickModelTransform(canSelectNpc[tabSelectIndex]); 
+      _SceneManager.ClickModelTransform(canSelectNpc[tabSelectIndex]);
       canSelectNpc = [];
     }
 
@@ -218,7 +222,7 @@ class YJSceneDyncManagerEditor {
         for (let j = 0; j < element.npcList.length; j++) {
           const npc = element.npcList[j];
           if (npc == npcComponent.transform.id) {
-            if(npcComponent.fireId == -1){
+            if (npcComponent.fireId == -1) {
               npcComponent.fireId = element.fireId;
             }
             return;
@@ -255,6 +259,12 @@ class YJSceneDyncManagerEditor {
       return parseInt(Math.random() * (maxNum - minNum + 1) + minNum, 10);
     }
     this.GetPlayerByRandom = function () {
+      if (!_Global.YJDync) {
+        return {
+          playerId: _Global.YJ3D.YJPlayer.id,
+          player: _Global.YJ3D.YJPlayer,
+        };
+      }
       let players = _Global.YJDync.GetAllPlayer();
       let player = players[radomNum(0, players.length - 1)];
       return {
@@ -439,7 +449,7 @@ class YJSceneDyncManagerEditor {
               const player = element.playerList[k];
               if (player == targetModel.id) {
                 hasPlayer = true;
-                if(targetModel.fireId == -1){
+                if (targetModel.fireId == -1) {
                   targetModel.fireId = element.fireId;
                   console.log(" 玩家 加入战斗 ", element);
                   return;
@@ -466,7 +476,7 @@ class YJSceneDyncManagerEditor {
           for (let j = 0; j < element.npcList.length; j++) {
             const npc = element.npcList[j];
             if (npc == npcComponent.transform.id) {
-              if(npcComponent.fireId == -1){
+              if (npcComponent.fireId == -1) {
                 npcComponent.fireId = element.fireId;
               }
               return;
@@ -535,7 +545,9 @@ class YJSceneDyncManagerEditor {
           }
         }
       }
-      npcComponent.SetNpcTargetToNone(true, false);
+      if (npcComponent != null) {
+        npcComponent.SetNpcTargetToNone(true, false);
+      }
 
     }
     // 玩家拾取场景内物体的数据。用来做场景物体同步

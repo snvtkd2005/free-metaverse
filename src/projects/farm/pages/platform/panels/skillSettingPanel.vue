@@ -1,20 +1,21 @@
 
 // 模型库
 <template>
-  <!-- 模型库 模型列表选择 -->
-  <div v-if="isOpen" class="
-       relative
-      w-full
-      h-full 
-      text-white 
-      overflow-hidden 
-    ">
-    <div class=" text-left w-6 h-6 bg-white flex text-black self-center leading-6 mx-auto cursor-pointer "
+      <div class=" text-left w-6 h-6 bg-white flex text-black self-center leading-6 mx-auto cursor-pointer "
       @click="EditorEvent('新建')">
       <div class=" mx-auto">
         +
       </div>
     </div> 
+  <!-- 模型库 模型列表选择 -->
+  <div v-if="isOpen" class="
+       relative 
+      w-full
+      text-white 
+      overflow-hidden  overflow-y-auto  overscroll-auto h-5/6
+    ">
+
+
     <!-- 数据内容 -->
     <el-table :data="skillList" border style="width: 100%" ref="multipleTableRef"
       @selection-change="handleSelectionChange">
@@ -87,7 +88,7 @@
       <el-table-column label="操作" width="160">
         <template #default="scope">
           <el-button size="small" @click="EditorEvent('编辑', scope.row, scope.$index)">编辑</el-button>
-          <el-button size="small" type="danger" @click="EditorEvent('删除', scope.row,scope.$index)">删除</el-button>
+          <!-- <el-button size="small" type="danger" @click="EditorEvent('删除', scope.row,scope.$index)">删除</el-button> -->
         </template>
       </el-table-column>
     </el-table>

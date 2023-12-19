@@ -1,19 +1,14 @@
 
 <!-- // 场景编辑UI -->
 <template>
-  <div class="absolute left-0 top-0 z-999 w-full h-full ">
+  <div class="absolute left-0 top-0 z-999 w-full h-full flex ">
     <!-- 中部 -->
-    <div class="flex absolute left-0 top-0 mt-0 w-full  bg-gray-100 ">
+    <div class="flex  mt-0 w-5/6 h-full mx-auto  bg-gray-100 ">
       <!-- 右 -->
-      <div class="flex-grow flex-col p-10 mx-auto ">
-        <div class="flex h-20 justify-between">
-          <div class="w-auto text-3xl text-black font-bold self-center">
-            {{ title }}
-          </div>
-        </div>
+      <div class="flex-grow flex-col mt-10 mx-auto ">
 
         <!-- table 选择列表 -->
-        <div class="flex text-lg mb-10">
+        <div class="mt-2 flex text-lg mb-10">
           <div v-for="(item, i) in tableList" :key="i" class="self-center w-40 h-auto relative">
             <div class="w-40 h-10 self-center flex cursor-pointer" :class="currentTable == item.content ? ' bg-gray-300' : ' bg-gray-100'
               " @click="currentTable = item.content">
@@ -23,16 +18,10 @@
         </div>
 
         <!-- 场景 -->
-        <div class="hidden flex justify-between">
-          <div class="w-auto h-12 text-xl text-left text-black font-bold">
-            场景
-          </div>
-        </div>
-
-        <div v-if="currentTable == tableList[0].content" class="flex gap-6">
-          <div class="gap-6 flex flex-wrap">
-            <!-- 新建按钮 -->
-            <div class="self-center w-40 h-auto relative border-2">
+        <div v-if="currentTable == tableList[0].content" 
+          class=" gap-6 flex flex-wrap  overflow-y-auto  overscroll-auto  ">
+          <!-- 新建按钮 -->
+          <div class=" w-40 h-40 border-2 relative">
               <div class="w-40 h-40 self-center mx-auto cursor-pointer" @click="CreateNew(tableList[0].content)">
                 <!-- <img class=" w-full h-full    object-fill hover:opacity-70 " src="publicUrl + item.icon" /> -->
               </div>
@@ -77,19 +66,11 @@
                 </div>
               </div>
             </div>
-          </div>
         </div>
 
         <!-- 单品 -->
-        <div class="hidden mt-10 flex justify-between">
-          <div class="w-auto h-12 text-xl text-left text-black font-bold">
-            单品
-          </div>
-        </div>
-
-
         <div v-if="currentTable == tableList[1].content"
-          class=" gap-6 flex flex-wrap  overflow-y-auto  overscroll-auto h-2/3 ">
+          class=" gap-6 flex flex-wrap  overflow-y-auto  overscroll-auto h-5/6 ">
           <!-- 新建按钮 -->
           <div class=" w-40 h-40 border-2 relative ">
             <div class="w-40 h-40 self-center mx-auto cursor-pointer" @click="CreateNew(tableList[1].content)">
@@ -141,12 +122,6 @@
         </div>
 
         <!-- HDR -->
-        <div class="hidden mt-10 flex justify-between">
-          <div class="w-auto h-12 text-xl text-left text-black font-bold">
-            HDR
-          </div>
-        </div>
-
         <div v-if="currentTable == tableList[2].content" class="flex gap-6">
           <!-- 新建按钮 -->
           <div class="self-center w-40 h-auto relative border-2">
@@ -191,8 +166,8 @@
           </div>
         </div>
 
-        <!-- UV序列动画 -->
-        <div v-if="currentTable == tableList[3].content" class="flex gap-6">
+        <!-- 通用图片 -->
+        <div v-if="currentTable == tableList[3].content" class="flex gap-6 flex-wrap  overflow-y-auto  overscroll-auto ">
           <!-- 新建按钮 -->
           <div class="self-center w-40 h-auto relative border-2">
             <div class="w-40 h-40 self-center mx-auto cursor-pointer" @click="CreateNew('UVAnim')">
@@ -212,19 +187,16 @@
               </div>
             </div>
           </div>
-
-          <div class="gap-6 grid xl:grid-cols-7 md:grid-cols-5 flex-row-reverse">
             <!-- 选择列表 -->
-            <div v-for="(item, i) in uvAnimList" :key="i" class="self-center w-40 h-auto relative">
+            <div v-for="(item, i) in uvAnimList" :key="i" class="self-center w-32 h-auto relative">
               <div class="
-                  w-40
-                  h-20
+                  w-32
+                  h-32
                   self-center
                   mx-auto
                   overflow-hidden
                   cursor-pointer
-                ">
-                <!-- :style="'--tw-scale-x:17'" -->
+                "> 
                 <img class="w-full h-full object-fill hover:opacity-70 transform" :src="uploadUVAnimUrl + item" />
               </div>
               <div class="mt-2 w-28 truncate px-2 flex text-sm justify-between ">
@@ -238,11 +210,10 @@
                 <div class="cursor-pointer">{{ base.editor }}</div>
                 <div class="cursor-pointer">{{ base.delete }}</div>
               </div>
-            </div>
-          </div>
+            </div> 
         </div>
 
-        <div v-if="currentTable == tableList[4].content" class="flex gap-6 w-full h-full">
+        <div v-if="currentTable == tableList[4].content" class="  gap-6 w-full mx-auto h-full">
           <skillSettingPanel></skillSettingPanel> 
         </div>
 

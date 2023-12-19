@@ -462,6 +462,13 @@ class YJPlayerAnimData {
       { state: "行走", pickType: "mainHand", weaponType: "arch", animName: "one hand bow walk" },
 
     ]
+
+    let skillListData = [
+      { pickType: "twoHand", weaponType: "gun", dis: 30, speed: 1 },
+      { pickType: "twoHand", weaponType: "sword", dis: 3, speed: 2.5 },
+      { pickType: "mainHand", weaponType: "arch", dis: 20, speed: 1.5 },
+    ];
+    
     function GetAnimName(state, weaponData) {
       let { pickType, weaponType } = weaponData;
       for (let i = 0; i < animListData.length; i++) {
@@ -582,11 +589,6 @@ class YJPlayerAnimData {
     }
 
 
-    let skillListData = [
-      { pickType: "twoHand", weaponType: "gun", dis: 30, speed: 1 },
-      { pickType: "twoHand", weaponType: "sword", dis: 3, speed: 2.5 },
-      { pickType: "mainHand", weaponType: "arch", dis: 20, speed: 1.5 },
-    ];
 
     function GetSkill(weaponData) {
       if (weaponData) {

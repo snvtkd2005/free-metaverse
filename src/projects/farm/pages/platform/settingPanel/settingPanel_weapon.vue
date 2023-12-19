@@ -70,10 +70,10 @@
 
     <!-- 动作播放进度滑块 -->
     <div class=" flex w-80   ">
-      <div class=" bg-gray-400 cursor-pointer" @click=" auto = !auto">{{auto?'暂停':'播放'}}</div>
-      <div class=" w-16 ml-2 ">{{animClip.currentTime+'/' +animClip.duration}}</div>
+      <div class=" bg-gray-400 cursor-pointer" @click=" auto = !auto">{{ auto ? '暂停' : '播放' }}</div>
+      <div class=" w-16 ml-2 ">{{ animClip.currentTime + '/' + animClip.duration }}</div>
       <input ref="viewFarCtrl" class=" ml-2  outline-none w-40  " @input="sliderChangeFn" v-model="animClip.currentTime"
-      type="range" min="0" :max="animClip.duration" step="1">
+        type="range" min="0" :max="animClip.duration" step="1">
     </div>
 
     <div class=" mt-10 w-80 h-10 text-white cursor-pointer " @click="ClickHandler('编辑位置')">
@@ -86,7 +86,7 @@
     <div class=" mt-2 w-80 h-10 text-white cursor-pointer " @click="ClickHandler('保存偏移旋转')">
       <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">保存偏移旋转</div>
     </div>
-    
+
 
     <!-- <div  class=" flex gap-2 text-black ">
       <YJinput_number :value="carData.param.chassisHeight" />
@@ -126,16 +126,27 @@ export default {
       settingData: {
         id: "",
         name: "weapon001",
-
+        //武器类型
         weaponType: "",
+        //手持类型
         pickType: "",
         // 1.81 0.65 3.6
-
         // position: { x: 0, y: -0.61, z: -0.3 },
         // rotation: { x: 1.81, y: 0.65, z: 3.6 },
         position: [0, 0, 0],
         rotation: [0, 0, 0],
-        animName: "",
+
+        // 待机
+        animNameIdle: "",
+        // 行走
+        animNameWalk: "",
+        // 奔跑
+        animNameRun: "",
+        //准备攻击
+        animNameReady: "",
+        //攻击
+        animNameAttack: "",
+        // 依附的骨骼名称
         boneName: "",
       },
 
@@ -174,7 +185,13 @@ export default {
             { value: "RightHand", label: "右手腕" },
           ], callback: this.ChangeValue
         },
-        { property: "animName", title: "交互动作", type: "drop", value: "none", options: [], callback: this.ChangeValue },
+
+        { property: "animNameIdle", title: "待机", type: "drop", value: "none", options: [], callback: this.ChangeValue },
+        { property: "animNameWalk", title: "行走", type: "drop", value: "none", options: [], callback: this.ChangeValue },
+        { property: "animNameRun", title: "奔跑", type: "drop", value: "none", options: [], callback: this.ChangeValue },
+        { property: "animNameReady", title: "准备攻击", type: "drop", value: "none", options: [], callback: this.ChangeValue },
+        { property: "animNameAttack", title: "攻击", type: "drop", value: "none", options: [], callback: this.ChangeValue },
+        // { property: "animName", title: "交互动作", type: "drop", value: "none", options: [], callback: this.ChangeValue },
         { property: "position", title: "偏移", type: "vector3", value: [0, 0, 0], step: 0.01, callback: this.ChangeValue },
         { property: "rotation", title: "旋转", type: "vector3", value: [0, 0, 0], step: 0.01, callback: this.ChangeValue },
 
@@ -257,31 +274,16 @@ export default {
     addThreeJSfocus() {
     },
 
-    setSettingItemByProperty(property, value) {
-      for (let i = 0; i < this.setting.length; i++) {
-        const element = this.setting[i];
-        if (element.property == property) {
-          element.value = value;
-        }
-      }
-    },
-    getSettingItemByProperty(property) {
-      for (let i = 0; i < this.setting.length; i++) {
-        const element = this.setting[i];
-        if (element.property == property) {
-          return element.value;
-        }
-      }
-      return null;
-    },
-
     SetAnimList(_animList) {
-      for (let i = 0; i < _animList.length; i++) {
-        const element = _animList[i];
-        this.animList.push({ value: element, label: element });
-      }
-      this.setting[3].options = this.animList;
-      console.log(this.setting[3].options);
+
+      this.animList = _animList;
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "animNameIdle", "options", this.animList);
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "animNameWalk", "options", this.animList);
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "animNameRun", "options", this.animList);
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "animNameReady", "options", this.animList);
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "animNameAttack", "options", this.animList);
+      // this.setting[3].options = this.animList;
+      // console.log(this.setting[3].options);
 
     },
 
@@ -304,12 +306,16 @@ export default {
     },
     initValue() {
 
-      this.setSettingItemByProperty("boneName", this.settingData.boneName);
-      this.setSettingItemByProperty("animName", this.settingData.animName);
-      this.setSettingItemByProperty("position", this.settingData.position);
-      this.setSettingItemByProperty("rotation", this.settingData.rotation);
-      this.setSettingItemByProperty("pickType", this.settingData.pickType);
-      this.setSettingItemByProperty("weaponType", this.settingData.weaponType);
+      this.Utils.SetSettingItemByProperty(this.setting, "boneName", this.settingData.boneName);
+      this.Utils.SetSettingItemByProperty(this.setting, "animNameIdle", this.settingData.animNameIdle);
+      this.Utils.SetSettingItemByProperty(this.setting, "animNameWalk", this.settingData.animNameWalk);
+      this.Utils.SetSettingItemByProperty(this.setting, "animNameRun", this.settingData.animNameRun);
+      this.Utils.SetSettingItemByProperty(this.setting, "animNameReady", this.settingData.animNameReady);
+      this.Utils.SetSettingItemByProperty(this.setting, "animNameAttack", this.settingData.animNameAttack);
+      this.Utils.SetSettingItemByProperty(this.setting, "position", this.settingData.position);
+      this.Utils.SetSettingItemByProperty(this.setting, "rotation", this.settingData.rotation);
+      this.Utils.SetSettingItemByProperty(this.setting, "pickType", this.settingData.pickType);
+      this.Utils.SetSettingItemByProperty(this.setting, "weaponType", this.settingData.weaponType);
 
 
       this.animate();
@@ -381,7 +387,7 @@ export default {
 
       console.log(i + " " + this.setting[i].value);
       // console.log(i + " " + this.setting[i].value + " " + e);
-      if (this.setting[i].property == "animName") {
+      if (this.setting[i].property.includes("animName")) {
         _Global.SendMsgTo3D("切换角色动作", e);
         return;
       }
@@ -425,8 +431,8 @@ export default {
         this.settingData["position"] = pos;
         this.settingData["rotation"] = rota;
 
-        this.setSettingItemByProperty("position", this.settingData.position);
-        this.setSettingItemByProperty("rotation", this.settingData.rotation);
+        this.Utils.SetSettingItemByProperty(this.setting, "position", this.settingData.position);
+        this.Utils.SetSettingItemByProperty(this.setting, "rotation", this.settingData.rotation);
 
         this.saveFn();
         //取消编辑

@@ -19,14 +19,14 @@
         <div v-if="item.type == 'int'" class="flex gap-2 text-black">
           <YJinput_number :value="item.value" :type="item.type" :step="item.step" :index="i" :callback="item.callback" />
         </div>
-        <div v-if="item.type == 'num'" class=" flex gap-2 text-black "> 
-          <YJinput_number :value="item.value"  :type="item.type" :step="item.step" :index="i" :callback="item.callback" />
+        <div v-if="item.type == 'num'" class=" flex gap-2 text-black ">
+          <YJinput_number :value="item.value" :type="item.type" :step="item.step" :index="i" :callback="item.callback" />
         </div>
         <div v-if="item.type == 'image'" class="flex gap-2 text-black">
           <div @click="item.callback('加载武器模型')" class=" w-10 h-10 bg-black cursor-pointer ">
-            <img class=" w-full h-full" :src="item.value"   />
+            <img class=" w-full h-full" :src="item.value" />
           </div>
-          <div v-if="item.value" class=" h-4 w-10 bg-white cursor-pointer"  @click="item.callback('移除武器模型',item)">移除</div>
+          <div v-if="item.value" class=" h-4 w-10 bg-white cursor-pointer" @click="item.callback('移除武器模型', item)">移除</div>
         </div>
       </div>
     </div>
@@ -45,18 +45,18 @@
         X:
       </div>
       <input class=" w-16  h-6 bg-transparent border-px placeholder-gray-400 p-1" type="number" v-model="item.x"
-        :placeholder="item.x" @change="ClickHandler('值改变', item,i)" />
+        :placeholder="item.x" @change="ClickHandler('值改变', item, i)" />
       <div class="   w-6 h-6 ">
         Y:
       </div>
       <input class=" w-16  h-6 bg-transparent border-px placeholder-gray-400 p-1" type="number" v-model="item.y"
-        :placeholder="item.y" @change="ClickHandler('值改变', item,i)" />
+        :placeholder="item.y" @change="ClickHandler('值改变', item, i)" />
 
       <div class="   w-6 h-6 ">
         Z:
       </div>
       <input class=" w-16  h-6 bg-transparent border-px placeholder-gray-400 p-1" type="number" v-model="item.z"
-        :placeholder="item.z" @change="ClickHandler('值改变', item,i)" />
+        :placeholder="item.z" @change="ClickHandler('值改变', item, i)" />
 
       <div class=" ml-2 flex  h-6 p-1 text-sm bg-white text-black cursor-pointer " @click="ClickHandler('删除', item, i)">
         <div class=" self-center">-</div>
@@ -68,9 +68,9 @@
     <settingPanel_npcSkill ref="settingPanel_npcSkill" />
 
 
-    <div class="mt-10 w-full h-10 text-white cursor-pointer" @click="ClickHandler(isMoving?'停止巡逻':'开始巡逻')">
+    <div class="mt-10 w-full h-10 text-white cursor-pointer" @click="ClickHandler(isMoving ? '停止巡逻' : '开始巡逻')">
       <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">
-        {{ isMoving?'停止巡逻':'开始巡逻' }}
+        {{ isMoving ? '停止巡逻' : '开始巡逻' }}
       </div>
     </div>
 
@@ -85,7 +85,7 @@
         饶命啊
       </div>
     </div>
-    
+
     <div class=" w-full h-10 text-white cursor-pointer" @click="ClickHandler('加载角色模型')">
       <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">
         加载角色模型
@@ -95,7 +95,7 @@
     <div class="mt-2 w-full h-10 text-white cursor-pointer" @click="ClickHandler('保存')">
       <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">保存</div>
     </div>
-  </div> 
+  </div>
 </template>
 
 <script>
@@ -103,7 +103,7 @@ import YJinput_text from "../components/YJinput_text.vue";
 import YJinput_number from "../components/YJinput_number.vue";
 import YJinput_drop from "../components/YJinput_drop.vue";
 import settingPanel_npcSkill from "./settingPanel_npcSkill.vue";
- 
+
 
 export default {
   name: "settingpanel_uvanim",
@@ -141,15 +141,13 @@ export default {
           strength: 20, //攻击力
         },
         defaultAnim: "idle", //默认动作
-        relifeTime:0,//重新生成间隔时间 秒
+        relifeTime: 0,//重新生成间隔时间 秒
         avatarData: {}, //avatar模型数据
         eventType: "no",//事件类型 
         contentData: {},//事件内容数据
         movePos: [
           { x: 0, y: 0, z: 0 },
         ], //巡逻坐标点，随机顺序
-
-        
         //武器 
         weaponData: {},
       },
@@ -174,16 +172,16 @@ export default {
           property: "type", display: true, title: "难度", type: "drop", value: "普通", options: [
             { value: 'normal', label: '普通' },
             { value: 'rare', label: '稀有' },
-            { value: 'elite', label: '精英' }, 
+            { value: 'elite', label: '精英' },
           ], callback: this.ChangeValue,
         },
         { property: "maxHealth", display: true, title: "生命值", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
         { property: "strength", display: true, title: "攻击力", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
         { property: "level", display: true, title: "等级", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
         { property: "weapon", display: true, title: "装备", type: "image", value: 1, callback: this.ClickHandler, },
-        { property: "relifeTime", display: true, title: "重新生成间隔时间", type: "num", step: 1,value: 0, callback: this.ChangeValue },
+        { property: "relifeTime", display: true, title: "重新生成间隔时间", type: "num", step: 1, value: 0, callback: this.ChangeValue },
       ],
-      isMoving:true,
+      isMoving: true,
 
     };
   },
@@ -214,25 +212,25 @@ export default {
   methods: {
     ClickHandler(e, item, i) {
 
-      if (e == "停止巡逻" || e == "开始巡逻") { 
+      if (e == "停止巡逻" || e == "开始巡逻") {
         this.isMoving = !this.isMoving;
         _Global.YJ3D._YJSceneManager
           .GetSingleTransformComponent("NPC")
-          .UpdateNavPos(e,this.settingData.movePos);
-        return; 
+          .UpdateNavPos(e, this.settingData.movePos);
+        return;
       }
-      
-      if (e == "删除") { 
-        if(i==0){ return;}
+
+      if (e == "删除") {
+        if (i == 0) { return; }
         this.settingData.movePos.splice(i, 1);
         //在场景中添加巡逻位置参考坐标点
         _Global.YJ3D._YJSceneManager
           .GetSingleTransformComponent("NPC")
-          .UpdateNavPos(e,null,i);
+          .UpdateNavPos(e, null, i);
         return;
       }
       if (e == "添加") {
-        
+
         this.settingData.movePos.push({ x: 0, y: 0, z: 0 });
         //在场景中添加巡逻位置参考坐标点
         _Global.YJ3D._YJSceneManager
@@ -241,25 +239,25 @@ export default {
         return;
       }
       if (e == "值改变") {
-        if(i==0){item.x=item.y=item.z=0;return;}
+        if (i == 0) { item.x = item.y = item.z = 0; return; }
         _Global.YJ3D._YJSceneManager
           .GetSingleTransformComponent("NPC")
-          .UpdateNavPos("更新",item,i);
+          .UpdateNavPos("更新", item, i);
         // this.settingData.movePos[i].
         return;
       }
 
-      
+
       if (e == "加载武器模型") {
         this.$parent.$refs.modelSelectPanel.Init("装备模型");
       }
       if (e == "移除武器模型") {
-        item.value = ""; 
+        item.value = "";
         this.settingData.weaponData = undefined;
         let singleTransform = _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
         singleTransform.GetComponent("NPC").RemoveWeapon();
       }
-      
+
       if (e == "加载角色模型") {
         this.$parent.$refs.modelSelectPanel.Init("角色模型");
       }
@@ -270,7 +268,7 @@ export default {
       if (e == "设置为npc目标") {
         _Global.YJ3D._YJSceneManager
           .GetSingleTransformComponent("NPC")
-          .SetNpcTarget(_Global.YJ3D.YJPlayer,true,true);
+          .SetNpcTarget(_Global.YJ3D.YJPlayer, true, true);
       }
       if (e == "设置npc失去目标") {
         _Global.YJ3D._YJSceneManager
@@ -282,20 +280,20 @@ export default {
     removeThreeJSfocus() {
       this.$parent.removeThreeJSfocus();
     },
-    addThreeJSfocus() { }, 
+    addThreeJSfocus() { },
     // 从单品编辑跳转过来后更新UI值
-    initValue() { 
+    initValue() {
       this.Init(this.settingData);
-    }, 
-    load(item,modelType) {
-      console.log(item,modelType);
-      if(modelType == "装备模型"){
+    },
+    load(item, modelType) {
+      console.log(item, modelType);
+      if (modelType == "装备模型") {
         //npc换 装备模型
 
         this.settingData.weaponData = item;
         //加载武器并让角色使用
-        this.Utils.SetSettingItemByProperty(this.setting,"weapon",this.$uploadUrl + this.settingData.weaponData.icon );
-        
+        this.Utils.SetSettingItemByProperty(this.setting, "weapon", this.$uploadUrl + this.settingData.weaponData.icon);
+
         let singleTransform =
           _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
         singleTransform.GetComponent("NPC").SetMessage(this.settingData);
@@ -305,7 +303,7 @@ export default {
 
 
 
-      if(modelType != "角色模型"){ return; }
+      if (modelType != "角色模型") { return; }
       //npc换角色模型
       this.settingData.avatarData = item.message.data;
       this.settingData.avatarData.modelPath = this.$uploadUrl + item.modelPath;
@@ -320,8 +318,8 @@ export default {
         //加载模型
         _Global.YJ3D._YJSceneManager.CreateSingleModel(
           item.modelPath,
-          () => { 
-            this.$parent.SetTip("加载模型完成"); 
+          () => {
+            this.$parent.SetTip("加载模型完成");
             setTimeout(() => {
               // 控制三维
               _Global.YJ3D._YJSceneManager
@@ -346,7 +344,7 @@ export default {
             _YJAnimator.Destroy();
             _YJAnimator.UpdateModel(scope.GetModel(), scope.GetAnimations());
             singleTransform.GetComponent("NPC").SetMessage(this.settingData);
-     
+
           },
           (e) => { }
         );
@@ -363,36 +361,36 @@ export default {
     },
     Init(_settingData) {
       this.settingData = _settingData;
-       this.Utils.SetSettingItemByProperty(this.setting,"name", this.settingData.name);
-       this.Utils.SetSettingItemByProperty(this.setting,"maxHealth", this.settingData.baseData.maxHealth);
-       this.Utils.SetSettingItemByProperty(this.setting,"level", this.settingData.baseData.level);
-       this.Utils.SetSettingItemByProperty(this.setting,"camp", this.settingData.baseData.camp);
-       this.Utils.SetSettingItemByProperty(this.setting,"strength", this.settingData.baseData.strength);
-       this.Utils.SetSettingItemByProperty(this.setting,"height", this.settingData.height);
-       this.Utils.SetSettingItemByProperty(this.setting,"relifeTime",  this.settingData.relifeTime);
-       this.Utils.SetSettingItemByProperty(this.setting,"type",  this.settingData.baseData.type? this.settingData.baseData.type:"normal");
-      
-      if(this.settingData.weaponData){
-        this.Utils.SetSettingItemByProperty(this.setting,"weapon",this.$uploadUrl + this.settingData.weaponData.icon );
+      this.Utils.SetSettingItemByProperty(this.setting, "name", this.settingData.name);
+      this.Utils.SetSettingItemByProperty(this.setting, "maxHealth", this.settingData.baseData.maxHealth);
+      this.Utils.SetSettingItemByProperty(this.setting, "level", this.settingData.baseData.level);
+      this.Utils.SetSettingItemByProperty(this.setting, "camp", this.settingData.baseData.camp);
+      this.Utils.SetSettingItemByProperty(this.setting, "strength", this.settingData.baseData.strength);
+      this.Utils.SetSettingItemByProperty(this.setting, "height", this.settingData.height);
+      this.Utils.SetSettingItemByProperty(this.setting, "relifeTime", this.settingData.relifeTime);
+      this.Utils.SetSettingItemByProperty(this.setting, "type", this.settingData.baseData.type ? this.settingData.baseData.type : "normal");
+
+      if (this.settingData.weaponData) {
+        this.Utils.SetSettingItemByProperty(this.setting, "weapon", this.$uploadUrl + this.settingData.weaponData.icon);
       }
 
-      if(this.$refs.settingPanel_npcSkill){
+      if (this.$refs.settingPanel_npcSkill) {
         this.$refs.settingPanel_npcSkill.initValue();
       }
-      console.log(" npc setting data ", _settingData); 
+      console.log(" npc setting data ", _settingData);
     },
     // 改变UI输入值后刷新
     ChangeValue(i, e) {
       this.setting[i].value = e;
       let property = this.setting[i].property;
-      if (property == "camp" 
-      || property == "maxHealth"
-      || property == "strength"
-      || property == "type"
-      || property == "level"
+      if (property == "camp"
+        || property == "maxHealth"
+        || property == "strength"
+        || property == "type"
+        || property == "level"
       ) {
         this.settingData.baseData[property] = e;
-        if(property == "maxHealth"){
+        if (property == "maxHealth") {
           this.settingData.baseData['health'] = e;
         }
       } else {
@@ -430,7 +428,7 @@ export default {
         height
       );
     },
- 
+
     Update() {
       // _Global.SendMsgTo3D("刷新Transform", this.$parent.modelData.message);
 

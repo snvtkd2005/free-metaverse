@@ -414,8 +414,21 @@ export default {
         setTimeout(() => {
           _Global.YJ3D._YJSceneManager
             .CreateOrLoadPlayerAnimData()
-            .GetAllAnim(this.avatarName, (animList) => {
-              this.$refs.settingPanel_weapon.SetAnimList(animList);
+            .GetAllAnim(this.avatarName, (temp) => {
+              let animList = _Global.animList;
+              let canAnimList = [];
+              for (let i = 0; i < animList.length; i++) {
+                const anim = animList[i];
+                anim.has = false;
+                for (let j = 0; j < temp.length; j++) {
+                  const element = temp[j];
+                  if (element == anim.animName && element != "") {
+                    anim.has = true;
+                    canAnimList.push({ label: anim.content, value: anim.animName });
+                  }
+                }
+              }
+              this.$refs.settingPanel_weapon.SetAnimList(canAnimList);
             });
         }, 1000);
       }

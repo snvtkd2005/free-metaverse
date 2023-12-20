@@ -12,6 +12,15 @@
         <div class=" mt-px h-3   relative ">
           <div class=" h-full bg-blue-500  " :style="'width: ' + GetEnergy() + '%'"></div>
         </div>
+
+        <div v-if="baseData.debuffList && baseData.debuffList.length"
+            class=" flex ">
+            <div v-for="(debuff, i) in baseData.debuffList " :key="i" class=" flex mr-1 ">
+              <div class=" w-5 h-5 bg-gray-500" >
+                <img class=" w-full h-full" :src="debuff.icon"  alt="">
+              </div>
+            </div>
+          </div>
       </div>
     </div>
 
@@ -122,14 +131,14 @@ export default {
 
     // 设置头像框上的角色名
     SetTarget(npcData) {
-      // console.log(  " 设置头像框上数据更新 111 ",npcData);
+      console.log(  " 设置 NPC 头像框上数据更新 111 ",npcData);
 
       this.targetName = npcData.name;
       this.baseData = npcData.baseData;
-
-
+      
       this.selfCamp = this.baseData.camp == _Global.user.camp;
 
+      // 普通 稀有 精英
       this.headerBGUrl = this.headerBGUrlData[this.baseData.type || "normal"];
       this.GetHealth();
       let avatarId = npcData.avatarData.id;

@@ -115,6 +115,8 @@
     </div>
 
     <modelSelectPanel ref="modelSelectPanel" />
+    
+    <!-- 给npc添加技能 -->
     <skillSelectPanel ref="skillSelectPanel" />
 
     <div class=" absolute z-10 left-0  " :style="hierarchyStyle">
@@ -232,6 +234,7 @@ export default {
         particle: false,
         npc: false,
         interactive: false,
+        weapon: false,
       },
       hover: false,
       infloating: false,
@@ -1521,11 +1524,11 @@ export default {
       }
       component = this.clickModelJS.GetComponent("Weapon");
       if (component != null) {
-        // this.ChangePanel('weapon');
-        // let msg = this.clickModelJS.GetMessage();
-        // this.$nextTick(() => {
-        //   this.$refs.settingPanel_weapon.Init(msg.data);
-        // });
+        this.ChangePanel('weapon');
+        let msg = this.clickModelJS.GetMessage();
+        this.$nextTick(() => {
+          this.$refs.settingPanel_weapon.Init(msg.data);
+        });
         // console.log(component);
         console.log("武器请到武器单品中设置");
         return;

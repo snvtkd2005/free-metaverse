@@ -64,7 +64,7 @@
               <div class=" w-5 h-5 bg-gray-500"
                 @mouseenter="HoverDebuff(item); debuffHover = true; debuffDescribe = debuff.describe;"
                 @mouseleave="debuffHover = false">
-                <img class=" w-full h-full" :src=debuff.icon alt="">
+                <img class=" w-full h-full" :src="debuff.icon" alt="">
               </div>
             </div>
           </div>
@@ -619,9 +619,7 @@ export default {
             }
           });
 
-
         _YJPlayer.setPlayerDefaultPos(this._YJSceneManager.getPlayerDefaultPos());
-
 
         _YJPlayer.CreateNameTrans(nickName);
         _YJPlayer.id = id;

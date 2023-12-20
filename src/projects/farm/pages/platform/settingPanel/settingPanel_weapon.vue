@@ -3,8 +3,7 @@
 <template>
   <!-- 场景设置面板 -->
   <div class="
-              w-full
-              max-w-md
+              w-full 
                p-2
              text-white 
              rounded-lg
@@ -12,8 +11,8 @@
             ">
     <div class=" text-left ">武器设置</div>
 
-    <div v-for="(item, i) in setting" :key="i" class=" text-xs  text-left flex w-80 h-auto mb-2     ">
-      <div class=" self-center w-40  truncate">
+    <div v-for="(item, i) in setting" :key="i" class=" text-xs  text-left flex w-full h-auto mb-2     ">
+      <div class=" self-center w-32  truncate">
         {{ item.title }}
       </div>
       <div class=" self-center w-20 ">
@@ -31,8 +30,10 @@
         </div>
 
 
+        <div v-if="item.type == 'int'" class="flex gap-2 text-black">
+          <YJinput_number :value="item.value" :type="item.type" :step="item.step" :index="i" :callback="item.callback" />
+        </div>
         <div v-if="item.type == 'num'" class=" flex gap-2 text-black ">
-          <!-- <input id="body-num" type="number" :value="item.value"> -->
           <YJinput_number :value="item.value" :step="item.step" :index="i" :callback="item.callback" />
         </div>
 
@@ -51,8 +52,8 @@
           <YJinput_text class=" w-20 h-4 " :value="item.value" :index="i" :callback="item.callback" />
         </div>
 
-        <div v-if="item.type == 'drop'" class=" w-20 h-16 text-black ">
-          <YJinput_drop class=" w-32 h-16 " :value="item.value" :options="item.options" :index="i"
+        <div v-if="item.type == 'drop'" class=" w-20 h-12 text-black ">
+          <YJinput_drop class=" w-32 h-full " :value="item.value" :options="item.options" :index="i"
             :callback="item.callback" />
         </div>
 
@@ -69,21 +70,21 @@
     </div>
 
     <!-- 动作播放进度滑块 -->
-    <div class=" flex w-80   ">
+    <div class=" flex w-full   ">
       <div class=" bg-gray-400 cursor-pointer" @click=" auto = !auto">{{ auto ? '暂停' : '播放' }}</div>
       <div class=" w-16 ml-2 ">{{ animClip.currentTime + '/' + animClip.duration }}</div>
       <input ref="viewFarCtrl" class=" ml-2  outline-none w-40  " @input="sliderChangeFn" v-model="animClip.currentTime"
         type="range" min="0" :max="animClip.duration" step="1">
     </div>
 
-    <div class=" mt-10 w-80 h-10 text-white cursor-pointer " @click="ClickHandler('编辑位置')">
+    <div class=" mt-10 w-full h-10 text-white cursor-pointer " @click="ClickHandler('编辑位置')">
       <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">编辑位置</div>
     </div>
 
-    <div class=" mt-2 w-80 h-10 text-white cursor-pointer " @click="ClickHandler('保存')">
+    <div class=" mt-2 w-full h-10 text-white cursor-pointer " @click="ClickHandler('保存')">
       <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">保存</div>
     </div>
-    <div class=" mt-2 w-80 h-10 text-white cursor-pointer " @click="ClickHandler('保存偏移旋转')">
+    <div class=" mt-2 w-full h-10 text-white cursor-pointer " @click="ClickHandler('保存偏移旋转')">
       <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">保存偏移旋转</div>
     </div>
 
@@ -124,7 +125,7 @@ export default {
       pointType: "weapon",
 
       settingData: {
-        id: "",
+        weaponId: "",
         name: "weapon001",
         //武器类型
         weaponType: "",
@@ -137,17 +138,21 @@ export default {
         rotation: [0, 0, 0],
 
         // 待机
-        animNameIdle: "",
+        animNameIdle: "idle",
         // 行走
-        animNameWalk: "",
+        animNameWalk: "walk",
         // 奔跑
-        animNameRun: "",
+        animNameRun: "run",
         //准备攻击
-        animNameReady: "",
+        animNameReady: "fight idle",
         //攻击
-        animNameAttack: "",
+        animNameAttack: "fight attack",
         // 依附的骨骼名称
         boneName: "",
+        // 攻击速度
+        attackSpeed: 1,
+        // 有效距离
+        vaildDis: 1,
       },
 
       setting: [
@@ -174,6 +179,8 @@ export default {
             // { value: "oneHand",label: "拳套" }, 
           ], callback: this.ChangeValue
         },
+        { property: "vaildDis", display: true, title: "有效距离", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
+        { property: "attackSpeed", display: true, title: "攻击速度", type: "num", step: 1, value: 1, callback: this.ChangeValue, },
         {
           property: "boneName", title: "跟随骨骼", type: "drop", value: "none", options: [
 
@@ -256,7 +263,7 @@ export default {
     if (!this.settingData.weaponType) {
       this.settingData.weaponType = "";
     }
-    this.settingData.id = modelData.folderBase;
+    this.settingData.weaponId = modelData.folderBase;
     this.initValue();
 
 
@@ -305,17 +312,20 @@ export default {
       }
     },
     initValue() {
+      this.settingData.animNameIdle = this.settingData.animNameIdle ? this.settingData.animNameIdle : "idle";
+      this.settingData.animNameWalk = this.settingData.animNameWalk ? this.settingData.animNameWalk : "walk";
+      this.settingData.animNameRun = this.settingData.animNameRun ? this.settingData.animNameRun : "run";
+      this.settingData.animNameReady = this.settingData.animNameReady ? this.settingData.animNameReady : "fight idle";
+      this.settingData.animNameAttack = this.settingData.animNameAttack ? this.settingData.animNameAttack : "fight attack";
+      this.settingData.attackSpeed = this.settingData.attackSpeed ? this.settingData.attackSpeed : 1;
+      this.settingData.vaildDis = this.settingData.vaildDis ? this.settingData.vaildDis : 1;
+      this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
 
-      this.Utils.SetSettingItemByProperty(this.setting, "boneName", this.settingData.boneName);
-      this.Utils.SetSettingItemByProperty(this.setting, "animNameIdle", this.settingData.animNameIdle);
-      this.Utils.SetSettingItemByProperty(this.setting, "animNameWalk", this.settingData.animNameWalk);
-      this.Utils.SetSettingItemByProperty(this.setting, "animNameRun", this.settingData.animNameRun);
-      this.Utils.SetSettingItemByProperty(this.setting, "animNameReady", this.settingData.animNameReady);
-      this.Utils.SetSettingItemByProperty(this.setting, "animNameAttack", this.settingData.animNameAttack);
+      // this.Utils.SetSettingItemByProperty(this.setting, "boneName", this.settingData.boneName);
+      // this.Utils.SetSettingItemByProperty(this.setting, "pickType", this.settingData.pickType);
+      // this.Utils.SetSettingItemByProperty(this.setting, "weaponType", this.settingData.weaponType); 
       this.Utils.SetSettingItemByProperty(this.setting, "position", this.settingData.position);
       this.Utils.SetSettingItemByProperty(this.setting, "rotation", this.settingData.rotation);
-      this.Utils.SetSettingItemByProperty(this.setting, "pickType", this.settingData.pickType);
-      this.Utils.SetSettingItemByProperty(this.setting, "weaponType", this.settingData.weaponType);
 
 
       this.animate();

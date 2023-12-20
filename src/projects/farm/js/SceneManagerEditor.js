@@ -148,7 +148,7 @@ class SceneManager {
 
 
       new YJKeyboard((key) => {
-        
+
         if (inInputing) {
           return;
         }
@@ -168,7 +168,7 @@ class SceneManager {
           return;
         }
 
-        
+
         if (key == "Tab") {
           // tab切换目标
           _SceneDyncManager.TabChangeTarget();
@@ -235,7 +235,7 @@ class SceneManager {
           //   _this._YJSceneManager.ClickInteractive();
           // }
 
-          
+
           scope.PickDownWeapon();
 
           return;
@@ -268,7 +268,7 @@ class SceneManager {
       // render();
       _this._YJSceneManager.AddNeedUpdateJS(scope);
 
-      _SceneDyncManager = new YJSceneDyncManagerEditor(_this, indexVue, scope );
+      _SceneDyncManager = new YJSceneDyncManagerEditor(_this, indexVue, scope);
       scope.AddChangeTargetListener((b) => {
         if (indexVue.$refs.gameUI) {
           indexVue.$refs.gameUI.SetTargetVaild(b);
@@ -318,32 +318,56 @@ class SceneManager {
     this.SetTriggerOverlap = (b, id, owner) => {
       // console.log(" in sceneManager ", b, id, owner);
       if (owner.isYJTransform) {
-        let msg = owner.GetMessage();
+        let msg = owner.GetMessage(); 
         if (msg.pointType == "weapon") {
 
-          if(_this.YJController.isInDead()){
+          if (_this.YJController.isInDead()) {
             // 角色死亡后不接收道具效果
             return;
           }
           let state = _this.YJController.GetUserDataItem("weaponData");
           // console.log(" 碰到武器 ", msg.data,state);
           // 判断角色是否可以拾取武器
-          if (state.weaponId != "") {
+          if (state != null && state.weaponId != "") {
             return;
           }
+          let { boneName, weaponType, pickType
+            , position
+            , rotation
+            , attackSpeed
+            , vaildDis
+            , animNameIdle
+            , animNameWalk, animNameRun, animNameReady, animNameAttack } = msg.data;
+
+          _this.YJController.SetUserDataItem("weaponData",{});
+          _this.YJController.SetUserDataItem("weaponData", "pickType", pickType);
+          _this.YJController.SetUserDataItem("weaponData", "weaponType", weaponType);
+          _this.YJController.SetUserDataItem("weaponData", "weaponId",  owner.GetData().folderBase);
+          _this.YJController.SetUserDataItem("weaponData", "attackSpeed", attackSpeed);
+          _this.YJController.SetUserDataItem("weaponData", "vaildDis", vaildDis);
+          _this.YJController.SetUserDataItem("weaponData", "animNameIdle", animNameIdle);
+          _this.YJController.SetUserDataItem("weaponData", "animNameWalk", animNameWalk);
+          _this.YJController.SetUserDataItem("weaponData", "animNameIdle", animNameIdle);
+          _this.YJController.SetUserDataItem("weaponData", "animNameRun", animNameRun);
+          _this.YJController.SetUserDataItem("weaponData", "animNameReady", animNameReady);
+          _this.YJController.SetUserDataItem("weaponData", "animNameAttack", animNameAttack);
+          _this.YJController.SetUserDataItem("weaponData", "transId", owner.id);
+
+          _this.YJController.SetUserDataItem("weaponDataData",{});
+          _this.YJController.SetUserDataItem("weaponDataData", owner.GetData());
 
           // 碰到武器就拾取
-          _this.YJPlayer.GetBoneVague(msg.data.boneName, (bone) => {
+          _this.YJPlayer.GetBoneVague(boneName, (bone) => {
             let weaponModel = owner.GetGroup();
             boneAttachList.push(
               {
-                boneName: msg.data.boneName,
+                boneName: boneName,
                 parent: weaponModel.parent,
                 transform: owner
               });
             bone.add(weaponModel);
-            let pos = msg.data.position;
-            let rotaV3 = msg.data.rotation;
+            let pos = position;
+            let rotaV3 = rotation;
             // console.log(" 设置武器坐标",rotaV3);
             weaponModel.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
             // weaponModel.position.set(100 * pos[0], 100 * pos[1], 100 * pos[2]);
@@ -351,10 +375,6 @@ class SceneManager {
             weaponModel.scale.set(100, 100, 100);
             // 绑定到骨骼后，清除trigger
             owner.GetComponent("Weapon").DestroyTrigger();
-            _this.YJController.SetUserDataItem("weaponData", "pickType", msg.data.pickType);
-            _this.YJController.SetUserDataItem("weaponData", "weaponType", msg.data.weaponType);
-            _this.YJController.SetUserDataItem("weaponData", "weaponId", msg.data.id);
-            _this.YJController.SetUserDataItem("weaponData", "transId", owner.id);
 
             _SceneDyncManager.SendModelState(owner.GetData().id, { modelType: owner.GetData().modelType, msg: { display: false } });
             // console.log("bone ",bone); 
@@ -372,7 +392,7 @@ class SceneManager {
               _SceneDyncManager.SendModel({ id: owner.GetData().id, modelType: "交互模型", state: { display: false } });
               _SceneDyncManager.SendModel({ id: data.type, modelType: "交互模型", state: { type: "add", value: data.buffValue } });
             } else {
-              this.ReceivePlayer(data); 
+              this.ReceivePlayer(data);
             }
 
           }
@@ -444,14 +464,14 @@ class SceneManager {
     this.UserModel = (model, e, f, callback) => {
 
       // 自身死亡不能使用道具
-      if(_this.YJController.isInDead()){
+      if (_this.YJController.isInDead()) {
         return;
       }
 
-      if(oldTarget != null){
-        if(oldTarget.isPlayer){
+      if (oldTarget != null) {
+        if (oldTarget.isPlayer) {
           // 如果玩家已死亡，则不使用道具
-          if( oldTarget.GetUserData().baseData.health <= 0 ){
+          if (oldTarget.GetUserData().baseData.health <= 0) {
             return;
           }
           //目标是玩家
@@ -583,11 +603,11 @@ class SceneManager {
     }
 
     // 主控玩家接受道具效果
-    this.ReceivePlayer = function(model){
+    this.ReceivePlayer = function (model) {
       // 
       // console.log("接收道具 ",model);
 
-      if(_this.YJController.isInDead()){
+      if (_this.YJController.isInDead()) {
         // 角色死亡后不接收道具效果
         return;
       }
@@ -609,10 +629,10 @@ class SceneManager {
         // console.log(" 旧护甲值为 ", oldV," 加 "+ model.buffValue);
         let v = oldV + model.buffValue;
         // console.log(" 新护甲值为 ", v);
-        
+
         _this.YJController.SetUserDataItem("baseData", "armor", v);
       }
-      
+
       if (model.buff == "addEnergy") {
         //加能量值
         // data.buffValue
@@ -620,7 +640,7 @@ class SceneManager {
         // console.log(" 旧能量值为 ", oldV," 加 "+ model.buffValue);
         let v = oldV + model.buffValue;
         // console.log(" 新能量值为 ", v);
-        
+
         _this.YJController.SetUserDataItem("baseData", "energy", v);
       }
     }
@@ -683,13 +703,15 @@ class SceneManager {
     }
 
     this.PickDownWeapon = function () {
-      
+
 
       if (boneAttachList.length == 0) { return; }
-      
-      _this.YJController.SetUserDataItem("weaponData", "weaponId", "");
-      _this.YJController.SetUserDataItem("weaponData", "weaponType", "");
-      _this.YJController.SetUserDataItem("weaponData", "transId", "");
+
+      _this.YJController.SetUserDataItem("weaponData", null);
+ 
+      // _this.YJController.SetUserDataItem("weaponData", "weaponId", "");
+      // _this.YJController.SetUserDataItem("weaponData", "weaponType", "");
+      // _this.YJController.SetUserDataItem("weaponData", "transId", "");
       _Global.SendMsgTo3D("放下武器");
 
       let transform = boneAttachList[0].transform;
@@ -727,9 +749,9 @@ class SceneManager {
 
     //#endregion
     let targetModel = null;
-    this.SetTargetSkill = function(npcId,skill){
-      if(targetModel == null){ return;}
-      if(targetModel.id == npcId){
+    this.SetTargetSkill = function (npcId, skill) {
+      if (targetModel == null) { return; }
+      if (targetModel.id == npcId) {
         indexVue.$refs.HUD.$refs.headerUI.SetSkill(skill);
       }
       //
@@ -835,7 +857,7 @@ class SceneManager {
       console.log("点击玩家", player);
       // 自身角色除外
       if (player.isLocal) { return; }
- 
+
       if (targetModel != null) {
         if (targetModel != player) {
           targetModel.RemoveHandle();
@@ -892,9 +914,9 @@ class SceneManager {
         indexVue.$refs.chatPanelNPC.SetDisplay(true);
       }
     }
-    this.ClickModelTransform = function(transform){
-      if(indexVue.$refs.hierarchyPanel){
-        indexVue.$refs.hierarchyPanel.SelectModelBy3d(transform.GetUUID()); 
+    this.ClickModelTransform = function (transform) {
+      if (indexVue.$refs.hierarchyPanel) {
+        indexVue.$refs.hierarchyPanel.SelectModelBy3d(transform.GetUUID());
       }
       // 点击NPC
       let message = transform.GetData().message;

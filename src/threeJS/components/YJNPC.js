@@ -1178,7 +1178,7 @@ class YJNPC {
       let currentPos = scope.GetWorldPos();
       // if (currentPos.distanceTo(fireBeforePos) >= 20) {
       // }
-      baseData.speed = 16 + currentPos.distanceTo(fireBeforePos)/3 ;
+      baseData.speed = 8 + currentPos.distanceTo(fireBeforePos)/3 ;
 
       GetNavpath(parent.position.clone(), fireBeforePos);
     }

@@ -1030,11 +1030,11 @@ class YJNPC {
       let { type, skillName, value, time, duration } = effect;
 
       // 发送战斗记录
-      _Global.DyncManager.SendFireRecode({ playerId: data.playerId, npcId: target.transform.id, npcName: target.npcName, skillName: skillName, strength: value });
+      _Global.DyncManager.SendFireRecode({ playerId:  scope.id, npcId: target.transform.id, npcName: target.npcName, skillName: skillName, strength: value });
       // 发送技能特效
       shootTarget(target, attackStepSpeed * 300);
 
-      _Global.DyncManager.SendSceneStateAll("玩家对NPC", { playerId: data.playerId, npcId: target.transform.id, npcName: target.npcName, skillName: skillName, effect: effect });
+      _Global.DyncManager.SendSceneStateAll("玩家对NPC", { playerId: scope.id, npcId: target.transform.id, npcName: target.npcName, skillName: skillName, effect: effect });
     }
 
     let oldSkillList = [];
@@ -1325,7 +1325,7 @@ class YJNPC {
         const element = receiveDamageData[i];
         if (v <= element.damageValue) {
           v = element.damageValue;
-          plid = element.player
+          plid = element.playerId;
         }
       }
       maxDamagePlayerId = plid;
@@ -1347,7 +1347,7 @@ class YJNPC {
       } else {
 
       }
-      console.log("收到来自 的伤害 ", _targetModelId, _Global.DyncManager.GetPlayerById(_targetModelId));
+      // console.log("收到来自 的伤害 ", _targetModelId, _Global.DyncManager.GetPlayerById(_targetModelId));
 
 
       // console.log(" npc接收伤害 ", effect);
@@ -1401,7 +1401,74 @@ class YJNPC {
 
     }
 
+    this.ReceiveDamageByPlayer = function (_targetModel, skillName, effect) {
+      //_targetModel 是 YJPlayer
+      if (baseData.health == 0) {
+        scope.isDead = true;
+        return;
+      }
+      let { type, value, time, duration, describe, icon } = effect;
 
+      value = RealyDamage(value);
+ 
+      if (targetModel == null) {
+        this.SetNpcTarget(_targetModel, true, false);
+      } else {
+
+      }
+      // console.log("收到来自 的伤害 ", _targetModelId, _Global.DyncManager.GetPlayerById(_targetModelId));
+
+
+      // console.log(" npc接收伤害 ", effect);
+      // 直接伤害 或 持续伤害
+      if (type == "damage" || type == "contDamage") {
+        baseData.health -= (value);
+
+      }
+      // 每n秒伤害，持续m秒
+      if (type == "perDamage") {
+
+        //每秒伤技能是debuff，显示在角色状态上
+        if (baseData.debuffList == undefined) {
+          baseData.debuffList = [];
+        }
+        let id = new Date().getTime();
+        let count = parseInt(duration / time);
+        let num = 0;
+        for (let i = 0; i < count; i++) {
+          fireLater.push({
+            type: "timeout", fn:
+              setTimeout(() => {
+                baseData.health -= (value);
+                num++;
+                if (num == count) {
+                  removeDebuffById(id);
+                }
+                CheckHealth();
+              }, time * 1000 * i)
+          }
+          );
+        }
+        baseData.debuffList.push({ id: id, icon: _this.$uploadUVAnimUrl + icon, describe: describe });
+        return;
+      }
+      CheckHealth();
+
+      // console.log(this.npcName + " 受到 " + targetModel.GetPlayerName() + " 使用 " + skillName + " 攻击 剩余 " + baseData.health);
+
+      ClearLater("清除准备战斗");
+
+      _Global.DyncManager.SendModelState(scope.transform.GetData().id,
+        {
+          modelType: scope.transform.GetData().modelType,
+          msg: {
+            playerId: scope.isDead ? '' : targetModel.id, health: baseData.health,
+            maxHealth: baseData.maxHealth
+          }
+        });
+
+
+    }
 
     // 死亡或离开战斗时，清除延迟执行事件
     function ClearFireLater() {
@@ -1640,6 +1707,7 @@ class YJNPC {
             
               //攻击结束之后，判断下一个目标
               if (maxDamagePlayerId != 0) {
+                console.log(" 设置下一个目标 ",maxDamagePlayerId, targetModel.id);
                 if (maxDamagePlayerId != targetModel.id) {
                   scope.SetNpcTarget(_Global.DyncManager.GetPlayerById(maxDamagePlayerId), true);
                 }

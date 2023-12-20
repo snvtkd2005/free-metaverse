@@ -434,8 +434,9 @@ class YJSceneDyncManagerEditor {
             }
           }
           if (cNpc) {
-            // console.log(" NPC 死亡或其他 离开战斗 ", element);
+            console.log(" NPC 死亡或其他 离开战斗 ", element);
           }
+          
           if (element.npcList.length == 0) {
             //向所有战斗中的玩家发送脱离战斗
             for (let k = element.playerList.length - 1; k >= 0 ; k--) {
@@ -629,7 +630,7 @@ class YJSceneDyncManagerEditor {
           this.Receive({ type: "玩家脱离战斗", state: msg });
           return;
         }
-        _Global.YJDync._YJDyncManager.SendSceneStateAll("玩家脱离战斗", msg);
+        _Global.YJDync._YJDyncManager.SendSceneStateAll("转发", { type: "玩家脱离战斗", state: msg });
         return;
       }
       if (type == "NPC对玩家") {
@@ -637,7 +638,8 @@ class YJSceneDyncManagerEditor {
           this.Receive({ type: "NPC对玩家", state: msg });
           return;
         }
-        _Global.YJDync._YJDyncManager.SendSceneStateAll("NPC对玩家", msg);
+        // _Global.YJDync._YJDyncManager.SendSceneStateAll("NPC对玩家", msg);
+        _Global.YJDync._YJDyncManager.SendSceneStateAll("转发", { type: "NPC对玩家", state: msg });
         return;
       }
       if (type == "玩家对NPC") {
@@ -679,7 +681,7 @@ class YJSceneDyncManagerEditor {
     // 接收 转发 数据
     this.Receive = function (data) {
       let { type, state } = data;
-      // console.log(" 接收 ", type, state);
+      console.log(" 接收 ", type, state);
       if (type == "玩家脱离战斗") {
         if(_Global.YJ3D.YJPlayer.id == state){
           _this.YJController.SetInteractiveNPC("玩家脱离战斗");
@@ -706,7 +708,13 @@ class YJSceneDyncManagerEditor {
         return;
       }
       if (type == "NPC对玩家") {
-        _this.YJController.ReceiveDamage(this.GetNpcById(state.npcId), state.skillName, state.effect);
+
+        if(state.targetId == _Global.YJ3D.YJPlayer.id){
+          _this.YJController.ReceiveDamage(this.GetNpcById(state.npcId), state.skillName, state.effect);
+          return;
+        }
+
+        this.GetPlayerById(state.targetId).ReceiveDamageByPlayer(this.GetNpcById(state.npcId), state.skillName, state.effect);
         return;
       }
 

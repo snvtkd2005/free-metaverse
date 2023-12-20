@@ -310,6 +310,7 @@ class YJPlayerFireCtrl {
 				setTimeout(() => {
 					let _npcComponent = transform.GetComponent("NPC");
 					_npcComponent.SetNpcTarget(npcComponent);
+					_npcComponent.id = playId;
 					// _Global.DyncManager.AddNpc(transform);
 					// _Global.DyncManager.NPCAddFireById(npcComponent, scope.fireId);
 					transform.SetActive(true);

@@ -38,7 +38,7 @@
     </div>
   </div>
 
-  <!-- 技能添加弹窗 -->
+  <!-- 技能编辑弹窗 -->
   <skillItemEditorPanel ref="skillItemEditorPanel"></skillItemEditorPanel>
 
 

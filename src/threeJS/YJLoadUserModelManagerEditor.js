@@ -75,7 +75,14 @@ class YJLoadUserModelManager {
         }
       } 
     }
-
+    this.GetTransformByID = function(id){
+      for (let i = 0; i < allTransform.length; i++) {
+        if (allTransform[i].id == id) {
+          return allTransform[i].transform; 
+        }
+      } 
+      return null;
+    }
     //#region 使用物理模拟判断是否与其他模型重叠，重叠时无法放置模型
     let Ammo = null;
     let _YJAmmo = null;
@@ -341,6 +348,7 @@ class YJLoadUserModelManager {
           }
         }
         // console.log(" modelPath ", modelPath);
+        // console.log(" npc模型 modeldata ", modelData);
 
         MeshRenderer.load(modelPath, (scope) => {
           let Animator = new YJAnimator(scope.GetModel(), scope.GetAnimations());

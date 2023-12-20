@@ -48,10 +48,7 @@ export default {
       this.skillList = _Global.skillList;
     },
     ClickUVAnim(item) {
-      console.log("选中技能", item);
-      console.log("选中技能",  this.$parent);
-      console.log("选中技能",  this.$parent.$refs);
-      console.log("选中技能",  this.$parent.$refs.settingPanel_npc);
+      console.log("选中技能", item); 
       this.$parent.$refs.settingPanel_npc.$refs.settingPanel_npcSkill.AddSkill(item);
     },
   },

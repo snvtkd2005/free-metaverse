@@ -2001,6 +2001,12 @@ class YJController {
     this.GetPlayerWorldPos = function () {
       return getWorldPosition(_YJAmmoPlayer);
     }
+    
+    this.GetPlayerWorldPos2 = function () {
+      let pos = _YJAmmo.GetPlayerPos();
+      pos.y -= playerHeight / 2;
+      return pos; 
+    }
     this.GetCamTargetWorldDire = function () {
       return camTargetDirection.getWorldDirection(new THREE.Vector3());
     }
@@ -3671,7 +3677,7 @@ class YJController {
         msg: { _targetModel: _targetModel, skillName: skillName, effect: effect },
       });
     } 
-    this.SetInteractiveNPC = function (content, _npcTransform) {
+    this.SetInteractiveNPC = function (content, msg) {
       if(content != "重生" && this.isInDead()){
         // 角色死亡后不接收道具效果
         return;
@@ -3679,7 +3685,7 @@ class YJController {
       _YJPlayerFireCtrl.OnPlayerState({
         title: "fire",
         content: content,
-        msg: _npcTransform,
+        msg: msg,
       });
     }
 

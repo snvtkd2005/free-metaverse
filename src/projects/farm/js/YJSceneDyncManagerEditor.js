@@ -272,7 +272,14 @@ class YJSceneDyncManagerEditor {
         player: player,
       }
     }
-    this.GetPlayerById = function (playerId) {
+    this.GetPlayerById = function (playerId) {      
+      let playerMirror = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByID(playerId);
+      if(playerMirror){
+        return playerMirror.GetComponent("NPC");
+      }
+      if (!_Global.YJDync) { 
+        return _Global.YJ3D.YJPlayer;
+      }
       return _Global.YJDync.GetPlayerById(playerId)
     }
 
@@ -389,6 +396,29 @@ class YJSceneDyncManagerEditor {
       return [];
     }
 
+    this.GetNpcByPlayerForwardInArea = function (vaildDistance, max) {
+      let num = 0;
+      let npcs = [];
+      for (let i = 0; i < npcModelList.length; i++) {
+        const element = npcModelList[i].transform;
+        let npcComponent = element.GetComponent("NPC");
+        if (npcComponent.GetCamp() == _Global.user.camp) {
+          continue;
+        }
+        // 未判断npc是否在玩家前方
+        let distance = playerPos.distanceTo(element.GetGroup().position);
+        if (distance <= vaildDistance) {
+          num++;
+          npcs.push(npcComponent);
+          if (num >= max) {
+            return npcs;
+          }
+        }
+      }
+      return npcs;
+    }
+
+
     this.RemoveNPCFireId = function (npcComponent) {
       // console.log(npcComponent.npcName + "npc 死亡或其他 请求离开战斗" + npcComponent.fireId);
       for (let i = fireGroup.length - 1; i >= 0; i--) {
@@ -407,8 +437,12 @@ class YJSceneDyncManagerEditor {
             // console.log(" NPC 死亡或其他 离开战斗 ", element);
           }
           if (element.npcList.length == 0) {
+            //向所有战斗中的玩家发送脱离战斗
+            for (let k = element.playerList.length - 1; k >= 0 ; k--) {
+              const playerId = element.playerList[k];
+              this.SendSceneStateAll("玩家脱离战斗",playerId); 
+            }
             fireGroup.splice(i, 1);
-            console.log(" 脱离战斗 ");
           }
 
         }
@@ -590,14 +624,28 @@ class YJSceneDyncManagerEditor {
     }
 
     this.SendSceneStateAll = function (type, msg) {
-      if (!_Global.YJDync) {
+      if (type == "玩家脱离战斗") {
+        if (!_Global.YJDync) {
+          this.Receive({ type: "玩家脱离战斗", state: msg });
+          return;
+        }
+        _Global.YJDync._YJDyncManager.SendSceneStateAll("玩家脱离战斗", msg);
         return;
       }
       if (type == "NPC对玩家") {
+        if (!_Global.YJDync) {
+          this.Receive({ type: "NPC对玩家", state: msg });
+          return;
+        }
         _Global.YJDync._YJDyncManager.SendSceneStateAll("NPC对玩家", msg);
         return;
       }
       if (type == "玩家对NPC") {
+
+        if (!_Global.YJDync) {
+          this.Receive({ type: "玩家对NPC", state: msg });
+          return;
+        }
         _Global.YJDync._YJDyncManager.SendSceneStateAll("转发", { type: "玩家对NPC", state: msg });
         return;
       }
@@ -632,21 +680,27 @@ class YJSceneDyncManagerEditor {
     this.Receive = function (data) {
       let { type, state } = data;
       // console.log(" 接收 ", type, state);
-
-
+      if (type == "玩家脱离战斗") {
+        if(_Global.YJ3D.YJPlayer.id == state){
+          _this.YJController.SetInteractiveNPC("玩家脱离战斗");
+        }
+        return;
+      }
+      
       if (type == "玩家对NPC") {
-        let { npcId, playerId, skillName, strength } = state;
+        let { npcId, playerId, skillName, effect } = state;
 
         if (_Global.mainUser) {
-          this.GetNpcById(npcId).GetComponent("NPC").ReceiveDamage((playerId), skillName, strength);
+          this.GetNpcById(npcId).GetComponent("NPC").ReceiveDamage((playerId), skillName, effect);
         }
 
         if (_Global.YJ3D.YJPlayer.id == playerId) {
+          return;
           // 对npc的伤害显示在屏幕上
           let pos = this.GetNpcById(npcId).GetWorldPos().clone();
           pos.y += this.GetNpcById(npcId).GetComponent("NPC").GetBaseModel().playerHeight;
           // 伤害显示在屏幕上
-          _Global.SceneManager.UpdateNpcDamageValue("self", "normal", strength, pos);
+          _Global.SceneManager.UpdateNpcDamageValue("self", "normal", effect.value, pos);
 
         }
         return;

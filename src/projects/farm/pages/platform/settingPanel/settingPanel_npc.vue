@@ -24,7 +24,7 @@
         </div>
         <div v-if="item.type == 'image'" class="flex gap-2 text-black">
           <div @click="item.callback('加载武器模型')" class=" w-10 h-10 bg-black cursor-pointer ">
-            <img class=" w-full h-full" :src="item.value" />
+            <img v-if="item.value" class=" w-full h-full" :src="item.value" />
           </div>
           <div v-if="item.value" class=" h-4 w-10 bg-white cursor-pointer" @click="item.callback('移除武器模型', item)">移除</div>
         </div>
@@ -372,6 +372,8 @@ export default {
 
       if (this.settingData.weaponData) {
         this.Utils.SetSettingItemByProperty(this.setting, "weapon", this.$uploadUrl + this.settingData.weaponData.icon);
+      }else{
+        this.Utils.SetSettingItemByProperty(this.setting, "weapon","");
       }
 
       if (this.$refs.settingPanel_npcSkill) {

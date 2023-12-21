@@ -272,12 +272,12 @@ class YJSceneDyncManagerEditor {
         player: player,
       }
     }
-    this.GetPlayerById = function (playerId) {
-      if (!_Global.YJDync) {
-        let playerMirror = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByID(playerId);
-        if(playerMirror){
-          return playerMirror.GetComponent("NPC");
-        }
+    this.GetPlayerById = function (playerId) {      
+      let playerMirror = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByID(playerId);
+      if(playerMirror){
+        return playerMirror.GetComponent("NPC");
+      }
+      if (!_Global.YJDync) { 
         return _Global.YJ3D.YJPlayer;
       }
       return _Global.YJDync.GetPlayerById(playerId)
@@ -434,11 +434,16 @@ class YJSceneDyncManagerEditor {
             }
           }
           if (cNpc) {
-            // console.log(" NPC 死亡或其他 离开战斗 ", element);
+            console.log(" NPC 死亡或其他 离开战斗 ", element);
           }
+          
           if (element.npcList.length == 0) {
+            //向所有战斗中的玩家发送脱离战斗
+            for (let k = element.playerList.length - 1; k >= 0 ; k--) {
+              const playerId = element.playerList[k];
+              this.SendSceneStateAll("玩家脱离战斗",playerId); 
+            }
             fireGroup.splice(i, 1);
-            console.log(" 脱离战斗 ");
           }
 
         }
@@ -462,6 +467,31 @@ class YJSceneDyncManagerEditor {
             console.log(" 玩家 离开战斗 ", element.fireId);
           }
         }
+      }
+    }
+    // 去重加入数组
+    function AddArray(array,item){
+      let has = false;
+      for (let i = 0; i < array.length && !has; i++) {
+        const element = array[i];
+        if(element == item){
+          has = true;
+          return;
+        }
+      }
+      array.push(item);
+    }
+    this.AddFireGroup = function(type,id,fireId){
+      for (let i = 0; i < fireGroup.length; i++) {
+        const element = fireGroup[i];
+        if(element.fireId == fireId){
+          if(type == "npc"){ 
+            AddArray(element.npcList,id);
+          }
+          if(type == "player"){ 
+            AddArray(element.playerList,id);
+          }
+        } 
       }
     }
     // 玩家加入正在进行的战斗。 如果玩家和npc都未在战斗中，则有NPC触发生成战斗组
@@ -497,6 +527,7 @@ class YJSceneDyncManagerEditor {
       this.SendSceneState("战斗状态");
 
     }
+
     //npc被攻击时初次进入战斗时，让附近的npc也加入战斗
     this.NPCAddFireById = function (npcComponent, fireId) {
       // console.log("让npc"+ npcComponent.npcName+" 加入战斗 "+ fireId);
@@ -620,13 +651,21 @@ class YJSceneDyncManagerEditor {
     }
 
     this.SendSceneStateAll = function (type, msg) {
-
+      if (type == "玩家脱离战斗") {
+        if (!_Global.YJDync) {
+          this.Receive({ type: "玩家脱离战斗", state: msg });
+          return;
+        }
+        _Global.YJDync._YJDyncManager.SendSceneStateAll("转发", { type: "玩家脱离战斗", state: msg });
+        return;
+      }
       if (type == "NPC对玩家") {
         if (!_Global.YJDync) {
           this.Receive({ type: "NPC对玩家", state: msg });
           return;
         }
-        _Global.YJDync._YJDyncManager.SendSceneStateAll("NPC对玩家", msg);
+        // _Global.YJDync._YJDyncManager.SendSceneStateAll("NPC对玩家", msg);
+        _Global.YJDync._YJDyncManager.SendSceneStateAll("转发", { type: "NPC对玩家", state: msg });
         return;
       }
       if (type == "玩家对NPC") {
@@ -669,8 +708,13 @@ class YJSceneDyncManagerEditor {
     this.Receive = function (data) {
       let { type, state } = data;
       // console.log(" 接收 ", type, state);
-
-
+      if (type == "玩家脱离战斗") {
+        if(_Global.YJ3D.YJPlayer.id == state){
+          _this.YJController.SetInteractiveNPC("玩家脱离战斗");
+        }
+        return;
+      }
+      
       if (type == "玩家对NPC") {
         let { npcId, playerId, skillName, effect } = state;
 
@@ -690,7 +734,13 @@ class YJSceneDyncManagerEditor {
         return;
       }
       if (type == "NPC对玩家") {
-        _this.YJController.ReceiveDamage(this.GetNpcById(state.npcId), state.skillName, state.effect);
+
+        if(state.targetId == _Global.YJ3D.YJPlayer.id){
+          _this.YJController.ReceiveDamage(this.GetNpcById(state.npcId), state.skillName, state.effect);
+          return;
+        }
+
+        this.GetPlayerById(state.targetId).ReceiveDamageByPlayer(this.GetNpcById(state.npcId), state.skillName, state.effect);
         return;
       }
 

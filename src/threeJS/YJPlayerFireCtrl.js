@@ -32,6 +32,11 @@ class YJPlayerFireCtrl {
 				case "设置玩家状态":
 					scope.SetPlayerState(state.msg);
 					break;
+				case "玩家脱离战斗":
+					playerState = PLAYERSTATE.NORMAL;
+					inFire = false;
+					console.log(" 玩家脱离战斗 ");
+					break;
 				case "设置npc":
 					scope.SetInteractiveNPC(state.msg);
 					break;
@@ -303,10 +308,16 @@ class YJPlayerFireCtrl {
 			_Global.YJ3D._YJSceneManager.GetLoadUserModelManager().DuplicateModel(modelData, (transform) => {
 				transform.SetActive(false);
 				setTimeout(() => {
+					
 					let _npcComponent = transform.GetComponent("NPC");
-					_npcComponent.SetNpcTarget(npcComponent); 
+					if(npcComponent != null){
+						_npcComponent.SetNpcTarget(npcComponent);
+					}
+					_npcComponent.id = playId;
 					// _Global.DyncManager.AddNpc(transform);
 					// _Global.DyncManager.NPCAddFireById(npcComponent, scope.fireId);
+			_Global.DyncManager.PlayerAddFire(npcTransform.GetComponent("NPC"), _YJPlayer);
+
 					transform.SetActive(true);
 				}, 1000);
 				hyperplasiaTrans.push(transform.GetComponent("NPC"));
@@ -318,7 +329,14 @@ class YJPlayerFireCtrl {
 			}, playId);
 		}
 
+
+
 		function SendDamageToTarget(target, effect) {
+			if (!inFire) {
+				inFire = true;
+			}
+			
+			EventHandler("进入战斗");
 			let { type, skillName, value, time, duration } = effect;
 			shootTarget(target.transform, attackStepSpeed * 300);
 			_Global.DyncManager.SendSceneStateAll("玩家对NPC",
@@ -408,6 +426,13 @@ class YJPlayerFireCtrl {
 				PlayerAddFire();
 				//自动显示其头像 
 				_Global.SceneManager.SetTargetModel(npcTransform);
+				
+				EventHandler("设置目标");
+
+			}
+
+			if (!inFire) {
+				inFire = true; 
 			}
 
 			let { type, value, time, duration, describe, icon } = effect;
@@ -558,13 +583,14 @@ class YJPlayerFireCtrl {
 					// 如果准备好攻击，则立即攻击
 					if (readyAttack) {
 						readyAttack = false;
+						if (!inFire) {
+							EventHandler("进入战斗");
+						}
 						inFire = true;
 						playerState = PLAYERSTATE.ATTACK;
 						// 立即执行攻击动作
 						scope.SetPlayerState("普通攻击");
 
-						//射出去的子弹特效
-						shootTarget(npcTransform, attackStepSpeed * 300);
 
 
 						let max = 1;
@@ -574,30 +600,18 @@ class YJPlayerFireCtrl {
 						}
 						// 范围攻击。 max为1时，表示不使用范围攻击
 						let npcs = _Global.DyncManager.GetNpcByPlayerForwardInFireId(_YJPlayer.fireId, vaildAttackDis, max, npcTransform.id);
-						for (let i = 0; i < npcs.length; i++) {
-							shootTarget(npcs[i].transform, attackStepSpeed * 300);
-						}
 
 						// 动作时长的前1/10段时，执行伤害
 						vaildAttackLater2 = setTimeout(() => {
 							// console.log(" 有效攻击目标 ");
+
+							//有效攻击 && 
+							var { s, v, a } = GetSkillDataByWeapon(weaponData);
 							//有效攻击
-							_Global.DyncManager.SendSceneStateAll("玩家对NPC",
-								{
-									playerId: _YJPlayer.id,
-									npcId: npcComponent.transform.id,
-									skillName: skillName,
-									strength: baseData.strength
-								});
+							SendDamageToTarget(npcComponent, { skillName: s, type: "damage", value: baseData.strength });
 							// 范围攻击
 							for (let i = 0; i < npcs.length; i++) {
-								_Global.DyncManager.SendSceneStateAll("玩家对NPC",
-									{
-										playerId: _YJPlayer.id,
-										npcId: npcs[i].transform.id,
-										skillName: skillName,
-										strength: baseData.strength
-									});
+								SendDamageToTarget(npcs[i], { skillName: s, type: "damage", value: baseData.strength });
 							}
 
 							PlayerAddFire();
@@ -675,6 +689,18 @@ class YJPlayerFireCtrl {
 					_Global.ReportTo3D("设置技能进度条", "中断");
 				}
 			}
+			if (e == "进入战斗" || e == "设置目标") {
+
+				if (hyperplasiaTrans.length > 0) {
+					for (let i = 0; i < hyperplasiaTrans.length; i++) {
+						hyperplasiaTrans[i].SetNpcTarget(npcComponent);
+					}
+				}
+			}
+
+ 
+
+
 		}
 
 		function CheckTargetDead() {

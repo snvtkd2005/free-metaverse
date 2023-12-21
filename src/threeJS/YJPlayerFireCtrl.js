@@ -37,6 +37,11 @@ class YJPlayerFireCtrl {
 					inFire = false;
 					console.log(" 玩家脱离战斗 ");
 					break;
+				case "玩家加入战斗": 
+					inFire = true;
+					EventHandler("进入战斗");
+					console.log(" 玩家加入战斗 ");
+					break;
 				case "设置npc":
 					scope.SetInteractiveNPC(state.msg);
 					break;
@@ -286,7 +291,7 @@ class YJPlayerFireCtrl {
 			modelData = JSON.parse(JSON.stringify(modelData));
 
 			let data = modelData.message.data;
-			data.name = modelData.name + "的镜像" + (num + 1);
+			data.name = modelData.name + "的镜像" + "_" + times + "_" + (num + 1);
 			let pos = _this.YJController.GetPlayerWorldPos2();
 			modelData.pos.x = pos.x + (num + 1);
 			modelData.pos.y = pos.y;
@@ -296,16 +301,16 @@ class YJPlayerFireCtrl {
 			let playId = _YJPlayer.id + "_" + times + "_" + num;
 			data.isPlayer = true;
 			data.playerId = playId;
-			if (data.baseData.maxHealth > 2000) {
-				data.baseData.maxHealth = 2000;
+			if (data.baseData.maxHealth > 200) {
+				data.baseData.maxHealth = 200;
 			}
 
 			data.baseData.state = "normal";
-			data.baseData.strength = 50;
+			data.baseData.strength = 20;
 			data.baseData.camp = 1000;
 			data.baseData.health = data.baseData.maxHealth;
 
-			console.log("创建 玩家 镜像 ", data.name);
+			console.log("创建 玩家 镜像 ", playId, data.name);
 			_Global.YJ3D._YJSceneManager.GetLoadUserModelManager().DuplicateModel(modelData, (transform) => {
 				transform.SetActive(false);
 				setTimeout(() => {
@@ -315,7 +320,7 @@ class YJPlayerFireCtrl {
 						if (npcComponent != null) {
 							_npcComponent.SetNpcTarget(npcComponent);
 						}
-						_Global.DyncManager.AddFireGroup( playId, _YJPlayer.camp ,_YJPlayer.fireId);
+						_Global.DyncManager.AddFireGroup(playId, _YJPlayer.camp, _YJPlayer.fireId);
 					}
 					_Global.DyncManager.AddNpc(transform);
 					transform.SetActive(true);
@@ -336,7 +341,7 @@ class YJPlayerFireCtrl {
 				inFire = true;
 			}
 
-			EventHandler("进入战斗",target);
+			EventHandler("进入战斗", target);
 			let { type, skillName, value, time, duration } = effect;
 			shootTarget(target.transform, attackStepSpeed * 300);
 			_Global.DyncManager.SendSceneStateAll("玩家对NPC",
@@ -427,14 +432,14 @@ class YJPlayerFireCtrl {
 				//自动显示其头像 
 				_Global.SceneManager.SetTargetModel(npcTransform);
 
-				EventHandler("设置目标",npcComponent);
+				EventHandler("设置目标", npcComponent);
 
 			}
 
 			if (!inFire) {
 				inFire = true;
 			}
-			EventHandler("进入战斗",_targetModel.GetComponent("NPC"));
+			EventHandler("进入战斗", _targetModel.GetComponent("NPC"));
 
 			let { type, value, time, duration, describe, icon } = effect;
 
@@ -589,7 +594,7 @@ class YJPlayerFireCtrl {
 						}
 						inFire = true;
 						playerState = PLAYERSTATE.ATTACK;
-						
+
 						// 动作时长的前3/10段时，表示动作执行完成，切换成准备动作
 						if (toIdelLater == null) {
 							toIdelLater = setTimeout(() => {
@@ -598,9 +603,9 @@ class YJPlayerFireCtrl {
 							}, attackStepSpeed * 500);
 						}
 
-						if(npcTransform == null){
+						if (npcTransform == null) {
 							return;
-						} 
+						}
 
 						// 立即执行攻击动作
 						scope.SetPlayerState("普通攻击");
@@ -611,7 +616,7 @@ class YJPlayerFireCtrl {
 							baseData.energy -= 30;
 						}
 						// 范围攻击。 max为1时，表示不使用范围攻击
-						let npcs = _Global.DyncManager.GetNpcByPlayerForwardInFireId(_YJPlayer.fireId,_YJPlayer.camp, vaildAttackDis, max, npcTransform.id);
+						let npcs = _Global.DyncManager.GetNpcByPlayerForwardInFireId(_YJPlayer.fireId, _YJPlayer.camp, vaildAttackDis, max, npcTransform.id);
 
 						// 动作时长的前1/10段时，执行伤害
 						vaildAttackLater2 = setTimeout(() => {
@@ -672,7 +677,7 @@ class YJPlayerFireCtrl {
 		function GetSkillDataByWeapon(weaponData) {
 			return _Global.CreateOrLoadPlayerAnimData().GetSkillDataByWeapon(weaponData);
 		}
-		function EventHandler(e,msg) {
+		function EventHandler(e, msg) {
 			if (e == "中断技能") {
 
 				// 无法中断已经施放出去的技能
@@ -693,9 +698,9 @@ class YJPlayerFireCtrl {
 
 				if (hyperplasiaTrans.length > 0) {
 					for (let i = 0; i < hyperplasiaTrans.length; i++) {
-						_Global.DyncManager.AddFireGroup( hyperplasiaTrans[i].id, _YJPlayer.camp ,_YJPlayer.fireId);
+						_Global.DyncManager.AddFireGroup(hyperplasiaTrans[i].id, _YJPlayer.camp, _YJPlayer.fireId);
 						hyperplasiaTrans[i].fireId = _YJPlayer.fireId;
-						hyperplasiaTrans[i].SetNpcTarget(msg?msg:npcComponent);
+						hyperplasiaTrans[i].SetNpcTarget(msg ? msg : npcComponent);
 					}
 				}
 			}

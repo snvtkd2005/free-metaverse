@@ -211,7 +211,6 @@ class YJSceneDyncManagerEditor {
 
     // 战斗组，用来做npc的攻击目标，第一目标死亡，攻击第二目标
     let fireGroup = [
-      // {fireId:0,playerList:[],npcList:[]},
     ];
     // NPC加入战斗.由NPC受伤、或npc查找可视范围玩家调用开启战斗
     this.NPCAddFire = function (npcComponent, targetModel) {
@@ -248,12 +247,13 @@ class YJSceneDyncManagerEditor {
         return;
       }
       let fireId = new Date().getTime();
-      // fireGroup.push({ fireId: fireId, playerList: [targetModel.id], npcList: [npcComponent.transform.id] });
       // camp 阵营数值: 1000联盟 1001部落  10000共同敌人
       fireGroup.push({ fireId: fireId, peopleList: [{ id: targetModel.id, camp: targetModel.camp }, { id: npcComponent.transform.id, camp: 10000 }] });
       targetModel.fireId = fireId;
       npcComponent.fireId = fireId;
       console.log(" 开始新的战斗 ", fireGroup[fireGroup.length - 1]);
+      //让玩家加入战斗
+      this.SendSceneStateAll("玩家加入战斗", { playerId: targetModel.id, fireId: fireId });
       this.SendSceneState("战斗状态");
 
     }
@@ -439,15 +439,19 @@ class YJSceneDyncManagerEditor {
             console.log(" NPC 死亡或其他 离开战斗 ", element);
           }
 
-
-          if (element.peopleList.length == 1) {
-            //向所有战斗中的玩家发送脱离战斗
-            for (let k = element.peopleList.length - 1; k >= 0; k--) {
-              const playerId = element.peopleList[k];
-              this.SendSceneStateAll("玩家脱离战斗", playerId.id);
+          let camp = element.peopleList[0].camp;
+          for (let k = element.peopleList.length - 1; k >= 1; k--) {
+            const people = element.peopleList[k];
+            if (people.camp != camp) {
+              return;
             }
-            fireGroup.splice(i, 1);
           }
+          for (let k = element.peopleList.length - 1; k >= 0; k--) {
+            const people = element.peopleList[k];
+            this.SendSceneStateAll("玩家脱离战斗", people.id);
+          }
+          fireGroup.splice(i, 1);
+
 
         }
       }
@@ -664,7 +668,6 @@ class YJSceneDyncManagerEditor {
       }
       _Global.YJDync._YJDyncManager.SendSceneStateAll("玩家对玩家", model);
     }
-
     this.SendSceneStateAll = function (type, msg) {
       if (type == "玩家脱离战斗") {
         if (!_Global.YJDync) {
@@ -672,6 +675,14 @@ class YJSceneDyncManagerEditor {
           return;
         }
         _Global.YJDync._YJDyncManager.SendSceneStateAll("转发", { type: "玩家脱离战斗", state: msg });
+        return;
+      }
+      if (type == "玩家加入战斗") {
+        if (!_Global.YJDync) {
+          this.Receive({ type: "玩家加入战斗", state: msg });
+          return;
+        }
+        _Global.YJDync._YJDyncManager.SendSceneStateAll("转发", { type: "玩家加入战斗", state: msg });
         return;
       }
       if (type == "NPC对玩家") {
@@ -726,6 +737,13 @@ class YJSceneDyncManagerEditor {
       if (type == "玩家脱离战斗") {
         if (_Global.YJ3D.YJPlayer.id == state) {
           _this.YJController.SetInteractiveNPC("玩家脱离战斗");
+        }
+        return;
+      }
+      if (type == "玩家加入战斗") {
+        let { playerId, fireId } = state;
+        if (_Global.YJ3D.YJPlayer.id == playerId) {
+          _this.YJController.SetInteractiveNPC("玩家加入战斗", fireId);
         }
         return;
       }

@@ -478,10 +478,10 @@ class YJNPC {
       if (msg == null || msg == undefined || msg == "") { return; }
       // data = JSON.parse(msg);
       data = (msg);
-      // console.log("in NPC msg = ", scope.transform.id, data);
+      console.log("in NPC msg = ", scope.transform.id, data);
       this.npcName = data.name;
       baseData = data.baseData;
-      if(baseData.camp == "bl"){
+      if (baseData.camp == "bl") {
         baseData.camp = 1001;
       }
       nameScale = data.avatarData.nameScale;
@@ -1122,11 +1122,16 @@ class YJNPC {
       CheckNextTarget();
     }
     function CheckNextTarget() {
-      console.log(  " 查找下一个目标 =====", scope.fireId);
+      // console.error(" 查找下一个目标 =====", scope.fireId);
+
       targetModel = null;
+      if (scope.fireId == -1) {
+        scope.SetNpcTargetToNone();
+        return;
+      }
       // 向主控请求下一个目标
       // 获取战斗组中的其他玩家作为目标。 没有时，npc结束战斗
-      _Global.DyncManager.RequestNextFireIdPlayer(scope.transform.id,baseData.camp, scope.fireId);
+      _Global.DyncManager.RequestNextFireIdPlayer(scope.transform.id, baseData.camp, scope.fireId);
     }
 
 
@@ -1241,7 +1246,7 @@ class YJNPC {
 
       let npcPos = parent.position.clone();
       readyAttack = false;
-      scope.SetPlayerState("准备战斗");
+
       let playerPosRef = targetModel.GetWorldPos().clone();
       playerPosRef.y = npcPos.y;
       parent.lookAt(playerPosRef);
@@ -1272,6 +1277,8 @@ class YJNPC {
         // console.log(" 首次进入战斗时，计算其技能 00 ", baseData.state);
 
       }
+      scope.SetPlayerState("准备战斗");
+
       // console.log( this.npcName +" npc进入战斗  ", scope.fireId);
     }
     function removeDebuffById(id) {

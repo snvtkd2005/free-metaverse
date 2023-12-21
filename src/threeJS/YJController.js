@@ -3223,7 +3223,8 @@ class YJController {
             hit_collider.name.indexOf("point") > -1 ||
             hit_collider.name.indexOf("hit") > -1 ||
             (hit_collider.tag != undefined && hit_collider.tag.indexOf("particle") > -1) ||
-            (hit_collider.tag != undefined && hit_collider.tag.indexOf("player") > -1) ||
+            (hit_collider.tag != undefined && hit_collider.tag.indexOf("player") > -1) || 
+            (hit_collider.tag != undefined && hit_collider.tag.indexOf("weapon") > -1) || 
             hit_collider.parent.name == "ignoreRaycast" ||
             (hit_collider.isLine != null && hit_collider.isLine == true) ||
             (hit_collider.parent.parent && hit_collider.parent.parent.isTransformControlsGizmo) ||

@@ -12,7 +12,7 @@ import { ObjectLoader } from "three";
 
 // 加载静态物体
 class YJMeshRenderer {
-  constructor(_this, scene, owner, hasCollider, noShadow) {
+  constructor(_this, scene, owner, hasCollider, noShadow,tag) {
     let scope = this;
 
     var model = null;
@@ -257,7 +257,7 @@ class YJMeshRenderer {
     }
 
     function LoadMesh(mesh, callback) {
-      // console.log(" 已存在mesh ,复用之 ！", mesh, materials);
+      // console.log(" 已存在mesh ,复用之 ！", mesh);
 
       model = cloneFbx(mesh.scene).scene;
       animations = mesh.animations;
@@ -287,6 +287,7 @@ class YJMeshRenderer {
       model.traverse(function (item) {
         if (item instanceof THREE.Mesh) {
           item.transform = owner;
+          item.tag = tag;
         }
       });
     }
@@ -322,8 +323,6 @@ class YJMeshRenderer {
 
           }
           else {
-
-
             if (item.name.includes("trigger")) {
 
               let cSize = new THREE.Vector3(0, 0, 0);

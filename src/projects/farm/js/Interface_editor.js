@@ -26,7 +26,7 @@ class Interface {
       navPointMesh: new THREE.Mesh(spare, material),
     }
     _Global.user = {
-      camp: "lm"
+      camp: 1000
     }
     _Global.inFocus = true;
 

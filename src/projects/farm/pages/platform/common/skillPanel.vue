@@ -121,7 +121,7 @@ export default {
       // console.log("鼠标悬浮在技能上 2 ", e, this.hoverPanelOffset);
     },
     clickSkill(e) {
-      console.log("点击技能 ", e);
+      // console.log("点击技能 ", e);
       if (e == "攻击") { 
         _Global.YJ3D.YJController.SetInteractiveNPC("点击技能","普通攻击");
         return;
@@ -130,7 +130,7 @@ export default {
     //动作栏。 使用技能或物体
     UserModel(item) {
       //播放角色动作
-      console.log(" 点击技能栏 ", item);
+      // console.log(" 点击技能栏 ", item);
       _Global.YJ3D.YJController.SetInteractiveNPC("点击技能",item); 
     },
   },

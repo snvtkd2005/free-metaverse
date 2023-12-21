@@ -76,7 +76,7 @@ class YJSceneDyncManagerEditor {
     }
     this.SendDataToServer = (type, data) => {
 
-      console.log(" 发送 ", type, data);
+      // console.log(" 发送 ", type, data);
       if (type == "npc技能" || type == "npc技能攻击") {
         let { npcId, skill } = data;
         if (type == "npc技能") {
@@ -219,9 +219,9 @@ class YJSceneDyncManagerEditor {
 
       for (let i = 0; i < fireGroup.length; i++) {
         const element = fireGroup[i];
-        for (let j = 0; j < element.npcList.length; j++) {
-          const npc = element.npcList[j];
-          if (npc == npcComponent.transform.id) {
+        for (let j = 0; j < element.peopleList.length; j++) {
+          const npc = element.peopleList[j];
+          if (npc.id == npcComponent.transform.id) {
             if (npcComponent.fireId == -1) {
               npcComponent.fireId = element.fireId;
             }
@@ -230,11 +230,11 @@ class YJSceneDyncManagerEditor {
         }
 
         let cPlayer = false;
-        for (let j = 0; j < element.playerList.length && !cPlayer; j++) {
-          const player = element.playerList[j];
-          if (player == targetModel.id) {
+        for (let j = 0; j < element.peopleList.length && !cPlayer; j++) {
+          const player = element.peopleList[j];
+          if (player.id == targetModel.id) {
             cPlayer = true;
-            element.npcList.push(npcComponent.transform.id);
+            element.peopleList.push({ id: npcComponent.transform.id, camp: npcComponent.GetCamp() });
             this.SendSceneState("战斗状态");
           }
         }
@@ -248,7 +248,9 @@ class YJSceneDyncManagerEditor {
         return;
       }
       let fireId = new Date().getTime();
-      fireGroup.push({ fireId: fireId, playerList: [targetModel.id], npcList: [npcComponent.transform.id] });
+      // fireGroup.push({ fireId: fireId, playerList: [targetModel.id], npcList: [npcComponent.transform.id] });
+      // camp 阵营数值: 1000联盟 1001部落  10000共同敌人
+      fireGroup.push({ fireId: fireId, peopleList: [{ id: targetModel.id, camp: targetModel.camp }, { id: npcComponent.transform.id, camp: 10000 }] });
       targetModel.fireId = fireId;
       npcComponent.fireId = fireId;
       console.log(" 开始新的战斗 ", fireGroup[fireGroup.length - 1]);
@@ -272,12 +274,12 @@ class YJSceneDyncManagerEditor {
         player: player,
       }
     }
-    this.GetPlayerById = function (playerId) {      
+    this.GetPlayerById = function (playerId) {
       let playerMirror = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByID(playerId);
-      if(playerMirror){
+      if (playerMirror) {
         return playerMirror.GetComponent("NPC");
       }
-      if (!_Global.YJDync) { 
+      if (!_Global.YJDync) {
         return _Global.YJ3D.YJPlayer;
       }
       return _Global.YJDync.GetPlayerById(playerId)
@@ -364,7 +366,7 @@ class YJSceneDyncManagerEditor {
     }
 
     // 玩家范围攻击npc。 在一场战斗中，玩家施放技能，获取玩家前方技能有效范围内的最多max数量的npc
-    this.GetNpcByPlayerForwardInFireId = function (fireId, vaildDistance, max, ingoreNpcId) {
+    this.GetNpcByPlayerForwardInFireId = function (fireId, camp, vaildDistance, max, ingoreNpcId) {
       let num = 0;
       if (ingoreNpcId != undefined) {
         // 群攻设置最多数量的目标时，且存在忽略npcId时，数量-1
@@ -377,10 +379,10 @@ class YJSceneDyncManagerEditor {
         const element = fireGroup[i];
         if (element.fireId == fireId) {
           let npcs = [];
-          for (let j = element.npcList.length - 1; j >= 0; j--) {
-            const npcId = element.npcList[j];
-            if (ingoreNpcId != npcId) {
-              let vaildNpc = CheckNpcInPlayerForward(vaildDistance, npcId);
+          for (let j = element.peopleList.length - 1; j >= 0; j--) {
+            const npcId = element.peopleList[j];
+            if (camp != npcId.camp && ingoreNpcId != npcId.id) {
+              let vaildNpc = CheckNpcInPlayerForward(vaildDistance, npcId.id);
               if (vaildNpc != null) {
                 num++;
                 npcs.push(vaildNpc);
@@ -425,23 +427,24 @@ class YJSceneDyncManagerEditor {
         const element = fireGroup[i];
         if (element.fireId == npcComponent.fireId) {
           let cNpc = false;
-          for (let j = element.npcList.length - 1; j >= 0 && !cNpc; j--) {
-            const npc = element.npcList[j];
-            if (npc == npcComponent.transform.id) {
+          for (let j = element.peopleList.length - 1; j >= 0 && !cNpc; j--) {
+            const npc = element.peopleList[j];
+            if (npc.id == npcComponent.transform.id) {
               npcComponent.fireId = -1;
-              element.npcList.splice(j, 1);
+              element.peopleList.splice(j, 1);
               cNpc = true;
             }
           }
           if (cNpc) {
             console.log(" NPC 死亡或其他 离开战斗 ", element);
           }
-          
-          if (element.npcList.length == 0) {
+
+
+          if (element.peopleList.length == 1) {
             //向所有战斗中的玩家发送脱离战斗
-            for (let k = element.playerList.length - 1; k >= 0 ; k--) {
-              const playerId = element.playerList[k];
-              this.SendSceneStateAll("玩家脱离战斗",playerId); 
+            for (let k = element.peopleList.length - 1; k >= 0; k--) {
+              const playerId = element.peopleList[k];
+              this.SendSceneStateAll("玩家脱离战斗", playerId.id);
             }
             fireGroup.splice(i, 1);
           }
@@ -455,11 +458,11 @@ class YJSceneDyncManagerEditor {
         const element = fireGroup[i];
         if (element.fireId == targetModel.fireId) {
           let hasPlayer = false;
-          for (let k = element.playerList.length - 1; k >= 0 && !hasPlayer; k--) {
-            const player = element.playerList[k];
-            if (player == targetModel.id) {
+          for (let k = element.peopleList.length - 1; k >= 0 && !hasPlayer; k--) {
+            const player = element.peopleList[k];
+            if (player.id == targetModel.id) {
               targetModel.fireId = -1;
-              element.playerList.splice(k, 1);
+              element.peopleList.splice(k, 1);
               hasPlayer = true;
             }
           }
@@ -470,58 +473,59 @@ class YJSceneDyncManagerEditor {
       }
     }
     // 去重加入数组
-    function AddArray(array,item){
+    function AddArray(array, item) {
       let has = false;
       for (let i = 0; i < array.length && !has; i++) {
         const element = array[i];
-        if(element == item){
+        if (element == item) {
           has = true;
           return;
         }
       }
       array.push(item);
     }
-    this.AddFireGroup = function(type,id,fireId){
+    this.AddFireGroup = function (id, camp, fireId) {
       for (let i = 0; i < fireGroup.length; i++) {
         const element = fireGroup[i];
-        if(element.fireId == fireId){
-          if(type == "npc"){ 
-            AddArray(element.npcList,id);
+        if (element.fireId == fireId) {
+          let has = false;
+          for (let ii = 0; ii < element.peopleList.length && !has; ii++) {
+            const people = element.peopleList[ii];
+            if (people.id == id) {
+              has = true;
+              return;
+            }
           }
-          if(type == "player"){ 
-            AddArray(element.playerList,id);
-          }
-        } 
+          element.peopleList.push({ id: id, camp: camp });
+          console.log(" 加入战斗组 ", element);
+        }
       }
     }
-    // 玩家加入正在进行的战斗。 如果玩家和npc都未在战斗中，则有NPC触发生成战斗组
+    // 玩家加入正在进行的战斗。 如果玩家和npc都未在战斗中，则由NPC触发生成战斗组
     this.PlayerAddFire = function (npcComponent, targetModel) {
       for (let i = 0; i < fireGroup.length; i++) {
         const element = fireGroup[i];
-        let cNpc = false;
-        for (let j = 0; j < element.npcList.length && !cNpc; j++) {
-          const npc = element.npcList[j];
-          if (npc == npcComponent.transform.id) {
-            cNpc = true;
-
-            let hasPlayer = false;
-            for (let k = 0; k < element.playerList.length && !hasPlayer; k++) {
-              const player = element.playerList[k];
-              if (player == targetModel.id) {
-                hasPlayer = true;
-                if (targetModel.fireId == -1) {
-                  targetModel.fireId = element.fireId;
-                  console.log(" 玩家 加入战斗 ", element);
-                  return;
-                }
-              }
-            }
-            if (!hasPlayer) {
-              targetModel.fireId = element.fireId;
-              element.playerList.push(targetModel.id);
-              console.log(" 玩家 加入战斗 ", element);
-            }
+        let hasNpc = false;
+        let hasPlayer = false;
+        for (let j = 0; j < element.peopleList.length; j++) {
+          const npc = element.peopleList[j];
+          if (npc.id == npcComponent.transform.id) {
+            hasNpc = true;
           }
+          if (npc.id == targetModel.id) {
+            hasPlayer = true;
+          }
+        }
+        if (hasNpc || hasPlayer) {
+          if (!hasNpc) {
+            npcComponent.fireId = element.fireId;
+            element.peopleList.push({ id: npcComponent.transform.id, camp: npcComponent.GetCamp() });
+          }
+          if (!hasPlayer) {
+            targetModel.fireId = element.fireId;
+            element.peopleList.push({ id: targetModel.id, camp: targetModel.camp });
+          }
+          return;
         }
       }
       this.SendSceneState("战斗状态");
@@ -534,9 +538,9 @@ class YJSceneDyncManagerEditor {
       for (let i = 0; i < fireGroup.length; i++) {
         const element = fireGroup[i];
         if (element.fireId == fireId) {
-          for (let j = 0; j < element.npcList.length; j++) {
-            const npc = element.npcList[j];
-            if (npc == npcComponent.transform.id) {
+          for (let j = 0; j < element.peopleList.length; j++) {
+            const npc = element.peopleList[j];
+            if (npc.id == npcComponent.transform.id) {
               if (npcComponent.fireId == -1) {
                 npcComponent.fireId = element.fireId;
               }
@@ -544,7 +548,7 @@ class YJSceneDyncManagerEditor {
             }
           }
           npcComponent.fireId = fireId;
-          element.npcList.push(npcComponent.transform.id);
+          element.peopleList.push({ id: npcComponent.transform.id, camp: npcComponent.GetCamp() });
           console.log(npcComponent.npcName + " npc 加入 附近的战斗 ", element);
         }
       }
@@ -557,49 +561,60 @@ class YJSceneDyncManagerEditor {
       for (let i = 0; i < fireGroup.length; i++) {
         const element = fireGroup[i];
         if (element.fireId == fireId) {
-          element.playerList.push(player.id);
+          element.peopleList.push({ id: player.id, camp: player.camp });
           console.log(" 玩家 加入战斗 22 ", element);
         }
       }
       this.SendSceneState("战斗状态");
     }
-    this.RequestNextFireIdPlayer = function (npcId, fireId) {
+    this.RequestNextFireIdPlayer = function (npcId, camp, fireId) {
       if (_Global.mainUser) {
-        GetFireIdPlayer({ npcId: npcId, fireId: fireId });
+        GetFireIdPlayer({ npcId: npcId, camp: camp, fireId: fireId });
       } else {
-        this.SendSceneState("请求下一个目标", { npcId: npcId, fireId: fireId });
+        this.SendSceneState("请求下一个目标", { npcId: npcId, camp: camp, fireId: fireId });
       }
     }
     function GetFireIdPlayer(state) {
-      let { npcId, fireId } = state;
+      let { npcId, camp, fireId } = state;
       let npcComponent = null;
       for (let i = 0; i < npcModelList.length; i++) {
         const element = npcModelList[i].transform;
         if (element.id == npcId) {
           npcComponent = element.GetComponent("NPC");
+          console.log(npcComponent.npcName + " 查找同一战斗的下一个目标 ", fireId);
+          // camp = npcComponent.GetCamp();
         }
       }
       for (let i = 0; i < fireGroup.length; i++) {
         const element = fireGroup[i];
         if (element.fireId == fireId) {
-          for (let j = 0; j < element.playerList.length; j++) {
-            const playerId = element.playerList[j];
-            console.log("npc查找同一战斗的玩家 ", fireId, playerId);
-
-            const player = _Global.YJDync.GetPlayerById(playerId);
-            if (player) {
-              console.log(player.GetUserData());
-              if (player.isLocal) {
-                if (_this.YJController.GetUserData().baseData.health > 0) {
-                  //发送npc目标
-                  npcComponent.SetNpcTarget(player, true, false);
+          for (let j = 0; j < element.peopleList.length; j++) {
+            const people = element.peopleList[j];
+            if (people.camp != camp) {
+              if (people.camp == 10000 || people.camp == 1001) {
+                let ps = scope.GetNpcByPlayerForwardInFireId(fireId, camp, 100, 1);
+                if (ps.length >= 0) {
+                  console.log(npcComponent.npcName + " 找到目标 ", ps[0].npcName);
+                  npcComponent.SetNpcTarget(ps[0], false, false);
                   return;
                 }
-              } else {
-                if (player.GetUserData().baseData.health > 0) {
-                  //发送npc目标
-                  npcComponent.SetNpcTarget(player, true, false);
-                  return;
+                return;
+              }
+              const player = scope.GetPlayerById(people.id);
+              if (player) {
+                console.log(player.GetUserData());
+                if (player.isLocal) {
+                  if (_this.YJController.GetUserData().baseData.health > 0) {
+                    //发送npc目标
+                    npcComponent.SetNpcTarget(player, true, false);
+                    return;
+                  }
+                } else {
+                  if (player.GetUserData().baseData.health > 0) {
+                    //发送npc目标
+                    npcComponent.SetNpcTarget(player, true, false);
+                    return;
+                  }
                 }
               }
             }
@@ -709,12 +724,12 @@ class YJSceneDyncManagerEditor {
       let { type, state } = data;
       // console.log(" 接收 ", type, state);
       if (type == "玩家脱离战斗") {
-        if(_Global.YJ3D.YJPlayer.id == state){
+        if (_Global.YJ3D.YJPlayer.id == state) {
           _this.YJController.SetInteractiveNPC("玩家脱离战斗");
         }
         return;
       }
-      
+
       if (type == "玩家对NPC") {
         let { npcId, playerId, skillName, effect } = state;
 
@@ -735,7 +750,7 @@ class YJSceneDyncManagerEditor {
       }
       if (type == "NPC对玩家") {
 
-        if(state.targetId == _Global.YJ3D.YJPlayer.id){
+        if (state.targetId == _Global.YJ3D.YJPlayer.id) {
           _this.YJController.ReceiveDamage(this.GetNpcById(state.npcId), state.skillName, state.effect);
           return;
         }

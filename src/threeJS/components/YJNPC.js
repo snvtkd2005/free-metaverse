@@ -50,7 +50,7 @@ class YJNPC {
 
     let baseData = {
       state: 'normal', //状态
-      camp: "bl", //阵营
+      camp: 1001, //阵营
       speed: 8, //移动速度
       level: 1, //等级
       health: 100, //生命值
@@ -478,9 +478,12 @@ class YJNPC {
       if (msg == null || msg == undefined || msg == "") { return; }
       // data = JSON.parse(msg);
       data = (msg);
-      console.log("in NPC msg = ", scope.transform.id, data);
+      // console.log("in NPC msg = ", scope.transform.id, data);
       this.npcName = data.name;
       baseData = data.baseData;
+      if(baseData.camp == "bl"){
+        baseData.camp = 1001;
+      }
       nameScale = data.avatarData.nameScale;
       playerHeight = data.avatarData.height;
       CreateNameTrans(this.npcName);
@@ -508,6 +511,12 @@ class YJNPC {
           scope.GetBoneVague(weaponData.boneName, (bone) => {
 
             let weaponModel = (meshAndMats.mesh).scene.clone();
+            weaponModel.traverse(function (item) {
+              if (item instanceof THREE.Mesh) {
+                item.transform = scope;
+                item.tag = "weapon";
+              }
+            });
 
             bone.attach(weaponModel);
             bone.weaponModel = weaponModel;
@@ -1030,7 +1039,7 @@ class YJNPC {
       let { type, skillName, value, time, duration } = effect;
 
       // 发送战斗记录
-      _Global.DyncManager.SendFireRecode({ playerId:  scope.id, npcId: target.transform.id, npcName: target.npcName, skillName: skillName, strength: value });
+      _Global.DyncManager.SendFireRecode({ playerId: scope.id, npcId: target.transform.id, npcName: target.npcName, skillName: skillName, strength: value });
       // 发送技能特效
       shootTarget(target, attackStepSpeed * 300);
 
@@ -1082,7 +1091,7 @@ class YJNPC {
       data.baseData.strength = 20;
       data.baseData.health = data.baseData.maxHealth;
 
-      console.log("创建增生 ", data.name);
+      // console.log("创建增生 ", data.name);
       _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().DuplicateModel(modelData, (transform) => {
 
         transform.SetActive(false);
@@ -1113,14 +1122,47 @@ class YJNPC {
       CheckNextTarget();
     }
     function CheckNextTarget() {
-      console.log(" npc目标玩家死亡,查找下一个 =====", scope.fireId);
+      console.log(  " 查找下一个目标 =====", scope.fireId);
       targetModel = null;
-      scope.SetNpcTarget(null, true);
       // 向主控请求下一个目标
       // 获取战斗组中的其他玩家作为目标。 没有时，npc结束战斗
-      _Global.DyncManager.RequestNextFireIdPlayer(scope.transform.id, scope.fireId);
+      _Global.DyncManager.RequestNextFireIdPlayer(scope.transform.id,baseData.camp, scope.fireId);
     }
 
+
+    // 玩家生成的镜像或宠物，在玩家移动后，跟随玩家
+    this.FollowPlayer = function (playerPos) {
+      if (baseData.state == stateType.Fire) {
+        return;
+      }
+      if (data.isPlayer) {
+        let pos = _Global.YJ3D.YJPlayer.GetWorldPos().clone();
+
+        if (oldPlayerPos.distanceTo(pos) < 0.5) {
+          setTimeout(() => {
+            this.FollowPlayer();
+          }, 1000);
+          return;
+        }
+        oldPlayerPos = pos.clone();
+        fireBeforePos = pos.clone();
+
+        fireBeforePos.x += radomNum(-2, 2);
+        fireBeforePos.z += radomNum(-2, 2);
+        setTimeout(() => {
+          this.FollowPlayer();
+        }, 500);
+      }
+      let currentPos = scope.GetWorldPos();
+      // if (currentPos.distanceTo(fireBeforePos) >= 20) {
+      // }
+      baseData.speed = 8 + currentPos.distanceTo(fireBeforePos) / 3;
+
+      GetNavpath(parent.position.clone(), fireBeforePos);
+    }
+    this.GetWorldPos = function () {
+      return scope.transform.GetWorldPos();
+    }
 
     let fireBeforePos = null;
     this.SetNpcTargetToNone = function (isLocal) {
@@ -1160,39 +1202,6 @@ class YJNPC {
       }
     }
 
-    // 玩家生成的镜像或宠物，在玩家移动后，跟随玩家
-    this.FollowPlayer = function (playerPos) {
-      if (baseData.state == stateType.Fire) {
-        return;
-      }
-      if (data.isPlayer) {
-        let pos = _Global.YJ3D.YJPlayer.GetWorldPos().clone();
-
-        if (oldPlayerPos.distanceTo(pos) < 0.5) {
-          setTimeout(() => {
-            this.FollowPlayer();
-          }, 1000);
-          return;
-        }
-        oldPlayerPos = pos.clone();
-        fireBeforePos = pos.clone();
-
-        fireBeforePos.x += radomNum(-2, 2);
-        fireBeforePos.z += radomNum(-2, 2);
-        setTimeout(() => {
-          this.FollowPlayer();
-        }, 500);
-      }
-      let currentPos = scope.GetWorldPos();
-      // if (currentPos.distanceTo(fireBeforePos) >= 20) {
-      // }
-      baseData.speed = 8 + currentPos.distanceTo(fireBeforePos) / 3;
-
-      GetNavpath(parent.position.clone(), fireBeforePos);
-    }
-    this.GetWorldPos = function () {
-      return scope.transform.GetWorldPos();
-    }
     // 设置NPC的战斗目标
     this.SetNpcTarget = function (_targetModel, isLocal, checkNear) {
       if (_targetModel == null) {
@@ -1209,22 +1218,21 @@ class YJNPC {
 
       if (targetModel == null) {
         targetModel = _targetModel;
-        fireBeforePos = scope.GetWorldPos();
         //加入战斗
         if (isLocal && checkNear) {
           _Global.DyncManager.NPCAddFire(scope, targetModel);
         }
+
+        // 停止寻路
+        SetNavPathToNone();
       }
 
-      targetModel = _targetModel;
       if (targetModel == null) {
         return;
       }
 
-      console.log(" 设置目标 00 ", data.isPlayer, targetModel, baseData.state);
+      // console.log(" 设置目标 00 ", data.isPlayer, targetModel, baseData.state);
 
-      // 停止寻路
-      SetNavPathToNone();
 
       if (laterNav != null) {
         clearTimeout(laterNav);
@@ -1239,7 +1247,6 @@ class YJNPC {
       parent.lookAt(playerPosRef);
 
       baseData.speed = RUNSPEED;
-      fireBeforePos = scope.GetWorldPos();
       if (isLocal) {
         _Global.DyncManager.SendModelState(
           scope.transform.GetData().id,
@@ -1262,7 +1269,7 @@ class YJNPC {
         baseData.state = stateType.Fire;
         //首次进入战斗时，计算其技能
         CheckSkill();
-        console.log(" 首次进入战斗时，计算其技能 00 ", baseData.state);
+        // console.log(" 首次进入战斗时，计算其技能 00 ", baseData.state);
 
       }
       // console.log( this.npcName +" npc进入战斗  ", scope.fireId);
@@ -1345,7 +1352,6 @@ class YJNPC {
       if (targetModel == null) {
         this.SetNpcTarget(_Global.DyncManager.GetPlayerById(_targetModelId), true, true);
       } else {
-
       }
       // console.log("收到来自 的伤害 ", _targetModelId, _Global.DyncManager.GetPlayerById(_targetModelId));
 
@@ -1410,7 +1416,7 @@ class YJNPC {
       let { type, value, time, duration, describe, icon } = effect;
 
       value = RealyDamage(value);
- 
+
       if (targetModel == null) {
         this.SetNpcTarget(_targetModel, true, false);
       } else {
@@ -1662,18 +1668,13 @@ class YJNPC {
 
         if (targetModel == null) {
           scope.SetPlayerState("准备战斗");
-          setTimeout(() => {
-            if (targetModel == null) {
-              scope.SetNpcTarget(null, true);
-            }
-          }, 1000);
           return;
         }
         if (inSkill) {
           return;
         }
         if (targetModel != null && targetModel.isDead) {
-          scope.SetNpcTarget(null, true);
+          CheckNextTarget();
           return;
         }
         // 逻辑见note/npc策划.md 战斗策略
@@ -1703,17 +1704,17 @@ class YJNPC {
               //有效攻击 && 
               var { s, v, a } = GetSkillDataByWeapon(weaponData);
               SendDamageToTarget(targetModel, { skillName: s, type: "damage", value: baseData.strength });
-            
-            
+
+
               //攻击结束之后，判断下一个目标
               if (maxDamagePlayerId != 0) {
-                console.log(" 设置下一个目标 ",maxDamagePlayerId, targetModel.id);
+                // console.log(" 设置下一个目标 ", maxDamagePlayerId, targetModel.id);
                 if (maxDamagePlayerId != targetModel.id) {
-                  scope.SetNpcTarget(_Global.DyncManager.GetPlayerById(maxDamagePlayerId), true);
+                  targetModel = _Global.DyncManager.GetPlayerById(maxDamagePlayerId);
                 }
               }
 
-            
+
             }, attackStepSpeed * 100);
 
             toIdelLater = setTimeout(() => {

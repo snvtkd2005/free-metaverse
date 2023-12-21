@@ -600,7 +600,7 @@ export default {
 
           // 默认没有姓名条，在多人模式中，需调用创建姓名条 
           this.ThreejsHumanChat.CallCreateNameTrans(nickName, id);
-
+          this.ThreejsHumanChat.YJPlayer.camp = _Global.user.camp;
         }
 
         // console.log("生成本地角色 " + id);
@@ -623,6 +623,7 @@ export default {
 
         _YJPlayer.CreateNameTrans(nickName);
         _YJPlayer.id = id;
+        _YJPlayer.camp = _Global.user.camp;
         this.allPlayer.push({
           player: _YJPlayer,
           id: id,

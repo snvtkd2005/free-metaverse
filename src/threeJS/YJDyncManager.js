@@ -710,6 +710,12 @@ class YJDyncManager {
       if (title == "NPC对玩家") {
         fromData.sceneState = msg;
       }
+      if (title == "添加") {
+        fromData.model = msg;
+      }
+      if (title == "删除") {
+        fromData.model = msg;
+      }
       this.callRPCFn("_SendSceneState", "other", JSON.stringify(fromData));
     }
     //接收场景状态

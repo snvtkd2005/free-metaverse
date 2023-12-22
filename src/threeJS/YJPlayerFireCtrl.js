@@ -32,12 +32,15 @@ class YJPlayerFireCtrl {
 				case "设置玩家状态":
 					scope.SetPlayerState(state.msg);
 					break;
+				case "添加镜像": 
+					EventHandler("添加镜像",state.msg);
+					break;
 				case "玩家脱离战斗":
 					playerState = PLAYERSTATE.NORMAL;
 					inFire = false;
 					console.log(" 玩家脱离战斗 ");
 					break;
-				case "玩家加入战斗": 
+				case "玩家加入战斗":
 					inFire = true;
 					EventHandler("进入战斗");
 					console.log(" 玩家加入战斗 ");
@@ -300,7 +303,10 @@ class YJPlayerFireCtrl {
 
 			let playId = _YJPlayer.id + "_" + times + "_" + num;
 			data.isPlayer = true;
+			data.ownerId = _YJPlayer.id;
 			data.playerId = playId;
+			modelData.id = playId;
+			modelData.ownerId = _YJPlayer.id;
 			if (data.baseData.maxHealth > 200) {
 				data.baseData.maxHealth = 200;
 			}
@@ -311,20 +317,31 @@ class YJPlayerFireCtrl {
 			data.baseData.health = data.baseData.maxHealth;
 
 			console.log("创建 玩家 镜像 ", playId, data.name);
+
+			//向服务器发送添加
+			_Global.DyncManager.SendSceneState("添加", modelData);
+			num++;
+			if (num == count) {
+			} else {
+				hyperplasia(modelData, num, count, times);
+			}
+			return;
 			_Global.YJ3D._YJSceneManager.GetLoadUserModelManager().DuplicateModel(modelData, (transform) => {
 				transform.SetActive(false);
+				transform.id = playId;
 				setTimeout(() => {
+					_Global.DyncManager.AddNpc(transform);
 					let _npcComponent = transform.GetComponent("NPC");
 					_npcComponent.id = playId;
 					if (_YJPlayer.fireId != -1) {
-						if (npcComponent != null) {
-							_npcComponent.SetNpcTarget(npcComponent);
-						}
+						_npcComponent.fireId = _YJPlayer.fireId;
 						_Global.DyncManager.AddFireGroup(playId, _YJPlayer.camp, _YJPlayer.fireId);
+						_npcComponent.CheckNextTarget();
 					}
-					_Global.DyncManager.AddNpc(transform);
 					transform.SetActive(true);
 				}, 1000);
+				//向服务器发送添加
+				_Global.DyncManager.SendSceneState("添加", modelData);
 				hyperplasiaTrans.push(transform.GetComponent("NPC"));
 				num++;
 				if (num == count) {
@@ -704,9 +721,13 @@ class YJPlayerFireCtrl {
 					}
 				}
 			}
-
-
-
+			if (e == "添加镜像") { 
+				let mirrorId = msg;
+				let npcTransform = _Global.DyncManager.GetNpcById(mirrorId);
+				let npcComponent = npcTransform.GetComponent("NPC");
+				npcComponent.setOwnerPlayer(_YJPlayer);
+				hyperplasiaTrans.push(npcComponent);
+			}
 
 		}
 

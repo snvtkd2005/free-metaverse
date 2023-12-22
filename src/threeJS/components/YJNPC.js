@@ -18,10 +18,12 @@ class YJNPC {
     var scope = this;
     this.fireId = -1; //战斗组id  -1表示未在战斗中
     this.isDead = false;
+    this.id = 0;
     let group = null;
     let playerHeight;
     let nameScale = 1;
     let doonce = 0;
+    let isMoving = false;
 
     // 记录模型材质
     let materials = [];
@@ -69,7 +71,6 @@ class YJNPC {
       // fromGroup.rotation.set(Math.PI/2,0,0);
       playerPosition = parent.position;
       group.rotation.y += Math.PI;
-
 
       // group.add(new THREE.AxesHelper(5)); // 场景添加坐标轴
       // return;
@@ -175,7 +176,6 @@ class YJNPC {
     }
     //销毁组件
     this.Destroy = function () {
-      cancelAnimationFrame(updateId);
       parent.remove(group);
     }
     //放下后，获取模型的坐标和旋转，记录到服务器，让其他客户端创建
@@ -297,7 +297,7 @@ class YJNPC {
       if (_Global.mainUser) {
         let navPosIndex = radomNum(0, movePos.length - 1);
         GetNavpath(parent.position.clone(), movePos[navPosIndex]);
-        _Global.DyncManager.UpdateModel(scope.transform.id, "navPosIndex",
+        _Global.DyncManager.UpdateModel(scope.id, "navPosIndex",
           { navPosIndex: navPosIndex });
       }
       // console.log("navpath ", navpath);
@@ -433,6 +433,7 @@ class YJNPC {
       // console.log(" 清空寻路路径 ");
       navpath = [];
       doonce = 0;
+      isMoving = false;
     }
     // 获取寻路路径
     function GetNavpath(fromPos, targetPos) {
@@ -478,7 +479,10 @@ class YJNPC {
       if (msg == null || msg == undefined || msg == "") { return; }
       // data = JSON.parse(msg);
       data = (msg);
-      console.log("in NPC msg = ", scope.transform.id, data);
+      scope.id = scope.transform.id;
+      console.log("in NPC msg = ", scope.id, data);
+
+
       this.npcName = data.name;
       baseData = data.baseData;
       if (baseData.camp == "bl") {
@@ -573,7 +577,7 @@ class YJNPC {
           if (cutSkill) {
             if (inSkill) {
               _Global.DyncManager.SendDataToServer("npc技能",
-                { npcId: scope.transform.id, skill: "中断" });
+                { npcId: scope.id, skill: "中断" });
               inSkill = false;
             }
           }
@@ -645,7 +649,7 @@ class YJNPC {
             SendDamageToTarget(targetModel, effect);
 
             _Global.DyncManager.SendDataToServer("npc技能攻击",
-              { npcId: scope.transform.id, skill: effect });
+              { npcId: scope.id, skill: effect });
 
           }, attackStepSpeed * 100);
 
@@ -686,7 +690,7 @@ class YJNPC {
             SendDamageToTarget(randomSelectModel, effect);
 
             _Global.DyncManager.SendDataToServer("npc技能攻击",
-              { npcId: scope.transform.id, skill: effect });
+              { npcId: scope.id, skill: effect });
 
           }, attackStepSpeed * 100);
 
@@ -714,7 +718,7 @@ class YJNPC {
             SendSkill(effect);
             effect.times = hyperplasiaTimes;
             _Global.DyncManager.SendDataToServer("npc技能攻击",
-              { npcId: scope.transform.id, skill: effect });
+              { npcId: scope.id, skill: effect });
           }, attackStepSpeed * 100);
 
           toIdelLater = setTimeout(() => {
@@ -907,7 +911,7 @@ class YJNPC {
       if (skillItem.castTime > 0) {
         // 需要施法的技能才发送技能同步，瞬发技能无需同步
         _Global.DyncManager.SendDataToServer("npc技能",
-          { npcId: scope.transform.id, skill: skillItem });
+          { npcId: scope.id, skill: skillItem });
         attackStepSpeed = skillItem.castTime;
         vaildAttackDis = skillItem.vaildDis;
         //取消寻路，让npc站住施法
@@ -1017,7 +1021,7 @@ class YJNPC {
       let { type, skillName, value, time, duration } = effect;
 
       // 发送战斗记录
-      _Global.DyncManager.SendFireRecode({ targetId: target.id, npcId: scope.transform.id, npcName: scope.npcName, skillName: skillName, strength: value });
+      _Global.DyncManager.SendFireRecode({ targetId: target.id, npcId: scope.id, npcName: scope.npcName, skillName: skillName, strength: value });
       // 发送技能特效
       shootTarget(target, attackStepSpeed * 300);
 
@@ -1025,7 +1029,7 @@ class YJNPC {
         CheckNextTarget();
         return;
       }
-      _Global.DyncManager.SendSceneStateAll("NPC对玩家", { targetId: target.id, npcId: scope.transform.id, npcName: scope.npcName, skillName: skillName, effect: effect });
+      _Global.DyncManager.SendSceneStateAll("NPC对玩家", { targetId: target.id, npcId: scope.id, npcName: scope.npcName, skillName: skillName, effect: effect });
     }
     function SendDamageToTarget2(target, effect) {
       if (target == null) {
@@ -1071,7 +1075,7 @@ class YJNPC {
         }
       }
       // 发送战斗记录
-      _Global.DyncManager.SendFireRecode({ npcId: scope.transform.id, npcName: scope.npcName, skillName: skillName, describe: describe });
+      _Global.DyncManager.SendFireRecode({ npcId: scope.id, npcName: scope.npcName, skillName: skillName, describe: describe });
 
     }
     function hyperplasia(modelData, num, count, times) {
@@ -1109,7 +1113,7 @@ class YJNPC {
         } else {
           hyperplasia(modelData, num, count, times);
         }
-      }, scope.transform.id + "_" + times + "_" + num);
+      }, scope.id + "_" + times + "_" + num);
     }
 
     //#endregion
@@ -1131,17 +1135,23 @@ class YJNPC {
       }
       // 向主控请求下一个目标
       // 获取战斗组中的其他玩家作为目标。 没有时，npc结束战斗
-      _Global.DyncManager.RequestNextFireIdPlayer(scope.transform.id, baseData.camp, scope.fireId);
+      _Global.DyncManager.RequestNextFireIdPlayer(scope.id, baseData.camp, scope.fireId);
     }
 
 
+    let ownerPlayer = null;
+    this.setOwnerPlayer = function (_ownerPlayer) {
+      ownerPlayer = _ownerPlayer;
+      oldPlayerPos.y = -100;
+      scope.FollowPlayer();
+    }
     // 玩家生成的镜像或宠物，在玩家移动后，跟随玩家
-    this.FollowPlayer = function (playerPos) {
+    this.FollowPlayer = function () {
       if (baseData.state == stateType.Fire) {
         return;
       }
       if (data.isPlayer) {
-        let pos = _Global.YJ3D.YJPlayer.GetWorldPos().clone();
+        let pos = ownerPlayer.GetWorldPos().clone();
 
         if (oldPlayerPos.distanceTo(pos) < 0.5) {
           setTimeout(() => {
@@ -1177,7 +1187,14 @@ class YJNPC {
         ClearFireLater();
         // 暂停1秒
         SetNavPathToNone();
-        baseData.state = stateType.Back;
+
+        if (data.isPlayer) {
+          baseData.state = stateType.Normal;
+        } else {
+          // 只有敌方NPC失去目标时，才会进入返回状态
+          baseData.state = stateType.Back;
+        }
+
         scope.SetPlayerState("normal");
         ClearLater("清除巡逻");
 
@@ -1362,6 +1379,12 @@ class YJNPC {
       }
       // console.log("收到来自 的伤害 ", _targetModelId, _Global.DyncManager.GetPlayerById(_targetModelId));
 
+      //在移动中受到攻击，判断下一个目标
+      if (maxDamagePlayerId != 0 && isMoving) {
+        if (maxDamagePlayerId != targetModel.id) {
+          targetModel = _Global.DyncManager.GetPlayerById(maxDamagePlayerId);
+        }
+      }
 
       // console.log(" npc接收伤害 ", effect);
       // 直接伤害 或 持续伤害
@@ -1636,6 +1659,10 @@ class YJNPC {
       setTimeout(() => {
         // 模型渐隐消失
         scope.transform.SetActive(false);
+
+        if (data.isPlayer) {
+          _Global.DyncManager.SendSceneState("删除", scope.id);
+        }
         // scope.transform.Destroy();
         //一分钟后重新刷新。告诉主控
         // setTimeout(() => {
@@ -1760,7 +1787,7 @@ class YJNPC {
         if (oldTransData == null) {
           return;
         }
-        _Global.DyncManager.UpdateModel(scope.transform.id, "pos",
+        _Global.DyncManager.UpdateModel(scope.id, "pos",
           oldTransData);
       }
     }
@@ -1814,6 +1841,7 @@ class YJNPC {
           scope.SetPlayerState("跑向目标");
         }
         // console.log(" npc往目标移动 ", velocity.lengthSq(), 0.00075 * baseData.speed);
+        isMoving = true;
 
 
       } else {
@@ -1829,6 +1857,7 @@ class YJNPC {
           } else if (baseData.state == stateType.Normal) {
             ChangeEvent("准备巡逻");
           }
+          isMoving = false;
         } else {
           lookAtTargetPos();
         }

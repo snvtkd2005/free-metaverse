@@ -17,16 +17,12 @@
     </div>
 
     <loadingPanel class="absolute z-50 left-0 top-0" ref="loadingPanel" />
- 
+
     <HUD ref="HUD" />
 
     <!-- 多人同步 -->
-    <YJDync
-      v-if="inLoadCompleted"
-      class="absolute z-50 left-0 top-0 w-full h-full"
-      :hasTRTC="this.hasTRTC"
-      ref="YJDync"
-    />
+    <YJDync v-if="inLoadCompleted" class="absolute z-50 left-0 top-0 w-full h-full" :hasTRTC="this.hasTRTC"
+      ref="YJDync" />
 
     <!-- 修改名称 -->
     <div class="absolute left-2 top-2 flex">
@@ -35,14 +31,9 @@
       </div>
     </div>
 
-    <playVideo
-      ref="playVideo"
-      video_url="./public/farm/videos/movieSD.mp4"
-      type="video/mp4"
-    />
+    <playVideo ref="playVideo" video_url="./public/farm/videos/movieSD.mp4" type="video/mp4" />
 
-    <div v-if="false"
-      class="
+    <div v-if="false" class="
         hidden
         xl:flex
         absolute
@@ -50,18 +41,15 @@
         bottom-10
         w-auto
         pointer-events-none
-      "
-    >
-      <div
-        class="
+      ">
+      <div class="
           flex
           w-auto
           bg-black bg-opacity-20
           text-white text-md
           rounded-lg
           h-auto
-        "
-      >
+        ">
         <div class="px-2 text-left mx-auto self-center">
           键盘操作：<br />
           G:重力开关<br />
@@ -259,17 +247,18 @@ export default {
       return;
     }
 
-    this.Interface = new Interface(this,false);
+    this.Interface = new Interface(this, false);
 
     this.RequestGetAllModel(() => {
       this.RequestGetAllSceneData();
       this.$refs.YJmetaBase.SetloadingPanel(this.$refs.loadingPanel);
     });
 
-    document.addEventListener("visibilitychange", () => { 
+    document.addEventListener("visibilitychange", () => {
       _Global.inFocus = !document.hidden;
       // console.log(" _Global.inFocus ", _Global.inFocus);
     });
+
   },
   methods: {
     // 获取所有单品
@@ -298,7 +287,7 @@ export default {
               data.modelPath = this.$uploadUrl + item.modelPath;
               _Global.CreateOrLoadPlayerAnimData().AddAvatarData(data);
             }
-          } 
+          }
           if (callback) {
             callback();
           }
@@ -363,10 +352,10 @@ export default {
     async RequestGetAllSceneData() {
       let res = await this.$axios.get(
         this.sceneLoadUrl +
-          this.folderBase +
-          "/" +
-          this.folderBase +
-          "_setting.txt" + "?time="+new Date().getTime()
+        this.folderBase +
+        "/" +
+        this.folderBase +
+        "_setting.txt" + "?time=" + new Date().getTime()
       );
 
       // console.log(" 获取场景配置 ", res.data);
@@ -382,10 +371,10 @@ export default {
       // console.log(" 获取场景 模型文本路径 ", path);
       let res = await this.$axios.get(
         this.sceneLoadUrl +
-          this.folderBase +
-          "/" +
-          this.folderBase +
-          "_scene.txt"
+        this.folderBase +
+        "/" +
+        this.folderBase +
+        "_scene.txt"
       );
 
       this.modelList.splice(0, this.modelList.length);
@@ -603,7 +592,7 @@ export default {
         this._SceneManager.SetTriggerOverlap(b, id, owner);
       }
       this.Interface.SetTriggerOverlap(b, id, name);
-    }, 
+    },
     LoadingProcess(f) {
       // console.log(" 加载场景进度 " ,f); // 3d加载进度   0-1
       if (this.$refs.scenePanel) {
@@ -629,9 +618,9 @@ export default {
         if (this.$refs.YJDync) {
           this.$refs.YJDync.ChangeRoom(this.sceneData.roomName);
         }
-      } 
+      }
       this.initCompleted = true;
-      this.Interface.load3dComplete(); 
+      this.Interface.load3dComplete();
       this.$refs.YJmetaBase.OpenThreejs();
     },
     // 3转2坐标
@@ -642,7 +631,7 @@ export default {
         for (let ii = 0; ii < this.projectionList.length; ii++) {
           if (_projectionList[i].id == this.projectionList[ii].id) {
             this.projectionList[ii].pos = _projectionList[i].pos;
-          } 
+          }
         }
       }
       // console.log(" 3转2 ",_projectionList);
@@ -750,7 +739,7 @@ export default {
       this.inThreejs = true;
       if (this.$refs.loadingPanel) {
         this.$refs.loadingPanel.DisplayLoading(false);
-      } 
+      }
       // setTimeout(() => {
       //   this.ChangeViewById(10004);
       // }, 2000);

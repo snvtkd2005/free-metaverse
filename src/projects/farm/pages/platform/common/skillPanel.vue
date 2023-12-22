@@ -38,7 +38,7 @@
       'px'
       ">
       <div
-        class=" absolute bottom-0 left-0   text-center origin-bottom transform -translate-y-6 -translate-x-10 w-20 h-auto bg-black bg-opacity-40 ">
+        class="  p-2 absolute bottom-0 left-0   text-center origin-bottom transform -translate-y-6 -translate-x-10 w-32 h-auto rounded-md bg-black  ">
 
         <div class=" px-px  text-yellow-100">
           {{ skillDescribe.title }}

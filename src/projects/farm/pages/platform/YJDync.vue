@@ -714,6 +714,7 @@ export default {
           return this.allPlayer[i].player;
         }
       }
+      return null;
     },
     GetAllPlayer() {
       let players = [];

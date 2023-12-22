@@ -1661,7 +1661,7 @@ class YJNPC {
         scope.transform.SetActive(false);
 
         if (data.isPlayer) {
-          _Global.DyncManager.SendSceneState("删除", scope.id);
+          _Global.DyncManager.SendSceneState("删除",{npcId:scope.id,playerId:data.ownerId} );
         }
         // scope.transform.Destroy();
         //一分钟后重新刷新。告诉主控

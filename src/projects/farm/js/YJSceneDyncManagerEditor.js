@@ -775,8 +775,20 @@ class YJSceneDyncManagerEditor {
         let { playerId, fireId } = state;
         if (_Global.YJ3D.YJPlayer.id == playerId) {
           _this.YJController.SetInteractiveNPC("玩家加入战斗", fireId);
-        }else{
-          
+        } else {
+
+        }
+        if (_Global.mainUser) {
+          let player = scope.GetPlayerById(playerId);
+          if (player.playerMirrors && player.playerMirrors.length > 0) {
+            for (let i = 0; i < player.playerMirrors.length; i++) {
+              const mirrorId = player.playerMirrors[i];
+              let mirror = scope.GetNpcById(mirrorId);
+              let mirrorNpc = mirror.GetComponent("NPC");
+              mirrorNpc.fireId = fireId;
+              mirrorNpc.CheckNextTarget();
+            }
+          }
         }
         return;
       }
@@ -863,9 +875,9 @@ class YJSceneDyncManagerEditor {
             indexVue.$refs.HUD.$refs.skillPanel_virus.SetSkillCount({ type: _state.id, value: _state.state.value, count: _state.state.count });
           }
           if (!has) {
-            if(_state.modelType == "NPC模型"){
+            if (_state.modelType == "NPC模型") {
 
-            }else{
+            } else {
             }
             dyncModelList.push(_state);
 
@@ -932,39 +944,39 @@ class YJSceneDyncManagerEditor {
       switch (sceneState.title) {
         case "添加":
           let modelData = model.state;
-          let playId = modelData.id;
+          let _playerId = modelData.id;
           let ownerId = modelData.ownerId;
           _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().DuplicateModel(modelData, (transform) => {
             transform.SetActive(false);
-            transform.id = playId;
+            transform.id = _playerId;
             setTimeout(() => {
               scope.AddNpc(transform);
               let _npcComponent = transform.GetComponent("NPC");
-              _npcComponent.id = playId;
+              _npcComponent.id = _playerId;
               transform.SetActive(true);
               if (ownerId == _Global.YJ3D.YJPlayer.id) {
-                _this.YJController.SetInteractiveNPC("添加镜像", playId);
+                _this.YJController.SetInteractiveNPC("添加镜像", _playerId);
               }
               _npcComponent.setOwnerPlayer(scope.GetPlayerById(ownerId));
 
-              // if(_Global.mainUser){
-              //   if (ownerId == _Global.YJ3D.YJPlayer.id) {
-              //     _this.YJController.SetInteractiveNPC("添加镜像", playId);
-              //   }else{
-              //     _npcComponent.setOwnerPlayer(scope.GetPlayerById(ownerId));
-              //   }
-              // }
+              if (_Global.mainUser) {
+                let player = scope.GetPlayerById(ownerId);
+                if (player.playerMirrors == undefined) {
+                  player.playerMirrors = [];
+                }
+                player.playerMirrors.push(_playerId);
+              }
 
             }, 1000);
-          }, playId);
+          }, _playerId);
 
 
 
           return;
         case "删除":
-          let modelId = model;
+          let {npcId,playerId}  = model;
           for (let i = npcModelList.length - 1; i >= 0; i--) {
-            if (npcModelList[i].id == modelId) {
+            if (npcModelList[i].id == npcId) {
               npcModelList[i].transform.Destroy();
               npcModelList.splice(i, 1);
               return;

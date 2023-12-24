@@ -32,8 +32,12 @@ class YJPlayerFireCtrl {
 				case "设置玩家状态":
 					scope.SetPlayerState(state.msg);
 					break;
-				case "添加镜像": 
-					EventHandler("添加镜像",state.msg);
+				case "添加镜像":
+					EventHandler("添加镜像", state.msg);
+					break;
+
+				case "删除镜像":
+					EventHandler("删除镜像", state.msg);
 					break;
 				case "玩家脱离战斗":
 					playerState = PLAYERSTATE.NORMAL;
@@ -721,14 +725,23 @@ class YJPlayerFireCtrl {
 					}
 				}
 			}
-			if (e == "添加镜像") { 
+			if (e == "添加镜像") {
 				let mirrorId = msg;
 				let npcTransform = _Global.DyncManager.GetNpcById(mirrorId);
 				let npcComponent = npcTransform.GetComponent("NPC");
 				npcComponent.setOwnerPlayer(_YJPlayer);
 				hyperplasiaTrans.push(npcComponent);
 			}
+			if (e == "删除镜像") {
+				let mirrorId = msg;
+				for (let i = hyperplasiaTrans.length - 1; i >= 0; i--) {
+					const element = hyperplasiaTrans[i];
+					if (element.id == mirrorId) {
+						hyperplasiaTrans.splice(i, 1); 
+					}
+				} 
 
+			}
 		}
 
 		function CheckTargetDead() {
@@ -795,7 +808,12 @@ class YJPlayerFireCtrl {
 					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					EventHandler("中断技能");
 
-					_Global.DyncManager.RemovePlayerFireId(_YJPlayer);
+					_Global.DyncManager.SendSceneStateAll("玩家死亡",
+						{
+							playerId: _YJPlayer.id,
+							fireId: _YJPlayer.fireId
+						});
+					_YJPlayer.fireId = -1;
 
 					//角色不可控制、显示倒计时
 					_this.YJController.SetCanMoving(false);

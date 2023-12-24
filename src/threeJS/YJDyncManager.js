@@ -651,7 +651,7 @@ class YJDyncManager {
 
       if (message.roomName != _this.roomName) {
         return;
-      } 
+      }
       if (data.title == "初始化") {
         return;
       }
@@ -674,7 +674,7 @@ class YJDyncManager {
       }
       if (data.title == "NPC对玩家") {
         if (data.sceneState.targetId == _this.id) {
-          _Global.DyncManager.Receive({type:"NPC对玩家", state:data.sceneState });
+          _Global.DyncManager.Receive({ type: "NPC对玩家", state: data.sceneState });
         }
         return;
       }
@@ -779,7 +779,7 @@ class YJDyncManager {
       // console.log("获取场景状态", _this.id, data);
       let sceneState = {};
       sceneState.type = "获取场景状态";
-      sceneState.state = data.sceneModels;
+      sceneState.state = { sceneModels: data.sceneModels, userModels: data.userModels };
       _Global.DyncManager.Receive(sceneState);
     }
     /** 
@@ -958,7 +958,7 @@ class YJDyncManager {
         this.updateUserStateSingle(data.id);
 
         //每有新玩家加入，则主控角色发送整个场景的模型状态
-        if(_Global.mainUser){
+        if (_Global.mainUser) {
           _Global.DyncManager.UpdateTransfrom();
         }
         return;

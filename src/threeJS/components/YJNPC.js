@@ -839,7 +839,7 @@ class YJNPC {
             type: "interval", fn:
               setInterval(() => {
                 if (_Global.mainUser) {
-                  if (targetModel.isDead) {
+                  if (targetModel == null || targetModel.isDead) {
                     return;
                   }
                   if (inSkill) {
@@ -1187,20 +1187,20 @@ class YJNPC {
         ClearFireLater();
         // 暂停1秒
         SetNavPathToNone();
-
+        EventHandler("中断技能");
         if (data.isPlayer) {
           baseData.state = stateType.Normal;
         } else {
           // 只有敌方NPC失去目标时，才会进入返回状态
           baseData.state = stateType.Back;
-          
+
           baseData.health = baseData.maxHealth;
         }
 
         scope.SetPlayerState("normal");
         ClearLater("清除巡逻");
 
-        scope.transform.UpdateData();
+        UpdateData();
 
         if (isLocal) {
           _Global.DyncManager.SendModelState(scope.transform.GetData().id, { modelType: scope.transform.GetData().modelType, msg: { title: "设置目标", playerId: "", } });
@@ -1232,8 +1232,6 @@ class YJNPC {
         return;
       }
       // console.log(" npc进入战斗 00 ", baseData.state == stateType.Back);
-
-
       if (scope.fireId == -1 && baseData.state == stateType.Back || scope.isDead) {
         return;
       }
@@ -1426,6 +1424,9 @@ class YJNPC {
 
       ClearLater("清除准备战斗");
 
+      if(targetModel == null){
+        return;
+      }
       _Global.DyncManager.SendModelState(scope.transform.GetData().id,
         {
           modelType: scope.transform.GetData().modelType,
@@ -1535,6 +1536,11 @@ class YJNPC {
     // 接收同步
     this.Dync = function (msg) {
       // console.log("接收npc同步数据 ", msg);
+      if (msg.title == "脱离战斗") {
+        console.log(" npc 脱离战斗 ");
+        scope.SetNpcTargetToNone();
+        return;
+      }
       if (msg.title == "重新生成") {
         resetLife();
         return;
@@ -1617,7 +1623,7 @@ class YJNPC {
           scope.isDead = true;
           activeFalse();
         }
-        scope.transform.UpdateData();
+        UpdateData();
       }
 
     }
@@ -1628,7 +1634,7 @@ class YJNPC {
     function UpdateData() {
       scope.transform.UpdateData(); // 触发更新数据的回调事件
       if (baseData.health == 0) {
-        ClearLater("清除巡逻"); 
+        ClearLater("清除巡逻");
         dead();
       }
     }
@@ -1662,7 +1668,7 @@ class YJNPC {
         scope.transform.SetActive(false);
 
         if (data.isPlayer) {
-          _Global.DyncManager.SendSceneState("删除",{npcId:scope.id,playerId:data.ownerId} );
+          _Global.DyncManager.SendSceneState("删除", { type: "玩家镜像", npcId: scope.id, playerId: data.ownerId });
         }
         // scope.transform.Destroy();
         //一分钟后重新刷新。告诉主控

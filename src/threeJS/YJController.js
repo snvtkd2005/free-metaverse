@@ -3679,9 +3679,13 @@ class YJController {
       });
     } 
     this.SetInteractiveNPC = function (content, msg) {
-      if(content != "重生" && this.isInDead()){
-        // 角色死亡后不接收道具效果
-        return;
+      if(content == "删除镜像" || content == "重生"){
+
+      }else{
+        if(this.isInDead()){
+          // 角色死亡后不接收道具效果
+          return;
+        } 
       }
       _YJPlayerFireCtrl.OnPlayerState({
         title: "fire",
@@ -3689,8 +3693,7 @@ class YJController {
         msg: msg,
       });
     }
-
-
+ 
     this.SetPlayerState = function (e, type) {
       // console.log(" in SetPlayerState  ",e,type);
       if (playerState == PLAYERSTATE.INTERACTIVE) {

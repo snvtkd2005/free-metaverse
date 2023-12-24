@@ -179,6 +179,7 @@ class YJSceneDyncManagerEditor {
 
     // 添加增生的npc
     this.AddNpc = function (npcTransform) {
+      console.log("增加npc ", npcTransform.id);
       npcModelList.push({ id: npcTransform.id, transform: npcTransform });
     }
     // 设置npc1附近的npc共同攻击npc1的目标
@@ -438,7 +439,11 @@ class YJSceneDyncManagerEditor {
             }
           }
           if (cNpc) {
-            console.log(" NPC 死亡或其他 离开战斗 ", element);
+            console.log(" NPC 胜利、死亡或其他 离开战斗 ", element);
+          }
+          if (element.peopleList.length == 0) {
+            fireGroup.splice(i, 1);
+            return;
           }
 
           let camp = element.peopleList[0].camp;
@@ -582,7 +587,7 @@ class YJSceneDyncManagerEditor {
     }
     function GetFireIdPlayer(state) {
       let { npcId, camp, fireId } = state;
-      console.log(" 查找npcid ", npcId);
+      console.log(" 查找npc  ", state);
       let npcComponent = null;
       for (let i = 0; i < npcModelList.length; i++) {
         const element = npcModelList[i].transform;
@@ -784,6 +789,7 @@ class YJSceneDyncManagerEditor {
             for (let i = 0; i < player.playerMirrors.length; i++) {
               const mirrorId = player.playerMirrors[i];
               let mirror = scope.GetNpcById(mirrorId);
+              console.log("玩家加入战斗后，让其镜像设置目标", mirrorId);
               let mirrorNpc = mirror.GetComponent("NPC");
               mirrorNpc.fireId = fireId;
               mirrorNpc.CheckNextTarget();
@@ -974,7 +980,20 @@ class YJSceneDyncManagerEditor {
 
           return;
         case "删除":
-          let {npcId,playerId}  = model;
+          let { npcId, playerId } = model;
+
+          if (_Global.mainUser) {
+            let player = scope.GetPlayerById(playerId);
+            if (player.playerMirrors && player.playerMirrors.length > 0) {
+              for (let i = player.playerMirrors.length - 1; i >= 0; i--) {
+                const element = player.playerMirrors[i];
+                if (element == npcId) {
+                  player.playerMirrors.splice(i, 1);
+                }
+              }
+            }
+          }
+
           for (let i = npcModelList.length - 1; i >= 0; i--) {
             if (npcModelList[i].id == npcId) {
               npcModelList[i].transform.Destroy();

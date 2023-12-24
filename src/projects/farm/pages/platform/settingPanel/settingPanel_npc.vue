@@ -161,11 +161,12 @@ export default {
       setting: [
         { property: "name", display: true, title: "npc名称", type: "text", value: "", callback: this.ChangeValue, },
         {
-          property: "camp", display: true, title: "阵营", type: "drop", value: "dd", options: [
-            { value: 'lm', label: '联盟npc' },
-            { value: 'bl', label: '部落npc' },
-            { value: 'dd', label: '敌对' },
-            { value: 'zl', label: '中立' },
+          property: "camp", display: true, title: "阵营", type: "drop", value: 10000, options: [
+            // { value: 1000, label: '联盟npc' },
+            // { value: 1001, label: '部落npc' },
+            { value: 10000, label: '敌对' },
+            { value: 1000, label: '友善' },
+            // { value: 9000, label: '中立' },
           ], callback: this.ChangeValue,
         },
         {

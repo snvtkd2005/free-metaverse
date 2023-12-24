@@ -3467,8 +3467,8 @@ class YJController {
         camp: "lm", //阵营
         speed: 8, //移动速度
         level: 1, //等级
-        health: 20000, //当前剩余生命值
-        maxHealth: 20000, //最大生命值
+        health: 200, //当前剩余生命值
+        maxHealth: 200, //最大生命值
         strength: 30, //攻击力
         armor: 0, //护甲
         energy: 0, //能量

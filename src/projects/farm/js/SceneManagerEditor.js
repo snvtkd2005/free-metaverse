@@ -999,10 +999,10 @@ class SceneManager {
       }
 
       _Global.ReportTo3D("切换光标", "正常");
-      if (hoverObject.transform) {
+      if (hoverObject.transform && hoverObject.transform.GetData) {
         // 点击NPC
-        let message = hoverObject.transform.GetData().message;
         // console.log(" 右键点击 transform ", message);
+        let message = hoverObject.transform.GetData().message;
         if (message) {
 
           // console.log(" == in scene manager editor  hover物体  ", hoverObject);

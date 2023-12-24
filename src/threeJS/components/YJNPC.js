@@ -480,7 +480,7 @@ class YJNPC {
       // data = JSON.parse(msg);
       data = (msg);
       scope.id = scope.transform.id;
-      console.log("in NPC msg = ", scope.id, data);
+      // console.log("in NPC msg = ", scope.id, data);
 
 
       this.npcName = data.name;
@@ -1193,12 +1193,13 @@ class YJNPC {
         } else {
           // 只有敌方NPC失去目标时，才会进入返回状态
           baseData.state = stateType.Back;
+          
+          baseData.health = baseData.maxHealth;
         }
 
         scope.SetPlayerState("normal");
         ClearLater("清除巡逻");
 
-        baseData.health = baseData.maxHealth;
         scope.transform.UpdateData();
 
         if (isLocal) {
@@ -1233,7 +1234,7 @@ class YJNPC {
       // console.log(" npc进入战斗 00 ", baseData.state == stateType.Back);
 
 
-      if (scope.fireId == -1 && baseData.state == stateType.Back) {
+      if (scope.fireId == -1 && baseData.state == stateType.Back || scope.isDead) {
         return;
       }
 
@@ -1627,8 +1628,7 @@ class YJNPC {
     function UpdateData() {
       scope.transform.UpdateData(); // 触发更新数据的回调事件
       if (baseData.health == 0) {
-        ClearLater("清除巡逻");
-        scope.isDead = true;
+        ClearLater("清除巡逻"); 
         dead();
       }
     }
@@ -1638,6 +1638,7 @@ class YJNPC {
         targetModel = null;
       }
       scope.isDead = true;
+
       // 设为死亡状态
       baseData.state = stateType.Dead;
       // 从一场战斗中移除npc

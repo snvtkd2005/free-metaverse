@@ -18,7 +18,7 @@
       </div>
       <div class=" self-center w-2/3 pr-10">
         <div v-if="item.type == 'color'" class=" flex gap-2 ">
-          <YJinput_color :value="item.value" :callback="item.callback" />
+          <YJinput_color :index="i" :value="item.value" :callback="item.callback" />
         </div>
 
         <div v-if="item.type == 'file'" class="  relative flex  gap-2 cursor-pointer  " @click="SelectFile(item, i)">

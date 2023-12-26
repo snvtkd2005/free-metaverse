@@ -48,10 +48,11 @@
             </div>
             <!-- 生命条文字 -->
             <div class=" absolute left-0 top-0 w-full flex h-full  ">
-              <div class=" self-center mx-auto text-xs truncate ">{{item.user.userData.baseData.health}}/{{item.user.userData.baseData.maxHealth}}</div>
+              <div class=" self-center mx-auto text-xs truncate ">
+                {{ item.user.userData.baseData.health }}/{{ item.user.userData.baseData.maxHealth }}</div>
             </div>
           </div>
- 
+
           <div class=" flex ">
             <div v-if="item.user.userData.baseData.armor > 0" class="  ">护甲+{{ item.user.userData.baseData.armor }}</div>
             <div v-if="item.user.userData.baseData.energy > 0" class="  ">能量+{{ item.user.userData.baseData.energy }}
@@ -237,10 +238,11 @@
     </div>
   </div>
 
-  <div v-if="this.hasTRTC">
-    <!-- 音视频 -->
+
+  <!-- 音视频 -->
+  <!-- <div v-if="hasTRTC">
     <txTRTC :mainUser="isMainUser" class="absolute z-50 left-0 top-0" ref="txTRTC" />
-  </div>
+  </div> -->
 
 
   <!-- </div> -->
@@ -250,23 +252,21 @@
  
 <script >
 
-import { VueElement } from "vue";
 import { YJDyncManager } from "/@/threejs/YJDyncManager.js";
 import { YJPlayer } from "/@/threejs/YJPlayer.js";
 
 // 音视频
-import txTRTC from "/@/views/chat/txTRTC.vue";
+// import txTRTC from "/@/views/chat/txTRTC.vue";
 export default {
-  props: ['hasTRTC'],
+  // 是否开启音视频 
+  props: [],
   components: {
-    txTRTC,
+    // txTRTC,
   },
   data() {
     return {
 
-      // 是否开启音视频
-      hasTRTC: false,
-      // hasTRTC: true,
+      hasTRTC:false,
       debuffHover: false,
       debuffDescribe: "",
       // 会议邀请对话框
@@ -330,6 +330,9 @@ export default {
       inputing: false,
       publicUrl: '',
       isMainUser: false,
+      //session id
+      id: "",
+      userId: "",
     };
   },
   created() {
@@ -361,9 +364,7 @@ export default {
     //场景中的物体
     this.sceneModels = [];
 
-    //session id
-    this.id = "";
-    this.userId = "";
+
 
     this._YJDyncManager = null;
 

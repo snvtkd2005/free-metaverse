@@ -80,6 +80,15 @@ class YJSceneDyncManagerEditor {
     this.SendDataToServer = (type, data) => {
 
       // console.log(" 发送 ", type, data);
+      if (type == "玩家离开房间") {
+        //删除玩家的镜像角色
+        if (_Global.mainUser) {
+        }
+        this.RemovePlayerFireId(data);
+
+        return;
+      }
+
       if (type == "npc技能" || type == "npc技能攻击") {
         let { npcId, skill } = data;
         if (type == "npc技能") {
@@ -101,6 +110,7 @@ class YJSceneDyncManagerEditor {
 
         return;
       }
+
     }
 
     let playerPos = new THREE.Vector3(0, 0, 0);
@@ -485,6 +495,9 @@ class YJSceneDyncManagerEditor {
         }
 
       }
+      if (fireId == undefined) {
+        return;
+      }
       let has = false;
       for (let i = fireGroup.length - 1; i >= 0 && !has; i--) {
         const element = fireGroup[i];
@@ -583,10 +596,12 @@ class YJSceneDyncManagerEditor {
           if (!hasNpc) {
             npcComponent.fireId = element.fireId;
             element.peopleList.push({ id: npcComponent.transform.id, camp: npcComponent.GetCamp() });
+            console.log(" 玩家加入战斗触发 npc加入战斗");
           }
           if (!hasPlayer) {
             targetModel.fireId = element.fireId;
             element.peopleList.push({ id: targetModel.id, camp: targetModel.camp });
+            console.log(" 玩家加入战斗触发 玩家加入战斗");
           }
           return;
         }

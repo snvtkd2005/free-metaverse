@@ -16,12 +16,12 @@
       <!-- <JoystickRightPanel class=" " ref="JoystickRightPanel" /> -->
     </div>
 
-    <loadingPanel class="absolute z-50 left-0 top-0" ref="loadingPanel" />
+    <loadingPanel class="absolute z-50 bg-gray-400 bg-opacity-0 left-0 top-0 w-full h-full pointer-events-none " ref="loadingPanel" />
 
     <HUD ref="HUD" />
 
     <!-- 多人同步 -->
-    <YJDync v-if="inLoadCompleted" class="absolute z-50 left-0 top-0 w-full h-full" :hasTRTC="this.hasTRTC"
+    <YJDync v-if="inLoadCompleted" class="absolute z-50 left-0 top-0 w-full h-full" 
       ref="YJDync" />
 
     <!-- 修改名称 -->

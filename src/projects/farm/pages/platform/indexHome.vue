@@ -38,7 +38,6 @@
       <div class=" hidden  w-44 h-full bg-gray-300 self-center border-r border-gray-400  ">
         <div class=" border-b border-gray-400 h-12 flex ">
           <div class=" self-center mx-auto "> YJ</div>
-
         </div>
         <div>
 
@@ -58,7 +57,6 @@
       </div>
       <!-- 右 -->
       <div class="  flex-grow flex-col  ">
-
         <div class=" relative  flex w-full h-full ">
           <router-view></router-view>
         </div>
@@ -87,7 +85,7 @@ export default {
 
       projectionList: [
       ],
-      currentTable:"",
+      currentTable:"创作",
       // 顶部导航栏
       tableList:[],
       // tableList: [

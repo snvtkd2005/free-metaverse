@@ -5,7 +5,7 @@
 
     <!-- 顶部 -->
     <div class=" absolute z-20 left-0 top-0 w-full flex bg-445760  text-gray-200 " :style="topStyle">
-      <!-- 顶部工具栏 --> 
+      <!-- 顶部工具栏 -->
       <div class=" flex ">
         <div v-for="(item, i) in tableList" :key="i" :index="item.id"
           class=" px-12 flex  h-full text-center cursor-pointer  hover:bg-546770  " @click="ChangeTable(item)">
@@ -16,8 +16,8 @@
             (item.id == 'save_thrumb' && !item.value)">
             *
           </div>
-        </div> 
-      </div> 
+        </div>
+      </div>
     </div>
 
     <!-- 中部 -->
@@ -115,7 +115,7 @@
     </div>
 
     <modelSelectPanel ref="modelSelectPanel" />
-    
+
     <!-- 给npc添加技能 -->
     <skillSelectPanel ref="skillSelectPanel" />
 
@@ -194,8 +194,8 @@ export default {
   data() {
     return {
       panelData: {
-        topStyle:{
-          height:0,
+        topStyle: {
+          height: 0,
         },
         settingPanelStyle: {
           width: 0,
@@ -224,7 +224,7 @@ export default {
       modelPanelStyle: "",
       settingPanelStyle: "",
       topStyle: "",
-      
+
       panelState: {
         // setting: false,
         setting: true,
@@ -714,7 +714,7 @@ export default {
       display: ${this.panelData.topStyle.display}; 
       height: ${this.panelData.topStyle.height}px; 
       `;
-      
+
     },
 
     GetPlayerAnimData() {
@@ -864,6 +864,7 @@ export default {
       setTimeout(() => {
         this.modelList = [];
         this.modelList = this.$refs.modelPanel._LoadUserModelManager.GetModelList();
+
         console.log(" 获取场景 模型 333 ", this.modelList, this.modelList.length);
       }, 5000);
     },
@@ -1562,6 +1563,12 @@ export default {
         _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().DuplicateModel(this.clickModelJS.GetData(), (transform) => {
           _Global.YJ3D._YJSceneManager._YJTransformManager.attach(transform.GetGroup());
           this.clickModelJS = transform;
+
+          this.$refs.hierarchyPanel.SelectModelBy3d(this.clickModelJS.GetUUID());
+          this.tableList[2].value = false;
+
+          // this.modelList = [];
+          // this.modelList = _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().GetModelList();
         });
       }
     },

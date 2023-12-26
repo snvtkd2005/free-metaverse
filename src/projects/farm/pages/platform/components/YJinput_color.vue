@@ -10,7 +10,7 @@
 <script>
 
 export default {
-  props: ["type", "value", "callback"],
+  props: ["type","index", "value", "callback"],
   components: {
 
   },
@@ -25,7 +25,12 @@ export default {
     let that = this;
     this.$refs.input.addEventListener('input', function () {
       // this.$emit("OnInput",this.value);
-      that.callback(this.value);
+      
+      if (that.index != undefined) {
+        that.callback(that.index, (this.value));
+      } else {
+        that.callback((this.value));
+      }
     });
 
   },

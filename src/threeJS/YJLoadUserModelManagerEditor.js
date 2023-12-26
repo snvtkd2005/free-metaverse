@@ -274,10 +274,12 @@ class YJLoadUserModelManager {
       object.id = id;
       let uuid = object.GetUUID();
       allTransform.push({ uuid: uuid, id: id, transform: object });
+
       object.SetPosRota(modelData.pos, modelData.rotaV3, modelData.scale);
       object.SetModelPath(modelData.modelPath);
       object.SetData(modelData.folderBase, modelData.modelType, id);
       object.modelData = JSON.parse(JSON.stringify(modelData));
+
 
       // if (modelData.message != undefined) {
       //   object.SetMessage(modelData.message);
@@ -611,6 +613,8 @@ class YJLoadUserModelManager {
     }
     this.DuplicateModel = function(modelData,callback,id){
       CreateTransform(null,modelData, (object) => {
+        modelDataList.push(object.GetData());
+
         if (callback) {
           callback(object);
         }

@@ -2,7 +2,7 @@
 // 在线聊天室 聊天界面 3d形象 聊天
 <template>
   <!-- 场景加载进度条 -->
-  <div v-if="displayerLoading" class=" absolute bg-gray-400 w-full h-full top-0 left-0 z-50    text-white">
+  <div v-if="displayerLoading" class=" absolute  w-full h-full top-0 left-0 z-50    text-white">
 
     <!-- 圆形进度条 -->
     <div class=" hidden absolute self-center w-96 h-96
@@ -84,9 +84,9 @@ export default {
       if (state == "success") {
         this.canEnter = true;
         console.log(" 加载成功 隐藏loading ");
-        // setTimeout(() => {
-        //   this.OpenThreejs();
-        // }, 20);
+        setTimeout(() => {
+          this.OpenThreejs();
+        }, 20);
       }
       if (state == "begin") {
         this.displayerLoading = true;

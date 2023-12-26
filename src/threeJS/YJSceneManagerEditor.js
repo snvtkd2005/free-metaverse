@@ -2345,7 +2345,7 @@ class YJSceneManager {
         light.shadow.camera.near = dLight / 30;
         light.shadow.camera.far = dLight;
 
-        let resourceSize = 2048;
+        let resourceSize = 256;
         light.shadow.mapSize.x = resourceSize * 4;
         light.shadow.mapSize.y = resourceSize * 4;
 

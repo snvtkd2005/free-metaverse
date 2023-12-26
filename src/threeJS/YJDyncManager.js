@@ -988,6 +988,9 @@ class YJDyncManager {
 
       //其他用户接收到 用户离开游戏
       if (data.type == "用户离开") {
+
+        _Global.DyncManager.SendDataToServer("玩家离开房间",data.id);
+
         for (let j = 0; j < this.otherUser.length; j++) {
           if (data.id == this.otherUser[j].id) {
             this.otherUser.splice(j, 1);
@@ -1017,7 +1020,6 @@ class YJDyncManager {
             this.cancelMainUser();
           }
         }
-
 
         console.log("用户离开", this.id == this.otherUser[this.otherUser.length - 1].id);
         YJDync.UpdateOnlineUser(this.otherUser);

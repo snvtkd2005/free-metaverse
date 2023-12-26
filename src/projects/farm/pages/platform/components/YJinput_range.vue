@@ -8,7 +8,7 @@
 <script>
 
 export default {
-  props: ["type", "value", "step", "min", "max", "callback"],
+  props: ["type", "index", "value", "step", "min", "max", "callback"],
   components: {
 
   },
@@ -23,8 +23,13 @@ export default {
     let that = this;
     this.$refs.input.addEventListener('input', function () {
       // that.inputValue = this.value;
-      // this.$emit("OnInput",this.value);
-      that.callback(this.value);
+      // this.$emit("OnInput",this.value); 
+      
+      if (that.index != undefined) {
+        that.callback(that.index, parseFloat(this.value));
+      } else {
+        that.callback(parseFloat(this.value));
+      }
     });
 
   },

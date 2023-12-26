@@ -1,9 +1,9 @@
 
 <!-- // 场景编辑UI -->
 <template>
-  <div class="absolute left-0 top-0 z-999 w-full h-full flex ">
+  <div class="absolute left-0 top-0 z-999 w-full h-auto flex ">
     <!-- 中部 -->
-    <div class="flex  mt-0 w-5/6 h-full mx-auto  bg-gray-100 ">
+    <div class="flex  mt-0 w-5/6 h-auto mx-auto  bg-gray-100 ">
       <!-- 右 -->
       <div class="flex-grow flex-col mt-10 mx-auto ">
 
@@ -19,7 +19,7 @@
 
         <!-- 场景 -->
         <div v-if="currentTable == tableList[0].content" 
-          class=" gap-6 flex flex-wrap  overflow-y-auto  overscroll-auto  ">
+          class=" gap-6 flex flex-wrap h-full  overflow-y-auto  overscroll-auto  ">
           <!-- 新建按钮 -->
           <div class=" w-40 h-40 border-2 relative">
               <div class="w-40 h-40 self-center mx-auto cursor-pointer" @click="CreateNew(tableList[0].content)">

@@ -48,6 +48,7 @@ class YJKeyboard {
 
         case 'ControlLeft':
           inControlLeft = true;
+          _Global.YJ3D.YJController.SetCanMoving(false);
           break;
 
       }
@@ -63,6 +64,7 @@ class YJKeyboard {
           break;
         case 'ControlLeft':
           inControlLeft = false;
+          _Global.YJ3D.YJController.SetCanMoving(true);
           break;
       }
       if (keyUpCallback) {

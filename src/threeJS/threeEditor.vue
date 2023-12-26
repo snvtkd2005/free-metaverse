@@ -1,5 +1,5 @@
 <template>
-  <div tabindex="-1" id="contain" class=" w-full h-full " ref="container">
+  <div  id="contain" class=" w-full h-full " ref="container">
   </div>
   <!-- :style="'height: ' + height + 'px' + ';'" -->
   <img v-if="customCursor" ref="cursor" :src="cursorUrl" class=" pointer-events-none   w-10 h-10 "
@@ -259,12 +259,12 @@ export default {
       //   this.cursorLeft = mouseX;
       //   this.cursorTop = mouseY;
       // });
- 
+
       this.$refs.container.addEventListener("mousemove", (e) => {
-        let offset = {left:0, top:0,};
-        if(this.YJRaycaster){
+        let offset = { left: 0, top: 0, };
+        if (this.YJRaycaster) {
           offset = this.YJRaycaster.getOffset();
-        } 
+        }
         const mouseX = e.clientX - offset.left;
         const mouseY = e.clientY - offset.top;
         this.cursorLeft = mouseX;
@@ -611,8 +611,8 @@ export default {
       // console.log("22222");
       //   if(this.$parent.isMobile)
       // this.renderer.setPixelRatio(this.$parent.isMobile ? 1 : 1.5); //推荐
-      // this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); //推荐
-      this.renderer.setPixelRatio(window.devicePixelRatio); //推荐
+      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); //推荐
+      // this.renderer.setPixelRatio(window.devicePixelRatio); //推荐
 
       // this.renderer.setPixelRatio(2); //推荐
 
@@ -884,7 +884,6 @@ export default {
     //------------------------实时update
     //实时刷新
     renderScene() {
-      // return;
       if (this.hasStats) {
         stats.update();
       }
@@ -899,7 +898,7 @@ export default {
 
         this.YJController.update();
         this._YJSceneManager.update();
-
+        
         if (this.enableRenderer) {
           this.renderer.render(this.scene, this.camera);
         }

@@ -30,7 +30,7 @@ class YJDyncManager {
     this.Init = function () {
 
       var playerData = {};
-      playerData.name = userData.modelType;
+      playerData.avatarId = userData.avatarId;
       this.user.playerData = playerData;
 
       let userDyncData = {};
@@ -41,7 +41,7 @@ class YJDyncManager {
       this.user.userData = userDyncData;
       this.user.playerData.playerState = localStorage.getItem("playerState");
 
-      // console.log(" userData " , userData);
+      console.log(" userData " , userData);
       // console.log(" this.user " , this.user);
 
       this.userId = YJDync.userId;
@@ -309,13 +309,13 @@ class YJDyncManager {
 
     this.updateUserAvatar = function (avatarData) {
       // console.log("avatarData = ",avatarData);
-      this.user.playerData.name = null;
+      this.user.playerData.avatarId = null;
       this.user.playerData.avatarData = avatarData;
       this.updateUserState();
     }
-    this.updateUserSkin = function (playerName) {
+    this.updateUserSkin = function (avatarId) {
       // console.error(" 发送角色皮肤 ",playerName);
-      this.user.playerData.name = playerName;
+      this.user.playerData.avatarId = avatarId;
       this.updateUserState();
     }
     // 取消主控

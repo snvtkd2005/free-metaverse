@@ -781,28 +781,29 @@ export default {
           if (this.allPlayer[i].skin == false) {
             this.allPlayer[i].skin = true;
 
-            if (user.playerData.name == null) {
+            if (user.playerData.avatarId == null) {
+              console.error(" 加载角色镜像 444 ", user.playerData, user.playerData.playerState);
+
               this.allPlayer[i].player.LoadPlayerByCustom(
                 user.playerData.avatarData
               );
 
-              console.error(" 加载角色镜像 444 ", user.playerData.name, user.playerData.playerState);
 
             } else {
-              // console.error(" 加载角色镜像 333 ", user.playerData.name, user.playerData.playerState);
+              // console.error(" 加载角色镜像 333 ", user.playerData, user.playerData.playerState);
               // return;
 
               this.allPlayer[i].player.NeedChangeSkin();
               // user.playerData.name 决定加载哪个角色模型
               this.allPlayer[i].player.LoadPlayer(
-                user.playerData.name
+                user.playerData.avatarId
               );
               let _player = this.allPlayer[i].player;
               // console.error(" 加载角色镜像 333 ",user.playerData.name, user.playerData.playerState);
               setTimeout(() => {
                 //换装同步
                 if (this.$parent.UpdateSkin) {
-                  this.$parent.UpdateSkin(_player, user.playerData.name, user.playerData.playerState);
+                  this.$parent.UpdateSkin(_player, user.playerData.avatarId, user.playerData.playerState);
                 } else {
                   _player.ChangeSkinCompleted();
                 }

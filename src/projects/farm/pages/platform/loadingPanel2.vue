@@ -3,7 +3,7 @@
 <template>
   <!-- 场景加载进度条 -->
   <div v-if="displayerLoading"
-    class=" absolute  bg-black bg-opacity-100  w-full h-full top-0 left-0 z-50    text-white">
+    class=" absolute  bg-black bg-opacity-0  w-full h-full top-0 left-0 z-50    text-white">
     <img v-if="loadingUrl" class=" w-full h-full " :src="loadingUrl" alt="">
     <!-- 圆形进度条 -->
     <div class=" hidden absolute self-center w-96 h-96

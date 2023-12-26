@@ -862,7 +862,7 @@ export default {
 
       let playerHeight = 0;
       if (this.userData != null) {
-        playerHeight = this.YJPlayer.LoadPlayer(this.userData.modelType);
+        playerHeight = this.YJPlayer.LoadPlayer(this.userData.avatarId);
       } else {
         this.YJPlayer.LoadPlayer("none");
       }

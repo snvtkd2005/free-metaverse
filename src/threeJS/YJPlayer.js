@@ -107,13 +107,13 @@ class YJPlayer {
     }
     // 飞行坐骑
     let mountAvatar = null;
-    function GetAnimData(_playerName) {
-      playerName = _playerName;
+    function GetAnimData(id) {
       let animationsData = [];
 
 
       // avatarData = _this.$parent.GetAvatarData(playerName);
-      avatarData = _this._YJSceneManager.CreateOrLoadPlayerAnimData().GetAvatarData(playerName);
+      avatarData = _this._YJSceneManager.CreateOrLoadPlayerAnimData().GetAvatarDataById(id);
+      playerName = avatarData.name;
       console.error(" 加载角色名 " + playerName, avatarData);
 
       modelPath = avatarData.modelPath;
@@ -197,7 +197,7 @@ class YJPlayer {
 
       hasMount = true;
       // let avatarData = _this.$parent.GetAvatarData(mountName);
-      let avatarData = _this._YJSceneManager.CreateOrLoadPlayerAnimData().GetAvatarData(mountName);
+      let avatarData = _this._YJSceneManager.CreateOrLoadPlayerAnimData().GetAvatarDataById(mountName);
 
       // let avatarData = _this.$parent.GetAvatarData("fox");
       let modelPath = avatarData.modelPath;
@@ -242,8 +242,7 @@ class YJPlayer {
       // mountAvatar.GetModel().visible = b;
     }
 
-    this.LoadPlayer = function (_playerName) {
-      playerName = _playerName;
+    this.LoadPlayer = function (id) {
 
       if (_this.$parent.sceneData.setting.firstPerson == undefined && _this.$parent.sceneData.setting.hasAvatar == undefined) {
 
@@ -256,7 +255,7 @@ class YJPlayer {
         }
       }
 
-      let animationsData = GetAnimData(playerName);
+      let animationsData = GetAnimData(id);
       LoadAvatar(modelPath, playerHeight, animationsData);
       return playerHeight;
     }
@@ -373,11 +372,10 @@ class YJPlayer {
       return playerName;
     }
 
-    this.ChangeAvatar = function (_playerName, isLocal) {
-      playerName = _playerName;
+    this.ChangeAvatar = function (id, isLocal) {
 
       // console.log("切换角色11");
-      let animationsData = GetAnimData(playerName);
+      let animationsData = GetAnimData(id);
 
       avatar.ChangeAvatar(
         _this.GetPublicUrl() + modelPath,

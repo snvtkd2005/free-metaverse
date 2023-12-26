@@ -561,6 +561,10 @@ class YJSceneManager {
         scope.SetPlayerPos({ x: 0, y: 10, z: 0 });
       });
 
+      // 强制横屏 
+      if (setting.onlyLandscape != undefined) {
+        _this.$parent.ForcedUpdateSize();
+      }
 
       _YJAmmo.SetPlayerPos(pos);
 
@@ -2495,9 +2499,6 @@ class YJSceneManager {
 
       _this.$parent.LoadingProcess(100);
 
-      // _this.GeneratePlayer(() => {
-      //   this.CreateMap();
-      // });
       _this.GeneratePlayer(() => {
         CreateSingleScene();
       });

@@ -95,6 +95,10 @@ export default {
     //   _Global.YJ3D._YJSceneManager.CreateOrLoadPlayerAnimData().GetSkillList("小孩", this.SetSkillList);
     // }, 5000);
     setTimeout(() => {
+      if (_Global.skillList == undefined || _Global.skillList.length == 0) {
+        this.actionBar = false;
+        return;
+      }
       this.skillList = _Global.skillList;
     }, 3000);
   },
@@ -122,8 +126,8 @@ export default {
     },
     clickSkill(e) {
       // console.log("点击技能 ", e);
-      if (e == "攻击") { 
-        _Global.YJ3D.YJController.SetInteractiveNPC("点击技能","普通攻击");
+      if (e == "攻击") {
+        _Global.YJ3D.YJController.SetInteractiveNPC("点击技能", "普通攻击");
         return;
       }
     },
@@ -131,7 +135,7 @@ export default {
     UserModel(item) {
       //播放角色动作
       // console.log(" 点击技能栏 ", item);
-      _Global.YJ3D.YJController.SetInteractiveNPC("点击技能",item); 
+      _Global.YJ3D.YJController.SetInteractiveNPC("点击技能", item);
     },
   },
 };

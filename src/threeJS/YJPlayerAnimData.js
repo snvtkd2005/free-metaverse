@@ -47,6 +47,14 @@ class YJPlayerAnimData {
       }
       console.error(" 角色信息未找到 ", playerName);
     }
+    this.GetAvatarDataById = function (id) { 
+      for (let i = 0; i < avatarDataList.length; i++) {
+        if (avatarDataList[i].id == id) {
+          return FindBoneRefAnimationData(avatarDataList[i]);
+        }
+      }
+      console.error(" 角色信息未找到 ", id);
+    }
     //查找动画数据时，把映射数据也加上
     function FindBoneRefAnimationData(avatarData) {
       if (avatarData.boneRefPlayer == undefined || avatarData.boneRefPlayer == '') {

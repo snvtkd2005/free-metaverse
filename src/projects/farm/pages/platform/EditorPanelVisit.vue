@@ -16,7 +16,7 @@
       <!-- <JoystickRightPanel class=" " ref="JoystickRightPanel" /> -->
     </div>
 
-    <loadingPanel class="absolute z-50 bg-gray-400 bg-opacity-0 left-0 top-0 w-full h-full pointer-events-none " ref="loadingPanel" />
+    <loadingPanel class="absolute z-50  left-0 top-0 w-full h-full pointer-events-none " ref="loadingPanel" />
 
     <HUD ref="HUD" />
 
@@ -361,6 +361,7 @@ export default {
       // console.log(" 获取场景配置 ", res.data);
       // this.sceneData = JSON.parse(res.data) ;
       this.sceneData = res.data;
+      _Global.skillList = this.sceneData.skillList ;
 
       this.$refs.YJmetaBase.Reload();
 

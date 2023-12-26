@@ -330,7 +330,7 @@ export default {
       userData: {},
       initCompleted: false,
 
-      avatarName: "",
+      avatarId: "",
       modelData: {},
 
       InDriving: false,
@@ -778,10 +778,16 @@ export default {
     },
     Enter() {
 
-      let avatarName = PlayerAnimData.defaultUser.avatarName;
+      // 用户首次进入先使用默认角色
+      let avatarId = PlayerAnimData.defaultUser.avatarId;
 
-      if (localStorage.getItem("avatarName")) {
-        avatarName = localStorage.getItem("avatarName");
+      // 用户第二次进入，使用用户选择的角色
+      if (localStorage.getItem("avatarId")) {
+        avatarId = localStorage.getItem("avatarId");
+      }
+      // 如果场景限制角色，则使用场景限制角色
+      if(this.sceneData.avatarList && this.sceneData.avatarList.length>0){
+        avatarId = this.sceneData.avatarList[this.Utils.RandomInt(0,this.sceneData.avatarList.length-1)].folderBase;
       }
 
       this.userName = "aa";
@@ -789,7 +795,7 @@ export default {
         this.userName = localStorage.getItem("userName");
       }
 
-      this.avatarName = avatarName;
+      this.avatarId = avatarId;
       this.sceneData.roomName = this.folderBase;
 
       this.inLoadCompleted = true;
@@ -797,7 +803,7 @@ export default {
         userName: this.userName,
         roomName: this.sceneData.roomName,
         platform: this.sceneData.platform,
-        modelType: avatarName,
+        avatarId: avatarId,
       };
 
       this.$refs.YJmetaBase.ClickSelectPlayerOK(this.userData);

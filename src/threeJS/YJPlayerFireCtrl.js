@@ -237,6 +237,7 @@ class YJPlayerFireCtrl {
 			}
 		}
 
+		let skillList = [];
 		let oldSkillList = [];
 		let hyperplasiaTimes = 0;
 		let hyperplasiaTrans = [];

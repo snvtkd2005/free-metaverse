@@ -109,13 +109,14 @@ export default {
     },
     UpdateCheckWindowResize() {
 
-      if (this.$refs.container) {
+      if (this.$refs.container && !this.isMobile) {
         this.containerWidth = this.$refs.container.clientWidth;
         this.containerHeight = this.$refs.container.clientHeight;
       } else {
         this.containerWidth = window.innerWidth;
         this.containerHeight = window.innerHeight;
       }
+
       if (this.ThreejsHumanChat.YJRaycaster) {
         this.ThreejsHumanChat.YJRaycaster.SetContainerSize(this.containerWidth, this.containerHeight);
       }
@@ -190,7 +191,7 @@ export default {
     // 判断是否在移动端
     CheckInMobile() {
       var UserClient = navigator.userAgent.toLowerCase();
-      // console.log(" 判断是否移动端 ", UserClient);
+      console.log(" 判断是否移动端 ", UserClient);
       var IsIPad = UserClient.indexOf("ipad") > -1;
       var IsIphoneOs = UserClient.indexOf("iphone") > -1;
       var IsMidp = UserClient.indexOf("midp") > -1;

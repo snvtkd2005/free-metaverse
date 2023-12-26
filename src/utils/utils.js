@@ -1,6 +1,9 @@
 import { SaveImgGetFileName, SaveTxtGetFileName, SaveFileOSSAPI, DelFileAPI } from "./api.js";
 
 
+export const RandomInt = (min, max) => {
+  return min + Math.floor(Math.random() * (max - min + 1));
+}
 
 export const SetSettingItemByPropertyAll = (setting, settingData) => {
   let names = Object.getOwnPropertyNames(settingData);
@@ -45,6 +48,14 @@ export const GetSettingItemByProperty = (object, property) => {
   return null;
 }
 
+/**
+ * 
+ * @param {*} object 
+ * @param {*} property 
+ * @param {*} property2 
+ * @param {*} value 
+ * @returns 
+ */
 export const SetSettingItemPropertyValueByProperty = (object, property, property2, value) => {
   for (let i = 0; i < object.length; i++) {
     const element = object[i];

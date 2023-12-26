@@ -9,6 +9,7 @@ export default {
     userName: "test", 
     // 默认角色
     avatarName: "女孩",
+    avatarId:1697436993131,
   },
   // 角色选择界面的角色信息
   playerImgPath: [

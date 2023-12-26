@@ -74,9 +74,8 @@
       </div>
     </div>
 
-
-    <loadingPanel class="absolute z-50 left-0 top-0" ref="loadingPanel" />
-
+    <loadingPanel :loadingUrl="loadingUrl" class="absolute z-50 left-0 top-0 w-full h-full " ref="loadingPanel"/>
+    
     <!-- 右侧检视面板 -->
     <div class=" absolute right-0 top-0 h-full bg-546770" :style="settingPanelStyle">
 
@@ -338,6 +337,7 @@ export default {
       Interface: null,
       modelList: [],
       folderBase: "wenjjjwe",
+      loadingUrl: "",
       sceneData: {
         // 房间名，用房间名来区分多个项目的同步
         roomName: "3dfarm",
@@ -573,6 +573,10 @@ export default {
       this.folderBase = modelData.folderBase;
     }
 
+    this.loadingName = this.folderBase + "_loading.jpg";
+    this.loadingUrl = this.$uploadSceneUrl + this.folderBase + "/" + this.loadingName + '?time=' + new Date().getTime();
+
+    console.log(" this.folderBase ", this.folderBase, this.loadingUrl);
     this.$refs.YJmetaBase.SetloadingPanel(this.$refs.loadingPanel);
     this.$refs.PanelCut.Init(_Global.YJ3D);
 
@@ -786,8 +790,8 @@ export default {
         avatarId = localStorage.getItem("avatarId");
       }
       // 如果场景限制角色，则使用场景限制角色
-      if(this.sceneData.avatarList && this.sceneData.avatarList.length>0){
-        avatarId = this.sceneData.avatarList[this.Utils.RandomInt(0,this.sceneData.avatarList.length-1)].folderBase;
+      if (this.sceneData.avatarList && this.sceneData.avatarList.length > 0) {
+        avatarId = this.sceneData.avatarList[this.Utils.RandomInt(0, this.sceneData.avatarList.length - 1)].folderBase;
       }
 
       this.userName = "aa";
@@ -1031,8 +1035,7 @@ export default {
         _Global.SetEnableGravity(false);
         // _Global.SetDisplayFloor(false);
         _Global.SendMsgTo3D("单品", "隐藏角色");
-        // _Global.ChangeFirstThird(true);
-        // this.updateModelIconPic();
+        // _Global.ChangeFirstThird(true); 
         return;
       }
       if (item.content.includes("保存场景配置")) {

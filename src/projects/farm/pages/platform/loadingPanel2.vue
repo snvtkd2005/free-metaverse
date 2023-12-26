@@ -2,8 +2,9 @@
 // 在线聊天室 聊天界面 3d形象 聊天
 <template>
   <!-- 场景加载进度条 -->
-  <div v-if="displayerLoading" class=" absolute  bg-gray-400 bg-opacity-100  w-full h-full top-0 left-0 z-50    text-white">
-
+  <div v-if="displayerLoading"
+    class=" absolute  bg-black bg-opacity-100  w-full h-full top-0 left-0 z-50    text-white">
+    <img v-if="loadingUrl" class=" w-full h-full " :src="loadingUrl" alt="">
     <!-- 圆形进度条 -->
     <div class=" hidden absolute self-center w-96 h-96
         flex
@@ -40,6 +41,7 @@ import { circlebar } from "/@/js/circlebar.js";
 
 export default {
   name: "loadingpanel",
+  props: ['loadingUrl'],
   components: {
   },
   data() {
@@ -64,7 +66,7 @@ export default {
 
   },
   methods: {
-    DisplayLoading(b){
+    DisplayLoading(b) {
       this.displayerLoading = false;
     },
     LoadingState(state) {

@@ -29,7 +29,7 @@ import router from './router';
 import { createStore } from 'vuex';
 // import store from './store/index.js';
 
-import { UploadFile } from "./js/uploadThreejs.js";
+import { UploadFile,UploadSceneFile } from "./js/uploadThreejs.js";
 
 import { FormatDate, GetDateYM, ContentReplace, dataURLtoBlob, stringtoBlob } from "/@/utils/utils.js";
 
@@ -69,6 +69,8 @@ app.config.globalProperties.UIData = UIData;
 app.config.globalProperties.Utils = Utils;
 
 app.config.globalProperties.$uploadFile = UploadFile;
+app.config.globalProperties.$UploadSceneFile = UploadSceneFile;
+
 //删除文件
 
 //获取当前时间 年月日 时分秒

@@ -118,6 +118,33 @@
           </div>
         </div>
       </div>
+
+      <!-- icon和启动画面 -->
+      <div class=" mt-4  ">
+        <div class="  ">
+          <div class=" text-left ">icon</div>
+          <div class=" flex ">
+            <div class=" w-16 h-16 relative flex  gap-2 cursor-pointer  ">
+              <YJinput_upload scene="scene" index="icon" :folderBase="folderBase" :fileName="thumbName" accept=".jpg" :callback="ChangeImage" />
+            </div>
+            <div  class=" w-10 h-10 bg-black cursor-pointer ">
+              <img v-if="thumbUrl" class=" w-full h-full" :src="thumbUrl" />
+            </div>
+          </div>
+        </div>
+        
+        <div class=" mt-2 ">
+          <div class=" text-left ">loading</div>
+          <div class=" flex ">
+            <div class=" w-16 h-16 relative flex  gap-2 cursor-pointer  ">
+              <YJinput_upload scene="scene" index="loading" :folderBase="folderBase" :fileName="loadingName" accept=".jpg" :callback="ChangeImage" />
+            </div>
+            <div   class=" w-10 h-10 bg-black cursor-pointer ">
+              <img v-if="loadingUrl" class=" w-full h-full" :src="loadingUrl" />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   <!-- HDR列表 -->
@@ -138,6 +165,7 @@
 import YJinput_toggle from "../components/YJinput_toggle.vue";
 import YJinput_color from "../components/YJinput_color.vue";
 import YJinput_range from "../components/YJinput_range.vue";
+import YJinput_upload from "../components/YJinput_upload.vue";
 
 
 import { GetAllHDR, RequestMetaWorld } from "../../../js/uploadThreejs.js";
@@ -149,6 +177,7 @@ export default {
     YJinput_toggle,
     YJinput_color,
     YJinput_range,
+    YJinput_upload,
   },
   data() {
     return {
@@ -167,12 +196,15 @@ export default {
       },
       avatarList: [],
       skillList: [],
-
+      thumbUrl: "",
+      thumbName:"",
+      loadingName:"",
+      loadingUrl: "",
       titleIndex: -1,
       hdrList: [],
       jpgList: [],
       inSelectHDR: false,
-
+      folderBase:"",
       // metaWorldCoordinate: [{ x: 0, y: 0, vaild: true }],
       metaWorldCoordinate: [],
     };
@@ -186,6 +218,13 @@ export default {
 
 
     setTimeout(() => {
+      this.thumbName =  this.$parent.folderBase + "_thumb.jpg";
+      this.loadingName =  this.$parent.folderBase + "_loading.jpg";
+      
+      this.thumbUrl = this.$uploadSceneUrl + this.$parent.folderBase + "/" +this.thumbName;
+      this.loadingUrl = this.$uploadSceneUrl + this.$parent.folderBase + "/" +this.loadingName;
+
+      this.folderBase =  this.$parent.folderBase;
       this.sceneData = this.$parent.sceneData;
       if (this.sceneData.avatarList == undefined) {
         this.sceneData.avatarList = [];
@@ -195,7 +234,7 @@ export default {
       }
       this.avatarList = this.sceneData.avatarList;
       this.skillList = this.sceneData.skillList;
-      _Global.skillList_scene = this.skillList ;
+      _Global.skillList_scene = this.skillList;
 
       this.Utils.SetSettingItemByPropertyAll(this.setting, this.sceneData);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "setting-envSceneHDRPath", "display",
@@ -329,6 +368,16 @@ export default {
 
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "setting-envmapPath", "display",
         this.Utils.GetSettingItemValueByProperty(this.setting, 'setting-hasEnvmap'));
+    },
+    ChangeImage(type, e) {
+      console.log(type, e);
+      if (type == "icon") {
+        this.thumbUrl = this.$uploadSceneUrl + this.folderBase + "/" + this.thumbName+'?time='+new Date().getTime();
+      }
+      if (type == "loading") {
+        this.loadingUrl = this.$uploadSceneUrl + this.folderBase + "/" + this.loadingName+'?time='+new Date().getTime();
+      }
+      
     },
     ChangeValue(i, e) {
       this.setting[i].value = e;

@@ -3,8 +3,7 @@
 <template>
   <!-- 设置面板 -->
   <div class="
-              w-full
-              max-w-md
+              w-full 
                p-2
              text-white
              rounded-lg
@@ -12,7 +11,7 @@
             ">
     <div class=" text-left ">特效设置</div>
 
-    <div v-for="(item, i) in setting" :key="i" class=" text-xs  text-left flex w-80 h-auto mb-2     ">
+    <div v-for="(item, i) in setting" :key="i" class=" text-xs  text-left flex w-full h-auto mb-2     ">
 
       <div class=" self-center w-40  truncate" v-show="item.display">
         {{ item.title }}
@@ -167,6 +166,9 @@ export default {
     this.settingData = modelData.message.data;
     this.initValue();
 
+    // setTimeout(() => {
+    //   this.load();
+    // }, 5000);
 
   },
   methods: {
@@ -227,7 +229,7 @@ export default {
     load() {
       // console.log(this.settingData);return;
       _Global.YJ3D._YJSceneManager.GetSingleModelTransform().
-        GetComponent("Particle").Load(this.settingData);
+        GetComponent("Particle").SetMessage(this.settingData);
     },
     ClickUVAnim(item) {
       

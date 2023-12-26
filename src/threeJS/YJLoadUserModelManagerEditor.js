@@ -24,7 +24,7 @@ import { YJScreen } from "./components/YJScreen.js";
 import { YJWeapon } from "./components/YJWeapon.js";
 import { YJInteractive } from "./components/YJInteractive.js";
 
-import { YJCar } from "./model/YJCar.js"; 
+import { YJCar } from "./model/YJCar.js";
 import YJParticle from "./components/YJParticle";
 import { YJAvatar } from "./components/YJAvatar";
 import { YJNPC } from "./components/YJNPC";
@@ -64,23 +64,23 @@ class YJLoadUserModelManager {
       for (let i = 0; i < allTransform.length; i++) {
         const transform = allTransform[i].transform;
         if (transform.GetData().modelType == "NPC模型") {
-          transform.PathfindingCompleted(); 
+          transform.PathfindingCompleted();
         }
-      } 
+      }
     }
-    this.GetTransformByUUID = function(uuid){
+    this.GetTransformByUUID = function (uuid) {
       for (let i = 0; i < allTransform.length; i++) {
         if (allTransform[i].uuid == uuid) {
-          return allTransform[i].transform; 
+          return allTransform[i].transform;
         }
-      } 
+      }
     }
-    this.GetTransformByID = function(id){
+    this.GetTransformByID = function (id) {
       for (let i = 0; i < allTransform.length; i++) {
         if (allTransform[i].id == id) {
-          return allTransform[i].transform; 
+          return allTransform[i].transform;
         }
-      } 
+      }
       return null;
     }
     //#region 使用物理模拟判断是否与其他模型重叠，重叠时无法放置模型
@@ -241,13 +241,16 @@ class YJLoadUserModelManager {
       });
     }
 
-    function CreateTransform(parent, modelData, callback,_modelId) {
-      // console.error(" 加载模型 ", modelData);
+    function CreateTransform(parent, modelData, callback, _modelId) {
+      // console.error(" load manager 加载模型 ", modelData);
 
       let object = new YJTransform(_this, scene, "", null, null, modelData.name);
       let modelPath = modelData.modelPath;
       if (modelPath == undefined) {
-        if (modelData.modelType == "NPC模型" || modelData.modelType == "交互模型") {
+        if (modelData.modelType == "NPC模型" 
+        || modelData.modelType == "交互模型"
+        || modelData.modelType == "粒子特效"
+        ) {
 
         } else {
           if (callback) {
@@ -265,11 +268,11 @@ class YJLoadUserModelManager {
         }
       }
       let id = 0;
-      if(_modelId != undefined){
+      if (_modelId != undefined) {
         id = _modelId;
-      }else{
-         modelId++;
-         id = modelId;
+      } else {
+        modelId++;
+        id = modelId;
       }
       object.id = id;
       let uuid = object.GetUUID();
@@ -299,7 +302,7 @@ class YJLoadUserModelManager {
       // }
 
 
-      let MeshRenderer = new YJMeshRenderer(_this, object.GetGroup(), object, false,false,modelData.modelType);
+      let MeshRenderer = new YJMeshRenderer(_this, object.GetGroup(), object, false, false, modelData.modelType);
       object.AddComponent("MeshRenderer", MeshRenderer);
 
       if (modelData.modelType == "动画模型") {
@@ -445,13 +448,15 @@ class YJLoadUserModelManager {
           }
         });
       } else if (modelData.modelType == "粒子特效") {
+        // console.error(" load manager 粒子特效 ", modelData);
+
         MeshRenderer.load(modelPath, (scope) => {
           let data = null;
           if (modelData.message != undefined) {
             data = (modelData.message.data);
           }
           // "particle"+uuid
-          let _YJParticle = new YJParticle(_this, object.GetGroup(), object, data);
+          let _YJParticle = new YJParticle(_this, object.GetGroup(), object);
           object.AddComponent("Particle", _YJParticle);
           if (modelData.message != undefined) {
             object.SetMessage(modelData.message);
@@ -543,7 +548,7 @@ class YJLoadUserModelManager {
     //#endregion
 
     //#region 添加 删除 修改 用户摆放模型
-    
+
     this.AddUserModel = function (item, local, model) {
 
 
@@ -564,7 +569,7 @@ class YJLoadUserModelManager {
             let { navPosIndex } = data;
             let transform = elment.transform;
             let npcComponent = transform.GetComponent("NPC");
-            if(npcComponent){
+            if (npcComponent) {
               npcComponent.SetNavPosByPosIndex(navPosIndex);
             }
           }
@@ -585,7 +590,7 @@ class YJLoadUserModelManager {
         }
       }
     }
-    
+
     this.UpdateTransfrom = function () {
       for (let i = allTransform.length - 1; i >= 0; i--) {
         allTransform[i].transform.ClearOldTransData();
@@ -611,14 +616,14 @@ class YJLoadUserModelManager {
         }
       }
     }
-    this.DuplicateModel = function(modelData,callback,id){
-      CreateTransform(null,modelData, (object) => {
+    this.DuplicateModel = function (modelData, callback, id) {
+      CreateTransform(null, modelData, (object) => {
         modelDataList.push(object.GetData());
 
         if (callback) {
           callback(object);
         }
-      },id);
+      }, id);
     }
 
     // 加载单个场景的模型

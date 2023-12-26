@@ -7,16 +7,17 @@ import TWEEN from '@tweenjs/tween.js';
 
 // import { range, texture, mix, uv, color, positionLocal, timerLocal, attribute, SpriteNodeMaterial } from 'three/nodes';
 export default class YJParticle {
-    constructor(_this, _model, _owner, data) {
+    constructor(_this, parent, transform) {
         this._this = _this;
         this.dummy = new THREE.Object3D();
         this.state = false;
-        this.model = _model;
-        this.owner = _owner;
+        this.parent = parent;
+        this.transform = transform;
         this.reloadTimes = 0;
         this.currentCount = 0;
         this.time = 0;
         this.generateSpeed = 5;
+        this.areaMesh = null;
         this.settingData = {
             shapeType: "box", // 发射形状
             shapeSize: 10, // 发射范围大小
@@ -37,21 +38,10 @@ export default class YJParticle {
 
         this.instanceMesh = null;
         this.playerPos;
-
-        // this.createPosList();
-        if (data != null) {
-            this.settingData = data;
-        }
-        this.Init(this.settingData);
-
-        // console.log(" ========== in yj particle");
+ 
     }
-
-    Init(_data) {
-        // console.log(" ========== in yj particle Init ", _data);
-        this.Load(_data);
-    }
-    Load(_data) {
+ 
+    SetMessage(_data) {
         console.log(" ========== in yj particle Load ", _data);
         this.settingData = _data;
         this.currentCount = 0;
@@ -62,6 +52,16 @@ export default class YJParticle {
             this._this.scene.remove(this.instanceMesh);
         }
         this.createMesh();
+        if (this.settingData.shapeType == "box" && _Global.setting.inEditor) {
+            let size = this.settingData.shapeSize;
+            let geo = new THREE.BoxGeometry(size, size, size, 1); // 生成平面
+            let mat = new THREE.MeshStandardMaterial({ 
+                color: 0x0000ff,
+                wireframe: true,
+             }); // 材质
+            this.areaMesh = new THREE.Mesh(geo, mat);
+            this.parent.add(this.areaMesh);  
+        }
     }
 
     /**
@@ -174,7 +174,7 @@ export default class YJParticle {
             pos[1],
             pos[2]
         );
-        this.dummy.position.add(this.model.position);
+        this.dummy.position.add(this.parent.position);
 
         if (this.settingData.renderAlignment == 'view') {
             this.dummy.lookAt(this.playerPos);

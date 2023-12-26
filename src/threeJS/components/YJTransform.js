@@ -73,7 +73,10 @@ class YJTransform {
         let com = this.GetComponent("Interactive");
         com.SetMessage(message.data);
       }
-
+      if (message.pointType == "particle") {
+        let com = this.GetComponent("Particle");
+        com.SetMessage(message.data);
+      }
     }
     let handlerList = [];
     this.AddHandle = function (handler) {

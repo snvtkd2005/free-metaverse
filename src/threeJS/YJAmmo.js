@@ -2343,6 +2343,7 @@ class YJAmmo {
       _this.YJController.SetAmmoPlayer(myCtrlRb, height);
 
       console.log("初始化角色刚体");
+      // enabled = false;
     }
 
 

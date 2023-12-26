@@ -519,7 +519,7 @@ class YJSceneManager {
 
       // console.log(" 初始化创建地图 和 设置角色位置 CreateSingleScene ");
       //刷新角色换装信息
-      if (_this.$parent.$parent.UpdateSkin) {
+      if (_this.$parent.$parent.UpdateSkin && _this.YJPlayer) {
         _this.$parent.$parent.UpdateSkin(_this.YJPlayer, _this.YJPlayer.GetAvatarName(), localStorage.getItem("playerState"));
       }
 
@@ -730,12 +730,7 @@ class YJSceneManager {
         } else {
 
         }
-
-
-
-        // _this.GeneratePlayer(() => {
-        //   CreateSingleScene();
-        // });
+ 
 
         // 已经编辑过才加载场景
         if (sceneData.hasEditored) {

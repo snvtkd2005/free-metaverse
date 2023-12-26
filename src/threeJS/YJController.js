@@ -83,9 +83,9 @@ class YJController {
     // 摄像机跟随目标物体的最高速度
     let lookatSpeedMax = 0.05;
     // let lookatSpeedMax = 0.02;
-    let currentCamPos = new THREE.Vector3(0, 0, 0);
-    let currentLookatPos = new THREE.Vector3(0, 0, 0);
-    let currentCamrotaRefGroupPos = new THREE.Vector3(0, 0, 0);
+    let currentCamPos = new THREE.Vector3(0, 10, 0);
+    let currentLookatPos = new THREE.Vector3(0, 10, 0);
+    let currentCamrotaRefGroupPos = new THREE.Vector3(0, 10, 0);
     //#region 
     //#endregion
 
@@ -1721,7 +1721,9 @@ class YJController {
       if (rota == undefined) { return; }
 
       _playerY = Math.PI / 2;
-      _player.rotation.set(0, _playerY, 0);
+      if(_player){
+        _player.rotation.set(0, _playerY, 0);
+      }
       camBaseParent.rotation.set(0, 0, 0);
       _YJAmmoPlayer.rotation.set(rota.x, rota.y, rota.z);
 
@@ -3749,9 +3751,9 @@ class YJController {
 
       // console.log("  targetRota = "+posToString(camTarget.rotation));
       // let pos = _YJAmmoPlayer.getWorldPosition(new THREE.Vector3());
+      // console.log("刚体实时坐标为 ",pos);
 
       lerpFollow();
-      // console.log("刚体实时坐标为 ",pos);
 
       LerpMovePlayer();
       lerpLookat();

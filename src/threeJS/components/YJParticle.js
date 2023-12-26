@@ -42,7 +42,7 @@ export default class YJParticle {
     }
  
     SetMessage(_data) {
-        console.log(" ========== in yj particle Load ", _data);
+        // console.log(" ========== in yj particle Load ", _data);
         this.settingData = _data;
         this.currentCount = 0;
         this.reloadTimes++;
@@ -90,7 +90,7 @@ export default class YJParticle {
         if (this.settingData.particlePath != "") {
             map = new THREE.TextureLoader().load(this.settingData.particlePath);
         }
-        console.log(map);
+        // console.log(map);
         let material = new THREE.MeshBasicMaterial({
             color: 0xffffff,
             map: map,

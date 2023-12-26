@@ -95,11 +95,11 @@ export default {
     //   _Global.YJ3D._YJSceneManager.CreateOrLoadPlayerAnimData().GetSkillList("小孩", this.SetSkillList);
     // }, 5000);
     setTimeout(() => {
-      if (_Global.skillList == undefined || _Global.skillList.length == 0) {
+      if (_Global.skillList_scene == undefined || _Global.skillList_scene.length == 0) {
         this.actionBar = false;
         return;
       }
-      this.skillList = _Global.skillList;
+      this.skillList = _Global.skillList_scene;
     }, 3000);
   },
   methods: {

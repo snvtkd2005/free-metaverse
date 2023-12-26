@@ -6,20 +6,21 @@ import { YJLoadAnimation } from "/@/threeJS/loader/YJLoadAnimation.js";
 class YJPlayerAnimData {
   constructor(_this) {
     let scope = this;
-    let PlayerAnimData;
+    let PlayerAnimData = null;;
     let avatarDataList = [];
 
     let _YJLoadAnimation = null;
     function Init() {
       if (_this.GetPlayerAnimData) {
         PlayerAnimData = _this.GetPlayerAnimData();
-      } else
-        if (_this.$parent.GetPlayerAnimData) {
+      } else if (_this.$parent.GetPlayerAnimData) {
           PlayerAnimData = _this.$parent.GetPlayerAnimData();
-        } else
-          if (_this.$parent.$parent.GetPlayerAnimData) {
+      } else if (_this.$parent.$parent.GetPlayerAnimData) {
             PlayerAnimData = _this.$parent.$parent.GetPlayerAnimData();
-          }
+      }
+      if(!PlayerAnimData){
+        return;
+      }
       avatarDataList = PlayerAnimData.avatarData;
       console.log(" in yj PlayerAnimData ", avatarDataList);
 
@@ -47,7 +48,7 @@ class YJPlayerAnimData {
       }
       console.error(" 角色信息未找到 ", playerName);
     }
-    this.GetAvatarDataById = function (id) { 
+    this.GetAvatarDataById = function (id) {
       for (let i = 0; i < avatarDataList.length; i++) {
         if (avatarDataList[i].id == id) {
           return FindBoneRefAnimationData(avatarDataList[i]);
@@ -607,8 +608,8 @@ class YJPlayerAnimData {
     function GetSkill(weaponData) {
       if (weaponData) {
         let { attackSpeed, vaildDis } = weaponData;
-        if(attackSpeed != undefined){
-          return { dis: vaildDis, speed: attackSpeed};
+        if (attackSpeed != undefined) {
+          return { dis: vaildDis, speed: attackSpeed };
         }
         return { dis: 2, speed: 2 };
 

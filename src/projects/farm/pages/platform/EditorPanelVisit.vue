@@ -365,7 +365,7 @@ export default {
       // console.log(" 获取场景配置 ", res.data);
       // this.sceneData = JSON.parse(res.data) ;
       this.sceneData = res.data;
-      _Global.skillList = this.sceneData.skillList;
+      _Global.skillList_scene = this.sceneData.skillList;
 
       this.$refs.YJmetaBase.Reload();
 

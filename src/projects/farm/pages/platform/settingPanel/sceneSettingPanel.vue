@@ -195,7 +195,7 @@ export default {
       }
       this.avatarList = this.sceneData.avatarList;
       this.skillList = this.sceneData.skillList;
-      _Global.skillList = this.skillList ;
+      _Global.skillList_scene = this.skillList ;
 
       this.Utils.SetSettingItemByPropertyAll(this.setting, this.sceneData);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "setting-envSceneHDRPath", "display",

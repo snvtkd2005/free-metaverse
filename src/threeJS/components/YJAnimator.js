@@ -54,10 +54,11 @@ class YJAnimator {
         }
         let messageData = message.data;
         if (messageData.avatarData) {
-          _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.avatarData.name, animName, (isLoop, anim) => {
+          _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.avatarData.id, animName, (isLoop, anim) => {
             scope.ChangeAnimByAnimData(animName, isLoop, anim);
           });
         } else {
+          console.log(" messageData ",messageData);
           _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.name, animName, (isLoop, anim) => {
             scope.ChangeAnimByAnimData(animName, isLoop, anim);
           });

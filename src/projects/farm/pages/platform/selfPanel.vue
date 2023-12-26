@@ -1,16 +1,16 @@
 
 <!-- // 场景编辑UI -->
 <template>
-  <div class="absolute left-0 top-0 z-999 w-full h-auto flex ">
+  <div class="absolute left-0 top-0 z-999 w-full h-full flex ">
     <!-- 中部 -->
-    <div class="flex  mt-0 w-5/6 h-auto mx-auto  bg-gray-100 ">
+    <div class="flex  mt-0 w-11/12 md:w-5/6 h-full mx-auto  bg-gray-100 ">
       <!-- 右 -->
-      <div class="flex-grow flex-col mt-10 mx-auto ">
+      <div class="  pt-10 w-full h-full">
 
         <!-- table 选择列表 -->
         <div class="mt-2 flex text-lg mb-10">
-          <div v-for="(item, i) in tableList" :key="i" class="self-center w-40 h-auto relative">
-            <div class="w-40 h-10 self-center flex cursor-pointer" :class="currentTable == item.content ? ' bg-gray-300' : ' bg-gray-100'
+          <div v-for="(item, i) in tableList" :key="i" class=" w-20 md:w-40 h-auto relative">
+            <div class="w-full h-10 self-center flex cursor-pointer" :class="currentTable == item.content ? ' bg-gray-300' : ' bg-gray-100'
               " @click="currentTable = item.content">
               <div class="self-center mx-auto">{{ item.content }}</div>
             </div>
@@ -18,14 +18,14 @@
         </div>
 
         <!-- 场景 -->
-        <div v-if="currentTable == tableList[0].content" 
-          class=" gap-6 flex flex-wrap h-full  overflow-y-auto  overscroll-auto  ">
+        <div v-if="currentTable == tableList[0].content"
+          class="  gap-6 w-full flex flex-wrap h-auto max-h-5/6   overflow-y-auto  overscroll-auto  ">
           <!-- 新建按钮 -->
           <div class=" w-40 h-40 border-2 relative">
-              <div class="w-40 h-40 self-center mx-auto cursor-pointer" @click="CreateNew(tableList[0].content)">
-                <!-- <img class=" w-full h-full    object-fill hover:opacity-70 " src="publicUrl + item.icon" /> -->
-              </div>
-              <div class="
+            <div class="w-40 h-40 self-center mx-auto cursor-pointer" @click="CreateNew(tableList[0].content)">
+              <!-- <img class=" w-full h-full    object-fill hover:opacity-70 " src="publicUrl + item.icon" /> -->
+            </div>
+            <div class="
                 absolute
                 left-0
                 top-0
@@ -34,46 +34,45 @@
                 flex
                 pointer-events-none
               ">
-                <div class="self-center mx-auto">
-                  {{ customPanel.createNewScene }}
-                </div>
+              <div class="self-center mx-auto">
+                {{ customPanel.createNewScene }}
               </div>
             </div>
-            <!-- 选择列表 -->
-            <div v-for="(item, i) in sceneList" :key="i" class="self-center w-40 h-auto relative">
-              <div class="w-40 h-28  bg-blue-200 rounded-lg  self-center mx-auto cursor-pointer"
-                @click="SelectScene(item)">
-                <img class="w-full h-full rounded-lg object-fill hover:opacity-70" :src="uploadSceneUrl + item.icon" />
-              </div>
+          </div>
+          <!-- 选择列表 -->
+          <div v-for="(item, i) in sceneList" :key="i" class=" w-40 h-auto ">
+            <div class="w-40 h-28  bg-blue-200 rounded-lg  self-center mx-auto cursor-pointer" @click="SelectScene(item)">
+              <img class="w-full h-full rounded-lg object-fill hover:opacity-70" :src="uploadSceneUrl + item.icon" />
+            </div>
 
-              <div class="mt-2 px-2 flex text-sm justify-between cursor-pointer truncate">
-                <div>{{ item.name }}</div>
-              </div>
+            <div class="mt-2 px-2 flex text-sm justify-between cursor-pointer truncate">
+              <div>{{ item.name }}</div>
+            </div>
 
-              <div class="mt-2 px-2 flex text-sm justify-between ">
-                <text>{{ item.folderBase }}</text>
+            <div class="mt-2 px-2 flex text-sm justify-between ">
+              <text>{{ item.folderBase }}</text>
+            </div>
+            <div class=" hidden mt-2 px-2 flex text-xs justify-between">
+              <div>{{ base.good }} 158</div>
+              <div>{{ base.visite }} 177</div>
+            </div>
+            <div class="mt-2 px-2 flex text-xs justify-between">
+              <div class="cursor-pointer" @click="EditorScene(item)">
+                {{ base.editor }}
               </div>
-              <div class=" hidden mt-2 px-2 flex text-xs justify-between">
-                <div>{{ base.good }} 158</div>
-                <div>{{ base.visite }} 177</div>
-              </div>
-              <div class="mt-2 px-2 flex text-xs justify-between">
-                <div class="cursor-pointer" @click="EditorScene(item)">
-                  {{ base.editor }}
-                </div>
-                <div class="cursor-pointer" @click="Delete(item)">
-                  {{ base.delete }}
-                </div>
+              <div class="cursor-pointer" @click="Delete(item)">
+                {{ base.delete }}
               </div>
             </div>
+          </div>
         </div>
 
         <!-- 单品 -->
         <div v-if="currentTable == tableList[1].content"
-          class=" gap-6 flex flex-wrap  overflow-y-auto  overscroll-auto h-5/6 ">
+          class="  gap-6 w-full flex flex-wrap h-auto max-h-5/6  overflow-y-auto  overscroll-auto ">
           <!-- 新建按钮 -->
           <div class=" w-40 h-40 border-2 relative ">
-            <div class="w-40 h-40 self-center mx-auto cursor-pointer" @click="CreateNew(tableList[1].content)">
+            <div class="w-40 h-40 mx-auto cursor-pointer" @click="CreateNew(tableList[1].content)">
               <!-- <img class=" w-full h-full    object-fill hover:opacity-70 " src="publicUrl + item.icon" /> -->
             </div>
             <div class="
@@ -92,7 +91,7 @@
           </div>
 
           <!-- 选择列表 -->
-          <div v-for="(item, i) in modelsList" :key="i" class="self-center  w-40 h-auto relative">
+          <div v-for="(item, i) in modelsList" :key="i" class=" w-40 h-auto relative">
             <div class="w-40 h-28 bg-blue-200 rounded-lg self-center mx-auto cursor-pointer" @click="SelectModel(item)">
               <img class="w-full h-full rounded-lg object-fill hover:opacity-70" :src="uploadUrl + item.icon" />
             </div>
@@ -100,7 +99,7 @@
             <div class="mt-2 px-2 flex text-sm justify-between truncate ">
               <div>{{ item.name }}</div>
             </div>
-            <div class="mt-2 px-2 flex text-sm justify-between ">
+            <div class="mt-2 px-2 hidden md:flex text-sm justify-between ">
               <text>{{ item.folderBase }}</text>
             </div>
             <div class="mt-2 px-2 flex text-xs justify-between">
@@ -110,7 +109,7 @@
               <div>{{ base.good }} 158</div>
               <div>{{ base.visite }} 177</div>
             </div>
-            <div class="mt-2 px-2 flex text-xs justify-between">
+            <div class="mt-2 px-2 hidden md:flex text-xs justify-between">
               <div class="cursor-pointer" @click="Editor(item)">
                 {{ base.editor }}
               </div>
@@ -122,9 +121,10 @@
         </div>
 
         <!-- HDR -->
-        <div v-if="currentTable == tableList[2].content" class="flex gap-6">
+        <div v-if="currentTable == tableList[2].content" 
+        class=" gap-6 w-full flex flex-wrap h-auto max-h-5/6   overflow-y-auto  overscroll-auto">
           <!-- 新建按钮 -->
-          <div class="self-center w-40 h-auto relative border-2">
+          <div class="  w-40 h-40 relative border-2">
             <div class="w-40 h-40 self-center mx-auto cursor-pointer" @click="CreateNew(tableList[2].content)">
               <!-- <img class=" w-full h-full    object-fill hover:opacity-70 " src="publicUrl + item.icon" /> -->
             </div>
@@ -143,34 +143,31 @@
             </div>
           </div>
 
-          <div class="gap-6 grid xl:grid-cols-7 md:grid-cols-5 flex-row-reverse 
-               overflow-y-auto  ">
-            <!-- 选择列表 -->
-            <div v-for="(item, i) in jpgList" :key="i" class="self-center w-40 h-auto relative">
-              <div class="w-40 h-20 self-center mx-auto cursor-pointer">
-                <img class="w-full h-full object-fill hover:opacity-70" :src="uploadHDRUrl + item" />
-              </div>
+          <div v-for="(item, i) in jpgList" :key="i" class="  w-40 h-auto relative">
+            <div class="w-40 h-20 self-center mx-auto cursor-pointer">
+              <img class="w-full h-full object-fill hover:opacity-70" :src="uploadHDRUrl + item" />
+            </div>
 
-              <div class="mt-2 w-28 truncate px-2 flex text-sm justify-between ">
-                <text>{{ item }}</text>
-              </div>
-              <div class=" hidden mt-2 px-2 flex text-xs justify-between">
-                <div>{{ base.good }} 158</div>
-                <div>{{ base.visite }} 177</div>
-              </div>
-              <div class="mt-2 px-2 flex text-xs justify-between">
-                <div class="cursor-pointer">{{ base.editor }}</div>
-                <div class="cursor-pointer">{{ base.delete }}</div>
-              </div>
+            <div class="mt-2 w-28 truncate px-2 flex text-sm justify-between ">
+              <text>{{ item }}</text>
+            </div>
+            <div class=" hidden mt-2 px-2 flex text-xs justify-between">
+              <div>{{ base.good }} 158</div>
+              <div>{{ base.visite }} 177</div>
+            </div>
+            <div class="mt-2 px-2 flex text-xs justify-between">
+              <div class="cursor-pointer">{{ base.editor }}</div>
+              <div class="cursor-pointer">{{ base.delete }}</div>
             </div>
           </div>
         </div>
 
         <!-- 通用图片 -->
-        <div v-if="currentTable == tableList[3].content" class="flex gap-6 flex-wrap  overflow-y-auto  overscroll-auto ">
+        <div v-if="currentTable == tableList[3].content"
+          class=" gap-6 w-full flex flex-wrap h-auto max-h-5/6   overflow-y-auto  overscroll-auto ">
           <!-- 新建按钮 -->
-          <div class="self-center w-40 h-auto relative border-2">
-            <div class="w-40 h-40 self-center mx-auto cursor-pointer" @click="CreateNew('UVAnim')">
+          <div class="  w-32 h-32 relative border-2">
+            <div class="w-full h-full self-center mx-auto cursor-pointer" @click="CreateNew('UVAnim')">
               <!-- <img class=" w-full h-full    object-fill hover:opacity-70 " src="publicUrl + item.icon" /> -->
             </div>
             <div class="
@@ -187,34 +184,34 @@
               </div>
             </div>
           </div>
-            <!-- 选择列表 -->
-            <div v-for="(item, i) in uvAnimList" :key="i" class="self-center w-32 h-auto relative">
-              <div class="
+          <!-- 选择列表 -->
+          <div v-for="(item, i) in uvAnimList" :key="i" class="self-center w-32 h-auto relative">
+            <div class="
                   w-32
                   h-32
                   self-center
                   mx-auto
                   overflow-hidden
                   cursor-pointer
-                "> 
-                <img class="w-full h-full object-fill hover:opacity-70 transform" :src="uploadUVAnimUrl + item" />
-              </div>
-              <div class="mt-2 w-28 truncate px-2 flex text-sm justify-between ">
-                <text>{{ item }}</text>
-              </div>
-              <div class=" hidden mt-2 px-2 flex text-xs justify-between">
-                <div>{{ base.good }} 158</div>
-                <div>{{ base.visite }} 177</div>
-              </div>
-              <div class="mt-2 px-2 flex text-xs justify-between">
-                <div class="cursor-pointer">{{ base.editor }}</div>
-                <div class="cursor-pointer">{{ base.delete }}</div>
-              </div>
-            </div> 
+                ">
+              <img class="w-full h-full object-fill hover:opacity-70 transform" :src="uploadUVAnimUrl + item" />
+            </div>
+            <div class="mt-2 w-28 truncate px-2 flex text-sm justify-between ">
+              <text>{{ item }}</text>
+            </div>
+            <div class=" hidden mt-2 px-2 flex text-xs justify-between">
+              <div>{{ base.good }} 158</div>
+              <div>{{ base.visite }} 177</div>
+            </div>
+            <div class="mt-2 px-2 flex text-xs justify-between">
+              <div class="cursor-pointer">{{ base.editor }}</div>
+              <div class="cursor-pointer">{{ base.delete }}</div>
+            </div>
+          </div>
         </div>
 
         <div v-if="currentTable == tableList[4].content" class="  gap-6 w-full mx-auto h-full">
-          <skillSettingPanel></skillSettingPanel> 
+          <skillSettingPanel></skillSettingPanel>
         </div>
 
       </div>
@@ -981,6 +978,15 @@ export default {
  
 
 <style scoped>
+.max-h-5\/6 {
+  max-height: 83.3%;
+}
+
+.basis-10 {
+  flex-basis: 10px;
+  /* 40px */
+}
+
 .-z-10 {
   z-index: -10;
 }

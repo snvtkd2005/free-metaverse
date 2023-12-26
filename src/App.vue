@@ -241,7 +241,9 @@ a {
     width: 1200px;
   }
 }
-
+.basis-10{
+  flex-basis: 2.5rem; /* 40px */
+}
 /* 高 */
 .h-78px {
   height: 78px;

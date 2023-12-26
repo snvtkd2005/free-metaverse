@@ -21,8 +21,7 @@
     <HUD ref="HUD" />
 
     <!-- 多人同步 -->
-    <YJDync v-if="inLoadCompleted" class="absolute z-50 left-0 top-0 w-full h-full" 
-      ref="YJDync" />
+    <YJDync v-if="inLoadCompleted" class="absolute z-50 left-0 top-0 w-full h-full" ref="YJDync" />
 
     <!-- 修改名称 -->
     <div class="absolute left-2 top-2 flex">
@@ -195,7 +194,7 @@ export default {
       userData: {},
       initCompleted: false,
 
-      avatarName: "",
+      avatarId: "",
       modelData: {},
 
       InDriving: false,
@@ -308,10 +307,15 @@ export default {
       //取消设置面板的input焦点
     },
     Enter() {
-      let avatarName = PlayerAnimData.defaultUser.avatarName;
+      let avatarId = PlayerAnimData.defaultUser.avatarId;
 
-      if (localStorage.getItem("avatarName")) {
-        avatarName = localStorage.getItem("avatarName");
+      if (localStorage.getItem("avatarId")) {
+        avatarId = localStorage.getItem("avatarId");
+      }
+
+      // 如果场景限制角色，则使用场景限制角色
+      if (this.sceneData.avatarList && this.sceneData.avatarList.length > 0) {
+        avatarId = this.sceneData.avatarList[this.Utils.RandomInt(0, this.sceneData.avatarList.length - 1)].folderBase;
       }
 
       this.userName = "aa";
@@ -319,7 +323,7 @@ export default {
         this.userName = localStorage.getItem("userName");
       }
 
-      this.avatarName = avatarName;
+      this.avatarId = avatarId;
 
       this.hasPlayerSelectPanel = false;
       this.inLoadCompleted = true;
@@ -327,7 +331,7 @@ export default {
         userName: this.userName,
         roomName: this.sceneData.roomName,
         platform: this.sceneData.platform,
-        modelType: avatarName,
+        avatarId: avatarId,
       };
 
       this.$refs.YJmetaBase.ClickSelectPlayerOK(this.userData);
@@ -361,7 +365,7 @@ export default {
       // console.log(" 获取场景配置 ", res.data);
       // this.sceneData = JSON.parse(res.data) ;
       this.sceneData = res.data;
-      _Global.skillList = this.sceneData.skillList ;
+      _Global.skillList = this.sceneData.skillList;
 
       this.$refs.YJmetaBase.Reload();
 
@@ -538,7 +542,7 @@ export default {
     ClickSelectPlayerOK(selectPlayerName, userName) {
       this.userName = userName;
       localStorage.setItem("username", this.userName);
-      this.avatarName = selectPlayerName;
+      this.avatarId = selectPlayerName;
 
       this.hasPlayerSelectPanel = false;
       this.inLoadCompleted = true;
@@ -606,7 +610,7 @@ export default {
       if (!this.initCompleted) {
         _Global.YJ3D.PlayVideo();
         _Global.YJ3D.AddVideoListener();
-        this.Interface.SelectPlayerCompleted(this.avatarName, this.userName);
+        this.Interface.SelectPlayerCompleted(this.avatarId, this.userName);
         this._SceneManager.ChangeScene(this.sceneData);
         this.$nextTick(() => {
           if (this.$refs.YJDync) {

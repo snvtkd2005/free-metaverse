@@ -426,12 +426,14 @@ class YJ3dScene_playerSelect {
     }
     let playerHeight;
     let playerName = "";
+    let avatarId = 0;
     // 此函数用来做npc
     this.ChangeAvatarByCustom = function (avatarData, callback) {
       clearGroup(group); 
 
       playerHeight = avatarData.height;
       playerName = avatarData.name;
+      avatarId = avatarData.id;
       let modelPath = "";
       if( avatarData.modelPath.includes("http")){
         modelPath = avatarData.modelPath;
@@ -482,7 +484,7 @@ class YJ3dScene_playerSelect {
             // avatar.ChangeAnimDirect("walk");
           },
           (animName) => {
-            scope.CreateOrLoadPlayerAnimData().GetExtendAnim(playerName, animName, (isLoop, anim) => {
+            scope.CreateOrLoadPlayerAnimData().GetExtendAnim(avatarId, animName, (isLoop, anim) => {
               avatar.ChangeAnimByAnimData(animName, isLoop, anim);
             });
           }

@@ -55,11 +55,11 @@
               cursor-pointer
               flex
               relative
-            " :class="selectPlayerName == item.name ? ' ' : ' '" @click="SelectAvatar(item)">
+            " :class="selectPlayerName == item.folderBase ? ' ' : ' '" @click="SelectAvatar(item)">
             <div class="self-center mx-auto w-full h-full rounded-full">
               <img class="w-full h-full rounded-full" :src="item.img" />
             </div>
-            <div v-if="selectPlayerName == item.name" class="absolute bottom-0 right-0">
+            <div v-if="selectPlayerName == item.folderBase" class="absolute bottom-0 right-0">
               <img class="w-4 h-4 xl:w-full xl:h-full object-fill" :src="publicUrl + 'images/spUI/select.png'" />
             </div>
           </div>
@@ -175,11 +175,11 @@ export default {
     window.addEventListener("keydown", this._onKeyDown);
     this.GetServerAvatar(() => {
 
+      console.log(this.playerImgPath);
+      this.selectPlayerName = this.playerImgPath[0].folderBase;
 
-      this.selectPlayerName = this.playerImgPath[0].name;
-
-      if (localStorage.getItem("avatarName")) {
-        this.selectPlayerName = localStorage.getItem("avatarName");
+      if (localStorage.getItem("avatarId")) {
+        this.selectPlayerName = localStorage.getItem("avatarId");
       }
 
       if (localStorage.getItem("userName")) {
@@ -190,7 +190,7 @@ export default {
         this.needEnter = true;
       }
 
-      // this.selectPlayerName = this.avatarData.defaultUser.avatarName;
+      // this.selectPlayerName = this.avatarData.defaultUser.avatarId;
       console.log("  this.selectPlayerName =  ", this.selectPlayerName);
 
 
@@ -450,17 +450,13 @@ export default {
     },
     SelectAvatar(item) {
       console.log("选择角色", item);
-      this.selectPlayerName = item.name;
+      this.selectPlayerName = item.folderBase;
       this.folderBase = item.folderBase;
-
-      if (this.selectPlayerName == "小孩") {
-        this.folderBase = "farmplayer";
-      }
-      // console.log("this.selectPlayerName = " + this.selectPlayerName);
+ 
       //加载3d模型
-      this.$refs.playerSelect3DPanel.SelectAvatar(this.selectPlayerName);
+      this.$refs.playerSelect3DPanel.SelectAvatar(this.folderBase);
       this.skinData = this.$refs.playerSelect3DPanel.GetAvatarData(
-        this.selectPlayerName
+        this.folderBase
       ).skinData;
       if (this.skinData != undefined && this.skinData.length > 1) {
         setTimeout(() => {
@@ -470,7 +466,7 @@ export default {
         this.$refs.playerSelect3DPanel.ChangeSkinCompleted();
       }
       this.updateAnimList(this.selectPlayerName);
-      localStorage.setItem("avatarName", this.selectPlayerName);
+      localStorage.setItem("avatarId", this.folderBase);
     },
     ClickeSelectOK() {
       if (this.selectPlayerName == "") {
@@ -481,7 +477,7 @@ export default {
       }
 
       localStorage.removeItem("needEnter");
-      localStorage.setItem("avatarName", this.selectPlayerName);
+      localStorage.setItem("avatarId", this.selectPlayerName);
       localStorage.setItem("userName", this.userName);
 
       localStorage.setItem("reloadTimes", 1);

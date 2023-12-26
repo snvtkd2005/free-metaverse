@@ -80,7 +80,7 @@
       <div v-if="panelState.interactive" class="mt-10 w-80 border-t max-w-md">
         <settingPanel_interactive ref="settingPanel_interactive" />
       </div>
-      
+
       <!-- <div class=" mt-10 w-80 h-10 border-t text-white cursor-pointer " @click.stop="inAddComponent=true;">
         <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">Add Component</div>
       </div>
@@ -109,7 +109,7 @@
     </div>
 
     <skillProgressUI ref="skillProgressUI" />
-    
+
     <!-- 与后台交互的操作提示 -->
     <!---->
     <div v-if="tipData.opening" class="absolute left-0 top-10 w-full flex">
@@ -261,7 +261,7 @@ export default {
       userData: {},
       initCompleted: false,
 
-      avatarName: "",
+      avatarId: "",
 
       InDriving: false,
       Interface: null,
@@ -314,16 +314,16 @@ export default {
       localStorage.setItem("modelType", "模型");
     }
 
-    let avatarName = PlayerAnimData.defaultUser.avatarName;
-    if (localStorage.getItem("avatarName")) {
-      avatarName = localStorage.getItem("avatarName");
+    let avatarId = PlayerAnimData.defaultUser.avatarId;
+    if (localStorage.getItem("avatarId")) {
+      avatarId = localStorage.getItem("avatarId");
     }
-
+    
     this.userName = "aa";
     if (localStorage.getItem("userName")) {
       this.userName = localStorage.getItem("userName");
     }
-    this.avatarName = avatarName;
+    this.avatarId = avatarId;
 
     this.$refs.YJmetaBase.SetloadingPanel(this.$refs.loadingPanel);
 
@@ -414,7 +414,7 @@ export default {
         setTimeout(() => {
           _Global.YJ3D._YJSceneManager
             .CreateOrLoadPlayerAnimData()
-            .GetAllAnim(this.avatarName, (temp) => {
+            .GetAllAnim(this.avatarId, (temp) => {
               let animList = _Global.animList;
               let canAnimList = [];
               for (let i = 0; i < animList.length; i++) {
@@ -460,7 +460,7 @@ export default {
         userName: this.userName,
         roomName: this.avatarData.roomName,
         platform: this.avatarData.platform,
-        modelType: this.avatarName,
+        avatarId: this.avatarId,
       };
 
       this.$refs.YJmetaBase.ClickSelectPlayerOK(this.userData);
@@ -1097,7 +1097,7 @@ export default {
     ClickSelectPlayerOK(selectPlayerName, userName) {
       this.userName = userName;
       localStorage.setItem("username", this.userName);
-      this.avatarName = selectPlayerName;
+      this.avatarId = selectPlayerName;
 
       this.hasPlayerSelectPanel = false;
       this.inLoadCompleted = true;
@@ -1214,12 +1214,12 @@ export default {
       // _Global.YJ3D
       // );
     },
-    
+
     OpenThreejs() {
       this.inThreejs = true;
       if (this.$refs.loadingPanel) {
         this.$refs.loadingPanel.DisplayLoading(false);
-      } 
+      }
 
       // setTimeout(() => {
       //   this.ChangeViewById(10004);
@@ -1244,7 +1244,7 @@ export default {
       this._SceneManager.ClickModel(hitObject);
     },
     HoverObject(hoverObject, hoverPoint) {
-      if(this._SceneManager){ 
+      if (this._SceneManager) {
         this._SceneManager.HoverObject(hoverObject, hoverPoint);
       }
     },
@@ -1278,7 +1278,7 @@ export default {
     GetMinMapData() {
       let minMapData = this.avatarData.minMapData;
       return minMapData;
-    }, 
+    },
     ClickNiaokan() {
       _Global.YJ3D.YJController.ResetToNiaokanView();
     },

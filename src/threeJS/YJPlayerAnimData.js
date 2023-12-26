@@ -86,11 +86,11 @@ class YJPlayerAnimData {
       FindBoneRefAnimationData(avatarData);
     }
     // 获取扩展动作。动作从unity转的json文本中解析得到
-    this.GetExtendAnim = function (playerName, animName, callback) {
+    this.GetExtendAnim = function (id, animName, callback) {
       let has = false;
       let avatarData = null;
       for (let i = 0; i < avatarDataList.length && !has; i++) {
-        if (avatarDataList[i].name == playerName) {
+        if (avatarDataList[i].id == id) {
           has = true;
           avatarData = avatarDataList[i];
         }
@@ -182,13 +182,13 @@ class YJPlayerAnimData {
     }
 
 
-    this.GetAllAnim = function (playerName, callback) {
+    this.GetAllAnim = function (id, callback) {
 
       let animList = [];
       let has = false;
       let avatarData = null;
       for (let i = 0; i < avatarDataList.length && !has; i++) {
-        if (avatarDataList[i].name == playerName) {
+        if (avatarDataList[i].id == id) {
           has = true;
           avatarData = avatarDataList[i];
         }
@@ -215,7 +215,7 @@ class YJPlayerAnimData {
           }
         }
 
-        console.error(" 查找角色动作  ", playerName, animList);
+        console.error(" 查找角色动作  ", id, animList);
 
         if (callback) {
           callback(animList);
@@ -244,13 +244,13 @@ class YJPlayerAnimData {
         // }
       }
     }
-    this.GetAnimDataByAnimName = function (playerName, animName, callback) {
+    this.GetAnimDataByAnimName = function (id, animName, callback) {
 
       let animList = [];
       let has = false;
       let avatarData = null;
       for (let i = 0; i < avatarDataList.length && !has; i++) {
-        if (avatarDataList[i].name == playerName) {
+        if (avatarDataList[i].id == id) {
           has = true;
           avatarData = avatarDataList[i];
         }
@@ -322,12 +322,12 @@ class YJPlayerAnimData {
     }
 
 
-    this.GetAllExtendAnim = function (playerName) {
+    this.GetAllExtendAnim = function (id) {
       let animList = [];
       let has = false;
       let avatarData = null;
       for (let i = 0; i < avatarDataList.length && !has; i++) {
-        if (avatarDataList[i].name == playerName) {
+        if (avatarDataList[i].id == id) {
           has = true;
           avatarData = avatarDataList[i];
         }
@@ -343,11 +343,11 @@ class YJPlayerAnimData {
       return animList;
     }
     // 添加或修改扩展动作
-    this.AddExtendAnimData = function (playerName, item) {
+    this.AddExtendAnimData = function (id, item) {
       let has = false;
       let avatarData = null;
       for (let i = 0; i < avatarDataList.length && !has; i++) {
-        if (avatarDataList[i].name == playerName) {
+        if (avatarDataList[i].id == id) {
           has = true;
           avatarData = avatarDataList[i];
         }
@@ -373,14 +373,14 @@ class YJPlayerAnimData {
           avatarData.animationsExtendData.push({ animName: item.animName, isLoop: item.isLoop, path: item.path });
         }
       }
-      return this.GetAllExtendAnim(playerName);
+      return this.GetAllExtendAnim(id);
     }
-    this.AddAllExtendAnimData = function (playerName, playerData) {
+    this.AddAllExtendAnimData = function (id, playerData) {
       let has = false;
 
       let avatarData = null;
       for (let i = 0; i < avatarDataList.length && !has; i++) {
-        if (avatarDataList[i].name == playerName) {
+        if (avatarDataList[i].id == id) {
           has = true;
           avatarData = avatarDataList[i];
         }
@@ -405,7 +405,7 @@ class YJPlayerAnimData {
           }
         }
       }
-      return this.GetAllExtendAnim(playerName);
+      return this.GetAllExtendAnim(id);
     }
 
     // 角色数据加载完成后，刷新其中的骨骼映射数据
@@ -417,11 +417,11 @@ class YJPlayerAnimData {
 
 
     //#region 获取技能
-    this.GetSkillList = function (playerName, callback) {
-      GetSkillListFn(playerName, callback);
+    this.GetSkillList = function (id, callback) {
+      GetSkillListFn(id, callback);
     }
-    async function GetSkillListFn(playerName, callback) {
-      if (playerName == "小孩") {
+    async function GetSkillListFn(id, callback) {
+      if (id == "小孩") {
         let res = await _this.$axios.get(
           _this.$uploadPlayerUrl + "farmplayer/farmplayer" + "_skill_data.txt" + "?time=" + new Date().getTime()
         );

@@ -107,10 +107,11 @@ class YJPlayer {
     }
     // 飞行坐骑
     let mountAvatar = null;
+    let avatarId = 0;
     function GetAnimData(id) {
       let animationsData = [];
 
-
+      avatarId = id;
       // avatarData = _this.$parent.GetAvatarData(playerName);
       avatarData = _this._YJSceneManager.CreateOrLoadPlayerAnimData().GetAvatarDataById(id);
       playerName = avatarData.name;
@@ -360,7 +361,7 @@ class YJPlayer {
           }
         },
         (animName) => {
-          _this._YJSceneManager.CreateOrLoadPlayerAnimData().GetExtendAnim(playerName, animName, (isLoop, anim) => {
+          _this._YJSceneManager.CreateOrLoadPlayerAnimData().GetExtendAnim(avatarId, animName, (isLoop, anim) => {
             avatar.ChangeAnimByAnimData(animName, isLoop, anim);
           });
         }

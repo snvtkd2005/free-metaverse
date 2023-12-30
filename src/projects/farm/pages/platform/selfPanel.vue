@@ -732,10 +732,13 @@ export default {
         if (res.data.txtDataList) {
           let txtDataList = res.data.txtDataList;
           for (let i = 0; i < txtDataList.length; i++) {
-            const element = txtDataList[i];
-            this.sceneList.push(JSON.parse(element));
+            const scene = txtDataList[i];
+            // let scene = JSON.parse(element);
+            scene.icon = scene.folderBase +"/"+  "thumb.jpg";
+            this.sceneList.push(scene);
           }
         }
+        console.log("获取所有 场景 2 ",this.sceneList);
       });
     },
     // 获取所有单品

@@ -16,7 +16,7 @@
       <!-- <JoystickRightPanel class=" " ref="JoystickRightPanel" /> -->
     </div>
 
-    <loadingPanel class="absolute z-50  left-0 top-0 w-full h-full pointer-events-none " ref="loadingPanel" />
+    <loadingPanel :loadingUrl="loadingUrl" class="absolute z-50  left-0 top-0 w-full h-full pointer-events-none " ref="loadingPanel" />
 
     <HUD ref="HUD" />
 
@@ -109,6 +109,7 @@ export default {
       hover: false,
       infloating: false,
 
+      loadingUrl: "",
       _SceneManager: null,
       tableList: [
         // { id: 10000, content: "导入", },
@@ -247,6 +248,8 @@ export default {
     }
 
     this.Interface = new Interface(this, false);
+    this.loadingName = "loading.jpg";
+    this.loadingUrl = this.$uploadSceneUrl + this.folderBase + "/" + this.loadingName + '?time=' + new Date().getTime();
 
     this.RequestGetAllModel(() => {
       this.RequestGetAllSceneData();
@@ -358,8 +361,7 @@ export default {
         this.sceneLoadUrl +
         this.folderBase +
         "/" +
-        this.folderBase +
-        "_setting.txt" + "?time=" + new Date().getTime()
+        "setting.txt" + "?time=" + new Date().getTime()
       );
 
       // console.log(" 获取场景配置 ", res.data);
@@ -378,8 +380,7 @@ export default {
         this.sceneLoadUrl +
         this.folderBase +
         "/" +
-        this.folderBase +
-        "_scene.txt"
+        "scene.txt"
       );
 
       this.modelList.splice(0, this.modelList.length);

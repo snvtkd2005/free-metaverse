@@ -205,8 +205,10 @@ export default {
         if (res.data.txtDataList) {
           let txtDataList = res.data.txtDataList;
           for (let i = 0; i < txtDataList.length; i++) {
-            const element = txtDataList[i];
-            this.userSceneList.push(JSON.parse(element));
+            const scene = txtDataList[i];
+            scene.icon = scene.folderBase +"/"+  "thumb.jpg";
+            this.userSceneList.push((scene));
+            // this.userSceneList.push(JSON.parse(scene));
           }
         }
       });

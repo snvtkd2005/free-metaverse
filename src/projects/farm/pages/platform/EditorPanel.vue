@@ -573,7 +573,7 @@ export default {
       this.folderBase = modelData.folderBase;
     }
 
-    this.loadingName = this.folderBase + "_loading.jpg";
+    this.loadingName = "loading.jpg";
     this.loadingUrl = this.$uploadSceneUrl + this.folderBase + "/" + this.loadingName + '?time=' + new Date().getTime();
 
     console.log(" this.folderBase ", this.folderBase, this.loadingUrl);
@@ -744,8 +744,8 @@ export default {
         if (res.data.txtDataList) {
           let txtDataList = res.data.txtDataList;
           for (let i = 0; i < txtDataList.length; i++) {
-            const element = txtDataList[i];
-            let item = JSON.parse(element);
+            const item = txtDataList[i];
+            // let item = JSON.parse(element);
             if (item.folderBase == this.folderBase) {
               localStorage.setItem("modelData", JSON.stringify(item));
               this.modelData = item;
@@ -834,7 +834,7 @@ export default {
 
     async RequestGetAllSceneData() {
       let res = await this.$axios.get(
-        this.sceneLoadUrl + this.folderBase + "/" + this.folderBase + "_setting.txt" + "?time=" + new Date().getTime()
+        this.sceneLoadUrl + this.folderBase + "/" + "setting.txt" + "?time=" + new Date().getTime()
       );
 
       console.log(" 获取场景配置 ", res.data);
@@ -856,7 +856,7 @@ export default {
       // let path = this.sceneLoadUrl + this.folderBase + "/" + this.folderBase + "_scene.txt";
       // console.log(" 获取场景 模型文本路径 ", path);
       let res = await this.$axios.get(
-        this.sceneLoadUrl + this.folderBase + "/" + this.folderBase + "_scene.txt" + "?time=" + new Date().getTime()
+        this.sceneLoadUrl + this.folderBase + "/" + "scene.txt" + "?time=" + new Date().getTime()
       );
 
       this.modelList.splice(0, this.modelList.length);
@@ -883,12 +883,12 @@ export default {
     updateSceneTxtData(callback) {
       // console.log(this.modelData);
 
-      this.modelData.icon = this.folderBase + "/" + this.folderBase + "_thumb.jpg";
+      this.modelData.icon = this.folderBase + "/" + "thumb.jpg";
 
       let s = JSON.stringify(this.modelData);
       let fromData = new FormData();
       //服务器中的本地地址 
-      fromData.append("fileToUpload", this.$stringtoBlob(s, this.folderBase + "_data.txt"));
+      fromData.append("fileToUpload", this.$stringtoBlob(s,  "data.txt"));
       fromData.append("folderBase", this.folderBase);
       UploadSceneFile(fromData).then((res) => {
         //先记录旧照片
@@ -915,7 +915,7 @@ export default {
       let s = JSON.stringify(this.sceneData);
       let fromData = new FormData();
       //服务器中的本地地址 
-      fromData.append("fileToUpload", this.$stringtoBlob(s, this.folderBase + "_setting.txt"));
+      fromData.append("fileToUpload", this.$stringtoBlob(s, "setting.txt"));
       fromData.append("folderBase", this.folderBase);
       UploadSceneFile(fromData).then((res) => {
         //先记录旧照片
@@ -963,7 +963,7 @@ export default {
       let s = JSON.stringify(this.modelList);
       let fromData = new FormData();
       //服务器中的本地地址 
-      fromData.append("fileToUpload", this.$stringtoBlob(s, this.folderBase + "_scene.txt"));
+      fromData.append("fileToUpload", this.$stringtoBlob(s,  "scene.txt"));
       fromData.append("folderBase", this.folderBase);
       UploadSceneFile(fromData).then((res) => {
         //先记录旧照片
@@ -978,7 +978,7 @@ export default {
       let s = JSON.stringify(this.modelList);
       let fromData = new FormData();
       //服务器中的本地地址 
-      fromData.append("fileToUpload", this.$stringtoBlob(s, this.folderBase + "_scene.txt"));
+      fromData.append("fileToUpload", this.$stringtoBlob(s,"scene.txt"));
       fromData.append("folderBase", this.folderBase);
       UploadSceneFile(fromData).then((res) => {
         //先记录旧照片
@@ -999,7 +999,7 @@ export default {
       //服务器中的本地地址
       fromData.append(
         "fileToUpload",
-        this.$dataURLtoBlob(dataurl, this.folderBase + "_thumb.jpg")
+        this.$dataURLtoBlob(dataurl,  "thumb.jpg")
       );
       fromData.append("folderBase", this.folderBase);
       UploadSceneFile(fromData).then((res) => {

@@ -218,8 +218,8 @@ export default {
 
 
     setTimeout(() => {
-      this.thumbName =  this.$parent.folderBase + "_thumb.jpg";
-      this.loadingName =  this.$parent.folderBase + "_loading.jpg";
+      this.thumbName =    "thumb.jpg";
+      this.loadingName =   "loading.jpg";
       
       this.thumbUrl = this.$uploadSceneUrl + this.$parent.folderBase + "/" +this.thumbName;
       this.loadingUrl = this.$uploadSceneUrl + this.$parent.folderBase + "/" +this.loadingName;

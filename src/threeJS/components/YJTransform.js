@@ -31,10 +31,14 @@ class YJTransform {
       message: null, //模型热点信息
       uuid: "",//在场景中的唯一标识
     }
-    this.SetData = function (folderBase, modelType, id) {
+    this.SetData = function (folderBase, modelType, id,mapId) {
       data.folderBase = folderBase;
       data.modelType = modelType;
       data.id = id;
+      data.mapId = mapId;
+      if(mapId == undefined){
+        data.mapId = "npcLevel1";
+      }
       this.id = id;
     }
 
@@ -172,14 +176,15 @@ class YJTransform {
 
 
     let group = null;
-    this.GetUUID = function () {
+    this.GetUUID = function () { 
       return group.uuid;
     }
-    function Init() {
-      group = new THREE.Group();
+    function Init() { 
+      group = new THREE.Group(); 
       scene.add(group);
       group.owner = scope;
       data.uuid = group.uuid;
+      // scene.add(new THREE.AxesHelper(100));
       // group.add(new THREE.AxesHelper(100));
     }
 
@@ -215,7 +220,6 @@ class YJTransform {
     }
     //用户摆放自定义的模型，位置跟随鼠标悬浮的地面位置
     this.SetPosRota = function (pos, rota, size) {
-
       group.position.set(pos.x, pos.y, pos.z); // 
       if (rota == undefined) {
         rota = { x: 0, y: 0, z: 0 };

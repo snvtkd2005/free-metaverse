@@ -499,16 +499,16 @@ export default {
         z: (z / this.oneSize) * this.mapSizeY,
       };
       planeData.userId = "";
+      
+      planeData.img = "./public/textures/touming.png"; 
       _Global.ReportTo3D("获取地图id缩略图", {
         id: mapId,
         callback: (mapData) => {
           if (mapData != null) {
-            planeData.img = this.sceneFolderUrl + mapData.folderBase + "/" + mapData.folderBase + "_thumb.jpg";
+            planeData.img = this.sceneFolderUrl + mapData.folderBase + "/" + "thumb.jpg";
           }
         }
       })
-      planeData.img = "./public/textures/touming.png";
-      // planeData.img = this.sceneFolderUrl + mapId +"/" + mapId + "_thumb.jpg";
       planeData.content = "这是一块无主地块";
       planeData.style =
         " position:absolute; left:" + x + "px; top:" + z + "px; ";

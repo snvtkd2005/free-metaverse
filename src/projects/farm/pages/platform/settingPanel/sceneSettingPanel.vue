@@ -125,7 +125,7 @@
           <div class=" text-left ">icon</div>
           <div class=" flex ">
             <div class=" w-16 h-16 relative flex  gap-2 cursor-pointer  ">
-              <YJinput_upload scene="scene" index="icon" :folderBase="folderBase" :fileName="thumbName" accept=".jpg" :callback="ChangeImage" />
+              <YJinput_upload scene="scene" index="icon" :folderBase="folderBase" :fileName="thumbName" accept=".jpg,.png" :callback="ChangeImage" />
             </div>
             <div  class=" w-10 h-10 bg-black cursor-pointer ">
               <img v-if="thumbUrl" class=" w-full h-full" :src="thumbUrl" />
@@ -322,16 +322,9 @@ export default {
           fromData.append("msg", s);
           RequestMetaWorld(fromData).then((res) => {
             console.log(res);
-            //先记录旧照片
-            // if (res.data.data == true) {
-            //   item.vaild = false;
-            //   this.metaWorldCoordinate.splice(i, 1);
-            //   this.$parent.removeMetaWorldCoordinate(i);
-            // }
-
             item.vaild = false;
             this.metaWorldCoordinate.splice(i, 1);
-            this.$parent.removeMetaWorldCoordinate(i);
+            this.$parent.updateSceneData();
           });
 
         } else {
@@ -400,6 +393,7 @@ export default {
         _Global.SetBackgroundColor(e);
       }
       if (property == "hasFloor") {
+        this.sceneData.hasFloor = e;
         _Global.SetDisplayFloor(e);
       }
       if (property == "setting-hasEnvmap") {

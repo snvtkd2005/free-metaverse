@@ -176,7 +176,20 @@ class YJNPC {
     }
     //销毁组件
     this.Destroy = function () {
-      parent.remove(group);
+      if (_Global.setting.inEditor) {
+        console.log("删除移动点");
+        // for (let i = movePosMeshList.length - 1; i >= 0; i--) {
+        //   movePosMeshList[i].parent.remove(movePosMeshList[i]);
+        // }
+        movePosMeshList = [];
+      }
+      EventHandler("中断技能", true);
+
+      // 清除技能触发
+      ClearFireLater();
+      if(laterNav){
+        clearTimeout(laterNav);
+      } 
     }
     //放下后，获取模型的坐标和旋转，记录到服务器，让其他客户端创建
     this.GetPosRota = function (callback) {
@@ -266,7 +279,7 @@ class YJNPC {
 
     // 判断两点之间是否可以直接到达，即两点之间是否有障碍物，有障碍物表示不可直接到达
     function CheckColliderBetween(fromPos, targetPos) {
-      // return true;
+      return false;
 
       temp.position.copy(fromPos);
       temp2.position.copy(targetPos);
@@ -317,6 +330,7 @@ class YJNPC {
     }
     // 寻路网格准备完成调用 或 直接调用开始巡逻
     this.PathfindingCompleted = function () {
+
       this.UpdateNavPos("开始巡逻", data.movePos);
     }
 
@@ -345,7 +359,9 @@ class YJNPC {
 
         for (let i = 0; i < movePosMeshList.length; i++) {
           const mesh = movePosMeshList[i];
-          parent.remove(mesh);
+          if(mesh.parent){
+            mesh.parent.remove(mesh);
+          }
         }
 
         movePosMeshList = [];
@@ -370,7 +386,7 @@ class YJNPC {
         return;
       }
       if (e == "删除") {
-        parent.remove(movePosMeshList[i]);
+        movePosMeshList[i].parent.remove(movePosMeshList[i]);
         movePosMeshList.splice(i, 1);
         movePos.splice(i, 1);
         return;
@@ -437,7 +453,8 @@ class YJNPC {
     }
     // 获取寻路路径
     function GetNavpath(fromPos, targetPos) {
-      let _navpath = _Global.GetNavpath(fromPos, targetPos);
+      // console.log("查到寻路路径 ",scope.transform.GetData().mapId);
+      let _navpath = _Global.GetNavpath(scope.transform.GetData().mapId, fromPos, targetPos);
       if (_navpath == null) {
         // console.log("查到寻路路径 为空 ", _navpath, getnavpathTimes, navpath);
         if (targetModel != null) {

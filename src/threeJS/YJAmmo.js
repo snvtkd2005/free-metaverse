@@ -507,10 +507,9 @@ class YJAmmo {
     function createTriggerRigidBody(object, physicsShape, mass, pos, quat, vel, angVel) {
 
       if (pos) {
-        object.position.copy(pos);
+        // object.position.copy(pos);
       } else {
         pos = getWorldPosition(object);
-        // pos = object.position;
       }
       if (quat) {
         object.quaternion.copy(quat);
@@ -567,7 +566,7 @@ class YJAmmo {
       if (pos) {
         // object.position.copy(pos);
       } else {
-        pos = object.position;
+        pos = getWorldPosition(object);
       }
       if (quat) {
         // object.quaternion.copy(quat);
@@ -991,7 +990,7 @@ class YJAmmo {
 
 
     //加载凹包 trigger
-    this.CreateTriangeMeshTrigger = function (mesh, _scale, id, triggerName, owner) {
+    this.CreateTriangeMeshTrigger = function (mesh, _scale, id, triggerName, owner, pos, quat) {
       const threeObject = mesh;
       let shape;
       //凹包，用模型网格制作
@@ -1000,7 +999,7 @@ class YJAmmo {
 
       shape.setMargin(margin);
 
-      const body = createTriggerRigidBody(threeObject, shape, 0);
+      const body = createTriggerRigidBody(threeObject, shape, 0, pos, quat);
       threeObject.userData.tag = "trigger";
       body.setCollisionFlags(4); //flag 设为4 ，将变为trigger
       body.threeObject = threeObject;

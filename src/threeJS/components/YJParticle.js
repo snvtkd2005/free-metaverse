@@ -38,9 +38,9 @@ export default class YJParticle {
 
         this.instanceMesh = null;
         this.playerPos;
- 
+
     }
- 
+
     SetMessage(_data) {
         // console.log(" ========== in yj particle Load ", _data);
         this.settingData = _data;
@@ -55,12 +55,12 @@ export default class YJParticle {
         if (this.settingData.shapeType == "box" && _Global.setting.inEditor) {
             let size = this.settingData.shapeSize;
             let geo = new THREE.BoxGeometry(size, size, size, 1); // 生成平面
-            let mat = new THREE.MeshStandardMaterial({ 
+            let mat = new THREE.MeshStandardMaterial({
                 color: 0x0000ff,
                 wireframe: true,
-             }); // 材质
+            }); // 材质
             this.areaMesh = new THREE.Mesh(geo, mat);
-            this.parent.add(this.areaMesh);  
+            this.parent.add(this.areaMesh);
         }
     }
 
@@ -84,6 +84,11 @@ export default class YJParticle {
         }
     }
 
+    //销毁组件
+    Destroy() {
+        console.log("删除特效");
+        this._this.scene.remove( this.instanceMesh);
+    }
     createMesh() {
         // this.model.add(new THREE.AxesHelper(5));
         let map = null;
@@ -182,14 +187,14 @@ export default class YJParticle {
         this.dummy.updateMatrix();
 
         mesh.setMatrixAt(index, this.dummy.matrix);
-        this.move(index, this.dummy.position.clone(),this.reloadTimes);
+        this.move(index, this.dummy.position.clone(), this.reloadTimes);
 
         // setTimeout(() => {
         //     this.generate(index);
         // }, this.settingData.startLifetime * 1000);
 
     }
-    move(index, startPos,reloadTimes) {
+    move(index, startPos, reloadTimes) {
         const mesh = this.instanceMesh;
         const dummy = new THREE.Object3D();
         let num = 0;
@@ -209,7 +214,7 @@ export default class YJParticle {
         }).onStart(function () {
         }).onStop(function () {
         }).onComplete(() => {
-            if(this.reloadTimes == reloadTimes){
+            if (this.reloadTimes == reloadTimes) {
                 this.generate(index);
             }
         }).start();

@@ -616,7 +616,7 @@ class YJSceneManager {
     function Init() {
       // console.log("初始化场景 ");
       let routerPath = _this.$route.path.toLowerCase();
-      if (routerPath.includes("visit") || routerPath.includes("scene")) {
+      if (routerPath.includes("visit") || routerPath.includes("scene")|| routerPath.includes("metaworld")) {
         InitFn();
       } else {
         InitSingleSceneFn();
@@ -1356,7 +1356,6 @@ class YJSceneManager {
       clearGroupMeshFn(group);
     }
     function clearGroupMeshFn(group) {
-
       if (group.isGroup) {
 
       } else {
@@ -1366,7 +1365,7 @@ class YJSceneManager {
         return;
       }
       const clearCache = (item) => {
-        if (item.type === 'Mesh') {
+        if (item.type === 'Mesh' && item.geometry) {
 
           //移除碰撞体
           _YJAmmo.removeRigidBody(item);
@@ -2885,8 +2884,8 @@ class YJSceneManager {
       _YJAmmo.CreateTriangeMeshCollider(mesh, size, pos, quat);
     }
     // 创建凹包网格 trigger
-    this.CreateTriangeMeshTrigger = function (mesh, size, id, triggerName, owner) {
-      _YJAmmo.CreateTriangeMeshTrigger(mesh, size, id, triggerName, owner);
+    this.CreateTriangeMeshTrigger = function (mesh, size, id, triggerName, owner, pos, quat) {
+      _YJAmmo.CreateTriangeMeshTrigger(mesh, size, id, triggerName, owner, pos, quat);
     }
     this.RemoveCollider = function (mesh) {
       _YJAmmo.removeRigidBody(mesh);

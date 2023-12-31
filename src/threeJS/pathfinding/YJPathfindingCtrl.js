@@ -35,7 +35,7 @@ class YJPathfindingCtrl {
       scene.add(group);
 
       pathfinding = new Pathfinding();
-      console.log("初始化寻路。。。", pathfinding);
+      console.log("初始化寻路。。。", pathfinding, inEditor);
 
       if (inEditor) {
         pathfindingHelper = new PathfindingHelper();
@@ -122,9 +122,104 @@ class YJPathfindingCtrl {
       }
 
     }
+    let navMeshList = [];
+    this.RemoveNavMeshByMapId = function(mapId){
+      
+      if (inEditor) { 
+        
+      }
+      for (let i = navMeshList.length-1; i >=0 ; i--) {
+        const item = navMeshList[i];
+        if(item.mapId == mapId){
+          // scene.remove(item.navMesh);
+          navMeshList.splice(i,1);
+          pathfinding.zones[mapId] = undefined;
+          console.log("移除mapid", mapId);
+          return;
+        }
+      }
+    }
+    this.CreateNavMesh = function (ZONE, mapParent) {
+      
+
+      // console.log("创建地图寻路", ZONE, mapParent);
+      const geometries = [];
+      mapParent.traverse(node => {
+        if (
+          node.type == "Mesh"
+          && node.name.includes("navMesh")
+        ) {
+          // console.log(node); 
+          if (true) {
+
+            let navmesh = node;
+
+            // const wireframeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, transparent: true });
+            // navmesh.material = wireframeMaterial;
+
+            // const navWireframe = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+            //   color: 0x808080,
+            //   wireframe: true
+            // }));
+            // group.add(navWireframe);
+
+
+            // console.time('createZone()');
+            // const zone = Pathfinding.createZone(navmesh.geometry);
+            // console.timeEnd('createZone()');
+            // pathfinding.setZoneData(ZONE, zone);
+
+
+            navmesh.visible = false;
+
+
+
+            let transform = node.parent.parent.parent.parent;
+            let position = (transform.position);
+            // console.log("创建地图寻路 transform ", transform);
+            // let position = transform.parent.position.clone().add(transform.position);
+            let quaternion = transform.quaternion;
+            let scale = transform.scale;
+            matrix.compose(position, quaternion, scale);
+            const instanceGeometry = navmesh.geometry.clone();
+            instanceGeometry.applyMatrix4(matrix);
+            geometries.push(instanceGeometry);
+
+          }
+          // console.log(" zone = ", pathfinding.zones);
+        }
+      });
+
+      if (geometries.length == 0) {
+        return;
+      }
+
+      const mergedGeometry = BufferGeometryUtils.mergeGeometries(geometries);
+      console.time('createZone()');
+      const zone = Pathfinding.createZone(mergedGeometry);
+      console.timeEnd('createZone()');
+      pathfinding.setZoneData(ZONE, zone);
+      // for (let i = 1; i < pathfinding.zones[ZONE].groups.length; i++) {
+      //   pathfinding.zones[ZONE].groups[i].map(ii => {
+      //     pathfinding.zones[ZONE].groups[0].push(ii);
+      //   });
+      // }
+      // pathfinding.zones[ZONE].groups.splice(1, pathfinding.zones[ZONE].groups.length - 1);
+
+      hasPathfinding = true;
+      if (inEditor) {
+        const wireframeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, transparent: true });
+        let mergedGeometryMehs = new THREE.Mesh(mergedGeometry, wireframeMaterial);
+        mapParent.add(mergedGeometryMehs);
+        navMeshList.push({mapId:ZONE,navMesh:mergedGeometryMehs});
+      }
+      console.log(" zone = ", pathfinding.zones);
+
+    }
+
 
     let getTimes = 0;
-    this.GetNavpath = function (fromPos, targetPos) {
+    this.GetNavpath = function (ZONE, fromPos, targetPos) {
       if (!hasPathfinding) {
         tempV3.set(targetPos.x, targetPos.y, targetPos.z);
         navpath = [tempV3];
@@ -132,17 +227,32 @@ class YJPathfindingCtrl {
       }
       // fromPos.y = 0; 
       // targetPos.y = fromPos.y;
-      // console.log(" 查找寻路路径 ",fromPos,targetPos);
+      // console.log(" 查找寻路路径 ", ZONE, fromPos, targetPos);
       groupId = pathfinding.getGroup(ZONE, fromPos, true);
       // console.log("groupId " + groupId);
-      const closest = pathfinding.getClosestNode(fromPos, ZONE, groupId); //返回离目标位置最近的节点
-      // console.log("closest ", closest);
-      navpath = pathfinding.findPath(closest.centroid, targetPos, ZONE, groupId);
+      try {
+        const closest = pathfinding.getClosestNode(fromPos, ZONE, groupId); //返回离目标位置最近的节点
+        // console.log("closest ", closest);
+        navpath = pathfinding.findPath(closest.centroid, targetPos, ZONE, groupId);
+      } catch (error) {
+        console.error(ZONE,error);
+        tempV3.set(targetPos.x, targetPos.y, targetPos.z);
+        navpath = [tempV3];
+        return navpath;
+      }
       getTimes++;
       if (navpath == null && getTimes < 3) {
+        if(getTimes==2){
+          getTimes = 0;
+          tempV3.set(targetPos.x, targetPos.y, targetPos.z);
+          navpath = [tempV3];
+        }else{
+          return this.GetNavpath(ZONE, fromPos, targetPos);
+        }
+
         // targetPos.x += 0.5;
-        return this.GetNavpath(fromPos, targetPos);
       }
+      
       if (navpath) {
         if (inEditor) {
           pathfindingHelper.reset();

@@ -90,11 +90,9 @@ class YJWeapon {
     }
 
     //销毁组件
-    this.Destroy = function () {
-
-      cancelAnimationFrame(updateId);
+    this.Destroy = function () { 
+      this.DestroyTrigger();
       parent.remove(group);
-
     }
     this.DestroyTrigger = function () {
       meshTrigger.Destroy();

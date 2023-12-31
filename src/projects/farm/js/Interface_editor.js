@@ -361,7 +361,7 @@ class Interface {
       }
 
       if (type == "获取地图id缩略图") {
-        _this._SceneManager.CallGetFolderBaseByMapid(msg.id, msg.callback);
+        _YJGlobal._SceneManagerMetaworld.CallGetFolderBaseByMapid(msg.id, msg.callback);
         return;
       }
 
@@ -370,14 +370,14 @@ class Interface {
         let mapId = _Global.YJ3D._YJSceneManager.CallPosToMapId(msg);
 
         console.log("传送到的mapId = ", mapId);
-        _this._SceneManager.CallGetFolderBaseByMapid(mapId, (mapData) => {
+        _YJGlobal._SceneManagerMetaworld.CallGetFolderBaseByMapid(mapId, (mapData) => {
           if (mapData == null) {
             _Global.YJ3D._YJSceneManager.SetPlayerPos(msg);
             return;
           }
           console.log(" 即将传送到场景 = ", msg, mapData.folderBase);
 
-          _this._SceneManager.CallLoadSceneDataByFolderBase(mapData.folderBase, (pos, rotaV3) => {
+          _YJGlobal._SceneManagerMetaworld.CallLoadSceneDataByFolderBase(mapData.folderBase, (pos, rotaV3) => {
             pos.x += msg.x;
             pos.z += msg.z;
             _Global.YJ3D._YJSceneManager.SetPlayerPosRota(pos, rotaV3);
@@ -610,13 +610,21 @@ class Interface {
     }
 
     let _YJPathfindingCtrl = null;
-    this.GetNavpath = function (fromPos, targetPos) {
+    this.GetNavpath = function (ZONE,fromPos, targetPos) {
       if (_YJPathfindingCtrl == null) {
         return null;
       }
-      return _YJPathfindingCtrl.GetNavpath(fromPos, targetPos);
+      return _YJPathfindingCtrl.GetNavpath(ZONE,fromPos, targetPos);
+    }
+    this.CreateNavMesh = function (ZONE,mapParent) {
+      _YJPathfindingCtrl.CreateNavMesh(ZONE,mapParent);
+    }
+    this.YJPathfindingCtrl = function () {
+      return _YJPathfindingCtrl;
     }
     _Global.GetNavpath = this.GetNavpath;
+    _Global.CreateNavMesh = this.CreateNavMesh;
+    _Global.GetYJPathfindingCtrl = this.YJPathfindingCtrl;
 
     let eventList = [];
     // 添加事件监听

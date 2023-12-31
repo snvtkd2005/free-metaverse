@@ -15,23 +15,7 @@ class YJTrigger {
     function Init() { 
       createLater = setTimeout(() => {
         scope.CreateTrigger();
-      }, 2000);
-      // if (item.name.includes("trigger")) {
-
-      //   let cSize = new THREE.Vector3(0, 0, 0);
-      //   cSize.x = item.scale.x;
-      //   cSize.y = item.scale.y;
-      //   cSize.z = item.scale.z;
-
-      //   _this._YJSceneManager.CreateTriangeMeshTrigger(item, cSize,
-      //     model.modelId, "triggerArea", model.owner);
-
-      //   item.transform = owner;
-      //   item.visible = false;
-      //   // console.log("加载模型的信息 ",modelData);
-      //   return;
-      // }
-
+      }, 2000); 
     }
     this.Reset = function () {
       createLater = setTimeout(() => {
@@ -55,7 +39,7 @@ class YJTrigger {
       plane.modelType = "trigger";
       parent.add(plane);
       _this._YJSceneManager.CreateTriangeMeshTrigger(plane, size,
-        triggerId, "triggerArea", owner);
+        triggerId, "triggerArea", owner); 
       triggleObj = plane;
       triggleObj.transform = owner;
     }

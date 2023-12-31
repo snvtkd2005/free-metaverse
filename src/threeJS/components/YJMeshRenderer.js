@@ -299,7 +299,7 @@ class YJMeshRenderer {
       model.traverse(function (item) {
         if (item instanceof THREE.Mesh) {
 
-          if (item.name.includes("collider") && !item.name.indexOf("land")) {
+          if (item.name.includes("collider")) {
             item.visible = colliderVisible != undefined ? colliderVisible : false;
             hasCollider = true;
 
@@ -308,32 +308,24 @@ class YJMeshRenderer {
             cSize.y = item.scale.y * size.y;
             cSize.z = item.scale.z * size.z;
             _this._YJSceneManager.CreateTriangeMeshCollider(item, cSize);
-            _this._YJSceneManager.AddCollider(item);
+            if(item.name.indexOf("land")){
+              _this._YJSceneManager.AddLandCollider(item);
+            }else{
+              _this._YJSceneManager.AddCollider(item);
+            }
 
             // console.log(" 创建模型自身collider ");
-          } else if (item.name.includes("collider") && item.name.indexOf("land")) {
-            item.visible = colliderVisible != undefined ? colliderVisible : false;
-
-            let cSize = new THREE.Vector3(0, 0, 0);
-            cSize.x = item.scale.x * size.x;
-            cSize.y = item.scale.y * size.y;
-            cSize.z = item.scale.z * size.z;
-            _this._YJSceneManager.CreateTriangeMeshCollider(item, cSize);
-            _this._YJSceneManager.AddLandCollider(item);
-
-          }
-          else {
+          } else {
             if (item.name.includes("trigger")) {
 
               let cSize = new THREE.Vector3(0, 0, 0);
               cSize.x = item.scale.x;
               cSize.y = item.scale.y;
               cSize.z = item.scale.z;
-
               _this._YJSceneManager.CreateTriangeMeshTrigger(item, cSize,
                 model.modelId, "triggerArea", model.owner);
 
-              item.visible = false;
+              // item.visible = false;
               // console.log("加载模型的信息 ",modelData);
               return;
             }

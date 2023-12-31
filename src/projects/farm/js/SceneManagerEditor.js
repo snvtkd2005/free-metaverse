@@ -64,6 +64,7 @@ import carData from "../data/carData.js";
 import { getSceneData } from "./sceneApi.js"
 
 import { YJSceneDyncManagerEditor } from "./YJSceneDyncManagerEditor.js";
+import { SceneManagerMetaworld } from "./SceneManagerMetaworld.js";
 
 class SceneManager {
   constructor(scene, renderer, camera, _this, modelParent, indexVue, callback) {
@@ -269,6 +270,8 @@ class SceneManager {
       _this._YJSceneManager.AddNeedUpdateJS(scope);
 
       _SceneDyncManager = new YJSceneDyncManagerEditor(_this, indexVue, scope);
+
+      
       scope.AddChangeTargetListener((b) => {
         if (indexVue.$refs.gameUI) {
           indexVue.$refs.gameUI.SetTargetVaild(b);
@@ -316,7 +319,7 @@ class SceneManager {
     let boneAttachList = [];
 
     this.SetTriggerOverlap = (b, id, owner) => {
-      // console.log(" in sceneManager ", b, id, owner);
+      console.log(" in sceneManager ", b, id, owner);
       if (owner.isYJTransform) {
         let msg = owner.GetMessage(); 
         if (msg.pointType == "weapon") {
@@ -1086,9 +1089,16 @@ class SceneManager {
       return null;
     }
 
-    this.ChangeScene = function (e) {
-
+    // 加载地图id内的模型完成
+    this.LoadMapCompleted = ()=>{
       _SceneDyncManager.InitDyncSceneModels();
+    }
+    this.ChangeScene = function (e) {
+ 
+      let routerPath = _this.$route.path.toLowerCase();
+      if ( routerPath.includes("metaworld")) {
+        new SceneManagerMetaworld(scene, renderer, camera, _this, modelParent, indexVue);
+      }  
 
       indexVue.$nextTick(() => {
         if (indexVue.$refs.gameUI) {

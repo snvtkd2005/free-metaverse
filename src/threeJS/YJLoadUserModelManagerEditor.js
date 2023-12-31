@@ -241,9 +241,10 @@ class YJLoadUserModelManager {
       });
     }
 
-    function CreateTransform(parent, modelData, callback, _modelId) {
+    function CreateTransform(parent, modelData, callback, _modelId,mapId) {
       // console.error(" load manager 加载模型 ", modelData);
 
+      // let object = new YJTransform(_this, parent==null?scene:parent, "", null, null, modelData.name);
       let object = new YJTransform(_this, scene, "", null, null, modelData.name);
       let modelPath = modelData.modelPath;
       if (modelPath == undefined) {
@@ -280,7 +281,7 @@ class YJLoadUserModelManager {
 
       object.SetPosRota(modelData.pos, modelData.rotaV3, modelData.scale);
       object.SetModelPath(modelData.modelPath);
-      object.SetData(modelData.folderBase, modelData.modelType, id);
+      object.SetData(modelData.folderBase, modelData.modelType, id,mapId);
       object.modelData = JSON.parse(JSON.stringify(modelData));
 
 
@@ -643,7 +644,16 @@ class YJLoadUserModelManager {
       for (let i = 0; i < metaWorldModelDataList.length; i++) {
         const element = metaWorldModelDataList[i];
         if (element.mapId == mapId) {
+
           _this._YJSceneManager.ClearMesh(element.group);
+          console.log("删除地图",element.group);
+          for (let i = allTransform.length - 1; i >= 0; i--) {
+            const elment = allTransform[i].transform;
+            if (elment.GetData().mapId == mapId) {
+              elment.Destroy();
+              allTransform.splice(i, 1); 
+            }
+          }
           metaWorldModelDataList.splice(i, 1);
           return;
         }
@@ -655,6 +665,7 @@ class YJLoadUserModelManager {
 
       let has = false;
       let group = null;
+      let pos = null;
       let modelList = [];
       for (let i = 0; i < metaWorldModelDataList.length && !has; i++) {
         const element = metaWorldModelDataList[i];
@@ -665,16 +676,18 @@ class YJLoadUserModelManager {
           }
           modelList = element.modelList;
           group = element.group;
+          pos = element.pos;
         }
       }
       if (!has) {
         modelList = data;
         //创建当前地图块的group
-        let pos = _this._YJSceneManager.CallMapIdToPos(mapId);
+        pos = _this._YJSceneManager.CallMapIdToPos(mapId);
         group = new THREE.Group();
-        scene.add(group);
-        group.position.set(pos.x, pos.y, pos.z);
-        metaWorldModelDataList.push({ group: group, mapId: mapId, modelList: modelList });
+        scene.add(group); 
+        group.position.set(0, 0, 0);
+        // group.position.set(pos.x, pos.y, pos.z);
+        metaWorldModelDataList.push({ group: group,pos:pos, mapId: mapId, modelList: modelList });
       }
 
       // if (metaWorldModelDataList.length == undefined) {
@@ -683,25 +696,64 @@ class YJLoadUserModelManager {
 
       // console.error("  刷新 开放世界地图模型 ", metaWorldModelDataList, metaWorldModelDataList.length);
       // console.error("  刷新 开放世界地图模型 ", mapId, modelList, modelList.length);
-      LoadLoadMetaWorldSceneModelByIndex(group, mapId, modelList);
+      currentLoadCount = 0;
+      needLoadCount = modelList.length;
+      LoadLoadMetaWorldSceneModelByIndex(group, mapId, modelList,pos);
     }
 
-    function LoadLoadMetaWorldSceneModelByIndex(group, mapId, modelList) {
+    let currentLoadCount = 0;
+    let needLoadCount = 0;
+    function LoadLoadMetaWorldSceneModelByIndex(parent, mapId, modelList,offsetPos) {
       if (0 == modelList.length) {
-        // _this._YJSceneManager.MargeStaticModel();
+        // _this._YJSceneManager.MargeStaticModel(); 
+        _Global.CreateNavMesh(mapId,parent);
+        // _Global.SceneManager.LoadMapCompleted();
+        _YJGlobal._SceneManagerMetaworld.LoadMapCompleted();
+
         return;
       }
 
 
-      let item = modelList[0];
-      // console.log(" 加载模型 ", item);
+      let modelData = modelList[0];
+      console.log(" 加载模型 ",mapId, modelData);
+
+      let _pos = modelData.pos;
+      let _rotaV3 = modelData.rotaV3;
+      let pos = new THREE.Vector3(_pos.x, _pos.y, _pos.z);
+      let rotaV3 = new THREE.Vector3(_rotaV3.x, _rotaV3.y, _rotaV3.z);
+
+      // 动力学物体只能放到世界坐标系下
+      // let pos2 = parent.position.clone();
+      let pos2 = offsetPos;
+      
+      pos.x += pos2.x;
+      pos.y += pos2.y;
+      pos.z += pos2.z;
+      modelData.pos = pos;
+
+      currentLoadCount++;
+
+      CreateTransform(parent, modelData, (object) => {
+        if (object) {
+          object.EditorEnd();
+        }
+        parent.attach(object.GetGroup()); 
+        modelList.splice(0, 1);
+        
+        console.log("加载进度 ",parseInt(currentLoadCount * 1.000 / needLoadCount * 100));
+        _this.$parent.LoadingProcess(parseInt(currentLoadCount * 1.000 / needLoadCount * 100));
+      
+        // _this._YJSceneManager.AddProcess();
+        LoadLoadMetaWorldSceneModelByIndex(parent, mapId, modelList,offsetPos); 
+      },undefined,mapId);
 
       // 以上判断是特殊模型，下面加载模型
-      CreateSelectModel(group, item, (model) => {
-        modelList.splice(0, 1);
-        // _this._YJSceneManager.AddProcess();
-        LoadLoadMetaWorldSceneModelByIndex(group, mapId, modelList);
-      });
+      // CreateSelectModel(parent, item, (model) => {
+      //   parent.attach(model.GetGroup()); 
+      //   modelList.splice(0, 1);
+      //   // _this._YJSceneManager.AddProcess();
+      //   LoadLoadMetaWorldSceneModelByIndex(parent, mapId, modelList,pos);
+      // });
     }
     //#endregion
 

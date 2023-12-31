@@ -380,7 +380,7 @@ export default {
         this.sceneLoadUrl +
         this.folderBase +
         "/" +
-        "scene.txt"
+        "scene.txt"+ "?time=" + new Date().getTime()
       );
 
       this.modelList.splice(0, this.modelList.length);

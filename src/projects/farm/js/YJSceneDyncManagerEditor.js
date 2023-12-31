@@ -54,6 +54,7 @@ class YJSceneDyncManagerEditor {
       }
 
       npcModelList = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetAllTransformByModelType("NPC模型");
+      console.log(" 所有npc ",npcModelList);
       if (_Global.setting.inEditor) {
         return;
       }
@@ -139,7 +140,6 @@ class YJSceneDyncManagerEditor {
               scope.SendSceneState("转发", { type: "npc发现玩家", state: { npcId: element.id, playerId: _Global.YJ3D.YJPlayer.id } });
             }
           }
-          // console.log("npc 距离玩家 坐标 {0} 米", distance);
         }
       }
     }

@@ -16,12 +16,20 @@
       <!-- <JoystickRightPanel class=" " ref="JoystickRightPanel" /> -->
     </div>
 
-    <loadingPanel :loadingUrl="loadingUrl" class="absolute z-50  left-0 top-0 w-full h-full pointer-events-none " ref="loadingPanel" />
+    <loadingPanel
+      :loadingUrl="loadingUrl"
+      class="absolute z-50 left-0 top-0 w-full h-full pointer-events-none"
+      ref="loadingPanel"
+    />
 
     <HUD ref="HUD" />
 
     <!-- 多人同步 -->
-    <YJDync v-if="inLoadCompleted" class="absolute z-50 left-0 top-0 w-full h-full" ref="YJDync" />
+    <YJDync
+      v-if="inLoadCompleted"
+      class="absolute z-50 left-0 top-0 w-full h-full"
+      ref="YJDync"
+    />
 
     <!-- 修改名称 -->
     <div class="absolute left-2 top-2 flex">
@@ -30,9 +38,15 @@
       </div>
     </div>
 
-    <playVideo ref="playVideo" video_url="./public/farm/videos/movieSD.mp4" type="video/mp4" />
+    <playVideo
+      ref="playVideo"
+      video_url="./public/farm/videos/movieSD.mp4"
+      type="video/mp4"
+    />
 
-    <div v-if="false" class="
+    <div
+      v-if="false"
+      class="
         hidden
         xl:flex
         absolute
@@ -40,15 +54,18 @@
         bottom-10
         w-auto
         pointer-events-none
-      ">
-      <div class="
+      "
+    >
+      <div
+        class="
           flex
           w-auto
           bg-black bg-opacity-20
           text-white text-md
           rounded-lg
           h-auto
-        ">
+        "
+      >
         <div class="px-2 text-left mx-auto self-center">
           键盘操作：<br />
           G:重力开关<br />
@@ -249,7 +266,13 @@ export default {
 
     this.Interface = new Interface(this, false);
     this.loadingName = "loading.jpg";
-    this.loadingUrl = this.$uploadSceneUrl + this.folderBase + "/" + this.loadingName + '?time=' + new Date().getTime();
+    this.loadingUrl =
+      this.$uploadSceneUrl +
+      this.folderBase +
+      "/" +
+      this.loadingName +
+      "?time=" +
+      new Date().getTime();
 
     this.RequestGetAllModel(() => {
       this.RequestGetAllSceneData();
@@ -260,7 +283,6 @@ export default {
       _Global.inFocus = !document.hidden;
       // console.log(" _Global.inFocus ", _Global.inFocus);
     });
-
   },
   methods: {
     // 获取所有单品
@@ -318,7 +340,10 @@ export default {
 
       // 如果场景限制角色，则使用场景限制角色
       if (this.sceneData.avatarList && this.sceneData.avatarList.length > 0) {
-        avatarId = this.sceneData.avatarList[this.Utils.RandomInt(0, this.sceneData.avatarList.length - 1)].folderBase;
+        avatarId =
+          this.sceneData.avatarList[
+            this.Utils.RandomInt(0, this.sceneData.avatarList.length - 1)
+          ].folderBase;
       }
 
       this.userName = "aa";
@@ -359,9 +384,11 @@ export default {
     async RequestGetAllSceneData() {
       let res = await this.$axios.get(
         this.sceneLoadUrl +
-        this.folderBase +
-        "/" +
-        "setting.txt" + "?time=" + new Date().getTime()
+          this.folderBase +
+          "/" +
+          "setting.txt" +
+          "?time=" +
+          new Date().getTime()
       );
 
       // console.log(" 获取场景配置 ", res.data);
@@ -378,9 +405,11 @@ export default {
       // console.log(" 获取场景 模型文本路径 ", path);
       let res = await this.$axios.get(
         this.sceneLoadUrl +
-        this.folderBase +
-        "/" +
-        "scene.txt"+ "?time=" + new Date().getTime()
+          this.folderBase +
+          "/" +
+          "scene.txt" +
+          "?time=" +
+          new Date().getTime()
       );
 
       this.modelList.splice(0, this.modelList.length);
@@ -392,15 +421,11 @@ export default {
       }
       // console.log(" 获取场景 模型 ", data);
 
-      _Global.YJ3D._YJSceneManager.CreateSenceBy(
-        this.modelList
-      );
+      _Global.YJ3D._YJSceneManager.CreateSenceBy(this.modelList);
     },
 
     viewFarFn(e) {
-      _Global.YJ3D.YJController.SetCameraWheelPos(
-        -this.viewFar
-      );
+      _Global.YJ3D.YJController.SetCameraWheelPos(-this.viewFar);
       // 取消焦点
       this.$refs.viewFarCtrl.blur();
     },
@@ -627,6 +652,7 @@ export default {
       }
       this.initCompleted = true;
       this.Interface.load3dComplete();
+      this._SceneManager.LoadMapCompleted();
       this.$refs.YJmetaBase.OpenThreejs();
     },
     // 3转2坐标
@@ -718,9 +744,7 @@ export default {
       }
       let far = this.viewFar[this.viewFarIndex];
       // _Global.YJ3D.YJController.ChangeCameraFar();
-      _Global.YJ3D.YJController.SetCameraWheelPos(
-        far
-      );
+      _Global.YJ3D.YJController.SetCameraWheelPos(far);
     },
 
     GetPublicUrl() {

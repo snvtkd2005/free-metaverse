@@ -778,6 +778,10 @@ export default {
       return minMapData;
     },
     LoadMapCompleted() {
+      if(this.hasYJDync){
+        return;
+      }
+      this.hasYJDync = true;
       this.$nextTick(() => {
         if (this.$refs.YJDync) {
           this.$refs.YJDync.InitDync(this.userData);

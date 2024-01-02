@@ -4,13 +4,13 @@
   <div class="h-10 flex gap-x-1  text-gray-200">
 
     <!-- :class="panelState.setting ? ' bg-blue-400 text-gray-200 ' : 'bg-gray-200 text-gray-500'" -->
-    <div class="cursor-pointer  bg-black bg-opacity-40 " @click=" ChangePanel('导出')">
+    <div class=" hidden cursor-pointer  bg-black bg-opacity-40 " @click=" ChangePanel('导出')">
       <p class="p-2">导出</p>
     </div>
     <div class="cursor-pointer  bg-black bg-opacity-40 " @click=" ChangePanel('设置')">
       <p class="p-2">设置</p>
     </div>
-    <div class="   p-2 flex  h-10 text-center  cursor-pointer  bg-black bg-opacity-40  "
+    <div class=" hidden   p-2 flex  h-10 text-center  cursor-pointer  bg-black bg-opacity-40  "
       :class="panelState.model ? ' bg-opacity-80 ' : 'bg-opacity-40'" @click=" ChangePanel('模型')">
       <div class=" self-center">
         模型库

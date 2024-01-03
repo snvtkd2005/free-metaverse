@@ -81,6 +81,10 @@ class YJTransform {
         let com = this.GetComponent("Particle");
         com.SetMessage(message.data);
       }
+      if (message.pointType == "trail") {
+        let com = this.GetComponent("Trail");
+        com.SetMessage(message.data);
+      }
     }
     let handlerList = [];
     this.AddHandle = function (handler) {

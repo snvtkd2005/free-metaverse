@@ -28,6 +28,9 @@ import { YJCar } from "./model/YJCar.js";
 import YJParticle from "./components/YJParticle";
 import { YJAvatar } from "./components/YJAvatar";
 import { YJNPC } from "./components/YJNPC";
+import { YJTransformGroup } from "./components/YJTransformGroup";
+import { YJTrailRenderer } from "/@/threeJS/components/YJTrailRenderer.js";
+
 // 加载静态物体
 class YJLoadUserModelManager {
   constructor(_this, scene, camera, callback) {
@@ -232,7 +235,7 @@ class YJLoadUserModelManager {
     // 点击界面生成模型预览
     this.LoadStaticModel = function (modelData, callback) {
 
-      // console.log("点击界面生成模型 ", modelData);
+      console.log("点击界面生成模型 ", modelData);
       CreateTransform(null, modelData, (object) => {
         _this._YJSceneManager._YJTransformManager.attach(object.GetGroup());
         if (callback) {
@@ -246,6 +249,22 @@ class YJLoadUserModelManager {
 
       // let object = new YJTransform(_this, parent==null?scene:parent, "", null, null, modelData.name);
       let object = new YJTransform(_this, scene, "", null, null, modelData.name);
+      let id = 0;
+      if (_modelId != undefined) {
+        id = _modelId;
+      } else {
+        modelId++;
+        id = modelId;
+      }
+      object.id = id;
+      let uuid = object.GetUUID();
+      allTransform.push({ uuid: uuid, id: id, transform: object });
+      object.SetPosRota(modelData.pos, modelData.rotaV3, modelData.scale);
+      object.SetModelPath(modelData.modelPath);
+      object.SetData(modelData.folderBase, modelData.modelType, id,mapId);
+      object.modelData = JSON.parse(JSON.stringify(modelData));
+      _this._YJSceneManager.AddNeedUpdateJS(object);
+
       let modelPath = modelData.modelPath;
       if (modelPath == undefined) {
         if (modelData.modelType == "NPC模型" 
@@ -254,6 +273,13 @@ class YJLoadUserModelManager {
         ) {
 
         } else {
+          if(modelData.modelType == "拖尾模型"){
+            let component = new YJTrailRenderer(_this, _Global.YJ3D.scene, object.GetGroup(), object) ;
+            object.AddComponent("Trail", component);
+          }
+          if (modelData.message != undefined) {
+            object.SetMessage(modelData.message);
+          }
           if (callback) {
             callback(object);
           }
@@ -268,28 +294,8 @@ class YJLoadUserModelManager {
           modelPath = uploadUrl + modelData.modelPath;
         }
       }
-      let id = 0;
-      if (_modelId != undefined) {
-        id = _modelId;
-      } else {
-        modelId++;
-        id = modelId;
-      }
-      object.id = id;
-      let uuid = object.GetUUID();
-      allTransform.push({ uuid: uuid, id: id, transform: object });
+      
 
-      object.SetPosRota(modelData.pos, modelData.rotaV3, modelData.scale);
-      object.SetModelPath(modelData.modelPath);
-      object.SetData(modelData.folderBase, modelData.modelType, id,mapId);
-      object.modelData = JSON.parse(JSON.stringify(modelData));
-
-
-      // if (modelData.message != undefined) {
-      //   object.SetMessage(modelData.message);
-      // }
-
-      _this._YJSceneManager.AddNeedUpdateJS(object);
       // console.error("添加更新 AddNeedUpdateJS ",object);
 
       // 测试模型合批

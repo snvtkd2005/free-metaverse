@@ -12,18 +12,119 @@ class YJTrailRenderer {
         let scope = this;
         this.used = false;
 
-        // const map = new THREE.TextureLoader().load(_this.$publicUrl + "images/smoke001.png");
-        const map = new THREE.TextureLoader().load(_this.$publicUrl + "images/box.jpg");
+        const map = new THREE.TextureLoader().load(_this.$publicUrl + "images/smoke001.png");
+        // const map = new THREE.TextureLoader().load(_this.$publicUrl + "images/box.jpg");
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
-        const material = new THREE.MeshBasicMaterial(
+        let material = new THREE.MeshBasicMaterial(
             {
-                color: 0xffffff,
+                // color: 0xff0000,
                 depthWrite: false, // 透明物体之间不相互遮挡
                 transparent: true,
-                blending: THREE.AdditiveBlending,
+                side: THREE.DoubleSide,
+                // blending: THREE.AdditiveBlending,
                 map: map,
             }
         );
+        // 片元着色器
+        let fragmentShaderDef = /* glsl */ ` 
+    #include <map_pars_fragment> 
+    
+    uniform vec2 u_resolution;
+    uniform float u_time;
+    uniform sampler2D mainTex;
+    uniform vec3 color;
+    uniform vec3 color2;
+    vec2 hash( vec2 p ) // replace this by something better
+    {
+        p = vec2( dot(p,vec2(127.1,311.7)), dot(p,vec2(269.5,183.3)) );
+        return -1.0 + 2.0*fract(sin(p)*43758.5453123);
+    }
+    float noise( in vec2 p )
+    {
+        const float K1 = 0.366025404; // (sqrt(3)-1)/2;
+        const float K2 = 0.211324865; // (3-sqrt(3))/6;
+
+        vec2  i = floor( p + (p.x+p.y)*K1 );
+        vec2  a = p - i + (i.x+i.y)*K2;
+        float m = step(a.y,a.x); 
+        vec2  o = vec2(m,1.0-m);
+        vec2  b = a - o + K2;
+        vec2  c = a - 1.0 + 2.0*K2;
+        vec3  h = max( 0.5-vec3(dot(a,a), dot(b,b), dot(c,c) ), 0.0 );
+        vec3  n = h*h*h*h*vec3( dot(a,hash(i+0.0)), dot(b,hash(i+o)), dot(c,hash(i+1.0)));
+        return dot( n, vec3(70.0) );
+    } 
+    `;
+    let color = new THREE.Color(0xff0000); 
+    let color2 = new THREE.Color(0x0000ff); 
+        let uniforms = {
+            'color': { value: color },
+            'color2': { value: color2}, 
+            'mainTex': { value: map },
+            'u_time': { value: 1.0 },
+        };
+        let _ShaderMaterial = new THREE.MeshStandardMaterial({
+            color: 0x000000,
+            side: THREE.DoubleSide,
+            transparent: true, 
+        });
+        _ShaderMaterial.onBeforeCompile = (shader) => {
+            // console.log("shader ", shader);
+
+            Object.assign(shader.uniforms, uniforms)
+            if (_ShaderMaterial.map == null) {
+                shader.vertexShader = shader.vertexShader.replace(
+                    '#include <common>',
+                    `
+                #include <common>  
+                varying vec2 vUv;
+                `
+                );
+                shader.vertexShader = shader.vertexShader.replace(
+                    '#include <uv_vertex>',
+                    `
+                #include <uv_vertex>  
+                vUv = uv;
+                `
+                );
+
+                shader.fragmentShader = shader.fragmentShader.replace(
+                    '#include <common>',
+                    `
+                #include <common>  
+                varying vec2 vUv;
+                `
+                );
+            }
+
+            shader.fragmentShader = shader.fragmentShader.replace(
+                '#include <map_pars_fragment>',
+                fragmentShaderDef
+            );
+            shader.fragmentShader = shader.fragmentShader.replace(
+                '#include <output_fragment>',
+                `  
+                // vec2 uv=(gl_FragCoord.xy*2.-u_resolution.xy)/u_resolution.y;
+                vec2 uv0=vUv ;
+                vec2 uv1=vUv ;
+                uv1.x += -u_time*1.5; 
+                uv0.x += -u_time*0.5;
+
+                float noiseValue = (noise(uv0*10.));
+
+                float onemlnus = (2.-(vUv.r));
+                float add = noiseValue + onemlnus;
+                float subtract = add - vUv.r;
+                float finalValue = 1.- subtract  ; 
+
+                vec3 multi = (texture2D(mainTex, uv1).rgb )  * finalValue;
+                vec3 finalColor =  mix( color,color2,0.5)*multi ;
+                gl_FragColor = vec4(finalColor,multi.r );
+ 
+              `
+            );
+
+        }
         const wireframeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, opacity: 0.3, wireframe: true, transparent: true });
         let splinePath = [
             // new THREE.Vector3(0, 0, 0), 
@@ -52,6 +153,16 @@ class YJTrailRenderer {
             //     setScale();
             // }); 
 
+
+            let planeGeometry = new THREE.PlaneGeometry(1, 1, 10, 10); // 生成平面
+            let plane = new THREE.Mesh(planeGeometry, _ShaderMaterial);
+            // plane.rotation.x = -0.5 * Math.PI;
+            plane.position.x = 0;
+            plane.position.y = 1;
+            plane.position.z = 0;  
+            scene.add(plane); // 向该场景中添加物体
+
+
             addTube();
             animate();
         }
@@ -64,7 +175,11 @@ class YJTrailRenderer {
                 return;
             }
             const extrudePath = new THREE.CatmullRomCurve3(splinePath);
-            tubeGeometry = new THREE.TubeGeometry(extrudePath, splinePath.length - 1, params.width / 2, params.radiusSegments, params.closed);
+            tubeGeometry = new THREE.TubeGeometry(extrudePath, splinePath.length - 1, params.width, params.radiusSegments, params.closed);
+            for (let i = 0; i < tubeGeometry.attributes.uv.count; i++) {
+                tubeGeometry.attributes.uv.setY(i, tubeGeometry.attributes.uv.getY(i) * 2);
+                // tubeGeometry.attributes.uv.setY(i,tubeGeometry.attributes.uv.getY(i)*data.scaleUVy+data.offsetUVy);
+            }
             addGeometry(tubeGeometry);
             // setScale();
         }
@@ -72,7 +187,7 @@ class YJTrailRenderer {
             mesh.scale.set(1, 1, 1);
         }
         function addGeometry(geometry) {
-            mesh = new THREE.Mesh(geometry, material);
+            mesh = new THREE.Mesh(geometry, _ShaderMaterial);
             // const wireframe = new THREE.Mesh(geometry, wireframeMaterial);
             // mesh.add(wireframe);
             group.add(mesh);
@@ -83,20 +198,48 @@ class YJTrailRenderer {
         let maxLength = 20;
         let startPos = null;
         let updateId = null;
+        let data = null;
+        this.SetMessage = function (msg) {
+            if (msg == null || msg == undefined || msg == "") { return; }
+            // data = JSON.parse(msg);
+            data = (msg);
+            scope.id = scope.transform.id;
+            params.width = data.width;
+            lifeTime = data.lifeTime;
+            maxLength = data.maxLength;
+            color.set(data.color);
+            color2.set(data.color2);
+
+            material.color.set(data.color);
+            console.log("in 拖尾 msg = ", scope.id, data);
+        }
         this.start = function () {
             // console.log("复用 trail ");
             count = 0;
             animate();
         }
-        this.stop = function(){
+        this.stop = function () {
             scope.used = false;
             cancelAnimationFrame(updateId);
-            splinePath = []; 
+            splinePath = [];
             addTube();
         }
+        let deltaTime = 1;
+        let last = performance.now();
         function animate() {
             updateId = requestAnimationFrame(animate);
-            let newPos = parent.position.clone();
+            const now = performance.now();
+            let delta = (now - last) / 1000;
+            deltaTime -= delta * 1;
+            if (deltaTime <= -2) {
+                deltaTime = 1;
+            }
+            last = now;
+            if (_ShaderMaterial) uniforms['u_time'].value = deltaTime;
+
+            // let newPos = parent.position.clone();
+            let newPos = _Global.YJ3D.YJController.GetPlayerWorldPos();
+
             scope.used = true;
             if (newPos.distanceTo(oldPos) > 0.021) {
                 // if (splinePath.length == 0) {
@@ -124,11 +267,11 @@ class YJTrailRenderer {
                     time = 0;
                 }
             } else {
-                count += 1;
-                if (count >= 30) {
-                    scope.used = false;
-                    cancelAnimationFrame(updateId);
-                }
+                // count += 1;
+                // if (count >= 30) {
+                //     scope.used = false;
+                //     cancelAnimationFrame(updateId);
+                // }
             }
             // 
             // group.position.z = Math.sin(count);

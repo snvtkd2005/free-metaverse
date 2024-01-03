@@ -294,7 +294,7 @@ class YJSceneManager {
         let modelData = JSON.parse(localStorage.getItem("modelData"));
 
         let modelPath = _this.$uploadUrl + modelData.modelPath;
-        // console.log("加载模型", modelPath, modelData);
+        console.log("加载模型", modelPath, modelData);
 
         modelData.pos = { x: 0, y: 0, z: 0 };
         modelData.rotaV3 = { x: 0, y: 0, z: 0 };

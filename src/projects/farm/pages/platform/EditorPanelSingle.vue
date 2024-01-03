@@ -80,7 +80,10 @@
       <div v-if="panelState.interactive" class="mt-10 w-80 border-t max-w-md">
         <settingPanel_interactive ref="settingPanel_interactive" />
       </div>
-
+      <div v-if="panelState.trail" class="mt-10 w-80 border-t max-w-md">
+        <settingPanel_trail ref="settingPanel_trail" />
+      </div>
+      
       <!-- <div class=" mt-10 w-80 h-10 border-t text-white cursor-pointer " @click.stop="inAddComponent=true;">
         <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">Add Component</div>
       </div>
@@ -173,6 +176,7 @@ import settingPanel_particle from "./settingPanel/settingPanel_particle.vue";
 import settingPanel_avatar from "./settingPanel/settingPanel_avatar.vue";
 import settingPanel_npc from "./settingPanel/settingPanel_npc.vue";
 import settingPanel_interactive from "./settingPanel/settingPanel_interactive.vue";
+import settingPanel_trail from "./settingPanel/settingPanel_trail.vue";
 
 import headerUI from "./common/headerUI.vue";
 import skillProgressUI from "./common/skillProgressUI.vue";
@@ -201,6 +205,7 @@ export default {
     settingPanel_avatar,
     settingPanel_npc,
     settingPanel_interactive,
+    settingPanel_trail,
     addComponent,
     PanelCut,
     headerUI,
@@ -222,6 +227,8 @@ export default {
         avatar: false,
         npc: false,
         interactive: false,
+        trail: false,
+        
       },
       hover: false,
       infloating: false,
@@ -433,7 +440,7 @@ export default {
         }, 1000);
       }
 
-      if (this.modelData.modelType == "角色") {
+      if (this.modelData.modelType == "角色" ||this.modelData.modelType == "拖尾模型"  ) {
         this.hasImport = false;
       }
 

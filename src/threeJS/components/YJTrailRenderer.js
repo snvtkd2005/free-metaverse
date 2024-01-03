@@ -12,8 +12,8 @@ class YJTrailRenderer {
         let scope = this;
         this.used = false;
 
-        const map = new THREE.TextureLoader().load(_this.$publicUrl + "images/smoke001.png");
-        // const map = new THREE.TextureLoader().load(_this.$publicUrl + "images/box.jpg");
+        let map = new THREE.TextureLoader().load(_this.$publicUrl + "images/smoke001.png");
+        // let map = new THREE.TextureLoader().load(_this.$publicUrl + "images/box.jpg");
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
         let material = new THREE.MeshBasicMaterial(
             {
@@ -111,8 +111,16 @@ class YJTrailRenderer {
                 uv0.x += -u_time*0.5;
 
                 float noiseValue = (noise(uv0*10.));
+                noiseValue=0.;
+                uv0*=5.;
+                mat2 m=mat2(1.6,1.2,-1.2,1.6);
+                noiseValue=.5000*noise(uv0);uv0=m*uv0;
+                noiseValue+=.2500*noise(uv0);uv0=m*uv0;
+                noiseValue+=.1250*noise(uv0);uv0=m*uv0;
+                noiseValue+=.0625*noise(uv0);uv0=m*uv0;
+                noiseValue=.5+.5*noiseValue;
 
-                float onemlnus = (2.-(vUv.r));
+                float onemlnus = (1.-(vUv.r));
                 float add = noiseValue + onemlnus;
                 float subtract = add - vUv.r;
                 float finalValue = 1.- subtract  ; 
@@ -156,7 +164,6 @@ class YJTrailRenderer {
 
             let planeGeometry = new THREE.PlaneGeometry(1, 1, 10, 10); // 生成平面
             let plane = new THREE.Mesh(planeGeometry, _ShaderMaterial);
-            // plane.rotation.x = -0.5 * Math.PI;
             plane.position.x = 0;
             plane.position.y = 1;
             plane.position.z = 0;  
@@ -175,7 +182,7 @@ class YJTrailRenderer {
                 return;
             }
             const extrudePath = new THREE.CatmullRomCurve3(splinePath);
-            tubeGeometry = new THREE.TubeGeometry(extrudePath, splinePath.length - 1, params.width, params.radiusSegments, params.closed);
+            tubeGeometry = new THREE.TubeGeometry(extrudePath, splinePath.length - 1, params.width/2, params.radiusSegments, params.closed);
             for (let i = 0; i < tubeGeometry.attributes.uv.count; i++) {
                 tubeGeometry.attributes.uv.setY(i, tubeGeometry.attributes.uv.getY(i) * 2);
                 // tubeGeometry.attributes.uv.setY(i,tubeGeometry.attributes.uv.getY(i)*data.scaleUVy+data.offsetUVy);
@@ -210,6 +217,9 @@ class YJTrailRenderer {
             color.set(data.color);
             color2.set(data.color2);
 
+            // map = new THREE.TextureLoader().load(_this.$uploadUVAnimUrl +data.imgPath);
+            // map.wrapS = map.wrapT = THREE.RepeatWrapping;
+            // uniforms["mainTex"].value = map;
             material.color.set(data.color);
             console.log("in 拖尾 msg = ", scope.id, data);
         }
@@ -226,10 +236,17 @@ class YJTrailRenderer {
         }
         let deltaTime = 1;
         let last = performance.now();
+        setInterval(() => {
+            if (splinePath.length > 0) {
+                splinePath.splice(0, 1);
+                addTube();
+            }
+        }, lifeTime*1000);
         function animate() {
             updateId = requestAnimationFrame(animate);
             const now = performance.now();
             let delta = (now - last) / 1000;
+            // console.log("delta ",delta);
             deltaTime -= delta * 1;
             if (deltaTime <= -2) {
                 deltaTime = 1;
@@ -260,12 +277,12 @@ class YJTrailRenderer {
             } else {
             }
             if (splinePath.length > 0) {
-                time += 0.01;
-                if (time >= lifeTime) {
-                    splinePath.splice(0, 1);
-                    addTube();
-                    time = 0;
-                }
+                // time += 0.01;
+                // if (time >= lifeTime) {
+                //     splinePath.splice(0, 1);
+                //     addTube();
+                //     time = 0;
+                // }
             } else {
                 // count += 1;
                 // if (count >= 30) {

@@ -120,7 +120,7 @@ class YJPlayerFireCtrl {
 
 					for (let k = 0; k < count; k++) {
 						setTimeout(() => {
-							if (baseData.health == 0) {
+							if (baseData.health <= 0) {
 								inSkill = false;
 								return;
 							}
@@ -169,7 +169,7 @@ class YJPlayerFireCtrl {
 					let count = parseInt(attackStepSpeed / effect.time);
 					for (let k = 0; k < count; k++) {
 						setTimeout(() => {
-							if (baseData.health == 0) {
+							if (baseData.health <= 0) {
 								inSkill = false;
 								return;
 							}
@@ -442,7 +442,7 @@ class YJPlayerFireCtrl {
 		}
 
 		this.ReceiveDamage = function (_targetModel, skillName, effect) {
-			if (baseData.health == 0) {
+			if (baseData.health <= 0) {
 				return true;
 			}
 

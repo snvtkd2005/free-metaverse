@@ -186,6 +186,9 @@ export default {
       this.settingData.imgPath = item;
       this.inSelect = false;
       this.Update();
+      _Global.YJ3D._YJSceneManager
+          .GetSingleTransformComponent("Trail")
+          .SetMessage(this.settingData);
     },
     Update() {
 

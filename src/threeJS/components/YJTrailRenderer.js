@@ -55,18 +55,18 @@ class YJTrailRenderer {
         return dot( n, vec3(70.0) );
     } 
     `;
-    let color = new THREE.Color(0xff0000); 
-    let color2 = new THREE.Color(0x0000ff); 
+        let color = new THREE.Color(0xff0000);
+        let color2 = new THREE.Color(0x0000ff);
         let uniforms = {
             'color': { value: color },
-            'color2': { value: color2}, 
+            'color2': { value: color2 },
             'mainTex': { value: map },
             'u_time': { value: 1.0 },
         };
         let _ShaderMaterial = new THREE.MeshStandardMaterial({
             color: 0x000000,
             side: THREE.DoubleSide,
-            transparent: true, 
+            transparent: true,
         });
         _ShaderMaterial.onBeforeCompile = (shader) => {
             // console.log("shader ", shader);
@@ -91,9 +91,9 @@ class YJTrailRenderer {
                 shader.fragmentShader = shader.fragmentShader.replace(
                     '#include <common>',
                     `
-                #include <common>  
-                varying vec2 vUv;
-                `
+                        #include <common>  
+                        varying vec2 vUv;
+                        `
                 );
             }
 
@@ -143,7 +143,7 @@ class YJTrailRenderer {
         ];
         let tubeGeometry, mesh;
         const params = {
-            width: 0.1, //宽度
+            width: 0.5, //宽度
             radiusSegments: 2,//边数
             closed: false,
         };
@@ -162,12 +162,12 @@ class YJTrailRenderer {
             // }); 
 
 
-            let planeGeometry = new THREE.PlaneGeometry(1, 1, 10, 10); // 生成平面
-            let plane = new THREE.Mesh(planeGeometry, _ShaderMaterial);
-            plane.position.x = 0;
-            plane.position.y = 1;
-            plane.position.z = 0;  
-            scene.add(plane); // 向该场景中添加物体
+            // let planeGeometry = new THREE.PlaneGeometry(1, 1, 10, 10); // 生成平面
+            // let plane = new THREE.Mesh(planeGeometry, _ShaderMaterial);
+            // plane.position.x = 0;
+            // plane.position.y = 1;
+            // plane.position.z = 0;  
+            // scene.add(plane); // 向该场景中添加物体
 
 
             addTube();
@@ -182,7 +182,7 @@ class YJTrailRenderer {
                 return;
             }
             const extrudePath = new THREE.CatmullRomCurve3(splinePath);
-            tubeGeometry = new THREE.TubeGeometry(extrudePath, splinePath.length - 1, params.width/2, params.radiusSegments, params.closed);
+            tubeGeometry = new THREE.TubeGeometry(extrudePath, splinePath.length - 1, params.width / 2, params.radiusSegments, params.closed);
             for (let i = 0; i < tubeGeometry.attributes.uv.count; i++) {
                 tubeGeometry.attributes.uv.setY(i, tubeGeometry.attributes.uv.getY(i) * 2);
                 // tubeGeometry.attributes.uv.setY(i,tubeGeometry.attributes.uv.getY(i)*data.scaleUVy+data.offsetUVy);
@@ -241,7 +241,7 @@ class YJTrailRenderer {
                 splinePath.splice(0, 1);
                 addTube();
             }
-        }, lifeTime*1000);
+        }, lifeTime * 1000);
         function animate() {
             updateId = requestAnimationFrame(animate);
             const now = performance.now();
@@ -254,8 +254,8 @@ class YJTrailRenderer {
             last = now;
             if (_ShaderMaterial) uniforms['u_time'].value = deltaTime;
 
-            // let newPos = parent.position.clone();
-            let newPos = _Global.YJ3D.YJController.GetPlayerWorldPos();
+            let newPos = parent.position.clone();
+            // let newPos = _Global.YJ3D.YJController.GetPlayerWorldPos();
 
             scope.used = true;
             if (newPos.distanceTo(oldPos) > 0.021) {

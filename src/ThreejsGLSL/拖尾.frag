@@ -34,7 +34,7 @@ void main(){
     
     vec2 uv0=uv;
     uv0.x+=-u_time*.5;
-    float noiseValue=(noise(uv0*10.));
+    float noiseValue=(noise(uv0*35.));
     float onemlnus=(1.-(uv.r));
     
     float add=noiseValue+onemlnus;
@@ -44,7 +44,7 @@ void main(){
     vec3 finalColor=mix(vec3(1.,0.,0),vec3(1.,0.5,0.),0.5)*finalValue;
  
     gl_FragColor=vec4(finalColor,1);
-    gl_FragColor=vec4(vec3(1.)*(1.-noiseValue),1);
+    // gl_FragColor=vec4(vec3(1.)*(1.-noiseValue),1);
     // gl_FragColor=vec4(vec3(1.)*(noiseValue),1);
     
 }

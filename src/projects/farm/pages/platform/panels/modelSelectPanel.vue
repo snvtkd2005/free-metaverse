@@ -200,14 +200,14 @@ export default {
     ChangeSceneByUI(item) {
       console.log(item);
       this.isOpen = false;
-      if(this.$parent.$refs.sceneSettingPanel){
-        this.$parent.$refs.sceneSettingPanel.load(item,this.selectModelTable);
+      if(this.$parent.$refs.settingPanelCtrl.$refs.sceneSettingPanel){
+        this.$parent.$refs.settingPanelCtrl.$refs.sceneSettingPanel.load(item,this.selectModelTable);
       }
-      if(this.$parent.$refs.settingPanel_npc){
-        this.$parent.$refs.settingPanel_npc.load(item,this.selectModelTable);
+      if(this.$parent.$refs.settingPanelCtrl.$refs.settingPanel_npc){
+        this.$parent.$refs.settingPanelCtrl.$refs.settingPanel_npc.load(item,this.selectModelTable);
       }
-      if(this.$parent.$refs.settingPanel_player){
-        this.$parent.$refs.settingPanel_player.addBoneRefPlayer(item);
+      if(this.$parent.$refs.settingPanelCtrl.$refs.settingPanel_player){
+        this.$parent.$refs.settingPanelCtrl.$refs.settingPanel_player.addBoneRefPlayer(item);
       } 
     },
   },

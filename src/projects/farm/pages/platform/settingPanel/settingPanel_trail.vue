@@ -135,6 +135,7 @@ export default {
   },
   created() {
 
+    this.parent = this.$parent.$parent;
   },
   mounted() {
 
@@ -155,7 +156,7 @@ export default {
   methods: {
     
     removeThreeJSfocus() {
-      this.$parent.removeThreeJSfocus();
+      this.parent.removeThreeJSfocus();
     },
     addThreeJSfocus() { 
     },
@@ -192,9 +193,9 @@ export default {
     },
     Update() {
 
-      if (this.$parent.updateModelTxtData) {
-        this.$parent.modelData.message = this.getMessage();
-        this.$parent.updateModelTxtData();
+      if (this.parent.updateModelTxtData) {
+        this.parent.modelData.message = this.getMessage();
+        this.parent.updateModelTxtData();
       }else {
         // 在场景编辑中的修改
         _Global.YJ3D._YJSceneManager.UpdateTransform(

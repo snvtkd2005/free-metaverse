@@ -118,6 +118,7 @@ export default {
   },
   created() {
 
+    this.parent = this.$parent.$parent;
   },
   mounted() {
 
@@ -128,7 +129,7 @@ export default {
       return;
     } 
     if (modelData.message == undefined) {
-      this.settingData.id = this.$parent.folderBase + "";
+      this.settingData.id = this.parent.folderBase + "";
       return;
     }
 
@@ -142,7 +143,7 @@ export default {
   methods: {
 
     removeThreeJSfocus() {
-      this.$parent.removeThreeJSfocus();
+      this.parent.removeThreeJSfocus();
     },
     addThreeJSfocus() { 
     },
@@ -193,9 +194,9 @@ export default {
     },
     save() {
       // 单品中才有 updateModelTxtData
-      if (this.$parent.updateModelTxtData) {
-        this.$parent.modelData.message = this.getMessage();
-        this.$parent.updateModelTxtData();
+      if (this.parent.updateModelTxtData) {
+        this.parent.modelData.message = this.getMessage();
+        this.parent.updateModelTxtData();
       } else {
         // 在场景编辑中的修改
         this.Update();
@@ -216,8 +217,8 @@ export default {
           .GetSingleModelTransform()
           .SetMessage(this.getMessage());
       // 调用场景保存
-      if (this.$parent.updateSceneModelData) {
-        this.$parent.updateSceneModelData();
+      if (this.parent.updateSceneModelData) {
+        this.parent.updateSceneModelData();
       }
 
 

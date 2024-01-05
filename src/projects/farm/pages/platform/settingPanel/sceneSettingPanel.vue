@@ -211,6 +211,7 @@ export default {
   },
   created() {
 
+    this.parent = this.$parent.$parent;
   },
   mounted() {
     this.RequestGetAllHDR();
@@ -221,11 +222,11 @@ export default {
       this.thumbName =    "thumb.jpg";
       this.loadingName =   "loading.jpg";
       
-      this.thumbUrl = this.$uploadSceneUrl + this.$parent.folderBase + "/" +this.thumbName;
-      this.loadingUrl = this.$uploadSceneUrl + this.$parent.folderBase + "/" +this.loadingName;
+      this.thumbUrl = this.$uploadSceneUrl + this.parent.folderBase + "/" +this.thumbName;
+      this.loadingUrl = this.$uploadSceneUrl + this.parent.folderBase + "/" +this.loadingName;
 
-      this.folderBase =  this.$parent.folderBase;
-      this.sceneData = this.$parent.sceneData;
+      this.folderBase =  this.parent.folderBase;
+      this.sceneData = this.parent.sceneData;
       if (this.sceneData.avatarList == undefined) {
         this.sceneData.avatarList = [];
       }
@@ -270,13 +271,13 @@ export default {
     },
     ClickHandler(e, item, i) {
       if (e == "添加角色") {
-        this.$parent.$refs.modelSelectPanel.Init("角色模型");
+        this.parent.$refs.modelSelectPanel.Init("角色模型");
       }
       if (e == "删除角色") {
         this.avatarList.splice(i, 1);
       }
       if (e == "添加技能") {
-        this.$parent.$refs.skillSelectPanel.SetVisible(true);
+        this.parent.$refs.skillSelectPanel.SetVisible(true);
       }
       if (e == "删除技能") {
         this.skillList.splice(i, 1);
@@ -292,7 +293,7 @@ export default {
         let fromData = new FormData();
         //服务器中的本地地址
         fromData.append("mapId", _Global.ReportTo3D("坐标转地图id", { x: item.x, z: item.y }));
-        fromData.append("folderBase", this.$parent.folderBase);
+        fromData.append("folderBase", this.parent.folderBase);
         let msg = {
           type: "添加",
         }
@@ -303,7 +304,7 @@ export default {
           //先记录旧照片
           if (res.data.data == true) {
             item.vaild = true;
-            this.$parent.addMetaWorldCoordinate(item);
+            this.parent.addMetaWorldCoordinate(item);
           }
         });
 
@@ -314,7 +315,7 @@ export default {
           let fromData = new FormData();
           //服务器中的本地地址
           fromData.append("mapId", _Global.ReportTo3D("坐标转地图id", { x: item.x, z: item.y }));
-          fromData.append("folderBase", this.$parent.folderBase);
+          fromData.append("folderBase", this.parent.folderBase);
           let msg = {
             type: "删除",
           }
@@ -324,7 +325,7 @@ export default {
             console.log(res);
             item.vaild = false;
             this.metaWorldCoordinate.splice(i, 1);
-            this.$parent.updateSceneData();
+            this.parent.updateSceneData();
           });
 
         } else {
@@ -338,7 +339,7 @@ export default {
           let fromData = new FormData();
           //服务器中的本地地址
           fromData.append("mapId", _Global.ReportTo3D("坐标转地图id", { x: item.x, z: item.y }));
-          fromData.append("folderBase", this.$parent.folderBase);
+          fromData.append("folderBase", this.parent.folderBase);
           let msg = {
             type: "删除",
           }

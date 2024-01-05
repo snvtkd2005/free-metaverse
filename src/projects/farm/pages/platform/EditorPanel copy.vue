@@ -72,7 +72,35 @@
     
     <!-- 右侧检视面板 -->
     <div class=" absolute right-0 top-0 h-full bg-546770" :style="settingPanelStyle">
-      <settingPanelCtrl ref="settingPanelCtrl" />
+
+      <!-- 场景设置面板 -->
+      <div v-show="panelState.setting" class=" absolute  w-full border-t-2 mt-1 right-0 max-w-md  h-2/3  top-20  ">
+        <sceneSettingPanel ref="sceneSettingPanel" />
+      </div>
+      <!-- uv动画设置面板 -->
+      <div v-if="panelState.uvAnim" class=" absolute  w-full border-t-2 mt-1 right-0 max-w-md  h-2/3  top-20  ">
+        <settingPanel_uvAnim ref="settingPanel_uvAnim" />
+      </div>
+      <!-- 图片视频直播流设置面板 -->
+      <div v-if="panelState.screen" class=" mt-10  w-full border-t max-w-md  ">
+        <settingPanel_screen ref="settingPanel_screen" />
+      </div>
+      <!-- 粒子系统设置面板 -->
+      <div v-if="panelState.particle" class=" mt-10  w-full border-t max-w-md  ">
+        <settingPanel_particle ref="settingPanel_particle" />
+      </div>
+
+      <div v-if="panelState.npc" class="mt-10 w-full border-t max-w-md">
+        <settingPanel_npc ref="settingPanel_npc" />
+      </div>
+
+      <div v-if="panelState.weapon" class="mt-10 w-full border-t max-w-md">
+        <settingPanel_weapon ref="settingPanel_weapon" />
+      </div>
+
+      <div v-if="panelState.interactive" class="mt-10 w-full border-t max-w-md">
+        <settingPanel_interactive ref="settingPanel_interactive" />
+      </div>
     </div>
 
     <!-- 中间下部模型面板 -->
@@ -111,8 +139,6 @@ import modelPanel from "./panels/modelPanel.vue";
 import modelSelectPanel from "./panels/modelSelectPanel.vue";
 import skillSelectPanel from "./panels/skillSelectPanel.vue";
 
-import settingPanelCtrl from "./settingPanel/settingPanelCtrl.vue";
-
 import settingPanel from "./settingPanel/settingPanel.vue";
 import sceneSettingPanel from "./settingPanel/sceneSettingPanel.vue";
 import settingPanel_uvAnim from "./settingPanel/settingPanel_uvAnim.vue";
@@ -147,7 +173,14 @@ export default {
     skillSelectPanel,
     PanelCut,
     hierarchy,
-    settingPanelCtrl, 
+    settingPanel,
+    sceneSettingPanel,
+    settingPanel_uvAnim,
+    settingPanel_screen,
+    settingPanel_particle,
+    settingPanel_npc,
+    settingPanel_weapon,
+    settingPanel_interactive,
     HUD,
   },
   data() {
@@ -502,6 +535,11 @@ export default {
     };
   },
   created() {
+
+    this.setPanelSize();
+
+
+
     this.publicUrl = this.$publicUrl + this.sceneData.setting.localPath;
     this.sceneLoadUrl = this.$uploadSceneUrl;
   },
@@ -573,7 +611,6 @@ export default {
       });
     }
 
-    this.setPanelSize();
 
   },
   methods: {
@@ -637,8 +674,8 @@ export default {
       if (_Global.YJ3D && _Global.YJ3D.YJRaycaster) {
         _Global.YJ3D.YJRaycaster.SetOffset(this.panelData.hierarchyStyle.width, this.panelData.topStyle.height);
       }
-      if (this.$refs.settingPanelCtrl.settingPanel) {
-        this.$refs.settingPanelCtrl.settingPanel.fullScreen = false;
+      if (this.$refs.settingPanel) {
+        this.$refs.settingPanel.fullScreen = false;
       }
 
       this.resizePanel();
@@ -1136,7 +1173,22 @@ export default {
       });
     },
     ChangePanel(e) {
-      this.$refs.settingPanelCtrl.ChangePanel(e);
+      let names = Object.getOwnPropertyNames(this.panelState);
+      let list = Object.getOwnPropertySymbols(this.panelState);
+      for (let i = 0; i < names.length; i++) {
+        const element = names[i];
+        this.panelState[element] = false;
+      }
+      if (e == "") { return; }
+      // console.log(names);
+      // console.log(list);
+      this.panelState[e] = true;
+      return;
+      if (this.openModelPanel != e) {
+        this.openModelPanel = e;
+      } else {
+        this.openModelPanel = "";
+      }
     },
 
 
@@ -1435,7 +1487,7 @@ export default {
       if (component != null) {
         this.ChangePanel('uvAnim');
         this.$nextTick(() => {
-          this.$refs.settingPanelCtrl.settingPanel_uvAnim.Init(component.GetData());
+          this.$refs.settingPanel_uvAnim.Init(component.GetData());
         });
         console.log(component);
         return;
@@ -1445,7 +1497,7 @@ export default {
         this.ChangePanel('screen');
         let msg = this.clickModelJS.GetMessage();
         this.$nextTick(() => {
-          this.$refs.settingPanelCtrl.settingPanel_screen.Init(msg.data);
+          this.$refs.settingPanel_screen.Init(msg.data);
         });
         console.log(component);
         return;
@@ -1456,7 +1508,7 @@ export default {
         this.ChangePanel('particle');
         let msg = this.clickModelJS.GetMessage();
         this.$nextTick(() => {
-          this.$refs.settingPanelCtrl.settingPanel_particle.Init(msg.data);
+          this.$refs.settingPanel_particle.Init(msg.data);
         });
         console.log(component);
         return;
@@ -1466,7 +1518,7 @@ export default {
         this.ChangePanel('npc');
         let msg = this.clickModelJS.GetMessage();
         this.$nextTick(() => {
-          this.$refs.settingPanelCtrl.settingPanel_npc.Init(msg.data);
+          this.$refs.settingPanel_npc.Init(msg.data);
         });
         console.log(component);
         // 
@@ -1478,7 +1530,7 @@ export default {
         this.ChangePanel('weapon');
         let msg = this.clickModelJS.GetMessage();
         this.$nextTick(() => {
-          this.$refs.settingPanelCtrl.settingPanel_weapon.Init(msg.data);
+          this.$refs.settingPanel_weapon.Init(msg.data);
         });
         // console.log(component);
         console.log("武器请到武器单品中设置");
@@ -1489,7 +1541,7 @@ export default {
         this.ChangePanel('interactive');
         let msg = this.clickModelJS.GetMessage();
         this.$nextTick(() => {
-          this.$refs.settingPanelCtrl.settingPanel_interactive.Init(msg.data);
+          this.$refs.settingPanel_interactive.Init(msg.data);
         });
         console.log(component);
         return;

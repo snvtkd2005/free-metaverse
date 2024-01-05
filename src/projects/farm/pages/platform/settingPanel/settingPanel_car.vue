@@ -166,6 +166,7 @@ export default {
   },
   created() {
 
+    this.parent = this.$parent.$parent;
     this.initValue();
 
   },
@@ -188,7 +189,7 @@ export default {
   methods: {
     
     removeThreeJSfocus() {
-      this.$parent.removeThreeJSfocus();
+      this.parent.removeThreeJSfocus();
     },
     addThreeJSfocus() { 
     },
@@ -232,10 +233,10 @@ export default {
       // this.setting[17].value = 1691833112954;
       //加载模型地址
 
-      this.$parent.GetModelPathByFolderBase( this.setting[17].value, (modelPath) => {
+      this.parent.GetModelPathByFolderBase( this.setting[17].value, (modelPath) => {
         // this.setting[17].value = modelPath;
         this.carData.wheelPath = modelPath;
-        this.$parent.GetModelPathByFolderBase(this.setting[16].value, (modelPath) => {
+        this.parent.GetModelPathByFolderBase(this.setting[16].value, (modelPath) => {
           // this.setting[16].value = modelPath;
           this.carData.carBodyPath = modelPath;
           this.Update();
@@ -260,17 +261,16 @@ export default {
     Update() {
 
 
-      if (this.$parent.updateModelTxtData) {
-        this.$parent.modelData.message = {
+      if (this.parent.updateModelTxtData) {
+        this.parent.modelData.message = {
           pointType: "car",
           data: this.carData
         };
-        this.$parent.updateModelTxtData();
+        this.parent.updateModelTxtData();
       }
 
       //给模型指定贴图
-      _Global.SendMsgTo3D("刷新Transform", this.$parent.modelData.message);
-
+      _Global.SendMsgTo3D("刷新Transform", this.parent.modelData.message);
 
     },
     SelectFile(item) {

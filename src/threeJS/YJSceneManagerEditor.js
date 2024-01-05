@@ -616,7 +616,7 @@ class YJSceneManager {
     function Init() {
       // console.log("初始化场景 ");
       let routerPath = _this.$route.path.toLowerCase();
-      if (routerPath.includes("visit") || routerPath.includes("scene")|| routerPath.includes("metaworld")) {
+      if (routerPath.includes("visit")|| routerPath.includes("group") || routerPath.includes("scene")|| routerPath.includes("metaworld")) {
         InitFn();
       } else {
         InitSingleSceneFn();

@@ -146,6 +146,7 @@ export default {
   },
   created() {
 
+    this.parent = this.$parent.$parent;
   },
   mounted() {
 
@@ -174,7 +175,7 @@ export default {
   methods: {
     
     removeThreeJSfocus() {
-      this.$parent.removeThreeJSfocus();
+      this.parent.removeThreeJSfocus();
     },
     addThreeJSfocus() { 
     },
@@ -214,12 +215,12 @@ export default {
     },
     save() {
       // 单品中才有 updateModelTxtData
-      if (this.$parent.updateModelTxtData) {
-        this.$parent.modelData.message = {
+      if (this.parent.updateModelTxtData) {
+        this.parent.modelData.message = {
           pointType: "particle",
           data: this.settingData
         };
-        this.$parent.updateModelTxtData();
+        this.parent.updateModelTxtData();
       } else {
         // 在场景编辑中的修改
         this.Update();
@@ -248,8 +249,8 @@ export default {
         }
       );
       // 调用场景保存
-      if (this.$parent.updateSceneModelData) {
-        this.$parent.updateSceneModelData();
+      if (this.parent.updateSceneModelData) {
+        this.parent.updateSceneModelData();
       }
 
 

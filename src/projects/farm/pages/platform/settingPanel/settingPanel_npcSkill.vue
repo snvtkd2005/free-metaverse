@@ -73,7 +73,7 @@ export default {
     };
   },
   created() {
-
+    this.parent = this.$parent.$parent;
   },
   mounted() {
     setTimeout(() => {
@@ -94,7 +94,7 @@ export default {
       }
     },
     removeThreeJSfocus() {
-      this.$parent.removeThreeJSfocus();
+      this.parent.$parent.removeThreeJSfocus();
     },
     addThreeJSfocus() {
     },
@@ -130,7 +130,7 @@ export default {
     EditorSkillEvent(e, item, i) {
  
       if (e == "新建") {
-        this.$parent.$parent.$refs.skillSelectPanel.SetVisible(true);
+        this.parent.$parent.$refs.skillSelectPanel.SetVisible(true);
         //如果是npc，则关闭npc的巡逻动作
         // if (this.$parent.pointType == "npc") {
         //   this.$parent.ClickHandler("停止巡逻");

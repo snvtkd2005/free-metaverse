@@ -64,6 +64,13 @@ export const UploadSceneFile = (data) => {
         data: data,
     });
 }
+export const UploadGroupFile = (data) => {
+    return Fetch({
+        method: "post",
+        url: `${tag}/uploadGroup`,
+        data: data,
+    });
+}
 
 export const UploadHDRFile = (data) => {
     return Fetch({
@@ -102,6 +109,13 @@ export const GetAllScene = () => {
     return Fetch({
         method: "get",
         url: `${tag}/getAllScene`,
+        // data: data,
+    });
+}
+export const GetAllGroup = () => {
+    return Fetch({
+        method: "get",
+        url: `${tag}/getAllGroup`,
         // data: data,
     });
 }

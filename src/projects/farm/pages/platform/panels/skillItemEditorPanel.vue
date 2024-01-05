@@ -268,7 +268,7 @@ export default {
       // this.SetSkillList(res.data);
     },
     ChangeAnim(animName) {
-      this.$parent.$refs.settingPanel_player.ChangePlayerAnim(animName);
+      this.$parent.$refs.settingPanelCtrl.$refs.settingPanel_player.ChangePlayerAnim(animName);
     },
     ChangeUIState(property, e) {
       // 根据选择判断哪些属性不显示

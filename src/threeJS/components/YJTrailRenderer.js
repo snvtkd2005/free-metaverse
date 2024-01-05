@@ -28,8 +28,7 @@ class YJTrailRenderer {
         // 片元着色器
         let fragmentShaderDef = /* glsl */ ` 
     #include <map_pars_fragment> 
-    
-    uniform vec2 u_resolution;
+     
     uniform float u_time;
     uniform sampler2D mainTex;
     uniform vec3 color;
@@ -103,8 +102,7 @@ class YJTrailRenderer {
             );
             shader.fragmentShader = shader.fragmentShader.replace(
                 '#include <output_fragment>',
-                `  
-                // vec2 uv=(gl_FragCoord.xy*2.-u_resolution.xy)/u_resolution.y;
+                `   
                 vec2 uv0=vUv ;
                 vec2 uv1=vUv ;
                 uv1.x += -u_time*1.5; 
@@ -223,12 +221,22 @@ class YJTrailRenderer {
             material.color.set(data.color);
             console.log("in 拖尾 msg = ", scope.id, data);
         }
+        let interval_splice = null;
         this.start = function () {
             // console.log("复用 trail ");
+
             count = 0;
             animate();
+            
+            interval_splice = setInterval(() => {
+                if (splinePath.length > 0) {
+                    splinePath.splice(0, 1);
+                    addTube();
+                }
+            }, lifeTime * 1000);
         }
         this.stop = function () {
+            clearInterval(interval_splice);
             scope.used = false;
             cancelAnimationFrame(updateId);
             splinePath = [];
@@ -236,12 +244,6 @@ class YJTrailRenderer {
         }
         let deltaTime = 1;
         let last = performance.now();
-        setInterval(() => {
-            if (splinePath.length > 0) {
-                splinePath.splice(0, 1);
-                addTube();
-            }
-        }, lifeTime * 1000);
         function animate() {
             updateId = requestAnimationFrame(animate);
             const now = performance.now();
@@ -284,14 +286,12 @@ class YJTrailRenderer {
                 //     time = 0;
                 // }
             } else {
-                // count += 1;
-                // if (count >= 30) {
-                //     scope.used = false;
-                //     cancelAnimationFrame(updateId);
-                // }
+                count += 1;
+                if (count >= 30) {
+                    scope.stop(); 
+                }
             }
-            // 
-            // group.position.z = Math.sin(count);
+            
 
 
         }

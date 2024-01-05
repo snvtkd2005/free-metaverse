@@ -107,6 +107,7 @@ export default {
   },
   created() {
 
+    this.parent = this.$parent.$parent;
   },
   mounted() {
 
@@ -125,7 +126,7 @@ export default {
   methods: {
     
     removeThreeJSfocus() {
-      this.$parent.removeThreeJSfocus();
+      this.parent.removeThreeJSfocus();
     },
     addThreeJSfocus() { 
     },
@@ -190,12 +191,12 @@ export default {
         isBlack: this.setting[5].value,
       };
 
-      if (this.$parent.updateModelTxtData) {
-        this.$parent.modelData.message = {
+      if (this.parent.updateModelTxtData) {
+        this.parent.modelData.message = {
           pointType: "UV动画",
           data: this.settingData
         };
-        this.$parent.updateModelTxtData();
+        this.parent.updateModelTxtData();
       }
 
 

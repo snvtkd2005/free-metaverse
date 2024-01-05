@@ -236,7 +236,7 @@ export default {
           this.boneList.splice(i,1);
         }
       }
-      this.$parent.$refs.settingPanel_player.saveBone(this.boneList);
+      this.$parent.$refs.settingPanelCtrl.$refs.settingPanel_player.saveBone(this.boneList);
     },
     ChangeAnim(currentBoneItem) {
       if (this.selectBaseBone.boneName == undefined) {

@@ -66,7 +66,7 @@ export default {
 
   },
   mounted() {
-
+    this.parent = this.$parent.$parent;
   },
   methods: {
 
@@ -74,7 +74,7 @@ export default {
       
       if ("全屏" == e) {
         this.fullScreen = !this.fullScreen; 
-        this.$parent.setMaxMin(this.fullScreen);
+        this.parent.setMaxMin(this.fullScreen);
         return;
       }
       if ("导出" == e) {
@@ -83,12 +83,12 @@ export default {
         return;
       }
       if ("设置" == e) {
-        this.$parent.ChangePanel('setting');
+        this.parent.ChangePanel('setting');
         return;
       }
       if ("模型" == e) {
         this.panelState.model = !this.panelState.model;
-        this.$parent.$refs.modelPanel.SetVisible(this.panelState.model);
+        this.parent.$refs.modelPanel.SetVisible(this.panelState.model);
         return;
       }
       if (this.openModelPanel == e) {
@@ -110,7 +110,7 @@ export default {
         let href = this.$router.resolve({
           name: path.replace("/", ""),
           query: {
-            folderBase: this.$parent.folderBase,
+            folderBase: this.parent.folderBase,
           },
         });
         window.open(href.href, "_blank");

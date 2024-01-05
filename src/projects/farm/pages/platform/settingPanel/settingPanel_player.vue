@@ -212,6 +212,7 @@ export default {
   },
   created() {
 
+    this.parent = this.$parent.$parent;
   },
   mounted() {
 
@@ -226,7 +227,7 @@ export default {
     console.log("modelData in playerPanel ", modelData);
     this.settingData.name = modelData.name;
     if (modelData.message == undefined) {
-      this.settingData.id = this.$parent.folderBase + "";
+      this.settingData.id = this.parent.folderBase + "";
       return;
     }
 
@@ -248,8 +249,8 @@ export default {
 
       if (e == "选择可映射角色") {
         // 只有骨骼相同，且有扩展动作的角色，才允许被映射
-        // this.$parent.$refs.modelSelectPanel.Init("角色模型");
-        this.$parent.$refs.modelSelectPanel.RequestProjectionPlayer(this.settingData);
+        // this.parent.$refs.modelSelectPanel.Init("角色模型");
+        this.parent.$refs.modelSelectPanel.RequestProjectionPlayer(this.settingData);
       }
       if (e == "保存") {
         this.$refs.settingPanel_avatar.save();
@@ -260,12 +261,12 @@ export default {
       }
       if (e == "动作列表") {
         console.log(" 打开动作列表 ");
-        this.$parent.$refs.animPanel.SetVisible(true, this.modelData.name);
+        this.parent.$refs.animPanel.SetVisible(true, this.modelData.name);
       }
       if (e == "骨骼映射面板") {
         let bones = _Global.YJ3D._YJSceneManager
           .GetSingleTransformComponent("MeshRenderer").GetAllBone();
-        this.$parent.$refs.boneConvertPanel.SetVisible(true, bones, this.settingData.boneList);
+        this.parent.$refs.boneConvertPanel.SetVisible(true, bones, this.settingData.boneList);
       }
       if (e == "清除角色映射") {
         this.settingData.boneRefPlayer ="";
@@ -286,7 +287,7 @@ export default {
     },
     download() { },
     removeThreeJSfocus() {
-      this.$parent.removeThreeJSfocus();
+      this.parent.removeThreeJSfocus();
     },
     addThreeJSfocus() {
     }, 
@@ -307,7 +308,7 @@ export default {
     },
     updateName(v) {
       this.settingData.name = v;
-      this.$parent.modelData.message = this.getMessage();
+      this.parent.modelData.message = this.getMessage();
 
       // 控制三维
       _Global.YJ3D._YJSceneManager
@@ -366,7 +367,7 @@ export default {
     handleBeforeUpload(file) {
       this.animName = this.setting[0].value;
       if (this.animName == "") {
-        this.$parent.SetTip("请先输入动作名");
+        this.parent.SetTip("请先输入动作名");
         return;
       }
 
@@ -375,11 +376,11 @@ export default {
       for (let i = 0; i < this.animListData.length; i++) {
         const element = this.animListData[i];
         if (element.animName == this.animName) {
-          this.$parent.SetTip("动作名重复，请重命名");
+          this.parent.SetTip("动作名重复，请重命名");
           return;
         }
         if (element.path == fileName) {
-          this.$parent.SetTip("json文件已存在，请重命名后上传");
+          this.parent.SetTip("json文件已存在，请重命名后上传");
           return;
         }
       }

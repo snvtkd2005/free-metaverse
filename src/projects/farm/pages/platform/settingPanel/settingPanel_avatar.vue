@@ -150,13 +150,15 @@ export default {
       ],
     };
   },
-  created() { },
+  created() { 
+    this.parent = this.$parent.$parent;
+  },
   mounted() {
   },
   methods: {
 
     removeThreeJSfocus() {
-      this.$parent.removeThreeJSfocus();
+      this.parent.removeThreeJSfocus();
     },
     addThreeJSfocus() {
     },
@@ -230,8 +232,7 @@ export default {
           timeScale: element.timeScale,
         });
       }
-      this.$parent.settingData.animationsData = this.settingData.animationsData;
-      // this.$parent.save();
+      this.parent.settingData.animationsData = this.settingData.animationsData;
     },
 
     // 设置角色眼睛高度

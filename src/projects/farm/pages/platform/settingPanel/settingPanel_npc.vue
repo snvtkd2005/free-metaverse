@@ -186,14 +186,17 @@ export default {
 
     };
   },
-  created() { },
+  created() {
+    
+    this.parent = this.$parent.$parent;
+   },
   mounted() {
     let modelData = JSON.parse(localStorage.getItem("modelData"));
     if (modelData == null) {
       return;
     }
     if (modelData.message == undefined) {
-      this.settingData.id = this.$parent.folderBase + "";
+      this.settingData.id = this.parent.folderBase + "";
       return;
     }
     this.folderBase = modelData.folderBase;
@@ -250,7 +253,7 @@ export default {
 
 
       if (e == "加载武器模型") {
-        this.$parent.$refs.modelSelectPanel.Init("装备模型");
+        this.parent.$refs.modelSelectPanel.Init("装备模型");
       }
       if (e == "移除武器模型") {
         item.value = "";
@@ -260,7 +263,7 @@ export default {
       }
 
       if (e == "加载角色模型") {
-        this.$parent.$refs.modelSelectPanel.Init("角色模型");
+        this.parent.$refs.modelSelectPanel.Init("角色模型");
       }
       if (e == "保存") {
         this.save();
@@ -279,7 +282,7 @@ export default {
 
     },
     removeThreeJSfocus() {
-      this.$parent.removeThreeJSfocus();
+      this.parent.removeThreeJSfocus();
     },
     addThreeJSfocus() { },
     // 从单品编辑跳转过来后更新UI值
@@ -320,7 +323,7 @@ export default {
         _Global.YJ3D._YJSceneManager.CreateSingleModel(
           item.modelPath,
           () => {
-            this.$parent.SetTip("加载模型完成");
+            this.parent.SetTip("加载模型完成");
             setTimeout(() => {
               // 控制三维
               _Global.YJ3D._YJSceneManager
@@ -353,7 +356,7 @@ export default {
     },
     updateName(v) {
       this.settingData.name = v;
-      this.$parent.modelData.message = this.getMessage();
+      this.parent.modelData.message = this.getMessage();
 
       // 控制三维
       _Global.YJ3D._YJSceneManager
@@ -416,9 +419,9 @@ export default {
     },
     save() {
       // 单品中才有 updateModelTxtData
-      if (this.$parent.updateModelTxtData) {
-        this.$parent.modelData.message = this.getMessage();
-        this.$parent.updateModelTxtData();
+      if (this.parent.updateModelTxtData) {
+        this.parent.modelData.message = this.getMessage();
+        this.parent.updateModelTxtData();
       } else {
         // 在场景编辑中的修改
         this.Update();
@@ -432,16 +435,14 @@ export default {
       );
     },
 
-    Update() {
-      // _Global.SendMsgTo3D("刷新Transform", this.$parent.modelData.message);
-
+    Update() { 
       _Global.YJ3D._YJSceneManager.UpdateTransform(
         this.getMessage()
       );
       // 调用场景保存
-      if (this.$parent.updateSceneModelData) {
-        this.$parent.tableList[2].value = true;
-        this.$parent.updateSceneModelData();
+      if (this.parent.updateSceneModelData) {
+        this.parent.tableList[2].value = true;
+        this.parent.updateSceneModelData();
       }
     },
   },

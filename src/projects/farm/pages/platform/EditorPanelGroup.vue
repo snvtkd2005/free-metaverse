@@ -1,5 +1,5 @@
 
-<!-- // 场景编辑UI -->
+<!-- 组合编辑 -->
 <template>
   <div class="  absolute left-0 top-0  w-full h-full flex flex-col ">
 
@@ -8,10 +8,10 @@
       <div class=" flex ">
         <div v-for="(item, i) in tableList" :key="i" :index="item.id"
           class=" px-12 flex  h-full text-center cursor-pointer  hover:bg-546770  " @click="ChangeTable(item)">
-          <div class=" self-center">
+          <div v-if="item.display" class=" self-center">
             {{ item.content }}
           </div>
-          <div v-if="(item.id == 'save_model' && !item.value) ||
+          <div v-if="item.display && (item.id == 'save_model' && !item.value) ||
             (item.id == 'save_thrumb' && !item.value)">
             *
           </div>
@@ -29,7 +29,7 @@
       <!-- 修改名称 -->
       <div class=" absolute left-2 top-2 flex text-white ">
         <div class="   w-auto h-6 mt-1">
-          场景名:
+          组合名:
         </div>
         <input class=" bg-transparent placeholder-gray-400 p-1" type="text" v-model="modelData.name"
           :placeholder="modelData.name" @focus="removeThreeJSfocus" @blur="addThreeJSfocus" />
@@ -69,7 +69,7 @@
         <settingPanel ref="settingPanel" />
       </div>
     </div>
-    
+
     <!-- 右侧检视面板 -->
     <div class=" absolute right-0 top-0 h-full bg-546770" :style="settingPanelStyle">
       <settingPanelCtrl ref="settingPanelCtrl" />
@@ -85,11 +85,11 @@
       <hierarchy ref="hierarchyPanel" :modelList="modelList" />
     </div>
 
-    <loadingPanel :loadingUrl="loadingUrl" class="absolute z-50 left-0 top-0 w-full h-full " ref="loadingPanel"/>
+    <loadingPanel :loadingUrl="loadingUrl" class="absolute z-50 left-0 top-0 w-full h-full " ref="loadingPanel" />
     <modelSelectPanel ref="modelSelectPanel" />
     <!-- 给npc添加技能 -->
     <skillSelectPanel ref="skillSelectPanel" />
- 
+
     <!-- 截图区域安全区域 -->
     <PanelCut @cancel="CancelCut" ref="PanelCut" />
 
@@ -113,15 +113,6 @@ import skillSelectPanel from "./panels/skillSelectPanel.vue";
 
 import settingPanelCtrl from "./settingPanel/settingPanelCtrl.vue";
 
-import settingPanel from "./settingPanel/settingPanel.vue";
-import sceneSettingPanel from "./settingPanel/sceneSettingPanel.vue";
-import settingPanel_uvAnim from "./settingPanel/settingPanel_uvAnim.vue";
-import settingPanel_screen from "./settingPanel/settingPanel_screen.vue";
-import settingPanel_particle from "./settingPanel/settingPanel_particle.vue";
-import settingPanel_npc from "./settingPanel/settingPanel_npc.vue";
-import settingPanel_weapon from "./settingPanel/settingPanel_weapon.vue";
-import settingPanel_interactive from "./settingPanel/settingPanel_interactive.vue";
-
 import HUD from "./common/HUD.vue";
 
 import hierarchy from "./Hierarchy.vue";
@@ -135,7 +126,7 @@ import { SceneManager } from "../../js/SceneManagerEditor.js";
 import { Interface } from "../../js/Interface_editor.js";
 
 import {
-  GetAllScene, UploadSceneFile
+  GetAllGroup, UploadGroupFile
 } from "../../js/uploadThreejs.js";
 
 export default {
@@ -147,7 +138,7 @@ export default {
     skillSelectPanel,
     PanelCut,
     hierarchy,
-    settingPanelCtrl, 
+    settingPanelCtrl,
     HUD,
   },
   data() {
@@ -200,16 +191,15 @@ export default {
 
       _SceneManager: null,
       tableList: [
-        // { id: 10000, content: "导入", },
-        { id: 'save_thrumb', content: "截图（制作缩略图）", value: true },
-        // { id: 10000, content: "保存", },
-        { id: 10000, content: "保存场景配置", },
-        { id: 'save_model', content: "保存场景模型", value: true },
-        { id: "single_collider", content: "显示碰撞体", value: false },
-        { id: "single_planeState", content: "隐藏地面", value: true },
-        { id: "save_view", content: "设置为访问视角", },
-        { id: "load_view", content: "还原到访问视角", },
-        // { id: 10000, content: "发布", },
+        { id: "import", content: "导入", display: true },
+        { id: 'save_thrumb', content: "截图（制作缩略图）", display: true, value: true },
+        { id: "save_setting", content: "保存场景配置", display: false, },
+        { id: 'save_model', content: "保存场景模型", display: true, value: true },
+        { id: "single_collider", content: "显示碰撞体", display: true, value: false },
+        { id: "single_planeState", content: "隐藏地面", display: true, value: true },
+        { id: "save_view", content: "设置为访问视角", display: false, value: false },
+        { id: "load_view", content: "还原到访问视角", display: false, value: false },
+        { id: "release", content: "发布", display: false, },
       ],
       viewFar: 5,
 
@@ -503,7 +493,7 @@ export default {
   },
   created() {
     this.publicUrl = this.$publicUrl + this.sceneData.setting.localPath;
-    this.sceneLoadUrl = this.$uploadSceneUrl;
+    this.sceneLoadUrl = this.$uploadGroupUrl;
   },
   mounted() {
 
@@ -534,6 +524,8 @@ export default {
     console.log(" this.folderBase ", this.folderBase, this.loadingUrl);
     this.$refs.YJmetaBase.SetloadingPanel(this.$refs.loadingPanel);
     this.$refs.PanelCut.Init(_Global.YJ3D);
+    
+    this.$refs.settingPanelCtrl.ChangePanel('');
 
     // 没有icon表示为新建的场景
     // if (this.modelData.icon) {
@@ -694,7 +686,7 @@ export default {
     },
 
     async RequestGetAllScene(callback) {
-      GetAllScene().then((res) => {
+      GetAllGroup().then((res) => {
         // console.log("获取所有场景数据，查找当前场景数据  ", res);
         //先记录旧照片
         if (res.data.txtDataList) {
@@ -789,6 +781,8 @@ export default {
     },
 
     async RequestGetAllSceneData() {
+      this.Enter(); return;
+
       let res = await this.$axios.get(
         this.sceneLoadUrl + this.folderBase + "/" + "setting.txt" + "?time=" + new Date().getTime()
       );
@@ -798,7 +792,6 @@ export default {
       this.sceneData.setting.hasCamRaycast = true;
       this.sceneData.setting.camOffsetY = this.sceneData.setting.playerHeight / 2;
 
-      this.Enter();
     },
     async RequestGetAllSceneModelData() {
 
@@ -844,9 +837,9 @@ export default {
       let s = JSON.stringify(this.modelData);
       let fromData = new FormData();
       //服务器中的本地地址 
-      fromData.append("fileToUpload", this.$stringtoBlob(s,  "data.txt"));
+      fromData.append("fileToUpload", this.$stringtoBlob(s, "data.txt"));
       fromData.append("folderBase", this.folderBase);
-      UploadSceneFile(fromData).then((res) => {
+      UploadGroupFile(fromData).then((res) => {
         //先记录旧照片
         if (res.data == "SUCCESS") {
           console.log(" 上传模型数据文件成功 ");
@@ -861,8 +854,11 @@ export default {
 
     // 保存场景配置数据。新建时调用、配置改变时主动调用
     updateSceneData(callback) {
-
       this.sceneData.hasEditored = true;
+      if (callback) {
+        callback();
+      }
+      return;
       console.log(" 保存场景配置 ", this.sceneData);
       // console.log(" 保存场景配置 ", this.sceneData.AmbientLightData.backgroundColor);
 
@@ -873,7 +869,7 @@ export default {
       //服务器中的本地地址 
       fromData.append("fileToUpload", this.$stringtoBlob(s, "setting.txt"));
       fromData.append("folderBase", this.folderBase);
-      UploadSceneFile(fromData).then((res) => {
+      UploadGroupFile(fromData).then((res) => {
         //先记录旧照片
         if (res.data == "SUCCESS") {
           console.log(" 上传  场景配置数据 成功 ");
@@ -919,9 +915,9 @@ export default {
       let s = JSON.stringify(this.modelList);
       let fromData = new FormData();
       //服务器中的本地地址 
-      fromData.append("fileToUpload", this.$stringtoBlob(s,  "scene.txt"));
+      fromData.append("fileToUpload", this.$stringtoBlob(s, "scene.txt"));
       fromData.append("folderBase", this.folderBase);
-      UploadSceneFile(fromData).then((res) => {
+      UploadGroupFile(fromData).then((res) => {
         //先记录旧照片
         if (res.data == "SUCCESS") {
           console.log(" 上传 场景模型清单数据 成功 ");
@@ -934,9 +930,9 @@ export default {
       let s = JSON.stringify(this.modelList);
       let fromData = new FormData();
       //服务器中的本地地址 
-      fromData.append("fileToUpload", this.$stringtoBlob(s,"scene.txt"));
+      fromData.append("fileToUpload", this.$stringtoBlob(s, "scene.txt"));
       fromData.append("folderBase", this.folderBase);
-      UploadSceneFile(fromData).then((res) => {
+      UploadGroupFile(fromData).then((res) => {
         //先记录旧照片
         if (res.data == "SUCCESS") {
         }
@@ -955,10 +951,10 @@ export default {
       //服务器中的本地地址
       fromData.append(
         "fileToUpload",
-        this.$dataURLtoBlob(dataurl,  "thumb.jpg")
+        this.$dataURLtoBlob(dataurl, "thumb.jpg")
       );
       fromData.append("folderBase", this.folderBase);
-      UploadSceneFile(fromData).then((res) => {
+      UploadGroupFile(fromData).then((res) => {
         //先记录旧照片
         if (res.data == "SUCCESS") {
           console.log(" 上传模型缩略图 ");

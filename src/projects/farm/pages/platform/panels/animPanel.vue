@@ -169,7 +169,7 @@ export default {
       // this.SetSkillList(res.data);
     },
     ChangeAnim(animName) {
-      this.$parent.$refs.settingPanel_player.ChangePlayerAnim(animName);
+      this.$parent.$refs.settingPanelCtrl.$refs.settingPanel_player.ChangePlayerAnim(animName);
     },
 
     ChangeValue(i, e) {
@@ -187,7 +187,7 @@ export default {
     EditorEvent(e, item, i) {
       console.log(e, item, i);
       if (e == "上传") {
-        this.$parent.$refs.settingPanel_player.SetAnimName(item);
+        this.$parent.$refs.settingPanelCtrl.$refs.settingPanel_player.SetAnimName(item);
         this.isOpen = false;
         return;
       }
@@ -219,7 +219,7 @@ export default {
 
       if (e == "清除") {
         // 清除角色的这一条动作记录 
-        this.$parent.$refs.settingPanel_player.removeAnim(item.animName);
+        this.$parent.$refs.settingPanelCtrl.$refs.settingPanel_player.removeAnim(item.animName);
         item.has = false;
       }
     },

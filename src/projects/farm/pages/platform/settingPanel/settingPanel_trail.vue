@@ -194,6 +194,7 @@ export default {
     Update() {
 
       if (this.parent.updateModelTxtData) {
+        console.log(" ======== this.parent.updateModelTxtData");
         this.parent.modelData.message = this.getMessage();
         this.parent.updateModelTxtData();
       }else {

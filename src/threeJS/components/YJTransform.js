@@ -282,6 +282,10 @@ class YJTransform {
       let pos = getWorldPosition(group).clone();
       return pos;
     }
+    this.GetPlayerWorldPos = function () {
+      let com = this.GetComponent("NPC");
+      return com.GetPlayerWorldPos(); 
+    }
     function getWorldPosition(object) {
       var worldPosition = new THREE.Vector3();
       object.getWorldPosition(worldPosition);

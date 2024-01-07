@@ -1195,6 +1195,11 @@ class YJNPC {
     this.GetWorldPos = function () {
       return scope.transform.GetWorldPos();
     }
+    this.GetPlayerWorldPos = function () {
+      let pos =scope.transform.GetWorldPos();
+      pos.y += playerHeight/2;
+      return pos;
+    }
 
     let fireBeforePos = null;
     this.SetNpcTargetToNone = function (isLocal) {

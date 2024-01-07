@@ -1238,7 +1238,7 @@ class YJSceneDyncManagerEditor {
           return;
         }
       }
-
+      console.log(" shootTargetFn ",target);
       let group = new THREE.Group();
       _Global.YJ3D.scene.add(group);
       let trailRenderer = { group: group, trail: new YJTrailRenderer(_this, _Global.YJ3D.scene, group) };
@@ -1249,12 +1249,16 @@ class YJSceneDyncManagerEditor {
       for (let i = shootTargetList.length - 1; i >= 0; i--) {
         const item = shootTargetList[i];
         if (item.trailRenderer.trail.used) {
-          item.time += 0.03;
+          item.time += 0.003;
           if (item.time >= 1) {
             item.trailRenderer.trail.stop();
             return;
           }
-          item.startPos.lerp(item.target.GetWorldPos(), item.time);
+          if(item.startPos.distanceTo(item.target.GetPlayerWorldPos())<0.2){
+            item.trailRenderer.trail.stop();
+            return;
+          }
+          item.startPos.lerp(item.target.GetPlayerWorldPos(), item.time);
           item.trailRenderer.group.position.copy(item.startPos);
         }
       }

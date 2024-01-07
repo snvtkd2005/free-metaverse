@@ -51,38 +51,7 @@
 
     <!-- 右侧检视面板 @click="inAddComponent=false;"-->
     <div class="absolute right-0 top-0 w-80 h-full bg-546770">
-      <div v-if="panelState.uvAnim" class="mt-10 w-80 border-t max-w-md">
-        <settingPanel_uvAnim ref="settingPanel_uvAnim" />
-      </div>
-      <div v-if="panelState.car" class="mt-10 w-80 border-t max-w-md">
-        <settingPanel_car ref="settingPanel_car" />
-      </div>
-      <div v-if="panelState.weapon" class="mt-10 w-80 border-t max-w-md">
-        <settingPanel_weapon ref="settingPanel_weapon" />
-      </div>
-      <div v-if="panelState.player" class="mt-10 w-80 border-t max-w-md">
-        <settingPanel_player ref="settingPanel_player" />
-      </div>
-      <div v-if="panelState.screen" class="mt-10 w-80 border-t max-w-md">
-        <settingPanel_screen ref="settingPanel_screen" />
-      </div>
-      <div v-if="panelState.particle" class="mt-10 w-80 border-t max-w-md">
-        <settingPanel_particle ref="settingPanel_particle" />
-      </div>
-
-      <div v-if="panelState.avatar" class="mt-10 w-80 border-t max-w-md">
-        <settingPanel_avatar ref="settingPanel_avatar" />
-      </div>
-
-      <div v-if="panelState.npc" class="mt-10 w-80 border-t max-w-md">
-        <settingPanel_npc ref="settingPanel_npc" />
-      </div>
-      <div v-if="panelState.interactive" class="mt-10 w-80 border-t max-w-md">
-        <settingPanel_interactive ref="settingPanel_interactive" />
-      </div>
-      <div v-if="panelState.trail" class="mt-10 w-80 border-t max-w-md">
-        <settingPanel_trail ref="settingPanel_trail" />
-      </div>
+      <settingPanelCtrl ref="settingPanelCtrl" />
       
       <!-- <div class=" mt-10 w-80 h-10 border-t text-white cursor-pointer " @click.stop="inAddComponent=true;">
         <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">Add Component</div>
@@ -167,16 +136,8 @@ import boneConvertPanel from "./panels/boneConvertPanel.vue";
 
 // 加载进度页
 import loadingPanel from "./loadingPanel2.vue";
-import settingPanel_uvAnim from "./settingPanel/settingPanel_uvAnim.vue";
-import settingPanel_car from "./settingPanel/settingPanel_car.vue";
-import settingPanel_weapon from "./settingPanel/settingPanel_weapon.vue";
-import settingPanel_player from "./settingPanel/settingPanel_player.vue";
-import settingPanel_screen from "./settingPanel/settingPanel_screen.vue";
-import settingPanel_particle from "./settingPanel/settingPanel_particle.vue";
-import settingPanel_avatar from "./settingPanel/settingPanel_avatar.vue";
-import settingPanel_npc from "./settingPanel/settingPanel_npc.vue";
-import settingPanel_interactive from "./settingPanel/settingPanel_interactive.vue";
-import settingPanel_trail from "./settingPanel/settingPanel_trail.vue";
+
+import settingPanelCtrl from "./settingPanel/settingPanelCtrl.vue";
 
 import headerUI from "./common/headerUI.vue";
 import skillProgressUI from "./common/skillProgressUI.vue";
@@ -196,16 +157,8 @@ export default {
     modelSelectPanel,
     animPanel,
     boneConvertPanel,
-    settingPanel_uvAnim,
-    settingPanel_car,
-    settingPanel_weapon,
-    settingPanel_player,
-    settingPanel_screen,
-    settingPanel_particle,
-    settingPanel_avatar,
-    settingPanel_npc,
-    settingPanel_interactive,
-    settingPanel_trail,
+    settingPanelCtrl,
+    
     addComponent,
     PanelCut,
     headerUI,
@@ -371,28 +324,10 @@ export default {
     },
 
     ChangePanel(e) {
-      let names = Object.getOwnPropertyNames(this.panelState);
-      let list = Object.getOwnPropertySymbols(this.panelState);
-      for (let i = 0; i < names.length; i++) {
-        const element = names[i];
-        this.panelState[element] = false;
-      }
-      if (e == "") {
-        return;
-      }
-      // console.log(names);
-      // console.log(list);
-      this.panelState[e] = true;
-      this.hasUI = true;
+      this.$refs.settingPanelCtrl.ChangePanel(e);
       setTimeout(() => {
-        this.currentSettingPanel = this.$refs["settingPanel_" + e];
-      }, 200);
-      return;
-      if (this.openModelPanel != e) {
-        this.openModelPanel = e;
-      } else {
-        this.openModelPanel = "";
-      }
+        this.currentSettingPanel = this.$refs.settingPanelCtrl.$refs["settingPanel_" + e];
+      }, 200); 
     },
     Load() {
       this.hasUI = false;
@@ -435,7 +370,7 @@ export default {
                   }
                 }
               }
-              this.$refs.settingPanel_weapon.SetAnimList(canAnimList);
+              this.$refs.settingPanelCtrl.$refs.settingPanel_weapon.SetAnimList(canAnimList);
             });
         }, 1000);
       }
@@ -446,14 +381,14 @@ export default {
 
       if (this.modelData.modelType == "角色模型") {
         setTimeout(() => {
-          this.$refs.settingPanel_player.SetAvatar(
+          this.$refs.settingPanelCtrl.$refs.settingPanel_player.SetAvatar(
             _Global.YJ3D._YJSceneManager.GetSingleModelTransform()
           );
         }, 3000);
       }
 
 
-      let modelTemplate = this.UIData.customPanel.modelTemplate;
+      let modelTemplate = this.UIData.customPanel.templateList[0].template;
       for (let i = 0; i < modelTemplate.length; i++) {
         const element = modelTemplate[i];
         if (element.name == this.modelData.modelType) {
@@ -557,7 +492,7 @@ export default {
         if (this.oldFileName != this.modelData.name) {
           this.oldFileName = this.modelData.name;
           if (this.modelData.modelType == "角色模型") {
-            this.$refs.settingPanel_player.updateName(this.oldFileName);
+            this.$refs.settingPanelCtrl.$refs.settingPanel_player.updateName(this.oldFileName);
           }
           this.updateModelTxtData();
         }
@@ -572,7 +507,7 @@ export default {
 
       if (this.modelData.message == undefined) {
         if (this.modelData.modelType == "角色模型") {
-          this.modelData.message = this.$refs.settingPanel_player.getMessage();
+          this.modelData.message = this.$refs.settingPanelCtrl.$refs.settingPanel_player.getMessage();
         }
       }
 
@@ -910,7 +845,7 @@ export default {
                   this.tipData.opening = false;
                   if (this.modelData.modelType == "角色模型") {
 
-                    this.$refs.settingPanel_player.SetAvatar(
+                    this.$refs.settingPanelCtrl.$refs.settingPanel_player.SetAvatar(
                       _Global.YJ3D._YJSceneManager.GetSingleModelTransform()
                     );
                   }

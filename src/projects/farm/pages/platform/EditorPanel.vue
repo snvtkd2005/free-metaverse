@@ -637,8 +637,8 @@ export default {
       if (_Global.YJ3D && _Global.YJ3D.YJRaycaster) {
         _Global.YJ3D.YJRaycaster.SetOffset(this.panelData.hierarchyStyle.width, this.panelData.topStyle.height);
       }
-      if (this.$refs.settingPanelCtrl.settingPanel) {
-        this.$refs.settingPanelCtrl.settingPanel.fullScreen = false;
+      if (this.$refs.settingPanelCtrl.$refs.settingPanel) {
+        this.$refs.settingPanelCtrl.$refs.settingPanel.fullScreen = false;
       }
 
       this.resizePanel();
@@ -1435,7 +1435,7 @@ export default {
       if (component != null) {
         this.ChangePanel('uvAnim');
         this.$nextTick(() => {
-          this.$refs.settingPanelCtrl.settingPanel_uvAnim.Init(component.GetData());
+          this.$refs.settingPanelCtrl.$refs.settingPanel_uvAnim.Init(component.GetData());
         });
         console.log(component);
         return;
@@ -1445,7 +1445,7 @@ export default {
         this.ChangePanel('screen');
         let msg = this.clickModelJS.GetMessage();
         this.$nextTick(() => {
-          this.$refs.settingPanelCtrl.settingPanel_screen.Init(msg.data);
+          this.$refs.settingPanelCtrl.$refs.settingPanel_screen.Init(msg.data);
         });
         console.log(component);
         return;
@@ -1456,7 +1456,7 @@ export default {
         this.ChangePanel('particle');
         let msg = this.clickModelJS.GetMessage();
         this.$nextTick(() => {
-          this.$refs.settingPanelCtrl.settingPanel_particle.Init(msg.data);
+          this.$refs.settingPanelCtrl.$refs.settingPanel_particle.Init(msg.data);
         });
         console.log(component);
         return;
@@ -1466,7 +1466,7 @@ export default {
         this.ChangePanel('npc');
         let msg = this.clickModelJS.GetMessage();
         this.$nextTick(() => {
-          this.$refs.settingPanelCtrl.settingPanel_npc.Init(msg.data);
+          this.$refs.settingPanelCtrl.$refs.settingPanel_npc.Init(msg.data);
         });
         console.log(component);
         // 
@@ -1478,7 +1478,7 @@ export default {
         this.ChangePanel('weapon');
         let msg = this.clickModelJS.GetMessage();
         this.$nextTick(() => {
-          this.$refs.settingPanelCtrl.settingPanel_weapon.Init(msg.data);
+          this.$refs.settingPanelCtrl.$refs.settingPanel_weapon.Init(msg.data);
         });
         // console.log(component);
         console.log("武器请到武器单品中设置");
@@ -1489,7 +1489,18 @@ export default {
         this.ChangePanel('interactive');
         let msg = this.clickModelJS.GetMessage();
         this.$nextTick(() => {
-          this.$refs.settingPanelCtrl.settingPanel_interactive.Init(msg.data);
+          this.$refs.settingPanelCtrl.$refs.settingPanel_interactive.Init(msg.data);
+        });
+        console.log(component);
+        return;
+      }
+      
+      component = this.clickModelJS.GetComponent("Trail");
+      if (component != null) {
+        this.ChangePanel('trail');
+        let msg = this.clickModelJS.GetMessage();
+        this.$nextTick(() => {
+          this.$refs.settingPanelCtrl.$refs.settingPanel_trail.Init(msg.data);
         });
         console.log(component);
         return;

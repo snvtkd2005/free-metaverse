@@ -72,6 +72,7 @@ class YJLoadUserModelManager {
       }
     }
     this.GetTransformByUUID = function (uuid) {
+      console.log(allTransform);
       for (let i = 0; i < allTransform.length; i++) {
         if (allTransform[i].uuid == uuid) {
           return allTransform[i].transform;

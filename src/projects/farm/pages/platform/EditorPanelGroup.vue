@@ -6,14 +6,16 @@
     <!-- 顶部工具栏 -->
     <div class=" absolute z-20 left-0 top-0 w-full flex bg-445760  text-gray-200 " :style="topStyle">
       <div class=" flex ">
-        <div v-for="(item, i) in tableList" :key="i" :index="item.id"
-          class=" px-12 flex  h-full text-center cursor-pointer  hover:bg-546770  " @click="ChangeTable(item)">
-          <div v-if="item.display" class=" self-center">
-            {{ item.content }}
-          </div>
-          <div v-if="item.display && (item.id == 'save_model' && !item.value) ||
-            (item.id == 'save_thrumb' && !item.value)">
-            *
+        <div v-for="(item, i) in tableList" :key="i"
+          class="  flex w-auto h-full text-center cursor-pointer  hover:bg-546770  " @click="ChangeTable(item)">
+          <div v-if="item.display" class=" w-auto px-12 flex ">
+            <div  class=" self-center">
+              {{ item.content }}
+            </div>
+            <div v-if="  (item.id == 'save_model' && !item.value) ||
+              (item.id == 'save_thrumb' && !item.value)">
+              *
+            </div>
           </div>
         </div>
       </div>
@@ -98,10 +100,6 @@
 
 <script>
 
-
-import PlayerAnimData from "../../data/platform/playerAnimSetting.js";
-
-
 import YJmetaBase from "./YJmetaBase.vue";
 
 import PanelCut from "./PanelCut.vue";
@@ -124,6 +122,7 @@ import { SceneManager } from "../../js/SceneManagerEditor.js";
 
 
 import { Interface } from "../../js/Interface_editor.js";
+import { YJuserData } from "../../js/YJuserData.js";
 
 import {
   GetAllGroup, UploadGroupFile
@@ -190,6 +189,7 @@ export default {
       infloating: false,
 
       _SceneManager: null,
+      _YJuserData: null,
       tableList: [
         { id: "import", content: "导入", display: true },
         { id: 'save_thrumb', content: "截图（制作缩略图）", display: true, value: true },
@@ -210,19 +210,6 @@ export default {
       meetingOwner: '',
       oldSceneName: "",
 
-      // 是否开启音视频
-      // hasTRTC: true,
-      hasTRTC: false,
-
-      // 是否有左上角头像、姓名、血条
-      hasGameUI: false,
-
-      isInsertPanel: false,
-      // 是否显示姓名条
-      displayUserNameUI: false,
-
-      //是否可交互的提示
-      jiaohuTip: false,
 
       inLoadCompleted: false,
       //房间名
@@ -231,18 +218,8 @@ export default {
       selectPlayerName: "",
       playerImgPath: [],
 
-      //角色同步数据
-      user: {
-        pos: [-100, -100, 0],
-        rota: [0, 0, 0],
-        rotateY: 1,
-        animName: "idle",
-        playerData: {},
-        userData: {},
-      },
 
       userName: "",
-      userId: "",
       id: "",
 
       pos: { x: -100, y: -100 },
@@ -251,7 +228,6 @@ export default {
 
       language: null,
       isEn: false,
-      // playerAnimData: null,
       contrlState: 0,
 
       windowWidth: 0,
@@ -492,7 +468,7 @@ export default {
     };
   },
   created() {
-    this.publicUrl = this.$publicUrl + this.sceneData.setting.localPath;
+
     this.sceneLoadUrl = this.$uploadGroupUrl;
   },
   mounted() {
@@ -502,6 +478,7 @@ export default {
       _Global.reloadTimes = 0;
     }
     this.Interface = new Interface(this, true);
+    this._YJuserData = new YJuserData(this);
 
     if (this.$route.path.toLowerCase().includes("editorscene")) {
       localStorage.setItem("modelType", "场景");
@@ -524,7 +501,7 @@ export default {
     console.log(" this.folderBase ", this.folderBase, this.loadingUrl);
     this.$refs.YJmetaBase.SetloadingPanel(this.$refs.loadingPanel);
     this.$refs.PanelCut.Init(_Global.YJ3D);
-    
+
     this.$refs.settingPanelCtrl.ChangePanel('');
 
     // 没有icon表示为新建的场景
@@ -629,8 +606,8 @@ export default {
       if (_Global.YJ3D && _Global.YJ3D.YJRaycaster) {
         _Global.YJ3D.YJRaycaster.SetOffset(this.panelData.hierarchyStyle.width, this.panelData.topStyle.height);
       }
-      if (this.$refs.settingPanelCtrl.settingPanel) {
-        this.$refs.settingPanelCtrl.settingPanel.fullScreen = false;
+      if (this.$refs.settingPanelCtrl.$refs.settingPanel) {
+        this.$refs.settingPanelCtrl.$refs.settingPanel.fullScreen = false;
       }
 
       this.resizePanel();
@@ -670,7 +647,7 @@ export default {
     },
 
     GetPlayerAnimData() {
-      return PlayerAnimData;
+      return this._YJuserData.GetPlayerAnimData();
     },
 
     addMetaWorldCoordinate(item) {
@@ -729,37 +706,39 @@ export default {
 
     },
     Enter() {
-
-      // 用户首次进入先使用默认角色
-      let avatarId = PlayerAnimData.defaultUser.avatarId;
-
-      // 用户第二次进入，使用用户选择的角色
-      if (localStorage.getItem("avatarId")) {
-        avatarId = localStorage.getItem("avatarId");
-      }
-      // 如果场景限制角色，则使用场景限制角色
-      if (this.sceneData.avatarList && this.sceneData.avatarList.length > 0) {
-        avatarId = this.sceneData.avatarList[this.Utils.RandomInt(0, this.sceneData.avatarList.length - 1)].folderBase;
-      }
-
-      this.userName = "aa";
-      if (localStorage.getItem("userName")) {
-        this.userName = localStorage.getItem("userName");
-      }
-
-      this.avatarId = avatarId;
-      this.sceneData.roomName = this.folderBase;
-
       this.inLoadCompleted = true;
-      this.userData = {
-        userName: this.userName,
-        roomName: this.sceneData.roomName,
-        platform: this.sceneData.platform,
-        avatarId: avatarId,
-      };
 
-      this.$refs.YJmetaBase.ClickSelectPlayerOK(this.userData);
-      _Global.YJ3D.SetNickName(this.userName);
+      this._YJuserData.Enter(this.folderBase);
+      // 用户首次进入先使用默认角色
+      // let avatarId = PlayerAnimData.defaultUser.avatarId;
+
+      // // 用户第二次进入，使用用户选择的角色
+      // if (localStorage.getItem("avatarId")) {
+      //   avatarId = localStorage.getItem("avatarId");
+      // }
+      // // 如果场景限制角色，则使用场景限制角色
+      // if (this.sceneData.avatarList && this.sceneData.avatarList.length > 0) {
+      //   avatarId = this.sceneData.avatarList[this.Utils.RandomInt(0, this.sceneData.avatarList.length - 1)].folderBase;
+      // }
+
+      // this.userName = "aa";
+      // if (localStorage.getItem("userName")) {
+      //   this.userName = localStorage.getItem("userName");
+      // }
+
+      // this.avatarId = avatarId;
+      // this.sceneData.roomName = this.folderBase;
+
+      // this.userData = {
+      //   userName: this.userName,
+      //   roomName: this.sceneData.roomName,
+      //   platform: this.sceneData.platform,
+      //   avatarId: avatarId,
+      // };
+
+      // this.$refs.YJmetaBase.ClickSelectPlayerOK(this.userData);
+      // _Global.YJ3D.SetNickName(this.userName);
+
 
       //场景设置
       this._SceneManager = new SceneManager(
@@ -781,19 +760,16 @@ export default {
     },
 
     async RequestGetAllSceneData() {
-      this.Enter(); return;
-
       let res = await this.$axios.get(
         this.sceneLoadUrl + this.folderBase + "/" + "setting.txt" + "?time=" + new Date().getTime()
       );
-
       console.log(" 获取场景配置 ", res.data);
+      this._YJuserData.SetSceneData(res.data);
       this.sceneData = res.data;
-      this.sceneData.setting.hasCamRaycast = true;
-      this.sceneData.setting.camOffsetY = this.sceneData.setting.playerHeight / 2;
-
+      this.Enter();
     },
     async RequestGetAllSceneModelData() {
+      // console.log(" 获取场景 模型   000 ",this.inCreate);
 
       if (this.inCreate) {
         setTimeout(() => {
@@ -859,26 +835,6 @@ export default {
         callback();
       }
       return;
-      console.log(" 保存场景配置 ", this.sceneData);
-      // console.log(" 保存场景配置 ", this.sceneData.AmbientLightData.backgroundColor);
-
-      // return;
-
-      let s = JSON.stringify(this.sceneData);
-      let fromData = new FormData();
-      //服务器中的本地地址 
-      fromData.append("fileToUpload", this.$stringtoBlob(s, "setting.txt"));
-      fromData.append("folderBase", this.folderBase);
-      UploadGroupFile(fromData).then((res) => {
-        //先记录旧照片
-        if (res.data == "SUCCESS") {
-          console.log(" 上传  场景配置数据 成功 ");
-          this.SetTip("保存场景配置成功");
-          if (callback) {
-            callback();
-          }
-        }
-      });
     },
 
     /**
@@ -1048,88 +1004,13 @@ export default {
     changeViewSliderValue(e) {
       this.viewFar = -e;
     },
-    GetAvatarData(playerName) {
-      for (let i = 0; i < PlayerAnimData.avatarData.length; i++) {
-        if (PlayerAnimData.avatarData[i].name == playerName) {
-          return PlayerAnimData.avatarData[i];
-        }
-      }
-      console.error(" 角色信息未找到 ", playerName);
-    },
 
     UpdateSkin(_YJPlayer, playerName, playerState) {
-
-      // this._SceneManager.UpdateSkin(_YJPlayer, playerName, playerState);
-      // return;
-      // console.error(" 同步换装数据 ",playerName, playerState);
-      if (playerName != "litleUnityChain2" || playerState == null || playerState == undefined) {
-        _YJPlayer.ChangeSkinCompleted();
-        return;
-      }
-
-      let avatarData = null;
-      for (let i = 0; i < PlayerAnimData.avatarData.length; i++) {
-        if (PlayerAnimData.avatarData[i].name == playerName) {
-          avatarData = PlayerAnimData.avatarData[i];
-        }
-      }
-      let skinData = avatarData.skinData;
-      if (skinData == undefined || skinData.length <= 1) { return; }
-      let sp = playerState.split('_');
-      for (let i = 0; i < skinData.length; i++) {
-        skinData[i].selected = parseInt(sp[i]);
-      }
-      let mode = "";
-      let part = "";
-      let targetPath = "";
-
-      let faceSourcePath = "";
-      let faceAddPath = "";
-
-      for (let i = 0; i < skinData.length; i++) {
-        const element = skinData[i];
-        if (element.title == "eye") {
-          faceSourcePath = element.modelPath[element.selected];
-        }
-        if (element.title == "faceAdd") {
-          faceAddPath = element.modelPath[element.selected];
-        }
-      }
-
-      for (let i = 0; i < skinData.length; i++) {
-        const element = skinData[i];
-        if (element.title == "eye") {
-          targetPath = element.modelPath[element.selected];
-
-          _YJPlayer.ChangeSkin(targetPath, element.part, element.mode, faceSourcePath);
-          _YJPlayer.ChangeSkin(targetPath, "Face", element.mode, faceSourcePath);
-          _YJPlayer.ChangeSkin(faceAddPath, "Face", "addTexture", faceSourcePath);
-        }
-        if (element.title == "hair") {
-          targetPath = element.modelPath[element.selected];
-          _YJPlayer.ChangeSkin(targetPath, element.part, element.mode, faceSourcePath);
-        }
-        if (element.title == "coat") {
-          targetPath = element.modelPath[element.selected];
-          _YJPlayer.ChangeSkin(targetPath, element.part, element.mode, faceSourcePath);
-        }
-      }
-      setTimeout(() => {
-        _YJPlayer.ChangeSkinCompleted();
-      }, 500);
+      _YJPlayer.ChangeSkinCompleted();
+      return;
     },
 
     SetNpcMusicUrl(npcName) {
-      return;
-      if (npcName == "发呆") {
-        this.npcMusicUrl = this.GetPublicUrl() + "audios/fadai.mp3";
-      }
-      if (npcName == "放牛娃") {
-        this.npcMusicUrl = this.GetPublicUrl() + "audios/bird.mp3";
-      }
-      this.$nextTick(() => {
-        this.$refs.npcMusic.play();
-      });
     },
     ChangePanel(e) {
       this.$refs.settingPanelCtrl.ChangePanel(e);
@@ -1137,9 +1018,7 @@ export default {
 
 
     ChangeAvatar(playerName, callback) {
-      if (this.$refs.gameUI) {
-        this.$refs.gameUI.ChangeAvatar(this.$refs.YJmetaBase.GetAvatarData(playerName), callback);
-      }
+
     },
     GetUseId() {
       return this.$refs.YJDync.GetUseId();
@@ -1147,35 +1026,25 @@ export default {
     //由角色选择界面传入 角色类型、用户名
     ClickSelectPlayerOK(selectPlayerName, userName) {
 
-
-      this.userName = userName;
-      localStorage.setItem("username", this.userName);
-      this.avatarName = selectPlayerName;
-
       this.inLoadCompleted = true;
-      this.userData = {
-        userName: userName,
-        roomName: this.sceneData.roomName,
-        platform: this.sceneData.platform,
-        modelType: selectPlayerName,
-      };
 
       if (this.$refs.scenePanel) {
         this.$refs.scenePanel.DisplayLoading();
       }
 
-      // console.log(userData);
+      this._YJuserData.ClickSelectPlayerOK(selectPlayerName, userName);
+      // this.userName = userName;
+      // localStorage.setItem("username", this.userName);
+      // this.avatarName = selectPlayerName;
 
-      this.$refs.YJmetaBase.ClickSelectPlayerOK(this.userData);
-
-      // 显示玩家姓名条
-      _Global.YJ3D.SetNickName(userName);
-
-
-
-
-
-
+      // this.userData = {
+      //   userName: userName,
+      //   roomName: this.sceneData.roomName,
+      //   platform: this.sceneData.platform,
+      //   modelType: selectPlayerName,
+      // }; 
+      // this.$refs.YJmetaBase.ClickSelectPlayerOK(this.userData); 
+      // _Global.YJ3D.SetNickName(userName);
 
       console.log("场景加载完成------------");
 
@@ -1196,53 +1065,6 @@ export default {
         this._SceneManager.SetTriggerOverlap(b, id, owner);
       }
       this.Interface.SetTriggerOverlap(b, id, name);
-
-      if (b) {
-        if (id == "portal_001" || id == "portal_002") {
-          if (id == "portal_001") {
-            _Global.YJ3D._YJSceneManager.ChangeViewByIdDirect("playerPos_001");
-          }
-          if (id == "portal_002") {
-            _Global.YJ3D._YJSceneManager.ChangeViewByIdDirect("playerPos_002");
-          }
-
-          _Global.YJ3D._YJSceneManager.UpdateLightPos();
-
-          _Global.YJ3D.YJController.SetTransmit(true);
-          if (this.$refs.YJDync) {
-            this.$refs.YJDync.DirectSendUserData();
-          }
-          _Global.YJ3D.YJController.SetTransmit();
-
-        }
-      }
-      if (this._SceneManager == null) {
-        return;
-      }
-      if (id == "car") {
-        let userd = false;
-        if (b) {
-          userd = this._SceneManager.SetCar(owner);
-
-          // setTimeout(() => {
-          //   this.InCar();
-          // }, 1000);
-        } else {
-          this._SceneManager.SetCar(null);
-        }
-
-        // if (this.$refs.modelPanel && !userd && !this.InDriving) {
-        //   this.$refs.modelPanel.CallDriving(b);
-        // }
-      }
-    },
-    InCar() {
-      this._SceneManager.InCar();
-      this.InDriving = true;
-    },
-    OutCar() {
-      this._SceneManager.OutCar();
-      this.InDriving = false;
     },
 
     LoadingProcess(f) {
@@ -1265,13 +1087,7 @@ export default {
         _Global.YJ3D.AddVideoListener();
 
 
-        this.hasGameUI = true;
         this.$nextTick(() => {
-          if (this.$refs.gameUI) {
-            this.$refs.gameUI.SetPlayerName(this.userName, this.avatarName);
-            this.$refs.gameUI.InitPlayerHeader();
-          }
-
           this.Interface.SelectPlayerCompleted(this.avatarName, this.userName);
 
         });
@@ -1303,14 +1119,6 @@ export default {
         this.$refs.scenePanel.load3dComplete();
       }
       this.initCompleted = true;
-
-      if (this.$refs.gameUI) {
-      }
-      this.$nextTick(() => {
-        if (this.$refs.gameUI) {
-          this.$refs.gameUI.ChangeScene(this.sceneData.roomName);
-        }
-      });
 
       this.Interface.load3dComplete();
 
@@ -1421,7 +1229,6 @@ export default {
       _Global.YJ3D._YJSceneManager._YJTransformManager.attach(transform.GetGroup());
       this.UpdateComponentPanel();
 
-
     },
     UpdateComponentPanel() {
       _Global.YJ3D._YJSceneManager.SetSelectTransform(this.clickModelJS);
@@ -1431,7 +1238,7 @@ export default {
       if (component != null) {
         this.ChangePanel('uvAnim');
         this.$nextTick(() => {
-          this.$refs.settingPanelCtrl.settingPanel_uvAnim.Init(component.GetData());
+          this.$refs.settingPanelCtrl.$refs.settingPanel_uvAnim.Init(component.GetData());
         });
         console.log(component);
         return;
@@ -1441,7 +1248,7 @@ export default {
         this.ChangePanel('screen');
         let msg = this.clickModelJS.GetMessage();
         this.$nextTick(() => {
-          this.$refs.settingPanelCtrl.settingPanel_screen.Init(msg.data);
+          this.$refs.settingPanelCtrl.$refs.settingPanel_screen.Init(msg.data);
         });
         console.log(component);
         return;
@@ -1452,7 +1259,7 @@ export default {
         this.ChangePanel('particle');
         let msg = this.clickModelJS.GetMessage();
         this.$nextTick(() => {
-          this.$refs.settingPanelCtrl.settingPanel_particle.Init(msg.data);
+          this.$refs.settingPanelCtrl.$refs.settingPanel_particle.Init(msg.data);
         });
         console.log(component);
         return;
@@ -1462,7 +1269,7 @@ export default {
         this.ChangePanel('npc');
         let msg = this.clickModelJS.GetMessage();
         this.$nextTick(() => {
-          this.$refs.settingPanelCtrl.settingPanel_npc.Init(msg.data);
+          this.$refs.settingPanelCtrl.$refs.settingPanel_npc.Init(msg.data);
         });
         console.log(component);
         // 
@@ -1474,7 +1281,7 @@ export default {
         this.ChangePanel('weapon');
         let msg = this.clickModelJS.GetMessage();
         this.$nextTick(() => {
-          this.$refs.settingPanelCtrl.settingPanel_weapon.Init(msg.data);
+          this.$refs.settingPanelCtrl.$refs.settingPanel_weapon.Init(msg.data);
         });
         // console.log(component);
         console.log("武器请到武器单品中设置");
@@ -1485,7 +1292,17 @@ export default {
         this.ChangePanel('interactive');
         let msg = this.clickModelJS.GetMessage();
         this.$nextTick(() => {
-          this.$refs.settingPanelCtrl.settingPanel_interactive.Init(msg.data);
+          this.$refs.settingPanelCtrl.$refs.settingPanel_interactive.Init(msg.data);
+        });
+        console.log(component);
+        return;
+      }
+      component = this.clickModelJS.GetComponent("Trail");
+      if (component != null) {
+        this.ChangePanel('trail');
+        let msg = this.clickModelJS.GetMessage();
+        this.$nextTick(() => {
+          this.$refs.settingPanelCtrl.$refs.settingPanel_trail.Init(msg.data);
         });
         console.log(component);
         return;

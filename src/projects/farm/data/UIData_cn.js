@@ -85,6 +85,7 @@ export default {
       { name: "粒子特效" },
       { name: "NPC模型" },
       { name: "交互模型" },
+      { name: "拖尾模型" },
       { name: "组合模型" },
     ],
     hdrTip: "上传hdr及其缩略图jpg",

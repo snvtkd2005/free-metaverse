@@ -139,15 +139,7 @@ class YJTrailRenderer {
                 uv1.x += -u_time*1.5; 
                 uv0.x += -u_time*0.5;
 
-                // float noiseValue = (noise(uv0*10.));
-                // noiseValue=0.;
-                // uv0*=5.;
-                // mat2 m=mat2(1.6,1.2,-1.2,1.6);
-                // noiseValue=.5000*noise(uv0);uv0=m*uv0;
-                // noiseValue+=.2500*noise(uv0);uv0=m*uv0;
-                // noiseValue+=.1250*noise(uv0);uv0=m*uv0;
-                // noiseValue+=.0625*noise(uv0);uv0=m*uv0;
-                // noiseValue=.5+.5*noiseValue;
+                // float noiseValue = (noise(uv0*10.)); 
                 
                 float noiseValue = noise3(uv0);
 
@@ -165,8 +157,8 @@ class YJTrailRenderer {
 
         }
         let splinePath = [
-            // new THREE.Vector3(0, 0, 0),
-            // new THREE.Vector3(3, 0, 0),
+            new THREE.Vector3(0, 0, 0),
+            new THREE.Vector3(3, 0, 0),
             // new THREE.Vector3(6,0, 0), 
         ];
         let tubeGeometry = new THREE.BufferGeometry();;
@@ -180,8 +172,8 @@ class YJTrailRenderer {
         let oldPos = new THREE.Vector3();
         let group = new THREE.Group();
         // group.add(new THREE.AxesHelper(1));
-        scene.add(group);
-        // parent.add(group);
+        // scene.add(group);
+        parent.add(group);
         group.position.set(0, 0, 0);
         oldPos = parent.position.clone();
 
@@ -225,9 +217,9 @@ class YJTrailRenderer {
             sprite.position.y = params.width/2;
             parent.add(sprite);  
 
-            addTube();
-            animate();
-            scope.start();
+            // addTube();
+            // animate();
+            // scope.start();
 
         }
         // 3 6 5 3 2 5
@@ -239,6 +231,8 @@ class YJTrailRenderer {
             0xaaaaaa,//5
             0x000000,//6
         ];
+
+        // 创建模型顶点参考点
         function CreateVerticesHandler(parent, vertices) {
 
             let num = 0;
@@ -311,12 +305,9 @@ class YJTrailRenderer {
 
             // CreateVerticesHandler(mesh, geometry.attributes.position.array);
 
-        }
-        let count = 0;
-        let time = 0;
+        } 
         let lifeTime = 0.1;
-        let maxLength = 20;
-        let startPos = null;
+        let maxLength = 20; 
         let updateId = null;
         let data = null;
         this.SetMessage = function (msg) {
@@ -338,12 +329,16 @@ class YJTrailRenderer {
             uniforms["mainTex"].value = map;
             material.color.set(data.color);
             console.log("in 拖尾 msg = ", scope.id, data);
+            if(_Global.setting.inEditor){
+                addTube();
+                animate();
+                sprite.visible = true;
+            }
         }
         let interval_splice = null;
         this.start = function () {
             // console.log("复用 trail ");
-
-            count = 0;
+ 
             animate();
             sprite.visible = true;
 
@@ -351,6 +346,8 @@ class YJTrailRenderer {
                 if (splinePath.length > 0) {
                     splinePath.splice(0, 1);
                     addTube();
+                }else{
+                    this.stop();
                 }
             }, lifeTime * 1000);
         }
@@ -369,7 +366,7 @@ class YJTrailRenderer {
             updateId = requestAnimationFrame(animate);
             const now = performance.now();
             let delta = (now - last) / 1000;
-            // console.log("delta ",delta);
+            // console.log("delta ",delta,splinePath.length);
             deltaTime -= delta * 1;
             if (deltaTime <= -1) {
                 deltaTime = 1;
@@ -391,15 +388,7 @@ class YJTrailRenderer {
                 oldPos = newPos;
 
             } else {
-            }
-            if (splinePath.length > 0) {
-            } else {
-                // count += 1;
-                // if (count >= 30) {
-                //     scope.stop(); 
-                // }
-            }
-
+            } 
 
 
         }

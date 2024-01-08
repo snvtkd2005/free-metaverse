@@ -614,8 +614,8 @@ class YJSceneManager {
     //#endregion
 
     function Init() {
-      // console.log("初始化场景 ");
       let routerPath = _this.$route.path.toLowerCase();
+      // console.log("初始化场景 ",routerPath);
       if (routerPath.includes("visit")|| routerPath.includes("group") || routerPath.includes("scene")|| routerPath.includes("metaworld")) {
         InitFn();
       } else {
@@ -656,7 +656,7 @@ class YJSceneManager {
       _YJGameManager_DyncScene = new YJGameManager_DyncScene();
 
       sceneData = _this.$parent.$parent.sceneData;
-      // console.log(" 获取场景配置222 ", sceneData);
+      console.log(" 获取场景配置222 ", sceneData);
 
 
       setting = sceneData.setting;

@@ -39,6 +39,7 @@ export default {
       { content: "场景" },
       { content: "HDR" },
       { content: "通用图片" },
+      { content: "通用音效" },
       { content: "技能" },
     ],
     templateList: [

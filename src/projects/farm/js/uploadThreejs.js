@@ -31,16 +31,6 @@ export const UploadFile = (data,progress) => {
     });
 }
 
-// 获取单品模型数据
-export const GetAllModel = () => {
-    return Fetch({
-        method: "get",
-        url: `${tag}/getAllModel`,
-        // data: data,
-    });
-}
-
-
 export const UploadPlayerFile = (data) => {
     return Fetch({
         method: "post",
@@ -88,11 +78,36 @@ export const UploadUVAnimFile = (data) => {
     });
 }
 
+export const UploadAudioFile = (data) => {
+    return Fetch({
+        method: "post",
+        url: `${tag}/uploadAudio`,
+        data: data,
+    });
+}
+
+
+// 获取单品模型数据
+export const GetAllModel = () => {
+    return Fetch({
+        method: "get",
+        url: `${tag}/getAllModel`,
+        // data: data,
+    });
+}
 
 export const GetAllHDR = () => {
     return Fetch({
         method: "get",
-        url: `${tag}/getAllHDR `,
+        url: `${tag}/getAllHDR`,
+        // data: data,
+    });
+}
+
+export const GetAllAudio = () => {
+    return Fetch({
+        method: "get",
+        url: `${tag}/getAllAudio`,
         // data: data,
     });
 }

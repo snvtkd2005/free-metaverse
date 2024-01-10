@@ -38,6 +38,11 @@ export default {
 
 
     focus() {
+      
+      if(this.$parent.focus){
+        this.$parent.focus();
+        return;
+      }
       if(this.$parent.$parent.removeThreeJSfocus){
         this.$parent.$parent.removeThreeJSfocus();
       }

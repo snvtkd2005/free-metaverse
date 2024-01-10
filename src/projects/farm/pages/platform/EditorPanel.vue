@@ -114,13 +114,6 @@ import skillSelectPanel from "./panels/skillSelectPanel.vue";
 import settingPanelCtrl from "./settingPanel/settingPanelCtrl.vue";
 
 import settingPanel from "./settingPanel/settingPanel.vue";
-import sceneSettingPanel from "./settingPanel/sceneSettingPanel.vue";
-import settingPanel_uvAnim from "./settingPanel/settingPanel_uvAnim.vue";
-import settingPanel_screen from "./settingPanel/settingPanel_screen.vue";
-import settingPanel_particle from "./settingPanel/settingPanel_particle.vue";
-import settingPanel_npc from "./settingPanel/settingPanel_npc.vue";
-import settingPanel_weapon from "./settingPanel/settingPanel_weapon.vue";
-import settingPanel_interactive from "./settingPanel/settingPanel_interactive.vue";
 
 import HUD from "./common/HUD.vue";
 
@@ -147,6 +140,7 @@ export default {
     skillSelectPanel,
     PanelCut,
     hierarchy,
+    settingPanel,
     settingPanelCtrl, 
     HUD,
   },
@@ -195,6 +189,7 @@ export default {
         interactive: false,
         weapon: false,
       },
+
       hover: false,
       infloating: false,
 
@@ -302,15 +297,7 @@ export default {
         // 房间名，用房间名来区分多个项目的同步
         roomName: "3dfarm",
         platform: "pcweb",
-        hasEditored: false,
-
-        // 场景txt路径
-        // sceneTexPath: "models/Scene/scene.txt",
-
-        // modelPath: 'models/Scene/',
-        // 场景txt路径
-        // sceneTexPath: "scene.txt",
-        // npcTexPath: "npc.json",
+        hasEditored: false, 
         // 界面设置
         setting: {
 
@@ -642,6 +629,8 @@ export default {
       }
 
       this.resizePanel();
+      this.ChangePanel('setting');
+
     },
     resizePanel() {
       this.panel3dStyle = `
@@ -1477,11 +1466,14 @@ export default {
       if (component != null) {
         this.ChangePanel('weapon');
         let msg = this.clickModelJS.GetMessage();
-        this.$nextTick(() => {
+        // this.$nextTick(() => {
+        // });
+        setTimeout(() => {
+          this.$refs.settingPanelCtrl.$refs.settingPanel_weapon.GetAnimList(this.avatarId);
           this.$refs.settingPanelCtrl.$refs.settingPanel_weapon.Init(msg.data);
-        });
-        // console.log(component);
-        console.log("武器请到武器单品中设置");
+        }, 2000);
+        this.$message('设置武器请到武器单品中设置'); 
+        // console.log("武器请到武器单品中设置");
         return;
       }
       component = this.clickModelJS.GetComponent("Interactive");

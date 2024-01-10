@@ -88,11 +88,6 @@
       <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">保存偏移旋转</div>
     </div>
 
-
-    <!-- <div  class=" flex gap-2 text-black ">
-      <YJinput_number :value="carData.param.chassisHeight" />
-    </div> -->
-
   </div>
 </template>
 
@@ -283,16 +278,14 @@ export default {
     },
 
     SetAnimList(_animList) {
-
+      console.log("设置动作drop list ",_animList);
       this.animList = _animList;
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "animNameIdle", "options", this.animList);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "animNameWalk", "options", this.animList);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "animNameRun", "options", this.animList);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "animNameReady", "options", this.animList);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "animNameAttack", "options", this.animList);
-      // this.setting[3].options = this.animList;
-      // console.log(this.setting[3].options);
-
+       
     },
 
     animate() {
@@ -330,6 +323,7 @@ export default {
 
 
       this.animate();
+ 
       // setTimeout(() => {
       //   console.log( this.settingData);
       //   _Global.SendMsgTo3D("切换角色动作", this.settingData.animName);
@@ -340,6 +334,26 @@ export default {
       //   }, 20);
       // }, 3000);
 
+    },
+    GetAnimList(avatarId) {
+      _Global.YJ3D._YJSceneManager
+        .CreateOrLoadPlayerAnimData()
+        .GetAllAnim(avatarId, (temp) => {
+          let animList = _Global.animList;
+          let canAnimList = [];
+          for (let i = 0; i < animList.length; i++) {
+            const anim = animList[i];
+            anim.has = false;
+            for (let j = 0; j < temp.length; j++) {
+              const element = temp[j];
+              if (element == anim.animName && element != "") {
+                anim.has = true;
+                canAnimList.push({ label: anim.content, value: anim.animName });
+              }
+            }
+          }
+          this.SetAnimList(canAnimList);
+        });
     },
     ClickHandler(e, item, i) {
       if (e == "编辑位置") {

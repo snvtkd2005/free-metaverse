@@ -66,7 +66,7 @@ export default {
 
   },
   mounted() {
-    this.parent = this.$parent.$parent;
+    this.parent = this.$parent;
   },
   methods: {
 

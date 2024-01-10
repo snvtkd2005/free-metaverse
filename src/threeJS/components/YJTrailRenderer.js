@@ -314,7 +314,7 @@ class YJTrailRenderer {
 
             if (msg == null || msg == undefined || msg == "") { return; }
             // data = JSON.parse(msg);
-            data = (msg);
+            data = (msg); 
             scope.id = scope.transform.id;
             params.width = data.width;
             lifeTime = data.lifeTime;

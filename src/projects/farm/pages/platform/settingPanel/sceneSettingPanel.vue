@@ -2,43 +2,15 @@
 // 场景设置
 <template>
   <!-- 顶部 -->
-  <div class=" absolute z-10 left-2 top-2 h-10 w-full flex  text-white ">
+  <div class=" w-full p-2 text-white ">
     <!-- 顶部工具栏 -->
     <!-- table -->
     <div class=" flex flex-col gap-3  ">
 
       <div class=" text-left ">环境配置</div>
-      <div v-for="(item, i) in setting" :key="i" class=" text-xs  text-left flex w-80     ">
-        <div v-if="item.display" class=" self-center w-1/3">
-          {{ item.title }}
-        </div>
-        <div v-if="item.display" class=" self-center w-2/3 pr-20">
-          <div v-if="item.type == 'color'" class=" flex gap-2 ">
-            <YJinput_color :index="i" :value="item.value" :callback="item.callback" />
-          </div>
-
-          <div v-if="item.type == 'toggle'" class=" w-4 h-4 ">
-            <YJinput_toggle class=" w-4 h-4 " :index="i" :value="item.value" :callback="item.callback"></YJinput_toggle>
-          </div>
-
-          <div v-if="item.type == 'file'" class=" flex  gap-2  " @click="SelectHDR(item, i)">
-            <div @click="SelectHDR(item, i)" class=" w-10 h-10 bg-black cursor-pointer ">
-              <img v-if="item.value" class=" w-full h-full" :src="$uploadHDRUrl + item.value.replace('.hdr', '.jpg')" />
-            </div>
-            <div class=" w-auto h-6 rounded-sm bg-gray-50 flex">
-              <div class=" text-xs pl-1 self-center mx-auto w-10 h-4 leading-4  rounded-sm text-black">
-                浏览...
-              </div>
-            </div>
-          </div>
-
-          <div v-if="item.type == 'slider'" class=" flex gap-2 ">
-            <YJinput_range :index="i" :value="item.value" :step="item.step" :min="item.min" :max="item.max"
-              :callback="item.callback" />
-            <div>{{ item.value }}</div>
-          </div>
-        </div>
-      </div>
+      <div>
+        <YJinputCtrl :setting="setting"/>
+      </div> 
 
       <!-- 放入到开放世界 -->
       <div class=" mt-4  ">
@@ -147,7 +119,8 @@
       </div>
     </div>
   </div>
-  <!-- HDR列表 -->
+
+  
   <div class="  absolute z-10 -left-48 top-0 " v-if="inSelectHDR">
     <div v-for="(item, i) in jpgList" :key="i" class="
                   self-center w-40 h-auto relative
@@ -167,6 +140,8 @@ import YJinput_color from "../components/YJinput_color.vue";
 import YJinput_range from "../components/YJinput_range.vue";
 import YJinput_upload from "../components/YJinput_upload.vue";
 
+import YJinputCtrl from "../components/YJinputCtrl.vue";
+
 
 import { GetAllHDR, RequestMetaWorld } from "../../../js/uploadThreejs.js";
 
@@ -178,15 +153,18 @@ export default {
     YJinput_color,
     YJinput_range,
     YJinput_upload,
+    YJinputCtrl,
   },
   data() {
     return {
       // 场景设置
       setting: [
         { property: "setting-hasSceneHDR", display: true, title: "启用环境hdr", type: "toggle", value: false, callback: this.ChangeValue },
-        { property: "setting-envSceneHDRPath", display: true, title: "环境hdr", type: "file", value: "" },
+        { property: "setting-envSceneHDRPath", display: true, title: "环境hdr", type: "file",filetype:"image", value: "" },
         { property: "setting-hasEnvmap", display: true, title: "启用全景球", type: "toggle", value: false, callback: this.ChangeValue },
-        { property: "setting-envmapPath", display: true, title: "全景球hdr", type: "file", value: "" },
+        { property: "setting-envmapPath", display: true, title: "全景球hdr", type: "file",filetype:"image", value: "" },
+        { property: "setting-hasBGM", display: true, title: "启用背景音乐", type: "toggle", value: false, callback: this.ChangeValue },
+        { property: "setting-BGMurl", display: true, title: "背景音乐", type: "file",filetype:"audio", value: "" },
         { property: "AmbientLightData-backgroundColor", display: true, title: "画布背景色", type: "color", value: "#A7D0FF", callback: this.ChangeValue },
         { property: "AmbientLightData-AmbientLightIntensity", display: true, title: "环境光强度", type: "slider", value: 1, step: 0.1, min: 0, max: 2, callback: this.ChangeValue },
         { property: "hasFloor", display: true, title: "启用默认地面", type: "toggle", value: true, callback: this.ChangeValue },
@@ -199,11 +177,7 @@ export default {
       thumbUrl: "",
       thumbName:"",
       loadingName:"",
-      loadingUrl: "",
-      titleIndex: -1,
-      hdrList: [],
-      jpgList: [],
-      inSelectHDR: false,
+      loadingUrl: "", 
       folderBase:"",
       // metaWorldCoordinate: [{ x: 0, y: 0, vaild: true }],
       metaWorldCoordinate: [],
@@ -214,9 +188,6 @@ export default {
     this.parent = this.$parent.$parent;
   },
   mounted() {
-    this.RequestGetAllHDR();
-
-
 
     setTimeout(() => {
       this.thumbName =    "thumb.jpg";
@@ -243,6 +214,11 @@ export default {
 
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "setting-envmapPath", "display",
         this.Utils.GetSettingItemValueByProperty(this.setting, 'setting-hasEnvmap'));
+
+        
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "setting-BGMurl", "display",
+        this.Utils.GetSettingItemValueByProperty(this.setting, 'setting-hasBGM'));
+
 
       if (this.sceneData.metaWorldCoordinate != undefined) {
       } else {
@@ -362,6 +338,9 @@ export default {
 
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "setting-envmapPath", "display",
         this.Utils.GetSettingItemValueByProperty(this.setting, 'setting-hasEnvmap'));
+
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "setting-BGMurl", "display",
+        this.Utils.GetSettingItemValueByProperty(this.setting, 'setting-hasBGM'));
     },
     ChangeImage(type, e) {
       console.log(type, e);
@@ -385,6 +364,7 @@ export default {
       // } else {
       //   this.settingData[sp[0]][sp[1]] = e;
       // }
+
       this.ChangeUIState(property, e);
 
       if (property == "AmbientLightData-AmbientLightIntensity") {
@@ -398,52 +378,38 @@ export default {
         _Global.SetDisplayFloor(e);
       }
       if (property == "setting-hasEnvmap") {
-        _Global.enableHDR(this.setting[2].value, this.setting[3].value, false);
+        _Global.enableHDR(
+          this.Utils.GetSettingItemValueByProperty(this.setting, 'setting-hasEnvmap'),  
+          this.Utils.GetSettingItemValueByProperty(this.setting, 'setting-envmapPath'), 
+          false);
       }
       if (property == "setting-hasSceneHDR") {
-        _Global.enableHDR(this.setting[0].value, this.setting[1].value, true);
+        _Global.enableHDR(
+          this.Utils.GetSettingItemValueByProperty(this.setting, 'setting-hasSceneHDR'),  
+          this.Utils.GetSettingItemValueByProperty(this.setting, 'setting-envSceneHDRPath'),  
+          true);
       }
-    },
-    SelectHDR(item, i) {
-      this.inSelectHDR = true;
-      this.titleIndex = i;
-    },
-    ClickHDR(i) {
-      this.setting[this.titleIndex].value = this.hdrList[i];
-
-      console.log(this.titleIndex, this.hdrList, this.hdrList[i]);
-
-      if (this.setting[this.titleIndex].title == "环境hdr") {
+    }, 
+    ClickHDR(i,hdrUrl) {
+      this.setting[i].value = hdrUrl;
+      if (this.setting[i].title == "环境hdr") {
         //更新到三维
-        _Global.enableHDR(this.setting[0].value, this.setting[1].value, true);
+        _Global.enableHDR(
+          this.Utils.GetSettingItemValueByProperty(this.setting, 'setting-hasSceneHDR'),  
+          this.Utils.GetSettingItemValueByProperty(this.setting, 'setting-envSceneHDRPath'),  
+          true);
         // 保存到setting
-        this.sceneData.setting.envSceneHDRPath = this.setting[1].value;
+        this.sceneData.setting.envSceneHDRPath =  this.Utils.GetSettingItemValueByProperty(this.setting, 'setting-envSceneHDRPath');
       }
-      if (this.setting[this.titleIndex].title == "全景球hdr") {
-        _Global.enableHDR(this.setting[2].value, this.setting[3].value, false);
-        this.sceneData.setting.envmapPath = this.setting[3].value;
+      if (this.setting[i].title == "全景球hdr") {
+        _Global.enableHDR(
+          this.Utils.GetSettingItemValueByProperty(this.setting, 'setting-hasEnvmap'),  
+          this.Utils.GetSettingItemValueByProperty(this.setting, 'setting-envmapPath'), 
+          false);
+        this.sceneData.setting.envmapPath = this.Utils.GetSettingItemValueByProperty(this.setting, 'setting-envmapPath');
       }
-
-      this.titleIndex = -1;
-      this.inSelectHDR = false;
-    },
-    async RequestGetAllHDR() {
-      GetAllHDR().then((res) => {
-        // console.log("获取所有 hdr ", res);
-        //先记录旧照片
-        if (res.data.txtDataList) {
-          let txtDataList = res.data.txtDataList;
-          for (let i = 0; i < txtDataList.length; i++) {
-            const element = txtDataList[i];
-            if (element.includes('hdr')) {
-              this.hdrList.push((element));
-            } else {
-              this.jpgList.push((element));
-            }
-          }
-        }
-      });
-    },
+ 
+    }, 
     ChangeSetting(title, e) {
 
       if (title == "碰撞") {

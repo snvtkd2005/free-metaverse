@@ -35,7 +35,7 @@ import { FormatDate, GetDateYM, ContentReplace, dataURLtoBlob, stringtoBlob } fr
 
 import { GPTURL } from "/@/utils/chatGPT.js";
 
-// import Confirm from './utils/yjDialog'; 
+// import Confirm from '/@/utils/yjDialog'; 
 
 const app = createApp(App);
 app.use(router);
@@ -95,6 +95,7 @@ if (isLocal) { serverPath = "./public/"; }
 app.config.globalProperties.$uploadUrl = serverPath + "uploads/";
 app.config.globalProperties.$uploadSceneUrl = serverPath + "uploadsScene/";
 app.config.globalProperties.$uploadGroupUrl = serverPath + "uploadsGroup/";
+app.config.globalProperties.$uploadAudioUrl = serverPath + "uploadsAudio/";
 app.config.globalProperties.$uploadHDRUrl = serverPath + "uploadsHDR/";
 app.config.globalProperties.$uploadUVAnimUrl = serverPath + "uploadsUVAnim/";
 app.config.globalProperties.$uploadPlayerUrl = serverPath + "uploadsPlayer/";

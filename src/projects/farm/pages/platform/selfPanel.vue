@@ -17,7 +17,6 @@
           </div>
         </div>
 
-
         <!-- 单品 -->
         <div v-if="currentTable == '单品'"
           class="  gap-6 w-full flex flex-wrap h-auto max-h-5/6  overflow-y-auto  overscroll-auto ">
@@ -123,7 +122,6 @@
             </div>
           </div>
         </div>
-
 
         <!-- 场景 -->
         <div v-if="currentTable == '场景'"
@@ -265,6 +263,54 @@
           </div>
         </div>
 
+        <!-- 通用图片 -->
+        <div v-if="currentTable == '通用音效'"
+          class=" gap-6 w-full flex flex-wrap h-auto max-h-5/6   overflow-y-auto  overscroll-auto ">
+          <!-- 新建按钮 -->
+          <div class="  w-32 h-32 relative border-2">
+            <div class="w-full h-full self-center mx-auto cursor-pointer" @click="CreateNew('audio')">
+              <!-- <img class=" w-full h-full    object-fill hover:opacity-70 " src="publicUrl + item.icon" /> -->
+            </div>
+            <div class="
+                absolute
+                left-0
+                top-0
+                w-full
+                h-full
+                flex
+                pointer-events-none
+              ">
+              <div class="self-center mx-auto">
+                {{ customPanel.createNewUVanim }}
+              </div>
+            </div>
+          </div>
+          <!-- 选择列表 -->
+          <div v-for="(item, i) in audioList" :key="i" class="self-center w-32 h-auto relative">
+            <div class="
+                  w-32
+                  h-32
+                  self-center
+                  mx-auto
+                  overflow-hidden
+                  cursor-pointer
+                ">
+              <img class="w-full h-full object-fill hover:opacity-70 transform" :src="this.$uploadUVAnimUrl + item" />
+            </div>
+            <div class="mt-2 w-28 truncate px-2 flex text-sm justify-between ">
+              <text>{{ item }}</text>
+            </div>
+            <div class=" hidden mt-2 px-2 flex text-xs justify-between">
+              <div>{{ base.good }} 158</div>
+              <div>{{ base.visite }} 177</div>
+            </div>
+            <div class="mt-2 px-2 flex text-xs justify-between">
+              <div class="cursor-pointer">{{ base.editor }}</div>
+              <div class="cursor-pointer">{{ base.delete }}</div>
+            </div>
+          </div>
+        </div>
+
         <!-- 技能 -->
         <div v-if="currentTable == '技能'" class="  gap-6 w-full mx-auto h-full">
           <skillSettingPanel></skillSettingPanel>
@@ -306,21 +352,12 @@
       </div>
     </div>
 
-    <!-- 新建对话框 -->
-    <div v-if="inCreateCallfloating" class="absolute z-10 left-0 top-0 w-full h-full flex">
-      <div class="absolute -z-10 left-0 top-0 w-full h-full bg-black bg-opacity-60" @click="inCreateCallfloating = false">
-      </div>
-      <div class="
-          w-1/2
-          h-auto
-          self-center
-          mx-auto
-          bg-white
-          rounded-xl
-          flex flex-col
-          justify-between
-          p-5
-        ">
+
+    <el-dialog :title="createTitle" class="    text-white  create-card" center v-model="createDialogVisible"
+      :modal-append-to-body="false" width="55%">
+
+      <div class=" h-auto self-center  mx-auto  bg-white  rounded-xl flex flex-col  justify-between  p-5
+        " v-if="createTitle == '单品'">
         <div class="text-3xl">
           {{ base.create + createForm.title }}
         </div>
@@ -349,14 +386,7 @@
               <div class="mx-auto">{{ item.name }}</div>
             </div>
 
-            <div class="
-                hidden
-                mt-2
-                px-2
-                flex
-                text-sm
-                justify-between
-                cursor-pointer
+            <div class=" hidden mt-2  px-2  flex text-sm  justify-between  cursor-pointer
               ">
               <div>{{ item.content }}</div>
             </div>
@@ -364,17 +394,9 @@
           </div>
         </div>
 
-
         <div class=" mt-2 text-left w-auto h-full">描述:{{ createForm.content }}</div>
         <div class="w-full h-12 text-xl flex mt-4 ">
-          <div class="
-              self-center
-              mx-auto
-              inline-block
-              p-3
-              bg-gray-300
-              rounded-lg
-              shadow-lg
+          <div class=" self-center  mx-auto  inline-block p-3  bg-gray-300  rounded-lg  shadow-lg
             " :class="createForm.modelName != ''
               ? '  cursor-pointer pointer-events-auto  '
               : ' pointer-events-none '
@@ -382,6 +404,14 @@
             {{ base.ok }}
           </div>
         </div>
+      </div>
+
+
+
+    </el-dialog>
+    <!-- 新建对话框 -->
+    <div v-if="inCreateCallfloating" class="absolute z-10 left-0 top-0 w-full h-full flex">
+      <div class="absolute -z-10 left-0 top-0 w-full h-full bg-black bg-opacity-60" @click="inCreateCallfloating = false">
       </div>
     </div>
 
@@ -507,6 +537,8 @@ import {
   GetAllUVAnim,
   UploadSceneFile,
   UploadGroupFile,
+  GetAllAudio,
+  UploadAudioFile,
 } from "../../js/uploadThreejs.js";
 
 export default {
@@ -522,6 +554,9 @@ export default {
       inCreateCallfloating: false,
       inUploadHDRfloating: false,
       inUploadUVAnimfloating: false,
+
+      createTitle:"",
+      createDialogVisible:false,
 
       createForm: {},
       playerImg: "",
@@ -550,6 +585,7 @@ export default {
       hdrList: [],
       jpgList: [],
       uvAnimList: [],
+      audioList: [],
 
       selectSceneName: "scene1",
       currentSceneData: null,
@@ -779,6 +815,19 @@ export default {
         }
       });
 
+      GetAllAudio().then((res) => {
+        console.log("获取所有 音频 ", res);
+        //先记录旧照片
+        if (res.data.txtDataList) {
+          let txtDataList = res.data.txtDataList;
+          for (let i = 0; i < txtDataList.length; i++) {
+            const scene = txtDataList[i];
+            // let scene = JSON.parse(element); 
+            this.audioList.push(scene);
+          }
+        }
+      });
+
     },
     // 获取所有单品
     async RequestGetAllModel() {
@@ -830,8 +879,16 @@ export default {
         return;
       }
 
-      this.inCreateCallfloating = true;
+      if (e == "audio") {
+        this.createForm.title = "";
+        this.inUploadUVAnimfloating = true;
+        this.folderBase = new Date().getTime();
+        return;
+      }
 
+      this.createDialogVisible = true;
+      this.createTitle="创建单品";
+      
       for (let i = 0; i < this.templateList.length; i++) {
         const item = this.templateList[i];
         if (item.title == e) {
@@ -851,7 +908,7 @@ export default {
       if (this.createForm.title == '单品') {
 
         let folderBase = new Date().getTime();
-        let icon = folderBase + "/"  + "thumb.png";
+        let icon = folderBase + "/" + "thumb.png";
         let modelData = {
           name: this.createForm.modelName,
           icon: icon,
@@ -866,7 +923,7 @@ export default {
         //服务器中的本地地址
         fromData.append(
           "fileToUpload",
-          this.$stringtoBlob(s,   "data.txt")
+          this.$stringtoBlob(s, "data.txt")
         );
         fromData.append("folderBase", folderBase);
         this.$uploadFile(fromData).then((res) => {
@@ -899,7 +956,7 @@ export default {
         //服务器中的本地地址
         fromData.append(
           "fileToUpload",
-          this.$stringtoBlob(s,   "data.txt")
+          this.$stringtoBlob(s, "data.txt")
         );
         fromData.append("folderBase", folderBase);
         UploadGroupFile(fromData).then((res) => {
@@ -931,7 +988,7 @@ export default {
         //服务器中的本地地址
         fromData.append(
           "fileToUpload",
-          this.$stringtoBlob(s,   "data.txt")
+          this.$stringtoBlob(s, "data.txt")
         );
         fromData.append("folderBase", folderBase);
         UploadSceneFile(fromData).then((res) => {

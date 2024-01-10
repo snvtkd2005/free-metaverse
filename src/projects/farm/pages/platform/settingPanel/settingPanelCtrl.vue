@@ -3,51 +3,63 @@
   <div class=" absolute right-0 top-0 w-full h-full bg-546770">
 
     <!-- 场景设置面板 -->
-    <div v-show="panelState.setting" class=" absolute  w-full border-t-2 mt-1 right-0 max-w-md  h-2/3  top-20  ">
+    <div v-show="panelState.setting" class=" mt-10 w-full border-t  max-w-md ">
       <sceneSettingPanel ref="sceneSettingPanel" />
     </div>
     <!-- uv动画设置面板 -->
-    <div v-if="panelState.uvAnim" class=" absolute  w-full border-t-2 mt-1 right-0 max-w-md  h-2/3  top-20  ">
+    <div v-if="panelState.uvAnim" class="mt-10 w-full border-t  max-w-md ">
       <settingPanel_uvAnim ref="settingPanel_uvAnim" />
     </div>
 
-      <div v-if="panelState.car" class="mt-10 w-80 border-t max-w-md">
-        <settingPanel_car ref="settingPanel_car" />
-      </div>
-      <div v-if="panelState.weapon" class="mt-10 w-80 border-t max-w-md">
-        <settingPanel_weapon ref="settingPanel_weapon" />
-      </div>
-      <div v-if="panelState.player" class="mt-10 w-80 border-t max-w-md">
-        <settingPanel_player ref="settingPanel_player" />
-      </div>
+    <!-- 汽车 -->
+    <div v-if="panelState.car" class="mt-10 w-full border-t max-w-md">
+      <settingPanel_car ref="settingPanel_car" />
+    </div>
+
+    <!-- 武器 -->
+    <div v-if="panelState.weapon" class="mt-10 w-full border-t max-w-md">
+      <settingPanel_weapon ref="settingPanel_weapon" />
+    </div>
+
+    <!-- 玩家角色 -->
+    <div v-if="panelState.player" class="mt-10 w-full border-t max-w-md">
+      <settingPanel_player ref="settingPanel_player" />
+    </div>
+
     <!-- 图片视频直播流设置面板 -->
     <div v-if="panelState.screen" class=" mt-10  w-full border-t max-w-md  ">
       <settingPanel_screen ref="settingPanel_screen" />
     </div>
+
     <!-- 粒子系统设置面板 -->
     <div v-if="panelState.particle" class=" mt-10  w-full border-t max-w-md  ">
       <settingPanel_particle ref="settingPanel_particle" />
     </div>
 
-      <div v-if="panelState.avatar" class="mt-10 w-80 border-t max-w-md">
-        <settingPanel_avatar ref="settingPanel_avatar" />
-      </div>
+    <!-- 角色 -->
+    <div v-if="panelState.avatar" class="mt-10 w-full border-t max-w-md">
+      <settingPanel_avatar ref="settingPanel_avatar" />
+    </div>
 
+    <!-- npc -->
     <div v-if="panelState.npc" class="mt-10 w-full border-t max-w-md">
       <settingPanel_npc ref="settingPanel_npc" />
     </div>
 
+    <!-- 武器 -->
     <div v-if="panelState.weapon" class="mt-10 w-full border-t max-w-md">
       <settingPanel_weapon ref="settingPanel_weapon" />
     </div>
 
+    <!-- 道具 -->
     <div v-if="panelState.interactive" class="mt-10 w-full border-t max-w-md">
       <settingPanel_interactive ref="settingPanel_interactive" />
     </div>
-    
-    <div v-if="panelState.trail" class="mt-10 w-80 border-t max-w-md">
-        <settingPanel_trail ref="settingPanel_trail" />
-      </div>
+
+    <!-- 拖尾 -->
+    <div v-if="panelState.trail" class="mt-10 w-full border-t max-w-md">
+      <settingPanel_trail ref="settingPanel_trail" />
+    </div>
   </div>
 </template>
 
@@ -99,7 +111,7 @@ export default {
         npc: false,
         interactive: false,
         weapon: false,
-        trail:false,
+        trail: false,
       },
     };
   },
@@ -111,7 +123,7 @@ export default {
   },
   methods: {
     ChangePanel(e) {
-      console.log(" ====== 切换右侧面板 ",e);
+      console.log(" ====== 切换右侧面板 ", e);
       let names = Object.getOwnPropertyNames(this.panelState);
       let list = Object.getOwnPropertySymbols(this.panelState);
       for (let i = 0; i < names.length; i++) {

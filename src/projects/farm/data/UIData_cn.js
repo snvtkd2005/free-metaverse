@@ -91,6 +91,7 @@ export default {
     ],
     hdrTip: "上传hdr及其缩略图jpg",
     uvAnimTip: "上传图片",
+    audioTip: "上传音频",
   },
 
 }

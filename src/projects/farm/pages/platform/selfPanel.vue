@@ -294,8 +294,8 @@
                   mx-auto
                   overflow-hidden
                   cursor-pointer
-                ">
-              <img class="w-full h-full object-fill hover:opacity-70 transform" :src="this.$uploadUVAnimUrl + item" />
+                " @click="SelectItem('audio',item)">
+              <audio :src="this.$uploadAudioUrl + item"> </audio> 
             </div>
             <div class="mt-2 w-28 truncate px-2 flex text-sm justify-between ">
               <text>{{ item }}</text>
@@ -356,12 +356,8 @@
     <el-dialog :title="createTitle" class="    text-white  create-card" center v-model="createDialogVisible"
       :modal-append-to-body="false" width="55%">
 
-      <div class=" h-auto self-center  mx-auto  bg-white  rounded-xl flex flex-col  justify-between  p-5
-        " v-if="createTitle == '单品'">
-        <div class="text-3xl">
-          {{ base.create + createForm.title }}
-        </div>
-
+      <div class=" h-auto self-center  mx-auto  bg-white  rounded-xl flex flex-col  justify-between  p-5" 
+      v-if="createTitle == '创建单品' || createTitle == '创建场景'">
         <!-- 输入名称 -->
         <div class="flex mt-2 h-10">
           <div class="w-auto h-6 mt-1 mr-2">
@@ -406,33 +402,8 @@
         </div>
       </div>
 
-
-
-    </el-dialog>
-    <!-- 新建对话框 -->
-    <div v-if="inCreateCallfloating" class="absolute z-10 left-0 top-0 w-full h-full flex">
-      <div class="absolute -z-10 left-0 top-0 w-full h-full bg-black bg-opacity-60" @click="inCreateCallfloating = false">
-      </div>
-    </div>
-
-    <!-- 上传hdr对话框 -->
-    <div v-if="inUploadHDRfloating" class="absolute z-10 left-0 top-0 w-full h-full flex">
-      <div class="absolute -z-10 left-0 top-0 w-full h-full bg-black bg-opacity-60" @click="inUploadHDRfloating = false">
-      </div>
-      <div class="
-          w-1/2
-          h-1/2
-          self-center
-          mx-auto
-          bg-white
-          rounded-xl
-          flex flex-col
-          justify-between
-          p-5
-        ">
-        <div class="text-3xl">
-          {{ base.create + createForm.title }}
-        </div>
+      <div class=" self-center mx-auto bg-white rounded-xl flex flex-col  justify-between p-5 "
+      v-if="createTitle == '上传HDR'">
 
         <el-upload class="bg-transparent w-48 mt-2" action="" multiple :before-upload="handleBeforeUpload"
           :accept="accept" :show-file-list="false">
@@ -462,27 +433,9 @@
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- 上传UV序列图片对话框 -->
-    <div v-if="inUploadUVAnimfloating" class="absolute z-10 left-0 top-0 w-full h-full flex">
-      <div class="absolute -z-10 left-0 top-0 w-full h-full bg-black bg-opacity-60"
-        @click="inUploadUVAnimfloating = false"></div>
-      <div class="
-          w-1/2
-          h-1/2
-          self-center
-          mx-auto
-          bg-white
-          rounded-xl
-          flex flex-col
-          justify-between
-          p-5
-        ">
-        <div class="text-3xl">
-          {{ base.create + createForm.title }}
-        </div>
-
+      <div class=" self-center mx-auto  bg-white  rounded-xl flex flex-col justify-between p-5 "
+        v-if="createTitle == '上传图片'">
         <el-upload class="bg-transparent w-48 mt-2" action="" :before-upload="handleBeforeUploadUVAnim" :accept="accept2"
           :show-file-list="false">
           <div class="bg-gray-100 rounded-lg p-2 w-auto cursor-pointer">
@@ -510,7 +463,39 @@
           </div>
         </div>
       </div>
-    </div>
+
+      <div class=" self-center mx-auto  bg-white  rounded-xl flex flex-col justify-between p-5 "
+        v-if="createTitle == '上传音频'">
+
+        <el-upload class="bg-transparent w-48 mt-2" action="" :before-upload="handleBeforeUpload_audio" accept=".mp3"
+          :show-file-list="false">
+          <div class="bg-gray-100 rounded-lg p-2 w-auto cursor-pointer">
+            {{ customPanel.audioTip }}
+          </div>
+        </el-upload>
+
+        <div v-if="uvAnimUrl != ''">
+          <img class="w-96 h-48" :src="this.$uploadUVAnimUrl + uvAnimUrl" alt="" />
+        </div>
+        <div class="h-full"></div>
+        <div class="w-full h-12 text-xl flex">
+          <div class="
+              self-center
+              mx-auto
+              inline-block
+              p-3
+              bg-gray-300
+              rounded-lg
+              shadow-lg
+              cursor-pointer
+              pointer-events-auto
+            " @click="uploadOk('audio')">
+            {{ base.ok }}
+          </div>
+        </div>
+      </div>
+    </el-dialog> 
+ 
   </div>
 </template>
 
@@ -550,10 +535,7 @@ export default {
     return {
       title: "",
       hover: false,
-      infloating: false,
-      inCreateCallfloating: false,
-      inUploadHDRfloating: false,
-      inUploadUVAnimfloating: false,
+      infloating: false, 
 
       createTitle:"",
       createDialogVisible:false,
@@ -632,10 +614,48 @@ export default {
     },
     uploadOk(e) {
       if (e == "UVAnim") {
-        this.inUploadUVAnimfloating = false;
+        this.createDialogVisible = false;
         this.RequestGetAllUVAnim();
       }
+      if (e == "audio") {
+        this.createDialogVisible = false;
+        this.RequestGetAllUVAnim();
+      }
+      
     },
+    
+    handleBeforeUpload_audio(file) {
+      this.fileList.push(file);
+      console.log(file);
+      if (this.loading) {
+        return;
+      }
+      this.UploadFiles_audio(this.fileList[0]);
+    },
+    async UploadFiles_audio(file) {
+      if (this.loading) {
+        return;
+      }
+      this.loading = true;
+
+      let fromData = new FormData();
+      //服务器中的本地地址
+      fromData.append("fileToUpload", file);
+      // 单个文件上传，可多选。上传后放在根目录
+      //模型或场景文件夹的根目录在创建时由服务器返回
+      fromData.append("folderBase", this.folderBase); 
+
+      //上传到本地 或 0SS
+      UploadAudioFile(fromData).then((res) => {
+        console.log(" 上传文件 ", res);
+        if (res.data == "SUCCESS") {
+          this.fileList.shift();
+          this.loading = false; 
+        }
+      });
+    },
+
+
     handleBeforeUploadUVAnim(file) {
       this.fileList.push(file);
       console.log(file);
@@ -816,16 +836,18 @@ export default {
       });
 
       GetAllAudio().then((res) => {
-        console.log("获取所有 音频 ", res);
         //先记录旧照片
         if (res.data.txtDataList) {
           let txtDataList = res.data.txtDataList;
           for (let i = 0; i < txtDataList.length; i++) {
             const scene = txtDataList[i];
             // let scene = JSON.parse(element); 
-            this.audioList.push(scene);
+            this.audioList.push( scene);
           }
         }
+
+        console.log("获取所有 音频 ",  this.audioList);
+
       });
 
     },
@@ -862,36 +884,44 @@ export default {
         }
       });
     },
-
+    SelectItem(type,item){
+      if(type == "audio"){
+        
+      }
+    },
     CreateNew(e) {
       this.createForm.title = e;
       this.createForm.modelName = "";
       console.log("点击新建 ", e);
+      
+      this.createDialogVisible = true;
       if (e == "HDR") {
-        this.inUploadHDRfloating = true;
+        this.createTitle="上传"+e;
         this.folderBase = new Date().getTime();
         return;
       }
       if (e == "UVAnim") {
+        this.createTitle="上传图片";
+
         this.createForm.title = "";
-        this.inUploadUVAnimfloating = true;
         this.folderBase = new Date().getTime();
         return;
       }
 
       if (e == "audio") {
+        this.createTitle="上传音频";
+
         this.createForm.title = "";
-        this.inUploadUVAnimfloating = true;
         this.folderBase = new Date().getTime();
         return;
       }
 
-      this.createDialogVisible = true;
-      this.createTitle="创建单品";
       
       for (let i = 0; i < this.templateList.length; i++) {
         const item = this.templateList[i];
         if (item.title == e) {
+          this.createTitle="创建"+e;
+          
           this.createTemplate = item.template;
           this.createForm.template = this.createTemplate[0].name;
           this.createForm.content = this.createTemplate[0].content;
@@ -899,7 +929,7 @@ export default {
       }
     },
     CreateNewOK() {
-      this.inCreateCallfloating = false;
+      this.createDialogVisible = false;
 
       // console.log(" 开始创建 ",this.createForm.title);
       // return;

@@ -44,12 +44,7 @@
     <!-- npc -->
     <div v-if="panelState.npc" class="mt-10 w-full border-t max-w-md">
       <settingPanel_npc ref="settingPanel_npc" />
-    </div>
-
-    <!-- 武器 -->
-    <div v-if="panelState.weapon" class="mt-10 w-full border-t max-w-md">
-      <settingPanel_weapon ref="settingPanel_weapon" />
-    </div>
+    </div> 
 
     <!-- 道具 -->
     <div v-if="panelState.interactive" class="mt-10 w-full border-t max-w-md">

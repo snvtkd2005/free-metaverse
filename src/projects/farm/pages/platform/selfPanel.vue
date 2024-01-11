@@ -263,7 +263,7 @@
           </div>
         </div>
 
-        <!-- 通用图片 -->
+        <!-- 通用音效 -->
         <div v-if="currentTable == '通用音效'"
           class=" gap-6 w-full flex flex-wrap h-auto max-h-5/6   overflow-y-auto  overscroll-auto ">
           <!-- 新建按钮 -->
@@ -286,26 +286,36 @@
             </div>
           </div>
           <!-- 选择列表 -->
-          <div v-for="(item, i) in audioList" :key="i" class="self-center w-32 h-auto relative">
+          <div v-for="(item, i) in audioList" :key="i" class="self-center w-60 h-auto relative">
             <div class="
-                  w-32
+                  w-60
                   h-32
                   self-center
                   mx-auto
                   overflow-hidden
                   cursor-pointer
-                " @click="SelectItem('audio',item)">
-              <audio :src="this.$uploadAudioUrl + item"> </audio> 
+                " @click="SelectItem('audio', item)">
+              <div class=" rounded-xl bg-gray-100 border w-full">
+                <audio class="w-full" controls :src="this.$uploadAudioUrl + item.folderBase + '/' + item.name"> </audio>
+              </div>
             </div>
-            <div class="mt-2 w-28 truncate px-2 flex text-sm justify-between ">
-              <text>{{ item }}</text>
+            <div class=" flex flex-wrap w-5/6 gap-3"> 
+              <div v-for="(tagItem, ii) in item.tags " :key="ii"
+                class=" border rounded-3xl border-gray-300 w-auto h-8 ">
+                <div class=" flex h-full text-gray-600">
+                  <div class=" self-center mx-auto px-4 ">{{ tagItem }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-2 w-full px-2 flex text-sm justify-between ">
+              <text>{{ item.folderBase + '/' + item.name }}</text>
             </div>
             <div class=" hidden mt-2 px-2 flex text-xs justify-between">
               <div>{{ base.good }} 158</div>
               <div>{{ base.visite }} 177</div>
             </div>
             <div class="mt-2 px-2 flex text-xs justify-between">
-              <div class="cursor-pointer">{{ base.editor }}</div>
+              <div class="cursor-pointer" @click="ClickHandler('编辑音频', item)">{{ base.editor }}</div>
               <div class="cursor-pointer">{{ base.delete }}</div>
             </div>
           </div>
@@ -353,11 +363,11 @@
     </div>
 
 
-    <el-dialog :title="createTitle" class="    text-white  create-card" center v-model="createDialogVisible"
+    <el-dialog :title="dialogTitle" class="    text-white  create-card" center v-model="dialogVisible"
       :modal-append-to-body="false" width="55%">
 
-      <div class=" h-auto self-center  mx-auto  bg-white  rounded-xl flex flex-col  justify-between  p-5" 
-      v-if="createTitle == '创建单品' || createTitle == '创建场景'">
+      <div class=" h-auto self-center  mx-auto  bg-white  rounded-xl flex flex-col  justify-between  p-5"
+        v-if="dialogTitle == '创建单品' || dialogTitle == '创建场景'">
         <!-- 输入名称 -->
         <div class="flex mt-2 h-10">
           <div class="w-auto h-6 mt-1 mr-2">
@@ -403,7 +413,7 @@
       </div>
 
       <div class=" self-center mx-auto bg-white rounded-xl flex flex-col  justify-between p-5 "
-      v-if="createTitle == '上传HDR'">
+        v-if="dialogTitle == '上传HDR'">
 
         <el-upload class="bg-transparent w-48 mt-2" action="" multiple :before-upload="handleBeforeUpload"
           :accept="accept" :show-file-list="false">
@@ -435,7 +445,7 @@
       </div>
 
       <div class=" self-center mx-auto  bg-white  rounded-xl flex flex-col justify-between p-5 "
-        v-if="createTitle == '上传图片'">
+        v-if="dialogTitle == '上传图片'">
         <el-upload class="bg-transparent w-48 mt-2" action="" :before-upload="handleBeforeUploadUVAnim" :accept="accept2"
           :show-file-list="false">
           <div class="bg-gray-100 rounded-lg p-2 w-auto cursor-pointer">
@@ -465,7 +475,7 @@
       </div>
 
       <div class=" self-center mx-auto  bg-white  rounded-xl flex flex-col justify-between p-5 "
-        v-if="createTitle == '上传音频'">
+        v-if="dialogTitle == '上传音频' || dialogTitle == '编辑音频'">
 
         <el-upload class="bg-transparent w-48 mt-2" action="" :before-upload="handleBeforeUpload_audio" accept=".mp3"
           :show-file-list="false">
@@ -474,9 +484,26 @@
           </div>
         </el-upload>
 
-        <div v-if="uvAnimUrl != ''">
-          <img class="w-96 h-48" :src="this.$uploadUVAnimUrl + uvAnimUrl" alt="" />
+        <div class=" flex flex-wrap w-5/6 gap-3">
+          <div v-for="(tagItem, ii) in this.createForm.audio.tags " :key="ii"
+            class=" border rounded-3xl border-gray-300 w-auto h-8 ">
+            <div class=" flex h-full text-gray-600">
+              <div class=" self-center mx-auto px-4 ">{{ tagItem }}</div>
+              <div @click="ClickHandler('删除标签', ii)"
+                class=" self-center p-1 px-2 flex text-gray-300 text-xs cursor-pointer ">
+                X
+              </div>
+            </div>
+          </div>
         </div>
+
+        <div class=" flex mt-2  rounded-2xl">
+          <el-input @keydown.enter.native="onblurInputTag" ref="inAddTag" @blur="onblurInputTag" v-model="addTagStr"
+            style="width: 240px; margin-right: 8px" placeholder="按回车键Enter创建标签"></el-input>
+        </div>
+        <audio v-if="this.createForm.audio.name" controls
+          :src="this.$uploadAudioUrl + this.createForm.audio.folderBase + '/' + this.createForm.audio.name"> </audio>
+
         <div class="h-full"></div>
         <div class="w-full h-12 text-xl flex">
           <div class="
@@ -494,8 +521,8 @@
           </div>
         </div>
       </div>
-    </el-dialog> 
- 
+    </el-dialog>
+
   </div>
 </template>
 
@@ -535,10 +562,11 @@ export default {
     return {
       title: "",
       hover: false,
-      infloating: false, 
-
-      createTitle:"",
-      createDialogVisible:false,
+      infloating: false,
+      inAddTag: false,
+      addTagStr: "",
+      dialogTitle: "",
+      dialogVisible: false,
 
       createForm: {},
       playerImg: "",
@@ -608,22 +636,76 @@ export default {
     this.RequestGetAllUVAnim();
   },
   methods: {
+
+    onblurInputTag() {
+      console.log(this.addTagStr);
+      if (this.addTagStr != "") {
+        let has = false;
+        for (let i = 0; i < this.createForm.audio.tags.length && !has; i++) {
+          const element = this.createForm.audio.tags[i];
+          if (element == this.addTagStr) {
+            has = true;
+          }
+        }
+        if (!has) {
+          this.createForm.audio.tags.push(this.addTagStr);
+        }
+      }
+      this.inAddTag = false;
+      this.addTagStr = "";
+    },
+    ClickHandler(e, item) {
+
+
+      if (e == "删除标签") {
+        let i = item;
+        this.createForm.audio.tags.splice(i, 1);
+      }
+      if (e == "新增标签") {
+        this.addTagStr = "";
+        this.inAddTag = true;
+        this.$nextTick(() => {
+          this.$refs.inAddTag.focus();
+        });
+      }
+
+      if (e == "编辑音频") {
+        this.dialogTitle = "编辑音频";
+
+        this.createForm.audio = item;
+        this.folderBase = item.folderBase;
+        this.dialogVisible = true;
+      }
+    },
     selectTempleHandle(item) {
       this.createForm.template = item.name;
       this.createForm.content = item.content;
     },
     uploadOk(e) {
       if (e == "UVAnim") {
-        this.createDialogVisible = false;
+        this.dialogVisible = false;
         this.RequestGetAllUVAnim();
       }
       if (e == "audio") {
-        this.createDialogVisible = false;
-        this.RequestGetAllUVAnim();
+        this.dialogVisible = false;
+
+        let fromData = new FormData();
+        let s = JSON.stringify(this.createForm.audio);
+        fromData.append("fileToUpload", this.$stringtoBlob(s, "data.txt"));
+        fromData.append("folderBase", this.folderBase);
+        UploadAudioFile(fromData).then((res) => {
+          console.log(" 上传文件 ", res);
+          if (res.data == "SUCCESS") {
+
+          }
+        });
+        if (this.dialogTitle == "上传音频") {
+          this.audioList.push(this.createForm.audio);
+        }
       }
-      
+
     },
-    
+
     handleBeforeUpload_audio(file) {
       this.fileList.push(file);
       console.log(file);
@@ -643,14 +725,26 @@ export default {
       fromData.append("fileToUpload", file);
       // 单个文件上传，可多选。上传后放在根目录
       //模型或场景文件夹的根目录在创建时由服务器返回
-      fromData.append("folderBase", this.folderBase); 
+      fromData.append("folderBase", this.folderBase);
 
       //上传到本地 或 0SS
       UploadAudioFile(fromData).then((res) => {
         console.log(" 上传文件 ", res);
         if (res.data == "SUCCESS") {
+          this.createForm.audio.name = file.name;
           this.fileList.shift();
-          this.loading = false; 
+          this.loading = false;
+        }
+      });
+
+      fromData = new FormData();
+      let s = JSON.stringify(this.createForm.audio);
+      fromData.append("fileToUpload", this.$stringtoBlob(s, "data.txt"));
+      fromData.append("folderBase", this.folderBase);
+      UploadAudioFile(fromData).then((res) => {
+        console.log(" 上传文件 ", res);
+        if (res.data == "SUCCESS") {
+
         }
       });
     },
@@ -842,12 +936,10 @@ export default {
           for (let i = 0; i < txtDataList.length; i++) {
             const scene = txtDataList[i];
             // let scene = JSON.parse(element); 
-            this.audioList.push( scene);
+            this.audioList.push(scene);
           }
         }
-
-        console.log("获取所有 音频 ",  this.audioList);
-
+        console.log("获取所有 音频 ", this.audioList);
       });
 
     },
@@ -884,24 +976,26 @@ export default {
         }
       });
     },
-    SelectItem(type,item){
-      if(type == "audio"){
-        
+    SelectItem(type, item) {
+      if (type == "audio") {
+        this.dialogTitle = "编辑音频";
+        this.dialogVisible = true;
+
       }
     },
     CreateNew(e) {
       this.createForm.title = e;
       this.createForm.modelName = "";
       console.log("点击新建 ", e);
-      
-      this.createDialogVisible = true;
+
+      this.dialogVisible = true;
       if (e == "HDR") {
-        this.createTitle="上传"+e;
+        this.dialogTitle = "上传" + e;
         this.folderBase = new Date().getTime();
         return;
       }
       if (e == "UVAnim") {
-        this.createTitle="上传图片";
+        this.dialogTitle = "上传图片";
 
         this.createForm.title = "";
         this.folderBase = new Date().getTime();
@@ -909,19 +1003,19 @@ export default {
       }
 
       if (e == "audio") {
-        this.createTitle="上传音频";
-
+        this.dialogTitle = "上传音频";
         this.createForm.title = "";
         this.folderBase = new Date().getTime();
+        this.createForm.audio = { modelType: "audio", folderBase: this.folderBase, tags: [] };
         return;
       }
 
-      
+
       for (let i = 0; i < this.templateList.length; i++) {
         const item = this.templateList[i];
         if (item.title == e) {
-          this.createTitle="创建"+e;
-          
+          this.dialogTitle = "创建" + e;
+
           this.createTemplate = item.template;
           this.createForm.template = this.createTemplate[0].name;
           this.createForm.content = this.createTemplate[0].content;
@@ -929,7 +1023,7 @@ export default {
       }
     },
     CreateNewOK() {
-      this.createDialogVisible = false;
+      this.dialogVisible = false;
 
       // console.log(" 开始创建 ",this.createForm.title);
       // return;

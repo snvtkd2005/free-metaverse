@@ -222,8 +222,7 @@ export default {
       initCompleted: false,
 
       avatarId: "",
-
-      InDriving: false,
+ 
       Interface: null,
       modelList: [],
 
@@ -1069,24 +1068,7 @@ export default {
         this._SceneManager.SetTriggerOverlap(b, id, owner);
       }
       this.Interface.SetTriggerOverlap(b, id, name);
-      if (id == "car") {
-        let userd = false;
-        if (b && !this.InDriving) {
-          userd = this._SceneManager.SetCar(owner);
-        } else {
-          this._SceneManager.SetCar(null);
-        }
-      }
-    },
-
-    InCar() {
-      this._SceneManager.InCar();
-      this.InDriving = true;
-    },
-    OutCar() {
-      this._SceneManager.OutCar();
-      this.InDriving = false;
-    },
+    }, 
     LoadingProcess(f) {
       // 3d加载进度   0-1
       // console.log(" 加载场景进度 " ,f);

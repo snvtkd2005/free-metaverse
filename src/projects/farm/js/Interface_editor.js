@@ -156,9 +156,10 @@ class Interface {
     }
 
     // 移除folderBase
-    async function RequestRemoveFolderBase(folderBase) {
+    async function RequestRemoveFolderBase(msg) {
       let fromData = new FormData();
-      fromData.append("folderBase", folderBase);
+      fromData.append("folderBase",msg.folderBase);
+      fromData.append("type", msg.type);
       RemoveFolderBase(fromData).then((res) => {
         console.log(" 移除成功 ", res);
       });
@@ -202,6 +203,9 @@ class Interface {
       console.log("向3d页发送", type, msg);
       if (type == "删除folderBase") {
         // _Global.SendMsgTo3D("删除folderBase","1699605982197");
+        // _Global.SendMsgTo3D("删除folderBase",{type:"uploadsAudio/",folderBase:"1704941752535"});
+        // _Global.SendMsgTo3D("删除folderBase",{type:"uploads/",folderBase:"1704941752535"});
+        // _Global.SendMsgTo3D("删除folderBase",{type:"uploadsGroup/",folderBase:"1704941752535"});
         RequestRemoveFolderBase(msg);
         return;
       }

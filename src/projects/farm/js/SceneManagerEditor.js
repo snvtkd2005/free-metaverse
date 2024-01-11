@@ -209,13 +209,7 @@ class SceneManager {
         //   indexVue.$refs.HUD.$refs.skillPanel.ClickSkillIndex(7);
         //   return;
         // }
-
-        if (key == "KeyF") {
-          // if (_this._YJSceneManager) {
-          //   _this._YJSceneManager.ClickInteractive();
-          // }
-          return;
-        }
+ 
         if (key == "KeyM") {
           //   //  开关地图
           //   if (setting.keyM != undefined && setting.keyM && _this.$parent.clickOpenPanel) {
@@ -231,14 +225,8 @@ class SceneManager {
         //   scope.UserModel("attack", "胡萝卜");
         //   return;
         // }
-        if (key == "KeyT") {
-          // if (_this._YJSceneManager) {
-          //   _this._YJSceneManager.ClickInteractive();
-          // }
-
-
+        if (key == "KeyT") { 
           scope.PickDownWeapon();
-
           return;
         }
         if (key == "KeyF") {
@@ -251,6 +239,10 @@ class SceneManager {
               InDriving = false;
             }
           }
+          
+          // if (_this._YJSceneManager) {
+          //   _this._YJSceneManager.ClickInteractive();
+          // }
         }
       }, (key) => {
         inJoystick = true;
@@ -402,9 +394,7 @@ class SceneManager {
         }
         // console.log(" in overlap yjtransform ", msg);
 
-      }
-      return;
-
+      } 
       if (b) {
         if (id == "portal_001" || id == "portal_002") {
           if (id == "portal_001") {
@@ -429,14 +419,15 @@ class SceneManager {
       }
       if (id == "car") {
         let userd = false;
-        if (b && !this.InDriving) {
-          userd = this._SceneManager.SetCar(owner);
+        if (b && !InDriving) {
+          userd = this.SetCar(owner);
         } else {
+          this.SetCar(null);
         }
 
-        if (this.$refs.modelPanel && !userd && !this.InDriving) {
-          this.$refs.modelPanel.CallDriving(b);
-        }
+        // if (this.$refs.modelPanel && !userd && !InDriving) {
+        //   this.$refs.modelPanel.CallDriving(b);
+        // }
       }
       if (id == undefined) { return; }
       if (id.includes("chair")) {

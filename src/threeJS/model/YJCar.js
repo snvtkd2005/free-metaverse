@@ -3,8 +3,7 @@
 import * as THREE from "three";
 
 import { YJLoadModel } from "../YJLoadModel";
-import { YJRigidbody } from "../YJRigidbody";
-import { YJKeyboard } from "/@/threeJS/YJKeyboard.js";
+import { YJRigidbody } from "../YJRigidbody"; 
 
 // 挖掘机
 class YJCar {
@@ -127,24 +126,6 @@ class YJCar {
       });
 
       physicsWorld = _YJAmmo.GetPhysicsWorld();
-
-
-      // new YJKeyboard((key) => {
-      //   if (!canMoving) { return; }
-      //   if (keysActions[key]) {
-      //     actions[keysActions[key]] = true;
-      //     SendState();
-      //     return false;
-      //   }
-      // }, (key) => {
-      //   if (!canMoving) { return; }
-      //   if (keysActions[key]) {
-      //     actions[keysActions[key]] = false;
-      //     SendState();
-      //     return false;
-      //   }
-      // });
-
 
       // let modelPath = loadtimes > 4 ? "models/car/wheel001.gltf" : "models/car/wheel002.gltf";
       if (carData.wheelPath != "") {
@@ -962,7 +943,7 @@ class YJCar {
     }
     let inDriving = true;
     this._update = function () {
-
+      console.log( _Global.mainUser);
       if (times < 100 || _Global.mainUser) {
         if (times > 100) {
           SendStatePos();

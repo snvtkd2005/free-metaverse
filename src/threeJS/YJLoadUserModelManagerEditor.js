@@ -246,7 +246,7 @@ class YJLoadUserModelManager {
     }
 
     function CreateTransform(parent, modelData, callback, _modelId,mapId) {
-      // console.error(" load manager 加载模型 ", modelData);
+      console.error(" load manager 加载模型 ", modelData);
 
       // let object = new YJTransform(_this, parent==null?scene:parent, "", null, null, modelData.name);
       let object = new YJTransform(_this, scene, "", null, null, modelData.name);
@@ -271,6 +271,7 @@ class YJLoadUserModelManager {
         if (modelData.modelType == "NPC模型" 
         || modelData.modelType == "交互模型"
         || modelData.modelType == "粒子特效"
+        || modelData.modelType == "汽车模型"
         ) {
 
         } else {
@@ -396,7 +397,7 @@ class YJLoadUserModelManager {
         });
       } else if (modelData.modelType == "汽车模型") {
         object.RemoveComponent("MeshRenderer");
-        let pos = modelData.pos.clone();
+        let pos = modelData.pos;
         let x = pos.x.toFixed(2);
         let z = pos.z.toFixed(2);
         let id = modelData.folderBase + "car" + x + "-" + z;

@@ -12,13 +12,13 @@ class YJKeyboard {
       switch (e.code) {
         case 'KeyT':
           if (inShiftLeft) {
-            keyCallback("ShiftLeft+T");
+            keyCallback("ShiftLeft+T"); 
             return;
           }
           break;
         case 'KeyC':
           if (inShiftLeft) {
-            keyCallback("ShiftLeft+C");
+            keyCallback("ShiftLeft+C"); 
             return;
           }
           break;
@@ -27,20 +27,17 @@ class YJKeyboard {
           if (inControlLeft) {
             e.preventDefault();
             keyCallback("ControlLeft+D");
-          }
-          return;
+            return;
+          } 
         case 'KeyZ':
           if (inShiftLeft) {
             keyCallback("ShiftLeft+Z");
-          }
-          return;
-
+            return;
+          }  
           break;
 
         case 'Tab':
-          e.preventDefault();
-          keyCallback(e.code);
-          return;
+          e.preventDefault(); 
           break;
         case 'ShiftLeft':
           inShiftLeft = true;

@@ -88,6 +88,7 @@ class YJCar {
     }
 
     this.SetKeyboard = function (key) {
+        // console.log("汽车控制",key,keysActions[key]);
       if (!canMoving) { return; }
       if (keysActions[key]) {
         actions[keysActions[key]] = true;
@@ -676,14 +677,7 @@ class YJCar {
           ]);
         }
       }
-
-
-
-
-
-
-
-
+ 
     }
 
     function posToV3(v3) {
@@ -943,7 +937,7 @@ class YJCar {
     }
     let inDriving = true;
     this._update = function () {
-      console.log( _Global.mainUser);
+      // console.log( _Global.mainUser);
       if (times < 100 || _Global.mainUser) {
         if (times > 100) {
           SendStatePos();

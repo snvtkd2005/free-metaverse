@@ -1,7 +1,7 @@
 
-// 模型库
+
 <template>
-  <!-- 模型库 模型列表选择 -->
+  <!-- 动作库 -->
   <div v-if="isOpen" class="
       absolute
       w-full
@@ -13,8 +13,7 @@
     ">
     <div class=" absolute bottom-0 mx-auto w-1/2 h-1/2 p-2 bg-gray-100 
       rounded-tr-lg rounded-tl-lg pointer-events-auto ">
-
-      <!-- 技能面板 -->
+ 
       <div class="
               w-full 
              text-gray-500 
@@ -130,7 +129,7 @@ export default {
 
       uploadUrl: "",
 
-      avatarName: "",
+      avatarId: "",
     };
   },
   created() { },
@@ -141,19 +140,23 @@ export default {
 
   },
   methods: {
-    SetVisible(b, avatarName) {
+    SetVisible(b, avatarId) {
       this.isOpen = b;
       if (b) {
-        this.initValue(avatarName);
+        this.initValue(avatarId);
       }
     },
 
-    initValue(avatarName) {
+    initValue(avatarId) {
+
       this.animList = _Global.animList;
-      this.avatarName = avatarName;
+      this.avatarId = avatarId;
+
+      console.log(" 当前角色已存在的动作 000 ",avatarId,this.animList);
+
       //获取当前角色已存在的动作
-      _Global.CreateOrLoadPlayerAnimData().GetAllAnim(avatarName, (temp) => {
-        console.log(avatarName, temp);
+      _Global.CreateOrLoadPlayerAnimData().GetAllAnim(avatarId, (temp) => {
+        console.log(" 当前角色已存在的动作 ",avatarId, temp);
         for (let i = 0; i < this.animList.length; i++) {
           const anim = this.animList[i];
           anim.has = false;
@@ -167,6 +170,18 @@ export default {
       });
 
       // this.SetSkillList(res.data);
+    },
+    UpdateState(temp){
+      for (let i = 0; i < this.animList.length; i++) {
+          const anim = this.animList[i];
+          anim.has = false;
+          for (let j = 0; j < temp.length; j++) {
+            const element = temp[j];
+            if (element == anim.animName) {
+              anim.has = true;
+            }
+          }
+        }
     },
     ChangeAnim(animName) {
       this.$parent.$refs.settingPanelCtrl.$refs.settingPanel_player.ChangePlayerAnim(animName);

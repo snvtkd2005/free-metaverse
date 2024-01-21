@@ -362,7 +362,6 @@ class YJPlayerFireCtrl {
 			if (!inFire) {
 				inFire = true;
 			}
-
 			EventHandler("进入战斗", target);
 			let { type, skillName, value, time, duration } = effect;
 			shootTarget(target.transform, attackStepSpeed * 300);
@@ -555,11 +554,13 @@ class YJPlayerFireCtrl {
 		}
 
 		function shootTarget(taget, time) {
-			_Global.DyncManager.shootTarget(_this.YJController.GetPlayerWorldPos(), taget, time, "npc");
+			_Global.DyncManager.shootTarget(_this.YJController.GetPlayerWorldPos(), taget, time, "npc",fireParticleId);
 		}
 		let vaildAttackLater = null;
 		let vaildAttackLater2 = null;
 		let attackStepSpeed = 3; //攻击间隔/攻击速度
+		let fireParticleId = ''; //攻击特效id 
+		
 		let toIdelLater = null;
 		let skillName = "";
 		let vaildAttackDis = 3; //有效攻击距离
@@ -769,13 +770,15 @@ class YJPlayerFireCtrl {
 			switch (e) {
 				case "普通攻击":
 					playerState = PLAYERSTATE.ATTACK;
-					var { s, v, a } = GetSkillDataByWeapon(weaponData);
+					var { s, v, a, fpid,faid } = GetSkillDataByWeapon(weaponData);
 					skillName = s;
 					vaildAttackDis = v;
 					attackStepSpeed = a;
+					fireParticleId = fpid; 
+					//播放音效
+					_Global.YJAudioManager().playAudio(faid);
 					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					_Global.ReportTo3D("设置技能进度条", "完成");
-
 					CheckTargetDead();
 					break;
 				case "赤手攻击":
@@ -784,10 +787,12 @@ class YJPlayerFireCtrl {
 					break;
 				case "准备战斗":
 					playerState = PLAYERSTATE.ATTACK;
-					var { s, v, a } = GetSkillDataByWeapon(weaponData);
+					var { s, v, a, rpid,raid } = GetSkillDataByWeapon(weaponData);
 					skillName = s;
 					vaildAttackDis = v;
 					attackStepSpeed = a;
+					//播放音效
+					_Global.YJAudioManager().playAudio(raid);
 					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					_Global.ReportTo3D("设置技能进度条", attackStepSpeed);
 

@@ -4,7 +4,7 @@
   
         <!-- 单品名:{{ folderBase }} 总模型数量： {{modelList.length}} -->
   <div class="  w-full h-full pb-10  overflow-y-auto  overscroll-auto bg-gray-600 text-gray-100  ">
-    <div class=" font-bold ">场景模型列表</div>
+    <div class=" font-bold ">{{title}}</div>
     <div v-for="(item, i) in modelList" :key="i" class=" w-auto text-left text-xs hover:bg-gray-500 px-1   "
       @click="SelectModel(item)" :class="selectUUID==item.uuid?' bg-black ':''">
       <div class=" flex justify-between h-6 ">
@@ -30,7 +30,7 @@
 
 export default {
   name: "HierarchyPanel",
-  props: ['modelList'],
+  props: ['title','modelList'],
   components: {
 
   },

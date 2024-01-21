@@ -40,6 +40,8 @@ class YJPlayer {
 
     //角色高度，以此来决定姓名条高度
     var playerHeight = 0;
+    let rotation = [];
+
     var nameScale = 1;
     var modelScale = 1;
 
@@ -119,6 +121,8 @@ class YJPlayer {
 
       modelPath = avatarData.modelPath;
       playerHeight = avatarData.height;
+      rotation = avatarData.rotation;
+
       modelScale = avatarData.modelScale;
       if (modelPath.indexOf("fbx") > -1) {
         modelScale = modelScale * 0.01;
@@ -191,6 +195,16 @@ class YJPlayer {
       _this.YJController.SetMount(_mountName);
 
     }
+    
+    let de2reg = 57.3248407;
+    function SetRotaArray(model,rota){
+      if(!rota){
+        model.rotation.set(0,0,0);
+        return;
+      }
+      model.rotation.set(rota[0]/de2reg,rota[1]/de2reg, rota[2]/de2reg);
+    }
+
     //创建坐骑
     this.CreateMount = function (_mountName) {
       if (hasMount) { return; }
@@ -212,6 +226,8 @@ class YJPlayer {
       } else {
         modelPath = _this.GetPublicUrl() + modelPath;
       }
+
+      let rotation = avatarData.rotation;
 
       mountAvatar = new YJLoadAvatar(
         _this,
@@ -318,7 +334,7 @@ class YJPlayer {
           playerObj.position.set(0, 0, 0); //原点位置
           let size = modelScale;
           playerObj.scale.set(size, size, size); //模型缩放
-
+          SetRotaArray(playerObj,rotation);
           // console.log(" 加载模型完成 " + playerObj.name);
           if (local) {
             if (controllerCallback) {

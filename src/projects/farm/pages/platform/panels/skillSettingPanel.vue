@@ -1,54 +1,47 @@
-
-// 模型库
+ 
 <template>
-      <div class=" text-left w-6 h-6 bg-white flex text-black self-center leading-6 mx-auto cursor-pointer "
-      @click="EditorEvent('新建')">
-      <div class=" mx-auto">
-        +
-      </div>
-    </div> 
-  <!-- 模型库 模型列表选择 -->
-  <div v-if="isOpen" class="
+  <div class=" text-left w-6 h-6 bg-white flex text-black self-center leading-6 mx-auto cursor-pointer "
+    @click="EditorEvent('新建')">
+    <div class=" mx-auto">
+      +
+    </div>
+  </div>
+  <div v-show="isOpen" class="
        relative 
       w-full
       text-white 
       overflow-hidden  overflow-y-auto  overscroll-auto h-5/6
     ">
-
-
-    <!-- 数据内容 -->
-    <el-table :data="skillList" border style="width: 100%" ref="multipleTableRef"
-      @selection-change="handleSelectionChange">
-      <!-- 单选 多选 选择器 -->
+ 
+    <el-table :data="skillList" style="width: 100%">
       <el-table-column type="selection" width="40" />
-      <!-- <el-table-column prop="id" label="ID" sortable  width="100" /> -->
       <el-table-column type="index" label="序号" width="60" />
       <el-table-column prop="skillName" label="技能名" width="100" />
-      <el-table-column prop="icon" label="技能图标" width="80">
+      <el-table-column label="技能图标" width="80">
         <template #default="scope">
           <img class="w-full h-full object-fill hover:opacity-70" :src="$uploadUVAnimUrl + scope.row.icon" />
         </template>
       </el-table-column>
-      <el-table-column prop="trigger" label="触发类型" width="100">
+      <el-table-column   label="触发类型" width="100">
         <template #default="scope">
           <div>
-            {{ scope.row.trigger.type }}
-          </div>
-        </template>
-      </el-table-column>
-      
-      <el-table-column prop="trigger" label="触发值" width="100">
-        <template #default="scope">
-          <div>
-            {{ scope.row.trigger.value }}
+            {{ scope.row && scope.row.trigger && scope.row.trigger.type }}
           </div>
         </template>
       </el-table-column>
 
-      <el-table-column prop="target" label="目标类型" width="100">
+      <el-table-column   label="触发值" width="100">
         <template #default="scope">
           <div>
-            {{ scope.row.target.type }}
+            {{ scope.row && scope.row.trigger && scope.row.trigger.value }}
+          </div>
+        </template>
+      </el-table-column>
+
+      <el-table-column   label="目标类型" width="100">
+        <template #default="scope">
+          <div>
+            {{scope.row && scope.row.target &&  scope.row.target.type }}
           </div>
         </template>
       </el-table-column>
@@ -62,28 +55,10 @@
       <el-table-column label="描述" width="200">
         <template #default="scope">
           <div>
-            {{ scope.row.describe }}
+            {{ scope.row &&  scope.row.describe }}
           </div>
         </template>
-      </el-table-column>
-
-      <!-- <el-table-column label="发布时间" width="160">
-        <template #default="scope"> 
-          <p>{{scope.row.date.substring(0,19)}}</p>
-        </template>
-      </el-table-column> -->
-
-      <!-- <el-table-column prop="state" label="状态" width="70" :filters="[
-          { text: '已发布', value: '已发布' },
-          { text: '未发布', value: '未发布' },
-        ]" :filter-method="(value, row) => {
-  return row.state === (value == '未发布' ? 0 : 1);
-}
-  ">
-          <template #default="scope">
-            <p>{{ scope.row.state == 0 ? "未" : "已" }}发布</p>
-          </template>
-        </el-table-column> -->
+      </el-table-column> 
 
       <el-table-column label="操作" width="160">
         <template #default="scope">
@@ -92,7 +67,8 @@
         </template>
       </el-table-column>
     </el-table>
-     
+
+
     <!-- 技能添加弹窗 -->
     <skillItemEditorPanel ref="skillItemEditorPanel"></skillItemEditorPanel>
 
@@ -100,35 +76,16 @@
 </template>
 
 <script>
-
-import YJinput_color from "../components/YJinput_color.vue";
-import YJinput_range from "../components/YJinput_range.vue";
-import YJinput_number from "../components/YJinput_number.vue";
-import YJinput_text from "../components/YJinput_text.vue";
-import YJinput_textarea from "../components/YJinput_textarea.vue";
-import YJinput_toggle from "../components/YJinput_toggle.vue";
-import YJinput_drop from "../components/YJinput_drop.vue";
-import YJinput_vector3 from "../components/YJinput_vector3.vue";
-import YJinput_upload from "../components/YJinput_upload.vue";
+ 
 
 
 import skillItemEditorPanel from "./skillItemEditorPanel.vue";
 
-import { GetAllModel, UploadPlayerFile } from "../../../js/uploadThreejs.js";
+import { UploadPlayerFile } from "../../../js/uploadThreejs.js";
 
 export default {
-  name: "index",
-
-  components: {
-    YJinput_text, 
-    YJinput_textarea,
-    YJinput_toggle,
-    YJinput_drop,
-    YJinput_upload,
-    YJinput_vector3,
-    YJinput_color,
-    YJinput_range,
-    YJinput_number,
+  name: "skillSettingPanel",
+  components: { 
     skillItemEditorPanel,
   },
   data() {
@@ -241,10 +198,10 @@ export default {
       this.avatarName = "女射手";
       this.animList = _Global.animList;
       this.skillList = _Global.skillList;
-      for (let i = this.skillList.length-1; i >=0 ; i--) {
+      for (let i = this.skillList.length - 1; i >= 0; i--) {
         const element = this.skillList[i];
-        if(element == null){
-          this.skillList.splice(i,1);
+        if (element == null) {
+          this.skillList.splice(i, 1);
         }
       }
       this.canAnimList = [];
@@ -279,8 +236,8 @@ export default {
       });
 
       // this.SetSkillList(res.data);
-    }, 
-    
+    },
+
     EditorEvent(e, item, i) {
       console.log(e, item, i);
       if (e == "上传") {
@@ -292,16 +249,16 @@ export default {
         this.ChangeAnim(item.animList[0].animName);
       }
       if (e == "新建") {
-        this.editorIndex = -1;  
+        this.editorIndex = -1;
         this.inAdd = true;
-          
+
         this.$refs.skillItemEditorPanel.dialogTitle = "新建技能";
         this.$refs.skillItemEditorPanel.initValue(this.settingData);
       }
       if (e == "编辑") {
-        this.editorIndex = i;  
+        this.editorIndex = i;
         this.inAdd = true;
-        this.settingData = JSON.parse(JSON.stringify(item)); 
+        this.settingData = JSON.parse(JSON.stringify(item));
         this.$refs.skillItemEditorPanel.dialogTitle = "编辑技能";
         this.$refs.skillItemEditorPanel.initValue(this.settingData);
 
@@ -318,12 +275,12 @@ export default {
         item.has = false;
       }
     },
- 
+
     saveSkill(settingData) {
       if (this.inAdd) {
         if (this.editorIndex == -1) {
           this.skillList.push(settingData);
-        } else { 
+        } else {
           this.skillList[this.editorIndex] = settingData;
         }
       }

@@ -214,9 +214,7 @@ class YJuserData {
       return PlayerAnimData;
     },
     this.SetSceneData = function (data) {
-      sceneData = data;
-      sceneData.setting.hasCamRaycast = true;
-      sceneData.setting.camOffsetY = sceneData.setting.playerHeight / 2;
+      sceneData = data; 
     }
     this.ClickSelectPlayerOK = function(selectPlayerName, userName){
 

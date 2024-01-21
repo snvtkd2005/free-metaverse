@@ -9,24 +9,9 @@
     </div>
     <div v-show="!fold">
 
-      <div v-for="(item, i) in setting" :key="i" class="text-xs text-left flex w-80 h-auto mb-2">
-        <div class="self-center w-40 truncate" v-show="item.display">
-          {{ item.title }}
-        </div>
-        <div class="self-center w-20">
-          <div v-if="item.type == 'text'" class="w-32 h-auto text-black">
-            <YJinput_text class="w-full h-auto" :value="item.value" :index="i" :callback="item.callback" />
-          </div>
-
-          <div v-if="item.type == 'num'" class="flex gap-2 text-black">
-            <YJinput_number :value="item.value" :step="item.step" :index="i" :callback="item.callback" />
-          </div>
-        </div>
-
-        <div v-if="item.unit" class=" self-center ml-2 w-4  truncate">
-          {{ item.unit }}
-        </div>
-      </div>
+      <div class=" w-full">
+      <YJinputCtrl :setting="setting" />
+    </div> 
 
       <div class="w-full h-5/6 flex text-xs">
         <!-- 左侧动作列表 -->
@@ -94,18 +79,22 @@
 </template>
 
 <script>
-import YJinput_text from "../components/YJinput_text.vue";
-import YJinput_number from "../components/YJinput_number.vue";
+
+
+import YJinputCtrl from "../components/YJinputCtrl.vue"; 
 
 export default {
-  name: "settingpanel_uvanim",
+  name: "settingpanel_avatar",
   components: {
-    YJinput_text,
-    YJinput_number,
+YJinputCtrl,
   },
   data() {
     return {
-      settingData: {},
+      settingData: {
+        height:"",
+        modelScale:1,
+        rotation:[],
+      },
       fold: false,
       avatar: null,
       selectCurrentIndex: 0,
@@ -146,12 +135,13 @@ export default {
       setting: [
         { property: "height", display: true, title: "高度", type: "num", value: 1.78, step: 0.1, unit: "m", callback: this.ChangeValue, },
         { property: "modelScale", display: true, title: "缩放比例", type: "num", value: 1, step: 0.01, callback: this.ChangeValue, },
+        { property: "rotation", display: true, title: "旋转", type: "vector3", value: [0,0,0], step: 0.01, callback: this.ChangeValue, },
         // { property: "name", display: true, title: "名字", type: "text", value: "", callback: this.ChangeValue },
       ],
     };
   },
   created() { 
-    this.parent = this.$parent.$parent;
+    this.parent = this.$parent;
   },
   mounted() {
   },
@@ -159,16 +149,6 @@ export default {
 
     removeThreeJSfocus() {
       this.parent.removeThreeJSfocus();
-    },
-    addThreeJSfocus() {
-    },
-    setSettingItemByProperty(property, value) {
-      for (let i = 0; i < this.setting.length; i++) {
-        const element = this.setting[i];
-        if (element.property == property) {
-          element.value = value;
-        }
-      }
     },
     initValue(_settingData) {
       this.settingData = _settingData;
@@ -184,18 +164,13 @@ export default {
         }
       }
 
-      this.setSettingItemByProperty("height", this.settingData.height);
-      this.setSettingItemByProperty("modelScale", this.settingData.modelScale);
+      this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
+      console.log(" initValue settingData ", this.settingData);
+
+      this.Utils.SetSettingItemByProperty(this.setting, "rotation", this.settingData.rotation);
     },
 
     Init(_settingData) {
-      this.settingData = _settingData;
-      for (let i = 0; i < this.setting.length; i++) {
-        const element = this.setting[i];
-        if (element.property == "url") {
-          element.value = this.settingData.url;
-        }
-      }
       console.log(" screen setting data ", _settingData);
     },
     ChangeValue(i, e) {
@@ -211,7 +186,13 @@ export default {
         //同时更新到 YJPlayerAnimData 中
         _Global.CreateOrLoadPlayerAnimData().UpdateAvatarDataById(this.settingData.id, this.settingData);
         console.log(" 刷新 setting data ", this.settingData.id, this.settingData);
-
+      }
+      if ( this.setting[i].property == "rotation") {
+        // 控制三维
+        _Global.YJ3D._YJSceneManager
+          .GetSingleModelTransform()
+          .GetComponent("MeshRenderer")
+          .SetRotaArray(this.settingData.rotation);
       }
       if (this.setting[i].property == "modelScale") {
         // 控制三维
@@ -330,6 +311,17 @@ export default {
         this.animations = temp;
         this.ChangeAnim("idle");
         console.log("设置 animations ", this.animations);
+      }else{
+        if(this.settingData.animationsExtendData.length>0){
+          for (let i = 0; i < this.settingData.animationsExtendData.length; i++) {
+            const item = this.settingData.animationsExtendData[i];
+            if(item.animName){
+              this.ChangeAnim(item.animName);
+              return;
+            }
+          }
+
+        }
       }
     },
   },

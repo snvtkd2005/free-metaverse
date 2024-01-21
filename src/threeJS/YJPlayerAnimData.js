@@ -14,11 +14,11 @@ class YJPlayerAnimData {
       if (_this.GetPlayerAnimData) {
         PlayerAnimData = _this.GetPlayerAnimData();
       } else if (_this.$parent.GetPlayerAnimData) {
-          PlayerAnimData = _this.$parent.GetPlayerAnimData();
+        PlayerAnimData = _this.$parent.GetPlayerAnimData();
       } else if (_this.$parent.$parent.GetPlayerAnimData) {
-            PlayerAnimData = _this.$parent.$parent.GetPlayerAnimData();
+        PlayerAnimData = _this.$parent.$parent.GetPlayerAnimData();
       }
-      if(!PlayerAnimData){
+      if (!PlayerAnimData) {
         return;
       }
       avatarDataList = PlayerAnimData.avatarData;
@@ -414,7 +414,7 @@ class YJPlayerAnimData {
       for (let i = 0; i < avatarDataList.length; i++) {
         avatarDataList[i] = FindBoneRefAnimationData(avatarDataList[i]);
       }
-      console.log("加载角色完成",avatarDataList);
+      console.log("加载角色完成", avatarDataList);
     }
 
 
@@ -610,25 +610,24 @@ class YJPlayerAnimData {
       if (weaponData) {
         let { attackSpeed, vaildDis } = weaponData;
         if (attackSpeed != undefined) {
-          return { dis: vaildDis, speed: attackSpeed };
-        }
-        return { dis: 2, speed: 2 };
-
-        for (let i = 0; i < skillListData.length; i++) {
-          const element = skillListData[i];
-          if (element.pickType == pickType && element.weaponType == weaponType) {
-            return { dis: element.dis, speed: element.speed };
-          }
-        }
+          return { dis: vaildDis, speed: attackSpeed, 
+            readyParticleId: weaponData.readyParticleId?weaponData.readyParticleId:'', 
+            fireParticleId: weaponData.fireParticleId?weaponData.fireParticleId:'' ,
+            readyAudioId: weaponData.readyAudioId?weaponData.readyAudioId:'' ,
+            fireAuidoId: weaponData.fireAuidoId?weaponData.fireAuidoId:'' ,
+          };
+        } 
       }
-      return { dis: 2, speed: 2 };
+      return { dis: 2, speed: 2, 
+        readyParticleId: '',readyAudioId:"", 
+        fireParticleId: '',fireAuidoId:"" };
     }
     // 根据武器获取攻击速度、攻击距离、攻击技能。 后期改为根据技能获取
     this.GetSkillDataByWeapon = function (weaponData) {
       let vaildAttackDis = 0;
       let attackStepSpeed = 0;
       let skillName = "";
-      let { dis, speed } = GetSkill(weaponData);
+      let { dis, speed, readyParticleId,readyAudioId, fireParticleId ,fireAuidoId} = GetSkill(weaponData);
       vaildAttackDis = dis;
       attackStepSpeed = speed;
       if (weaponData) {
@@ -636,7 +635,9 @@ class YJPlayerAnimData {
       } else {
         skillName = "拳头";
       }
-      return { s: skillName, v: vaildAttackDis, a: attackStepSpeed };
+      return { s: skillName, v: vaildAttackDis, a: attackStepSpeed, 
+        rpid: readyParticleId, raid:readyAudioId,
+        fpid: fireParticleId,faid: fireAuidoId};
     }
     //#endregion
 

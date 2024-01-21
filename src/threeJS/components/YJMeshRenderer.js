@@ -50,6 +50,17 @@ class YJMeshRenderer {
       // console.log("设置模型缩放",f);
       model.scale.set(meshScale * f, meshScale * f, meshScale * f);
     }
+    this.SetRota = function(rota){
+      model.rotation.set(rota.x,rota.y, rota.x.z);
+    }
+    let de2reg = 57.3248407;
+    this.SetRotaArray = function(rota){
+      if(!rota){
+        model.rotation.set(0,0,0);
+        return;
+      }
+      model.rotation.set(rota[0]/de2reg,rota[1]/de2reg, rota[2]/de2reg);
+    }
     this.RotaY = function (f) {
       model.rotation.y += f;
     }
@@ -123,10 +134,7 @@ class YJMeshRenderer {
           if (hasCollider) {
             CreateColliderFn(model);
           }
-          if (callback) {
-            callback(scope);
-          }
-          LoadCompleted();
+          LoadCompleted(callback);
 
         }, undefined, function (e) {
 
@@ -135,7 +143,8 @@ class YJMeshRenderer {
           }
           console.log("加载模型出错" + modelPath);
           console.error(e);
-          LoadCompleted();
+          LoadCompleted(callback);
+          
         });
     }
 
@@ -177,6 +186,7 @@ class YJMeshRenderer {
 
       // + ("?time="+new Date().getTime())
       loader.load(modelPath, function (gltf) {
+        console.log("加载模型 00 ",modelPath);
 
         model = gltf.scene;
 
@@ -191,20 +201,17 @@ class YJMeshRenderer {
         if (hasCollider) {
           CreateColliderFn(model);
         }
-        if (callback) {
-          callback(scope);
-        }
-
-
-        LoadCompleted();
+        LoadCompleted(callback);
+        
       }, undefined, function (e) {
+        console.log("加载模型出错" + modelPath,e);
+        console.error(e);
 
         if (errorback) {
           errorback(e);
         }
-        console.log("加载模型出错" + modelPath);
-        console.error(e);
-        LoadCompleted();
+        // LoadCompleted(callback);
+
       });
 
     }
@@ -270,11 +277,8 @@ class YJMeshRenderer {
       TraverseOwner(model);
       if (hasCollider) {
         CreateColliderFn(model);
-      }
-      if (callback) {
-        callback(scope);
-      }
-      LoadCompleted();
+      } 
+      LoadCompleted(callback);
 
     }
 
@@ -370,12 +374,10 @@ class YJMeshRenderer {
       triggleObj = plane;
     }
 
-    function LoadCompleted() {
-      // if (_this._YJSceneManager == undefined) {
-      //   console.log("！！！注意，不应该进入此判断 。 加载静态模型 ", modelPath);
-      //   return;
-      // }
-      // _this._YJSceneManager.LoadSingleModelCompleted();
+    function LoadCompleted(callback) {
+      if (callback) {
+        callback(scope);
+      } 
     }
 
 

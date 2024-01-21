@@ -4,7 +4,6 @@
 // line renderer splines
 // 渲染线模型、给线模型赋予材质、实时改变线模型长度
 import * as THREE from "three";
-import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
 class YJTrailRenderer {
     constructor(_this, scene, parent) {
         let scope = this;
@@ -157,12 +156,12 @@ class YJTrailRenderer {
 
         }
         let splinePath = [
-            new THREE.Vector3(0, 0, 0),
-            new THREE.Vector3(3, 0, 0),
+            // new THREE.Vector3(3, 0, 0),
+            // new THREE.Vector3(0, 0, 0),
             // new THREE.Vector3(6,0, 0), 
         ];
         let tubeGeometry = new THREE.BufferGeometry();;
- 
+
         let mesh;
         const params = {
             width: 0.5, //宽度
@@ -172,18 +171,14 @@ class YJTrailRenderer {
         let oldPos = new THREE.Vector3();
         let group = new THREE.Group();
         // group.add(new THREE.AxesHelper(1));
-        // scene.add(group);
-        parent.add(group);
+        scene.add(group);
+        // parent.add(group);
         group.position.set(0, 0, 0);
-        oldPos = parent.position.clone();
-
+        // oldPos = parent.position.clone();
+        oldPos = parent.getWorldPosition(new THREE.Vector3());
+        oldPos.y -= params.width / 2;
         let sprite = null;
         function Init() {
-            // const gui = new GUI({ width: 285 });
-            // const folderGeometry = gui.addFolder('Geometry');
-            // folderGeometry.add(params, 'width', 0.01, 1).step(0.01).onChange(function () {
-            //     setScale();
-            // }); 
 
 
             // let planeGeometry = new THREE.PlaneGeometry(1, 1, 10, 10); // 生成平面
@@ -193,29 +188,20 @@ class YJTrailRenderer {
             // plane.position.z = 0;
             // scene.add(plane); // 向该场景中添加物体
 
-            let map = new THREE.TextureLoader().load(_this.$publicUrl + "images/cirle001.png");
-            map.wrapS = map.wrapT = THREE.RepeatWrapping;
-            map.matrixAutoUpdate = false; // set this to false to update texture.matrix manually
-
-            // let material = new THREE.MeshStandardMaterial({
+            // let map = new THREE.TextureLoader().load(_this.$publicUrl + "images/cirle001.png");
+            // map.wrapS = map.wrapT = THREE.RepeatWrapping;
+            // map.matrixAutoUpdate = false; // set this to false to update texture.matrix manually
+            // const material = new THREE.SpriteMaterial({ 
+            //     map: map,
             //     depthWrite: false,
-            //     blending: THREE.AdditiveBlending,    
-            //     color: 0xff0000 ,
-            //     transparent: true, 
-            //     map: map, 
+            //     // blending: THREE.AdditiveBlending,    
+            //     color: 0xffff00 ,
             // });
-            const material = new THREE.SpriteMaterial({ 
-                map: map,
-                depthWrite: false,
-                // blending: THREE.AdditiveBlending,    
-                color: 0xffff00 ,
-            });
-
-            sprite = new THREE.Sprite(material);
-            sprite.center.set(0.5, 0.5); 
-            sprite.scale.set(1, 1, 1);
-            sprite.position.y = params.width/2;
-            parent.add(sprite);  
+            // sprite = new THREE.Sprite(material);
+            // sprite.center.set(0.5, 0.5); 
+            // sprite.scale.set(1, 1, 1);
+            // sprite.position.y = params.width/2;
+            // parent.add(sprite);  
 
             // addTube();
             // animate();
@@ -291,30 +277,25 @@ class YJTrailRenderer {
             tubeGeometry.computeVertexNormals();
 
             addGeometry(tubeGeometry);
-
-            // setScale();
-        }
-        function setScale() {
-            mesh.scale.set(1, 1, 1);
         }
         function addGeometry(geometry) {
             mesh = new THREE.Mesh(geometry, _ShaderMaterial);
             // mesh = new THREE.Mesh(geometry, material);
-            
+
             group.add(mesh);
 
             // CreateVerticesHandler(mesh, geometry.attributes.position.array);
 
-        } 
+        }
         let lifeTime = 0.1;
-        let maxLength = 20; 
+        let maxLength = 20;
         let updateId = null;
         let data = null;
         this.SetMessage = function (msg) {
 
             if (msg == null || msg == undefined || msg == "") { return; }
             // data = JSON.parse(msg);
-            data = (msg); 
+            data = (msg);
             scope.id = scope.transform.id;
             params.width = data.width;
             lifeTime = data.lifeTime;
@@ -322,48 +303,67 @@ class YJTrailRenderer {
             color.set(data.color);
             color2.set(data.color2);
 
+            oldPos = parent.getWorldPosition(new THREE.Vector3());
+            oldPos.y -= params.width / 2;
+            
             map = new THREE.TextureLoader().load(_this.$uploadUVAnimUrl + data.imgPath);
             map.wrapS = map.wrapT = THREE.RepeatWrapping;
             map.matrixAutoUpdate = false; // set this to false to update texture.matrix manually
 
             uniforms["mainTex"].value = map;
             material.color.set(data.color);
-            console.log("in 拖尾 msg = ", scope.id, data);
-            if(_Global.setting.inEditor){
+            console.error("in 拖尾 msg = ", scope.id, data);
+            if (_Global.setting.inEditor && !scope.used) {
+                splinePath = [];
+                let pos = oldPos.clone();
+                pos.x = 3;
+                splinePath.push(pos.clone());
+                pos.x = 0;
+                splinePath.push(pos.clone());
                 addTube();
-                animate();
-                sprite.visible = true;
+                update(); 
             }
         }
         let interval_splice = null;
         this.start = function () {
             // console.log("复用 trail ");
- 
+            
+            splinePath = [];
+            addTube();
+            oldPos = parent.getWorldPosition(new THREE.Vector3());
+            oldPos.y -= params.width / 2;
+            scope.used = true;
             animate();
-            sprite.visible = true;
 
             interval_splice = setInterval(() => {
                 if (splinePath.length > 0) {
                     splinePath.splice(0, 1);
                     addTube();
-                }else{
-                    this.stop();
+                } else {
+                    // this.stop();
                 }
             }, lifeTime * 1000);
         }
         this.stop = function () {
-            clearInterval(interval_splice);
-            scope.used = false;
+            console.log(" 停止拖尾 =======");
             cancelAnimationFrame(updateId);
             splinePath = [];
             addTube();
-            sprite.visible = false;
+            clearInterval(interval_splice);
+            scope.used = false;
         }
         let deltaTime = 1;
         let last = performance.now();
+        function update(){
+            updateId = requestAnimationFrame(update);
+            animate();
+        }
+        this._update = function () {
+            animate();
+        }
         function animate() {
 
-            updateId = requestAnimationFrame(animate);
+            // updateId = requestAnimationFrame(animate);
             const now = performance.now();
             let delta = (now - last) / 1000;
             // console.log("delta ",delta,splinePath.length);
@@ -375,10 +375,13 @@ class YJTrailRenderer {
             if (_ShaderMaterial) uniforms['u_time'].value = deltaTime;
             // return;
 
-            let newPos = parent.position.clone();
+            // let newPos = parent.position.clone();
+            let newPos = parent.getWorldPosition(new THREE.Vector3());
+
+            newPos.y -= params.width / 2;
+            // console.log("newPos ",scope.id,newPos,newPos.distanceTo(oldPos),splinePath.length);
             // let newPos = _Global.YJ3D.YJController.GetPlayerWorldPos();
 
-            scope.used = true;
             if (newPos.distanceTo(oldPos) > 0.021) {
                 splinePath.push(newPos);
                 if (splinePath.length > maxLength) {
@@ -388,7 +391,7 @@ class YJTrailRenderer {
                 oldPos = newPos;
 
             } else {
-            } 
+            }
 
 
         }

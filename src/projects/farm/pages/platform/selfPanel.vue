@@ -95,8 +95,8 @@
 
           <!-- 选择列表 -->
           <div v-for="(item, i) in groupList" :key="i" class=" w-40 h-auto relative">
-            <div class="w-40 h-28 bg-blue-200 rounded-lg self-center mx-auto cursor-pointer" @click="SelectModel(item)">
-              <img class="w-full h-full rounded-lg object-fill hover:opacity-70" :src="uploadUrl + item.icon" />
+            <div class="w-40 h-28 bg-blue-200 rounded-lg self-center mx-auto cursor-pointer" @click="EditorGroup(item)">
+              <img class="w-full h-full rounded-lg object-fill hover:opacity-70" :src="$uploadGroupUrl + item.icon" />
             </div>
 
             <div class="mt-2 px-2 flex text-sm justify-between truncate ">
@@ -113,7 +113,7 @@
               <div>{{ base.visite }} 177</div>
             </div>
             <div class="mt-2 px-2 hidden md:flex text-xs justify-between">
-              <div class="cursor-pointer" @click="Editor(item)">
+              <div class="cursor-pointer" @click="EditorGroup(item)">
                 {{ base.editor }}
               </div>
               <div class="cursor-pointer" @click="Delete(item)">
@@ -554,7 +554,7 @@ import {
 } from "../../js/uploadThreejs.js";
 
 export default {
-  name: "gameUI",
+  name: "selfPanel",
   components: {
     skillSettingPanel,
   },
@@ -729,24 +729,27 @@ export default {
 
       //上传到本地 或 0SS
       UploadAudioFile(fromData).then((res) => {
-        console.log(" 上传文件 ", res);
+        console.log(" 上传音频完成 ", res);
         if (res.data == "SUCCESS") {
           this.createForm.audio.name = file.name;
           this.fileList.shift();
           this.loading = false;
+
+          
+          fromData = new FormData();
+          let s = JSON.stringify(this.createForm.audio);
+          fromData.append("fileToUpload", this.$stringtoBlob(s, "data.txt"));
+          fromData.append("folderBase", this.folderBase);
+          UploadAudioFile(fromData).then((res) => {
+            console.log(" 上传音频数据文件 ", res);
+            if (res.data == "SUCCESS") {
+
+            }
+          });
+
         }
       });
 
-      fromData = new FormData();
-      let s = JSON.stringify(this.createForm.audio);
-      fromData.append("fileToUpload", this.$stringtoBlob(s, "data.txt"));
-      fromData.append("folderBase", this.folderBase);
-      UploadAudioFile(fromData).then((res) => {
-        console.log(" 上传文件 ", res);
-        if (res.data == "SUCCESS") {
-
-        }
-      });
     },
 
 
@@ -964,14 +967,20 @@ export default {
         //先记录旧照片
         if (res.data.txtDataList) {
           let txtDataList = res.data.txtDataList;
+          let modelsList = [];
           for (let i = 0; i < txtDataList.length; i++) {
             let element = txtDataList[i];
             try {
-              this.modelsList.push(JSON.parse(element));
+              modelsList.push(JSON.parse(element));
             } catch (error) {
               element = element.substring(1);
-              this.modelsList.push(JSON.parse(element));
-            }
+              modelsList.push(JSON.parse(element));
+            } 
+          }
+          for (let i = 0; i < modelsList.length; i++) {
+            const element = modelsList[i];
+            element.icon = element.folderBase +  "/" + "thumb.png";
+            this.modelsList.push(element);
           }
         }
       });
@@ -1193,7 +1202,7 @@ export default {
       window.open(href.href, "_blank");
     },
     EditorGroup(item) {
-      console.log(" 编辑 ", item);
+      console.log(" 编辑组合 ", item);
 
       // return;
       localStorage.setItem("modelType", item.modelType);

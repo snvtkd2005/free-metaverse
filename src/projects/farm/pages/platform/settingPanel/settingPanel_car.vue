@@ -61,20 +61,7 @@
       <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">{{loadContent}}</div>
     </div>
 
-    <!-- <div  class=" flex gap-2 text-black ">
-      <YJinput_number :value="carData.param.chassisHeight" />
-    </div> -->
-
-    <div v-if="inSelect">
-      <div v-for="(item, i) in uvAnimList" :key="i" class="
-                  self-center w-40 h-auto relative
-                ">
-        <div class=" w-40 h-20 self-center mx-auto 
-                  cursor-pointer " @click="ClickUVAnim(item)">
-          <img class=" w-full h-full    object-fill hover:opacity-70 " :src="$uploadUVAnimUrl + item" />
-        </div>
-      </div>
-    </div>
+ 
   </div>
 </template>
 
@@ -84,8 +71,7 @@ import YJinput_color from "../components/YJinput_color.vue";
 import YJinput_range from "../components/YJinput_range.vue";
 import YJinput_number from "../components/YJinput_number.vue";
 import YJinput_text from "../components/YJinput_text.vue";
-import YJinput_toggle from "../components/YJinput_toggle.vue";
-import { GetAllUVAnim } from "../../../js/uploadThreejs.js";
+import YJinput_toggle from "../components/YJinput_toggle.vue"; 
 
 export default {
   name: "settingpanel_uvanim",
@@ -100,7 +86,7 @@ export default {
     return {
       chassisWidth: 2.2, //车身宽
 
-      carData: {
+      settingData: {
         id: "",
         param: {
           chassisWidth: 2.2, //车身宽
@@ -174,14 +160,14 @@ export default {
 
     // this.RequestGetAllUVAnim();
 
-    // _Global.SendMsgTo3D("添加组件", { component: "car", data: this.carData });
+    // _Global.SendMsgTo3D("添加组件", { component: "car", data: this.settingData });
     let modelData = JSON.parse(localStorage.getItem("modelData"));
 
     if (modelData.message == undefined) {
       return;
     }
 
-    this.carData = modelData.message.data;
+    this.settingData = modelData.message.data;
     this.initValue();
 
 
@@ -194,28 +180,28 @@ export default {
     addThreeJSfocus() { 
     },
     initValue() {
-      this.setting[1].value = this.carData.param.chassisWidth;
-      this.setting[2].value = this.carData.param.chassisHeight;
-      this.setting[3].value = this.carData.param.chassisLength;
+      this.setting[1].value = this.settingData.param.chassisWidth;
+      this.setting[2].value = this.settingData.param.chassisHeight;
+      this.setting[3].value = this.settingData.param.chassisLength;
 
-      this.setting[4].value = this.carData.param.massVehicle;
-      this.setting[5].value = this.carData.param.maxEngineForce;
+      this.setting[4].value = this.settingData.param.massVehicle;
+      this.setting[5].value = this.settingData.param.maxEngineForce;
 
-      this.setting[6].value = this.carData.param.wheelWidthFront;
-      this.setting[7].value = this.carData.param.wheelRadiusFront;
-      this.setting[8].value = this.carData.param.wheelAxisFrontPosition;
-      this.setting[9].value = this.carData.param.wheelHalfTrackFront;
+      this.setting[6].value = this.settingData.param.wheelWidthFront;
+      this.setting[7].value = this.settingData.param.wheelRadiusFront;
+      this.setting[8].value = this.settingData.param.wheelAxisFrontPosition;
+      this.setting[9].value = this.settingData.param.wheelHalfTrackFront;
 
-      this.setting[10].value = this.carData.param.wheelWidthBack;
-      this.setting[11].value = this.carData.param.wheelRadiusBack;
-      this.setting[12].value = this.carData.param.wheelAxisPositionBack;
-      this.setting[13].value = this.carData.param.wheelHalfTrackBack;
+      this.setting[10].value = this.settingData.param.wheelWidthBack;
+      this.setting[11].value = this.settingData.param.wheelRadiusBack;
+      this.setting[12].value = this.settingData.param.wheelAxisPositionBack;
+      this.setting[13].value = this.settingData.param.wheelHalfTrackBack;
 
-      this.setting[14].value = this.carData.param.suspensionRestLength;
-      this.setting[15].value = this.carData.param.maxBreakingForce;
+      this.setting[14].value = this.settingData.param.suspensionRestLength;
+      this.setting[15].value = this.settingData.param.maxBreakingForce;
 
-      this.setting[16].value = this.carData.carBodyPath;
-      this.setting[17].value = this.carData.wheelPath;
+      this.setting[16].value = this.settingData.carBodyPath;
+      this.setting[17].value = this.settingData.wheelPath;
     },
     load() {
       console.log(" 加载汽车 ");
@@ -235,10 +221,10 @@ export default {
 
       this.parent.GetModelPathByFolderBase( this.setting[17].value, (modelPath) => {
         // this.setting[17].value = modelPath;
-        this.carData.wheelPath = modelPath;
+        this.settingData.wheelPath = modelPath;
         this.parent.GetModelPathByFolderBase(this.setting[16].value, (modelPath) => {
           // this.setting[16].value = modelPath;
-          this.carData.carBodyPath = modelPath;
+          this.settingData.carBodyPath = modelPath;
           this.Update();
 
         });
@@ -246,25 +232,23 @@ export default {
 
 
     },
-    Init(_carData) {
-      this.carData = _carData;
+    Init(_settingData) {
+      this.settingData = _settingData;
     },
     ChangeValue(i, e) {
       this.setting[i].value = e;
       if (i >= 16) {
         return;
       }
-      this.carData.param[this.setting[i].property] = e;
+      this.settingData.param[this.setting[i].property] = e;
       console.log(i + " " + this.setting[i].value + " " + e);
       this.Update();
     },
     Update() {
-
-
       if (this.parent.updateModelTxtData) {
         this.parent.modelData.message = {
           pointType: "car",
-          data: this.carData
+          data: this.settingData
         };
         this.parent.updateModelTxtData();
       }
@@ -272,17 +256,7 @@ export default {
       //给模型指定贴图
       _Global.SendMsgTo3D("刷新Transform", this.parent.modelData.message);
 
-    },
-    SelectFile(item) {
-      console.log(" ", item);
-      if (item.title == '选择UV图') {
-        this.inSelect = true;
-        this.RequestGetAllUVAnim();
-      }
-    },
-    async RequestGetAllUVAnim() {
-
-    },
+    }, 
 
   },
 };

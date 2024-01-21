@@ -35,8 +35,7 @@ import { YJTrailRenderer } from "/@/threeJS/components/YJTrailRenderer.js";
 class YJLoadUserModelManager {
   constructor(_this, scene, camera, callback) {
     let scope = this;
-
-    let uploadUrl = _this.$uploadUrl;
+ 
 
     let loadIndex = 0;
     let allTransform = [];
@@ -72,7 +71,7 @@ class YJLoadUserModelManager {
       }
     }
     this.GetTransformByUUID = function (uuid) {
-      console.log(allTransform);
+      console.log("场景中所有模型",allTransform);
       for (let i = 0; i < allTransform.length; i++) {
         if (allTransform[i].uuid == uuid) {
           return allTransform[i].transform;
@@ -226,7 +225,7 @@ class YJLoadUserModelManager {
     // 上传模型文件后生成
     this.ImportModel = function (modelData, callback) {
 
-      // console.log("上传模型文件后生成 生成模型 ", modelData);
+      console.log("上传单品模型文件后生成 生成模型 ", modelData);
       CreateTransform(null, modelData, (object) => {
         if (callback) {
           callback(object);
@@ -246,10 +245,10 @@ class YJLoadUserModelManager {
     }
 
     function CreateTransform(parent, modelData, callback, _modelId,mapId) {
-      console.error(" load manager 加载模型 ", modelData);
+      // console.error(" load manager 加载模型 ",parent, modelData);
 
-      // let object = new YJTransform(_this, parent==null?scene:parent, "", null, null, modelData.name);
-      let object = new YJTransform(_this, scene, "", null, null, modelData.name);
+      let object = new YJTransform(_this, parent==null?scene:parent, "", null, null, modelData.name);
+      // let object = new YJTransform(_this, scene, "", null, null, modelData.name);
       let id = 0;
       if (_modelId != undefined) {
         id = _modelId;
@@ -259,15 +258,19 @@ class YJLoadUserModelManager {
       }
       object.id = id;
       let uuid = object.GetUUID();
-      allTransform.push({ uuid: uuid, id: id, transform: object });
+      if(parent == null || parent == scene){
+        allTransform.push({ uuid: uuid, id: id, transform: object });
+      }
+
+      object.modelData = JSON.parse(JSON.stringify(modelData));
       object.SetPosRota(modelData.pos, modelData.rotaV3, modelData.scale);
       object.SetModelPath(modelData.modelPath);
       object.SetData(modelData.folderBase, modelData.modelType, id,mapId);
-      object.modelData = JSON.parse(JSON.stringify(modelData));
       _this._YJSceneManager.AddNeedUpdateJS(object);
 
       let modelPath = modelData.modelPath;
       if (modelPath == undefined) {
+
         if (modelData.modelType == "NPC模型" 
         || modelData.modelType == "交互模型"
         || modelData.modelType == "粒子特效"
@@ -275,8 +278,18 @@ class YJLoadUserModelManager {
         ) {
 
         } else {
+          if(modelData.modelType == "组合"){
+            //加载组合
+            CreateGroup(object,modelData.folderBase);
+            if (callback) {
+              callback(object);
+            }
+            return;
+          } 
+
+
           if(modelData.modelType == "拖尾模型"){
-            let component = new YJTrailRenderer(_this, _Global.YJ3D.scene, object.GetGroup(), object) ;
+            let component = new YJTrailRenderer(_this, _Global.YJ3D.scene,  object.GetGroup(), object) ;
             object.AddComponent("Trail", component);
           }
           if (modelData.message != undefined) {
@@ -290,10 +303,8 @@ class YJLoadUserModelManager {
       } else {
         if (modelData.modelPath.includes("http")) {
 
-        } else if (modelData.modelPath.includes("models/player")) {
-          modelPath = _this.$publicUrl + "farm/" + modelData.modelPath
         } else {
-          modelPath = uploadUrl + modelData.modelPath;
+          modelPath = _this.$uploadUrl + modelData.modelPath;
         }
       }
       
@@ -488,23 +499,34 @@ class YJLoadUserModelManager {
     }
 
 
+    // 场景中加载组合
+    async function CreateGroup(tranform, folderBase)  {
 
-    // 由 UpdateUserModel 调用。刷新服务器上记录的模型
-    function LoadSceneModelByIndex() {
-      if (loadIndex >= modelDataList.length) {
-        _this._YJSceneManager.MargeStaticModel();
-        return;
+      let res = await _this.$axios.get(
+        _this.$uploadGroupUrl + folderBase + "/" + "scene.txt" + "?time=" + new Date().getTime()
+      );
+      let data = res.data; 
+      let sceneModelsData = [];
+      for (let i = 0; i < data.length; i++) {
+        const element = data[i];
+        sceneModelsData.push((element));
+      }  
+      LoadGroupModelByIndex(tranform ,sceneModelsData);
+    }
+
+    function LoadGroupModelByIndex(tranform,sceneModelsData) {
+      if (sceneModelsData.length==0) {
+        return; 
       }
-      let item = modelDataList[loadIndex];
-      // console.log(" 加载模型 ", loadIndex, item);
-
-      // 以上判断是特殊模型，下面加载模型
-      CreateSelectModel(scene, item, (model) => {
-        loadIndex++;
-        _this._YJSceneManager.AddProcess();
-        LoadSceneModelByIndex();
+      let modelData = sceneModelsData[0];  
+      CreateTransform(tranform.GetGroup(), modelData, (object) => {
+        tranform.AddChildren(object);
+        sceneModelsData.splice(0,1);
+        LoadGroupModelByIndex(tranform,sceneModelsData); 
       });
     }
+
+
     this.UpdateUserModel = function (data) {
 
     }
@@ -644,8 +666,20 @@ class YJLoadUserModelManager {
       }
       loadIndex = 0;
       LoadSceneModelByIndex();
+    } 
+    function LoadSceneModelByIndex() {
+      if (loadIndex >= modelDataList.length) {
+        _this._YJSceneManager.MargeStaticModel();
+        return;
+      }
+      let item = modelDataList[loadIndex];
+      // console.log(" 加载模型 ", loadIndex, item); 
+      CreateSelectModel(scene, item, (model) => {
+        loadIndex++;
+        _this._YJSceneManager.AddProcess();
+        LoadSceneModelByIndex();
+      });
     }
-
 
     // 删除地图id下的模型，直接删除group
     this.RemoveMetaWorldSceneModel = function (mapId) {

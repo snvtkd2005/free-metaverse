@@ -51,8 +51,8 @@ export default {
       cursorLeft: 0,
       cursorTop: 0,
       cursorUrl: "",
-      hasStats: true,
-      // hasStats: false,
+      // hasStats: true,
+      hasStats: false,
       videoList: [],
     };
   },

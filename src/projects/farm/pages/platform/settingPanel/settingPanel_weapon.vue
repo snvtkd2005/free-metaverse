@@ -10,64 +10,9 @@
              overflow-hidden 
             ">
     <div class=" text-left ">武器设置</div>
-
-    <div v-for="(item, i) in setting" :key="i" class=" text-xs  text-left flex w-full h-auto mb-2     ">
-      <div class=" self-center w-32  truncate">
-        {{ item.title }}
-      </div>
-      <div class=" self-center w-20 ">
-        <div v-if="item.type == 'color'" class=" flex gap-2 ">
-          <YJinput_color :value="item.value" :callback="item.callback" />
-        </div>
-
-        <div v-if="item.type == 'file'" class=" relative flex  gap-2 cursor-pointer  " @click="SelectFile(item, i)">
-          <div>{{ item.url }}</div>
-          <div class=" absolute right-0 w-auto h-6 rounded-sm bg-gray-50 flex">
-            <div class=" text-xs pl-1 self-center mx-auto w-10 h-4 leading-4  rounded-sm text-black">
-              浏览...
-            </div>
-          </div>
-        </div>
-
-
-        <div v-if="item.type == 'int'" class="flex gap-2 text-black">
-          <YJinput_number :value="item.value" :type="item.type" :step="item.step" :index="i" :callback="item.callback" />
-        </div>
-        <div v-if="item.type == 'num'" class=" flex gap-2 text-black ">
-          <YJinput_number :value="item.value" :step="item.step" :index="i" :callback="item.callback" />
-        </div>
-
-        <div v-if="item.type == 'slider'" class=" flex gap-2 ">
-          <!-- <input id="body-slider" type="range" :value="item.value" :step="item.step" :min="item.min" :max="item.max"> -->
-          <YJinput_range :value="item.value" :step="item.step" :min="item.min" :max="item.max"
-            :callback="item.callback" />
-          <div>{{ item.value }}</div>
-        </div>
-
-        <div v-if="item.type == 'toggle'" class=" w-4 h-4 ">
-          <YJinput_toggle class=" w-4 h-4 " :value="item.value" :callback="item.callback" />
-        </div>
-
-        <div v-if="item.type == 'text'" class=" w-20 h-4 text-black ">
-          <YJinput_text class=" w-20 h-4 " :value="item.value" :index="i" :callback="item.callback" />
-        </div>
-
-        <div v-if="item.type == 'drop'" class=" w-20 h-12 text-black ">
-          <YJinput_drop class=" w-32 h-full " :value="item.value" :options="item.options" :index="i"
-            :callback="item.callback" />
-        </div>
-
-        <div v-if="item.type == 'vector3'" class=" w-auto h-6 text-black ">
-          <YJinput_vector3 class=" w-auto h-6 " :value="item.value" :step="item.step" :index="i"
-            :callback="item.callback" />
-        </div>
-
-      </div>
-      <div class=" self-center ml-2 w-4  truncate">
-        {{ item.unit }}
-      </div>
-
-    </div>
+    <div class=" w-full">
+      <YJinputCtrl :setting="setting" />
+    </div> 
 
     <!-- 动作播放进度滑块 -->
     <div class=" flex w-full   ">
@@ -77,7 +22,7 @@
         type="range" min="0" :max="animClip.duration" step="1">
     </div>
 
-    <div class=" mt-10 w-full h-10 text-white cursor-pointer " @click="ClickHandler('编辑位置')">
+    <div class=" mt-2 w-full h-10 text-white cursor-pointer " @click="ClickHandler('编辑位置')">
       <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">编辑位置</div>
     </div>
 
@@ -88,37 +33,27 @@
       <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">保存偏移旋转</div>
     </div>
 
+    <div v-if="isLock" class=" absolute left-0 top-0 w-full h-full bg-black bg-opacity-30">
+
+    </div>
   </div>
 </template>
 
 <script>
-
-import YJinput_color from "../components/YJinput_color.vue";
-import YJinput_range from "../components/YJinput_range.vue";
-import YJinput_number from "../components/YJinput_number.vue";
-import YJinput_text from "../components/YJinput_text.vue";
-import YJinput_toggle from "../components/YJinput_toggle.vue";
-import YJinput_drop from "../components/YJinput_drop.vue";
-import YJinput_vector3 from "../components/YJinput_vector3.vue";
-
-import { GetAllUVAnim } from "../../../js/uploadThreejs.js";
+ 
+ 
+import YJinputCtrl from "../components/YJinputCtrl.vue"; 
 
 export default {
   name: "settingpanel_uvanim",
-  components: {
-    YJinput_range,
-    YJinput_number,
-    YJinput_color,
-    YJinput_toggle,
-    YJinput_text,
-    YJinput_drop,
-    YJinput_vector3,
+  components: { 
+YJinputCtrl,
   },
   data() {
     return {
       chassisWidth: 2.2, //车身宽
       pointType: "weapon",
-
+      isLock:false,
       settingData: {
         weaponId: "",
         name: "weapon001",
@@ -140,8 +75,12 @@ export default {
         animNameRun: "run",
         //准备攻击
         animNameReady: "fight idle",
+        readyParticleId:"", //吟唱特效
+        readyAudioId:"", //吟唱音效
         //攻击
         animNameAttack: "fight attack",
+        fireParticleId:"", //施放特效
+        fireAuidoId:"", //施放音效
         // 依附的骨骼名称
         boneName: "",
         // 攻击速度
@@ -153,7 +92,7 @@ export default {
       setting: [
 
         {
-          property: "pickType", title: "手持类型", type: "drop", value: "twoHand", options: [
+          property: "pickType", display: true, title: "手持类型", type: "drop", value: "twoHand", options: [
 
             { value: "twoHand", label: "双手" },
             { value: "mainHand", label: "主手" },
@@ -161,7 +100,7 @@ export default {
           ], callback: this.ChangeValue
         },
         {
-          property: "weaponType", title: "装备类型", type: "drop", value: "sword", options: [
+          property: "weaponType", display: true, title: "装备类型", type: "drop", value: "sword", options: [
 
             { value: "gun", label: "枪" },
             { value: "sword", label: "剑" },
@@ -177,7 +116,7 @@ export default {
         { property: "vaildDis", display: true, title: "有效距离", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
         { property: "attackSpeed", display: true, title: "攻击速度", type: "num", step: 1, value: 1, callback: this.ChangeValue, },
         {
-          property: "boneName", title: "跟随骨骼", type: "drop", value: "none", options: [
+          property: "boneName", display: true, title: "跟随骨骼", type: "drop", value: "none", options: [
 
             { value: "None", label: "none" },
             { value: "Head", label: "头部" },
@@ -188,14 +127,20 @@ export default {
           ], callback: this.ChangeValue
         },
 
-        { property: "animNameIdle", title: "待机", type: "drop", value: "none", options: [], callback: this.ChangeValue },
-        { property: "animNameWalk", title: "行走", type: "drop", value: "none", options: [], callback: this.ChangeValue },
-        { property: "animNameRun", title: "奔跑", type: "drop", value: "none", options: [], callback: this.ChangeValue },
-        { property: "animNameReady", title: "准备攻击", type: "drop", value: "none", options: [], callback: this.ChangeValue },
-        { property: "animNameAttack", title: "攻击", type: "drop", value: "none", options: [], callback: this.ChangeValue },
+        { property: "animNameIdle", display: true, title: "待机", type: "drop", value: "none", options: [], callback: this.ChangeValue },
+        { property: "animNameWalk", display: true, title: "行走", type: "drop", value: "none", options: [], callback: this.ChangeValue },
+        { property: "animNameRun", display: true, title: "奔跑", type: "drop", value: "none", options: [], callback: this.ChangeValue },
+        { property: "animNameReady", display: true, title: "准备攻击", type: "drop", value: "none", options: [], callback: this.ChangeValue },
+        { property: "animNameAttack", display: true, title: "攻击", type: "drop", value: "none", options: [], callback: this.ChangeValue },
+        { property: "readyParticleId", display: true, title: "吟唱特效", type: "file",filetype:"particle", value: "", callback: this.ChangeValue },
+        { property: "readyAudioId", display: true, title: "吟唱音效", type: "file",filetype:"audio", value: "", callback: this.ChangeValue },
+        
+        { property: "fireParticleId", display: true, title: "施放特效", type: "file",filetype:"particle", value: "", callback: this.ChangeValue },
+        { property: "fireAuidoId", display: true, title: "施放音效", type: "file",filetype:"audio", value: "", callback: this.ChangeValue },
+        
         // { property: "animName", title: "交互动作", type: "drop", value: "none", options: [], callback: this.ChangeValue },
-        { property: "position", title: "偏移", type: "vector3", value: [0, 0, 0], step: 0.01, callback: this.ChangeValue },
-        { property: "rotation", title: "旋转", type: "vector3", value: [0, 0, 0], step: 0.01, callback: this.ChangeValue },
+        { property: "position", display: true, title: "拾取后偏移", type: "vector3", value: [0, 0, 0], step: 0.01, callback: this.ChangeValue },
+        { property: "rotation", display: true, title: "拾取后旋转", type: "vector3", value: [0, 0, 0], step: 0.01, callback: this.ChangeValue },
 
       ],
 
@@ -414,6 +359,8 @@ export default {
       // console.log(i + " " + this.setting[i].value + " " + e);
       if (this.setting[i].property.includes("animName")) {
         _Global.SendMsgTo3D("切换角色动作", e);
+        //改变角色武器
+        
         return;
       }
       if (this.setting[i].property == "boneName") {
@@ -435,6 +382,16 @@ export default {
       // this.Update();
     },
 
+    ClickUVAnim(i,e) {
+      this.Utils.SetSettingItemByProperty(this.setting, this.setting[i].property, e);
+      console.log(" 选择  ",i,e,this.setting[i].property);
+      let sp = this.setting[i].property.split('-');
+      if (sp.length == 1) {
+        this.settingData[sp[0]] = e;
+      } else {
+        this.settingData[sp[0]][sp[1]] = e;
+      } 
+    }, 
     getMessage() {
       return {
         pointType: this.pointType,

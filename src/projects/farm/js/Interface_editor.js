@@ -4,6 +4,7 @@ import * as THREE from "three";
 import { YJPlayerAnimData } from "/@/threeJS/YJPlayerAnimData.js";
 import { GetAllModel, RemoveFolderBase } from "./uploadThreejs.js";
 import { YJPathfindingCtrl } from "/@/threeJS/pathfinding/YJPathfindingCtrl.js";
+import { YJAudioManager } from "./YJAudioManager.js";
 
 import IconData from "../data/iconData.js";
 
@@ -128,7 +129,7 @@ class Interface {
               // 到角色数据中，模型路径、动画数据
               let data = item.message.data;
               data.modelPath = _this.$uploadUrl + item.modelPath;
-              data.icon = item.icon;
+              data.icon = "thumb.png";
               _Global.CreateOrLoadPlayerAnimData().AddAvatarData(data);
             } else {
               // this.modelsList.push(item);
@@ -418,14 +419,7 @@ class Interface {
       _Global.YJ3D._YJSceneManager.SavePlayerPos();
     }
     _Global.SavePlayerPos = this.SavePlayerPos;
-
-
-    //添加UV动画数据
-    this.AddUVAnimToTransform = function (gifData) {
-      _Global.YJ3D._YJSceneManager.AddUVAnimToTransform(gifData);
-    }
-    _Global.AddUVAnimToTransform = this.AddUVAnimToTransform;
-
+ 
     // 是否显示地面
     this.SetDisplayFloor = function (b) {
       _Global.YJ3D._YJSceneManager.SetDisplayFloor(b);
@@ -613,6 +607,7 @@ class Interface {
       _Global.notIn3D();
     }
 
+    let _YJAudioManager = null;
     let _YJPathfindingCtrl = null;
     this.GetNavpath = function (ZONE,fromPos, targetPos) {
       if (_YJPathfindingCtrl == null) {
@@ -626,9 +621,13 @@ class Interface {
     this.YJPathfindingCtrl = function () {
       return _YJPathfindingCtrl;
     }
+    this.YJAudioManager = function () {
+      return _YJAudioManager;
+    }
     _Global.GetNavpath = this.GetNavpath;
     _Global.CreateNavMesh = this.CreateNavMesh;
     _Global.GetYJPathfindingCtrl = this.YJPathfindingCtrl;
+    _Global.YJAudioManager = this.YJAudioManager;
 
     let eventList = [];
     // 添加事件监听
@@ -660,6 +659,8 @@ class Interface {
           // 调用所有npc的寻路
           // _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().AllNpcTransformNav();
         });
+        _YJAudioManager = new YJAudioManager(_this);
+        
       }
       _Global.applyEvent("3d加载完成");
       _Global.YJDync = this.YJDync();

@@ -31,6 +31,10 @@ class YJTransform {
       message: null, //模型热点信息
       uuid: "",//在场景中的唯一标识
     }
+    let children = [];
+    this.AddChildren = function (tranform){
+      children.push(tranform);
+    }
     this.SetData = function (folderBase, modelType, id,mapId) {
       data.folderBase = folderBase;
       data.modelType = modelType;
@@ -40,6 +44,8 @@ class YJTransform {
         data.mapId = "npcLevel1";
       }
       this.id = id;
+      group.name = modelType + name;
+
     }
 
     this.GetData = function () {
@@ -55,11 +61,16 @@ class YJTransform {
         let com = this.GetComponent("NPC");
         com.SetMessage(message.data);
         this.GetComponent("MeshRenderer").SetSize(message.data.avatarData.modelScale);
+        this.GetComponent("MeshRenderer").SetRotaArray(message.data.avatarData.rotation);
+
       }
       if (message.pointType == "player" || message.pointType == "avatar") {
         let com = this.GetComponent("Avatar");
         com.SetMessage(message.data);
         this.GetComponent("MeshRenderer").SetSize(message.data.modelScale);
+        this.GetComponent("MeshRenderer").SetRotaArray(message.data.rotation);
+
+
       }
       if (message.pointType == "UV动画") {
         let com = this.GetComponent("UVAnim");
@@ -116,10 +127,17 @@ class YJTransform {
       } else {
         _this._YJSceneManager.RemoveNeedUpdateJS(scope);
       }
+
+      if(children.length>0){
+        for (let i = 0; i < children.length; i++) {
+          const child = children[i];
+          child.SetActive(b);
+        }
+        return;
+      } 
+
       let modelData = JSON.parse(JSON.stringify(scope.modelData));
       scope.SetPosRota(modelData.pos, modelData.rotaV3, modelData.scale);
-
-
       let message = data.message;
 
       if (b) {
@@ -127,12 +145,20 @@ class YJTransform {
           let com = this.GetComponent("Interactive");
           com.Reset();
         }
+        if(this.GetComponent("Trail")){
+          this.GetComponent("Trail").start();
+        }
+
       } else {
         if (message.pointType == "interactive") {
           let com = this.GetComponent("Interactive");
           com.DestroyTrigger();
         }
+        if(this.GetComponent("Trail")){
+          this.GetComponent("Trail").stop();
+        }
       }
+
       // let _Animator = this.GetComponent("Animator");
       // if (_Animator != null) {
       //   if (b) {
@@ -239,9 +265,11 @@ class YJTransform {
     this.SetPos = function (pos, rotaV3) {
       // console.log(" 接收npc坐标", pos, rotaV3);
       group.position.set(pos.x, pos.y, pos.z); //  
-      group.rotation.set(rotaV3.x, rotaV3.y, rotaV3.z); //  
       data.pos = { x: pos.x, y: pos.y, z: pos.z };
-      data.rotaV3 = { x: rotaV3.x, y: rotaV3.y, z: rotaV3.z };
+      if(rotaV3){
+        group.rotation.set(rotaV3.x, rotaV3.y, rotaV3.z); //  
+        data.rotaV3 = { x: rotaV3.x, y: rotaV3.y, z: rotaV3.z };
+      }
     }
 
     let oldTransData = {

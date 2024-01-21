@@ -444,24 +444,8 @@ class YJSceneManager {
         singleTransform = object;
       }
 
-    }
-    this.AddUVAnimToTransform = (gifData) => {
-      if (singleTransform == null) { return; }
-      let meshrender = singleTransform.GetComponent("MeshRenderer");
-      if (meshrender == null) {
-        return;
-      }
+    } 
 
-      let uvanim = singleTransform.GetComponent("UVAnim");
-      if (uvanim == null) {
-        uvanim = new YJUVAnim3(_this);
-        singleTransform.AddComponent("UVAnim", uvanim);
-      }
-
-      singleTransform.SetMessage({ data: gifData, pointType: "UV动画" });
-      // uvanim.Init(meshrender.GetModel(), gifData);
-
-    }
     this.UpdateTransform = (msg) => {
       // if (singleTransform == null) { return; }
       // let meshrender = singleTransform.GetComponent("MeshRenderer");

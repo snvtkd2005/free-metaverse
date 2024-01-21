@@ -73,8 +73,10 @@ class YJPathfindingCtrl {
             // console.timeEnd('createZone()');
             // pathfinding.setZoneData(ZONE, zone);
 
-
-            navmesh.visible = false;
+            if (!inEditor) {
+              navmesh.visible = false;
+            }
+            // 
 
             let transform = node.parent.parent.parent.parent;
             let position = transform.position;

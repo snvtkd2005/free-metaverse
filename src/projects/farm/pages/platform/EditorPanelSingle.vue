@@ -511,15 +511,14 @@ export default {
       }
 
 
-      this.modelData.icon =
-        this.folderBase + "/" + this.folderBase + "_thumb.png";
+      this.modelData.icon = "thumb.png";
 
       let s = JSON.stringify(this.modelData);
       let fromData = new FormData();
       //服务器中的本地地址
       fromData.append(
         "fileToUpload",
-        this.$stringtoBlob(s, this.folderBase + "_data.txt")
+        this.$stringtoBlob(s,   "data.txt")
       );
       fromData.append("folderBase", this.folderBase);
       this.$uploadFile(fromData).then((res) => {
@@ -529,6 +528,8 @@ export default {
           this.SetTip("保存成功");
         }
       });
+      
+      localStorage.setItem("modelData", JSON.stringify(this.modelData));
     },
 
     // 保存模型缩略图，并上传
@@ -539,20 +540,18 @@ export default {
       //服务器中的本地地址
       fromData.append(
         "fileToUpload",
-        this.$dataURLtoBlob(dataurl, this.folderBase + "_thumb.png")
+        this.$dataURLtoBlob(dataurl,  "thumb.png")
       );
       fromData.append("folderBase", this.folderBase);
       this.$uploadFile(fromData).then((res) => {
         //先记录旧照片
         if (res.data == "SUCCESS") {
           console.log(" 上传模型缩略图 ");
-          this.SetTip("缩略图制作成功！");
+          this.SetTip("缩略图制作成功！"); 
         }
       });
 
       _Global.YJ3D._YJSceneManager.ResetBackgroundColor();
-      localStorage.setItem("modelData", JSON.stringify(this.modelData));
-      this.updateModelTxtData();
     },
     CancelCut() {
       _Global.SendMsgTo3D("单品", "显示角色");

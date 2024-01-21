@@ -163,6 +163,8 @@ export default {
           for (let i = 0; i < modelsList.length; i++) {
             let item = modelsList[i];
             if (item.modelType == this.selectModelTable) {
+              item.icon = item.folderBase +  "/" + "thumb.png";
+
               this.modelsList.push(item);
             }
           }

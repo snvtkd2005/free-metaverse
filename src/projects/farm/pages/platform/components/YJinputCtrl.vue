@@ -1,12 +1,12 @@
 
 
 <template>
-  <div class=" w-full gap-y-2  ">
-    <div v-for="(item, i) in setting" :key="i" class=" text-xs  text-left flex w-full mb-1     ">
-      <div v-if="item.display" class=" self-center w-1/3">
+  <div class=" w-full gap-y-0.5  flex flex-col  ">
+    <div v-for="(item, i) in setting" :key="i" class=" text-xs mx-auto  text-left flex w-full px-1 mb-1 justify-between     ">
+      <div v-if="item.display" class=" self-center w-20">
         {{ item.title }}
       </div>
-      <div v-if="item.display" class=" self-center w-2/3 pr-20">
+      <div v-if="item.display" class=" self-center  ">
         <div v-if="item.type == 'color'" class=" flex gap-2 ">
           <YJinput_color :index="i" :value="item.value" :callback="item.callback" />
         </div>
@@ -15,11 +15,22 @@
           <YJinput_toggle class=" w-4 h-4 " :index="i" :value="item.value" :callback="item.callback"></YJinput_toggle>
         </div>
 
-        <div v-if="item.type == 'file' && item.filetype == 'image'" class=" flex  gap-2  ">
-          <div @click="SelectHDR(item, i)" class=" w-10 h-10 bg-black cursor-pointer ">
+        <div v-if="item.type == 'file' && item.filetype == 'hdr'" class=" flex  gap-2  ">
+          <div @click="SelectItem('选择HDR', item, i)" class=" w-10 h-10 bg-black cursor-pointer ">
             <img v-if="item.value" class=" w-full h-full" :src="$uploadHDRUrl + item.value.replace('.hdr', '.jpg')" />
           </div>
-          <div class=" w-auto h-6 rounded-sm bg-gray-50 flex cursor-pointer " @click="SelectHDR(item, i)">
+          <div class=" w-auto h-6 rounded-sm bg-gray-50 flex cursor-pointer " @click="SelectItem('选择HDR', item, i)">
+            <div class=" text-xs pl-1 self-center mx-auto w-10 h-4 leading-4  rounded-sm text-black">
+              浏览...
+            </div>
+          </div>
+        </div>
+
+        <div v-if="item.type == 'file' && item.filetype == 'image'" class=" flex  gap-2  ">
+          <div @click="SelectItem('选择通用图片', item, i)" class=" w-10 h-10 bg-black cursor-pointer ">
+            <img v-if="item.value" class=" w-full h-full" :src="$uploadUVAnimUrl + item.value" />
+          </div>
+          <div class=" w-auto h-6 rounded-sm bg-gray-50 flex cursor-pointer " @click="SelectItem('选择通用图片', item, i)">
             <div class=" text-xs pl-1 self-center mx-auto w-10 h-4 leading-4  rounded-sm text-black">
               浏览...
             </div>
@@ -27,15 +38,40 @@
         </div>
 
         <div v-if="item.type == 'file' && item.filetype == 'audio'" class=" flex  gap-2  ">
-          <div @click="SelectAudio(item, i)" class=" w-10 h-10 bg-black cursor-pointer ">
-            <audio v-if="item.value" :src="$uploadAudioUrl + item.value"></audio>
+          <div class=" w-32 h-6  cursor-pointer ">
+            <audio v-if="item.value" class="w-full h-full" controls :src="$uploadAudioUrl + item.value"></audio>
           </div>
-          <div class=" w-auto h-6 rounded-sm bg-gray-50 flex  cursor-pointer" @click="SelectAudio(item, i)">
-            <div class=" text-xs pl-1 self-center mx-auto w-10 h-4 leading-4  rounded-sm text-black">
+          <div class=" w-20 h-6 rounded-sm  flex ">
+            <div class=" text-xs pl-1 self-center w-10 h-full leading-6 bg-gray-50  rounded-sm text-black  cursor-pointer"
+              @click="SelectItem('选择音效', item, i)">
               浏览...
+            </div>
+            <div v-if="item.value"
+              class=" text-xs ml-2 self-center w-auto h-full leading-6 bg-gray-50  rounded-sm text-black cursor-pointer "
+              @click="SelectItem('移除音效', item, i)">
+              移除
             </div>
           </div>
         </div>
+
+        <div v-if="item.type == 'file' && item.filetype == 'particle'" class=" flex  gap-2  ">
+          <div @click="SelectItem('选择特效', item, i)" class=" w-10 h-10  cursor-pointer ">
+            <img v-if="item.value" class=" w-full h-full" :src="$uploadGroupUrl + item.value + '/thumb.jpg'" />
+          </div>
+          <div class=" w-auto h-6 rounded-sm  flex ">
+            <div class=" text-xs pl-1 self-center mx-auto w-10 h-6 leading-6 bg-gray-50  rounded-sm text-black cursor-pointer "
+              @click="SelectItem('选择特效', item, i)">
+              浏览...
+            </div>
+
+            <div v-if="item.value"
+              class=" text-xs ml-2 self-center mx-auto w-10 h-6 leading-6 bg-gray-50  rounded-sm text-black cursor-pointer "
+              @click="SelectItem('移除特效', item, i)">
+              移除
+            </div>
+          </div>
+        </div>
+
 
         <div v-if="item.type == 'int'" class="flex gap-2 text-black">
           <YJinput_number :value="item.value" :type="item.type" :step="item.step" :index="i" :callback="item.callback" />
@@ -56,13 +92,17 @@
             :callback="item.callback" />
         </div>
 
-        <div v-if="item.type == 'drop'" class=" w-20 h-12 text-black ">
-          <YJinput_drop class=" w-32 h-full " :value="item.value" :options="item.options" :index="i"
+        <div v-if="item.type == 'drop'" class=" w-full h-10 text-black ">
+          <YJinput_drop class=" w-full h-full " :value="item.value" :options="item.options" :index="i"
             :callback="item.callback" />
         </div>
 
         <div v-if="item.type == 'text'" class=" w-20 h-4 text-black ">
           <YJinput_text class=" w-20 h-4 " :value="item.value" :index="i" :callback="item.callback" />
+        </div>
+
+        <div v-if="item.type == 'textarea'" class=" w-32 h-auto text-black ">
+          <YJinput_textarea class=" w-full h-20 " :value="item.value" :index="i" :callback="item.callback" />
         </div>
 
       </div>
@@ -79,7 +119,7 @@
 
     <div class="mt-2 overflow-y-scroll h-96 flex flex-wrap  " v-if="selectTitle == '选择HDR'">
       <div v-for="(item, i) in jpgList" :key="i" class="v self-center w-40 h-auto relative">
-        <div class=" w-40 h-20 self-center mx-auto mt-2 cursor-pointer " @click="ClickHDR(i)">
+        <div class=" w-40 h-20 self-center mx-auto mt-2 cursor-pointer " @click="ClickItem(selectTitle, i)">
           <img class=" w-full h-full object-fill hover:opacity-70 " :src="$uploadHDRUrl + item" />
         </div>
       </div>
@@ -87,12 +127,40 @@
 
     <div class="mt-2 overflow-y-scroll h-96 flex flex-wrap  " v-if="selectTitle == '选择音效'">
       <div v-for="(item, i) in audioList" :key="i" class="v self-center w-40 h-auto relative">
-        <div>{{ item.name }}</div>
-        <div class=" " @click="playAudio(item)">试听</div>
-        <div class=" w-40 h-20 self-center mx-auto mt-2 cursor-pointer " @click="ClickAudio(item)">
+        <div class=" w-40 h-20 self-center mx-auto mt-2 cursor-pointer " @click="ClickItem(selectTitle, i)">
+
+          <div class=" rounded-xl bg-gray-100 border w-full">
+            <audio class="w-full" controls :src="this.$uploadAudioUrl + item.folderBase + '/' + item.name"> </audio>
+          </div>
+
+          <div class=" flex flex-wrap w-5/6 gap-3">
+            <div v-for="(tagItem, ii) in item.tags " :key="ii" class=" border rounded-3xl border-gray-300 w-auto h-8 ">
+              <div class=" flex h-full text-gray-600">
+                <div class=" self-center mx-auto px-4 ">{{ tagItem }}</div>
+              </div>
+            </div>
+          </div>
+          <div>{{ item.name }}</div>
         </div>
       </div>
     </div>
+
+    <div class="mt-2 overflow-y-scroll h-96 flex flex-wrap  " v-if="selectTitle == '选择通用图片'">
+      <div v-for="(item, i) in uvAnimList" :key="i" class="v self-center w-40 h-auto relative">
+        <div class=" w-16 h-16 self-center mx-auto mt-2 cursor-pointer " @click="ClickItem(selectTitle, i)">
+          <img class=" w-full h-full object-fill hover:opacity-70 " :src="$uploadUVAnimUrl + item" />
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-2 overflow-y-scroll h-96 flex flex-wrap  " v-if="selectTitle == '选择特效'">
+      <div v-for="(item, i) in particleList" :key="i" class="v self-center w-40 h-auto relative">
+        <div class=" w-16 h-16 self-center mx-auto mt-2 cursor-pointer " @click="ClickItem(selectTitle, i)">
+          <img class=" w-full h-full object-fill hover:opacity-70 " :src="$uploadGroupUrl + item.icon" />
+        </div>
+      </div>
+    </div>
+
   </el-dialog>
 </template>
 
@@ -103,12 +171,12 @@ import YJinput_color from "./YJinput_color.vue";
 import YJinput_range from "./YJinput_range.vue";
 import YJinput_upload from "./YJinput_upload.vue";
 import YJinput_text from "./YJinput_text.vue";
+import YJinput_textarea from "./YJinput_textarea.vue";
 import YJinput_number from "./YJinput_number.vue";
 import YJinput_drop from "./YJinput_drop.vue";
-import YJinput_textarea from "./YJinput_textarea.vue";
 import YJinput_vector3 from "./YJinput_vector3.vue";
 
-import { GetAllHDR, GetAllAudio } from "../../../js/uploadThreejs.js";
+import { GetAllHDR, GetAllAudio, GetAllUVAnim, GetAllGroup } from "../../../js/uploadThreejs.js";
 
 export default {
   name: "YJinputCtrl",
@@ -119,9 +187,9 @@ export default {
     YJinput_range,
     YJinput_upload,
     YJinput_text,
+    YJinput_textarea,
     YJinput_number,
     YJinput_drop,
-    YJinput_textarea,
     YJinput_vector3,
   },
   data() {
@@ -129,11 +197,11 @@ export default {
 
       // 加载hdr图片
       hdrList: [],
+      uvAnimList: [],
+      particleList: [],
       jpgList: [],
-      titleIndex: -1,
-      audioList: [
-        { name: "", url: "" }
-      ],
+      settingIndex: -1,
+      audioList: [],
       selectTitle: "",
       isOpen: false,
 
@@ -145,21 +213,99 @@ export default {
 
   },
   methods: {
-
+    SelectUVAnim(item, i) {
+      this.selectTitle = "选择通用图片";
+      this.RequestGetAllHDR(this.selectTitle);
+      this.isOpen = true;
+      this.settingIndex = i;
+    },
     SelectHDR(item, i) {
-      if (this.inSelectHDR) {
-        return;
-      }
       this.selectTitle = "选择HDR";
       this.RequestGetAllHDR(this.selectTitle);
 
       this.isOpen = true;
-      this.titleIndex = i;
+      this.settingIndex = i;
+    },
+    SelectAudio(item, i) {
+      this.selectTitle = "选择音效";
+      this.RequestGetAllHDR(this.selectTitle);
+
+      this.isOpen = true;
+      this.settingIndex = i;
+    },
+
+    SelectItem(e, item, i) {
+      this.settingIndex = i;
+
+      if (e == "选择特效") {
+        this.selectTitle = e;
+      }
+      if (e == "选择HDR") {
+        this.selectTitle = e;
+      }
+      if (e == "选择通用图片") {
+        this.selectTitle = e;
+      }
+      if (e == "选择音效") {
+        this.selectTitle = e;
+      }
+      if (e == "移除特效") {
+        this.ClickUVAnim("");
+        return;
+      }
+      if (e == "移除音效") {
+        this.ClickUVAnim("");
+        return;
+      }
+      this.RequestGetAllHDR(this.selectTitle);
+      this.isOpen = true;
+    },
+
+    ClickAudio(item) {
+    },
+    ClickItem(e, i) {
+      if (e == "选择通用图片") {
+        this.ClickUVAnim(this.uvAnimList[i]);
+      }
+      if (e == "选择HDR") {
+        this.ClickHDR(i);
+      }
+      if (e == "选择特效") {
+        this.ClickUVAnim(this.particleList[i].folderBase);
+      }
+      if (e == "选择音效") {
+        this.ClickUVAnim(this.audioList[i].folderBase + '/' + this.audioList[i].name);
+      }
+      this.settingIndex = -1;
+      this.isOpen = false;
+    },
+
+    ClickParticle(i) {
+      this.$parent.ClickParticle(this.settingIndex, this.particleList[i]);
+
     },
     ClickHDR(i) {
-      this.$parent.ClickHDR(this.titleIndex, this.hdrList[i]);
-      this.titleIndex = -1;
-      this.isOpen = false;
+      this.$parent.ClickHDR(this.settingIndex, this.hdrList[i]);
+    },
+    ClickUVAnim(item) {
+      // console.log(" 选择通用图片 000 ", i, this.$parent
+      //   , this.$parent.$parent
+      //   , this.$parent.$parent.$parent
+      //   , this.$parent.$parent.$parent.$parent
+      // );
+
+      if (this.$parent.ClickUVAnim) {
+        this.$parent.ClickUVAnim(this.settingIndex, item);
+      } else
+        if (this.$parent.$parent.ClickUVAnim) {
+          this.$parent.$parent.ClickUVAnim(this.settingIndex, item);
+        } else
+          if (this.$parent.$parent.$parent.ClickUVAnim) {
+            this.$parent.$parent.$parent.ClickUVAnim(this.settingIndex, item);
+          } else
+            if (this.$parent.$parent.$parent.$parent.ClickUVAnim) {
+              this.$parent.$parent.$parent.$parent.ClickUVAnim(this.settingIndex, item);
+            }
     },
     async RequestGetAllHDR(type) {
       if (type == "选择HDR") {
@@ -183,6 +329,7 @@ export default {
       if (type == "选择音效") {
         GetAllAudio().then((res) => {
           // console.log("获取所有 hdr ", res);
+          this.audioList = [];
           //先记录旧照片
           if (res.data.txtDataList) {
             let txtDataList = res.data.txtDataList;
@@ -193,24 +340,32 @@ export default {
           }
         });
       }
+      if (type == "选择通用图片") {
+        this.uvAnimList = [];
+        GetAllUVAnim().then((res) => {
+          if (res.data.txtDataList) {
+            let txtDataList = res.data.txtDataList;
+            for (let i = 0; i < txtDataList.length; i++) {
+              const element = txtDataList[i];
+              this.uvAnimList.push((element));
+            }
+          }
+        });
+      }
 
+      if (type == "选择特效") {
+        this.particleList = [];
+        GetAllGroup().then((res) => {
+          if (res.data.txtDataList) {
+            let txtDataList = res.data.txtDataList;
+            for (let i = 0; i < txtDataList.length; i++) {
+              const element = txtDataList[i];
+              this.particleList.push((element));
+            }
+          }
+        });
+      }
     },
-
-    SelectAudio(item, i) {
-      this.selectTitle = "选择音效";
-      this.RequestGetAllHDR(this.selectTitle);
-
-      this.isOpen = true;
-      this.titleIndex = i;
-    },
-    playAudio(item) {
-
-    },
-    ClickAudio(item) {
-
-    },
-
-
     focus() {
       if (this.$parent.$parent.removeThreeJSfocus) {
         this.$parent.$parent.removeThreeJSfocus();

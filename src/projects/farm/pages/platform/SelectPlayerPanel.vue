@@ -226,7 +226,8 @@ export default {
 
           if (element.folderBase == "farmPlayer" || element.name == "小孩") {
             continue;
-          }
+          } 
+          element.icon = element.folderBase +  "/" + "thumb.png";
           // 加入到选中icon中，角色名、角色icon
           this.playerImgPath.push({
             name: element.name,

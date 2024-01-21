@@ -79,12 +79,12 @@
 
     <!-- 中间下部模型面板 -->
     <div :style="modelPanelStyle">
-      <modelPanel ref="modelPanel" />
+      <modelPanel title="group" ref="modelPanel" />
     </div>
 
     <!-- 左边场景模型面板 -->
     <div class=" absolute z-10 left-0  " :style="hierarchyStyle">
-      <hierarchy ref="hierarchyPanel" :modelList="modelList" />
+      <hierarchy ref="hierarchyPanel" title="组合模型列表" :modelList="modelList" />
     </div>
 
     <loadingPanel :loadingUrl="loadingUrl" class="absolute z-50 left-0 top-0 w-full h-full " ref="loadingPanel" />
@@ -191,12 +191,12 @@ export default {
       _SceneManager: null,
       _YJuserData: null,
       tableList: [
-        { id: "import", content: "导入", display: true },
+        { id: "import", content: "导入", display: false },
         { id: 'save_thrumb', content: "截图（制作缩略图）", display: true, value: true },
         { id: "save_setting", content: "保存场景配置", display: false, },
-        { id: 'save_model', content: "保存场景模型", display: true, value: true },
-        { id: "single_collider", content: "显示碰撞体", display: true, value: false },
-        { id: "single_planeState", content: "隐藏地面", display: true, value: true },
+        { id: 'save_model', content: "保存组合", display: true, value: true },
+        { id: "single_collider", content: "显示碰撞体", display: false, value: false },
+        { id: "single_planeState", content: "隐藏地面", display: false, value: true },
         { id: "save_view", content: "设置为访问视角", display: false, value: false },
         { id: "load_view", content: "还原到访问视角", display: false, value: false },
         { id: "release", content: "发布", display: false, },
@@ -247,8 +247,7 @@ export default {
         { id: '10004', content: '岛5', pos: { x: -500, y: -500 } },
         { id: '10005', content: '岛1', pos: { x: -500, y: -500 } },
       ],
-
-      openModelPanel: "",
+ 
 
       publicUrl: "",
 
@@ -393,7 +392,7 @@ export default {
           targetRota: { x: -1.56, y: 1.3 },
 
 
-          playerPos: { x: 0, y: 20, z: 20 },
+          playerPos: { x: 0, y: 20, z: 0 },
           playerRotaV3: { x: 0, y: 0, z: 0 },
           // 玩家刚体高度
           playerHeight: 1.7,
@@ -495,10 +494,10 @@ export default {
       this.folderBase = modelData.folderBase;
     }
 
-    this.loadingName = "loading.jpg";
-    this.loadingUrl = this.$uploadSceneUrl + this.folderBase + "/" + this.loadingName + '?time=' + new Date().getTime();
+    // this.loadingName = "loading.jpg";
+    // this.loadingUrl = this.$uploadSceneUrl + this.folderBase + "/" + this.loadingName + '?time=' + new Date().getTime();
+    // console.log(" this.folderBase ", this.folderBase, this.loadingUrl);
 
-    console.log(" this.folderBase ", this.folderBase, this.loadingUrl);
     this.$refs.YJmetaBase.SetloadingPanel(this.$refs.loadingPanel);
     this.$refs.PanelCut.Init(_Global.YJ3D);
 
@@ -764,8 +763,11 @@ export default {
         this.sceneLoadUrl + this.folderBase + "/" + "setting.txt" + "?time=" + new Date().getTime()
       );
       console.log(" 获取场景配置 ", res.data);
-      this._YJuserData.SetSceneData(res.data);
       this.sceneData = res.data;
+      this.sceneData.setting.hasCamRaycast = false;
+      this.sceneData.setting.camOffsetY = this.sceneData.setting.playerHeight / 2;
+
+      this._YJuserData.SetSceneData(this.sceneData);
       this.Enter();
     },
     async RequestGetAllSceneModelData() {
@@ -933,7 +935,7 @@ export default {
       _Global.SendMsgTo3D("单品", "显示角色");
       // _Global.ChangeFirstThird(false);
       _Global.SetEnableGravity(true);
-      // _Global.SetDisplayFloor(true);
+      _Global.SetDisplayFloor(true);
     },
     ChangeTable(item) {
 
@@ -941,53 +943,16 @@ export default {
 
         this.$refs.PanelCut.safeOrder = true;
         _Global.SetEnableGravity(false);
-        // _Global.SetDisplayFloor(false);
+        _Global.SetDisplayFloor(false);
         _Global.SendMsgTo3D("单品", "隐藏角色");
         // _Global.ChangeFirstThird(true); 
         return;
-      }
-      if (item.content.includes("保存场景配置")) {
-        this.updateSceneData();
-        return;
-      }
-      if (item.content.includes("保存场景模型")) {
+      } 
+      if (item.content.includes("保存组合")) {
         item.value = true;
         this.updateSceneModelData();
         return;
-      }
-
-      if (item.content.includes("设置为访问视角")) {
-        _Global.SavePlayerPos();
-        setTimeout(() => {
-          _Global.SavePlayerPos();
-          this.updateSceneData();
-        }, 100);
-        return;
-      }
-      if (item.content.includes("还原到访问视角")) {
-        _Global.SendMsgTo3D("场景", "还原到访问视角");
-        return;
-      }
-
-      // 是否显示碰撞体
-      if (item.id == "single_collider") {
-        item.value = !item.value;
-        item.content = item.value ? "隐藏碰撞体" : "显示碰撞体";
-        _Global.SendMsgTo3D("单品", item.content);
-
-        return;
-      }
-      // 隐藏地面
-      if (item.id == "single_planeState") {
-        item.value = !item.value;
-        item.content = item.value ? "隐藏地面" : "显示地面";
-        _Global.SetDisplayFloor(item.value);
-        // if (!item.value) {
-        //   _Global.ChangeFirstThird(true);
-        //   _Global.SetEnableGravity(false);
-        // }
-        return;
-      }
+      }  
     },
 
 

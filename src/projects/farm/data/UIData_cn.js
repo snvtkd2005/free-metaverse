@@ -34,7 +34,7 @@ export default {
     createNewHDR: "上传", //创建新HDR
     createNewUVanim: "上传", //创建新UV动画
     tableList: [
-      { content: "单品" },
+      { content: "单品" }, 
       { content: "组合" },
       { content: "场景" },
       { content: "HDR" },
@@ -87,7 +87,13 @@ export default {
       { name: "NPC模型" },
       { name: "交互模型" },
       { name: "拖尾模型" },
-      { name: "组合模型" },
+      { name: "组合" },
+    ],
+    selectModel_group: [
+      { name: "静态模型" }, 
+      { name: "粒子特效" },  
+      { name: "uv模型" },
+      { name: "拖尾模型" }, 
     ],
     hdrTip: "上传hdr及其缩略图jpg",
     uvAnimTip: "上传图片",

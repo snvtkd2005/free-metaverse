@@ -142,7 +142,7 @@ export default {
       this.headerBGUrl = this.headerBGUrlData[this.baseData.type || "normal"];
       this.GetHealth();
       let avatarId = npcData.avatarData.id;
-      this.icon = this.$uploadUrl + avatarId + "/" + avatarId + "_thumb.png";
+      this.icon = this.$uploadUrl + avatarId + "/"  + "thumb.png";
       this.display = true;
     },
     SetSkill(npcSkill) {

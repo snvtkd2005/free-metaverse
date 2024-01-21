@@ -89,7 +89,7 @@
   </div>
 
   <div class=" w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('选择可映射角色')">
-    <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">选择可映射角色</div>
+    <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">映射到同骨骼角色动画</div>
   </div>
   
   <div v-if="settingData.boneRefPlayer!=''" class=" w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('清除角色映射')">
@@ -261,7 +261,7 @@ export default {
       }
       if (e == "动作列表") {
         console.log(" 打开动作列表 ");
-        this.parent.$refs.animPanel.SetVisible(true, this.modelData.name);
+        this.parent.$refs.animPanel.SetVisible(true, this.settingData.id);
       }
       if (e == "骨骼映射面板") {
         let bones = _Global.YJ3D._YJSceneManager
@@ -302,6 +302,7 @@ export default {
     },
     // 改变当前上传角色动作
     ChangePlayerAnim(animName) {
+      console.log(" 切换动作 ",animName);
       let _YJAnimator = _Global.YJ3D._YJSceneManager
         .GetSingleTransformComponent("Animator");
       _YJAnimator.ChangeAnim(animName);
@@ -504,9 +505,12 @@ export default {
       // 能保存的情况下，才显示保存按钮
       console.log("角色数据 ", this.settingData);
       // 单品中才有 updateModelTxtData
-      if (this.$parent.updateModelTxtData) {
-        this.$parent.modelData.message = this.getMessage();
-        this.$parent.updateModelTxtData();
+      if (this.parent.updateModelTxtData) {
+        this.parent.modelData.message = this.getMessage();
+        this.parent.updateModelTxtData();
+        let animList = this.PlayerAnimData().AddAllExtendAnimData(this.settingData.id, this.settingData.animationsExtendData);
+        this.parent.$refs.animPanel.UpdateState(animList);
+
       } else {
         // 在场景编辑中的修改
         this.Update();
@@ -523,7 +527,7 @@ export default {
       //服务器中的本地地址
       fromData.append(
         "fileToUpload",
-        this.$stringtoBlob(s, this.folderBase + "_data.txt")
+        this.$stringtoBlob(s, "data.txt")
       );
       fromData.append("folderBase", this.folderBase);
       UploadPlayerFile(fromData).then((res) => {
@@ -531,11 +535,10 @@ export default {
         if (res.data == "SUCCESS") {
           console.log(" 上传 角色动作数据 文件成功 ");
           this.setting[0].value = "";
-          this.$parent.SetTip("保存成功");
+          this.parent.SetTip("保存成功");
           this.canSave = false;
 
           let animList = this.PlayerAnimData().AddAllExtendAnimData(this.modelData.name, this.animListData);
-          this.SetAnimList(animList);
           // window.location.reload();
         }
       });

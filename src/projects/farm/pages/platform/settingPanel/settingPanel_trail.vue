@@ -146,8 +146,7 @@ export default {
       return;
     } 
     if (modelData.message == undefined) {
-      this.Init(this.settingData); 
-      this.Update();
+      this.settingData.id = this.parent.folderBase + "";
       return;
     } 
     this.Init(modelData.message.data); 

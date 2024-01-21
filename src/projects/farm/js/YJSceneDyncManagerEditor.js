@@ -3,9 +3,9 @@ import * as THREE from "three";
 
 import TWEEN from '@tweenjs/tween.js';
 
-import { YJParabola } from "/@/threeJS/YJParabola.js";
-import { YJTrailRenderer } from "/@/threeJS/components/YJTrailRenderer.js";
+import { YJParabola } from "/@/threeJS/YJParabola.js"; 
 
+import { YJSkillParticleManager } from "./YJSkillParticleManager.js";
 
 // 场景同步数据
 
@@ -17,7 +17,7 @@ class YJSceneDyncManagerEditor {
     dyncModelList.push({ id: "offsetTime", modelType: "offsetTime", state: { offsetTime: 0, startTime: 1675586194683 } });
 
     let npcModelList = [];
-
+    let _YJSkillParticleManager = null;
     // 初始化场景中需要同步的模型。每个客户端都执行
     this.InitDyncSceneModels = () => {
 
@@ -55,6 +55,7 @@ class YJSceneDyncManagerEditor {
 
       npcModelList = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetAllTransformByModelType("NPC模型");
       console.log(" 所有npc ",npcModelList);
+
       if (_Global.setting.inEditor) {
         return;
       }
@@ -1219,85 +1220,16 @@ class YJSceneDyncManagerEditor {
     //#region 
     //#endregion
 
-    //#region
-    let _YJTrailRenderer = [];
-    let shootTargetList = [];
-    this.shootTarget = function (startPos, target, time, targetType) {
+    //#region 
+    this.shootTarget = function (startPos, target, time, targetType,firePid) {
       // console.log(" 同步trail target ", target.id, targetType);
       scope.UpdateModel("", "同步trail", { startPos: startPos, targetId: target.id, targetType: targetType, time: time });
-      shootTargetFn(startPos.clone(), target, time);
+      shootTargetFn(startPos.clone(), target, time,firePid );
+    } 
+    function shootTargetFn(startPos, target, time,firePid){
+      _YJSkillParticleManager.shootTargetFn(startPos.clone(), target, firePid);
+      // _YJSkillParticleManager.shootTargetFn(startPos.clone(), target, "1704443871265");
     }
-    function shootTargetFn(startPos, target, time) {
-      for (let i = 0; i < shootTargetList.length; i++) {
-        const element = shootTargetList[i];
-        if (!element.trailRenderer.trail.used) {
-          element.startPos = startPos;
-          element.target = target;
-          element.time = 0;
-          element.trailRenderer.trail.start();
-          return;
-        }
-      }
-      console.log(" shootTargetFn ",target);
-      let group = new THREE.Group();
-      _Global.YJ3D.scene.add(group);
-      let trailRenderer = { group: group, trail: new YJTrailRenderer(_this, _Global.YJ3D.scene, group) };
-      _YJTrailRenderer.push(trailRenderer);
-      shootTargetList.push({ startPos: startPos, target: target, time: 0, trailRenderer: trailRenderer });
-    }
-    function UpdateTrailRenderer() {
-      for (let i = shootTargetList.length - 1; i >= 0; i--) {
-        const item = shootTargetList[i];
-        if (item.trailRenderer.trail.used) {
-          item.time += 0.003;
-          if (item.time >= 1) {
-            item.trailRenderer.trail.stop();
-            return;
-          }
-          if(item.startPos.distanceTo(item.target.GetPlayerWorldPos())<0.2){
-            item.trailRenderer.trail.stop();
-            return;
-          }
-          item.startPos.lerp(item.target.GetPlayerWorldPos(), item.time);
-          item.trailRenderer.group.position.copy(item.startPos);
-        }
-      }
-    }
-    // function shootTargetFn(startPos, targetPos, time) {
-    //   for (let i = 0; i < _YJTrailRenderer.length; i++) {
-    //     const element = _YJTrailRenderer[i];
-    //     if (!element.trail.used) {
-    //       MoveToPosTweenFn(startPos, targetPos, time, (pos) => {
-    //         element.group.position.copy(pos);
-    //       });
-    //       element.trail.start();
-    //       return;
-    //     }
-    //   }
-    //   let group = new THREE.Group();
-    //   _Global.YJ3D.scene.add(group);
-    //   MoveToPosTweenFn(startPos, targetPos, time, (pos) => {
-    //     group.position.copy(pos);
-    //   });
-    //   _YJTrailRenderer.push({ group: group, trail: new YJTrailRenderer(_this, _Global.YJ3D.scene, group) });
-    // }
-
-    function MoveToPosTweenFn(fromPos, targetPos, length, updateCB, callback) {
-      let movingTween = new TWEEN.Tween(fromPos).to(targetPos, length).easing(TWEEN.Easing.Cubic.InOut)
-      let updateTargetPos = () => {
-        if (updateCB) {
-          updateCB(fromPos);
-        }
-      }
-      movingTween.onUpdate(updateTargetPos);
-      movingTween.start() // 启动动画
-      movingTween.onComplete(() => {
-        if (callback) {
-          callback();
-        }
-      });
-    }
-
     //#endregion
 
     this.DyncPlayerState = function (YJPlayer, state) {
@@ -1305,12 +1237,12 @@ class YJSceneDyncManagerEditor {
     }
 
     function init() {
+      _YJSkillParticleManager = new YJSkillParticleManager(_this);
       update();
     }
     function update() {
       requestAnimationFrame(update);
-      TWEEN.update();
-      UpdateTrailRenderer();
+      TWEEN.update(); 
     }
     init();
 

@@ -427,6 +427,14 @@ class YJ3dScene_playerSelect {
     let playerHeight;
     let playerName = "";
     let avatarId = 0;
+    let de2reg = 57.3248407;
+    function SetRotaArray(model,rota){
+      if(!rota){
+        model.rotation.set(0,0,0);
+        return;
+      }
+      model.rotation.set(rota[0]/de2reg,rota[1]/de2reg, rota[2]/de2reg);
+    }
     // 此函数用来做npc
     this.ChangeAvatarByCustom = function (avatarData, callback) {
       clearGroup(group); 
@@ -441,6 +449,7 @@ class YJ3dScene_playerSelect {
         modelPath =  _this.GetPublicUrl() + avatarData.modelPath;
       }
       let modelScale = avatarData.modelScale;
+      let rotation = avatarData.rotation;
 
       console.log(" 准备加载角色 ", avatarData);
       SetViewHeight();
@@ -457,7 +466,7 @@ class YJ3dScene_playerSelect {
               group.add(_playerObj);
               _playerObj.position.set(0, 0, 0); //原点位置
               group.scale.set(modelScale,modelScale, modelScale); //原点位置
-
+              SetRotaArray(group,rotation);
             }, 500);
 
             if (callback) {
@@ -501,8 +510,7 @@ class YJ3dScene_playerSelect {
             group.add(_playerObj);
             _playerObj.position.set(0, 0, 0); //原点位置
             group.scale.set(modelScale,modelScale, modelScale); //原点位置
-            
-
+            SetRotaArray(group,rotation);
             if (callback) {
               callback(avatar);
             }

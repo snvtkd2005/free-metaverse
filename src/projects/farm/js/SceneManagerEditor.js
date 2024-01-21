@@ -175,40 +175,35 @@ class SceneManager {
           _SceneDyncManager.TabChangeTarget();
           return;
         }
-
+        let skillIndex = -1;
         if (key == "Digit1") {
-          indexVue.$refs.HUD.$refs.skillPanel_virus.ClickSkillIndex(0);
-          return;
+          skillIndex = 0;
         }
-        if (key == "Digit2") {
-          indexVue.$refs.HUD.$refs.skillPanel_virus.ClickSkillIndex(1);
-          return;
+        if (key == "Digit2") {          
+          skillIndex = 1; 
+        } 
+        if (key == "Digit3") {          
+          skillIndex = 2; 
+        }
+        if (key == "Digit4") {          
+          skillIndex = 3; 
+        }
+        if (key == "Digit5") {          
+          skillIndex = 4;
+        } 
+        if (key == "Digit6") {
+          skillIndex = 5;
+        }
+        if (key == "Digit7") {
+          skillIndex = 6;
+        }
+        if (key == "Digit8") {
+          skillIndex = 7;
+        }
+        if(skillIndex>-1 && indexVue.$refs.HUD ){
+          indexVue.$refs.HUD.$refs.skillPanel_virus.ClickSkillIndex(skillIndex);
         }
 
-        if (key == "Digit3") {
-          indexVue.$refs.HUD.$refs.skillPanel_virus.ClickSkillIndex(2);
-          return;
-        }
-        if (key == "Digit4") {
-          indexVue.$refs.HUD.$refs.skillPanel_virus.ClickSkillIndex(3);
-          return;
-        }
-        if (key == "Digit5") {
-          indexVue.$refs.HUD.$refs.skillPanel_virus.ClickSkillIndex(4);
-          return;
-        }
-        // if (key == "Digit6") {
-        //   indexVue.$refs.HUD.$refs.skillPanel.ClickSkillIndex(5);
-        //   return;
-        // }
-        // if (key == "Digit7") {
-        //   indexVue.$refs.HUD.$refs.skillPanel.ClickSkillIndex(6);
-        //   return;
-        // }
-        // if (key == "Digit8") {
-        //   indexVue.$refs.HUD.$refs.skillPanel.ClickSkillIndex(7);
-        //   return;
-        // }
  
         if (key == "KeyM") {
           //   //  开关地图
@@ -311,7 +306,7 @@ class SceneManager {
     let boneAttachList = [];
 
     this.SetTriggerOverlap = (b, id, owner) => {
-      console.log(" in sceneManager ", b, id, owner);
+      // console.log(" in Overlap ", b, id, owner);
       if (owner.isYJTransform) {
         let msg = owner.GetMessage(); 
         if (msg.pointType == "weapon") {
@@ -321,32 +316,45 @@ class SceneManager {
             return;
           }
           let state = _this.YJController.GetUserDataItem("weaponData");
-          // console.log(" 碰到武器 ", msg.data,state);
+          console.log(" 碰到武器 ", msg.data,state);
           // 判断角色是否可以拾取武器
           if (state != null && state.weaponId != "") {
             return;
           }
-          let { boneName, weaponType, pickType
-            , position
-            , rotation
-            , attackSpeed
-            , vaildDis
-            , animNameIdle
-            , animNameWalk, animNameRun, animNameReady, animNameAttack } = msg.data;
+          // let { boneName, weaponType, pickType
+          //   , position
+          //   , rotation
+          //   , attackSpeed
+          //   , vaildDis
+          //   , animNameIdle
+          //   , animNameWalk, animNameRun, animNameReady, animNameAttack } = msg.data;
 
-          _this.YJController.SetUserDataItem("weaponData",{});
-          _this.YJController.SetUserDataItem("weaponData", "pickType", pickType);
-          _this.YJController.SetUserDataItem("weaponData", "weaponType", weaponType);
+          
+          let { boneName
+            , position
+            , rotation  } = msg.data;
+          _this.YJController.SetUserDataItem("weaponData",msg.data);
+          // _this.YJController.SetUserDataItem("weaponData", "pickType", pickType);
+          // _this.YJController.SetUserDataItem("weaponData", "weaponType", weaponType);
           _this.YJController.SetUserDataItem("weaponData", "weaponId",  owner.GetData().folderBase);
-          _this.YJController.SetUserDataItem("weaponData", "attackSpeed", attackSpeed);
-          _this.YJController.SetUserDataItem("weaponData", "vaildDis", vaildDis);
-          _this.YJController.SetUserDataItem("weaponData", "animNameIdle", animNameIdle);
-          _this.YJController.SetUserDataItem("weaponData", "animNameWalk", animNameWalk);
-          _this.YJController.SetUserDataItem("weaponData", "animNameIdle", animNameIdle);
-          _this.YJController.SetUserDataItem("weaponData", "animNameRun", animNameRun);
-          _this.YJController.SetUserDataItem("weaponData", "animNameReady", animNameReady);
-          _this.YJController.SetUserDataItem("weaponData", "animNameAttack", animNameAttack);
+          // _this.YJController.SetUserDataItem("weaponData", "attackSpeed", attackSpeed);
+          // _this.YJController.SetUserDataItem("weaponData", "vaildDis", vaildDis);
+          // _this.YJController.SetUserDataItem("weaponData", "animNameIdle", animNameIdle);
+          // _this.YJController.SetUserDataItem("weaponData", "animNameWalk", animNameWalk);
+          // _this.YJController.SetUserDataItem("weaponData", "animNameIdle", animNameIdle);
+          // _this.YJController.SetUserDataItem("weaponData", "animNameRun", animNameRun);
+          // _this.YJController.SetUserDataItem("weaponData", "animNameReady", animNameReady);
+          // _this.YJController.SetUserDataItem("weaponData", "animNameAttack", animNameAttack);
           _this.YJController.SetUserDataItem("weaponData", "transId", owner.id);
+          // if(msg.data.readyParticleId){
+          //   _this.YJController.SetUserDataItem("weaponData", "readyParticleId", msg.data.readyParticleId);
+          // }
+          // if(msg.data.fireParticleId){
+          //   _this.YJController.SetUserDataItem("weaponData", "fireParticleId", msg.data.fireParticleId);
+          // }
+          // if(msg.data.fireParticleId){
+          //   _this.YJController.SetUserDataItem("weaponData", "fireParticleId", msg.data.fireParticleId);
+          // }
 
           _this.YJController.SetUserDataItem("weaponDataData",{});
           _this.YJController.SetUserDataItem("weaponDataData", owner.GetData());
@@ -356,7 +364,7 @@ class SceneManager {
             let weaponModel = owner.GetGroup();
             boneAttachList.push(
               {
-                boneName: boneName,
+                boneName:boneName,
                 parent: weaponModel.parent,
                 transform: owner
               });

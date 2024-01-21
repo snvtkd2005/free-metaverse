@@ -23,6 +23,7 @@ class YJUVAnim3 {
       if (_gifData == undefined) { return; }
       gifData = _gifData;
       pointObj.splice(0, pointObj.length);
+      playing = false;
 
       row = gifData.row;
       col = gifData.col;
@@ -70,11 +71,12 @@ class YJUVAnim3 {
           pointObj.push(item);
         }
       });
-
-
-      setTimeout(() => {
-        playing = true;
-      }, 20);
+      model.renderOrder = 1;
+      if(speed != 0){
+        setTimeout(() => {
+          playing = true;
+        }, 20);
+      }
 
 
       // _this._YJSceneManager.AddNeedUpdateJS(scope);

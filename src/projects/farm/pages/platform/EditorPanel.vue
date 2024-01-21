@@ -82,7 +82,7 @@
 
     <!-- 左边场景模型面板 -->
     <div class=" absolute z-10 left-0  " :style="hierarchyStyle">
-      <hierarchy ref="hierarchyPanel" :modelList="modelList" />
+      <hierarchy ref="hierarchyPanel"  title="场景模型列表" :modelList="modelList" />
     </div>
 
     <loadingPanel :loadingUrl="loadingUrl" class="absolute z-50 left-0 top-0 w-full h-full " ref="loadingPanel"/>
@@ -784,7 +784,7 @@ export default {
 
       console.log(" 获取场景配置 ", res.data);
       this.sceneData = res.data;
-      this.sceneData.setting.hasCamRaycast = true;
+      this.sceneData.setting.hasCamRaycast = false;
       this.sceneData.setting.camOffsetY = this.sceneData.setting.playerHeight / 2;
 
       this.Enter();
@@ -1306,7 +1306,7 @@ export default {
       });
 
       this.Interface.load3dComplete();
-
+      this._SceneManager.LoadMapCompleted();
       this.$refs.YJmetaBase.OpenThreejs();
       setTimeout(() => {
         this.OpenThreejs();
@@ -1471,7 +1471,8 @@ export default {
         setTimeout(() => {
           this.$refs.settingPanelCtrl.$refs.settingPanel_weapon.GetAnimList(this.avatarId);
           this.$refs.settingPanelCtrl.$refs.settingPanel_weapon.Init(msg.data);
-        }, 2000);
+          this.$refs.settingPanelCtrl.$refs.settingPanel_weapon.isLock = true; 
+        }, 20);
         this.$message('设置武器请到武器单品中设置'); 
         // console.log("武器请到武器单品中设置");
         return;

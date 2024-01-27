@@ -8,11 +8,12 @@
              text-white 
              rounded-lg
              overflow-hidden 
+             relative
             ">
     <div class=" text-left ">武器设置</div>
     <div class=" w-full">
       <YJinputCtrl :setting="setting" />
-    </div> 
+    </div>
 
     <!-- 动作播放进度滑块 -->
     <div class=" flex w-full   ">
@@ -22,15 +23,17 @@
         type="range" min="0" :max="animClip.duration" step="1">
     </div>
 
-    <div class=" mt-2 w-full h-10 text-white cursor-pointer " @click="ClickHandler('编辑位置')">
-      <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">编辑位置</div>
+    <div class=" mt-2 w-full h-10 text-white ">
+      <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1  cursor-pointer" @click="ClickHandler('编辑位置')">编辑位置</div>
     </div>
 
-    <div class=" mt-2 w-full h-10 text-white cursor-pointer " @click="ClickHandler('保存')">
-      <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">保存</div>
+    <div class=" mt-2 w-full h-10 text-white ">
+      <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 cursor-pointer " @click="ClickHandler('保存')">保存
+      </div>
     </div>
-    <div class=" mt-2 w-full h-10 text-white cursor-pointer " @click="ClickHandler('保存偏移旋转')">
-      <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">保存偏移旋转</div>
+    <div class=" mt-2 w-full h-10 text-white ">
+      <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 cursor-pointer " @click="ClickHandler('保存偏移旋转')">
+        保存偏移旋转</div>
     </div>
 
     <div v-if="isLock" class=" absolute left-0 top-0 w-full h-full bg-black bg-opacity-30">
@@ -40,20 +43,20 @@
 </template>
 
 <script>
- 
- 
-import YJinputCtrl from "../components/YJinputCtrl.vue"; 
+
+
+import YJinputCtrl from "../components/YJinputCtrl.vue";
 
 export default {
-  name: "settingpanel_uvanim",
-  components: { 
-YJinputCtrl,
+  name: "settingpanel_weapon",
+  components: {
+    YJinputCtrl,
   },
   data() {
     return {
       chassisWidth: 2.2, //车身宽
       pointType: "weapon",
-      isLock:false,
+      isLock: false,
       settingData: {
         weaponId: "",
         name: "weapon001",
@@ -75,12 +78,17 @@ YJinputCtrl,
         animNameRun: "run",
         //准备攻击
         animNameReady: "fight idle",
-        readyParticleId:"", //吟唱特效
-        readyAudioId:"", //吟唱音效
+        readyParticleId: "", //吟唱特效
+        readyAudioId: "", //吟唱音效
         //攻击
         animNameAttack: "fight attack",
-        fireParticleId:"", //施放特效
-        fireAuidoId:"", //施放音效
+        fire:{
+          particle:"",
+          audio:"",
+          pos:[],
+        },
+        fireParticleId: "", //施放特效
+        fireAuidoId: "", //施放音效
         // 依附的骨骼名称
         boneName: "",
         // 攻击速度
@@ -132,11 +140,13 @@ YJinputCtrl,
         { property: "animNameRun", display: true, title: "奔跑", type: "drop", value: "none", options: [], callback: this.ChangeValue },
         { property: "animNameReady", display: true, title: "准备攻击", type: "drop", value: "none", options: [], callback: this.ChangeValue },
         { property: "animNameAttack", display: true, title: "攻击", type: "drop", value: "none", options: [], callback: this.ChangeValue },
-        { property: "readyParticleId", display: true, title: "吟唱特效", type: "file",filetype:"particle", value: "", callback: this.ChangeValue },
-        { property: "readyAudioId", display: true, title: "吟唱音效", type: "file",filetype:"audio", value: "", callback: this.ChangeValue },
-        
-        { property: "fireParticleId", display: true, title: "施放特效", type: "file",filetype:"particle", value: "", callback: this.ChangeValue },
-        { property: "fireAuidoId", display: true, title: "施放音效", type: "file",filetype:"audio", value: "", callback: this.ChangeValue },
+        { property: "readyParticleId", display: true, title: "吟唱特效", type: "file", filetype: "particle", value: "", callback: this.ChangeValue },
+        { property: "readyAudioId", display: true, title: "吟唱音效", type: "file", filetype: "audio", value: "", callback: this.ChangeValue },
+
+        // { property: "fireParticleId", display: true, title: "施放特效", type: "file", filetype: "particle", value: "", callback: this.ChangeValue },
+        // { property: "fireAuidoId", display: true, title: "施放音效", type: "file", filetype: "audio", value: "", callback: this.ChangeValue },
+        { property: "fire-particle", display: true, title: "施放特效", type: "file", filetype: "particle", value: "", callback: this.ChangeValue },
+        { property: "fire-audio", display: true, title: "施放音效", type: "file", filetype: "audio", value: "", callback: this.ChangeValue },
         
         // { property: "animName", title: "交互动作", type: "drop", value: "none", options: [], callback: this.ChangeValue },
         { property: "position", display: true, title: "拾取后偏移", type: "vector3", value: [0, 0, 0], step: 0.01, callback: this.ChangeValue },
@@ -223,14 +233,14 @@ YJinputCtrl,
     },
 
     SetAnimList(_animList) {
-      console.log("设置动作drop list ",_animList);
+      console.log("设置动作drop list ", _animList);
       this.animList = _animList;
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "animNameIdle", "options", this.animList);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "animNameWalk", "options", this.animList);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "animNameRun", "options", this.animList);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "animNameReady", "options", this.animList);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "animNameAttack", "options", this.animList);
-       
+
     },
 
     animate() {
@@ -268,7 +278,7 @@ YJinputCtrl,
 
 
       this.animate();
- 
+
       // setTimeout(() => {
       //   console.log( this.settingData);
       //   _Global.SendMsgTo3D("切换角色动作", this.settingData.animName);
@@ -360,7 +370,7 @@ YJinputCtrl,
       if (this.setting[i].property.includes("animName")) {
         _Global.SendMsgTo3D("切换角色动作", e);
         //改变角色武器
-        
+
         return;
       }
       if (this.setting[i].property == "boneName") {
@@ -382,16 +392,16 @@ YJinputCtrl,
       // this.Update();
     },
 
-    ClickUVAnim(i,e) {
+    ClickUVAnim(i, e) {
       this.Utils.SetSettingItemByProperty(this.setting, this.setting[i].property, e);
-      console.log(" 选择  ",i,e,this.setting[i].property);
+      console.log(" 选择  ", i, e, this.setting[i].property);
       let sp = this.setting[i].property.split('-');
       if (sp.length == 1) {
         this.settingData[sp[0]] = e;
       } else {
         this.settingData[sp[0]][sp[1]] = e;
-      } 
-    }, 
+      }
+    },
     getMessage() {
       return {
         pointType: this.pointType,

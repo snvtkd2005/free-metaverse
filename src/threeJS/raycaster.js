@@ -76,6 +76,23 @@ class YJRaycaster extends EventDispatcher {
       containerWidth = w;
       containerHeight = h;
     }
+    let eventHandlers = [];
+    this.addEventListener = function(e,event){
+      eventHandlers.push({eventName:e,event:event});
+    }
+    function EventHandler(e,value,value2){
+      if(e=="hover"){
+        hoverHit(value,value2);
+      }
+      for (let i = 0; i < eventHandlers.length; i++) {
+        const item = eventHandlers[i];
+        if(item.eventName == e){
+          if(item.event){
+            item.event(value,value2);
+          }
+        }
+      }
+    }
     //鼠标实时位置的射线检测
     const raycasterHover = (pos) => {
       // hover会实时检测scene所有子物体, 影响性能导致卡顿，先关闭
@@ -93,29 +110,24 @@ class YJRaycaster extends EventDispatcher {
         true
       );
       if (intersects.length > 0) {
-
-        // hoverObj = intersects[0].object;
-        // if(hoverObj == oldHoverObj){return;}
+ 
         hoverObj = GetAcitveObjectFromIntersects(intersects);
-        if (hoverObj == null) {
-          hoverHit(null);
+        if (hoverObj == null) { 
+          EventHandler('hover',null);
           return;
         }
-        hoverHit(hoverObj, intersects[hitIndex].point);
-
-        // hoverObj = GetAcitveObjectFromIntersects(intersects);
-        // if (hoverObj == null) { return; }
-        // if (hoverObj == oldHotObj) { return; }
-        // hoverHit(hoverObj, intersects[hitIndex].point);
+        EventHandler('hover',hoverObj, intersects[hitIndex].point); 
 
         oldHoverObj = hoverObj;
         return true;
       } else {
         oldHoverObj = null;
-        hoverHit(null);
+        EventHandler('hover',null);
         return false;
       }
     }
+ 
+
     let hitIndex = 0;
 
     const raycasterClick = (pos) => {
@@ -196,9 +208,11 @@ class YJRaycaster extends EventDispatcher {
         // console.log("点击筛选",element); 
         if (element.visible == false) { continue; }
         if (element.name == "ignoreRaycast") { continue; }
+        if (element.tag == "ignoreRaycast") { continue; }
         if (element.name == "trigger") { continue; }
         if (element.tag == "helper") { continue; }
         if (element.type == "GridHelper") { continue; }
+        if (element.isIgnore) { continue; }
         if (element.type == "TransformControlsPlane") { continue; }
         if (element.parent.parent && element.parent.parent.isTransformControlsGizmo) { continue; }
         hitIndex = i;

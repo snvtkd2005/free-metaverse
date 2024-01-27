@@ -7,7 +7,7 @@
     <div class=" absolute z-20 left-0 top-0 w-full flex bg-445760  text-gray-200 " :style="topStyle">
       <div class=" flex ">
         <div v-for="(item, i) in tableList" :key="i" :index="item.id"
-          class=" px-12 flex  h-full text-center cursor-pointer  hover:bg-546770  " @click="ChangeTable(item)">
+          class="  px-6  flex  h-full text-center cursor-pointer  hover:bg-546770  " @click="ChangeTable(item)">
           <div class=" self-center">
             {{ item.content }}
           </div>
@@ -69,7 +69,7 @@
         <settingPanel ref="settingPanel" />
       </div>
     </div>
-    
+
     <!-- 右侧检视面板 -->
     <div class=" absolute right-0 top-0 h-full bg-546770" :style="settingPanelStyle">
       <settingPanelCtrl ref="settingPanelCtrl" />
@@ -82,14 +82,14 @@
 
     <!-- 左边场景模型面板 -->
     <div class=" absolute z-10 left-0  " :style="hierarchyStyle">
-      <hierarchy ref="hierarchyPanel"  title="场景模型列表" :modelList="modelList" />
+      <hierarchy ref="hierarchyPanel" title="场景模型列表" :modelList="modelList" />
     </div>
 
-    <loadingPanel :loadingUrl="loadingUrl" class="absolute z-50 left-0 top-0 w-full h-full " ref="loadingPanel"/>
+    <loadingPanel :loadingUrl="loadingUrl" class="absolute z-50 left-0 top-0 w-full h-full " ref="loadingPanel" />
     <modelSelectPanel ref="modelSelectPanel" />
     <!-- 给npc添加技能 -->
     <skillSelectPanel ref="skillSelectPanel" />
- 
+
     <!-- 截图区域安全区域 -->
     <PanelCut @cancel="CancelCut" ref="PanelCut" />
 
@@ -141,7 +141,7 @@ export default {
     PanelCut,
     hierarchy,
     settingPanel,
-    settingPanelCtrl, 
+    settingPanelCtrl,
     HUD,
   },
   data() {
@@ -297,7 +297,7 @@ export default {
         // 房间名，用房间名来区分多个项目的同步
         roomName: "3dfarm",
         platform: "pcweb",
-        hasEditored: false, 
+        hasEditored: false,
         // 界面设置
         setting: {
 
@@ -561,7 +561,15 @@ export default {
     }
 
     this.setPanelSize();
+    document.addEventListener("visibilitychange", () => {
+      _Global.inFocus = !document.hidden;
+      if(!_Global.inFocus){
+        //暂停背景音乐
+      }
+      this.$refs.YJmetaBase.EventHandler(_Global.inFocus?"播放音乐":"暂停音乐");
 
+      // console.log(" _Global.inFocus ", _Global.inFocus);
+    });
   },
   methods: {
     setMaxMin(isMax) {
@@ -669,7 +677,9 @@ export default {
     GetPlayerAnimData() {
       return PlayerAnimData;
     },
-
+    PlayBGAudio(){
+      this.$refs.YJmetaBase.EventHandler("播放音乐");
+    },
     addMetaWorldCoordinate(item) {
       if (this.sceneData.metaWorldCoordinate == undefined) {
         this.sceneData.metaWorldCoordinate = [];
@@ -816,12 +826,11 @@ export default {
 
       _Global.YJ3D._YJSceneManager.CreateSenceBy(this.modelList);
 
-      setTimeout(() => {
-        this.modelList = [];
-        this.modelList = this.$refs.modelPanel._LoadUserModelManager.GetModelList();
-
-        console.log(" 获取场景 模型 333 ", this.modelList, this.modelList.length);
-      }, 5000);
+      // setTimeout(() => {
+      //   this.modelList = [];
+      //   this.modelList = this.$refs.modelPanel._LoadUserModelManager.GetModelList();
+      //   console.log(" 获取场景 模型 333 ", this.modelList, this.modelList.length);
+      // }, 5000);
     },
 
     // 保存场景简要信息。新建时调用
@@ -833,7 +842,7 @@ export default {
       let s = JSON.stringify(this.modelData);
       let fromData = new FormData();
       //服务器中的本地地址 
-      fromData.append("fileToUpload", this.$stringtoBlob(s,  "data.txt"));
+      fromData.append("fileToUpload", this.$stringtoBlob(s, "data.txt"));
       fromData.append("folderBase", this.folderBase);
       UploadSceneFile(fromData).then((res) => {
         //先记录旧照片
@@ -894,13 +903,14 @@ export default {
             this.modelList.splice(i, 1);
           }
         }
-        console.log(this.modelList);
-        // this.modelList.remove(item);
+        console.log(this.modelList); 
       }
     },
 
     // 保存场景模型列表数据，同时更新模型massage数据
     updateSceneModelData() {
+      this.tableList[2].value = true;
+
       this.modelList = [];
       this.modelList = this.$refs.modelPanel._LoadUserModelManager.GetModelList();
       console.log("this.modelList 1111 ", this.modelList);
@@ -908,7 +918,7 @@ export default {
       let s = JSON.stringify(this.modelList);
       let fromData = new FormData();
       //服务器中的本地地址 
-      fromData.append("fileToUpload", this.$stringtoBlob(s,  "scene.txt"));
+      fromData.append("fileToUpload", this.$stringtoBlob(s, "scene.txt"));
       fromData.append("folderBase", this.folderBase);
       UploadSceneFile(fromData).then((res) => {
         //先记录旧照片
@@ -923,7 +933,7 @@ export default {
       let s = JSON.stringify(this.modelList);
       let fromData = new FormData();
       //服务器中的本地地址 
-      fromData.append("fileToUpload", this.$stringtoBlob(s,"scene.txt"));
+      fromData.append("fileToUpload", this.$stringtoBlob(s, "scene.txt"));
       fromData.append("folderBase", this.folderBase);
       UploadSceneFile(fromData).then((res) => {
         //先记录旧照片
@@ -944,7 +954,7 @@ export default {
       //服务器中的本地地址
       fromData.append(
         "fileToUpload",
-        this.$dataURLtoBlob(dataurl,  "thumb.jpg")
+        this.$dataURLtoBlob(dataurl, "thumb.jpg")
       );
       fromData.append("folderBase", this.folderBase);
       UploadSceneFile(fromData).then((res) => {
@@ -1308,6 +1318,10 @@ export default {
       this.Interface.load3dComplete();
       this._SceneManager.LoadMapCompleted();
       this.$refs.YJmetaBase.OpenThreejs();
+      if(this.sceneData.setting.hasBGM && this.sceneData.setting.BGMurl){
+        this.$refs.YJmetaBase.addAudio("bgmusic",this.sceneData.setting.BGMurl);
+      }
+
       setTimeout(() => {
         this.OpenThreejs();
       }, 1000);
@@ -1420,6 +1434,12 @@ export default {
       _Global.YJ3D._YJSceneManager.SetSelectTransform(this.clickModelJS);
       this._SceneManager.SetTargetModel(null);
 
+      this.ChangePanel('');
+ 
+      this.$refs.settingPanelCtrl.isTransform = true;
+      this.$nextTick(() => {
+        this.$refs.settingPanelCtrl.$refs.settingPanel_transform.Init(this.clickModelJS);
+      });
       let component = this.clickModelJS.GetComponent("UVAnim");
       if (component != null) {
         this.ChangePanel('uvAnim');
@@ -1471,9 +1491,9 @@ export default {
         setTimeout(() => {
           this.$refs.settingPanelCtrl.$refs.settingPanel_weapon.GetAnimList(this.avatarId);
           this.$refs.settingPanelCtrl.$refs.settingPanel_weapon.Init(msg.data);
-          this.$refs.settingPanelCtrl.$refs.settingPanel_weapon.isLock = true; 
+          this.$refs.settingPanelCtrl.$refs.settingPanel_weapon.isLock = true;
         }, 20);
-        this.$message('设置武器请到武器单品中设置'); 
+        this.$message('设置武器请到武器单品中设置');
         // console.log("武器请到武器单品中设置");
         return;
       }
@@ -1487,7 +1507,7 @@ export default {
         console.log(component);
         return;
       }
-      
+
       component = this.clickModelJS.GetComponent("Trail");
       if (component != null) {
         this.ChangePanel('trail');
@@ -1519,10 +1539,7 @@ export default {
           this.clickModelJS = transform;
 
           this.$refs.hierarchyPanel.SelectModelBy3d(this.clickModelJS.GetUUID());
-          this.tableList[2].value = false;
-
-          // this.modelList = [];
-          // this.modelList = _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().GetModelList();
+          this.tableList[2].value = false; 
         });
       }
     },

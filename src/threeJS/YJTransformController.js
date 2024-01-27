@@ -3,26 +3,37 @@ import * as THREE from "three";
 //控制物体旋转
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 
+import * as Mathf from "/@/utils/mathf.js";
 
 class YJTransformController {
   constructor(scene, renderer, camera, _this, initCallback) {
     let scope = this;
+    let selectMesh = null;
     let transformController;
-
-    InitTransformController();
 
     let axisData = {
       rota: {
-        x: false,
+        x: true,
         y: true,
-        z: false,
+        z: true,
       }
     }
+    // 使用射线检测的坐标设置模型位置
+    let userRaycast = false;
     this.SetRotaAxis = function (bx, by, bz) {
       axisData.rota = { x: bx, y: by, z: bz };
     }
     // 创建 transform 控制器
     function InitTransformController() {
+      if (_this.YJRaycaster) {
+        _this.YJRaycaster.addEventListener('hover', (hoverObj, point) => {
+          if (!userRaycast || !selectMesh) {
+            return;
+          }
+          selectMesh.position.copy(point);
+        });
+      }
+
       transformController = new TransformControls(camera, renderer.domElement);
       // transformController.addEventListener( 'change', render );
       transformController.addEventListener('dragging-changed', function (event) {
@@ -30,6 +41,7 @@ class YJTransformController {
           _this.YJController.enabled = !event.value;
         }
         // console.log("正在拖拽 ",event);
+
         // console.log("正在拖拽 ",selectMesh.owner);
         // console.log("正在拖拽 ",selectMesh.position);
         // console.log("正在拖拽 ",selectMesh.rotation);
@@ -43,6 +55,14 @@ class YJTransformController {
         }
       });
 
+      transformController.addEventListener('change', function (event) {
+        if (selectMesh && selectMesh.owner.isYJTransform) {
+          // console.log("正在拖拽 ",selectMesh.position); 
+          selectMesh.owner.DragEnd();
+        }
+
+      });
+
       transformController.name = "ignoreRaycast";
       let control = transformController;
       control.setSpace('local');
@@ -50,6 +70,7 @@ class YJTransformController {
         switch (event.keyCode) {
 
           case 81: // Q
+            userRaycast = !userRaycast;
             // control.setSpace( control.space === 'local' ? 'world' : 'local' );
             break;
 
@@ -77,7 +98,11 @@ class YJTransformController {
             // control.showX = false;
             // control.showZ = false;
             break;
-
+          case 70: // F
+            //
+            console.log(" click F ");
+            _Global.YJ3D._YJSceneManager.SetPlayerPos(selectMesh.position.clone());
+            break;
           case 82: // R
             control.setMode('scale');
             control.showY = true;
@@ -99,6 +124,9 @@ class YJTransformController {
             // cameraPersp.zoom = randomZoom * 5;
             // cameraOrtho.zoom = randomZoom * 5;
             // onWindowResize();
+            
+            _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().GaneriateFromClipboard();
+
             break;
 
           case 187:
@@ -153,10 +181,12 @@ class YJTransformController {
       transformController.visible = false;
     }
 
-    let selectMesh = null;
     this.attach = function (mesh) {
       transformController.attach(mesh);
       selectMesh = mesh;
+      selectMesh.traverse((item) => {
+        item.isIgnore = true;
+      });
     }
     this.detach = function () {
       detachFn();
@@ -164,12 +194,17 @@ class YJTransformController {
     function detachFn() {
       if (selectMesh == null) { return; }
       transformController.detach();
+      selectMesh.traverse((item) => {
+        item.isIgnore = undefined;
+      });
       selectMesh = null;
       transformController.visible = false;
 
     }
 
 
+
+    InitTransformController();
     //#region 
     //#endregion
 

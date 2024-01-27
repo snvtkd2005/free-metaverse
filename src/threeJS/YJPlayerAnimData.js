@@ -414,7 +414,7 @@ class YJPlayerAnimData {
       for (let i = 0; i < avatarDataList.length; i++) {
         avatarDataList[i] = FindBoneRefAnimationData(avatarDataList[i]);
       }
-      console.log("加载角色完成", avatarDataList);
+      // console.log("加载角色完成", avatarDataList);
     }
 
 

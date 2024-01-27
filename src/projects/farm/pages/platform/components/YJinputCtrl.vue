@@ -2,7 +2,8 @@
 
 <template>
   <div class=" w-full gap-y-0.5  flex flex-col  ">
-    <div v-for="(item, i) in setting" :key="i" class=" text-xs mx-auto  text-left flex w-full px-1 mb-1 justify-between     ">
+    <div v-for="(item, i) in setting" :key="i"
+      class=" text-xs mx-auto  text-left flex w-full px-1 mb-1 justify-between     ">
       <div v-if="item.display" class=" self-center w-20">
         {{ item.title }}
       </div>
@@ -59,7 +60,8 @@
             <img v-if="item.value" class=" w-full h-full" :src="$uploadGroupUrl + item.value + '/thumb.jpg'" />
           </div>
           <div class=" w-auto h-6 rounded-sm  flex ">
-            <div class=" text-xs pl-1 self-center mx-auto w-10 h-6 leading-6 bg-gray-50  rounded-sm text-black cursor-pointer "
+            <div
+              class=" text-xs pl-1 self-center mx-auto w-10 h-6 leading-6 bg-gray-50  rounded-sm text-black cursor-pointer "
               @click="SelectItem('选择特效', item, i)">
               浏览...
             </div>
@@ -72,6 +74,37 @@
           </div>
         </div>
 
+        <div v-if="item.type == 'file' && item.filetype == 'weapon'" class=" flex  gap-2  ">
+          <div @click="SelectItem('选择武器', item, i)" class=" w-10 h-10  cursor-pointer ">
+            <img v-if="item.value" class=" w-full h-full" :src="$uploadUrl + item.value" />
+          </div>
+          <div class=" w-auto h-6 rounded-sm  flex ">
+            <div
+              class=" text-xs pl-1 self-center mx-auto w-10 h-6 leading-6 bg-gray-50  rounded-sm text-black cursor-pointer "
+              @click="SelectItem('选择武器', item, i)">
+              浏览...
+            </div>
+
+            <div v-if="item.value"
+              class=" text-xs ml-2 self-center mx-auto w-10 h-6 leading-6 bg-gray-50  rounded-sm text-black cursor-pointer "
+              @click="SelectItem('移除武器', item, i)">
+              移除
+            </div>
+          </div>
+        </div>
+
+        <div v-if="item.type == 'file' && item.filetype == 'avatar'" class=" flex  gap-2  ">
+          <div @click="SelectItem('选择avatar', item, i)" class=" w-10 h-10  cursor-pointer ">
+            <img v-if="item.value" class=" w-full h-full" :src="$uploadUrl + item.value" />
+          </div>
+          <div class=" w-auto h-6 rounded-sm  flex ">
+            <div
+              class=" text-xs pl-1 self-center mx-auto w-10 h-6 leading-6 bg-gray-50  rounded-sm text-black cursor-pointer "
+              @click="SelectItem('选择avatar', item, i)">
+              浏览...
+            </div> 
+          </div>
+        </div>
 
         <div v-if="item.type == 'int'" class="flex gap-2 text-black">
           <YJinput_number :value="item.value" :type="item.type" :step="item.step" :index="i" :callback="item.callback" />
@@ -161,6 +194,14 @@
       </div>
     </div>
 
+    <div class="mt-2 overflow-y-scroll h-96 flex flex-wrap  " v-if="selectTitle == '选择武器' || selectTitle == '选择avatar'">
+      <div v-for="(item, i) in modelList" :key="i" class="v self-center w-40 h-auto relative">
+        <div class=" w-16 h-16 self-center mx-auto mt-2 cursor-pointer " @click="ClickItem(selectTitle, i)">
+          <img class=" w-full h-full object-fill hover:opacity-70 " :src="$uploadUrl + item.icon" />
+        </div>
+      </div>
+    </div>
+
   </el-dialog>
 </template>
 
@@ -176,7 +217,12 @@ import YJinput_number from "./YJinput_number.vue";
 import YJinput_drop from "./YJinput_drop.vue";
 import YJinput_vector3 from "./YJinput_vector3.vue";
 
-import { GetAllHDR, GetAllAudio, GetAllUVAnim, GetAllGroup } from "../../../js/uploadThreejs.js";
+import {
+  GetAllHDR, GetAllAudio, GetAllUVAnim
+  , GetAllGroup
+  , GetAllModel
+
+} from "../../../js/uploadThreejs.js";
 
 export default {
   name: "YJinputCtrl",
@@ -202,6 +248,7 @@ export default {
       jpgList: [],
       settingIndex: -1,
       audioList: [],
+      modelList: [],
       selectTitle: "",
       isOpen: false,
 
@@ -240,6 +287,13 @@ export default {
       if (e == "选择特效") {
         this.selectTitle = e;
       }
+      if (e == "选择武器") {
+        this.selectTitle = e;
+      }
+      if (e == "选择avatar") {
+        this.selectTitle = e;
+      }
+      
       if (e == "选择HDR") {
         this.selectTitle = e;
       }
@@ -257,6 +311,12 @@ export default {
         this.ClickUVAnim("");
         return;
       }
+      
+      if (e == "移除武器") {
+        this.ClickUVAnim("");
+        return;
+      }
+      
       this.RequestGetAllHDR(this.selectTitle);
       this.isOpen = true;
     },
@@ -276,6 +336,14 @@ export default {
       if (e == "选择音效") {
         this.ClickUVAnim(this.audioList[i].folderBase + '/' + this.audioList[i].name);
       }
+      
+      if (e == "选择武器") {
+        this.ClickUVAnim(this.modelList[i]);
+      }
+      if (e == "选择avatar") {
+        this.ClickUVAnim(this.modelList[i]);
+      }
+      
       this.settingIndex = -1;
       this.isOpen = false;
     },
@@ -365,6 +433,41 @@ export default {
           }
         });
       }
+
+      if (type == "选择武器" || type == "选择avatar" ) {
+        let selectModelTable = "装备模型";
+        if(type == "选择avatar" ){
+          selectModelTable = "角色模型";
+        }
+        this.modelList = [];
+        GetAllModel().then((res) => {
+          console.log("获取所有单品模型 ", res);
+          //先记录旧照片
+          if (res.data.txtDataList) {
+            let txtDataList = res.data.txtDataList;
+
+            let modelsList = [];
+            for (let i = 0; i < txtDataList.length; i++) {
+              let element = txtDataList[i];
+              try {
+                modelsList.push(JSON.parse(element));
+              } catch (error) {
+                element = element.substring(1);
+                modelsList.push(JSON.parse(element));
+              }
+            }
+
+            for (let i = 0; i < modelsList.length; i++) {
+              let item = modelsList[i];
+              if (item.modelType == selectModelTable) {
+                item.icon = item.folderBase + "/" + "thumb.png";
+                this.modelList.push(item);
+              }
+            }
+          }
+        });
+      }
+
     },
     focus() {
       if (this.$parent.$parent.removeThreeJSfocus) {

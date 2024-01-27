@@ -3,6 +3,13 @@
 <template>
   <div class=" w-full h-full " ref="container">
     <ThreejsHumanChat tabindex="-1" class="w-full h-full" ref="ThreejsHumanChat" id="ThreejsHumanChat" />
+    
+  <!-- 视频  hidden-->
+  <div id="videoParent" class="   w-1/2 h-1/2 absolute top-0 left-0 pointer-events-none">
+    <div v-for="(item, i) in audioList" :key="i" class="video-box w-40 h-40 p-5 rounded-full">
+      <audio autoplay='autoplay' loop muted :ref="item.id" v-if="item.value" class="w-full h-full" :src="$uploadAudioUrl + item.value"></audio>
+    </div>
+  </div>
   </div>
 </template>
 
@@ -39,7 +46,7 @@ export default {
         playerData: {},
         userData: {},
       },
-
+      audioList:[],
       userName: "",
       userId: "",
       id: "",
@@ -360,6 +367,39 @@ export default {
       this.$refs.ThreejsHumanChat.threeJSfocus();
     },
 
+    addAudio(id,url){
+      this.audioList.push({id:id,value:url});
+      // this.$nextTick(()=>{
+      //   var audio = this.$refs[id];
+      //   console.log(audio);
+      //   audio.muted = true;
+      //   // audio.loop = true;
+      //   audio.play();
+      // });
+    }, 
+    EventHandler(e){
+      if(e=="播放音乐"){
+        console.log(" 播放音效 ",this.audioList);
+
+        for (let i = 0; i < this.audioList.length; i++) {
+          const element = this.audioList[i];
+          var audio = this.$refs[element.id];
+          // console.log(audio);
+          audio.muted = false;
+          audio.volume=0.2;
+          audio.play();
+        } 
+        return;
+      }
+      if(e=="暂停音乐"){
+        for (let i = 0; i < this.audioList.length; i++) {
+          const element = this.audioList[i];
+          var audio = this.$refs[element.id]; 
+          audio.muted = true; 
+          audio.pause();
+        } 
+      }
+    },
     //#region 用户音视频通话
     //用websocket 连接id 作为腾讯云音视频sdk的连接id
     InitTRTC(userId) {

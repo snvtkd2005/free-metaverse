@@ -166,8 +166,11 @@ YJinputCtrl,
 
       this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
       console.log(" initValue settingData ", this.settingData);
-
+      if( !this.settingData.rotation){
+        this.settingData.rotation = [0,0,0];
+      }
       this.Utils.SetSettingItemByProperty(this.setting, "rotation", this.settingData.rotation);
+
     },
 
     Init(_settingData) {

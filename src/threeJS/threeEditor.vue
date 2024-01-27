@@ -250,7 +250,7 @@ export default {
       this.$refs.container.addEventListener("mousedown", function (e) {
         that.threeJSfocus();
         that.YJController.onMouseDown(e);
-
+        that.PlayVideo();
       });
 
       // window.addEventListener("mousemove", (e) => {

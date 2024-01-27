@@ -41,7 +41,7 @@ class YJDyncManager {
       this.user.userData = userDyncData;
       this.user.playerData.playerState = localStorage.getItem("playerState");
 
-      console.log(" userData " , userData);
+      // console.log(" userData " , userData);
       // console.log(" this.user " , this.user);
 
       this.userId = YJDync.userId;

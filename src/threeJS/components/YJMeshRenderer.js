@@ -186,7 +186,7 @@ class YJMeshRenderer {
 
       // + ("?time="+new Date().getTime())
       loader.load(modelPath, function (gltf) {
-        console.log("加载模型 00 ",modelPath);
+        // console.log("加载模型 00 ",modelPath);
 
         model = gltf.scene;
 

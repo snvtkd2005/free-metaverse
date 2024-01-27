@@ -73,9 +73,11 @@ class YJPathfindingCtrl {
             // console.timeEnd('createZone()');
             // pathfinding.setZoneData(ZONE, zone);
 
-            if (!inEditor) {
-              navmesh.visible = false;
-            }
+            // if (!inEditor) {
+            //   navmesh.visible = false;
+            // }
+            navmesh.visible = false;
+
             // 
 
             let transform = node.parent.parent.parent.parent;
@@ -114,7 +116,11 @@ class YJPathfindingCtrl {
       hasPathfinding = true;
       if (inEditor) {
         const wireframeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, transparent: true });
-        scene.add(new THREE.Mesh(mergedGeometry, wireframeMaterial));
+        let mergedMesh = new THREE.Mesh(mergedGeometry, wireframeMaterial)
+        scene.add(mergedMesh);
+        setTimeout(() => {
+          mergedMesh.visible = false;
+        }, 5000);
       }
 
       if (navmesh) {

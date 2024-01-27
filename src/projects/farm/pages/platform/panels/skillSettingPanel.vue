@@ -1,6 +1,6 @@
  
 <template>
-  <div class=" text-left w-6 h-6 bg-white flex text-black self-center leading-6 mx-auto cursor-pointer "
+  <div class=" text-left w-6 h-6 mb-1 bg-white flex text-black leading-6 cursor-pointer "
     @click="EditorEvent('新建')">
     <div class=" mx-auto">
       +
@@ -14,7 +14,7 @@
     ">
  
     <el-table :data="skillList" style="width: 100%">
-      <el-table-column type="selection" width="40" />
+      <!-- <el-table-column type="selection" width="40" /> -->
       <el-table-column type="index" label="序号" width="60" />
       <el-table-column prop="skillName" label="技能名" width="100" />
       <el-table-column label="技能图标" width="80">

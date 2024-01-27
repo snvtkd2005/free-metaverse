@@ -281,14 +281,22 @@ export default {
 
     document.addEventListener("visibilitychange", () => {
       _Global.inFocus = !document.hidden;
+      if(!_Global.inFocus){
+        //暂停背景音乐
+      }
+      this.$refs.YJmetaBase.EventHandler(_Global.inFocus?"播放音乐":"暂停音乐");
+
       // console.log(" _Global.inFocus ", _Global.inFocus);
     });
   },
   methods: {
+    PlayBGAudio(){
+      this.$refs.YJmetaBase.EventHandler("播放音乐");
+    },
     // 获取所有单品
     async RequestGetAllModel(callback) {
       GetAllModel().then((res) => {
-        console.log("获取所有单品模型 ", this.folderBase, res);
+        // console.log("获取所有单品模型 ", this.folderBase, res);
         if (res.data.txtDataList) {
           let txtDataList = res.data.txtDataList;
 
@@ -391,11 +399,11 @@ export default {
           new Date().getTime()
       );
 
-      // console.log(" 获取场景配置 ", res.data);
       // this.sceneData = JSON.parse(res.data) ;
       this.sceneData = res.data;
       this.sceneData.setting.hasCamRaycast = true;
       this.sceneData.setting.camOffsetY = this.sceneData.setting.playerHeight / 2;
+      console.log(" 获取场景配置 ", this.sceneData);
 
       _Global.skillList_scene = this.sceneData.skillList;
 
@@ -657,6 +665,9 @@ export default {
       this.Interface.load3dComplete();
       this._SceneManager.LoadMapCompleted();
       this.$refs.YJmetaBase.OpenThreejs();
+      if(this.sceneData.setting.hasBGM && this.sceneData.setting.BGMurl){
+        this.$refs.YJmetaBase.addAudio("bgmusic",this.sceneData.setting.BGMurl);
+      }
     },
     // 3转2坐标
     UpdateProjectionUI(_projectionList) {

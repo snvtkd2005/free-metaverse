@@ -117,7 +117,7 @@ class YJPlayer {
       // avatarData = _this.$parent.GetAvatarData(playerName);
       avatarData = _this._YJSceneManager.CreateOrLoadPlayerAnimData().GetAvatarDataById(id);
       playerName = avatarData.name;
-      console.error(" 加载角色名 " + playerName, avatarData);
+      // console.error(" 加载角色名 " + playerName, avatarData);
 
       modelPath = avatarData.modelPath;
       playerHeight = avatarData.height;
@@ -425,7 +425,7 @@ class YJPlayer {
     }
 
     this.ChangeAvatarByCustom = function (avatarData, isLocal) {
-      console.log("切换角色112222222222");
+      // console.log("切换角色112222222222");
       playerHeight = avatarData.height;
       avatar.ChangeAvatar(
         _this.GetPublicUrl() + avatarData.modelPath,
@@ -633,7 +633,7 @@ class YJPlayer {
       }
       // const video = document.getElementById("video");
       // video.play();
-      console.log("用户视频", video);
+      // console.log("用户视频", video);
       if (videoPlane == null) {
         const _video = document.getElementById("video_" + video);
         let w = 0.5;
@@ -673,7 +673,7 @@ class YJPlayer {
       }
       // const video = document.getElementById("video");
       // video.play();
-      console.log("用户音频", audio);
+      // console.log("用户音频", audio);
       if (audioPlane == null) {
         let size = 0.2;
 

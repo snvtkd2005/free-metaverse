@@ -12,6 +12,9 @@
           {{ item.name }}
         </div>
       </div>
+      <div class=" text-white cursor-pointer pt-1 " @click="ClickHandler('刷新')">
+        刷新
+      </div>
     </div>
 
     <!-- 模型库 分类筛选后列表 -->
@@ -79,6 +82,12 @@ export default {
 
   },
   methods: {
+    
+    ClickHandler(e, item, i) {
+      if (e == "刷新") {
+        this.RequestGetAllModel();
+      } 
+    },
     SetVisible(b) {
       this.isOpen = b;
     },
@@ -91,7 +100,7 @@ export default {
 
     },
     async RequestGetAllModel() {
-
+      this.modelsList = [];
       GetAllModel().then((res) => {
         console.log("获取所有单品模型 ", res);
         //先记录旧照片
@@ -152,6 +161,14 @@ export default {
 
         }
       });
+    },
+    GetModelByName(modelName){
+      for (let i = 0; i < this.modelsList.length; i++) {
+        if(this.modelsList[i].name == modelName){
+          return this.modelsList[i];
+        }
+      }
+      return null;
     },
 
     //#region 模型库

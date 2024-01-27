@@ -6,53 +6,58 @@
     <div v-show="panelState.setting" class=" mt-10 w-full border-t  max-w-md ">
       <sceneSettingPanel ref="sceneSettingPanel" />
     </div>
+
+    <div v-if="isTransform" class="mt-10 w-full border-t max-w-md">
+      <settingPanel_transform ref="settingPanel_transform" />
+    </div>
+
     <!-- uv动画设置面板 -->
-    <div v-if="panelState.uvAnim" class="mt-10 w-full border-t  max-w-md ">
+    <div v-if="panelState.uvAnim" :class="isTransform?'mt-0':'mt-10'" class="  w-full border-t  max-w-md ">
       <settingPanel_uvAnim ref="settingPanel_uvAnim" />
     </div>
 
     <!-- 汽车 -->
-    <div v-if="panelState.car" class="mt-10 w-full border-t max-w-md">
+    <div v-if="panelState.car" :class="isTransform?'mt-0':'mt-10'" class="  w-full border-t max-w-md">
       <settingPanel_car ref="settingPanel_car" />
     </div>
 
     <!-- 武器 -->
-    <div v-if="panelState.weapon" class="mt-10 w-full border-t max-w-md">
+    <div v-if="panelState.weapon" :class="isTransform?'mt-0':'mt-10'" class="  w-full border-t max-w-md">
       <settingPanel_weapon ref="settingPanel_weapon" />
     </div>
 
     <!-- 玩家角色 -->
-    <div v-if="panelState.player" class="mt-10 w-full border-t max-w-md">
+    <div v-if="panelState.player" :class="isTransform?'mt-0':'mt-10'" class="  w-full border-t max-w-md">
       <settingPanel_player ref="settingPanel_player" />
     </div>
 
     <!-- 图片视频直播流设置面板 -->
-    <div v-if="panelState.screen" class=" mt-10  w-full border-t max-w-md  ">
+    <div v-if="panelState.screen" :class="isTransform?'mt-0':'mt-10'" class="   w-full border-t max-w-md  ">
       <settingPanel_screen ref="settingPanel_screen" />
     </div>
 
     <!-- 粒子系统设置面板 -->
-    <div v-if="panelState.particle" class=" mt-10  w-full border-t max-w-md  ">
+    <div v-if="panelState.particle" :class="isTransform?'mt-0':'mt-10'" class="    w-full border-t max-w-md  ">
       <settingPanel_particle ref="settingPanel_particle" />
     </div>
 
     <!-- 角色 -->
-    <div v-if="panelState.avatar" class="mt-10 w-full border-t max-w-md">
+    <div v-if="panelState.avatar" :class="isTransform?'mt-0':'mt-10'" class="  w-full border-t max-w-md">
       <settingPanel_avatar ref="settingPanel_avatar" />
     </div>
 
     <!-- npc -->
-    <div v-if="panelState.npc" class="mt-10 w-full border-t max-w-md">
+    <div v-if="panelState.npc" :class="isTransform?'mt-0':'mt-10'" class=" w-full border-t max-w-md">
       <settingPanel_npc ref="settingPanel_npc" />
     </div> 
 
     <!-- 道具 -->
-    <div v-if="panelState.interactive" class="mt-10 w-full border-t max-w-md">
+    <div v-if="panelState.interactive" :class="isTransform?'mt-0':'mt-10'" class=" w-full border-t max-w-md">
       <settingPanel_interactive ref="settingPanel_interactive" />
     </div>
 
     <!-- 拖尾 -->
-    <div v-if="panelState.trail" class="mt-10 w-full border-t max-w-md">
+    <div v-if="panelState.trail" :class="isTransform?'mt-0':'mt-10'" class="  w-full border-t max-w-md">
       <settingPanel_trail ref="settingPanel_trail" />
     </div>
   </div>
@@ -74,6 +79,8 @@ import settingPanel_npc from "./settingPanel_npc.vue";
 import settingPanel_interactive from "./settingPanel_interactive.vue";
 import settingPanel_trail from "./settingPanel_trail.vue";
 
+import settingPanel_transform from "./settingPanel_transform.vue";
+
 
 export default {
   name: "settingPanelCtrl",
@@ -90,10 +97,11 @@ export default {
     settingPanel_npc,
     settingPanel_interactive,
     settingPanel_trail,
+    settingPanel_transform,
   },
   data() {
     return {
-
+      isTransform:false,
       panelState: {
         setting: false,
         // setting: true,
@@ -125,10 +133,16 @@ export default {
         const element = names[i];
         this.panelState[element] = false;
       }
-      if (e == "") { return; }
+      if (e == "") { 
+        this.isTransform = false;
+        return; 
+      }
       // console.log(names);
       // console.log(list);
       this.panelState[e] = true;
+      if(e=="setting"){
+        this.isTransform = false;
+      }
     },
 
   },

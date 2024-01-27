@@ -628,7 +628,9 @@ class YJSceneManager {
         }
       }
     }
-
+    this.GetSceneData = function(){
+      return sceneData;
+    }
     function InitFn() {
 
 
@@ -640,7 +642,7 @@ class YJSceneManager {
       _YJGameManager_DyncScene = new YJGameManager_DyncScene();
 
       sceneData = _this.$parent.$parent.sceneData;
-      console.log(" 获取场景配置222 ", sceneData);
+      // console.log(" 获取场景配置222 ", sceneData);
 
 
       setting = sceneData.setting;
@@ -993,6 +995,7 @@ class YJSceneManager {
       // 返回所有非静态模型
       // if(allHoverCollider.length == 0){
       // }
+      return modelParent.children;
       return scene.children;
       return allHoverCollider;
     }
@@ -2273,6 +2276,7 @@ class YJSceneManager {
       if (setting.firstPerson && setting.firstPerson) {
         pos.y = _YJAmmo.GetPlayerPos().y;
       }
+      pos.y += playerHeight / 2;
       // console.log("设置玩家坐标");
       _YJAmmo.SetPlayerPos(new THREE.Vector3(pos.x, pos.y, pos.z));
       setTimeout(() => {
@@ -2300,6 +2304,11 @@ class YJSceneManager {
     this.VisibleDirectionalLight = function (b) {
       if (_DirectionalLight != null) {
         _DirectionalLight.visible = b;
+        sceneData.AmbientLightData.hasDirectionalLight = b;
+      }else{
+        if(b){
+          CreateDirectionalLight(lightData.DirectionalLightPos, lightData.DirectionalLightIntensity);
+        }
       }
     }
 

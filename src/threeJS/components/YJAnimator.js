@@ -477,14 +477,7 @@ class YJAnimator {
         }
       });
     }
-
-    function setWeight(action, weight, scale) {
-      // console.log("切换动画 time scale  " + scale);
-      if (action == undefined) { return; }
-      action.enabled = true;
-      action.setEffectiveTimeScale(scale * 0.95);
-      action.setEffectiveWeight(weight);
-    }
+ 
     function PlayAnimFn2(e, scale) {
 
       actions.forEach(function (action) {

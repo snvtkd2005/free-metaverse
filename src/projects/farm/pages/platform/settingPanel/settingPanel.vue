@@ -67,6 +67,14 @@ export default {
   },
   mounted() {
     this.parent = this.$parent;
+
+     
+    setTimeout(() => {
+      if(_Global.YJ3D && _Global.YJ3D._YJSceneManager){
+        this.sceneSetting.hasDirectionalLight = _Global.YJ3D._YJSceneManager.GetSceneData().hasDirectionalLight;
+      }
+    }, 5000);
+
   },
   methods: {
 
@@ -100,7 +108,7 @@ export default {
     ChangeSetting(title, e) {
       if (title == "太阳光") {
         this.sceneSetting.hasDirectionalLight = !this.sceneSetting.hasDirectionalLight;
-        _Global.SendMsgTo3D("设置太阳光开关", this.sceneSetting.hasDirectionalLight);
+        _Global.YJ3D._YJSceneManager.VisibleDirectionalLight( this.sceneSetting.hasDirectionalLight);
         return;
       }
       if (title == "启动") {

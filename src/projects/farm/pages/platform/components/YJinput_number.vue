@@ -3,7 +3,7 @@
 <template>
   <!-- 顶部 -->
   <input
-    class="w-full  px-1"
+    class="w-full border-gray-200 border  px-1"
     ref="input"
     type="number"
     :step="step"

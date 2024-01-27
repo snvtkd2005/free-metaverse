@@ -6,7 +6,7 @@
 
     <div class=" w-full">
       <YJinputCtrl :setting="setting" />
-    </div> 
+    </div>
 
     <div class=" w-full flex ">
       <span slot="footer" class="dialog-footer   mx-auto ">
@@ -14,17 +14,16 @@
       </span>
     </div>
   </el-dialog>
- 
 </template>
 
 <script>
- 
-import YJinputCtrl from "../components/YJinputCtrl.vue"; 
+
+import YJinputCtrl from "../components/YJinputCtrl.vue";
 
 export default {
   name: "skillItemEditorPanel",
   props: ['isOpen'],
-  components: { 
+  components: {
     YJinputCtrl,
   },
   data() {
@@ -73,10 +72,10 @@ export default {
         animNameReady: "two hand gun before attack", // 施法准备/读条动作
         animName: "two hand gun attack", // 施法施放动作
 
-        skillReadyParticleId:"", //吟唱特效
-        skillReadyAudio:"", //吟唱音效
-        skillFireParticleId:"", //施放特效
-        skillFireAudio:"", //施放音效
+        skillReadyParticleId: "", //吟唱特效
+        skillReadyAudio: "", //吟唱音效
+        skillFireParticleId: "", //施放特效
+        skillFireAudio: "", //施放音效
         //效果增强
         effectEnhance: "none",
         icon: "", //技能图标
@@ -84,34 +83,34 @@ export default {
       },
       setting: [
         { property: "skillName", display: true, title: "技能名", type: "text", value: "", callback: this.ChangeValue },
-        { property: "icon", display: true, title: "技能图标", type: "file",filetype:"image", value: "", callback: this.ChangeValue },
+        { property: "icon", display: true, title: "技能图标", type: "file", filetype: "image", value: "", callback: this.ChangeValue },
 
         { property: "trigger-type", display: true, title: "触发时机", type: "drop", options: [], value: "", callback: this.ChangeValue },
         { property: "trigger-value", display: true, title: "触发值", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
         { property: "target-type", display: true, title: "目标类型", type: "drop", options: [], value: "", callback: this.ChangeValue },
         { property: "target-value", display: true, title: "目标数量", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
 
-        { property: "animNameReady", display: true, title: "吟唱动作", type: "drop", options: [], value: "", callback: this.ChangeValue },
-        { property: "skillReadyParticleId", display: true, title: "吟唱特效", type: "file",filetype:"particle", value: "", callback: this.ChangeValue },
-        { property: "skillReadyAudio", display: true, title: "吟唱音效", type: "file",filetype:"audio", value: "", callback: this.ChangeValue },
-        { property: "animName", display: true, title: "施放动作", type: "drop", options: [], value: "", callback: this.ChangeValue },
-        { property: "skillFireParticleId", display: true, title: "施放特效", type: "file",filetype:"particle", value: "", callback: this.ChangeValue },
-        { property: "skillFireAudio", display: true, title: "施放音效", type: "file",filetype:"audio", value: "", callback: this.ChangeValue },
-        
-        { property: "vaildDis", display: true, title: "技能施放的有效范围", type: "num", step: 1, value: 0, callback: this.ChangeValue },
         { property: "castTime", display: true, title: "吟唱时间", type: "num", step: 1, value: 0, callback: this.ChangeValue },
+        { property: "animNameReady", display: true, title: "吟唱动作", type: "drop", options: [], value: "", callback: this.ChangeValue },
+        { property: "skillReadyParticleId", display: true, title: "吟唱特效", type: "file", filetype: "particle", value: "", callback: this.ChangeValue },
+        { property: "skillReadyAudio", display: true, title: "吟唱音效", type: "file", filetype: "audio", value: "", callback: this.ChangeValue },
+        { property: "animName", display: true, title: "施放动作", type: "drop", options: [], value: "", callback: this.ChangeValue },
+        { property: "skillFireParticleId", display: true, title: "施放特效", type: "file", filetype: "particle", value: "", callback: this.ChangeValue },
+        { property: "skillFireAudio", display: true, title: "施放音效", type: "file", filetype: "audio", value: "", callback: this.ChangeValue },
+
+        { property: "vaildDis", display: true, title: "技能施放的有效范围", type: "num", step: 1, value: 0, callback: this.ChangeValue },
 
         { property: "effect-type", display: true, title: "技能效果", type: "drop", options: [], value: "", callback: this.ChangeValue },
         { property: "effect-value", display: true, title: "效果值", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
         { property: "effect-time", display: true, title: "每秒间隔", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
         { property: "effect-duration", display: true, title: "持续时间", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
         { property: "effect-describe", display: true, title: "效果描述", type: "text", value: "", callback: this.ChangeValue, },
-        { property: "effect-icon", display: true, title: "debuff图标", type: "file",filetype:"image", accept: "", value: "", callback: this.ChangeValue },
+        { property: "effect-icon", display: true, title: "debuff图标", type: "file", filetype: "image", accept: "", value: "", callback: this.ChangeValue },
 
         { property: "describe", display: true, title: "效果描述", type: "textarea", value: "", callback: this.ChangeValue, },
 
-      ],  
-      animList: [], 
+      ],
+      animList: [],
       inAdd: false,
     };
   },
@@ -131,18 +130,18 @@ export default {
       this.inAdd = true;
       this.settingData = _settingData;
 
-      if(!this.settingData.skillReadyParticleId){
+      if (!this.settingData.skillReadyParticleId) {
         this.settingData.skillReadyParticleId = "";
       }
-      if(!this.settingData.skillReadyAudio){
+      if (!this.settingData.skillReadyAudio) {
         this.settingData.skillReadyAudio = "";
       }
-      if(!this.settingData.skillFireParticleId){
+      if (!this.settingData.skillFireParticleId) {
         this.settingData.skillFireParticleId = "";
       }
-      if(!this.settingData.skillFireAudio){
+      if (!this.settingData.skillFireAudio) {
         this.settingData.skillFireAudio = "";
-      } 
+      }
 
       this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "trigger-type", "options", this.triggerType);
@@ -232,7 +231,22 @@ export default {
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-duration", "display", false);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-icon", "display", false);
         }
+
       }
+
+      // 吟唱时间
+      if (property == "castTime") {
+        if(e>0){
+
+        }else{
+
+            
+        }
+        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "animNameReady", "display", e>0);
+        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "skillReadyParticleId", "display", e>0);
+        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "skillReadyAudio", "display", e>0);
+      }
+
     },
     ChangeValue(i, e) {
       this.setting[i].value = e;
@@ -298,23 +312,23 @@ export default {
         describe += ",每" + item.effect.time + "秒造成" + item.effect.value + "点伤害，持续" + item.effect.duration + "秒";
       }
       return describe;
-    }, 
-    ClickParticle(i,e){
-      
-      this.ClickUVAnim(i,e);
     },
-    ClickUVAnim(i,e) {
+    ClickParticle(i, e) {
+
+      this.ClickUVAnim(i, e);
+    },
+    ClickUVAnim(i, e) {
       this.Utils.SetSettingItemByProperty(this.setting, this.setting[i].property, e);
-      
-      console.log(" 选择  ",i,e,this.setting[i].property);
-      
+
+      console.log(" 选择  ", i, e, this.setting[i].property);
+
       let sp = this.setting[i].property.split('-');
       if (sp.length == 1) {
         this.settingData[sp[0]] = e;
       } else {
         this.settingData[sp[0]][sp[1]] = e;
-      } 
-    }, 
+      }
+    },
   },
 };
 </script>

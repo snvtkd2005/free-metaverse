@@ -10,13 +10,13 @@
       <div class=" flex justify-between h-6 ">
         <div class=" w-2/3 flex  justify-between ">
           <div class=" self-center truncate">
-            {{ item.name }}
+            {{ item.name }} {{ (item.modelType=='NPC模型'? item.npcName:'') }}
           </div>
           <div class=" self-center text-left truncate w-4">
             {{ item.modelType }}
           </div>
         </div>
-        <div class=" ml-2 mt-1 w-8 ">
+        <div class=" ml-2 mt-1 w-8 "> 
           <div>锁定</div>
         </div>
       </div>

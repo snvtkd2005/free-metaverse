@@ -842,6 +842,15 @@ class YJNPC {
       if (b2) { return false; }
       return true;
     }
+    function CheckVaildArea(){ 
+      // console.log(" npc追击距离 ",playerPos.distanceTo(fireBeforePos));
+      // 超出追击距离后，请求下一个目标。 没有下一个目标时，返回巡逻点
+      if (playerPos.distanceTo(fireBeforePos) >= 100) { 
+        CheckNextTarget(); 
+        return false;
+      }
+      return true;
+    }
     //#endregion 
 
     //#region 技能检测
@@ -1144,15 +1153,17 @@ class YJNPC {
     }
     function CheckNextTarget() {
       // console.error(" 查找下一个目标 =====", scope.fireId);
-
-      targetModel = null;
+ 
       if (scope.fireId == -1) {
         scope.SetNpcTargetToNone();
         return;
       }
       // 向主控请求下一个目标
       // 获取战斗组中的其他玩家作为目标。 没有时，npc结束战斗
-      _Global.DyncManager.RequestNextFireIdPlayer(scope.id, baseData.camp, scope.fireId);
+      _Global.DyncManager.RequestNextFireIdPlayer(
+        { npcId:  scope.id, camp: baseData.camp, fireId: scope.fireId
+        ,ignorePlayerId:targetModel?targetModel.id:null }
+      );
     }
 
 
@@ -1245,6 +1256,7 @@ class YJNPC {
 
         return;
       }
+
     }
 
     // 设置NPC的战斗目标
@@ -1262,7 +1274,7 @@ class YJNPC {
       if (targetModel == null) {
         targetModel = _targetModel;
         //加入战斗
-        if (isLocal && checkNear) {
+        if (isLocal && checkNear) { 
           _Global.DyncManager.NPCAddFire(scope, targetModel);
         }
 
@@ -1722,6 +1734,7 @@ class YJNPC {
 
 
     //#region  战斗检测
+    let playerPos = null;
     function CheckState() {
       if (baseData.state == stateType.Normal) {
       }
@@ -1741,7 +1754,7 @@ class YJNPC {
           return;
         }
         // 逻辑见note/npc策划.md 战斗策略
-        let playerPos = targetModel.GetWorldPos();
+        playerPos = targetModel.GetWorldPos();
         let npcPos = parent.position.clone();
         let playerPosRef = playerPos.clone();
         playerPosRef.y = npcPos.y;
@@ -1789,7 +1802,11 @@ class YJNPC {
 
           getnavpathTimes = 0;
         } else {
+
           EventHandler("中断技能");
+          if(!CheckVaildArea()){
+            return;
+          }
           getnavPathTime++;
           if (getnavPathTime > 20) {
             //跑向目标 

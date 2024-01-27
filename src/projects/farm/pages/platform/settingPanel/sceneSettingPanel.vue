@@ -109,7 +109,7 @@
           <div class=" text-left ">loading</div>
           <div class=" flex ">
             <div class=" w-16 h-16 relative flex  gap-2 cursor-pointer  ">
-              <YJinput_upload scene="scene" index="loading" :folderBase="folderBase" :fileName="loadingName" accept=".jpg" :callback="ChangeImage" />
+              <YJinput_upload scene="scene" index="loading" :folderBase="folderBase" :fileName="loadingName" accept=".jpg,.png" :callback="ChangeImage" />
             </div>
             <div   class=" w-10 h-10 bg-black cursor-pointer ">
               <img v-if="loadingUrl" class=" w-full h-full" :src="loadingUrl" />
@@ -167,6 +167,7 @@ export default {
         { property: "setting-BGMurl", display: true, title: "背景音乐", type: "file",filetype:"audio", value: "" },
         { property: "AmbientLightData-backgroundColor", display: true, title: "画布背景色", type: "color", value: "#A7D0FF", callback: this.ChangeValue },
         { property: "AmbientLightData-AmbientLightIntensity", display: true, title: "环境光强度", type: "slider", value: 1, step: 0.1, min: 0, max: 2, callback: this.ChangeValue },
+        { property: "AmbientLightData-DirectionalLightIntensity", display: true, title: "太阳光强度", type: "slider", value: 1, step: 0.1, min: 0, max: 2, callback: this.ChangeValue },
         { property: "hasFloor", display: true, title: "启用默认地面", type: "toggle", value: true, callback: this.ChangeValue },
       ],
       sceneData: {
@@ -389,6 +390,9 @@ export default {
           this.Utils.GetSettingItemValueByProperty(this.setting, 'setting-envSceneHDRPath'),  
           true);
       }
+      if (property == "setting-hasBGM") {
+        this.sceneData.setting.hasBGM = e;
+      }
     }, 
     ClickHDR(i,hdrUrl) {
       this.setting[i].value = hdrUrl;
@@ -410,6 +414,16 @@ export default {
       }
  
     }, 
+    ClickUVAnim(i,e){
+      
+      this.setting[i].value = e;
+      let property = this.setting[i].property;
+      
+      if (property == "setting-BGMurl") {
+        this.sceneData.setting.BGMurl = e;
+      }
+      console.log(" property " ,property,e );
+    },
     ChangeSetting(title, e) {
 
       if (title == "碰撞") {

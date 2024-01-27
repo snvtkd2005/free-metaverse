@@ -32,22 +32,29 @@ class YJTransform {
       uuid: "",//在场景中的唯一标识
     }
     let children = [];
-    this.AddChildren = function (tranform){
+    this.AddChildren = function (tranform) {
       children.push(tranform);
     }
-    this.SetData = function (folderBase, modelType, id,mapId) {
+    this.SetData = function (folderBase, modelType, id, mapId) {
       data.folderBase = folderBase;
       data.modelType = modelType;
       data.id = id;
       data.mapId = mapId;
-      if(mapId == undefined){
+      if (mapId == undefined) {
         data.mapId = "npcLevel1";
       }
       this.id = id;
       group.name = modelType + name;
 
     }
-
+    let de2reg = 57.29578;
+    this.GetTransform = function () {
+      return {
+        position: [data.pos.x, data.pos.y, data.pos.z],
+        rotation: [data.rotaV3.x * de2reg, data.rotaV3.y * de2reg, data.rotaV3.z * de2reg],
+        scale: [data.scale.x, data.scale.y, data.scale.z]
+      };
+    }
     this.GetData = function () {
       return data;
     }
@@ -104,6 +111,7 @@ class YJTransform {
     this.RemoveHandle = function () {
       handlerList = [];
     }
+    let transformChangeHandler = null;
     // 数据有更新时的回调
     this.UpdateData = function () {
       // console.log(data.name + " 数据更新", data.message.data);
@@ -128,13 +136,13 @@ class YJTransform {
         _this._YJSceneManager.RemoveNeedUpdateJS(scope);
       }
 
-      if(children.length>0){
+      if (children.length > 0) {
         for (let i = 0; i < children.length; i++) {
           const child = children[i];
           child.SetActive(b);
         }
         return;
-      } 
+      }
 
       let modelData = JSON.parse(JSON.stringify(scope.modelData));
       scope.SetPosRota(modelData.pos, modelData.rotaV3, modelData.scale);
@@ -145,7 +153,7 @@ class YJTransform {
           let com = this.GetComponent("Interactive");
           com.Reset();
         }
-        if(this.GetComponent("Trail")){
+        if (this.GetComponent("Trail")) {
           this.GetComponent("Trail").start();
         }
 
@@ -154,7 +162,7 @@ class YJTransform {
           let com = this.GetComponent("Interactive");
           com.DestroyTrigger();
         }
-        if(this.GetComponent("Trail")){
+        if (this.GetComponent("Trail")) {
           this.GetComponent("Trail").stop();
         }
       }
@@ -206,11 +214,11 @@ class YJTransform {
 
 
     let group = null;
-    this.GetUUID = function () { 
+    this.GetUUID = function () {
       return group.uuid;
     }
-    function Init() { 
-      group = new THREE.Group(); 
+    function Init() {
+      group = new THREE.Group();
       scene.add(group);
       group.owner = scope;
       data.uuid = group.uuid;
@@ -246,7 +254,6 @@ class YJTransform {
       group.position.set(pos.x, pos.y, pos.z); // 
       group.rotation.set(rota.x, rota.y, rota.z); // 
 
-
     }
     //用户摆放自定义的模型，位置跟随鼠标悬浮的地面位置
     this.SetPosRota = function (pos, rota, size) {
@@ -254,11 +261,11 @@ class YJTransform {
       if (rota == undefined) {
         rota = { x: 0, y: 0, z: 0 };
       }
-      group.rotation.set(rota.x, rota.y, rota.z); // 
       if (size == undefined) {
         size = { x: 1, y: 1, z: 1 };
       }
       group.scale.set(size.x, size.y, size.z);
+      group.rotation.set(rota.x, rota.y, rota.z); // 
       data.pos = pos;
       data.rotaV3 = rota;
     }
@@ -266,12 +273,28 @@ class YJTransform {
       // console.log(" 接收npc坐标", pos, rotaV3);
       group.position.set(pos.x, pos.y, pos.z); //  
       data.pos = { x: pos.x, y: pos.y, z: pos.z };
-      if(rotaV3){
-        group.rotation.set(rotaV3.x, rotaV3.y, rotaV3.z); //  
-        data.rotaV3 = { x: rotaV3.x, y: rotaV3.y, z: rotaV3.z };
+      if (rotaV3) {
+        this.SetRota(rotaV3);
       }
     }
-
+    
+    this.SetPosArray = function (e) {
+      this.SetPos({ x: e[0], y: e[1], z: e[2] }); 
+    }
+    this.SetRota = function (rotaV3) {
+      group.rotation.set(rotaV3.x, rotaV3.y, rotaV3.z); //  
+      data.rotaV3 = { x: rotaV3.x, y: rotaV3.y, z: rotaV3.z };
+    }
+    this.SetRotaArray = function (e) {
+      this.SetRota({ x: e[0] / de2reg, y: e[1] / de2reg, z: e[2] / de2reg });
+    }
+    this.SetScale = function (size) {
+      group.scale.set(size.x, size.y, size.z);
+      data.scale = { x: size.x, y: size.y, z: size.z };
+    }
+    this.SetScaleArray = function (e) { 
+      this.SetScale({ x: e[0], y: e[1], z: e[2] });
+    }
     let oldTransData = {
       pos: { x: 0, y: 0, z: 0 },
       rotaV3: { x: 0, y: 0, z: 0 },
@@ -312,7 +335,7 @@ class YJTransform {
     }
     this.GetPlayerWorldPos = function () {
       let com = this.GetComponent("NPC");
-      return com.GetPlayerWorldPos(); 
+      return com.GetPlayerWorldPos();
     }
     function getWorldPosition(object) {
       var worldPosition = new THREE.Vector3();
@@ -340,6 +363,22 @@ class YJTransform {
       data.scale.x = group.scale.x;
       data.scale.y = group.scale.y;
       data.scale.z = group.scale.z;
+
+      if (transformChangeHandler) {
+        transformChangeHandler(this.GetTransform());
+      }
+    }
+    this.AddListener = function (e, callback) {
+      if (!e || !callback) { console.error("添加事件格式为 事件名,回调函数"); return; }
+      if (e == "变换") {
+        transformChangeHandler = callback;
+      }
+    }
+    this.RemoveListener = function (e) {
+      if (!e) { console.error("添加事件格式为 事件名"); return; }
+      if (e == "变换") {
+        transformChangeHandler = null;
+      }
     }
     // 编辑完成，更新数据、生成碰撞体
     this.EditorEnd = function () {

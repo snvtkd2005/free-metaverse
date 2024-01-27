@@ -49,11 +49,11 @@ export default {
     },
     ClickUVAnim(item) {
       console.log("选中技能", item); 
-      if(this.$parent.$refs.settingPanel_npc){
-        this.$parent.$refs.settingPanel_npc.$refs.settingPanel_npcSkill.AddSkill(item);
+      if(this.$parent.$refs.settingPanelCtrl.$refs.settingPanel_npc){
+        this.$parent.$refs.settingPanelCtrl.$refs.settingPanel_npc.$refs.settingPanel_npcSkill.AddSkill(item);
       }
-      if(this.$parent.$refs.sceneSettingPanel){
-        this.$parent.$refs.sceneSettingPanel.AddSkill(item);
+      if(this.$parent.$refs.settingPanelCtrl.$refs.sceneSettingPanel){
+        this.$parent.$refs.settingPanelCtrl.$refs.sceneSettingPanel.AddSkill(item);
       }
     },
   },

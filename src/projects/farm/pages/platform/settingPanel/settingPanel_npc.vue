@@ -2,34 +2,11 @@
 <template>
   <div class="w-full max-w-md p-2 text-white rounded-lg overflow-hidden">
     <div class="text-left">npc 设置</div>
+    <div class=" w-full">
+      <YJinputCtrl :setting="setting" />
+    </div> 
 
-    <div v-for="(item, i) in setting" :key="i" class="text-xs text-left flex w-full h-auto mb-2">
-      <div class="self-center w-1/2 truncate" v-show="item.display">
-        {{ item.title }}
-      </div>
-      <div class="self-center w-20" v-show="item.display">
-        <div v-if="item.type == 'text'" class="w-32 h-auto text-black">
-          <YJinput_text class="w-full h-auto" :value="item.value" :index="i" :callback="item.callback" />
-        </div>
-
-        <div v-if="item.type == 'drop'" class=" w-16 h-12 text-black ">
-          <YJinput_drop class=" w-32 h-12 " :value="item.value" :options="item.options" :index="i"
-            :callback="item.callback" />
-        </div>
-        <div v-if="item.type == 'int'" class="flex gap-2 text-black">
-          <YJinput_number :value="item.value" :type="item.type" :step="item.step" :index="i" :callback="item.callback" />
-        </div>
-        <div v-if="item.type == 'num'" class=" flex gap-2 text-black ">
-          <YJinput_number :value="item.value" :type="item.type" :step="item.step" :index="i" :callback="item.callback" />
-        </div>
-        <div v-if="item.type == 'image'" class="flex gap-2 text-black">
-          <div @click="item.callback('加载武器模型')" class=" w-10 h-10 bg-black cursor-pointer ">
-            <img v-if="item.value" class=" w-full h-full" :src="item.value" />
-          </div>
-          <div v-if="item.value" class=" h-4 w-10 bg-white cursor-pointer" @click="item.callback('移除武器模型', item)">移除</div>
-        </div>
-      </div>
-    </div>
+    <settingPanel_npcSkill ref="settingPanel_npcSkill" />
 
     <div v-if="!isMoving" class=" mt-4 flex">
       <div class=" text-left ">巡逻点</div>
@@ -65,10 +42,9 @@
     </div>
 
 
-    <settingPanel_npcSkill ref="settingPanel_npcSkill" />
 
 
-    <div class="mt-10 w-full h-10 text-white cursor-pointer" @click="ClickHandler(isMoving ? '停止巡逻' : '开始巡逻')">
+    <div class="mt-2 w-full h-10 text-white cursor-pointer" @click="ClickHandler(isMoving ? '停止巡逻' : '开始巡逻')">
       <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">
         {{ isMoving ? '停止巡逻' : '开始巡逻' }}
       </div>
@@ -86,12 +62,6 @@
       </div>
     </div>
 
-    <div class=" w-full h-10 text-white cursor-pointer" @click="ClickHandler('加载角色模型')">
-      <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">
-        加载角色模型
-      </div>
-    </div>
-
     <div class="mt-2 w-full h-10 text-white cursor-pointer" @click="ClickHandler('保存')">
       <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">保存</div>
     </div>
@@ -99,18 +69,15 @@
 </template>
 
 <script>
-import YJinput_text from "../components/YJinput_text.vue";
-import YJinput_number from "../components/YJinput_number.vue";
-import YJinput_drop from "../components/YJinput_drop.vue";
+import YJinputCtrl from "../components/YJinputCtrl.vue";
+
 import settingPanel_npcSkill from "./settingPanel_npcSkill.vue";
 
 
 export default {
   name: "settingpanel_uvanim",
   components: {
-    YJinput_text,
-    YJinput_number,
-    YJinput_drop,
+    YJinputCtrl,
     settingPanel_npcSkill,
   },
   data() {
@@ -159,7 +126,7 @@ export default {
       avatar: null,
       selectCurrentIndex: 0,
       setting: [
-        { property: "name", display: true, title: "npc名称", type: "text", value: "", callback: this.ChangeValue, },
+        { property: "name", display: true, title: "名称", type: "text", value: "", callback: this.ChangeValue, },
         {
           property: "camp", display: true, title: "阵营", type: "drop", value: 10000, options: [
             // { value: 1000, label: '联盟npc' },
@@ -179,7 +146,9 @@ export default {
         { property: "maxHealth", display: true, title: "生命值", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
         { property: "strength", display: true, title: "攻击力", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
         { property: "level", display: true, title: "等级", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
-        { property: "weapon", display: true, title: "装备", type: "image", value: 1, callback: this.ClickHandler, },
+        
+        { property: "avatar", display: true, title: "角色", type: "file", filetype: "avatar", value: "", callback: this.ClickHandler, },
+        { property: "weapon", display: true, title: "装备", type: "file", filetype: "weapon", value: "", callback: this.ClickHandler, },
         { property: "relifeTime", display: true, title: "重新生成间隔时间", type: "num", step: 1, value: 0, callback: this.ChangeValue },
       ],
       isMoving: true,
@@ -187,9 +156,9 @@ export default {
     };
   },
   created() {
-    
+
     this.parent = this.$parent.$parent;
-   },
+  },
   mounted() {
     let modelData = JSON.parse(localStorage.getItem("modelData"));
     if (modelData == null) {
@@ -252,19 +221,19 @@ export default {
       }
 
 
-      if (e == "加载武器模型") {
-        this.parent.$refs.modelSelectPanel.Init("装备模型");
-      }
-      if (e == "移除武器模型") {
-        item.value = "";
-        this.settingData.weaponData = undefined;
-        let singleTransform = _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
-        singleTransform.GetComponent("NPC").RemoveWeapon();
-      }
+      // if (e == "加载武器模型") {
+      //   this.parent.$refs.modelSelectPanel.Init("装备模型");
+      // }
+      // if (e == "移除武器模型") {
+      //   item.value = "";
+      //   this.settingData.weaponData = undefined;
+      //   let singleTransform = _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
+      //   singleTransform.GetComponent("NPC").RemoveWeapon();
+      // }
 
-      if (e == "加载角色模型") {
-        this.parent.$refs.modelSelectPanel.Init("角色模型");
-      }
+      // if (e == "加载角色模型") {
+      //   this.parent.$refs.modelSelectPanel.Init("角色模型");
+      // }
       if (e == "保存") {
         this.save();
       }
@@ -296,7 +265,7 @@ export default {
 
         this.settingData.weaponData = item;
         //加载武器并让角色使用
-        this.Utils.SetSettingItemByProperty(this.setting, "weapon", this.$uploadUrl + this.settingData.weaponData.icon);
+        this.Utils.SetSettingItemByProperty(this.setting, "weapon", this.settingData.weaponData.icon);
 
         let singleTransform =
           _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
@@ -311,6 +280,8 @@ export default {
       //npc换角色模型
       this.settingData.avatarData = item.message.data;
       this.settingData.avatarData.modelPath = this.$uploadUrl + item.modelPath;
+
+      this.Utils.SetSettingItemByProperty(this.setting, "avatar", this.settingData.avatarData.id+"/thumb.png");
 
       this.save();
 
@@ -375,10 +346,12 @@ export default {
       this.Utils.SetSettingItemByProperty(this.setting, "type", this.settingData.baseData.type ? this.settingData.baseData.type : "normal");
 
       if (this.settingData.weaponData) {
-        this.Utils.SetSettingItemByProperty(this.setting, "weapon", this.$uploadUrl + this.settingData.weaponData.icon);
-      }else{
-        this.Utils.SetSettingItemByProperty(this.setting, "weapon","");
+        this.Utils.SetSettingItemByProperty(this.setting, "weapon", this.settingData.weaponData.icon);
+      } else {
+        this.Utils.SetSettingItemByProperty(this.setting, "weapon", "");
       }
+
+      this.Utils.SetSettingItemByProperty(this.setting, "avatar", this.settingData.avatarData.id + "/thumb.png");
 
       if (this.$refs.settingPanel_npcSkill) {
         this.$refs.settingPanel_npcSkill.initValue();
@@ -411,6 +384,30 @@ export default {
 
       console.log(i + " " + this.setting[i].value);
     },
+    ClickUVAnim(i, e) {
+      this.Utils.SetSettingItemByProperty(this.setting, this.setting[i].property, e);
+      let sp = this.setting[i].property.split('-');
+      if (sp.length == 1) {
+        this.settingData[sp[0]] = e;
+      } else {
+        this.settingData[sp[0]][sp[1]] = e;
+      }
+
+      if (this.setting[i].property == "weapon") {
+        if (e == "") {
+          this.settingData.weaponData = undefined;
+          let singleTransform = _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
+          singleTransform.GetComponent("NPC").RemoveWeapon();
+        }else{
+          this.load(e,"装备模型");
+        }
+        return;
+      }
+
+      if (this.setting[i].property == "avatar") {
+        this.load(e,"角色模型");
+      }
+    },
     getMessage() {
       return {
         pointType: this.pointType,
@@ -435,13 +432,12 @@ export default {
       );
     },
 
-    Update() { 
+    Update() {
       _Global.YJ3D._YJSceneManager.UpdateTransform(
         this.getMessage()
       );
       // 调用场景保存
       if (this.parent.updateSceneModelData) {
-        this.parent.tableList[2].value = true;
         this.parent.updateSceneModelData();
       }
     },

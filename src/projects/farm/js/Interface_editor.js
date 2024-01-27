@@ -153,7 +153,7 @@ class Interface {
       _Global.skillList = res.data;
 
       // console.log("_Global.animList = ", _Global.animList);
-      console.log("_Global.skillList = ", _Global.skillList);
+      // console.log("_Global.skillList = ", _Global.skillList);
     }
 
     // 移除folderBase
@@ -206,6 +206,7 @@ class Interface {
         // _Global.SendMsgTo3D("删除folderBase","1699605982197");
         // _Global.SendMsgTo3D("删除folderBase",{type:"uploadsAudio/",folderBase:"1704941752535"});
         // _Global.SendMsgTo3D("删除folderBase",{type:"uploads/",folderBase:"1704941752535"});
+        // _Global.SendMsgTo3D("删除folderBase",{type:"uploads/",folderBase:"wow_prefabs"});
         // _Global.SendMsgTo3D("删除folderBase",{type:"uploadsGroup/",folderBase:"1704941752535"});
         RequestRemoveFolderBase(msg);
         return;
@@ -308,11 +309,6 @@ class Interface {
         if (msg == "忽略碰撞体") {
           _Global.YJ3D._YJSceneManager.GetSingleModelTransform().CreateCollider(true);
         }
-        return;
-      }
-
-      if (type == "设置太阳光开关") {
-        _Global.YJ3D._YJSceneManager.VisibleDirectionalLight(msg);
         return;
       }
 

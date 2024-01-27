@@ -262,7 +262,7 @@ class YJSceneDyncManagerEditor {
       }
       let fireId = new Date().getTime();
       // camp 阵营数值: 1000联盟 1001部落  10000共同敌人
-      fireGroup.push({ fireId: fireId, peopleList: [{ id: targetModel.id, camp: targetModel.camp }, { id: npcComponent.transform.id, camp: 10000 }] });
+      fireGroup.push({ fireId: fireId, peopleList: [{ id: targetModel.id, camp: targetModel.camp }, { id: npcComponent.transform.id, camp:  npcComponent.GetCamp() }] });
       targetModel.fireId = fireId;
       npcComponent.fireId = fireId;
       console.log(" 开始新的战斗 ", fireGroup[fireGroup.length - 1]);
@@ -646,23 +646,22 @@ class YJSceneDyncManagerEditor {
       }
       this.SendSceneState("战斗状态");
     }
-    this.RequestNextFireIdPlayer = function (npcId, camp, fireId) {
+    this.RequestNextFireIdPlayer = function (state) {
       if (_Global.mainUser) {
-        GetFireIdPlayer({ npcId: npcId, camp: camp, fireId: fireId });
+        GetFireIdPlayer(state);
       } else {
-        this.SendSceneState("请求下一个目标", { npcId: npcId, camp: camp, fireId: fireId });
+        this.SendSceneState("请求下一个目标", state);
       }
     }
+    // 给npc查找同战斗组中的可攻击玩家
     function GetFireIdPlayer(state) {
-      let { npcId, camp, fireId } = state;
+      let { npcId, camp, fireId,ignorePlayerId } = state;
       console.log(" 查找npc  ", state);
       let npcComponent = null;
       for (let i = 0; i < npcModelList.length; i++) {
         const element = npcModelList[i].transform;
         if (element.id == npcId) {
           npcComponent = element.GetComponent("NPC");
-          console.log(npcComponent.npcName + " 查找同一战斗的下一个目标 ", fireId);
-          // camp = npcComponent.GetCamp();
         }
       }
       for (let i = 0; i < fireGroup.length; i++) {
@@ -670,6 +669,7 @@ class YJSceneDyncManagerEditor {
         if (element.fireId == fireId) {
           for (let j = 0; j < element.peopleList.length; j++) {
             const people = element.peopleList[j];
+            // console.log( " 查找同一战斗中的参与者 ", people.camp);
             if (people.camp != camp) {
               if (people.camp == 10000 || people.camp == 1001) {
                 let ps = scope.GetNpcByPlayerForwardInFireId(fireId, camp, 100, 1);
@@ -679,6 +679,10 @@ class YJSceneDyncManagerEditor {
                   return;
                 }
                 return;
+              }
+
+              if(ignorePlayerId == people.id){
+                continue;
               }
               const player = scope.GetPlayerById(people.id);
               console.log(" npc查找敌方 玩家", player);

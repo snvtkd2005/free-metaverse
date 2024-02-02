@@ -1,5 +1,5 @@
 <template>
-  <div  id="contain" class=" w-full h-full " ref="container">
+  <div tabindex="-1" id="contain" class=" w-full h-full " ref="container">
   </div>
   <!-- :style="'height: ' + height + 'px' + ';'" -->
   <img v-if="customCursor" ref="cursor" :src="cursorUrl" class=" pointer-events-none   w-10 h-10 "
@@ -287,8 +287,7 @@ export default {
     },
     //让threejs获取焦点，div必须添加 tabindex="-1"
     threeJSfocus() {
-      // console.log(" 点击 threeJS页面  ");
-
+      // console.log(" 点击 threeJS页面  ",this.canAddListner,this.infocus);
       if (!this.canAddListner || this.infocus) { return; }
       this.$refs.container.focus();
       this.YJController.addEventListener();

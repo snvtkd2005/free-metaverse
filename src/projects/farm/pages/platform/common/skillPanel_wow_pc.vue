@@ -2,9 +2,9 @@
 // 游戏主界面: 玩家技能栏
 <template>
   <!-- 玩家技能栏 -->
-  <div v-if="actionBar" class=" relative flex w-full pointer-events-none  h-12 text-sm text-white">
+  <div v-if="actionBar" class=" absolute right-0 bottom-20 flex w-full pointer-events-none  h-12 text-sm text-white">
 
-    <div class=" w-auto px-2 mx-auto h-full flex gap-2 pointer-events-auto bg-color rounded-lg ">
+    <div class=" w-auto px-2 mx-auto h-full flex gap-2 pointer-events-auto rounded-lg ">
 
       <div v-for="(item, i) in skillList" :key="i" class=" p-1 w-12 h-12 text-left " :class="0 == item.id
         ? ' '
@@ -49,14 +49,16 @@
       </div>
     </div>
   </div>
+  <!-- bg-black bg-opacity-30 -->
 
-  <div v-if="actionBar" class="  flex  absolute right-0 bottom-0 w-40 pointer-events-auto  h-40 text-sm text-white">
 
+  <div v-if="actionBar" class="  flex  absolute right-0 bottom-0 w-24 pointer-events-auto  h-24  text-sm text-white">
     <div class=" absolute left-0 top-0 w-16 h-16 flex bg-black bg-opacity-50 rounded-full cursor-pointer " @click="clickSkill('攻击')">
       <!-- <img class=" w-10 h-10 rounded-full" :src="item.icon" alt=""> -->
       <div class="  self-center mx-auto  "> 攻击 </div>
     </div>
   </div>
+  
 </template>
 
 <script>
@@ -91,10 +93,9 @@ export default {
   },
   mounted() {
 
-    // setTimeout(() => {
-    //   _Global.YJ3D._YJSceneManager.CreateOrLoadPlayerAnimData().GetSkillList("小孩", this.SetSkillList);
-    // }, 5000);
+
     setTimeout(() => {
+      console.log("_Global.skillList_scene ",_Global.skillList_scene);
       if (_Global.skillList_scene == undefined || _Global.skillList_scene.length == 0) {
         this.actionBar = false;
         return;
@@ -134,7 +135,7 @@ export default {
     //动作栏。 使用技能或物体
     UserModel(item) {
       //播放角色动作
-      // console.log(" 点击技能栏 ", item);
+      console.log(" 点击技能栏 ", item);
       _Global.YJ3D.YJController.SetInteractiveNPC("点击技能", item);
     },
   },

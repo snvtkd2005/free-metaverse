@@ -611,23 +611,21 @@ class YJPlayerAnimData {
         let { attackSpeed, vaildDis } = weaponData;
         if (attackSpeed != undefined) {
           return { dis: vaildDis, speed: attackSpeed, 
-            readyParticleId: weaponData.readyParticleId?weaponData.readyParticleId:'', 
-            fireParticleId: weaponData.fireParticleId?weaponData.fireParticleId:'' ,
-            readyAudioId: weaponData.readyAudioId?weaponData.readyAudioId:'' ,
-            fireAuidoId: weaponData.fireAuidoId?weaponData.fireAuidoId:'' ,
+            ready:  weaponData.ready, 
+            fire: weaponData.fire,
           };
         } 
       }
       return { dis: 2, speed: 2, 
-        readyParticleId: '',readyAudioId:"", 
-        fireParticleId: '',fireAuidoId:"" };
+        ready: {}, 
+        fire: {} };
     }
     // 根据武器获取攻击速度、攻击距离、攻击技能。 后期改为根据技能获取
     this.GetSkillDataByWeapon = function (weaponData) {
       let vaildAttackDis = 0;
       let attackStepSpeed = 0;
       let skillName = "";
-      let { dis, speed, readyParticleId,readyAudioId, fireParticleId ,fireAuidoId} = GetSkill(weaponData);
+      let { dis, speed, ready, fire } = GetSkill(weaponData);
       vaildAttackDis = dis;
       attackStepSpeed = speed;
       if (weaponData) {
@@ -636,8 +634,8 @@ class YJPlayerAnimData {
         skillName = "拳头";
       }
       return { s: skillName, v: vaildAttackDis, a: attackStepSpeed, 
-        rpid: readyParticleId, raid:readyAudioId,
-        fpid: fireParticleId,faid: fireAuidoId};
+        _ready: ready,
+        _fire: fire};
     }
     //#endregion
 

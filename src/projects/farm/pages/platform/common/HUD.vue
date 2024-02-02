@@ -7,7 +7,7 @@
       <skillPanel_virus ref="skillPanel_virus" />
     </div>
 
-    <div class=" absolute bottom-2  w-full   ">
+    <div class=" absolute bottom-0  w-full   ">
       <skillPanel ref="skillPanel" />
     </div>
 
@@ -28,7 +28,8 @@
 
 
 import headerUI from "./headerUI.vue";
-import skillPanel from "./skillPanel.vue";
+import skillPanel from "./skillPanel_wow_mobile.vue";
+// import skillPanel from "./skillPanel_wow_pc.vue";
 import skillProgressUI from "./skillProgressUI.vue";
 import damageUI from "./damageUI.vue";
 import fireStateUI from "./fireStateUI.vue";

@@ -15,8 +15,9 @@ class YJSkillParticleManager {
     let scope = this;
     let particleList = [];
     let shootTargetList = [];
-    this.shootTargetFn = async function(startPos, target, particleId) {
+    this.shootTargetFn = async function(startPos, target, particleId,callback) {
       if(!particleId){
+        if(callback){callback()}
         return;
       }
       for (let i = 0; i < shootTargetList.length; i++) {
@@ -28,6 +29,7 @@ class YJSkillParticleManager {
           element.particle.SetPos(startPos);
           element.particle.SetActive(true);
           element.used = true;
+          element.callback = callback;
           return;
         }
       }
@@ -48,7 +50,7 @@ class YJSkillParticleManager {
       _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().ImportModel(modelData,(object)=>{
         // console.log("加载组合模型", object);
         // particleList.push(object); 
-        shootTargetList.push({particleId:particleId, startPos: startPos, target: target, time: 0,used:true, particle: object });
+        shootTargetList.push({particleId:particleId,callback:callback, startPos: startPos, target: target, time: 0,used:true, particle: object });
       });
        
       // console.log(" 加载组合数据 ",modelData);
@@ -62,11 +64,17 @@ class YJSkillParticleManager {
           if (item.time >= 1) {
             item.used = false; 
             item.particle.SetActive(false);
+            if(item.callback){
+              item.callback();
+            }
             return;
           }
           if (item.startPos.distanceTo(item.target.GetPlayerWorldPos()) < 0.2) {
             item.used = false; 
             item.particle.SetActive(false);
+            if(item.callback){
+              item.callback();
+            }
             return;
           }
           item.startPos.lerp(item.target.GetPlayerWorldPos(), item.time);
@@ -74,6 +82,7 @@ class YJSkillParticleManager {
         }
       }
     }
+
     
     function MoveToPosTweenFn(fromPos, targetPos, length, updateCB, callback) {
       let movingTween = new TWEEN.Tween(fromPos).to(targetPos, length).easing(TWEEN.Easing.Cubic.InOut)

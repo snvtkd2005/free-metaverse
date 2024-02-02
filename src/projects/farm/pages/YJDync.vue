@@ -584,6 +584,7 @@ export default {
         _YJPlayer.setPlayerDefaultPos(this._YJSceneManager.getPlayerDefaultPos());
         _YJPlayer.CreateNameTrans(nickName);
 
+        this._YJSceneManager.AddNeedUpdateJS(_YJPlayer);
         if(userData){
           setTimeout(() => {
             _YJPlayer.ChangeAnim(userData.animName);
@@ -603,6 +604,7 @@ export default {
     DelPlayer(id) {
       for (let i = 0; i < this.allPlayer.length; i++) {
         if (this.allPlayer[i].id == id) {
+          this._YJSceneManager.RemoveNeedUpdateJS(this.allPlayer[i].player);
           this.allPlayer[i].player.DelPlayer();
           this.allPlayer[i].player = null;
           this.allPlayer.splice(i, 1);
@@ -636,6 +638,7 @@ export default {
     //断开连接时，删除所有角色
     DelOtherPlayer() {
       for (let i = this.allPlayer.length - 1; i >= 0; i--) {
+        this._YJSceneManager.RemoveNeedUpdateJS(this.allPlayer[i].player);
         this.allPlayer[i].player.DelPlayer();
         this.allPlayer[i].player = null;
         this.allPlayer.splice(i, 1);

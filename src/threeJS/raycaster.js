@@ -480,9 +480,9 @@ class YJRaycaster extends EventDispatcher {
 
       mouse.x = (Number(touch.pageX) / containerWidth) * 2 - 1;
       mouse.y = -(Number(touch.pageY) / containerHeight) * 2 + 1;
-      if (mouseDown) {
-        raycasterHover(mouse);
-      }
+      // if (mouseDown) {
+      //   raycasterHover(mouse);
+      // }
       // console.log(" touch moving " ," x = " + mouse.x + " y = " +mouse.y );
     }
 

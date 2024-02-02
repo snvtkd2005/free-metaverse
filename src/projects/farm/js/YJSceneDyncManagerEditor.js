@@ -57,6 +57,7 @@ class YJSceneDyncManagerEditor {
       console.log(" 所有npc ",npcModelList);
 
       if (_Global.setting.inEditor) {
+        _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().AllNpcTransformNav();
         return;
       }
       setInterval(() => {
@@ -96,7 +97,7 @@ class YJSceneDyncManagerEditor {
         if (type == "npc技能") {
           _SceneManager.SetTargetSkill(npcId, skill);
         }
-        if (!_Global.YJDync) {
+        if (!_Global.YJClient) {
           return;
         }
         this.SendSceneState("转发", { type: type, state: data });
@@ -275,13 +276,13 @@ class YJSceneDyncManagerEditor {
       return parseInt(Math.random() * (maxNum - minNum + 1) + minNum, 10);
     }
     this.GetPlayerByRandom = function () {
-      if (!_Global.YJDync) {
+      if (!_Global.YJClient) {
         return {
           playerId: _Global.YJ3D.YJPlayer.id,
           player: _Global.YJ3D.YJPlayer,
         };
       }
-      let players = _Global.YJDync.GetAllPlayer();
+      let players = _Global.YJClient.GetAllPlayer();
       let player = players[radomNum(0, players.length - 1)];
       return {
         playerId: player.id,
@@ -301,14 +302,14 @@ class YJSceneDyncManagerEditor {
       if (playerMirror) {
         return playerMirror.GetComponent("NPC");
       }
-      if (!_Global.YJDync) {
+      if (!_Global.YJClient) {
         return _Global.YJ3D.YJPlayer;
       }
-      return _Global.YJDync.GetPlayerById(playerId)
+      return _Global.YJClient.GetPlayerById(playerId)
     }
 
     function CheckPlayerInNpcForward(npcTransform, vaildDistance, playerId) {
-      let players = _Global.YJDync.GetAllPlayer();
+      let players = _Global.YJClient.GetAllPlayer();
       for (let i = 0; i < players.length; i++) {
         const element = players[i];
         if (element.id == playerId) {
@@ -323,7 +324,7 @@ class YJSceneDyncManagerEditor {
     }
     function CheckPlayersInNpcForward(npcTransform, vaildDistance) {
       let npcs = [];
-      let players = _Global.YJDync.GetAllPlayer();
+      let players = _Global.YJClient.GetAllPlayer();
       for (let i = 0; i < players.length; i++) {
         const element = players[i];
         let distance = npcTransform.GetWorldPos().distanceTo(element.GetWorldPos());
@@ -718,7 +719,7 @@ class YJSceneDyncManagerEditor {
     let playerData = [];
     //发送单个物体数据
     this.SendModelState = function (id, state) {
-      if (!_Global.YJDync) {
+      if (!_Global.YJClient) {
         return;
       }
       this.SendSceneState("更新single", { id: id, modelType: state.modelType, state: state.msg });
@@ -729,7 +730,7 @@ class YJSceneDyncManagerEditor {
       //     element.state = state;
 
       //     if (state.modelType == "装备模型") {
-      //       playerData.push({ playerId: _Global.YJDync.id, modelType: state.modelType, msg: state.msg });
+      //       playerData.push({ playerId: _Global.YJClient.id, modelType: state.modelType, msg: state.msg });
       //     }
       //     console.error(" 发送单个物体数据 ", state);
       //   }
@@ -741,65 +742,65 @@ class YJSceneDyncManagerEditor {
       // console.log("战斗记录 ", msg);
     }
     this.SendModel = function (model) {
-      if (!_Global.YJDync) {
+      if (!_Global.YJClient) {
         return;
       }
       this.SendSceneState("更新single", model);
     }
     this.SendModelPlayer = function (model) {
-      if (!_Global.YJDync) {
+      if (!_Global.YJClient) {
         return;
       }
       this.SendSceneStateAll("玩家对玩家", model);
     }
     this.SendSceneStateAll = function (type, msg) {
       if (type == "玩家死亡") {
-        if (!_Global.YJDync) {
+        if (!_Global.YJClient) {
           return;
         }
-        _Global.YJDync._YJDyncManager.SendSceneStateAll("转发", { type: "玩家死亡", state: msg });
+        _Global._YJDyncManager.SendSceneStateAll("转发", { type: "玩家死亡", state: msg });
         return;
       }
 
       if (type == "玩家对玩家") {
-        if (!_Global.YJDync) {
+        if (!_Global.YJClient) {
           return;
         }
-        _Global.YJDync._YJDyncManager.SendSceneStateAll("玩家对玩家", msg);
+        _Global._YJDyncManager.SendSceneStateAll("玩家对玩家", msg);
         return;
       }
 
       if (type == "玩家脱离战斗") {
-        if (!_Global.YJDync) {
+        if (!_Global.YJClient) {
           this.Receive({ type: "玩家脱离战斗", state: msg });
           return;
         }
-        _Global.YJDync._YJDyncManager.SendSceneStateAll("转发", { type: "玩家脱离战斗", state: msg });
+        _Global._YJDyncManager.SendSceneStateAll("转发", { type: "玩家脱离战斗", state: msg });
         return;
       }
       if (type == "玩家加入战斗") {
-        if (!_Global.YJDync) {
+        if (!_Global.YJClient) {
           this.Receive({ type: "玩家加入战斗", state: msg });
           return;
         }
-        _Global.YJDync._YJDyncManager.SendSceneStateAll("转发", { type: "玩家加入战斗", state: msg });
+        _Global._YJDyncManager.SendSceneStateAll("转发", { type: "玩家加入战斗", state: msg });
         return;
       }
       if (type == "NPC对玩家") {
-        if (!_Global.YJDync) {
+        if (!_Global.YJClient) {
           this.Receive({ type: "NPC对玩家", state: msg });
           return;
         }
-        _Global.YJDync._YJDyncManager.SendSceneStateAll("转发", { type: "NPC对玩家", state: msg });
+        _Global._YJDyncManager.SendSceneStateAll("转发", { type: "NPC对玩家", state: msg });
         return;
       }
       if (type == "玩家对NPC") {
 
-        if (!_Global.YJDync) {
+        if (!_Global.YJClient) {
           this.Receive({ type: "玩家对NPC", state: msg });
           return;
         }
-        _Global.YJDync._YJDyncManager.SendSceneStateAll("转发", { type: "玩家对NPC", state: msg });
+        _Global._YJDyncManager.SendSceneStateAll("转发", { type: "玩家对NPC", state: msg });
         return;
       }
 
@@ -807,7 +808,7 @@ class YJSceneDyncManagerEditor {
 
     //发送整个场景数据
     this.SendSceneState = function (type, msg) {
-      if (!_Global.YJDync) {
+      if (!_Global.YJClient) {
         return;
       }
       if (type == undefined) {
@@ -815,38 +816,38 @@ class YJSceneDyncManagerEditor {
       }
 
       if (type == "初始化") {
-        _Global.YJDync._YJDyncManager.SendSceneState("初始化", msg);
+        _Global._YJDyncManager.SendSceneState("初始化", msg);
         return;
       }
       if (type == "转发") {
-        _Global.YJDync._YJDyncManager.SendSceneState("转发", msg);
+        _Global._YJDyncManager.SendSceneState("转发", msg);
         return;
       }
       if (type == "更新single") {
-        _Global.YJDync._YJDyncManager.SendSceneState("更新single", msg);
+        _Global._YJDyncManager.SendSceneState("更新single", msg);
         return;
       }
       if (type == "添加") {
-        _Global.YJDync._YJDyncManager.SendSceneState("添加", { id: msg.id, modelType: msg.modelType, state: msg });
+        _Global._YJDyncManager.SendSceneState("添加", { id: msg.id, modelType: msg.modelType, state: msg });
         return;
       }
       if (type == "删除") {
-        _Global.YJDync._YJDyncManager.SendSceneState("删除", msg);
+        _Global._YJDyncManager.SendSceneState("删除", msg);
         return;
       }
       if (type == "all") {
-        _Global.YJDync._YJDyncManager.SendSceneState("转发", { type: type, state: dyncModelList });
+        _Global._YJDyncManager.SendSceneState("转发", { type: type, state: dyncModelList });
         return;
       }
       if (type == "战斗状态") {
-        _Global.YJDync._YJDyncManager.SendSceneState("转发", { type: type, state: fireGroup });
+        _Global._YJDyncManager.SendSceneState("转发", { type: type, state: fireGroup });
         return;
       }
       if (type == "请求下一个目标") {
-        _Global.YJDync._YJDyncManager.SendSceneState("转发", { type: type, state: msg });
+        _Global._YJDyncManager.SendSceneState("转发", { type: type, state: msg });
         return;
       }
-      _Global.YJDync._YJDyncManager.SendSceneState("转发", { type: type, state: msg });
+      _Global._YJDyncManager.SendSceneState("转发", { type: type, state: msg });
 
     }
 
@@ -908,11 +909,10 @@ class YJSceneDyncManagerEditor {
         }
 
         if (_Global.YJ3D.YJPlayer.id == playerId) {
-          return;
+          // return;
           // 对npc的伤害显示在屏幕上
           let pos = this.GetNpcById(npcId).GetWorldPos().clone();
           pos.y += this.GetNpcById(npcId).GetComponent("NPC").GetBaseModel().playerHeight;
-          // 伤害显示在屏幕上
           _Global.SceneManager.UpdateNpcDamageValue("self", "normal", effect.value, pos);
 
         }
@@ -1175,8 +1175,8 @@ class YJSceneDyncManagerEditor {
      * @param {同步数据} data 同步数据
      */
     this.UpdateModel = (id, title, data) => {
-      if (_Global.YJDync) {
-        _Global.YJDync._YJDyncManager.UpdateModel(id, title, data);
+      if (_Global.YJClient) {
+        _Global._YJDyncManager.UpdateModel(id, title, data);
       }
     }
     // 接收 玩家 对 玩家
@@ -1189,7 +1189,7 @@ class YJSceneDyncManagerEditor {
       // console.log("接收 同步信息 ", id, title, data);
 
       if (title == "同步trail") {
-        let { startPos, targetId, targetType, time } = data;
+        let { startPos, targetId, targetType, time,firePid } = data;
         //根据id查找模型
         let target = null;
         if (targetType == "player") {
@@ -1200,7 +1200,7 @@ class YJSceneDyncManagerEditor {
         }
         if (target != null) {
           let _startPos = new THREE.Vector3(startPos.x, startPos.y, startPos.z);
-          shootTargetFn(_startPos, target, time);
+          shootTargetFn(_startPos, target, time,firePid);
         }
         return;
       }
@@ -1225,13 +1225,14 @@ class YJSceneDyncManagerEditor {
     //#endregion
 
     //#region 
-    this.shootTarget = function (startPos, target, time, targetType,firePid) {
+    this.shootTarget = function (startPos, target, time, targetType,firePid,callback) {
       // console.log(" 同步trail target ", target.id, targetType);
-      scope.UpdateModel("", "同步trail", { startPos: startPos, targetId: target.id, targetType: targetType, time: time });
-      shootTargetFn(startPos.clone(), target, time,firePid );
+      scope.UpdateModel("", "同步trail", { startPos: startPos, targetId: target.id,firePid:firePid, targetType: targetType, time: time });
+      shootTargetFn(startPos.clone(), target, time,firePid,callback );
     } 
-    function shootTargetFn(startPos, target, time,firePid){
-      _YJSkillParticleManager.shootTargetFn(startPos.clone(), target, firePid);
+    function shootTargetFn(startPos, target, time,firePid,callback){
+      _YJSkillParticleManager.shootTargetFn(startPos.clone(), target, firePid,callback);
+
       // _YJSkillParticleManager.shootTargetFn(startPos.clone(), target, "1704443871265");
     }
     //#endregion

@@ -655,7 +655,7 @@ class YJLoadAvatar {
       if (action == undefined) { return; }
       action.enabled = true;
       // console.log("action   scale =   " , action);
-      action.setEffectiveTimeScale(scale);
+      action.setEffectiveTimeScale(scale*1);
       // console.log("action   weight =   " , action);
       action.setEffectiveWeight(weight);
     }
@@ -1416,9 +1416,9 @@ class YJLoadAvatar {
       currentAction.time = e;
       auto = false;
     }
-    function update() {
+    this._update = function()  {
 
-      updateId = requestAnimationFrame(update);
+      // updateId = requestAnimationFrame(update);
       if (mixer !== null && loadCompleted) {
         //clock.getDelta()方法获得两帧的时间间隔
         // 更新混合器相关的时间
@@ -1462,7 +1462,7 @@ class YJLoadAvatar {
 
     }
     Init();
-    update();
+    // update();
   }
 }
 

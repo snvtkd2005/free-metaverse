@@ -330,7 +330,7 @@ class SceneManager {
           //   , animNameWalk, animNameRun, animNameReady, animNameAttack } = msg.data;
 
           
-          let { boneName
+          let { boneName,weaponType
             , position
             , rotation  } = msg.data;
           _this.YJController.SetUserDataItem("weaponData",msg.data);
@@ -349,18 +349,36 @@ class SceneManager {
           // if(msg.data.readyParticleId){
           //   _this.YJController.SetUserDataItem("weaponData", "readyParticleId", msg.data.readyParticleId);
           // }
-          // if(msg.data.fireParticleId){
-          //   _this.YJController.SetUserDataItem("weaponData", "fireParticleId", msg.data.fireParticleId);
-          // }
-          // if(msg.data.fireParticleId){
-          //   _this.YJController.SetUserDataItem("weaponData", "fireParticleId", msg.data.fireParticleId);
-          // }
+ 
 
           _this.YJController.SetUserDataItem("weaponDataData",{});
           _this.YJController.SetUserDataItem("weaponDataData", owner.GetData());
 
+
+          let realyBoneName = boneName;
+          let boneList = _this.YJPlayer.GetavatarData().boneList;
+          for (let i = 0; i < boneList.length; i++) {
+            const item = boneList[i];
+            if(item.targetBone == boneName){ 
+              realyBoneName = item.boneName; 
+            }
+          }
+
+          let realyPos = [0,0,0];
+          let realyRota = [0,0,0];
+          let realyScale = [1,1,1];
+          let refBoneList = _this.YJPlayer.GetavatarData().equipPosList;
+          for (let i = 0; i < refBoneList.length; i++) {
+            const item = refBoneList[i];
+            if(item.targetBone == boneName && item.weaponType == weaponType){
+              realyPos = item.position?item.position:realyPos;
+              realyRota = item.rotation?item.rotation:realyRota;
+              realyScale = item.scale?item.scale:realyScale;
+            }
+          }
+
           // 碰到武器就拾取
-          _this.YJPlayer.GetBoneVague(boneName, (bone) => {
+          _this.YJPlayer.GetBoneVague(realyBoneName, (bone) => {
             let weaponModel = owner.GetGroup();
             boneAttachList.push(
               {
@@ -369,13 +387,23 @@ class SceneManager {
                 transform: owner
               });
             bone.add(weaponModel);
-            let pos = position;
-            let rotaV3 = rotation;
-            // console.log(" 设置武器坐标",rotaV3);
+
+            // let pos = position;
+            // let rotaV3 = rotation;
+            // // console.log(" 设置武器坐标",rotaV3);
+            // weaponModel.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
+            // // weaponModel.position.set(100 * pos[0], 100 * pos[1], 100 * pos[2]);
+            // weaponModel.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
+            // weaponModel.scale.set(100, 100, 100);
+
+            let pos = realyPos;
+            let rotaV3 = realyRota;          
+            let scale = realyScale;
             weaponModel.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
-            // weaponModel.position.set(100 * pos[0], 100 * pos[1], 100 * pos[2]);
             weaponModel.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
-            weaponModel.scale.set(100, 100, 100);
+            weaponModel.scale.set(100*scale[0], 100*scale[1], 100*scale[2]);
+
+
             // 绑定到骨骼后，清除trigger
             owner.GetComponent("Weapon").DestroyTrigger();
 

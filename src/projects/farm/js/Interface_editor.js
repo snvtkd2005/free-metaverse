@@ -246,13 +246,13 @@ class Interface {
       }
       if (type == "编辑武器位置") {
         let singleTransform = _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
-        _Global.YJ3D._YJSceneManager.CreateOrLoad_TransformManager().SetRotaAxis(true, true, true);
-        _Global.YJ3D._YJSceneManager.CreateOrLoad_TransformManager().attach(singleTransform.GetGroup());
+        _Global.YJ3D._YJSceneManager.GetTransformManager().SetRotaAxis(true, true, true);
+        _Global.YJ3D._YJSceneManager.GetTransformManager().attach(singleTransform.GetGroup());
 
         return;
       }
       if (type == "取消编辑") {
-        _Global.YJ3D._YJSceneManager.CreateOrLoad_TransformManager().detach();
+        _Global.YJ3D._YJSceneManager.GetTransformManager().detach();
         return;
       }
       if (type == "单品在骨骼上位移") {
@@ -292,6 +292,10 @@ class Interface {
           _Global.YJ3D._YJSceneManager.ResetPlayerPos();
           return;
         }
+      }
+      if (type == "设置雾") {
+        _Global.YJ3D._YJSceneManager.SetFog(msg);
+        return;
       }
       if (type == "单品") {
         if (msg == "隐藏碰撞体") {
@@ -454,15 +458,21 @@ class Interface {
 
 
     this.SetPlayerAnim = function (animName) {
-      _Global.YJ3D.YJController.SetPlayerAnim(animName);
+      _Global.YJ3D.YJController.SetPlayerAnimName(animName);
 
       if (_this.$refs.YJDync) {
         _this.$refs.YJDync.DirectSendUserData();
-      }
-
+      } 
     }
     //设置角色动作
     _Global.SetPlayerAnim = this.SetPlayerAnim;
+
+    this.SetPlayerEmote = function (emote) {
+      if(emote == "/dance"){
+        _Global.SetPlayerAnim("dance");
+      } 
+    }
+    _Global.SetPlayerEmote = this.SetPlayerEmote;
 
 
 

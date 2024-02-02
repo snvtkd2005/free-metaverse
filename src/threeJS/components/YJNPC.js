@@ -300,6 +300,23 @@ class YJNPC {
       }
       return false;
     }
+    function CheckTrainPos(fromPos, targetPos) {
+      temp.position.copy(fromPos);
+      temp2.position.copy(targetPos);
+      temp.lookAt(temp2.position);
+      let direction = temp.getWorldDirection(new THREE.Vector3());
+      var raycaster_collider = new THREE.Raycaster(fromPos, direction, 0, 1 * fromPos.distanceTo(targetPos));
+      var hits = raycaster_collider.intersectObjects(_this._YJSceneManager.GetAllColliderAndLand(), true);
+      if (hits.length > 0) {
+        for (let i = 0; i < hits.length; i++) {
+          const hit = hits[i].object;
+          if (hit.name.indexOf("collider") > -1) {
+            return hits[i].point;
+          }
+        } 
+      }
+      return null;
+    }
     //#endregion 
 
     //#region 寻路 添加巡逻坐标点 
@@ -308,10 +325,26 @@ class YJNPC {
     this.RadomNavPos = function () {
 
       if (_Global.mainUser) {
-        let navPosIndex = radomNum(0, movePos.length - 1);
-        GetNavpath(parent.position.clone(), movePos[navPosIndex]);
-        _Global.DyncManager.UpdateModel(scope.id, "navPosIndex",
-          { navPosIndex: navPosIndex });
+        if(data.inAreaRandom){
+          let startPos = parent.position.clone();
+          let targetPos = fireBeforePos.clone();
+          if(data.areaRadius == undefined){
+            data.areaRadius = 1;
+          }
+          targetPos.x += radomNum(-data.areaRadius, data.areaRadius);
+          targetPos.z += radomNum(-data.areaRadius, data.areaRadius);
+          targetPos.y +=5;
+          let p = targetPos.clone();
+          p.y -=10;
+          let point = CheckTrainPos(targetPos,p);
+          GetNavpath(startPos,point?point:targetPos);
+          // console.log(" npc 巡逻随机范围 ");
+        }else{
+          let navPosIndex = radomNum(0, movePos.length - 1);
+          GetNavpath(parent.position.clone(), movePos[navPosIndex]);
+          _Global.DyncManager.UpdateModel(scope.id, "navPosIndex",
+            { navPosIndex: navPosIndex });
+        }
       }
       // console.log("navpath ", navpath);
 
@@ -367,12 +400,10 @@ class YJNPC {
         movePosMeshList = [];
         scope.UpdateNavPos('初始', pos);
         ClearLater("清除巡逻");
-        if (movePos.length <= 1) {
-          return;
-        }
+        
         laterNav = setTimeout(() => {
           scope.RadomNavPos();
-        }, 1000);
+        }, 1000); 
         return;
       }
       if (e == "添加") {
@@ -476,7 +507,7 @@ class YJNPC {
             parent.position.copy(fireBeforePos);
             getnavPathTime = 0;
             getnavpathTimes = 0;
-          }, 3000);
+          }, 3000); 
         }
 
       } else {
@@ -518,10 +549,14 @@ class YJNPC {
         data.skillList = [];
       }
       skillList = data.skillList;
-      if (data.movePos && data.movePos.length > 0) {
-        this.UpdateNavPos("停止巡逻", data.movePos);
-        // AddDirectPosToNavmesh(data.movePos);
+      if(data.inAreaRandom){
+
+      }else{
+        if (data.movePos && data.movePos.length > 0 ) {
+          this.UpdateNavPos("停止巡逻", data.movePos); 
+        }
       }
+
       this.RemoveWeapon();
 
       if (data.weaponData && data.weaponData.message) {
@@ -1351,10 +1386,9 @@ class YJNPC {
       let tip = "";
       tip = strength;
       // 伤害显示在屏幕上
-      let pos = scope.GetWorldPos().clone();
-      pos.y += playerHeight;
-      // 伤害显示在屏幕上 
-      _Global.SceneManager.UpdateNpcDamageValue("self", "normal", tip, pos);
+      // let pos = scope.GetWorldPos().clone();
+      // pos.y += playerHeight; 
+      // _Global.SceneManager.UpdateNpcDamageValue("self", "normal", tip, pos);
       return strength;
       let v = 0;
       if (baseData.armor >= strength) {
@@ -1932,13 +1966,13 @@ class YJNPC {
       if (e == "准备巡逻") {
         scope.SetPlayerState("normal");
         ClearLater("清除巡逻");
-        if (movePos.length <= 1) {
-          return;
-        }
+        
         laterNav = setTimeout(() => {
           //在正常模式到达目标点，表示在巡逻过程中。再次到下一个巡逻点
+          //随机执行其他idle动作、随机等待时长，让npc行为更自然
           scope.RadomNavPos();
         }, 2000);
+         
       }
 
     }

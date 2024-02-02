@@ -246,6 +246,7 @@ export default {
       this.folderBase = modelData.folderBase;
     }
 
+
     if (localStorage.getItem("userName")) {
     } else {
       //没有输入过昵称，则跳转到角色选择页
@@ -263,6 +264,7 @@ export default {
       window.location.reload();
       return;
     }
+
 
     this.Interface = new Interface(this, false);
     this.loadingName = "loading.jpg";
@@ -338,6 +340,7 @@ export default {
       _Global.YJ3D.threeJSfocus();
       this.inputing = false;
       //取消设置面板的input焦点
+      console.log("3d激活焦点");
     },
     Enter() {
       let avatarId = PlayerAnimData.defaultUser.avatarId;
@@ -405,6 +408,8 @@ export default {
       this.sceneData.setting.camOffsetY = this.sceneData.setting.playerHeight / 2;
       console.log(" 获取场景配置 ", this.sceneData);
 
+      document.title = this.sceneData.setting.title;
+      
       _Global.skillList_scene = this.sceneData.skillList;
 
       this.$refs.YJmetaBase.Reload();
@@ -573,7 +578,7 @@ export default {
       }
     },
     GetUseId() {
-      return this.$refs.YJDync.GetUseId();
+      return _Global.YJClient.GetUseId();
     },
     //由角色选择界面传入 角色类型、用户名
     ClickSelectPlayerOK(selectPlayerName, userName) {

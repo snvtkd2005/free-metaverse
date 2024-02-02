@@ -125,6 +125,11 @@
             :callback="item.callback" />
         </div>
 
+        <div v-if="item.type == 'vector2'" class=" w-auto h-6 text-black ">
+          <YJinput_vector2 class=" w-auto h-6 " :value="item.value" :step="item.step" :index="i"
+            :callback="item.callback" />
+        </div>
+
         <div v-if="item.type == 'drop'" class=" w-full h-10 text-black ">
           <YJinput_drop class=" w-full h-full " :value="item.value" :options="item.options" :index="i"
             :callback="item.callback" />
@@ -136,6 +141,15 @@
 
         <div v-if="item.type == 'textarea'" class=" w-32 h-auto text-black ">
           <YJinput_textarea class=" w-full h-20 " :value="item.value" :index="i" :callback="item.callback" />
+        </div>
+
+        <div v-if="item.type == 'upload'" class=" relative flex  gap-2 cursor-pointer  ">
+          <div>{{ item.value }}</div>
+          <el-upload class="bg-transparent" action="" :before-upload="item.handleBeforeUpload"
+            :accept="item.accept" :show-file-list="false">
+            <div class="p-2 w-20 cursor-pointer bg-gray-500
+            hover:bg-546770">上传</div>
+          </el-upload>
         </div>
 
       </div>
@@ -215,6 +229,7 @@ import YJinput_text from "./YJinput_text.vue";
 import YJinput_textarea from "./YJinput_textarea.vue";
 import YJinput_number from "./YJinput_number.vue";
 import YJinput_drop from "./YJinput_drop.vue";
+import YJinput_vector2 from "./YJinput_vector2.vue";
 import YJinput_vector3 from "./YJinput_vector3.vue";
 
 import {
@@ -237,6 +252,7 @@ export default {
     YJinput_number,
     YJinput_drop,
     YJinput_vector3,
+    YJinput_vector2,
   },
   data() {
     return {

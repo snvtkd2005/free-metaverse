@@ -159,15 +159,19 @@ export default {
   // 环境光和方向光参数
   AmbientLightData: {
     //环境光 纯白颜色、强度
+    ambientColor:0xffffff,
     AmbientLightIntensity: 1,
 
     // 方向光坐标和强度
-    hasDirectionalLight:true,
+    hasDirectionalLight:false,
     // DirectionalLightPos: { x: 255, y: 30, z: -115 },
     DirectionalLightPos: { x: 0, y: 30, z: 0 },
     DirectionalLightIntensity: 1,
 
- 
+    hasFog:false,
+    fogColor:0xA7D0FF,
+    fogNear: 30, 
+    fogFar:300,
     backgroundColor:0xA7D0FF,
 
   },

@@ -379,7 +379,7 @@ export default {
     }, 
     EventHandler(e){
       if(e=="播放音乐"){
-        console.log(" 播放音效 ",this.audioList);
+        // console.log(" 播放音效 ",this.audioList);
 
         for (let i = 0; i < this.audioList.length; i++) {
           const element = this.audioList[i];

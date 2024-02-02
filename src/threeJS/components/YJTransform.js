@@ -83,6 +83,10 @@ class YJTransform {
         let com = this.GetComponent("UVAnim");
         com.SetMessage(message.data);
       }
+      if (message.pointType == "shader") {
+        let com = this.GetComponent("Shader");
+        com.SetMessage(message.data);
+      }
       if (message.pointType == "screen") {
         let com = this.GetComponent("Screen");
         com.SetMessage(message.data);
@@ -268,6 +272,7 @@ class YJTransform {
       group.rotation.set(rota.x, rota.y, rota.z); // 
       data.pos = pos;
       data.rotaV3 = rota;
+      data.scale = group.scale;
     }
     this.SetPos = function (pos, rotaV3) {
       // console.log(" 接收npc坐标", pos, rotaV3);

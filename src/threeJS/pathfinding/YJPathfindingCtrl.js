@@ -254,6 +254,8 @@ class YJPathfindingCtrl {
           getTimes = 0;
           tempV3.set(targetPos.x, targetPos.y, targetPos.z);
           navpath = [tempV3];
+          console.error(" 无法寻路 直接移动到目标点");
+
         }else{
           return this.GetNavpath(ZONE, fromPos, targetPos);
         }

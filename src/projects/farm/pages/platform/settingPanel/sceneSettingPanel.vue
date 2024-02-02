@@ -131,6 +131,8 @@
       </div>
     </div>
   </div>
+
+  <skillItemEditorPanel ref="skillItemEditorPanel" />
 </template>
 
 <script>
@@ -142,6 +144,7 @@ import YJinput_upload from "../components/YJinput_upload.vue";
 
 import YJinputCtrl from "../components/YJinputCtrl.vue";
 
+import skillItemEditorPanel from "../panels/skillItemEditorPanel.vue";
 
 import { GetAllHDR, RequestMetaWorld } from "../../../js/uploadThreejs.js";
 
@@ -154,20 +157,26 @@ export default {
     YJinput_range,
     YJinput_upload,
     YJinputCtrl,
+    skillItemEditorPanel,
   },
   data() {
     return {
       // 场景设置
       setting: [
         { property: "setting-hasSceneHDR", display: true, title: "启用环境hdr", type: "toggle", value: false, callback: this.ChangeValue },
-        { property: "setting-envSceneHDRPath", display: true, title: "环境hdr", type: "file",filetype:"image", value: "" },
+        { property: "setting-envSceneHDRPath", display: true, title: "环境hdr", type: "file",filetype:"hdr", value: "" },
         { property: "setting-hasEnvmap", display: true, title: "启用全景球", type: "toggle", value: false, callback: this.ChangeValue },
-        { property: "setting-envmapPath", display: true, title: "全景球hdr", type: "file",filetype:"image", value: "" },
+        { property: "setting-envmapPath", display: true, title: "全景球hdr", type: "file",filetype:"hdr", value: "" },
         { property: "setting-hasBGM", display: true, title: "启用背景音乐", type: "toggle", value: false, callback: this.ChangeValue },
         { property: "setting-BGMurl", display: true, title: "背景音乐", type: "file",filetype:"audio", value: "" },
         { property: "AmbientLightData-backgroundColor", display: true, title: "画布背景色", type: "color", value: "#A7D0FF", callback: this.ChangeValue },
+        // { property: "AmbientLightData-ambientColor", display: true, title: "环境光颜色", type: "color", value: "#ffffff", callback: this.ChangeValue },
         { property: "AmbientLightData-AmbientLightIntensity", display: true, title: "环境光强度", type: "slider", value: 1, step: 0.1, min: 0, max: 2, callback: this.ChangeValue },
-        { property: "AmbientLightData-DirectionalLightIntensity", display: true, title: "太阳光强度", type: "slider", value: 1, step: 0.1, min: 0, max: 2, callback: this.ChangeValue },
+        { property: "AmbientLightData-hasFog", display: true, title: "启用雾效", type: "toggle", value: false, callback: this.ChangeValue },
+        { property: "AmbientLightData-fogColor", display: true, title: "雾颜色", type: "color", value: "#A7D0FF", callback: this.ChangeValue },
+        { property: "AmbientLightData-fogNear", display: true, title: "雾近距离", type: "int", value: "30", callback: this.ChangeValue },
+        { property: "AmbientLightData-fogFar", display: true, title: "雾远距离", type: "int", value: "250", callback: this.ChangeValue },
+        // { property: "AmbientLightData-DirectionalLightIntensity", display: true, title: "太阳光强度", type: "slider", value: 1, step: 0.1, min: 0, max: 2, callback: this.ChangeValue },
         { property: "hasFloor", display: true, title: "启用默认地面", type: "toggle", value: true, callback: this.ChangeValue },
       ],
       sceneData: {
@@ -210,16 +219,9 @@ export default {
       _Global.skillList_scene = this.skillList;
 
       this.Utils.SetSettingItemByPropertyAll(this.setting, this.sceneData);
-      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "setting-envSceneHDRPath", "display",
-        this.Utils.GetSettingItemValueByProperty(this.setting, 'setting-hasSceneHDR'));
 
-      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "setting-envmapPath", "display",
-        this.Utils.GetSettingItemValueByProperty(this.setting, 'setting-hasEnvmap'));
 
-        
-      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "setting-BGMurl", "display",
-        this.Utils.GetSettingItemValueByProperty(this.setting, 'setting-hasBGM'));
-
+      this.ChangeUIState();
 
       if (this.sceneData.metaWorldCoordinate != undefined) {
       } else {
@@ -256,9 +258,19 @@ export default {
       if (e == "添加技能") {
         this.parent.$refs.skillSelectPanel.SetVisible(true);
       }
+      if (e == "修改技能") {
+        this.skillIndex = i;
+        this.$refs.skillItemEditorPanel.dialogTitle = "编辑技能";
+        this.$refs.skillItemEditorPanel.initValue(JSON.parse(JSON.stringify(item)));
+        this.$refs.skillItemEditorPanel.displayTriggerType(); 
+      }
+      
       if (e == "删除技能") {
         this.skillList.splice(i, 1);
       }
+    },
+    saveSkill(skillData){
+      this.skillList[this.skillIndex] = skillData;
     },
     MetaWorld(e, item, i) {
       if (e == "添加") {
@@ -331,7 +343,7 @@ export default {
       }
     },
 
-    ChangeUIState(property, e) {
+    ChangeUIState() {
       // 根据选择判断哪些属性不显示
 
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "setting-envSceneHDRPath", "display",
@@ -342,6 +354,12 @@ export default {
 
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "setting-BGMurl", "display",
         this.Utils.GetSettingItemValueByProperty(this.setting, 'setting-hasBGM'));
+
+      let hasFog = this.Utils.GetSettingItemValueByProperty(this.setting, 'AmbientLightData-hasFog');
+        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "AmbientLightData-fogColor", "display", hasFog );
+        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "AmbientLightData-fogNear", "display", hasFog );
+        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "AmbientLightData-fogFar", "display", hasFog );
+        
     },
     ChangeImage(type, e) {
       console.log(type, e);
@@ -366,14 +384,19 @@ export default {
       //   this.settingData[sp[0]][sp[1]] = e;
       // }
 
-      this.ChangeUIState(property, e);
+      this.ChangeUIState();
 
       if (property == "AmbientLightData-AmbientLightIntensity") {
-        _Global.SetAmbientLightIntensity(e);
+        _Global.YJ3D._YJSceneManager.SetAmbientLightIntensity(e);
       }
       if (property == "AmbientLightData-backgroundColor") {
         _Global.SetBackgroundColor(e);
       }
+      
+      if (property == "AmbientLightData-ambientColor") {
+        _Global.YJ3D._YJSceneManager.SetAmbientColor(e);
+      }
+
       if (property == "hasFloor") {
         this.sceneData.hasFloor = e;
         _Global.SetDisplayFloor(e);
@@ -393,6 +416,15 @@ export default {
       if (property == "setting-hasBGM") {
         this.sceneData.setting.hasBGM = e;
       }
+      
+      if(property.toLowerCase().includes("fog")){
+        _Global.SendMsgTo3D("设置雾",{
+          visible:this.Utils.GetSettingItemValueByProperty(this.setting, 'AmbientLightData-hasFog'),
+          color:this.Utils.GetSettingItemValueByProperty(this.setting, 'AmbientLightData-fogColor'),
+          near:this.Utils.GetSettingItemValueByProperty(this.setting, 'AmbientLightData-fogNear'),
+          far:this.Utils.GetSettingItemValueByProperty(this.setting, 'AmbientLightData-fogFar'),
+        });
+      } 
     }, 
     ClickHDR(i,hdrUrl) {
       this.setting[i].value = hdrUrl;

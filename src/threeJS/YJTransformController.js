@@ -1,16 +1,17 @@
 import * as THREE from "three";
+import { Color } from "three";
 
 //控制物体旋转
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 
-import * as Mathf from "/@/utils/mathf.js";
+
 
 class YJTransformController {
   constructor(scene, renderer, camera, _this, initCallback) {
     let scope = this;
     let selectMesh = null;
     let transformController;
-
+ 
     let axisData = {
       rota: {
         x: true,
@@ -18,6 +19,7 @@ class YJTransformController {
         z: true,
       }
     }
+    // Color.lerpColors();
     // 使用射线检测的坐标设置模型位置
     let userRaycast = false;
     this.SetRotaAxis = function (bx, by, bz) {
@@ -46,17 +48,17 @@ class YJTransformController {
         // console.log("正在拖拽 ",selectMesh.position);
         // console.log("正在拖拽 ",selectMesh.rotation);
         // event.value true:开始   false:结束
-        if (event.value && selectMesh.owner.isYJTransform) {
+        if (event.value && selectMesh.owner && selectMesh.owner.isYJTransform) {
           selectMesh.owner.DragStart();
         }
-        if (!event.value && selectMesh.owner.isYJTransform) {
+        if (!event.value && selectMesh.owner && selectMesh.owner.isYJTransform) {
           // console.log("拖拽结束");
           selectMesh.owner.DragEnd();
         }
       });
 
       transformController.addEventListener('change', function (event) {
-        if (selectMesh && selectMesh.owner.isYJTransform) {
+        if (selectMesh && selectMesh.owner &&  selectMesh.owner.isYJTransform) {
           // console.log("正在拖拽 ",selectMesh.position); 
           selectMesh.owner.DragEnd();
         }
@@ -70,7 +72,7 @@ class YJTransformController {
         switch (event.keyCode) {
 
           case 81: // Q
-            userRaycast = !userRaycast;
+            userRaycast = true;
             // control.setSpace( control.space === 'local' ? 'world' : 'local' );
             break;
 
@@ -159,8 +161,14 @@ class YJTransformController {
             // control.reset();
             break;
 
+        } 
+      });
+      window.addEventListener('keyup', function (e) {
+        switch (e.code) {
+          case 'KeyQ':
+            userRaycast = false;
+            break;  
         }
-
       });
       window.addEventListener('mousedown', function (event) {
         switch (event.button) {
@@ -187,6 +195,7 @@ class YJTransformController {
       selectMesh.traverse((item) => {
         item.isIgnore = true;
       });
+      _Global.SetEnableGravity(false);
     }
     this.detach = function () {
       detachFn();
@@ -199,7 +208,7 @@ class YJTransformController {
       });
       selectMesh = null;
       transformController.visible = false;
-
+      _Global.SetEnableGravity(true);
     }
 
 

@@ -8,7 +8,7 @@
              rounded-lg
              overflow-hidden 
             ">
-    <div class=" text-left ">变换设置</div>
+    <div class=" text-left ">变换</div>
     <div class=" w-full">
       <YJinputCtrl :setting="setting" />
     </div> 

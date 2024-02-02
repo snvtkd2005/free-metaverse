@@ -13,8 +13,11 @@
              overflow-hidden 
             ">
     <div class=" text-left ">添加动作</div>
+    <div class=" w-full">
+      <YJinputCtrl :setting="setting" />
+    </div> 
 
-    <div v-for="(item, i) in setting" :key="i" class=" text-xs  text-left flex justify-between w-80 h-auto mb-2     ">
+    <!-- <div v-for="(item, i) in setting" :key="i" class=" text-xs  text-left flex justify-between w-80 h-auto mb-2     ">
       <div class=" self-center w-48  truncate">
         {{ item.title }}
       </div>
@@ -33,8 +36,8 @@
         </div>
 
         <div v-if="item.type == 'upload'" class=" relative flex  gap-2 cursor-pointer  ">
-          <div>{{ item.url }}</div>
-          <el-upload ref="uploadAnimBtn" class="bg-transparent" action="" :before-upload="handleBeforeUpload"
+          <div>{{ item.value }}</div>
+          <el-upload class="bg-transparent" action="" :before-upload="handleBeforeUpload"
             :accept="accept" :show-file-list="false">
             <div class="p-2 w-20 cursor-pointer bg-gray-500
             hover:bg-546770">上传</div>
@@ -42,12 +45,10 @@
         </div>
 
         <div v-if="item.type == 'num'" class=" flex gap-2 text-black ">
-          <!-- <input id="body-num" type="number" :value="item.value"> -->
           <YJinput_number :value="item.value" :step="item.step" :index="i" :callback="item.callback" />
         </div>
 
         <div v-if="item.type == 'slider'" class=" flex gap-2 ">
-          <!-- <input id="body-slider" type="range" :value="item.value" :step="item.step" :min="item.min" :max="item.max"> -->
           <YJinput_range :value="item.value" :step="item.step" :min="item.min" :max="item.max"
             :callback="item.callback" />
           <div>{{ item.value }}</div>
@@ -76,7 +77,7 @@
         {{ item.unit }}
       </div>
 
-    </div>
+    </div> -->
 
 
     <!-- <div class=" mt-4 flex h-16 ">
@@ -86,7 +87,17 @@
       <YJinput_drop class=" self-center ml-2 w-32  " :value="animValue" :options="animList" :callback="ChangeAnim" />
     </div> -->
 
+    
+      <!-- 动作播放进度滑块 -->
+    <div class=" flex w-full   ">
+      <div class=" bg-gray-400 cursor-pointer" @click=" auto = !auto">{{ auto ? '暂停' : '播放' }}</div>
+      <div class=" w-16 ml-2 ">{{ animClip.currentTime + '/' + animClip.duration }}</div>
+      <input ref="viewFarCtrl" class=" ml-2  outline-none w-40  " @input="sliderChangeFn" v-model="animClip.currentTime"
+        type="range" min="0" :max="animClip.duration" step="1">
+    </div>
+
   </div>
+
 
   <div class=" w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('选择可映射角色')">
     <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">映射到同骨骼角色动画</div>
@@ -96,9 +107,15 @@
     <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">清除角色映射</div>
   </div>
   
-  <div class=" hidden w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('骨骼映射面板')">
+  <div class="  w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('骨骼映射面板')">
     <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">打开角色骨骼映射面板</div>
   </div>
+
+  <div class="  w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('清空骨骼映射')">
+    <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">清空骨骼映射</div>
+  </div>
+
+
   <div class=" w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('动作列表')">
     <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">查看已有动作</div>
   </div>
@@ -110,7 +127,7 @@
   </div>
   <div>
 
-    <settingPanel_npcSkill ref="settingPanel_npcSkill" />
+    <settingPanel_npcSkill ref="settingPanel_npcSkill" /> 
 
   </div>
 </template>
@@ -137,9 +154,11 @@ import YJinput_text from "../components/YJinput_text.vue";
 import YJinput_toggle from "../components/YJinput_toggle.vue";
 import YJinput_drop from "../components/YJinput_drop.vue";
 import YJinput_vector3 from "../components/YJinput_vector3.vue";
+import YJinputCtrl from "../components/YJinputCtrl.vue";
+
 import settingPanel_npcSkill from "./settingPanel_npcSkill.vue";
 
-import settingPanel_avatar from "./settingPanel_avatar.vue";
+import settingPanel_avatar from "./settingPanel_avatar.vue"; 
 
 import { UploadFile, UploadSkill, UploadPlayerFile } from "../../../js/uploadThreejs.js";
 
@@ -154,7 +173,8 @@ export default {
     YJinput_toggle,
     YJinput_drop,
     YJinput_vector3,
-    settingPanel_npcSkill,
+    YJinputCtrl,
+    settingPanel_npcSkill, 
   },
   data() {
     return {
@@ -177,23 +197,27 @@ export default {
         // boneList: [],
         boneRefPlayer: "",
         boneRefPlayerAnimationData: [],
+        equipPosList:[],
       },
 
       setting: [
-        { property: "animName", title: "动作名", type: "text", value: "", callback: this.ChangeValue },
-        { property: "isLoop", title: "是否循环", type: "toggle", value: true, callback: this.ChangeValue },
-        { property: "path", title: "动作(记录动作信息的json或fbx文件)", type: "upload", value: "none", callback: this.ChangeValue },
+        { property: "animName", display: true, title: "动作名", type: "text", value: "", callback: this.ChangeValue },
+        { property: "isLoop",  display: true,title: "是否循环", type: "toggle", value: true, callback: this.ChangeValue },
+        { property: "path", display: true, title: "动作(记录动作信息的json或fbx文件)", type: "upload",accept: ".json,.fbx", value: "none", callback: this.ChangeValue,
+        handleBeforeUpload:this.handleBeforeUpload },
         // { property: "path", title: "动作(上传记录动作信息的json文件)", type: "upload", value: "none", callback: this.ChangeValue },
-
+        { property: "weapon", display: true, title: "装备", type: "file", filetype: "weapon", value: "",},
+        
+        { property: "position", display: false, title: "拾取后偏移", type: "vector3", value: [0, 0, 0], step: 0.01, callback: this.ChangeValue },
+        { property: "rotation", display: false, title: "拾取后旋转", type: "vector3", value: [0, 0, 0], step: 0.01, callback: this.ChangeValue },
+        { property: "scale", display: false, title: "拾取后缩放", type: "vector3", value: [1, 1,1], step: 0.01, callback: this.ChangeValue },
+        
       ],
 
       animName: "",
 
       animValue: "none",
       animList: [{ value: 'none', label: 'none' }],
-
-      // 动作数据
-      accept: ".json,.fbx",
       // accept: ".json,.fbx,.glb",
       acceptImage: ".jpg,.png",
 
@@ -208,6 +232,12 @@ export default {
         path: "",
         icon: "",
       },
+      
+      animClip: {
+        currentTime: 0,
+        duration: 100,
+      },
+      auto: true,
     };
   },
   created() {
@@ -272,6 +302,9 @@ export default {
         this.settingData.boneRefPlayer ="";
         this.settingData.boneRefPlayerAnimationData = [];
       }
+      if (e == "清空骨骼映射") {
+        this.settingData.boneList = []; 
+      }
       
     },
     setSettingItemByProperty(property, value) {
@@ -294,7 +327,8 @@ export default {
     PlayerAnimData() {
       return _Global.CreateOrLoadPlayerAnimData();
     },
-    async initValue() { 
+    initValue() { 
+      this.animate();
     }, 
     // 改变控制器角色动作
     ChangeAnim(e) {
@@ -328,9 +362,10 @@ export default {
     },
     ChangeValue(i, e) {
 
+      let property = this.setting[i].property ;
       // return;
       this.setting[i].value = e;
-      if (this.setting[i].property == "isLoop") {
+      if (property == "isLoop") {
         this.currentAnimData.isLoop = e;
         // 控制动作
         _Global.YJ3D.YJPlayer.GetAvatar().ChangeAnimIsLoop(this.animName, e);
@@ -340,6 +375,41 @@ export default {
         _YJAnimator.ChangeAnimIsLoop(this.animName, e);
 
       }
+      let equipPosIndex = -1;
+      if (property =="position"){
+        for (let i = 0; i < this.settingData.equipPosList.length; i++) {
+          const item = this.settingData.equipPosList[i];
+          if(item.targetBone == this.boneName && item.weaponType == this.weaponType){
+            item.position = e;
+            equipPosIndex = i;
+          }
+        }
+      }
+      if (property =="rotation"){
+        for (let i = 0; i < this.settingData.equipPosList.length; i++) {
+          const item = this.settingData.equipPosList[i];
+          if(item.targetBone == this.boneName && item.weaponType == this.weaponType){
+            item.rotation = e;
+            equipPosIndex = i;
+          }
+        }
+      }
+      if (property =="scale"){
+        for (let i = 0; i < this.settingData.equipPosList.length; i++) {
+          const item = this.settingData.equipPosList[i];
+          if(item.targetBone == this.boneName && item.weaponType == this.weaponType){
+            item.scale = e;
+            equipPosIndex = i;
+          }
+        }
+      }
+      if (property =="rotation" || property =="position"|| property =="scale"){
+        let singleTransform =
+              _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
+            singleTransform.GetComponent("MeshRenderer").AddWeapon(this.weaponData,this.settingData.equipPosList[equipPosIndex],this.settingData.boneList);
+          
+      }
+
       console.log(i + " " + this.setting[i].value, this.animName);
     }, 
     SetAnimName(anim) {
@@ -438,11 +508,94 @@ export default {
         }
       });
     },
+ 
+    ClickUVAnim(i, e) {
 
+      if (this.setting[i].property == "weapon") {
+        let sp = this.setting[i].property.split('-');
+        if (sp.length == 1) {
+          this.settingData[sp[0]] = e;
+        } else {
+          this.settingData[sp[0]][sp[1]] = e;
+        }
+
+        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "position","display",e!="");
+        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "rotation","display",e!="");
+        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "scale","display",e!="");
+        if (e == "") { 
+          let singleTransform = _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
+          singleTransform.GetComponent("MeshRenderer").RemoveWeapon();
+          
+
+        }else{  
+
+          let weaponData = e;
+          this.weaponData = e;
+          this.boneName = weaponData.message.data.boneName;
+          this.weaponType = weaponData.message.data.weaponType; 
+        this.Utils.SetSettingItemByProperty(this.setting, "weapon", weaponData.icon);
+ 
+
+        let hasBone = false;
+        for (let i = 0; i < this.settingData.boneList.length; i++) {
+          const item = this.settingData.boneList[i];
+          if(item.targetBone == this.boneName){ 
+            this.Utils.SetSettingItemByProperty(this.setting, "position",item.position?item.position:[0,0,0]);
+            this.Utils.SetSettingItemByProperty(this.setting, "rotation",item.rotation?item.rotation:[0,0,0]);
+            this.Utils.SetSettingItemByProperty(this.setting, "scale",item.scale?item.scale:[1,1,1]);
+            hasBone = true; 
+          }
+        }
+        if(!hasBone){
+          console.error("找不到拾取武器的骨骼");
+          return;
+        }
+
+        if(!this.settingData.equipPosList){
+          this.settingData.equipPosList = [];
+        }
+        let has = false;
+        let equipData = {};
+
+        for (let i = 0; i < this.settingData.equipPosList.length; i++) {
+          const item = this.settingData.equipPosList[i];
+          if(item.targetBone == this.boneName && item.weaponType == this.weaponType){
+            this.Utils.SetSettingItemByProperty(this.setting, "position",item.position?item.position:[0,0,0]);
+            this.Utils.SetSettingItemByProperty(this.setting, "rotation",item.rotation?item.rotation:[0,0,0]);
+            this.Utils.SetSettingItemByProperty(this.setting, "scale",item.scale?item.scale:[1,1,1]);
+            has = true;
+            equipData = item;
+          }
+        }
+        if(!has){
+          equipData = {targetBone:this.boneName,weaponType:this.weaponType,
+              position: [0, 0, 0], 
+              rotation: [0, 0, 0],
+              scale: [1, 1, 1],
+            };
+          this.settingData.equipPosList.push(equipData);
+        } 
+
+          //加载武器并让角色使用
+          let singleTransform =
+              _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
+            singleTransform.GetComponent("MeshRenderer").AddWeapon(weaponData,equipData,this.settingData.boneList
+            ,(weaponModel)=>{
+              this.weaponModel = weaponModel;
+              _Global.YJ3D._YJSceneManager.GetTransformManager().attach(weaponModel);
+
+            });
+
+        }
+        return;
+      }
+    },
     // 添加骨骼映射角色
     addBoneRefPlayer(item) {
       this.settingData.boneRefPlayer = item.id;
       this.settingData.boneRefPlayerAnimationData = item.animationsExtendData;
+      this.settingData.boneList = item.boneList;
+      this.settingData.equipPosList = item.equipPosList;
       this.save();
       // 更新 YJPlayerAnimData 中的数据
       this.PlayerAnimData().UpdateAvatarDataById(this.settingData.id, this.settingData);
@@ -479,13 +632,51 @@ export default {
       this.settingData.boneList = boneList;
       this.save();
     },
+    
+    animate() {
+      requestAnimationFrame(this.animate);
+      
+      let singleTransform =
+              _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
+
+      if (singleTransform) {
+        
+        let _YJAnimator = _Global.YJ3D._YJSceneManager
+              .GetSingleTransformComponent("Animator");
+            _YJAnimator.ChangeAnim(this.animName);
+
+        let { time, duration } = _YJAnimator.GetCurrentTime();
+        time = parseInt(time * 24);
+        duration = parseInt(duration * 24);
+        this.animClip.duration = duration;
+
+        if (this.auto) {
+          this.animClip.currentTime = time;
+        } else {
+          _YJAnimator.SetCurrentTime(this.animClip.currentTime / 24);
+        }
+        // console.log(" 动画 "+time + " / " + duration);
+      }
+    },
+    v3ToArray(v3,scale){
+      return [v3.x/scale,v3.y/scale,v3.z/scale];
+    },
     save() {
 
       if (this.settingData.animationsExtendData == undefined) {
         this.settingData.animationsExtendData = [];
       }
       console.log("添加新动作 11 ",this.currentAnimData.animName , this.animName);
-
+      if(this.weaponModel ){
+        for (let i = 0; i < this.settingData.equipPosList.length; i++) {
+          const item = this.settingData.equipPosList[i];
+          if(item.targetBone == this.boneName && item.weaponType == this.weaponType){
+            item.position = this.v3ToArray( this.weaponModel.position.clone(),1);
+            item.rotation = this.v3ToArray( this.weaponModel.rotation.clone(),1);
+            item.scale = this.v3ToArray( this.weaponModel.scale.clone(),100);
+          }
+        }
+      }
       let has = false;
       for (let i = 0; i < this.settingData.animationsExtendData.length && !has; i++) {
         const element = this.settingData.animationsExtendData[i];

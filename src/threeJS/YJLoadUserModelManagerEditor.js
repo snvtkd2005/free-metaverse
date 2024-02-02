@@ -25,18 +25,18 @@ import { YJWeapon } from "./components/YJWeapon.js";
 import { YJInteractive } from "./components/YJInteractive.js";
 
 import { YJCar } from "./model/YJCar.js";
-import YJParticle from "./components/YJParticle";
+import {YJParticle} from "./components/YJParticle";
 import { YJAvatar } from "./components/YJAvatar";
 import { YJNPC } from "./components/YJNPC";
 import { YJTransformGroup } from "./components/YJTransformGroup";
 import { YJTrailRenderer } from "/@/threeJS/components/YJTrailRenderer.js";
 import * as Mathf from "/@/utils/mathf.js";
+import { YJShader } from "./components/YJShader";
 
 // 加载静态物体
 class YJLoadUserModelManager {
   constructor(_this, scene, camera, callback) {
     let scope = this;
-
 
     let loadIndex = 0;
     let allTransform = [];
@@ -280,16 +280,17 @@ class YJLoadUserModelManager {
       _this._YJSceneManager.AddNeedUpdateJS(object);
 
       let modelPath = modelData.modelPath;
+      let modelType = modelData.modelType;
       if (modelPath == undefined) {
 
-        if (modelData.modelType == "NPC模型"
-          || modelData.modelType == "交互模型"
-          || modelData.modelType == "粒子特效"
-          || modelData.modelType == "汽车模型"
+        if (modelType == "NPC模型"
+          || modelType == "交互模型"
+          || modelType == "粒子特效"
+          || modelType == "汽车模型"
         ) {
 
         } else {
-          if (modelData.modelType == "组合") {
+          if (modelType == "组合") {
             //加载组合
             CreateGroup(object, modelData.folderBase);
             if (callback) {
@@ -299,7 +300,7 @@ class YJLoadUserModelManager {
           }
 
 
-          if (modelData.modelType == "拖尾模型") {
+          if (modelType == "拖尾模型") {
             let component = new YJTrailRenderer(_this, _Global.YJ3D.scene, object.GetGroup(), object);
             object.AddComponent("Trail", component);
           }
@@ -322,15 +323,17 @@ class YJLoadUserModelManager {
 
       // console.error("添加更新 AddNeedUpdateJS ",object);
 
-      // 测试模型合批
-      // let hasSame = _this._YJSceneManager.CheckTransform(modelData.modelPath, modelData, object);
-      // if (hasSame && modelType == "静态模型") {
-      //   allTransform.push({ uuid: object.GetUUID(), transform: object });
-      //   if (callback) {
-      //     callback();
-      //   }
-      //   return;
-      // }
+      if(!_Global.setting.inEditor){
+        // 测试模型合批
+        let hasSame = _this._YJSceneManager.CheckTransform(modelData.modelPath, modelData, object);
+        if (hasSame && modelType == "静态模型") {
+          allTransform.push({ uuid: object.GetUUID(), transform: object });
+          if (callback) {
+            callback();
+          }
+          return;
+        }
+      }
 
 
       let MeshRenderer = new YJMeshRenderer(_this, object.GetGroup(), object, false, false, modelData.modelType);
@@ -411,6 +414,19 @@ class YJLoadUserModelManager {
             object.SetMessage(modelData.message);
           }
 
+          if (callback) {
+            callback(object);
+          }
+        }, () => {
+          LoadError(uuid, callback);
+        });
+      }else if (modelData.modelType == "材质模型") {
+        MeshRenderer.load(modelPath, (scope) => {
+          let com = new YJShader(_this,object.GetGroup(), scope.GetModel());
+          object.AddComponent("Shader", com);
+          if (modelData.message != undefined) {
+            object.SetMessage(modelData.message);
+          }
           if (callback) {
             callback(object);
           }

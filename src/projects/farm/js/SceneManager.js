@@ -229,8 +229,8 @@ class SceneManager {
         YJTHREE.CreateFloorCollider(scene,"floor");
         YJTHREE.CreateFloorCollider(scene,"landcollider");
         
-        // _YJshaderLX = new YJshaderLX(_this, scene,camera,renderer );
-        let _YJTrailRenderer = new YJTrailRenderer(_this, scene, _this.YJController.GetAmmoPlayer() );
+        _YJshaderLX = new YJshaderLX(_this, scene,camera,renderer );
+        // let _YJTrailRenderer = new YJTrailRenderer(_this, scene, _this.YJController.GetAmmoPlayer() );
         
         let _YJLoadModel = new YJLoadModel(_this, scene);
         let modelPath = "models/TestScene/222.fbx";

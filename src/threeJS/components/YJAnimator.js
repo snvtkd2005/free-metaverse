@@ -26,6 +26,18 @@ class YJAnimator {
     let currentTime = 0;
     let oldAnimName = "";
 
+    let currentAction = null;
+    let currentDuration = 100;
+    let auto = true;
+    this.GetCurrentTime = function () {
+      return {time:currentTime,duration:currentDuration}; 
+    }
+    this.SetCurrentTime = function(e){
+      currentAction.time = e;
+      auto = false;
+    }
+
+
     this.GetAnimation = function () {
       return animations;
     }
@@ -157,7 +169,9 @@ class YJAnimator {
               element.action.play();
             }
             // console.log("播放动画 ", animName,element.action._clip.duration);
-
+            currentAction = element.action;
+            currentTime = 0;
+            currentDuration = currentAction._clip.duration; 
           }
         }
         oldAnimName = animName;
@@ -171,17 +185,7 @@ class YJAnimator {
       action.enabled = true;
       action.setEffectiveTimeScale(scale);
       action.setEffectiveWeight(weight);
-    }
-    // 获取当前动画播放帧
-    this.GetCurrentTime = function () {
-      return oneAction.time;
-      return mixer.time;
-
-    }
-    //设置动画播放秒，float
-    this.SetCurrentTime = function (f) {
-      oneAction.time = f;
-    }
+    }  
     this.Destroy = function () {
       actions = [];
       animations = [];
@@ -537,7 +541,7 @@ class YJAnimator {
 
       // msg = JSON.parse(msg); 
     }
-
+     
 
     function update() {
       updateId = requestAnimationFrame(update);
@@ -546,6 +550,10 @@ class YJAnimator {
         //clock.getDelta()方法获得两帧的时间间隔
         // 更新混合器相关的时间
         mixer.update(clock.getDelta());
+        if(currentAction ){
+          currentTime = currentAction.time;
+          // console.log("执行模型动画 中 ",currentTime);
+        }
         // currentTime = mixer.time;
         // currentTime = oneAction.time; 
         // console.log("执行模型动画 中 ",currentTime);

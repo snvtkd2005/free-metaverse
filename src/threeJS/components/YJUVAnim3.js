@@ -12,49 +12,55 @@ class YJUVAnim3 {
     var scaleY = 1 / 4;
     let time = 0;
     let speed = 2;
+    let speedY = 0;
 
     let playing = false;
 
     let delay = 20;
 
-    let pointObj = [];
-    let gifData = null;
-    function InitFn( _gifData) {
-      if (_gifData == undefined) { return; }
-      gifData = _gifData;
+    let pointObj = []; 
+    function InitFn() {
+      
       pointObj.splice(0, pointObj.length);
       playing = false;
 
-      row = gifData.row;
-      col = gifData.col;
+      row = data.row;
+      col = data.col;
       scaleX = 1 / row;
       scaleY = 1 / col;
-      speed = gifData.speed;
-      delay = gifData.delay;
-
-
-      let material = new THREE.MeshBasicMaterial({
-        // alphaTest:0.5,
-        transparent: true,
-        // depthTest: false, //在所有模型最前端渲染
-        depthWrite: false, // 透明物体之间不相互遮挡
-        // color: 0xffffff, 
-
-      }); // 材质
-
-      if (gifData.color) {
-        material.color.set(gifData.color);
+      speed = data.speed;
+      if(data.speedY != undefined && data.speedY != 0){
+        speedY = data.speedY;
       }
+      delay = data.delay;
 
-      // 黑色背景的图片
-      if (gifData.isBlack != undefined && gifData.isBlack) {
-        material.blending = THREE.AdditiveBlending;
+      let material = null; 
+
+
+      let map = null;
+      if(data.gifPath){
+        material = new THREE.MeshBasicMaterial({
+          // alphaTest:0.5,
+          transparent: true,
+          // depthTest: false, //在所有模型最前端渲染
+          depthWrite: false, // 透明物体之间不相互遮挡
+          // color: 0xffffff, 
+  
+        }); // 材质
+
+        map = new THREE.TextureLoader().load(_this.$uploadUVAnimUrl + data.gifPath);
+        map.encoding = 3001;
+        map.wrapS = map.wrapT = THREE.RepeatWrapping;
+        map.matrixAutoUpdate = false; // set this to false to update texture.matrix manually
+      }else{
+        model.traverse(function (item) {
+          if (item instanceof THREE.Mesh) {
+            material = item.material;
+            map = item.material.map ;
+            map.matrixAutoUpdate = false; // set this to false to update texture.matrix manually
+          }
+        });
       }
-
-      const map = new THREE.TextureLoader().load(_this.$uploadUVAnimUrl + gifData.gifPath);
-      map.encoding = 3001;
-      map.wrapS = map.wrapT = THREE.RepeatWrapping;
-      map.matrixAutoUpdate = false; // set this to false to update texture.matrix manually
 
       map.matrix
         .identity()
@@ -62,7 +68,15 @@ class YJUVAnim3 {
         .translate(0, 0);   //每次平移量为1/17
 
       material.map = map;
+      if (data.color) {
+        material.color.set(data.color);
+      }
 
+      // 黑色背景的图片
+      if (data.isBlack != undefined && data.isBlack) {
+        material.blending = THREE.AdditiveBlending;
+      }
+      
       model.traverse(function (item) {
         if (item instanceof THREE.Mesh) {
           item.material = material;
@@ -72,32 +86,35 @@ class YJUVAnim3 {
         }
       });
       model.renderOrder = 1;
-      if(speed != 0){
+      if(speed != 0 || speedY != 0){
         setTimeout(() => {
           playing = true;
         }, 20);
       }
-
-
-      // _this._YJSceneManager.AddNeedUpdateJS(scope);
-      _this._YJSceneManager.AddLookatHotPoint(model);
+ 
+ 
+      if(data.isLookatCam){
+        _this._YJSceneManager.AddLookatHotPoint(model,data);
+      }
     }
     let data = null;
     this.SetMessage = function ( msg) {
       if (msg == null || msg == undefined || msg == "") { return; }
       // data = JSON.parse(msg);
       data = (msg);
-      // console.log("in uvanim3 msg = ", data);
-      InitFn( data);
+      console.log("in uvanim3 msg = ", data);
+      
+      _this._YJSceneManager.RemoveLookatHotPoint(model);
+        
+      InitFn();
     }
 
     this.GetData = function () {
-      return gifData;
+      return data;
     }
 
     //删除模型
-    this.Destroy = function () {
-      // _this._YJSceneManager.RemoveNeedUpdateJS(scope);
+    this.Destroy = function () { 
       _this._YJSceneManager.RemoveLookatHotPoint(model);
     }
 
@@ -108,7 +125,7 @@ class YJUVAnim3 {
     let numX = 0;
     let oldNum = 0;
 
-    this._update = () => {
+    this._update = () => { 
 
       if (playing) {
         if (pointObj.length > 0) {
@@ -125,7 +142,7 @@ class YJUVAnim3 {
                 texture.matrix
                   .identity()
                   .scale(1, 1)        //sprite  序列分为17*1，所以缩放为x=1/17 , y=1
-                  .translate((time / speed * 0.01), 0);   //每次平移量为1/17 
+                  .translate(speed==0?0:(time / speed * 0.01),speedY==0? 0:(time / speedY * 0.01));   //每次平移量为1/17 
               }
 
             } else {

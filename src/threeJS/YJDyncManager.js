@@ -3,6 +3,7 @@ import { YJsocketIO } from "/@/utils/socketIO.js";
 // import { YJwebsocket } from "/@/utils/websocket.js";
 import { YJwebsocketStomp } from "/@/utils/websocketStomp.js";
 
+import { YJPlayer } from "/@/threejs/YJPlayer.js";
 
 
 class YJDyncManager {
@@ -266,15 +267,11 @@ class YJDyncManager {
       this.userId = id;
       //连接成功
       this.connected = true;
-      YJDync.connected = true;
-      YJDync.id = id;
-
-
       this.needMainUser();
       // console.log("YJDync = " , YJDync);
 
       //用websocket 连接id 作为腾讯云音视频sdk的连接id
-      YJDync.InitTRTC(id);
+      YJDync.SetConnected(id);
 
     }
 
@@ -325,8 +322,6 @@ class YJDyncManager {
       this.user.cancelMainUser = "交出主控权";
       this.updateUserState();
       this.user.cancelMainUser = undefined;
-
-
     }
     this.needMainUser = function () {
       if (YJDync.GetDocumentHidden()) { return; }

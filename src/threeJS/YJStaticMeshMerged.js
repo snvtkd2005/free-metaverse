@@ -14,7 +14,7 @@ class YJStaticMeshMerged {
   constructor(_this, scene, model, modelData, callback) {
     let scope = this;
     const dummy = new THREE.Object3D();
-    console.log(model);
+    // console.log(model);
     let matrix = new THREE.Matrix4();
 
     let geometry = null;

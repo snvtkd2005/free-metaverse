@@ -73,8 +73,9 @@ class YJPlayerFireCtrl {
 					canAttack = true;
 					break;
 				case "点击技能":
-					let effect2 = state.msg;
-					if (effect2 == undefined || effect2 == "普通攻击") {
+					let skillItem = state.msg; 
+
+					if (skillItem == undefined || skillItem == "普通攻击") {
 						if (npcTransform == null) {
 							_Global.SceneManager.FireState("我没有目标");
 							return;
@@ -82,8 +83,13 @@ class YJPlayerFireCtrl {
 						// 判断目标是否可攻击
 						ReadyFire();
 					} else {
+						//判断目标是否可攻击
+						vaildAttackDis = skillItem.vaildDis;
+						if(!CheckCanAttack()){
+							return;
+						}
 						// 使用技能攻击
-						UseSkill(effect2);
+						UseSkill(skillItem);
 					}
 					break;
 				default:
@@ -96,10 +102,13 @@ class YJPlayerFireCtrl {
 		function UseSkill(skillItem) {
 			inSkill = true;
 
-			// console.log("使用技能攻击 ", skillItem);
+			console.log("使用技能攻击 ", skillItem);
 			let { animName, animNameReady, skillName, target, effect } = skillItem;
 			effect.skillName = skillName;
 			skillItem.effect.skillName = skillName;
+
+			readyskillAudioName = skillName;
+			_Global.YJAudioManager().playAudio(skillItem.skillReadyAudio,readyskillAudioName);
 
 			if (skillItem.castTime > 0) {
 				// 需要施法的技能才发送技能同步，瞬发技能无需同步
@@ -141,6 +150,12 @@ class YJPlayerFireCtrl {
 				}
 
 				let fn = () => {
+
+					fireParticleId = skillItem.skillFireParticleId;
+					_Global.YJAudioManager().stopAudio(readyskillAudioName);
+					//播放音效
+					_Global.YJAudioManager().playAudio(skillItem.skillFireAudio);
+
 					_this.YJController.SetPlayerAnimName(animName);
 					SendDamageToTarget(npcComponent, effect);
 					setTimeout(() => {
@@ -364,14 +379,18 @@ class YJPlayerFireCtrl {
 			}
 			EventHandler("进入战斗", target);
 			let { type, skillName, value, time, duration } = effect;
-			shootTarget(target.transform, attackStepSpeed * 300);
-			_Global.DyncManager.SendSceneStateAll("玩家对NPC",
+			shootTarget(target.transform, attackStepSpeed * 300,()=>{
+				_Global.DyncManager.SendSceneStateAll("玩家对NPC",
 				{
 					playerId: _YJPlayer.id,
 					npcId: target.transform.id,
 					skillName: skillName,
 					effect: effect
 				});
+			});
+		}
+		function shootTarget(taget, time,callback) {
+			_Global.DyncManager.shootTarget(_this.YJController.GetPlayerWorldPos(), taget, time, "npc",fireParticleId,callback);
 		}
 		//#endregion
 
@@ -552,10 +571,6 @@ class YJPlayerFireCtrl {
 				readyAttack = false;
 			}
 		}
-
-		function shootTarget(taget, time) {
-			_Global.DyncManager.shootTarget(_this.YJController.GetPlayerWorldPos(), taget, time, "npc",fireParticleId);
-		}
 		let vaildAttackLater = null;
 		let vaildAttackLater2 = null;
 		let attackStepSpeed = 3; //攻击间隔/攻击速度
@@ -563,6 +578,7 @@ class YJPlayerFireCtrl {
 		
 		let toIdelLater = null;
 		let skillName = "";
+		let readyskillAudioName = "";
 		let vaildAttackDis = 3; //有效攻击距离
 		let canAttack = false;
 		let inFire = false; //是否正在战斗状态
@@ -577,6 +593,7 @@ class YJPlayerFireCtrl {
 		}
 		function CheckCanAttack() {
 			if (!npcTransform) {
+				_Global.SceneManager.FireState("我没有目标");
 				return false;
 			}
 			//如果目标阵营不可攻击
@@ -715,7 +732,11 @@ class YJPlayerFireCtrl {
 				}
 				if (inSkill) {
 					_Global.ReportTo3D("设置技能进度条", "中断");
+					_Global.YJAudioManager().stopAudio(readyskillAudioName);
+					inSkill = false;
 				}
+				
+
 			}
 			if (e == "进入战斗" || e == "设置目标") {
 
@@ -770,13 +791,13 @@ class YJPlayerFireCtrl {
 			switch (e) {
 				case "普通攻击":
 					playerState = PLAYERSTATE.ATTACK;
-					var { s, v, a, fpid,faid } = GetSkillDataByWeapon(weaponData);
+					var { s, v, a, _fire } = GetSkillDataByWeapon(weaponData);
 					skillName = s;
 					vaildAttackDis = v;
 					attackStepSpeed = a;
-					fireParticleId = fpid; 
+					fireParticleId = _fire.particle; 
 					//播放音效
-					_Global.YJAudioManager().playAudio(faid);
+					_Global.YJAudioManager().playAudio(_fire.audio);
 					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					_Global.ReportTo3D("设置技能进度条", "完成");
 					CheckTargetDead();

@@ -119,13 +119,20 @@ export default {
 
   },
   methods: {
-    SetVisible(b, avatarName) {
+    SetVisible(b, _settingData) {
       this.isOpen = b;
-      if (b) {
-        this.initValue(avatarName);
+      if (b && _settingData) {
+        this.initValue(_settingData);
       }
     },
-
+    displayTriggerType(){
+      this.inPlayerSkillEditor = true;
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "trigger-type", "display", false);
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "trigger-value", "display", false);
+      this.settingData.describe = this.GetDescribe(this.settingData);
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "describe", "value", this.settingData.describe);
+      
+    },
     initValue(_settingData) {
       this.inAdd = true;
       this.settingData = _settingData;
@@ -143,7 +150,7 @@ export default {
         this.settingData.skillFireAudio = "";
       }
 
-      this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
+      // this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "trigger-type", "options", this.triggerType);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "target-type", "options", this.targetType);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-type", "options", this.effectType);
@@ -275,22 +282,29 @@ export default {
       let describe = "";
 
       if (item.trigger.type == "health") {
-        describe += "当生命达到" + item.trigger.value + "%时";
+        describe += "当生命达到" + item.trigger.value + "%时，";
       }
       if (item.trigger.type == "perSecond") {
-        describe += "每" + item.trigger.value + "秒";
+        describe += "每" + item.trigger.value + "秒，";
       }
+
+      if(this.inPlayerSkillEditor){
+        // 玩家技能都是点击技能图标触发的
+        describe = "";
+      }
+
       if (item.target.type == "none") {
-        describe += ",自身";
+        describe += "自身";
       }
       if (item.target.type == "random") {
-        describe += ",对随机" + item.target.value + "个目标";
+        describe += "对随机" + item.target.value + "个目标";
       }
+
       if (item.target.type == "target") {
-        describe += ",对当前目标";
+        describe += "对当前目标";
       }
       if (item.target.type == "area") {
-        describe += ",对" + item.vaildDis + "范围内最多" + item.target.value + "个目标";
+        describe += "对" + item.vaildDis + "范围内最多" + item.target.value + "个目标";
       }
 
       if (item.effect.type == "evolution") {

@@ -33,14 +33,18 @@ export default {
         speed: 1,
         delay: 100,
         isBlack: false,
+        isLookatCam: false, //是否始终朝向视图
+        speedY:0,
       },
       setting: [
         { property: "gifPath", display: true, title: "选择UV图", type: "file", filetype: "image", value: null },
         { property: "color", display: true, title: "叠加色", type: "color", value: "#ffffff", callback: this.ChangeValue },
         { property: "row", display: true, title: "UV X", type: "num", value: 14, callback: this.ChangeValue },
         { property: "col", display: true, title: "UV Y", type: "num", value: 1, callback: this.ChangeValue },
-        { property: "speed", display: true, title: "播放速度", type: "slider", value: 1, min: 0, max: 5, step: 0.5, callback: this.ChangeValue },
+        { property: "speed", display: true, title: "默认X轴播放速度", type: "slider", value: 1, min: 0, max: 5, step: 0.5, callback: this.ChangeValue },
         { property: "isBlack", display: true, title: "是否黑底", type: "toggle", value: false, callback: this.ChangeValue },
+        { property: "isLookatCam", display: true, title: "是否始终朝向视图", type: "toggle", value: false, callback: this.ChangeValue },
+        { property: "speedY", display: true, title: "Y轴播放速度", type: "slider", value: 1, min: 0, max: 5, step: 0.5, callback: this.ChangeValue },
       ],
     };
   },

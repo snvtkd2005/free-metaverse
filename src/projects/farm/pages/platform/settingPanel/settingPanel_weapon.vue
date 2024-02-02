@@ -1,7 +1,5 @@
-
-// UV动画设置
-<template>
-  <!-- 场景设置面板 -->
+ 
+<template> 
   <div class="
               w-full 
                p-2
@@ -15,8 +13,9 @@
       <YJinputCtrl :setting="setting" />
     </div>
 
+    
     <!-- 动作播放进度滑块 -->
-    <div class=" flex w-full   ">
+    <div class=" flex w-full mt-4   ">
       <div class=" bg-gray-400 cursor-pointer" @click=" auto = !auto">{{ auto ? '暂停' : '播放' }}</div>
       <div class=" w-16 ml-2 ">{{ animClip.currentTime + '/' + animClip.duration }}</div>
       <input ref="viewFarCtrl" class=" ml-2  outline-none w-40  " @input="sliderChangeFn" v-model="animClip.currentTime"
@@ -53,8 +52,7 @@ export default {
     YJinputCtrl,
   },
   data() {
-    return {
-      chassisWidth: 2.2, //车身宽
+    return { 
       pointType: "weapon",
       isLock: false,
       settingData: {
@@ -87,8 +85,11 @@ export default {
           audio:"",
           pos:[],
         },
-        fireParticleId: "", //施放特效
-        fireAuidoId: "", //施放音效
+        ready:{
+          particle:"",
+          audio:"",
+          pos:[],
+        },
         // 依附的骨骼名称
         boneName: "",
         // 攻击速度
@@ -120,37 +121,26 @@ export default {
             { value: "Wand", label: "魔棒" },
             // { value: "oneHand",label: "拳套" }, 
           ], callback: this.ChangeValue
+        },{
+          property: "boneName", display: true, title: "跟随骨骼", type: "drop", value: "none", options: [], callback: this.ChangeValue
         },
         { property: "vaildDis", display: true, title: "有效距离", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
         { property: "attackSpeed", display: true, title: "攻击速度", type: "num", step: 1, value: 1, callback: this.ChangeValue, },
-        {
-          property: "boneName", display: true, title: "跟随骨骼", type: "drop", value: "none", options: [
-
-            { value: "None", label: "none" },
-            { value: "Head", label: "头部" },
-            { value: "LeftShoulder", label: "左肩" },
-            { value: "RightShoulder", label: "右肩" },
-            { value: "LeftHand", label: "左手腕" },
-            { value: "RightHand", label: "右手腕" },
-          ], callback: this.ChangeValue
-        },
-
+        
         { property: "animNameIdle", display: true, title: "待机", type: "drop", value: "none", options: [], callback: this.ChangeValue },
         { property: "animNameWalk", display: true, title: "行走", type: "drop", value: "none", options: [], callback: this.ChangeValue },
         { property: "animNameRun", display: true, title: "奔跑", type: "drop", value: "none", options: [], callback: this.ChangeValue },
         { property: "animNameReady", display: true, title: "准备攻击", type: "drop", value: "none", options: [], callback: this.ChangeValue },
         { property: "animNameAttack", display: true, title: "攻击", type: "drop", value: "none", options: [], callback: this.ChangeValue },
-        { property: "readyParticleId", display: true, title: "吟唱特效", type: "file", filetype: "particle", value: "", callback: this.ChangeValue },
-        { property: "readyAudioId", display: true, title: "吟唱音效", type: "file", filetype: "audio", value: "", callback: this.ChangeValue },
+        { property: "ready-particle", display: true, title: "吟唱特效", type: "file", filetype: "particle", value: "", callback: this.ChangeValue },
+        { property: "ready-particle", display: true, title: "吟唱音效", type: "file", filetype: "audio", value: "", callback: this.ChangeValue },
 
-        // { property: "fireParticleId", display: true, title: "施放特效", type: "file", filetype: "particle", value: "", callback: this.ChangeValue },
-        // { property: "fireAuidoId", display: true, title: "施放音效", type: "file", filetype: "audio", value: "", callback: this.ChangeValue },
         { property: "fire-particle", display: true, title: "施放特效", type: "file", filetype: "particle", value: "", callback: this.ChangeValue },
         { property: "fire-audio", display: true, title: "施放音效", type: "file", filetype: "audio", value: "", callback: this.ChangeValue },
         
         // { property: "animName", title: "交互动作", type: "drop", value: "none", options: [], callback: this.ChangeValue },
-        { property: "position", display: true, title: "拾取后偏移", type: "vector3", value: [0, 0, 0], step: 0.01, callback: this.ChangeValue },
-        { property: "rotation", display: true, title: "拾取后旋转", type: "vector3", value: [0, 0, 0], step: 0.01, callback: this.ChangeValue },
+        // { property: "position", display: true, title: "拾取后偏移", type: "vector3", value: [0, 0, 0], step: 0.01, callback: this.ChangeValue },
+        // { property: "rotation", display: true, title: "拾取后旋转", type: "vector3", value: [0, 0, 0], step: 0.01, callback: this.ChangeValue },
 
       ],
 
@@ -159,9 +149,13 @@ export default {
         { value: "Head", label: "头部" },
         { value: "LeftShoulder", label: "左肩" },
         { value: "RightShoulder", label: "右肩" },
+        // { value: "humanfemale_hd_bone_89", label: "左手腕" },
+        // { value: "humanfemale_hd_bone_49", label: "右手腕" },
         { value: "LeftHand", label: "左手腕" },
         { value: "RightHand", label: "右手腕" },
       ],
+      // character/human/female/humanfemale_hd_bone_89 左手腕
+      // character/human/female/humanfemale_hd_bone_49 右手腕
       // 持有类型
       pickType: [
         { value: "twoHand", label: "双手" },
@@ -234,12 +228,22 @@ export default {
 
     SetAnimList(_animList) {
       console.log("设置动作drop list ", _animList);
-      this.animList = _animList;
+      // this.animList = _animList; 
+      let animList = _Global.animList;
+      let canAnimList = [];
+      for (let i = 0; i < animList.length; i++) {
+        const anim = animList[i];
+        canAnimList.push({ label: anim.content, value: anim.animName });
+      }
+      this.animList = (canAnimList);
+
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "animNameIdle", "options", this.animList);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "animNameWalk", "options", this.animList);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "animNameRun", "options", this.animList);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "animNameReady", "options", this.animList);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "animNameAttack", "options", this.animList);
+
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "boneName", "options", this.bones);
 
     },
 
@@ -275,8 +279,12 @@ export default {
       // this.Utils.SetSettingItemByProperty(this.setting, "weaponType", this.settingData.weaponType); 
       this.Utils.SetSettingItemByProperty(this.setting, "position", this.settingData.position);
       this.Utils.SetSettingItemByProperty(this.setting, "rotation", this.settingData.rotation);
-
-
+      if(!this.settingData.fire){
+        this.settingData.fire = {};
+      }
+      if(!this.settingData.ready){
+        this.settingData.ready = {};
+      }
       this.animate();
 
       // setTimeout(() => {

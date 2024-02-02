@@ -46,6 +46,86 @@ class YJMeshRenderer {
       }
       return bones;
     }
+    // 模糊获取骨骼
+    this.GetBoneVague = function (boneName, callback) {
+      // console.log("从模型中查找bone ", playerObj,boneName);
+      let doonce = 0;
+      model.traverse(function (item) {
+        if (doonce > 0) { return; } 
+        // if (item.type == "Bone" && item.name == (boneName)) 
+        if (item.type == "Bone" && item.name.includes(boneName)) 
+        {
+          if (callback) {
+            callback(item);
+          }
+          doonce++;
+        }
+      }); 
+    }
+
+    let equipList = [];
+    // 移除武器
+    this.RemoveWeapon = function () {
+      for (let i = equipList.length-1; i >= 0 ; i--) {
+        const item = equipList[i];
+        item.equipModel.parent.remove(item.equipModel);
+        equipList.splice(i,1); 
+      }
+    }
+    this.EditorWeapon = function(msg){
+
+    }
+    this.AddWeapon = function(weaponData,equipData,boneList,callback){
+      let data = weaponData.message.data;
+      let realyBoneName = "" ;
+      let realyPos = equipData.position ;
+      let realyRota = equipData.rotation;
+      let realyScale = equipData.scale  ;
+
+      for (let i = 0; i < boneList.length; i++) {
+        const item = boneList[i];
+        if(item.targetBone == equipData.targetBone){ 
+          realyBoneName = item.boneName; 
+        }
+      }
+
+      for (let i = 0; i < equipList.length; i++) {
+        const item = equipList[i];
+        if(item.boneName == realyBoneName && item.weaponType == data.weaponType ){
+          let pos = realyPos;
+          let rotaV3 = realyRota;
+          let scale = realyScale;
+          item.equipModel.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
+          item.equipModel.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
+          item.equipModel.scale.set(100*scale[0], 100*scale[1], 100*scale[2]);
+          return;
+        }
+      }
+      
+      console.log(" 加载武器 ",realyBoneName,_this.$uploadUrl + weaponData.modelPath);
+        //加载武器
+        _Global.YJ3D._YJSceneManager.DirectLoadMesh(_this.$uploadUrl + weaponData.modelPath, (meshAndMats) => {
+          scope.GetBoneVague(realyBoneName, (bone) => {
+            let weaponModel = (meshAndMats.mesh).scene.clone();
+            bone.attach(weaponModel);
+            bone.weaponModel = weaponModel;
+            let pos = realyPos;
+            let rotaV3 = realyRota;          
+            let scale = realyScale; 
+            weaponModel.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
+            weaponModel.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
+            weaponModel.scale.set(100*scale[0], 100*scale[1], 100*scale[2]);
+            equipList.push({boneName:realyBoneName,weaponType:data.weaponType,equipModel:weaponModel});
+
+            if(callback){
+              callback(weaponModel);
+            }
+
+          });
+        });
+    }
+
+
     this.SetSize = function (f) {
       // console.log("设置模型缩放",f);
       model.scale.set(meshScale * f, meshScale * f, meshScale * f);

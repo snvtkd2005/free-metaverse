@@ -308,7 +308,7 @@ class YJPlayer {
         modelPath = _this.GetPublicUrl() + modelPath;
       }
 
-      // console.log("加载角色0",modelPath,animationsData);
+      console.log("加载角色0",modelPath,avatarData,animationsData);
       avatar = new YJLoadAvatar(
         _this,
         _this.scene,
@@ -1284,11 +1284,11 @@ class YJPlayer {
       }
     }
 
-    update();
+    // update();
     var updateId = null;
-    function update() {
+    this._update = function () {
 
-      updateId = requestAnimationFrame(update);
+      // updateId = requestAnimationFrame(update);
       //实时刷新姓名条，让姓名条面向摄像机
       if (namePosTrans != null) {
         var lookatPos = new THREE.Vector3();
@@ -1304,6 +1304,9 @@ class YJPlayer {
       }
 
       if (!hasPlayer) { return; }
+      if(avatar){
+        avatar._update();
+      }
       if (!local) {
         LerpMovePlayer();
         TWEEN.update();

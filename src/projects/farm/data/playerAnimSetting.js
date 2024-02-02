@@ -124,6 +124,7 @@ export default {
   avatarData: [
     
     {
+      id: "litleUnityChain2",
       name: "litleUnityChain2",
       height: 1.0,
       nameScale: 1,
@@ -186,8 +187,10 @@ export default {
     },
 
     {
+      id: "小孩",
       name: "小孩",
-      height: 1.7,
+      height: 0.1,
+      // height: 1.7,
       nameScale: 1,
       // 模型缩放
       modelScale: 1,
@@ -213,6 +216,7 @@ export default {
       ],
     },
     {
+      id: "小孩2",
       name: "小孩2",
       height: 0.9,
       nameScale: 1,
@@ -227,6 +231,7 @@ export default {
       ]
     },
     {
+      id: "机器人",
       name: "机器人",
       height: 1.7,
       nameScale: 1,
@@ -242,6 +247,7 @@ export default {
       ]
     },
     {
+      id: "unity娘",
       name: "unity娘",
       height: 1.4,
       nameScale: 1,
@@ -259,6 +265,7 @@ export default {
      
 
     {
+      id: "fox",
       name: "fox",
       height: 1.7,
       nameScale: 1,
@@ -273,6 +280,7 @@ export default {
       ]
     },
     {
+      id: "mixman",
       name: "mixman",
       height: 1.8,
       nameScale: 1,

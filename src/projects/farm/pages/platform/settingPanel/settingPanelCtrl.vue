@@ -60,6 +60,11 @@
     <div v-if="panelState.trail" :class="isTransform?'mt-0':'mt-10'" class="  w-full border-t max-w-md">
       <settingPanel_trail ref="settingPanel_trail" />
     </div>
+
+    <!-- shader -->
+    <div v-if="panelState.shader" :class="isTransform?'mt-0':'mt-10'" class="  w-full border-t max-w-md">
+      <settingPanel_shader ref="settingPanel_shader" />
+    </div>
   </div>
 </template>
 
@@ -78,6 +83,7 @@ import settingPanel_avatar from "./settingPanel_avatar.vue";
 import settingPanel_npc from "./settingPanel_npc.vue";
 import settingPanel_interactive from "./settingPanel_interactive.vue";
 import settingPanel_trail from "./settingPanel_trail.vue";
+import settingPanel_shader from "./settingPanel_shader.vue";
 
 import settingPanel_transform from "./settingPanel_transform.vue";
 
@@ -97,6 +103,7 @@ export default {
     settingPanel_npc,
     settingPanel_interactive,
     settingPanel_trail,
+    settingPanel_shader,
     settingPanel_transform,
   },
   data() {
@@ -115,6 +122,7 @@ export default {
         interactive: false,
         weapon: false,
         trail: false,
+        shader:false,
       },
     };
   },

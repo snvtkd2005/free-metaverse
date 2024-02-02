@@ -57,6 +57,7 @@ export default {
           { id: 9, templateType: "Model", name: "NPC模型", panel: "npc", content: "场景npc。形象从角色模型中选择，执行一系列事件" },
           { id: 10, templateType: "Model", name: "交互模型", panel: "interactive", content: "碰到模型或点击模型触发交互事件" },
           { id: 11, templateType: "Model", name: "拖尾模型", panel: "trail", content: "拖尾模型" },
+          { id: 12, templateType: "Model", name: "材质模型", panel: "shader", content: "shader材质模型。如水面、地面反射" },
         ],
       },
 
@@ -76,6 +77,20 @@ export default {
         ],
       },
     ], 
+    allModelType: [
+      { name: "静态模型" },
+      { name: "动画模型" },
+      { name: "uv模型" },
+      { name: "汽车模型" },
+      { name: "装备模型" },
+      { name: "屏幕模型" },
+      { name: "粒子特效" },
+      { name: "角色模型" },
+      { name: "NPC模型" },
+      { name: "交互模型" },
+      { name: "拖尾模型" }, 
+      { name: "材质模型" }, 
+    ],
     selectModel: [
       { name: "静态模型" },
       { name: "动画模型" },
@@ -88,6 +103,7 @@ export default {
       { name: "交互模型" },
       { name: "拖尾模型" },
       { name: "组合" },
+      { name: "材质模型" }, 
     ],
     selectModel_group: [
       { name: "静态模型" }, 

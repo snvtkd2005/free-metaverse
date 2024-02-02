@@ -111,6 +111,7 @@ import modelPanel from "./panels/modelPanel.vue";
 import modelSelectPanel from "./panels/modelSelectPanel.vue";
 import skillSelectPanel from "./panels/skillSelectPanel.vue";
 
+
 import settingPanelCtrl from "./settingPanel/settingPanelCtrl.vue";
 
 import settingPanel from "./settingPanel/settingPanel.vue";
@@ -537,7 +538,6 @@ export default {
     // }
 
 
-
     if (this.modelData.modelType == undefined) {
       this.RequestGetAllScene(() => {
         // console.log(" this.modelData  = ", this.modelData);
@@ -557,6 +557,7 @@ export default {
           this.RequestGetAllSceneData();
         }
 
+        document.title = this.oldFileName; 
       });
     }
 
@@ -796,6 +797,8 @@ export default {
       this.sceneData = res.data;
       this.sceneData.setting.hasCamRaycast = false;
       this.sceneData.setting.camOffsetY = this.sceneData.setting.playerHeight / 2;
+      this.sceneData.setting.title = this.oldFileName;
+      document.title = this.oldFileName;
 
       this.Enter();
     },
@@ -1518,6 +1521,24 @@ export default {
         console.log(component);
         return;
       }
+      let components = [
+        {comName:"Trail",panel:"trail"},
+        {comName:"Shader",panel:"shader"},
+      ]
+      for (let i = 0; i < components.length; i++) {
+        const item = components[i];
+        component = this.clickModelJS.GetComponent(item.comName);
+        if (component != null) {
+          this.ChangePanel(item.panel);
+          let msg = this.clickModelJS.GetMessage();
+          this.$nextTick(() => {
+            this.$refs.settingPanelCtrl.$refs['settingPanel_'+item.panel].Init(msg.data);
+          });
+          console.log(component);
+          return;
+        }
+      }
+      
     },
 
     DelModel() {
@@ -1537,7 +1558,7 @@ export default {
         _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().DuplicateModel(this.clickModelJS.GetData(), (transform) => {
           _Global.YJ3D._YJSceneManager._YJTransformManager.attach(transform.GetGroup());
           this.clickModelJS = transform;
-
+          this.UpdateComponentPanel();
           this.$refs.hierarchyPanel.SelectModelBy3d(this.clickModelJS.GetUUID());
           this.tableList[2].value = false; 
         });

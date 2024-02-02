@@ -101,7 +101,7 @@ class YJSceneManager {
 
 
 
-    this.CreateOrLoad_TransformManager = function () {
+    this.GetTransformManager = function () {
       if (this._YJTransformManager != null) {
         return this._YJTransformManager;
       }
@@ -110,6 +110,7 @@ class YJSceneManager {
     }
     // 初始化沙盒管理器
     this.InitSandboxManager = function () {
+
       // new YJSandboxManager(scope, scene, camera, renderer.domElement);
       this._YJTransformManager = new YJTransformManager(scope, scene, camera, renderer, _this);
     }
@@ -171,7 +172,7 @@ class YJSceneManager {
       MargeStaticModelFn();
     }
     function MargeStaticModelFn() {
-      console.log("全部创建完之后统一合批");
+      console.log("全部创建完之后统一合批",MargeStaticModelList);
       //全部创建完之后统一合批
 
       for (let i = 0; i < MargeStaticModelList.length; i++) {
@@ -233,6 +234,8 @@ class YJSceneManager {
     function InitSingleSceneFn() {
       console.log("初始化 单品  ");
       CreateGrid();
+
+
 
       if (_YJ3dScene_margeTexture == null) {
         _YJ3dScene_margeTexture = new YJ3dScene_margeTexture();
@@ -490,11 +493,14 @@ class YJSceneManager {
 
     }
 
+
     // 还原角色位置
     this.ResetPlayerPos = function () {
       let pos = new THREE.Vector3(playerPos.x, playerPos.y + 0.1, playerPos.z);
       _YJAmmo.SetPlayerPos(pos);
       _this.YJController.SetPlayerRota3(playerSetting.rotaV3);
+      _this.YJController.SetContrlState(setting.contrlState, setting.wheelValue);
+
     }
 
     // 初始化创建地图 和 设置角色位置
@@ -659,7 +665,7 @@ class YJSceneManager {
 
       lightData = sceneData.AmbientLightData;
       //环境光
-      ambient = new THREE.AmbientLight(0xffffff, lightData.AmbientLightIntensity); //添加环境光
+      ambient = new THREE.AmbientLight(lightData.ambientColor?lightData.ambientColor: 0xffffff, lightData.AmbientLightIntensity); //添加环境光
       scene.add(ambient); //光源添加到场景中
 
       if (platform == "pcweb") {
@@ -675,9 +681,14 @@ class YJSceneManager {
         // console.log(" 加载背景色 ", lightData.backgroundColor);
         scene.background = new THREE.Color(lightData.backgroundColor != undefined ? lightData.backgroundColor : 0x000000);
         //雾效
-        // scene.fog = new THREE.Fog(0xA7D0FF, 30, 300);
-      }
+        // scene.fog = new THREE.Fog(0xA7D0FF, 30, 100);
 
+      }
+      if(lightData.hasFog){
+        scene.fog = new THREE.Fog(lightData.fogColor, lightData.fogNear, lightData.fogFar);
+      }else{
+        scene.fog = new THREE.Fog(0xA7D0FF,1000,10000);
+      }
 
       playerPos = setting.playerPos;
       playerSetting.rotaV3 = setting.playerRotaV3;
@@ -764,6 +775,8 @@ class YJSceneManager {
       floorCollider = CreateFloorCollider("landcollider");
       scope.CreateModelMeshCollider(floorCollider, new THREE.Vector3(1, 1, 1),
         new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, Math.PI / 2, 0));
+
+
     }
     // 设置地板尺寸
     this.SetFloorSize = (x, y) => {
@@ -1216,15 +1229,29 @@ class YJSceneManager {
 
     }
 
-
+    this.SetAmbientColor = function (c) {
+      ambient.color.set(c) ; 
+      lightData.ambientColor = c; 
+    }
     this.SetAmbientIntensity = function (f) {
       ambient.intensity = f;
-      lightData.AmbientLightIntensity = f;
-      // sceneData.AmbientLightData.AmbientLightIntensity = f;
-
+      lightData.AmbientLightIntensity = f; 
     }
     this.SetDirectionalIntensity = function (f) {
       _DirectionalLight.intensity = f;
+      lightData.DirectionalLightIntensity = f;
+    }
+    this.SetFog = function(msg){
+      if(msg.visible){
+        scene.fog = new THREE.Fog(msg.color, msg.near,( msg.far));
+      }else{
+        // scene.fog = null;
+        scene.fog = new THREE.Fog(msg.color,1000,10000);
+      }
+      lightData.hasFog = msg.visible; 
+      lightData.fogColor = msg.color; 
+      lightData.fogNear = msg.near; 
+      lightData.fogFar = msg.far;  
     }
     // 加载第二套场景
     let inLoadScene2 = false;
@@ -2511,9 +2538,10 @@ class YJSceneManager {
     //#region 在其他脚本中添加的热点，添加到此脚本的lookatList中，让热点始终面向摄像机
 
     // 在其他脚本中添加的热点，添加到此脚本的lookatList中，让热点始终面向摄像机
-    this.AddLookatHotPoint = function (obj) {
+    this.AddLookatHotPoint = function (obj,data) {
       for (let i = lookatList.length - 1; i >= 0; i--) {
         if (lookatList[i] == obj) {
+          console.log(" 重复添加 ",data);
           return;
         }
       }

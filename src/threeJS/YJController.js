@@ -3793,7 +3793,7 @@ class YJController {
 
       //同步角色动作
       if (_YJPlayer != null && _player != null) {
-
+        _YJPlayer._update();
         CheckFly();
 
         if (!canJump || jump) {

@@ -124,7 +124,7 @@
 <script>
 import PlayerAnimData from "../../data/platform/playerAnimSetting.js";
 
-import AvatarData from "../../data/platform/sceneSetting_editor.js";
+import SceneData from "../../data/platform/sceneSetting_editor.js";
 
 import YJmetaBase from "./YJmetaBase.vue";
 
@@ -210,7 +210,6 @@ export default {
 
       language: null,
       isEn: false,
-      avatarData: null,
       // playerAnimData: null,
       contrlState: 0,
 
@@ -256,11 +255,10 @@ export default {
       currentSettingPanel: null,
     };
   },
-  created() {
-    this.avatarData = AvatarData;
-    this.sceneData = AvatarData;
+  created() { 
+    this.sceneData = SceneData;
 
-    this.publicUrl = this.$publicUrl + this.avatarData.setting.localPath;
+    this.publicUrl = this.$publicUrl + this.sceneData.setting.localPath;
   },
   mounted() {
     if (_Global.reloadTimes == 1) {
@@ -310,6 +308,18 @@ export default {
     this.RequestGetAllModel(() => {
       this.Load();
     });
+
+    document.addEventListener("visibilitychange", () => {
+      _Global.inFocus = !document.hidden;
+      if(_Global.inFocus){
+        //如果角色被改变，切换角色
+        if(localStorage.getItem("avatarId") != this.avatarId){
+          this.avatarId = localStorage.getItem("avatarId");
+          _Global.YJ3D.YJPlayer.LoadPlayer(this.avatarId);
+        }
+      }
+    });
+
   },
   methods: {
 
@@ -332,7 +342,7 @@ export default {
       this.hasUI = false;
 
       if (this.modelData.modelType == "uv模型") {
-        this.hasImport = false;
+        this.hasImport = true;
         this.setSettingDisplayById("single_collider", false);
         this.setSettingDisplayById("single_usercollider", false);
         this.setSettingDisplayById("single_planeState", false);
@@ -399,8 +409,8 @@ export default {
 
       this.userData = {
         userName: this.userName,
-        roomName: this.avatarData.roomName,
-        platform: this.avatarData.platform,
+        roomName: this.sceneData.roomName,
+        platform: this.sceneData.platform,
         avatarId: this.avatarId,
       };
 
@@ -904,6 +914,7 @@ export default {
     GetPlayerAnimData() {
       return PlayerAnimData;
     },
+
     GetAvatarData(playerName) {
       console.error(" 查找角色信息  ", playerName);
 
@@ -1015,15 +1026,15 @@ export default {
     ClickChangeScene(sceneSetting) { },
     //切换场景
     ChangeScene(sceneSetting) {
-      this.avatarData = sceneSetting;
-      this.publicUrl = this.$publicUrl + this.avatarData.setting.localPath;
+      this.sceneData = sceneSetting;
+      this.publicUrl = this.$publicUrl + this.sceneData.setting.localPath;
 
       // 程序加载场景
       this.$refs.YJmetaBase.Reload();
       _Global.YJ3D._YJSceneManager.ChangeScene();
 
       if (this._SceneManager != null) {
-        this._SceneManager.ChangeScene(this.avatarData);
+        this._SceneManager.ChangeScene(this.sceneData);
       }
 
       if (this.$refs.YJDync) {
@@ -1043,8 +1054,8 @@ export default {
       this.inLoadCompleted = true;
       this.userData = {
         userName: userName,
-        roomName: this.avatarData.roomName,
-        platform: this.avatarData.platform,
+        roomName: this.sceneData.roomName,
+        platform: this.sceneData.platform,
         modelType: selectPlayerName,
       };
 
@@ -1090,7 +1101,7 @@ export default {
 
         this.$nextTick(() => {
           if (this.$refs.YJDync) {
-            if (!this.avatarData.modelPath.includes("Scene3")) {
+            if (!this.sceneData.modelPath.includes("Scene3")) {
               this.$refs.YJDync.InitDync(this.userData);
             } else {
               //在开车场景，关闭同步。因为开车非常费流量。2个人1小时30块
@@ -1188,18 +1199,18 @@ export default {
       return this.publicUrl;
     },
     GetSceneTexPath() {
-      return this.GetModelUrl() + this.avatarData.sceneTexPath;
+      return this.GetModelUrl() + this.sceneData.sceneTexPath;
     },
     GetModelUrl() {
-      return this.avatarData.modelPath;
+      return this.sceneData.modelPath;
     },
     GetPublicModelUrl() {
-      return this.GetPublicUrl() + this.avatarData.modelPath;
+      return this.GetPublicUrl() + this.sceneData.modelPath;
     },
 
     //获取小地图图片url
     GetMinMapData() {
-      let minMapData = this.avatarData.minMapData;
+      let minMapData = this.sceneData.minMapData;
       return minMapData;
     },
     ClickNiaokan() {

@@ -96,9 +96,9 @@
     <div class="cursor-pointer border pl-2 " @click="ClickOtherUser('传送')">
       {{ language.content.jump }}
     </div>
-    <!-- <div class="cursor-pointer border pl-2 " @click="ClickOtherUser('发送会议邀请')">
+    <div class="cursor-pointer border pl-2 " @click="ClickOtherUser('发送会议邀请')">
       {{ language.content.meeting }}
-    </div> -->
+    </div>
   </div>
 
   <!-- 聊天记录 -->
@@ -168,61 +168,9 @@
     </div>
   </div>
 
-  <!-- 输入框激活按钮 -->
-  <div class=" absolute z-50 left-4 bottom-10 xl:bottom-4 origin-bottom-left transform scale-50 xl:scale-75 ">
-    <div class=" absolute left-0 top-0 w-20 h-20 " @click="canInputChar = !canInputChar">
-    </div>
-    <div class=" origin-left ">
-      <img :src="$publicUrl + 'images/gameUI/' + (canInputChar ? 'xx_laing' : 'xx_an') + '.png'" alt="">
-    </div>
-
-      <!-- 输入区域 -->
-      <div v-if="canInputChar" class=" absolute left-24 top-6 w-auto h-10 flex">
-      <!-- 输入框 -->
-      <div class="w-full h-10 ">
-        <input ref="roomInput" class="
-                          w-72 xl:w-64
-                                text-left
-                                align-top
-                                outline-none
-                                bg-transparent 
-                                placeholder-gray-400
-                                h-full 
-                                resize-none
-                              " type="text" placeholder="请输入聊天内容" v-model="currentChatStr" @focus="removeThreeJSfocus"
-          @blur="addThreeJSfocus" />
-      </div>
-
-      <div class=" opacity-0
-                              ml-8
-                              w-16
-                              h-full
-                              bg-gray-400
-                              cursor-pointer
-                              flex
-                              rounded-full
-                              text-white text-sm
-                            " @click="SendChat()">
-        <p class="self-center mx-auto">{{ language.content.sendMsg }}</p>
-      </div>
-
-      <div class=" opacity-0
-                              ml-2
-                              w-16
-                              h-full
-                              bg-gray-400
-                              cursor-pointer
-                              flex
-                              rounded-full
-                              text-white text-sm
-                            " @click="ClearChat()">
-        <p class="self-center mx-auto">{{ language.content.clearMsg }}</p>
-      </div>
-    </div>
-  </div>
 
   <!-- 输入区域 -->
-  <div class=" hidden absolute left-2 bottom-2 bg-gray-300 bg-opacity-70 rounded-lg text-white w-auto h-10 flex">
+  <div class=" absolute left-2 bottom-2 bg-gray-300 bg-opacity-70 rounded-lg text-white w-auto h-10 flex">
     <!-- 输入框 -->
     <div class="w-full h-10 ">
       <input ref="roomInput" class="
@@ -304,7 +252,8 @@
  
 <script >
 
-import { YJClient } from "/@/threejs/YJClient.js";
+import { YJDyncManager } from "/@/threejs/YJDyncManager.js";
+import { YJPlayer } from "/@/threejs/YJPlayer.js";
 
 // 音视频
 // import txTRTC from "/@/views/chat/txTRTC.vue";
@@ -324,22 +273,30 @@ export default {
       meetingInvitation: false, meetingData: { fromUser: 'haha' },
       language: {
         content: {
+
           sendMsg: "发送",
           clearMsg: "清空",
+
           secretSpeak: "悄悄话",
           jump: "传送",
+
           toSpeak: "对你说",
           speak: "说",
           speakTo: "你对",
+
           skin: "皮肤",
+
           onlineList: "在线用户",
+
           meeting: "发送会议邀请",
         }
       },
 
       //是否正在聊天
       inChat: false,
+
       canInputChar: false,
+
       chatTargetUser: "",
       chatTargetId: "",
       // 其他用户
@@ -374,7 +331,8 @@ export default {
       publicUrl: '',
       isMainUser: false,
       //session id
-      id: "", 
+      id: "",
+      userId: "",
     };
   },
   created() {
@@ -387,20 +345,57 @@ export default {
   },
   mounted() {
     this.inSend = false;
-    this.connected = false; 
+    this.connected = false;
+    this.otherUser = [{
+      user: {
+        userData: {
+          baseData: {
+            health: 0,
+            maxHealth: 0,
+            debuffList: [],
+          }
+        }
+      }
+    }];
+
+    //所有其他玩家
+    this.allPlayer = [];
+
+    //场景中的物体
+    this.sceneModels = [];
+
+
+
+    this._YJDyncManager = null;
+
+    //同步角色的坐标、旋转、皮肤、动作
+    this.YJController = null;
+
+    this.platform = 'pcweb';
+    this.roomName = 'pcwebRoom1';
+
     this.stopDync = false;
+
+    // this.ThreejsHumanChat = this.$parent.$refs.YJmetaBase.GetThreejsHumanChat();
+
+    // this._YJSceneManager = this.ThreejsHumanChat._YJSceneManager;
+
+    // let that = this;
+    //   setTimeout(() => {
+    //     that.InitYJController();
+    //   }, 5000);
 
     document.addEventListener("visibilitychange", () => {
       // console.log(document.hidden);
       if (document.hidden && this.isMainUser && this.otherUser.length > 1) {
         //当前用户是主控时，窗口失去焦点时，交出主控权
         this.isMainUser = false;
-        if (this._YJClient) {
-          this._YJClient.cancelMainUser();
+        if (this._YJDyncManager) {
+          this._YJDyncManager.cancelMainUser();
         }
       } else {
-        if (this._YJClient) {
-          this._YJClient.needMainUser();
+        if (this._YJDyncManager) {
+          this._YJDyncManager.needMainUser();
         }
       }
 
@@ -412,17 +407,38 @@ export default {
   },
 
   methods: {
+    GetDocumentHidden() {
+      // console.log(" 获取窗口隐藏状态 ",document.hidden);
+      return document.hidden;
+    },
     SetMainUser(b) {
       this.isMainUser = b;
       // console.log("指定当前用户为主控 22", this.isMainUser);
     },
     // 初始化同步
     InitDync(userData) {
-      this._YJClient = new YJClient(
+
+      this.ThreejsHumanChat = this.$parent.$refs.YJmetaBase.GetThreejsHumanChat();
+      this._YJSceneManager = this.ThreejsHumanChat._YJSceneManager;
+
+
+      this.roomName = userData.roomName;
+      this.userName = userData.userName;
+      console.log("启动 同步 ");
+
+
+      this._YJDyncManager = new YJDyncManager(
         this,
         userData
       );
-      _Global.YJClient = this._YJClient;
+
+
+      let that = this;
+      setTimeout(() => {
+        that.InitYJController();
+      }, 1000);
+
+
       window.addEventListener('keyup', (event) => {
         // console.log(event);
         switch (event.code) {
@@ -432,15 +448,460 @@ export default {
         }
       });
     },
+    // 先离开房间。再加入
+    LeaveRoom() {
+      // 发送隐藏角色
+      this.YJController.SetDyncDisplay(false);
+    },
+    JoinedRoom() {
+      // 发送隐藏角色
+      if (this.YJController) {
+        this.YJController.SetDyncDisplay(true);
+      }
+    },
+    // 切换房间
+    ChangeRoom(roomName) {
+      this.roomName = roomName;
+
+
+      let userData = this.YJController.GetUserData();
+      this._YJDyncManager.UpdatePlayerDefaultPos(userData);
+
+      this._YJDyncManager.ChangeRoom(roomName);
+      this.ClearChat();
+
+      if (!this.hasTRTC) {
+        return;
+      }
+      if (this.$refs.txTRTC) {
+        this.$refs.txTRTC.ChangeRoom(roomName);
+      }
+      // console.log("切换同步房间 ",roomName);
+    },
+
+    //#region 初始化并同步角色数据
+    InitYJController() {
+      this.YJController = this.ThreejsHumanChat.YJController;
+      setInterval(() => {
+        this.UpdateYJController();
+      }, 40);
+    },
+
+    UpdateYJController() {
+
+      if (this.inSend) {
+        return;
+      }
+      this.inSend = true;
+      let userData = this.YJController.updateSend();
+      if (userData != null) {
+        this._YJDyncManager.SetUserData(userData);
+
+        if (this.selfNum != undefined && this.selfNum < this.otherUser.length) {
+
+          this.otherUser[this.selfNum].user.userData.baseData.health = userData.baseData.health;
+          this.otherUser[this.selfNum].user.userData.baseData.maxHealth = userData.baseData.maxHealth;
+
+          this.otherUser[this.selfNum].user.userData.baseData.armor = userData.baseData.armor;
+          this.otherUser[this.selfNum].user.userData.baseData.energy = userData.baseData.energy;
+          this.otherUser[this.selfNum].user.userData.baseData.debuffList = userData.baseData.debuffList;
+
+          if (this.debuffHover && userData.baseData.debuffList && userData.baseData.debuffList.length == 0) {
+            this.debuffHover = false;
+          }
+          // console.log(" self user.userData ", userData.baseData );
+        }
+      }
+      this.inSend = false;
+    },
+    DirectSendUserData() {
+      this.inSend = true;
+      let userData = this.YJController.GetUserData();
+      // console.log("强制同步",userData);
+      if (userData != null) {
+        this._YJDyncManager.SetUserData(userData);
+      }
+      this.inSend = false;
+    },
+    //#endregion
+
+    //#region 切换模型皮肤
+    ChangeAvatar(name, isLocal) {
+      //开始加载
+      this.$parent.LoadingState("begin");
+      this.YJPlayer.ChangeAvatar(name, true);
+      //同时发送给其他客户端，更新其他客户端的角色镜像
+      this._YJDyncManager.updateUserSkin(name);
+    },
+    ChangeAvatarByCustom(modelData, isLocal) {
+
+      // console.log("modelData = ",modelData);
+      //开始加载
+      this.$parent.LoadingState("begin");
+      this.YJPlayer.ChangeAvatarByCustom(modelData, true);
+      //同时发送给其他客户端，更新其他客户端的角色镜像
+      this._YJDyncManager.updateUserAvatar(modelData);
+    },
+    //#endregion
+
+    //#region  模型状态同步相关
+
+    //三维场景状态发送到服务器
+    SendSceneState(id, name, state) {
+      this._YJDyncManager.SendSceneState(id, name, state);
+    },
+    //更新本地模型状态，并向服务器发送模型状态
+    UpdateAndSendSceneState(sceneState) {
+      for (let i = 0; i < this.sceneModels.length; i++) {
+        var modelState = this.sceneModels[i];
+        if (modelState.id == sceneState.id) {
+          modelState.model.SendState(sceneState.state);
+          this.SendSceneState(sceneState.id, sceneState.name, sceneState.state);
+          continue;
+        }
+      }
+    },
+    //刷新场景模型状态,门的状态
+    UpdateSceneState(sceneState) {
+      this.ThreejsHumanChat.UpdateSceneState(sceneState);
+    },
+    //刷新场景模型状态,门的状态. 同时生成用户创建的模型
+    UpdateModelAndSceneState(sceneState) {
+      this.ThreejsHumanChat.UpdateModelAndSceneState(sceneState);
+    },
+
+    //#endregion
+
+    //#region
+    //#endregion
+
+    //#region 由页面调用 开始
+    //----------由页面调用 开始-----------
+
+    //点击切换mmd动作
+    ChangeMMDAnim(state) {
+      // console.log("点击切换mmd动作",state);
+      //默认是先other发送，不包含自己。 所以要给自身也发送一份
+      this.UpdateSceneState({ id: "10010", name: "mmd", state: state });
+
+      this.SendSceneState("10010", "mmd", state);
+    },
+
+    //----------由页面调用 结束-----------
+    //#endregion
+
+
+    //添加到服务器后，生成角色
+    GeneratePlayer(isLocal, id, platform, nickName, userData) {
+      if (isLocal) {
+        this.id = id;
+
+        if (platform == "pcweb") {
+          // this.ThreejsHumanChat.GeneratePlayer(isLocal, id, platform, nickName);
+
+          // 默认没有姓名条，在多人模式中，需调用创建姓名条 
+          this.ThreejsHumanChat.CallCreateNameTrans(nickName, id);
+          this.ThreejsHumanChat.YJPlayer.camp = _Global.user.camp;
+        }
+
+        // console.log("生成本地角色 " + id);
+        return;
+      }
+
+      if (platform == "pcweb") {
+        // console.log("生成 其他角色镜像 角色 " + id);
+
+        let _YJPlayer = new YJPlayer(this.ThreejsHumanChat, this.ThreejsHumanChat.scene,
+          false, nickName, null, (scope) => {
+            if (userData) {
+              setTimeout(() => {
+                scope.ChangeAnim(userData.animName);
+              }, 100);
+            }
+          });
+          this._YJSceneManager.AddNeedUpdateJS(_YJPlayer);
+
+        _YJPlayer.setPlayerDefaultPos(this._YJSceneManager.getPlayerDefaultPos());
+
+        _YJPlayer.CreateNameTrans(nickName);
+        _YJPlayer.id = id;
+        _YJPlayer.camp = _Global.user.camp;
+        this.allPlayer.push({
+          player: _YJPlayer,
+          id: id,
+          skin: false,
+        });
+
+      }
+
+      // console.log("添加其他玩家 ", this.allPlayer);
+    },
+    //删除其他玩家的角色
+    DelPlayer(id) {
+      for (let i = 0; i < this.allPlayer.length; i++) {
+        if (this.allPlayer[i].id == id) {
+          this._YJSceneManager.RemoveNeedUpdateJS(this.allPlayer[i].player);
+          this.allPlayer[i].player.DelPlayer();
+          this.allPlayer[i].player = null;
+          this.allPlayer.splice(i, 1);
+          return;
+        }
+      }
+    },
+    SetPlayerParent(id, parentId) {
+      // console.log("设置角色同步到父物体", parentId);
+      for (let i = 0; i < this.allPlayer.length; i++) {
+        if (this.allPlayer[i].id == id) {
+          this.allPlayer[i].player.SetPlayerParent(this._YJSceneManager.GetDyncSceneManager().GetModel(parentId));
+          return;
+        }
+      }
+    },
+
+    SetPlayerPos(pos) {
+      this.ThreejsHumanChat._YJSceneManager.SetPlayerPos(pos);
+    },
+    CreateMapByIdFromServer(sceneModelsDataList) {
+      this.ThreejsHumanChat._YJSceneManager.CreateMapByIdFromServer(sceneModelsDataList);
+    },
+    AddOrDelModel(sceneState) {
+      this.ThreejsHumanChat._YJSceneManager.AddOrDelModel(sceneState);
+    },
+    UpdateOnlineUser(_otheruser) {
+      this.otherUser = [];
+      this.otherUser = _otheruser;
+      for (let i = 0; i < this.otherUser.length; i++) {
+        const element = this.otherUser[i];
+        if (element.id == this.id) {
+          this.selfNum = i;
+        }
+      }
+      // console.log(" this.otherUser ", this.otherUser);
+    },
+    //断开连接时，删除所有角色
+    DelOtherPlayer() {
+      for (let i = this.allPlayer.length - 1; i >= 0; i--) {
+        this._YJSceneManager.RemoveNeedUpdateJS(this.allPlayer[i].player);
+        this.allPlayer[i].player.DelPlayer();
+        this.allPlayer[i].player = null;
+        this.allPlayer.splice(i, 1);
+      }
+    },
+    //由三维页面发送角色位置过来
+    SetUserData(userData) {
+      if (this.inSend) {
+        return;
+      }
+      this.inSend = true;
+      // this.$parent.SetUserData(userData);
+      this._YJDyncManager.SetUserData(userData);
+      this.inSend = false;
+    },
+    BoardMsg(fnName, type, params) {
+      this._YJDyncManager.callRPCFn(fnName, type, params);
+    },
+    //
+    UpdatePlayerPos(id, user) {
+      for (let i = 0; i < this.allPlayer.length; i++) {
+        if (this.allPlayer[i].id == id) {
+          // console.log("同步其他用户的角色镜像  执行 " ,user);
+          this.allPlayer[i].player.SetUserData(user);
+          return;
+        }
+      }
+    },
+    GetPlayerById(id) {
+      // console.log("获取同一战斗组中的玩家 ", this.allPlayer, this.ThreejsHumanChat.YJPlayer.id, id);
+      if (this.ThreejsHumanChat.YJPlayer.id == id) { return this.ThreejsHumanChat.YJPlayer; }
+      for (let i = 0; i < this.allPlayer.length; i++) {
+        if (this.allPlayer[i].id == id) {
+          return this.allPlayer[i].player;
+        }
+      }
+      return null;
+    },
+    GetAllPlayer() {
+      let players = [];
+      players.push(this.ThreejsHumanChat.YJPlayer);
+      for (let i = 0; i < this.allPlayer.length; i++) {
+        players.push(this.allPlayer[i].player);
+      }
+      return players;
+    },
+    //同步其他角色的操作。扔物品
+    DyncPlayerState(id, state) {
+      if (!this.hasTRTC) {
+        return;
+      }
+      // console.log(" 接收到同步操作  ", state);
+      if (state.type != undefined && state.type == "界面状态") {
+        let title = state.title;
+        if (title == "关闭屏幕共享") {
+          this.CloseShareStreamFn();
+          return;
+        }
+        if (title == "麦克风") {
+          let mute = state.mute;
+          if (mute == "禁言") {
+            if (state.targetId == "all" || this.userId == state.targetId) {
+              this.$refs.txTRTC.muteAudio();
+            }
+          } else if (mute == "解禁") {
+            if (state.targetId == "all" || this.userId == state.targetId) {
+              this.$refs.txTRTC.unmuteAudio();
+            }
+          }
+
+          for (let i = 0; i < this.otherUser.length; i++) {
+            if (this.otherUser[i].id == this.userId) {
+              this.otherUser[i].mute = mute;
+              this.ThreejsHumanChat.YJPlayer.SetAudioMute(mute);
+              return;
+            }
+          }
+        }
+        return;
+      }
+
+
+      for (let i = 0; i < this.allPlayer.length; i++) {
+        if (this.allPlayer[i].id == id) {
+          this.$parent._YJGameManager.DyncPlayerState(this.allPlayer[i].player, state);
+          return;
+        }
+      }
+    },
+
+
+    //更新角色状态（含角色皮肤）
+    UpdatePlayerState(id, user) {
+
+      for (let i = 0; i < this.allPlayer.length; i++) {
+        // console.log("同步其他用户的角色镜像  ", id, user, this.allPlayer[i]);
+        if (this.allPlayer[i].id == id) {
+          // console.log("同步其他用户的角色镜像 开始  ",id,user);
+
+          if (this.allPlayer[i].skin == false) {
+            this.allPlayer[i].skin = true;
+
+            if (user.playerData.avatarId == null) {
+              console.error(" 加载角色镜像 444 ", user.playerData, user.playerData.playerState);
+
+              this.allPlayer[i].player.LoadPlayerByCustom(
+                user.playerData.avatarData
+              );
+
+
+            } else {
+              // console.error(" 加载角色镜像 333 ", user.playerData, user.playerData.playerState);
+              // return;
+
+              this.allPlayer[i].player.NeedChangeSkin();
+              // user.playerData.name 决定加载哪个角色模型
+              this.allPlayer[i].player.LoadPlayer(
+                user.playerData.avatarId
+              );
+              let _player = this.allPlayer[i].player;
+              // console.error(" 加载角色镜像 333 ",user.playerData.name, user.playerData.playerState);
+              setTimeout(() => {
+                //换装同步
+                if (this.$parent.UpdateSkin) {
+                  this.$parent.UpdateSkin(_player, user.playerData.avatarId, user.playerData.playerState);
+                } else {
+                  _player.ChangeSkinCompleted();
+                }
+              }, 200);
+            }
+          } else {
+            if (user.playerData.name == null) {
+              this.allPlayer[i].player.ChangeAvatarByCustom(
+                user.playerData.avatarData,
+                false
+              );
+            } else {
+
+              this.allPlayer[i].player.ChangeAvatar(
+                user.playerData.name,
+                false
+              );
+            }
+          }
+          // console.log("同步其他用户的角色镜像  执行 " );
+          return;
+        }
+      }
+    },
+
+    UpdatePlayerTRTC(id, TRTCid, video, audio) {
+
+      // console.log("更新用户音视频状态");
+      for (let i = 0; i < this.allPlayer.length; i++) {
+        if (this.allPlayer[i].id == id) {
+
+          if (TRTCid != undefined) {
+            this.allPlayer[i].player.CreateVideo(video ? TRTCid : null);
+            this.allPlayer[i].player.CreateAudio(audio ? TRTCid : null);
+          }
+          return;
+        }
+      }
+    },
+    CloseTRTC(id) {
+
+      this.SetUserTRTCstate(id, false, false);
+
+
+      for (let i = 0; i < this.allPlayer.length; i++) {
+        if (this.allPlayer[i].id == id) {
+          this.allPlayer[i].player.CreateVideo(null);
+          this.allPlayer[i].player.CreateAudio(null);
+
+          return;
+        }
+      }
+    },
+    SetAudioMute(id, mute) {
+
+      for (let i = 0; i < this.allPlayer.length; i++) {
+        if (this.allPlayer[i].id == id) {
+          this.allPlayer[i].player.SetAudioMute(mute);
+          return;
+        }
+      }
+    },
+
+    GetUseId() {
+      return this.id;
+    },
+    // 设置本地角色移动到指定坐标， 用于小地图跳转
+    SetLocalPlayerToPos(_pos) {
+    },
+    //设置本地角色移动到目标角色位置 传送
+    SetLocalPlayerToOtherUserPos(otherUserId) {
+      for (let i = 0; i < this.allPlayer.length; i++) {
+        // console.log("同步其他用户的角色镜像 id  " + this.allPlayerId[i] );
+        if (this.allPlayer[i].id == otherUserId) {
+          let playerNameWorldPos = this.allPlayer[i].player.GetPlayerNamePos();
+          playerNameWorldPos.y += 1;
+          this.SetPlayerPos(playerNameWorldPos);
+        }
+      }
+    },
+    //设置本地角色移动到 指定id的模型位置 传送
+    SetLocalPlayerToCustomModel(modelId) {
+      //本地模型可能被销毁。改为从服务器获取
+      this._YJDyncManager.SendGetModelById(modelId);
+    },
+
     //#region  聊天
 
     //在点击threeJS界面时，还原threejs的键盘监听。
     removeThreeJSfocus() {
-      _Global.YJ3D.removeEventListener();
+      this.ThreejsHumanChat.removeEventListener();
       this.inputing = true;
     },
     addThreeJSfocus() {
-      _Global.YJ3D.threeJSfocus();
+      this.ThreejsHumanChat.threeJSfocus();
       this.inputing = false;
     },
 
@@ -456,6 +917,7 @@ export default {
     // 清空聊天区域
     ClearChat() {
       this.currentChatRecode = [];
+
     },
     EnterKey() {
       if (!this.canInputChar) { return; }
@@ -527,7 +989,7 @@ export default {
         return;
       }
       if (type == "传送") {
-        this._YJClient.SetLocalPlayerToOtherUserPos(
+        this.SetLocalPlayerToOtherUserPos(
           this.otherUserItem.id
         );
         this.otherUserItem = null;
@@ -548,7 +1010,7 @@ export default {
         chatrecode.message = "邀请";
         fromData.message = chatrecode;
         //向单个用户发送邀请
-        this._YJClient.BoardMsg(
+        this.BoardMsg(
           "receiveMsg",
           "all",
           JSON.stringify(fromData)
@@ -575,7 +1037,7 @@ export default {
       chatrecode.message = e;
       fromData.message = chatrecode;
       //向单个用户发送邀请
-      this._YJClient.BoardMsg(
+      this.BoardMsg(
         "receiveMsg",
         "all",
         JSON.stringify(fromData)
@@ -613,10 +1075,9 @@ export default {
       let fromData = {};
       fromData.type = "聊天";
       let chatrecode = {};
+      chatrecode.roomName = this.roomName;
       chatrecode.fromId = this.id;
-      let {roomName,userName} = this._YJClient.GetUserData();
-      chatrecode.fromUser = userName;
-      chatrecode.roomName = roomName;
+      chatrecode.fromUser = this.userName;
       chatrecode.targetId = this.chatTargetId;
       chatrecode.targetUser = this.chatTargetUser;
       chatrecode.message = this.currentChatStr;
@@ -624,7 +1085,7 @@ export default {
       fromData.message = chatrecode;
 
       // this.callRPCFn("receiveMsg", "all", JSON.stringify(fromData));
-      this._YJClient.BoardMsg(
+      this.BoardMsg(
         "receiveMsg",
         "all",
         JSON.stringify(fromData)
@@ -634,7 +1095,7 @@ export default {
 
       // 聊天内容显示到姓名条上方
       // 本地发送直接更新到本地角色姓名条上方
-      _Global.YJ3D.CreateChatTrans(ss);
+      this.ThreejsHumanChat.CreateChatTrans(ss);
 
       //发送后清空输入区
       this.currentChatStr = "";
@@ -660,9 +1121,9 @@ export default {
       if (data.type == "聊天") {
         var chatrecode = data.message;
         //不同房间的记录不同
-        // if (chatrecode.roomName != _this.roomName) {
-        //   return;
-        // }
+        if (chatrecode.roomName != _this.roomName) {
+          return;
+        }
 
         // console.log("正在 相同房间聊天");
         if (chatrecode.fromId == _this.id) {
@@ -718,7 +1179,11 @@ export default {
             for (let i = 0; i < _this.otherUser.length; i++) {
               let item = _this.otherUser[i];
               if (item.id == chatrecode.fromId) {
-                this._YJClient.CreateChatTransToId(item.id,chatrecode.message);
+                for (let i = 0; i < this.allPlayer.length; i++) {
+                  if (this.allPlayer[i].id == item.id) {
+                    this.allPlayer[i].player.CreateChatTrans(chatrecode.message);
+                  }
+                }
                 continue;
               }
             }
@@ -880,6 +1345,118 @@ export default {
     //#endregion
 
 
+    //#region 用户音视频通话
+    //用websocket 连接id 作为腾讯云音视频sdk的连接id
+    InitTRTC(userId) {
+      // return;
+
+      if (!this.hasTRTC) {
+        return;
+      }
+      console.log("开启音视频，使用id = > 222 " + userId);
+
+      this.$refs.txTRTC.ChangeRoom(this.roomName);
+
+      this.userId = userId;
+      this.$parent.userId = userId;
+      //初始化sdk客户端
+      this.$refs.txTRTC.Init(userId);
+    },
+    SetUserVideo(video) {
+      if (!this.hasTRTC) {
+        return;
+      }
+      this.ThreejsHumanChat.YJPlayer.CreateVideo(video);
+
+      this.SetUserTRTCstate(this.userId, video, undefined);
+    },
+    SetUserAudio(audio) {
+      if (!this.hasTRTC) {
+        return;
+      }
+      this.ThreejsHumanChat.YJPlayer.CreateAudio(audio);
+
+      this.SetUserTRTCstate(this.userId, undefined, audio);
+
+    },
+    //接收到其他用户的音视频id
+    SetRemoteTRTCid(useId, TRTCid, video, audio) {
+      if (!this.hasTRTC) {
+        return;
+      }
+      console.log("获取其他用户的音视频状态 ", video, audio);
+      //把音视频id添加到用户信息中
+      this.UpdatePlayerTRTC(useId, TRTCid, video, audio);
+
+      this.SetUserTRTCstate(useId, video, audio);
+    },
+    SetUserTRTCstate(useId, video, audio) {
+      //在在线列表中显示摄像头、话筒图标
+      for (let i = 0; i < this.otherUser.length; i++) {
+        if (this.otherUser[i].id == useId) {
+          if (video != undefined) { this.otherUser[i].video = video; }
+          if (audio != undefined) { this.otherUser[i].audio = audio; }
+          return;
+        }
+      }
+    },
+
+
+    //当前客户端关闭音视频
+    CloseLocalTRTC() {
+      if (!this.hasTRTC) {
+        return;
+      }
+      this._YJDyncManager.CloseTRTC();
+    },
+    //客户端掉线时，关闭音视频
+    CallCloseTRTC() {
+      if (!this.hasTRTC) {
+        return;
+      }
+      this.$refs.txTRTC.leaveRoom();
+    },
+
+    // 主控下运行禁用其他玩家的音频
+    ToggleAudio(item) {
+      // console.log(" 主控下运行禁用其他玩家的音频 ", item.id);
+
+      item.mute = !item.mute;
+
+      // 改本地角色镜像的状态
+      this.SetAudioMute(item.id, item.mute);
+
+      this._YJDyncManager.SetPlayerState({
+        type: "界面状态",
+        title: "麦克风",
+        mute: item.mute,
+        targetId: item.id,
+      });
+    },
+
+    CloseShareStream() {
+      this.CloseShareStreamFn();
+      this._YJDyncManager.SetPlayerState({
+        type: "界面状态",
+        title: "关闭屏幕共享",
+        userId: this.userId,
+      });
+    },
+    OpenShareStream3D(videoId) {
+      this.$parent._SceneManager.LoadScreenStreamVideo(videoId);
+    },
+    // 关闭共享屏幕画面
+    CloseShareStreamFn() {
+      if (!this.hasTRTC) {
+        return;
+      }
+      //关闭界面上的
+      this.$refs.txTRTC.CloseShareStreamUI();
+      //关闭3d中的
+      this.$parent._SceneManager.StopScreenStreamVideo();
+
+    }
+    //#endregion
 
   },
 };

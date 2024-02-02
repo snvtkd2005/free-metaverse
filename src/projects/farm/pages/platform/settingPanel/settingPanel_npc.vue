@@ -112,6 +112,8 @@ export default {
         avatarData: {}, //avatar模型数据
         eventType: "no",//事件类型 
         contentData: {},//事件内容数据
+        inAreaRandom:false, //是否区域内随机
+        areaRadius:1, //区域半径
         movePos: [
           { x: 0, y: 0, z: 0 },
         ], //巡逻坐标点，随机顺序
@@ -128,7 +130,7 @@ export default {
       setting: [
         { property: "name", display: true, title: "名称", type: "text", value: "", callback: this.ChangeValue, },
         {
-          property: "camp", display: true, title: "阵营", type: "drop", value: 10000, options: [
+          property: "baseData-camp", display: true, title: "阵营", type: "drop", value: 10000, options: [
             // { value: 1000, label: '联盟npc' },
             // { value: 1001, label: '部落npc' },
             { value: 10000, label: '敌对' },
@@ -137,19 +139,22 @@ export default {
           ], callback: this.ChangeValue,
         },
         {
-          property: "type", display: true, title: "难度", type: "drop", value: "普通", options: [
+          property: "baseData-type", display: true, title: "难度", type: "drop", value: "普通", options: [
             { value: 'normal', label: '普通' },
             { value: 'rare', label: '稀有' },
             { value: 'elite', label: '精英' },
           ], callback: this.ChangeValue,
         },
-        { property: "maxHealth", display: true, title: "生命值", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
-        { property: "strength", display: true, title: "攻击力", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
-        { property: "level", display: true, title: "等级", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
+        { property: "baseData-maxHealth", display: true, title: "生命值", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
+        { property: "baseData-strength", display: true, title: "攻击力", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
+        { property: "baseData-level", display: true, title: "等级", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
         
         { property: "avatar", display: true, title: "角色", type: "file", filetype: "avatar", value: "", callback: this.ClickHandler, },
         { property: "weapon", display: true, title: "装备", type: "file", filetype: "weapon", value: "", callback: this.ClickHandler, },
         { property: "relifeTime", display: true, title: "重新生成间隔时间", type: "num", step: 1, value: 0, callback: this.ChangeValue },
+        { property: "inAreaRandom", display: true, title: "是否区域内随机", type: "toggle", value: false, callback: this.ChangeValue },
+        { property: "areaRadius", display: false, title: "区域半径",unit:"m", type: "slider", value: 1, min: 0, max: 5, step: 0.1, callback: this.ChangeValue },
+
       ],
       isMoving: true,
 
@@ -336,14 +341,15 @@ export default {
     },
     Init(_settingData) {
       this.settingData = _settingData;
-      this.Utils.SetSettingItemByProperty(this.setting, "name", this.settingData.name);
-      this.Utils.SetSettingItemByProperty(this.setting, "maxHealth", this.settingData.baseData.maxHealth);
-      this.Utils.SetSettingItemByProperty(this.setting, "level", this.settingData.baseData.level);
-      this.Utils.SetSettingItemByProperty(this.setting, "camp", this.settingData.baseData.camp);
-      this.Utils.SetSettingItemByProperty(this.setting, "strength", this.settingData.baseData.strength);
-      this.Utils.SetSettingItemByProperty(this.setting, "height", this.settingData.height);
-      this.Utils.SetSettingItemByProperty(this.setting, "relifeTime", this.settingData.relifeTime);
-      this.Utils.SetSettingItemByProperty(this.setting, "type", this.settingData.baseData.type ? this.settingData.baseData.type : "normal");
+      // this.Utils.SetSettingItemByProperty(this.setting, "name", this.settingData.name);
+      // this.Utils.SetSettingItemByProperty(this.setting, "maxHealth", this.settingData.baseData.maxHealth);
+      // this.Utils.SetSettingItemByProperty(this.setting, "level", this.settingData.baseData.level);
+      // this.Utils.SetSettingItemByProperty(this.setting, "camp", this.settingData.baseData.camp);
+      // this.Utils.SetSettingItemByProperty(this.setting, "strength", this.settingData.baseData.strength);
+      // this.Utils.SetSettingItemByProperty(this.setting, "height", this.settingData.height);
+      // this.Utils.SetSettingItemByProperty(this.setting, "relifeTime", this.settingData.relifeTime);
+      // this.Utils.SetSettingItemByProperty(this.setting, "type", this.settingData.baseData.type ? this.settingData.baseData.type : "normal");
+      this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
 
       if (this.settingData.weaponData) {
         this.Utils.SetSettingItemByProperty(this.setting, "weapon", this.settingData.weaponData.icon);
@@ -357,30 +363,53 @@ export default {
         this.$refs.settingPanel_npcSkill.initValue();
       }
       console.log(" npc setting data ", _settingData);
+      this.ChangeUIState();
+
+    },
+    
+    ChangeUIState() {
+      // 根据选择判断哪些属性不显示
+      
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "areaRadius", "display",
+        this.Utils.GetSettingItemValueByProperty(this.setting, 'inAreaRandom'));
+        
     },
     // 改变UI输入值后刷新
     ChangeValue(i, e) {
       this.setting[i].value = e;
       let property = this.setting[i].property;
-      if (property == "camp"
-        || property == "maxHealth"
-        || property == "strength"
-        || property == "type"
-        || property == "level"
-      ) {
-        this.settingData.baseData[property] = e;
-        if (property == "maxHealth") {
-          this.settingData.baseData['health'] = e;
-        }
+      
+      let sp = property.split('-');
+      if (sp.length == 1) {
+        this.settingData[sp[0]] = e;
       } else {
-        this.settingData[property] = e;
+        this.settingData[sp[0]][sp[1]] = e;
       }
-      if (property == "name" || property == "camp") {
+
+      if (property == "baseData-maxHealth") {
+        this.settingData.baseData['health'] = e;
+      }
+      // if (property == "camp"
+      //   || property == "maxHealth"
+      //   || property == "strength"
+      //   || property == "type"
+      //   || property == "level"
+      // ) {
+      //   this.settingData.baseData[property] = e;
+      //   if (property == "maxHealth") {
+      //     this.settingData.baseData['health'] = e;
+      //   }
+      // } else {
+      //   this.settingData[property] = e;
+      // }
+
+      if (property == "name" || property == "baseData-camp") {
         // 控制三维
         _Global.YJ3D._YJSceneManager
           .GetSingleModelTransform()
           .SetMessage(this.getMessage());
       }
+      this.ChangeUIState();
 
       console.log(i + " " + this.setting[i].value);
     },

@@ -90,8 +90,6 @@ class YJshaderLX {
       transparent: true,
       // depthWrite: false,
       side: THREE.DoubleSide,
-      blending:THREE.AdditiveBlending,
-
     })
     shieldMaterial.onBeforeCompile = (shader) => {
       Object.assign(shader.uniforms, uniforms);
@@ -123,10 +121,7 @@ class YJshaderLX {
         vec3 eye = normalize(-viewPosition.xyz);
         vRim = 1.0 - abs(dot(eye,n));
         vRim = pow(vRim, 5.); 
-        // vDepth = gl_Position.z;
-        // vDepth = gl_Position.y;
-        vDepth = viewPosition.z;
-        
+        vDepth = gl_Position.z;
         `
       );
       shader.fragmentShader = shader.fragmentShader.replace(
@@ -158,11 +153,11 @@ class YJshaderLX {
       );
       shader.fragmentShader = shader.fragmentShader.replace(
         '#include <output_fragment>',
-        `  
+        ` 
+        // outgoingLight = vViewPosition ;
 
         vec3 _vViewPosition = vViewPosition; 
         // float _multiply = (vDepth * -1. );
-
         float _multiply = (vDepth - .1) / ( 10.0 -.1);
 
         // float _multiply = (_vViewPosition.z * -1. );
@@ -177,19 +172,16 @@ class YJshaderLX {
         // subtract 相减
         float _subtract = (sceneDepth - _multiply);
         float _saturate = saturate( _subtract * range);
-        float oneMinus = _saturate - 1. ; 
+        float oneMinus = _saturate ; 
         // float oneMinus = 1.-_saturate ; 
-        // vec3 color = vec3(1.,1.0,1.0); 
-        vec3 color = vec3(_subtract); 
-        // vec3 color = vec3(oneMinus); 
-         
+        vec3 color = vec3(0.,1.0,.0); 
+        
+        outgoingLight = color * oneMinus ;  
 
         // gl_FragColor = vec4( outgoingLight,1. ); 
         // gl_FragColor = vec4( outgoingLight,oneMinus );
-        // gl_FragColor = vec4( color * oneMinus,1. );
-        // gl_FragColor = vec4( color * vDepth,1. );
-        gl_FragColor = vec4( color ,1 );
-        
+        gl_FragColor = vec4( outgoingLight,.2 );
+
         // // discard;
 
 
@@ -225,7 +217,7 @@ class YJshaderLX {
     }
 
     const shield = new THREE.Mesh(shieldGeometry, shieldMaterial)
-    shield.position.set(0, 0.3, 0)
+    shield.position.set(0, 1.5, 0)
     // shield.material.uniforms.depthBuffer.value = depth.texture
     // shield.material.uniforms.bufColor.value = depth.texture
     // shield.material.uniforms.u_tex.value = texture
@@ -240,8 +232,7 @@ class YJshaderLX {
       uniforms[msg.p].value = msg.v;
     }
     function animate() {
-      requestAnimationFrame(animate);
-      
+
       shield.visible = false
       scene.overrideMaterial = depthMaterial
       renderer.setRenderTarget(depth)
@@ -254,6 +245,8 @@ class YJshaderLX {
       scene.overrideMaterial = null
       renderer.setRenderTarget(null)
       renderer.render(scene, camera)
+
+      requestAnimationFrame(animate);
 
       uniforms.time.value = performance.now()
       // shield.material.uniforms.time.value = performance.now()

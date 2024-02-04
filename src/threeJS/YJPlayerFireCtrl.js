@@ -564,6 +564,10 @@ class YJPlayerFireCtrl {
 				}
 				// 右键点击目标后，使用基础技能攻击
 				scope.SetPlayerState("准备战斗");
+				
+				if (npcTransform == null) {
+					return;
+				}
 				// console.log(" 右键点击npc 准备战斗 ",canAttack);
 				_this.YJController.PlayerLookatPos(npcTransform.GetWorldPos());
 				playerState = PLAYERSTATE.ATTACK;
@@ -795,9 +799,11 @@ class YJPlayerFireCtrl {
 					skillName = s;
 					vaildAttackDis = v;
 					attackStepSpeed = a;
-					fireParticleId = _fire.particle; 
-					//播放音效
-					_Global.YJAudioManager().playAudio(_fire.audio);
+					if(_fire){
+						fireParticleId = _fire.particle; 
+						//播放音效
+						_Global.YJAudioManager().playAudio(_fire.audio);
+					}
 					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					_Global.ReportTo3D("设置技能进度条", "完成");
 					CheckTargetDead();

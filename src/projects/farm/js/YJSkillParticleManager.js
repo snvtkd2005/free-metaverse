@@ -4,6 +4,7 @@
 
 import * as THREE from "three";
 
+import { YJTrailRenderer } from "/@/threeJS/components/YJTrailRenderer.js";
 
 import TWEEN from '@tweenjs/tween.js';
 // 技能特效管理器
@@ -12,12 +13,69 @@ class YJSkillParticleManager {
 
       // _YJSkillParticleManager.shootTargetFn(null,null,"1704443871265");
 
+      let _YJTrailRenderer = [];
+      
+    let shootTargetList2 = [];
+    function shootTargetFn2(startPos, target,callback) {
+      for (let i = 0; i < shootTargetList2.length; i++) {
+        const element = shootTargetList2[i];
+        if (!element.trailRenderer.trail.used) {
+          element.startPos = startPos;
+          element.target = target;
+          element.time = 0;
+          element.callback = callback;
+          element.trailRenderer.trail.start();
+          return;
+        }
+      }
+      console.log(" 创建旧 拖尾效果 ");
+
+      let group = new THREE.Group();
+      _Global.YJ3D.scene.add(group);
+      group.position.copy(startPos);
+      let trailRenderer = { group: group, trail: new YJTrailRenderer(_this, _Global.YJ3D.scene, group) };
+      
+      trailRenderer.trail.start();
+      _this._YJSceneManager.AddNeedUpdateJS(trailRenderer.trail);
+      
+      _YJTrailRenderer.push(trailRenderer);
+      shootTargetList2.push({ startPos: startPos,callback:callback, target: target, time: 0, trailRenderer: trailRenderer });
+    }
+    function UpdateTrailRenderer2() {
+      for (let i = shootTargetList2.length - 1; i >= 0; i--) {
+        const item = shootTargetList2[i];
+        if (item.trailRenderer.trail.used) {
+          item.time += 0.03;
+          if (item.time >= 1) {
+            item.trailRenderer.trail.stop();
+            if(item.callback){
+              item.callback();
+            }
+            return;
+          }
+          
+          if (item.startPos.distanceTo(item.target.GetPlayerWorldPos()) < 0.2) {
+            item.used = false; 
+            item.trailRenderer.trail.stop();
+            if(item.callback){
+              item.callback();
+            }
+            return;
+          }
+
+          // item.startPos.lerp(item.target.GetWorldPos(), item.time);
+          item.startPos.lerp(item.target.GetPlayerWorldPos(), item.time);
+          item.trailRenderer.group.position.copy(item.startPos);
+        }
+      }
+    }
+
     let scope = this;
     let particleList = [];
     let shootTargetList = [];
     this.shootTargetFn = async function(startPos, target, particleId,callback) {
       if(!particleId){
-        if(callback){callback()}
+        shootTargetFn2(startPos, target,callback); 
         return;
       }
       for (let i = 0; i < shootTargetList.length; i++) {
@@ -104,6 +162,7 @@ class YJSkillParticleManager {
     }
     this._update = function(){
       UpdateTrailRenderer();
+      UpdateTrailRenderer2();
       TWEEN.update(); 
 
     }

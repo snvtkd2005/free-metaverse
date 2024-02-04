@@ -357,10 +357,12 @@ class SceneManager {
 
           let realyBoneName = boneName;
           let boneList = _this.YJPlayer.GetavatarData().boneList;
-          for (let i = 0; i < boneList.length; i++) {
-            const item = boneList[i];
-            if(item.targetBone == boneName){ 
-              realyBoneName = item.boneName; 
+          if(boneList){
+            for (let i = 0; i < boneList.length; i++) {
+              const item = boneList[i];
+              if(item.targetBone == boneName){ 
+                realyBoneName = item.boneName; 
+              }
             }
           }
 
@@ -368,12 +370,14 @@ class SceneManager {
           let realyRota = [0,0,0];
           let realyScale = [1,1,1];
           let refBoneList = _this.YJPlayer.GetavatarData().equipPosList;
-          for (let i = 0; i < refBoneList.length; i++) {
-            const item = refBoneList[i];
-            if(item.targetBone == boneName && item.weaponType == weaponType){
-              realyPos = item.position?item.position:realyPos;
-              realyRota = item.rotation?item.rotation:realyRota;
-              realyScale = item.scale?item.scale:realyScale;
+          if(refBoneList){
+            for (let i = 0; i < refBoneList.length; i++) {
+              const item = refBoneList[i];
+              if(item.targetBone == boneName && item.weaponType == weaponType){
+                realyPos = item.position?item.position:realyPos;
+                realyRota = item.rotation?item.rotation:realyRota;
+                realyScale = item.scale?item.scale:realyScale;
+              }
             }
           }
 

@@ -68,8 +68,8 @@ class YJTrailRenderer {
     }  
 
         `;
-        let color = new THREE.Color(0xff0000);
-        let color2 = new THREE.Color(0xffff00);
+        let color = new THREE.Color(0xffffff);
+        let color2 = new THREE.Color(0xffffff);
         let uniforms = {
             'color': { value: color },
             'color2': { value: color2 },
@@ -345,7 +345,7 @@ class YJTrailRenderer {
             }, lifeTime * 1000);
         }
         this.stop = function () {
-            console.log(" 停止拖尾 =======");
+            // console.log(" 停止拖尾 =======");
             cancelAnimationFrame(updateId);
             splinePath = [];
             addTube();
@@ -362,10 +362,13 @@ class YJTrailRenderer {
             animate();
         }
         function animate() {
-
+            if(!scope.used){
+                return;
+            }
             // updateId = requestAnimationFrame(animate);
             const now = performance.now();
             let delta = (now - last) / 1000;
+            // console.log("delta ",delta,splinePath.length);
             // console.log("delta ",delta,splinePath.length);
             deltaTime -= delta * 1;
             if (deltaTime <= -1) {
@@ -377,9 +380,9 @@ class YJTrailRenderer {
 
             // let newPos = parent.position.clone();
             let newPos = parent.getWorldPosition(new THREE.Vector3());
-
             newPos.y -= params.width / 2;
-            // console.log("newPos ",scope.id,newPos,newPos.distanceTo(oldPos),splinePath.length);
+
+            // console.log("newPos ",scope.id,newPos,newPos.distanceTo(oldPos),oldPos,splinePath.length);
             // let newPos = _Global.YJ3D.YJController.GetPlayerWorldPos();
 
             if (newPos.distanceTo(oldPos) > 0.021) {

@@ -32,6 +32,7 @@ import { YJTransformGroup } from "./components/YJTransformGroup";
 import { YJTrailRenderer } from "/@/threeJS/components/YJTrailRenderer.js";
 import * as Mathf from "/@/utils/mathf.js";
 import { YJShader } from "./components/YJShader";
+import { YJGeometry } from "./components/YJGeometry";
 
 // 加载静态物体
 class YJLoadUserModelManager {
@@ -298,12 +299,18 @@ class YJLoadUserModelManager {
             }
             return;
           }
-
+           
 
           if (modelType == "拖尾模型") {
             let component = new YJTrailRenderer(_this, _Global.YJ3D.scene, object.GetGroup(), object);
             object.AddComponent("Trail", component);
           }
+
+          if (modelType == "几何体模型") {
+            let component = new YJGeometry(_this, object.GetGroup(), object);
+            object.AddComponent("Geometry", component);
+          }
+
           if (modelData.message != undefined) {
             object.SetMessage(modelData.message);
           }

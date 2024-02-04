@@ -306,7 +306,7 @@ class SceneManager {
     let boneAttachList = [];
 
     this.SetTriggerOverlap = (b, id, owner) => {
-      // console.log(" in Overlap ", b, id, owner);
+      console.log(" in Overlap ", b, id, owner);
       if (owner.isYJTransform) {
         let msg = owner.GetMessage(); 
         if (msg.pointType == "weapon") {

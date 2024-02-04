@@ -161,7 +161,7 @@ export default {
     AmbientLightIntensity: 1,
 
     // 方向光坐标和强度
-    hasDirectionalLight:true,
+    hasDirectionalLight:false,
     // DirectionalLightPos: { x: 255, y: 30, z: -115 },
     DirectionalLightPos: { x: 0, y: 30, z: 0 },
     DirectionalLightIntensity: 1,

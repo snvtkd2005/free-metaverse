@@ -201,6 +201,7 @@ export default {
         // { id: 10000, content: "保存", },
         { id: 10000, content: "保存场景配置", },
         { id: 'save_model', content: "保存场景模型", value: true },
+        { id: "create_geometry", content: "创建几何体", value: true },
         { id: "single_collider", content: "显示碰撞体", value: false },
         { id: "single_planeState", content: "隐藏地面", value: true },
         { id: "save_view", content: "设置为访问视角", },
@@ -915,7 +916,7 @@ export default {
       this.tableList[2].value = true;
 
       this.modelList = [];
-      this.modelList = this.$refs.modelPanel._LoadUserModelManager.GetModelList();
+      this.modelList = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetModelList();
       console.log("this.modelList 1111 ", this.modelList);
       // return;
       let s = JSON.stringify(this.modelList);
@@ -1038,6 +1039,13 @@ export default {
         // }
         return;
       }
+      
+      // 创建几何体
+      if (item.id == "create_geometry") {
+        this.$refs.modelPanel.CreateGeometry();
+        return;
+      }
+      
     },
 
 
@@ -1524,6 +1532,7 @@ export default {
       let components = [
         {comName:"Trail",panel:"trail"},
         {comName:"Shader",panel:"shader"},
+        {comName:"Geometry",panel:"geometry"},
       ]
       for (let i = 0; i < components.length; i++) {
         const item = components[i];

@@ -91,11 +91,7 @@ export default {
     SetVisible(b) {
       this.isOpen = b;
     },
-    Init() {
-      this.ThreejsHumanChat = this.$parent.$refs.YJmetaBase.GetThreejsHumanChat();
-      setTimeout(() => {
-        this._LoadUserModelManager = this.ThreejsHumanChat._YJSceneManager.Create_LoadUserModelManager();
-      }, 1000);
+    Init() { 
       this.update();
 
     },
@@ -225,16 +221,34 @@ export default {
         this.modelItem = item;
         this.modelItem.id = undefined;
 
-        this._LoadUserModelManager.LoadStaticModel(item, (transform) => {
+        if(!this._LoadUserModelManager){
+          this._LoadUserModelManager =  _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager();
+        }
+      this._LoadUserModelManager.LoadStaticModel(item, (transform) => {
           this.$parent.CreateNewTransfrom(transform);
         });
       }
+    },
+    CreateGeometry(){
+      let modelData = {message:{}};
+      modelData.modelType = "几何体模型";
+      modelData.message.pointType = "geometry";
+      modelData.message.data = {
+        geometryType:"box",
+        isCollider:false,
+        isTrigger:false,
+        tiggerTag:"",
+      };
+      this.SelectModelFn(modelData);
     },
 
     //点击选中已创建的模型
     SetModel(model) {
       console.log(" 点击选中已创建的模型 ", model);
 
+      if(!this._LoadUserModelManager){
+          this._LoadUserModelManager =  _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager();
+        }
       if (model != undefined) {
         if (this.model) {
           if (this.modelItem.id) {
@@ -256,6 +270,10 @@ export default {
       if (!this.model) {
         return;
       }
+      
+      if(!this._LoadUserModelManager){
+          this._LoadUserModelManager =  _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager();
+        }
       switch (e) {
         case '左转':
           // this.model.rotation.y -= 0.1;
@@ -306,7 +324,7 @@ export default {
     update() {
       requestAnimationFrame(this.update);
       if (this.model) {
-        this.modelPos = this.ThreejsHumanChat._YJSceneManager.GetObjectPosToScreenPos(this.model.GetModel());
+        this.modelPos = _Global.YJ3D._YJSceneManager.GetObjectPosToScreenPos(this.model.GetModel());
       }
     }
 

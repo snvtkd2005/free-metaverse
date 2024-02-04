@@ -9,7 +9,10 @@ import * as THREE from "three";
  模型信息：
  占用地面大小、
  坐标、旋转、缩放、模型路径、id、
+ 基础几何体的data
+ modelType=
  */
+
 class YJTransform {
   constructor(_this, scene, id, pos, rota, name, callback) {
     let scope = this;
@@ -30,6 +33,7 @@ class YJTransform {
       mapId: "", //地图id
       message: null, //模型热点信息
       uuid: "",//在场景中的唯一标识
+
     }
     let children = [];
     this.AddChildren = function (tranform) {
@@ -105,6 +109,10 @@ class YJTransform {
       }
       if (message.pointType == "trail") {
         let com = this.GetComponent("Trail");
+        com.SetMessage(message.data);
+      }
+      if (message.pointType == "geometry") {
+        let com = this.GetComponent("Geometry");
         com.SetMessage(message.data);
       }
     }
@@ -417,6 +425,9 @@ class YJTransform {
           element.js.CreateCollider(colliderVisible);
         }
         if (element.type == "Trigger") {
+          element.js.Reset();
+        }
+        if (element.type == "Geometry") {
           element.js.Reset();
         }
       }

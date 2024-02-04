@@ -529,7 +529,8 @@ class YJAmmo {
       const rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, physicsShape, localInertia);
       const body = new Ammo.btRigidBody(rbInfo);
 
-      object.userData.physicsBody = body;
+      object.userData.triggerBody = body;
+      // object.userData.physicsBody = body;
       object.userData.collided = true;
       // console.log("创建trigger ", object.userData);
       // scene.add(object);
@@ -554,8 +555,13 @@ class YJAmmo {
       //   // rigidBodies.remove(threeObject);
       // }
 
-      if (threeObject != undefined && threeObject.userData.physicsBody != null) {
-        physicsWorld.removeRigidBody(threeObject.userData.physicsBody);
+      if (threeObject != undefined ) {
+        if(threeObject.userData.physicsBody != null){
+          physicsWorld.removeRigidBody(threeObject.userData.physicsBody);
+        }
+        if(threeObject.userData.triggerBody != null){
+          physicsWorld.removeRigidBody(threeObject.userData.triggerBody);
+        }
       }
     }
 

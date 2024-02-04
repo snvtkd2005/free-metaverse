@@ -121,7 +121,8 @@ export default {
             { value: "Wand", label: "魔棒" },
             // { value: "oneHand",label: "拳套" }, 
           ], callback: this.ChangeValue
-        },{
+        },
+        {
           property: "boneName", display: true, title: "跟随骨骼", type: "drop", value: "none", options: [], callback: this.ChangeValue
         },
         { property: "vaildDis", display: true, title: "有效距离", type: "int", step: 1, value: 1, callback: this.ChangeValue, },

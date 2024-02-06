@@ -127,7 +127,7 @@
   </div>
   <div>
 
-    <settingPanel_npcSkill ref="settingPanel_npcSkill" /> 
+    <!-- <settingPanel_npcSkill ref="settingPanel_npcSkill" />  -->
 
   </div>
 </template>
@@ -156,7 +156,7 @@ import YJinput_drop from "../components/YJinput_drop.vue";
 import YJinput_vector3 from "../components/YJinput_vector3.vue";
 import YJinputCtrl from "../components/YJinputCtrl.vue";
 
-import settingPanel_npcSkill from "./settingPanel_npcSkill.vue";
+// import settingPanel_npcSkill from "./settingPanel_npcSkill.vue";
 
 import settingPanel_avatar from "./settingPanel_avatar.vue"; 
 
@@ -174,7 +174,7 @@ export default {
     YJinput_drop,
     YJinput_vector3,
     YJinputCtrl,
-    settingPanel_npcSkill, 
+    // settingPanel_npcSkill, 
   },
   data() {
     return {

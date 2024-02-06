@@ -3195,7 +3195,9 @@ class YJSceneManager {
       plane.position.z = 0;
       plane.receiveShadow = true;
       plane.name = name;
-      scene.add(plane); // 向该场景中添加物体
+      // scene.add(plane); // 向该场景中添加物体
+      modelParent.add(plane);
+
       return plane;
     }
 

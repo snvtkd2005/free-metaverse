@@ -6,7 +6,7 @@
 // import SocketIO from 'socket.io-client';
 // import { nextTick } from 'vue';
 // import VueSocketio from 'vue-socket.io';
-import * as world_configs from './socket/index';
+import * as world_configs from './socket_bilibili/index';
 
 class YJsocketIO {
 	constructor(that) {

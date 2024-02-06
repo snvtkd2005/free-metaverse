@@ -605,6 +605,9 @@ class YJ3dScene_playerSelect {
       if (timeStamp > singleFrameTime) {
         renderer.render(scene, camera);
         _YJController.update();
+        if(avatar){
+          avatar._update();
+        }
         // 剩余的时间合并进入下次的判断计算 这里使用取余数是因为 当页页面失去焦点又重新获得焦点的时候，delta数值会非常大， 这个时候就需要
         timeStamp = timeStamp % singleFrameTime;
       }

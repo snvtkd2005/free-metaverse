@@ -19,6 +19,13 @@ class YJTransformController {
         z: true,
       }
     }
+    
+    this.getUsing = function(){
+      return selectMesh != null;
+    } 
+    this.getMode = function(){
+      return transformController.getMode();
+    } 
     // Color.lerpColors();
     // 使用射线检测的坐标设置模型位置
     let userRaycast = false;
@@ -29,9 +36,10 @@ class YJTransformController {
     function InitTransformController() {
       if (_this.YJRaycaster) {
         _this.YJRaycaster.addEventListener('hover', (hoverObj, point) => {
-          if (!userRaycast || !selectMesh) {
+          if (!userRaycast || !selectMesh || !point) {
             return;
           }
+          console.log(point);
           selectMesh.position.copy(point);
         });
       }
@@ -65,111 +73,9 @@ class YJTransformController {
 
       });
 
-      transformController.name = "ignoreRaycast";
-      let control = transformController;
-      control.setSpace('local');
-      window.addEventListener('keydown', function (event) {
-        switch (event.keyCode) {
-
-          case 81: // Q
-            userRaycast = true;
-            // control.setSpace( control.space === 'local' ? 'world' : 'local' );
-            break;
-
-          case 16: // Shift
-            // control.setTranslationSnap( 100 );
-            // control.setRotationSnap( THREE.MathUtils.degToRad( 15 ) );
-            // control.setScaleSnap( 0.25 );
-            break;
-
-          case 87: // W
-            control.setMode('translate');
-
-            control.showY = true;
-            control.showX = true;
-            control.showZ = true;
-            break;
-
-          case 69: // E
-            control.setMode('rotate');
-
-            //旋转Y
-            control.showY = true;
-            control.showX = axisData.rota.x;
-            control.showZ = axisData.rota.z;
-            // control.showX = false;
-            // control.showZ = false;
-            break;
-          case 70: // F
-            //
-            console.log(" click F ");
-            _Global.YJ3D._YJSceneManager.SetPlayerPos(selectMesh.position.clone());
-            break;
-          case 82: // R
-            control.setMode('scale');
-            control.showY = true;
-            control.showX = true;
-            control.showZ = true;
-            break;
-
-          case 67: // C 
-            break;
-
-          case 86: // V
-            // const randomFoV = Math.random() + 0.1;
-            // const randomZoom = Math.random() + 0.1;
-
-            // cameraPersp.fov = randomFoV * 160;
-            // cameraOrtho.bottom = - randomFoV * 500;
-            // cameraOrtho.top = randomFoV * 500;
-
-            // cameraPersp.zoom = randomZoom * 5;
-            // cameraOrtho.zoom = randomZoom * 5;
-            // onWindowResize();
-            
-            _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().GaneriateFromClipboard();
-
-            break;
-
-          case 187:
-          case 107: // +, =, num+
-            // control.setSize( control.size + 0.1 );
-            break;
-
-          case 189:
-          case 109: // -, _, num-
-            // control.setSize( Math.max( control.size - 0.1, 0.1 ) );
-            break;
-
-          case 88: // X
-            // control.showX = ! control.showX;
-            break;
-
-          case 89: // Y
-            // control.showY = ! control.showY;
-            break;
-
-          case 90: // Z
-            // control.showZ = ! control.showZ;
-            break;
-
-          case 32: // Spacebar
-            // control.enabled = ! control.enabled;
-            break;
-
-          case 27: // Esc
-            // control.reset();
-            break;
-
-        } 
-      });
-      window.addEventListener('keyup', function (e) {
-        switch (e.code) {
-          case 'KeyQ':
-            userRaycast = false;
-            break;  
-        }
-      });
+      transformController.name = "ignoreRaycast"; 
+      transformController.setSpace('local');
+      
       window.addEventListener('mousedown', function (event) {
         switch (event.button) {
           //鼠标左键
@@ -188,7 +94,109 @@ class YJTransformController {
       scene.add(transformController);
       transformController.visible = false;
     }
+    this.onKeyDown = function(event){
+      switch (event.keyCode) {
 
+        case 81: // Q
+          userRaycast = true;
+          // control.setSpace( control.space === 'local' ? 'world' : 'local' );
+          break;
+
+        case 16: // Shift
+          // control.setTranslationSnap( 100 );
+          // control.setRotationSnap( THREE.MathUtils.degToRad( 15 ) );
+          // control.setScaleSnap( 0.25 );
+          break;
+
+        case 87: // W
+          transformController.setMode('translate');
+
+          transformController.showY = true;
+          transformController.showX = true;
+          transformController.showZ = true;
+          break;
+
+        case 69: // E
+        transformController.setMode('rotate');
+
+          //旋转Y
+          transformController.showY = true;
+          transformController.showX = axisData.rota.x;
+          transformController.showZ = axisData.rota.z;
+          // control.showX = false;
+          // control.showZ = false;
+          break;
+        case 70: // F
+          //
+          console.log(" click F ");
+          _Global.YJ3D._YJSceneManager.SetPlayerPos(selectMesh.position.clone());
+          break;
+        case 82: // R
+          transformController.setMode('scale');
+          transformController.showY = true;
+          transformController.showX = true;
+          transformController.showZ = true;
+          break;
+
+        case 67: // C 
+          break;
+
+        case 86: // V
+          // const randomFoV = Math.random() + 0.1;
+          // const randomZoom = Math.random() + 0.1;
+
+          // cameraPersp.fov = randomFoV * 160;
+          // cameraOrtho.bottom = - randomFoV * 500;
+          // cameraOrtho.top = randomFoV * 500;
+
+          // cameraPersp.zoom = randomZoom * 5;
+          // cameraOrtho.zoom = randomZoom * 5;
+          // onWindowResize();
+          
+          _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().GaneriateFromClipboard();
+
+          break;
+
+        case 187:
+        case 107: // +, =, num+
+          // control.setSize( control.size + 0.1 );
+          break;
+
+        case 189:
+        case 109: // -, _, num-
+          // control.setSize( Math.max( control.size - 0.1, 0.1 ) );
+          break;
+
+        case 88: // X
+          // control.showX = ! control.showX;
+          break;
+
+        case 89: // Y
+          // control.showY = ! control.showY;
+          break;
+
+        case 90: // Z
+          // control.showZ = ! control.showZ;
+          break;
+
+        case 32: // Spacebar
+          // control.enabled = ! control.enabled;
+          break;
+
+        case 27: // Esc
+          // control.reset();
+          break;
+
+      } 
+    }
+
+    this.onKeyUp = function(event){
+      switch (event.code) {
+        case 'KeyQ':
+          userRaycast = false;
+          break;  
+      }
+    }
     this.attach = function (mesh) {
       transformController.attach(mesh);
       selectMesh = mesh;

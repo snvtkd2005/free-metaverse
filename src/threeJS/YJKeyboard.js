@@ -49,7 +49,7 @@ class YJKeyboard {
           break;
 
       }
-      keyCallback(e.code);
+      keyCallback(e);
 
     };
 
@@ -65,7 +65,7 @@ class YJKeyboard {
           break;
       }
       if (keyUpCallback) {
-        keyUpCallback(event.code);
+        keyUpCallback(event);
       }
     };
 

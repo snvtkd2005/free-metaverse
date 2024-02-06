@@ -3981,8 +3981,8 @@ class YJController {
 
       this.domElement.addEventListener('wheel', _onMouseWheel);
 
-      window.addEventListener('keydown', _onKeyDown);
-      window.addEventListener('keyup', _onKeyUp);
+      // window.addEventListener('keydown', _onKeyDown);
+      // window.addEventListener('keyup', _onKeyUp);
 
 
       this.domElement.addEventListener('touchstart', _onTouchStart, false);
@@ -4007,8 +4007,8 @@ class YJController {
     const _onMouseMove = this.onMouseMove.bind(this);
     const _onMouseDown = this.onMouseDown.bind(this);
     const _onMouseUp = this.onMouseUp.bind(this);
-    const _onKeyDown = this.onKeyDown.bind(this);
-    const _onKeyUp = this.onKeyUp.bind(this);
+    // const _onKeyDown = this.onKeyDown.bind(this);
+    // const _onKeyUp = this.onKeyUp.bind(this);
 
     const _onMouseWheel = this.onMouseWheel.bind(this);
 

@@ -7,9 +7,11 @@
     ref="input"
     type="number"
     :step="step"
-    :value="value"
+    :value="value" 
     @focus="focus"
-    @blur="blur"
+    @blur="blur" 
+    onkeypress="return (/[\d]/.test(String.fromCharCode(event.keyCode)))"
+    @keydown.native="checkNumber"
   />
 </template>
 
@@ -35,7 +37,10 @@ export default {
       }
     });
   },
-  methods: {
+  methods: { 
+    checkNumber(e){
+      e.target.value = e.target.value.replace(/[^\d]/g,''); 
+    },
     focus() {
       
       if(this.$parent.focus){

@@ -186,6 +186,7 @@ export default {
         && element.animationsExtendData != undefined 
         // && Math.abs( element.height-avatarData.height)<0.2
         ){
+          element.icon = element.id + "/" + element.icon;
           this.modelsList.push(element);
         }
       }

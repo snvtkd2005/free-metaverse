@@ -179,14 +179,9 @@ export default {
       } else {
         this.settingData[sp[0]][sp[1]] = e;
       }
-       
 
       this.load();
-      
-      // console.log(e);
-      // console.log(this.setting[i].value);
-      // console.log(this.settingData[this.setting[i].property]);
-      // console.log(i + " ",this.setting[i].property, this.setting[i].value);
+      // console.log(i + " ",this.setting[i].property, this.settingData[this.setting[i].property],e);
     },
     save() {
       // 单品中才有 updateModelTxtData

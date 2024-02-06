@@ -647,6 +647,9 @@ import {
   UploadAudioFile,
 } from "../../js/uploadThreejs.js";
 
+
+import {socket_bilibili} from "/@/utils/socket_bilibili.js";
+
 export default {
   name: "selfPanel",
   components: {
@@ -733,6 +736,8 @@ export default {
     this.RequestGetAllScene();
     this.RequestGetAllHDR();
     this.RequestGetAllUVAnim();
+
+    new socket_bilibili();
   },
   methods: {
     onblurInputTag() {

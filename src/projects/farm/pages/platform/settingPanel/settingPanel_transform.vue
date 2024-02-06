@@ -39,7 +39,7 @@ YJinputCtrl,
       }, 
       setting: [ 
         { property: "position", display: true, title: "坐标", type: "vector3", value: [0, 0, 0], step: 0.01, callback: this.ChangeValue },
-        { property: "rotation", display: true, title: "旋转", type: "vector3", value: [0, 0, 0], step: 1, callback: this.ChangeValue },
+        { property: "rotation", display: true, title: "旋转", type: "vector3", value: [0, 0, 0], step: 0.1, callback: this.ChangeValue },
         { property: "scale", display: true, title: "缩放", type: "vector3", value: [1,1, 1], step: 0.01, callback: this.ChangeValue },
       ], 
     };

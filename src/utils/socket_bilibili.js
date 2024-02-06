@@ -1,183 +1,270 @@
 
 
 
-// https://socketio.p2hp.com/docs/v4/server-instance/   socketio文档
 
-import SocketIO from 'socket.io-client';
-import { nextTick } from 'vue';
-import VueSocketio from 'vue-socket.io';
+
+import {
+	getAuth
+	, heartBeatThis
+	, gameStart
+	, gameEnd
+} from './api_bilibili';
+
+import * as world_configs from './socket_bilibili/index';
 
 class socket_bilibili {
 	constructor(that) {
 		let scope = this;
-		var isClosed = true;
-		var wsClient = null;
-		let socketListener, socketEmitter;
-		let heartCount = 0;
-		let baseUrl = "https://live-open.biliapi.com";
-		let room = "25551747";
-		let key = "QNySBxbZeCAD2xdimkZF0lFE";
-		let secried = "TCptpOkgfRvYeFE3Eu20Guro9gjjLN";
-		this.Init = () => {
-			InitFn();
-		}
+
+		// 替换你的主播身份码
+		let codeId = "BS5GG5AXPBLS0";
+		// 替换你的app应用 [这里测试为互动游戏]
+		let appId = 1708553545004;
+		// 替换你的秘钥
+		let appKey = "QNySBxbZeCAD2xdimkZF0lFE";
+		let appSecret = "TCptpOkgfRvYeFE3Eu20Guro9gjjLN";
+		let authBody = ("");
+		let wssLinks = ([]);
+		let gameId = ("")
+		let anchorInfo = {};
+		let heartBeatTimer = null;
+
+		let ws = null;
+
+
+		// heartBeat Timer
+		// const heartBeatTimer = ref<NodeJS.Timer>()
+		// // be ready
+		// clearInterval(heartBeatTimer.value!)
+
 		function InitFn() {
-			//创建 wsClient 的一个实例 
+			gameId = localStorage.getItem("gameId");
 
-			// console.error(" 准备连接 socket io ");
-			const socket = new VueSocketio({
-				debug: false,
+			setTimeout(() => {
+				gameStartFn();
+			}, 2000);
+			return;
+			let fromData = new FormData();
+			fromData.appKey = appKey,
+				fromData.appSecret = appSecret,
+				fromData.app_id = appId,
+				fromData.code = codeId,
+				// {
+				// 	appKey: appKey,
+				// 	appSecret: appSecret,
 
-				// connection: SocketIO("ws://127.0.0.1:3333"),
-				// connection: SocketIO("ws://www.snvtkd2005.com:3333"),
-				connection: SocketIO("wss://www.snvtkd2005.com:3333"),
+				// 	app_id : 1708553545004,
+				// 	code : "BS5GG5AXPBLS0",
+				// }
+				getAuth(JSON.stringify(fromData)).then((res) => {
+					console.log("-----鉴权成功-----")
+					console.log("返回：", res)
 
-				options: {
-					// path: "/my-app/",
-					transports: ["websocket", "polling", 'flashsocket'] //**加上这句即可使用wss**
+					setTimeout(() => {
+						gameStartFn();
+					}, 2000);
+				})
+					.catch((err) => {
+						console.log("-----鉴权失败-----")
+					});
+
+		}
+		function heartBeatThisFn(game_id) {
+			// 心跳 是否成功
+			heartBeatThis({
+				game_id: game_id,
+			}).then(({ data }) => {
+				// console.log("-----心跳成功-----")
+				// console.log("返回：", data)
+			}).catch((err) => {
+					// console.log("-----心跳失败-----")
+			})
+		}
+		this.gameStart = () => {
+		}
+		function gameStartFn() {
+
+			let fromData = new FormData();
+			// fromData.appKey = appKey,
+			// fromData.appSecret = appSecret,
+			fromData.app_id = appId,
+				fromData.code = codeId,
+
+				gameStart(JSON.stringify(fromData)).then((data) => {
+					console.log(data);
+					if (data.code === 0) {
+						const res = data.data
+						const { anchor_info, game_info, websocket_info } = res
+						const { auth_body, wss_link } = websocket_info
+						authBody = auth_body
+						wssLinks = wss_link
+						anchorInfo = anchor_info;
+						console.log("-----游戏开始成功-----")
+						console.log("返回GameId：", game_info)
+						gameId = game_info.game_id
+						localStorage.setItem("gameId", gameId);
+						// v2改为20s请求心跳一次，不然60s会自动关闭
+						heartBeatTimer = setInterval(() => {
+							heartBeatThisFn(game_info.game_id)
+						}, 20000);
+						scope.handleCreateSocket();
+					} else {
+						console.log("-----游戏开始失败-----")
+						console.log("原因：", data)
+						if (data.code == 7002 || 7001) {
+							scope.gameEnd();
+							setTimeout(() => {
+								gameStartFn();
+							}, 5000);
+						}
+					}
+				})
+					.catch((err) => {
+						console.log("-----游戏开始失败 或长连接失败 11-----")
+						console.log(err)
+					})
+		}
+		this.gameEnd = () => {
+			let fromData = new FormData();
+			fromData.game_id = gameId,
+				fromData.app_id = appId,
+				gameEnd(JSON.stringify(fromData)).then((data) => {
+					if (data.code === 0) {
+						console.log("-----游戏关闭成功-----")
+						console.log("返回：", data)
+						// 清空长链
+						authBody = ""
+						wssLinks = []
+						clearInterval(heartBeatTimer)
+						scope.handleDestroySocket()
+						console.log("-----心跳关闭成功-----")
+					} else {
+						console.log("-----游戏关闭失败-----")
+						console.log("原因：", data)
+					}
+				})
+					.catch((err) => {
+						console.log("-----游戏关闭失败-----")
+						console.log(err)
+					})
+		}
+
+		this.handleCreateSocket = () => {
+			if (authBody && wssLinks) {
+				this.createSocket(authBody, wssLinks)
+			}
+		}
+		this.handleDestroySocket = () => {
+			if (ws == null) {
+				return;
+			}
+			this.destroySocket()
+			console.log("-----长连接销毁成功-----")
+		}
+		/**
+		 * 创建socket长连接
+		 * @param authBody
+		 * @param wssLinks
+		 */
+		this.createSocket = function (authBody, wssLinks) {
+			const opt = {
+				...this.getWebSocketConfig(authBody, wssLinks),
+				// 收到消息,
+				onReceivedMessage: (res) => {
+					this.receiveMsg(res);
 				},
-				reconnection: true,
-			});
-
-			const { emitter, io, listener } = socket;
-
-			wsClient = io;
-			socketEmitter = emitter;
-			socketListener = listener;
-
-			wsClient.on('connect', () => {
-				// console.log(" 已连接到 socket io 服务器");
-				isClosed = false;
-				heartCount = 0;
-				sendHeartFn();
-			});
-
-			try {
-				socketEmitter.addListener('msg', function (data) {//组件初始化挂载后，订阅后端事件
-					receiveMsgFn(data);
-				}, scope);
-			} catch (error) {
-				// console.error(" 监听报错 ",error);
+				// 收到心跳处理回调
+				onHeartBeatReply: (data) =>{
+					console.log("收到心跳处理回调:", data);
+				},
+				onError: (data) => console.log("error", data),
+				onListConnectError: () => {
+					console.log("list connect error")
+					this.destroySocket()
+				},
 			}
 
-		}
+			if (!ws) {
+				// console.log(" opt ",opt); 
+				ws = new DanmakuWebSocket(opt);
+			}
 
+			return ws
+		}
 		this.receiveMsg = function (msg) {
 			receiveMsgFn(msg);
 		}
-		// 接收WS服务器返回的消息
 		function receiveMsgFn(msg) {
-			// var msg = e.data;
-			if (msg.indexOf("心跳检测") > -1) {
-				heartCount = 0;
-				return;
-			}
-			// console.log("WS客户端接收到一个服务器的消息：" + msg);
-			//加入新用户的封装，不可更改
-			if (msg.indexOf("id=") > -1) {
+			console.log(msg);
+			let data = msg.data;
+			let cmd = msg.cmd;
+			let { msg, uname, uid } = data;
 
-				let id = msg.replace("id=", "");
-				// console.log("WS客户端接收到服务器消息==》 id = " + id);
+			// console.log(cmd);
+			switch (cmd) {
+				case world_configs.LIVE_OPEN_PLATFORM_DM:
+					console.log(uname, " 发送弹幕 ", msg);
+					break;
+				case world_configs.LIVE_OPEN_PLATFORM_LIKE:
+					console.log(uname, " 点赞 ");
+					break;
 
-				that.addSelf(id);
-
-				//加入新用户的封装，不可更改
-				let fromData = {};
-				fromData.type = "加入游戏";
-				fromData.id = "id";
-				fromData.userId = that.userId;
-				fromData.platform = that.platform;
-				fromData.userName = that.userName;
-				fromData.roomName = that.roomName;
-				fromData.message = "";
-
-				JoinRoomFn(JSON.stringify(fromData));
-
-				// console.log("发送 --》 加入游戏 ---", JSON.stringify(fromData));
-				return;
+				default:
+					break;
 			}
-			//加入新用户 的封装，不可更改
-			if (msg.indexOf("加入房间") > -1) {
-				that.addPlayer(JSON.parse(msg));
-				return;
-			}
-			//获取所有在线用户 的封装，不可更改
-			if (msg.indexOf("刷新用户") > -1) {
-				// console.log("WS客户端接收到服务器消息==》 刷新用户 = ", msg);
-
-				that.addPlayer(JSON.parse(msg));
-				return;
-			}
-			//加入新用户 的封装，不可更改
-			if (msg.indexOf("用户加入") > -1) {
-				that.addPlayer(JSON.parse(msg));
-				return;
-			}
-			//加入新用户，为新用户刷新场景状态 的封装，不可更改
-			if (msg.indexOf("刷新场景") > -1) {
-				that.addPlayer(JSON.parse(msg));
-				return;
-			}
-			if (msg.indexOf("刷新地图") > -1) {
-				that.addPlayer(JSON.parse(msg));
-				return;
-			}
-			if (msg.indexOf("获取模型") > -1) {
-				that.addPlayer(JSON.parse(msg));
-				return;
-			}
-			//用户离开 的封装，不可更改
-			if (msg.indexOf("用户离开") > -1) {
-				that.addPlayer(JSON.parse(msg));
-				return;
-			}
-			if (that.id == "") { return; }
-			//同步方法
-			that.receiveRPCFn(msg);
-
-			return;
-		}
-		this.send = (msg) => {
-			if (isClosed) { return; }
-			sendFn(msg);
-		}
-
-		// 发送心跳检测、心跳检测判断连接断开
-
-		function sendHeartFn() {
-			// console.log(" 发送心跳包 " + heartCount);
-			wsClient.emit("heart", "msg");
-			heartCount++;
-			if (heartCount > 3) {
-				//服务器断开
-				console.log("到服务器的连接已经断开");
-				isClosed = true;
-				that.CloseWebsocket();
-				return;
-			}
-			setTimeout(() => {
-				sendHeartFn();
-			}, 2000);
 		}
 
 
-		//发送加入游戏或加入房间/切换房间
-		this.joinRoom = (msg) => {
-			if (isClosed) { return; }
-			JoinRoomFn(msg);
+		/**
+		 * 获取websocket配置信息
+		 * @param authBody
+		 * @param wssLinks
+		 */
+		this.getWebSocketConfig = function (authBody, wssLinks) {
+			const url = wssLinks[1]
+			const urlList = wssLinks
+			const auth_body = JSON.parse(authBody)
+			return {
+				url,
+				urlList,
+				customAuthParam: [
+					{
+						key: "key",
+						value: auth_body.key,
+						type: "string",
+					},
+					{
+						key: "group",
+						value: auth_body.group,
+						type: "string",
+					},
+				],
+				rid: auth_body.roomid,
+				protover: auth_body.protover,
+				uid: auth_body.uid,
+			}
 		}
-		//发送加入游戏或加入房间/切换房间
-		function JoinRoomFn(msg) {
-			wsClient.emit("joinRoom", msg);
+
+		/**
+		 * 销毁websocket
+		 */
+		this.destroySocket = function () {
+			console.log("destroy1")
+			ws && ws.destroy()
+			ws = undefined
+			console.log("destroy2")
 		}
-		function sendFn(msg) {
-			wsClient.emit("msg", msg);
+
+		/**
+		 * 获取websocket实例
+		 */
+		this.getWsClient = function () {
+			return ws
 		}
-		this.close = () => {
-			wsClient.close();
-			console.log("主动关闭客户端");
-		}
-		// InitFn(); 
+
+		InitFn();
+
+
 
 	}
 }

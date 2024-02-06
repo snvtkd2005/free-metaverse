@@ -68,13 +68,12 @@
     </div>
 
     <!-- 右侧角色模型展示 -->
-    <div class="absolute z-20 right-0 top-0 w-full md:w-1/2 h-full overflow-hidden">
+    <div class="absolute z-20 right-0 top-0 w-full md:w-3/4 h-full overflow-hidden">
       <playerSelect3DPanel id="contain" class="w-full h-full" ref="playerSelect3DPanel"></playerSelect3DPanel>
       <YJinputPlayerName class="absolute bottom-16 md:bottom-6 xl:bottom-2 w-full h-16" :callback="ChangeNickName" />
       <!-- 角色换装选择  -->
       <div class="
-          absolute
-          z-30
+          absolute 
           left-10
           top-10
           w-1/2

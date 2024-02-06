@@ -6,12 +6,18 @@
     <div class=" text-white leading-6">x:</div>
     <input class=" w-12 pl-0.5" ref="inputX" type="number" :step="step" :value="value[0]"
             @focus="focus"
-        @blur="blur">
+        @blur="blur"
+        
+    onkeypress="return (/[\d]/.test(String.fromCharCode(event.keyCode)))"
+        >
     <div class=" text-white leading-6">y:</div>
 
     <input class=" w-12 pl-0.5" ref="inputY" type="number" :step="step" :value="value[1]"
             @focus="focus"
-        @blur="blur">
+        @blur="blur"
+        
+    onkeypress="return (/[\d]/.test(String.fromCharCode(event.keyCode)))"
+        >
   </div>
 </template>
 

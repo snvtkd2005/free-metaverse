@@ -50,6 +50,7 @@ class YJTransformManager {
     Init();
     function Init() {
       transformController = new YJTransformController(scene, renderer, camera, _this);
+      _Global.TransformController = transformController;
     }
     this.attach = function(mesh){
       transformController.attach( mesh );

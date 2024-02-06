@@ -29,6 +29,14 @@ module.exports = {
   //反向代理 解决跨域问题
   proxy: {
 
+    '/bilibili': {
+      target: 'http://127.0.0.1:3000', // 目标地址 --> 服务器地址
+      // target: 'https://live-open.biliapi.com', // 目标地址 --> 服务器地址
+      changeOrigin: true,
+      // secure: false,
+      // ws: false,
+      rewrite: (path) => path.replace(/^\/bilibili/, ''), 
+    },
 
     '/getAllModel': {
       target: 'https://192.168.0.63:3335/getAllModel', // 目标地址 --> 服务器地址
@@ -93,13 +101,13 @@ module.exports = {
       // }
     },
 
-    // '/socket.io': {
-    //   // target:"https://www.snvtkd2005.com:3333",
-    //   // target:"http://47.104.151.177:3333",
-    //   target: "http://127.0.0.1:3333",
-    //   // target:"https://127.0.0.1:3333",
-    //   changeOrigin: true,
-    // },
+    '/socket.io': {
+      // target:"https://www.snvtkd2005.com:3333",
+      // target:"http://47.104.151.177:3333",
+      target: "https://broadcastlv.chat.bilibili.com:443/sub",
+      // target:"https://127.0.0.1:3333",
+      changeOrigin: true,
+    },
 
     // '/sockjs-node': {
     //   // target:"https://www.snvtkd2005.com:3333",

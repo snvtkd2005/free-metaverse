@@ -153,11 +153,14 @@ export default {
     //动作栏。 使用技能或物体
     UserModel(item) {
       //播放角色动作
-      console.log(" 点击道具栏 ", item);
+      if (!item ) {
+        return;
+      }
       if (item.count <= 0) {
         console.log(" 道具数量为0");
         return;
       }
+      console.log(" 点击道具栏 ", item);
       _Global.SceneManager.UserModel(item);
       return;
       _Global.SendMsgTo3D("点击技能栏", item.animList[0].animName);

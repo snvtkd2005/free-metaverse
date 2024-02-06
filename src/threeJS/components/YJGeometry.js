@@ -48,7 +48,7 @@ class YJGeometry {
       // trigger和collider使用不同材质
 
       if(data.isCollider){
-        mesh.name = "collider";
+        mesh.name = "geometry";
       // if(item.name.indexOf("land")){
       //   _this._YJSceneManager.AddLandCollider(item);
       // }else{
@@ -58,8 +58,8 @@ class YJGeometry {
         _this._YJSceneManager.CreateTriangeMeshCollider(mesh, size);
       }
       if(data.isTrigger){
-        mesh.name = "trigger";
-        mesh.modelType = "trigger";
+        // mesh.name = "trigger";
+        // mesh.modelType = "trigger";
         _this._YJSceneManager.CreateTriangeMeshTrigger(mesh, size,
           data.tiggerTag, "triggerArea", owner);  
       } 

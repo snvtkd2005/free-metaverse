@@ -6,56 +6,13 @@ import * as THREE from "three";
 import TWEEN from '@tweenjs/tween.js';
 
 import { YJLoadModel } from "/@/threeJS/YJLoadModel.js";
-
-import { YJMapManager } from "/@/threeJS/YJMapManager.js";
-
-import { YJAmmo } from "/@/threeJS/YJAmmo.js";
-
-import { GetCurrentTime } from "/@/utils/api.js";
-import { EXRLoader } from 'three/examples/jsm/loaders/EXRLoader.js';
-import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
-
-import { Lensflare, LensflareElement } from 'three/examples/jsm/objects/Lensflare.js';
-import { Water } from 'three/examples/jsm/objects/Water.js';
-
-import Stats from 'three/examples/jsm/libs/stats.module.js';
-import { inject, nextTick } from "vue";
-import { YJNPC } from "/@/threeJS/YJNPC.js";
-import { YJCurve } from "/@/threeJS/YJCurve.js";
-import { YJMinMap } from "/@/threeJS/YJMinMap.js";
-import { YJLoadModelManager } from "/@/threeJS/YJLoadModelManager.js";
-
-// 整体场景辉光 管理器
-import { YJBloomManager } from "/@/threeJS/YJBloomManager.js";
-// 可设置单个模型辉光 管理器
-import { YJBloomManager2 } from "/@/threeJS/YJBloomManager2.js";
-import { YJChangeManager } from "/@/threeJS/YJChangeManager.js";
-import { YJSandboxManager } from "/@/threeJS/YJSandboxManager.js";
-import { YJTransformManager } from "/@/threeJS/YJTransformManager.js";
-import { YJReflect } from "/@/threeJS/YJReflect.js";
-import { GetDateH } from "/@/utils/utils.js";
-
-import { YJVideo } from "/@/threeJS/YJVideo";
-import { YJSqeImage } from "/@/threeJS/YJSqeImage.js";
-import { YJUVanim } from "/@/threeJS/YJUVanim.js";
-
-import { YJPathfinding } from "/@/threeJS/pathfinding/YJPathfinding.js";
-import { Mesh, TextureLoader } from "three";
-import { YJReflectMirror } from "/@/threeJS/YJReflectMirror.js";
-import { YJWater } from "/@/threeJS/YJWater.js";
-import { YJReflectPostprocessing } from "/@/threeJS/YJReflectPostprocessing.js";
-import { YJCurse } from "/@/threeJS/YJCurse.js";
-import { YJPlatform } from "/@/threeJS/YJPlatform.js";
-
-
-import { YJ2dScene } from "/@/threeJS/YJ2dScene.js";
+ 
 // import { YJ3dPhotoPlane } from "/@/threeJS/YJ3dPhotoPlane.js";
 import { YJ3dPhotoPlane } from "./YJ3dPhotoPlane.js";
 
 import { YJProjector } from "/@/threeJS/components/YJProjector.js";
 import { ReflectorMesh } from "/@/js/ReflectorMesh.js";
-
-import { YJSprite } from "/@/threeJS/YJSprite.js";
+ 
 import { YJCar } from "/@/threeJS/model/YJCar.js";
 import { YJKeyboard } from "/@/threeJS/YJKeyboard.js";
 
@@ -148,11 +105,12 @@ class SceneManager {
       // window.addEventListener('mousemove', onPointerDown);
 
 
-      new YJKeyboard((key) => {
+      new YJKeyboard((event) => {
 
         if (inInputing) {
           return;
         }
+        let key = event.code;
         inJoystick = false;
         if (_YJCar != null) {
           _YJCar.SetKeyboard(key);
@@ -239,12 +197,29 @@ class SceneManager {
           //   _this._YJSceneManager.ClickInteractive();
           // }
         }
-      }, (key) => {
-        inJoystick = true;
 
+
+        if(_Global.TransformController.getUsing()){
+          let mode = _Global.TransformController.getMode();
+          _Global.TransformController.onKeyDown(event);
+          if((key == "KeyW" && mode != "translate") 
+          || (key == "KeyE" && mode != "rotate") 
+          || (key == "KeyR" && mode != "scale") 
+          ){
+            return;
+          }
+        }
+        
+        _Global.YJ3D.YJController.onKeyDown(event);
+      }, (event) => {
+        inJoystick = true;
+        let key = event.code;
         if (_YJCar != null) {
           _YJCar.SetKeyboardUp(key);
         }
+
+        _Global.YJ3D.YJController.onKeyUp(event);
+        _Global.TransformController.onKeyUp(event);
       });
 
       // let _YJ2dScene = new YJ2dScene(_this,scene,camera);
@@ -640,11 +615,14 @@ class SceneManager {
     this.ReceivePlayer = function (model) {
       // 
       // console.log("接收道具 ",model);
-
+      if(!model){
+        return;
+      }
       if (_this.YJController.isInDead()) {
         // 角色死亡后不接收道具效果
         return;
       }
+
       if (model.buff == "addHealth") {
         //加生命值
         // data.buffValue
@@ -1143,281 +1121,7 @@ class SceneManager {
           indexVue.$refs.gameUI.ChangeScene(e.roomName);
         }
       });
-      return;
-      let modelPath = e.modelPath;
-      let npcTexPath = e.npcTexPath;
-
-
-      // if (_YJNPCManager == null && npcTexPath != undefined) {
-      //   _YJNPCManager = new YJNPCManager(_this,
-      //     modelParent,
-      //     _this.GetPublicUrl() + _this.GetModelUrl() + npcTexPath, npcStoryData, scope
-      //   );
-      // } else {
-
-      //   if (this._YJNPCManager != null && npcTexPath != undefined) {
-      //     this._YJNPCManager.LoadNpc(_this.GetPublicUrl() + _this.GetModelUrl() + npcTexPath);
-      //   }
-      // }
-
-
-
-      if (modelPath.includes("Scene2")) {
-        sceneName = "Scene2";
-        videoPlane = CreateScreenStreamPlane(new THREE.Vector3(0.01, 1.5, 3),
-          new THREE.Vector3(0, 1.55, -1.28),
-          new THREE.Vector3(0, -Math.PI / 2, 0),
-          new THREE.Vector3(1, 1, 1), _this.GetPublicUrl() + "screenPic.jpg");
-
-      } else if (modelPath.includes("Scene3")) {
-        sceneName = "Scene3";
-
-        console.log("== 汽车 car 3 ==");
-
-        new YJKeyboard((key) => {
-          inJoystick = false;
-          if (_YJCar != null) {
-            _YJCar.SetKeyboard(key);
-          }
-        }, (key) => {
-          inJoystick = true;
-
-          if (_YJCar != null) {
-            _YJCar.SetKeyboardUp(key);
-          }
-        });
-
-        let modelPath = "models/Scene3/carPos.gltf";
-        let _YJLoadModel = new YJLoadModel(_this, scene);
-
-        _YJLoadModel.load("carPos", _this.GetPublicUrl() + modelPath, new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0),
-          new THREE.Vector3(1, 1, 1), false, null, (scope) => {
-            let model = scope.GetModel();
-            let carNumId = 0;
-            model.traverse((obj) => {
-              if (obj.isMesh) {
-                obj.visible = false;
-                modelPath = "m";
-                let modelPathData = {};
-                if (carNumId % 2 == 0) {
-                  modelPathData = carData.modelsList[0];
-                } else {
-                  modelPathData = carData.modelsList[1];
-                }
-
-
-                //创建car
-                let _YJCar = new YJCar(_this, scene, "car" + carNumId, modelPathData,
-                  obj.position,
-                  obj.rotation, new THREE.Vector3(1, 1, 1), null, (_scope) => {
-                    //设置玩家进入到哪辆车。
-
-                  });
-
-                allDyncModel.push({ id: "car" + carNumId, modelJS: _YJCar });
-
-                carNumId++;
-
-              }
-            });
-          });
-
-
-
-        // new YJCar(_this, scene, "car001", _this.GetPublicUrl() + modelPath,
-        //   new THREE.Vector3(-1, 1, -1),
-        //   new THREE.Vector3(0, Math.PI / 2, 0), new THREE.Vector3(1, 1, 1), null, (_scope) => {
-        //   });
-        // new YJCar(_this, scene, "car001", _this.GetPublicUrl() + modelPath,
-        //   new THREE.Vector3(5, 1, -1),
-        //   new THREE.Vector3(0, Math.PI / 2, 0), new THREE.Vector3(1, 1, 1), null, (_scope) => {
-        //   });
-
-        // new YJCar(_this, scene, "car001", _this.GetPublicUrl() + modelPath,
-        //   new THREE.Vector3(10, 1, -1),
-        //   new THREE.Vector3(0, Math.PI / 2, 0), new THREE.Vector3(1, 1, 1), null, (_scope) => {
-        //   });
-
-
-      }
-      else if (modelPath.includes("CarScene")) {
-        sceneName = "CarScene";
-
-        console.log("== 汽车 car 5 ==");
-
-        new YJKeyboard((key) => {
-          inJoystick = false;
-          if (_YJCar != null) {
-            _YJCar.SetKeyboard(key);
-          }
-        }, (key) => {
-          inJoystick = true;
-
-          if (_YJCar != null) {
-            _YJCar.SetKeyboardUp(key);
-          }
-        });
-
-        let modelPath = "models/CarScene/carPos.gltf";
-        let _YJLoadModel = new YJLoadModel(_this, scene);
-
-        _YJLoadModel.load("carPos", _this.GetPublicUrl() + modelPath, new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, Math.PI, 0),
-          new THREE.Vector3(1, 1, 1), false, null, (scope) => {
-            let model = scope.GetModel();
-            let carNumId = 0;
-            model.traverse((obj) => {
-              if (obj.isMesh) {
-                obj.visible = false;
-                let modelPathData = {};
-                // if (carNumId % 2 == 0) { 
-                //   modelPathData = carData.modelsList[0];
-                // } else { 
-                //   modelPathData = carData.modelsList[2];
-                // }
-                modelPathData = carData.modelsList[carNumId];
-
-                //创建car
-                let _YJCar = new YJCar(_this, scene, "car" + carNumId, modelPathData,
-                  _this._YJSceneManager.GetWorldPosition(obj),
-                  obj.rotation, new THREE.Vector3(1, 1, 1), null, (_scope) => {
-                    //设置玩家进入到哪辆车。
-
-                  });
-
-                allDyncModel.push({ id: "car" + carNumId, modelJS: _YJCar });
-
-                carNumId++;
-
-              }
-            });
-          });
-
-
-
-        // new YJCar(_this, scene, "car001", _this.GetPublicUrl() + modelPath,
-        //   new THREE.Vector3(-1, 1, -1),
-        //   new THREE.Vector3(0, Math.PI / 2, 0), new THREE.Vector3(1, 1, 1), null, (_scope) => {
-        //   });
-        // new YJCar(_this, scene, "car001", _this.GetPublicUrl() + modelPath,
-        //   new THREE.Vector3(5, 1, -1),
-        //   new THREE.Vector3(0, Math.PI / 2, 0), new THREE.Vector3(1, 1, 1), null, (_scope) => {
-        //   });
-
-        // new YJCar(_this, scene, "car001", _this.GetPublicUrl() + modelPath,
-        //   new THREE.Vector3(10, 1, -1),
-        //   new THREE.Vector3(0, Math.PI / 2, 0), new THREE.Vector3(1, 1, 1), null, (_scope) => {
-        //   });
-
-
-      }
-      else if (modelPath.includes("/Scene")) {
-        sceneName = "Scene1";
-
-        // new SignInWall(_this,modelParent);
-
-
-
-        // 移动平台
-        // let _YJPlatform = new YJPlatform(_this, scene, new THREE.Vector3(-15, 4, 25), new THREE.Vector3(-15, 4 + 1, 25)
-        //   , "platform001", "offsetTime");
-        // _this._YJSceneManager.GetDyncSceneManager().addDyncSceneModel("platform001", "offsetTime", _YJPlatform);
-
-        // 动画模型同步
-        // _this.$parent.$parent.$refs.YJDync._YJDyncManager.GetDyncSceneManager().addDyncSceneModel("anim001", "offsetTime", _this._YJSceneManager.GetAnimModel("anim001"));
-
-
-        // let size = 0.7;
-        // let geo = new THREE.BoxGeometry(size, size, size);
-        // let mat = new THREE.MeshStandardMaterial({
-        //   color: 0x808080,
-        //   roughness: 0.1,
-        //   metalness: 0,
-        // });
-        // let cube = new THREE.Mesh(geo, mat);
-        // scene.add(cube);
-        // cube.tag = "chair";
-        // cube.position.set(-15, 4, 27);
-        // _this._YJSceneManager.CreateTriangeMeshCollider(cube);
-
-        // cube.add(new THREE.AxesHelper(1));
-
-        console.log("==创建共享屏幕 plane ==");
-        videoPlane = CreateScreenStreamPlane(new THREE.Vector3(0.03, 14, 28),
-          new THREE.Vector3(-11, 15, -27),
-          new THREE.Vector3(0, -Math.PI / 4, 0),
-          new THREE.Vector3(0, 0, 0));
-
-
-        let modelPath = "models/Scene/npcPos.gltf";
-        let _YJLoadModel = new YJLoadModel(_this, _this._YJSceneManager.GetmodelParent());
-        _YJLoadModel.load("npcPos", _this.GetPublicUrl() + modelPath, new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, Math.PI, 0),
-          new THREE.Vector3(1, 1, 1), false, null, (scope) => {
-            let model = scope.GetModel();
-            // console.log("加载地名 ",model);
-            model.traverse((obj) => {
-              if (obj.isMesh) {
-                let n = obj.name;
-                let sp = n.split("_");
-                obj.visible = false;
-                npcMovePos.push({ moveName: sp[1], pos: _this._YJSceneManager.GetWorldPosition(obj) });
-                // console.log("加载地名 ", npcMovePos);
-
-              }
-            });
-          });
-
-        // new YJGIFPoint(_this,scene,'烟花','new_spotd07_gif.png',new THREE.Vector3(0,10,0),2); 
-        // new YJGIFPoint(_this,scene,'烟花','new_spotd07_gifBlack.png',new THREE.Vector3(0,10,0),2); 
-        // new YJGIFPoint(_this,scene,'烟花','new_spotd07_gifBlack.png',new THREE.Vector3(0.5,11,0),2); 
-        // new YJGIFPoint(_this,scene,'烟花','v003_sample_5.png',new THREE.Vector3(0.5,12,0),2,{defaultOffsetX:14,speed:2,delay:5000}); 
-        // new YJGIFPoint(_this,scene,'烟花','new_spotd07_gif.png',new THREE.Vector3(0,10,0),2); 
-        // new YJGIFPoint(_this,scene,'烟花','new_spotd07_gif.png',new THREE.Vector3(0,11,0),2); 
-
-
-
-
-
-
-        // new YJCar(_this, scene, "car001", _this.GetPublicUrl() + modelPath,
-        //   new THREE.Vector3(257, 1, -115),
-        //   new THREE.Vector3(0, Math.PI / 2, 0), new THREE.Vector3(1, 1, 1), null, (_scope) => {
-        //   });
-
-
-        // 角色位置切换测试
-        // let group = new THREE.Group();
-        // scene.add(group);
-        // group.position.set(0, 5, 0);
-        // _this.YJController.SetCameraBaseParent(group);
-        // setTimeout(() => {
-        //   _this.YJController.SetCameraBaseParent(null);
-        // }, 3000);
-
-        // 九宫格图片
-        // new YJSprite(_this.GetPublicUrl() + "chatBG.png",scene,new THREE.Vector3(-13, 5, 20));
-
-        // 播放视频的屏幕
-        // let vp = CreateScreenStreamPlane(new THREE.Vector3(0.01, 2, 4),
-        // new THREE.Vector3(-15, 6, 20),
-        // new THREE.Vector3(0, -Math.PI / 4- 0.3, 0),
-        // new THREE.Vector3(1, 1, 1));
-        // LoadScreenStreamVideoFn(vp,"dPlayerVideoMainHLS");
-        // // indexVue.$refs.playVideo.PlayVideoStream("https://zavatarpull.aicgworld.com/appzg/0000.m3u8");
-        // indexVue.$refs.playVideo.PlayVideoStream("https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8");
-
-        // scene.traverse((obj)=>{
-        //   if(obj.isMesh){
-        //     if(obj.name.includes("node_landcollider_206432")){
-        //       createReflectorMesh(obj.geometry);
-        //     }
-        //   }
-        // });
-        // createReflectorMesh();
-
-      }
-
-      // console.error("== 单独房间设置 ==", e);
-
+      return; 
     }
 
 

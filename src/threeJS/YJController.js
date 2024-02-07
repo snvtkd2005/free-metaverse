@@ -389,7 +389,7 @@ class YJController {
       OnViewStateChangeFn(viewStateEnum);
 
       // console.error(" 切换控制模式 ", contrlState);
-      console.log(" 切换控制模式 ", contrlState);
+      // console.log(" 切换控制模式 ", contrlState);
       //键鼠、摇杆控制，转向由玩家控制
       if (contrlState == CONTRLSTATE.KEYBOARD_MOUSE) {
 
@@ -3469,8 +3469,8 @@ class YJController {
         camp: "lm", //阵营
         speed: 8, //移动速度
         level: 1, //等级
-        health: 20000, //当前剩余生命值
-        maxHealth: 20000, //最大生命值
+        health: 200, //当前剩余生命值
+        maxHealth: 200, //最大生命值
         strength: 30, //攻击力
         armor: 0, //护甲
         energy: 0, //能量
@@ -3972,7 +3972,7 @@ class YJController {
     }
     this.addMouseEventListener = function () {
 
-      console.log(" 监听控制器操作 ");
+      // console.log(" 监听控制器操作 ");
 
       this.domElement.addEventListener('mousemove', _onMouseMove);
 

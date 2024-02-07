@@ -12,7 +12,7 @@
     </div>
 
     <!-- 左上角血条头像 -->
-    <div class=" absolute left-24 top-10">
+    <div class=" absolute left-24 top-0">
       <headerUI ref="headerUI" />
     </div>
     <div class="  absolute w-full left-0 bottom-2">
@@ -21,6 +21,10 @@
 
     <damageUI ref="damageUI" />
     <fireStateUI ref="fireStateUI" />
+
+    <DMPanel ref="DMPanel" />
+
+
   </div>
 </template>
 
@@ -35,6 +39,8 @@ import damageUI from "./damageUI.vue";
 import fireStateUI from "./fireStateUI.vue";
 import skillPanel_virus from "./skillPanel_virus.vue";
 
+import DMPanel from "./DMPanel_bilibili.vue";
+
 export default {
   name: "HUD",
   components: {
@@ -44,6 +50,7 @@ export default {
     damageUI,
     fireStateUI,
     skillPanel_virus,
+    DMPanel,
   },
   data() {
     return {

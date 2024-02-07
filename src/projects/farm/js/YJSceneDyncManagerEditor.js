@@ -6,6 +6,7 @@ import TWEEN from '@tweenjs/tween.js';
 import { YJParabola } from "/@/threeJS/YJParabola.js"; 
 
 import { YJSkillParticleManager } from "./YJSkillParticleManager.js";
+import { YJDMManager_bilibili } from "./YJDMManager_bilibili.js";
 
 // 场景同步数据
 
@@ -16,8 +17,14 @@ class YJSceneDyncManagerEditor {
     let dyncModelList = [];
     dyncModelList.push({ id: "offsetTime", modelType: "offsetTime", state: { offsetTime: 0, startTime: 1675586194683 } });
 
+    this.GetDyncModelList = ()=>{
+      return dyncModelList;
+    }
+
+
     let npcModelList = [];
     let _YJSkillParticleManager = null;
+    let _YJDMManager = null;
     // 初始化场景中需要同步的模型。每个客户端都执行
     this.InitDyncSceneModels = () => {
 
@@ -78,7 +85,9 @@ class YJSceneDyncManagerEditor {
         }
       }
       // 增加额外的同步信息
-      dyncModelList.push({ id: model.type, modelType: "交互模型", state: { value: 0, count: 0 } });
+      let data = { id: model.type, modelType: "交互模型", state: { value: 0, count: 0 } };
+      dyncModelList.push(data);
+      _YJDMManager.addProp(data);
     }
     this.SendDataToServer = (type, data) => {
 
@@ -858,10 +867,16 @@ class YJSceneDyncManagerEditor {
         if (_Global.mainUser) {
           this.RemovePlayerFireId(state.playerId, state.fireId);
         }
-
         return;
       }
-
+      if (type == "所有人加生命") {
+        _SceneManager.ReceivePlayer({buff:"addHealth",buffValue:state});
+        return;
+      }
+      if (type == "弹幕") {
+        indexVue.$refs.HUD.$refs.DMPanel.receiveMsg(state);
+        return;
+      }
       // console.log(" 接收 ", type, state);
       if (type == "玩家脱离战斗") {
         if (_Global.YJ3D.YJPlayer.id == state) {
@@ -1024,7 +1039,9 @@ class YJSceneDyncManagerEditor {
               has = true;
             }
           }
-          dyncModelList.push(_state);
+          if(!has){
+            dyncModelList.push(_state);
+          }
 
           if (_state.modelType == "交互模型") {
             indexVue.$refs.HUD.$refs.skillPanel_virus.SetSkillCount({ type: _state.id, value: _state.state.value, count: _state.state.count });
@@ -1035,6 +1052,7 @@ class YJSceneDyncManagerEditor {
           const element = sceneModels[i];
           _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().EditorUserModel(element);
         }
+
 
         //此时同步完成， 隐藏loading页
         indexVue.OpenThreejs();
@@ -1243,6 +1261,7 @@ class YJSceneDyncManagerEditor {
 
     function init() {
       _YJSkillParticleManager = new YJSkillParticleManager(_this);
+      _YJDMManager = new YJDMManager_bilibili(indexVue,scope,_SceneManager);
       update();
     }
     function update() {

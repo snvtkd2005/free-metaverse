@@ -40,7 +40,7 @@ var message;
 //响应拦截器
 request.interceptors.response.use((response) => {
     //响应成功
-    console.log('响应成功');
+    // console.log('响应成功');
     return response.data;
 }, (error) => {
     console.log(error)

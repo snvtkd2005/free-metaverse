@@ -1,6 +1,7 @@
 <!-- // 场景编辑UI -->
 <template>
   <div class="absolute left-0 top-0 z-999 w-full h-full flex">
+
     <!-- 中部 -->
     <div class="flex mt-0 w-11/12 md:w-5/6 h-full mx-auto bg-gray-100">
       <!-- 右 -->
@@ -370,7 +371,9 @@
           <skillSettingPanel></skillSettingPanel>
         </div>
       </div>
+
     </div>
+
 
     <!-- 立即进入 -->
     <div
@@ -387,6 +390,11 @@
               class="w-full h-full object-fill hover:opacity-70"
               :src="uploadSceneUrl + currentSceneData.icon"
             />
+  
+            <div class="absolute left-0 top-0 z-999 w-full h-full flex pointer-events-none">
+              <canvas id="cv" width="600" height="600"></canvas>
+            </div>
+
           </div>
           <div class="relative flex-grow flex-col justify-between">
             <div>{{ currentSceneData.name }}</div>
@@ -648,7 +656,6 @@ import {
 } from "../../js/uploadThreejs.js";
 
 
-import {socket_bilibili} from "/@/utils/socket_bilibili.js";
 
 export default {
   name: "selfPanel",
@@ -736,8 +743,7 @@ export default {
     this.RequestGetAllScene();
     this.RequestGetAllHDR();
     this.RequestGetAllUVAnim();
-
-    new socket_bilibili();
+ 
   },
   methods: {
     onblurInputTag() {

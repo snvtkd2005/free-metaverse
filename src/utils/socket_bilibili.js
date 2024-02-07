@@ -13,7 +13,7 @@ import {
 import * as world_configs from './socket_bilibili/index';
 
 class socket_bilibili {
-	constructor(that) {
+	constructor(callback) {
 		let scope = this;
 
 		// 替换你的主播身份码
@@ -40,10 +40,10 @@ class socket_bilibili {
 		function InitFn() {
 			gameId = localStorage.getItem("gameId");
 
-			setTimeout(() => {
-				gameStartFn();
-			}, 2000);
-			return;
+			// setTimeout(() => {
+			// 	gameStartFn();
+			// }, 2000);
+			// return;
 			let fromData = new FormData();
 			fromData.appKey = appKey,
 				fromData.appSecret = appSecret,
@@ -58,7 +58,7 @@ class socket_bilibili {
 				// }
 				getAuth(JSON.stringify(fromData)).then((res) => {
 					console.log("-----鉴权成功-----")
-					console.log("返回：", res)
+					// console.log("返回：", res)
 
 					setTimeout(() => {
 						gameStartFn();
@@ -77,7 +77,7 @@ class socket_bilibili {
 				// console.log("-----心跳成功-----")
 				// console.log("返回：", data)
 			}).catch((err) => {
-					// console.log("-----心跳失败-----")
+				// console.log("-----心跳失败-----")
 			})
 		}
 		this.gameStart = () => {
@@ -91,7 +91,7 @@ class socket_bilibili {
 				fromData.code = codeId,
 
 				gameStart(JSON.stringify(fromData)).then((data) => {
-					console.log(data);
+					// console.log(data);
 					if (data.code === 0) {
 						const res = data.data
 						const { anchor_info, game_info, websocket_info } = res
@@ -109,8 +109,8 @@ class socket_bilibili {
 						}, 20000);
 						scope.handleCreateSocket();
 					} else {
-						console.log("-----游戏开始失败-----")
-						console.log("原因：", data)
+						// console.log("-----游戏开始失败-----")
+						// console.log("原因：", data)
 						if (data.code == 7002 || 7001) {
 							scope.gameEnd();
 							setTimeout(() => {
@@ -139,13 +139,13 @@ class socket_bilibili {
 						scope.handleDestroySocket()
 						console.log("-----心跳关闭成功-----")
 					} else {
-						console.log("-----游戏关闭失败-----")
-						console.log("原因：", data)
+						// console.log("-----游戏关闭失败-----")
+						// console.log("原因：", data)
 					}
 				})
 					.catch((err) => {
-						console.log("-----游戏关闭失败-----")
-						console.log(err)
+						// console.log("-----游戏关闭失败-----")
+						// console.log(err)
 					})
 		}
 
@@ -174,8 +174,8 @@ class socket_bilibili {
 					this.receiveMsg(res);
 				},
 				// 收到心跳处理回调
-				onHeartBeatReply: (data) =>{
-					console.log("收到心跳处理回调:", data);
+				onHeartBeatReply: (data) => {
+					// console.log("收到心跳处理回调:", data);
 				},
 				onError: (data) => console.log("error", data),
 				onListConnectError: () => {
@@ -194,24 +194,31 @@ class socket_bilibili {
 		this.receiveMsg = function (msg) {
 			receiveMsgFn(msg);
 		}
-		function receiveMsgFn(msg) {
-			console.log(msg);
-			let data = msg.data;
-			let cmd = msg.cmd;
-			let { msg, uname, uid } = data;
+		function receiveMsgFn(message) {
+			console.log(message);
+			let data = message.data;
+			let cmd = message.cmd;
+			let { msg, uname, uid,uface } = data;
+
+			let callbackData = {
+				cmd, msg, uname, uid,uface
+			};
+			if (callback) {
+				callback(callbackData);
+			}
 
 			// console.log(cmd);
-			switch (cmd) {
-				case world_configs.LIVE_OPEN_PLATFORM_DM:
-					console.log(uname, " 发送弹幕 ", msg);
-					break;
-				case world_configs.LIVE_OPEN_PLATFORM_LIKE:
-					console.log(uname, " 点赞 ");
-					break;
+			// switch (cmd) {
+			// 	case world_configs.LIVE_OPEN_PLATFORM_DM:
+			// 		console.log(uname, " 发送弹幕 ", msg);
+			// 		break;
+			// 	case world_configs.LIVE_OPEN_PLATFORM_LIKE:
+			// 		console.log(uname, " 点赞 ");
+			// 		break;
 
-				default:
-					break;
-			}
+			// 	default:
+			// 		break;
+			// }
 		}
 
 

@@ -402,7 +402,7 @@ export default {
             return;
           }
           console.log(
-            "点击模型 " +
+            "点击模型 " ,hitObject,
             hitObject.tag +
             " " +
             hitObject.name +

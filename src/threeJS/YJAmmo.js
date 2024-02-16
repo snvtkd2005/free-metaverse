@@ -5,7 +5,7 @@
 import * as THREE from "three";
 // import * as Ammo from "../../public/threeJS/ammo/ammo.js";
 
-import { AmmoPhysics } from 'three/examples/jsm/physics/AmmoPhysics.js';
+// import { AmmoPhysics } from 'three/examples/jsm/physics/AmmoPhysics.js';
 
 class YJAmmo {
   constructor(scene, enabledAmmo, camera, _this, playerHeight, playerRadius, callback) {
@@ -40,6 +40,7 @@ class YJAmmo {
     let dispatcher;
     let broadphase;
     let solver;
+		let softBodySolver;
     let physicsWorld;
     let transformAux1;
 
@@ -57,9 +58,10 @@ class YJAmmo {
 
     let physics;
 
-    if (_YJGlobal.UseAmmoPhysics != undefined) {
-      UseAmmoPhysics = _YJGlobal.UseAmmoPhysics;
-    }
+    // if (_YJGlobal.UseAmmoPhysics != undefined) {
+    //   UseAmmoPhysics = _YJGlobal.UseAmmoPhysics;
+    // }
+
     if (!_YJGlobal["AmmoY"]) {
       _YJGlobal["AmmoY"] = { cc: Ammo() };
     }
@@ -93,20 +95,20 @@ class YJAmmo {
     async function init() {
 
 
-      if (UseAmmoPhysics) {
+      // if (UseAmmoPhysics) {
 
-        physics = await AmmoPhysics();
-        const floor = new THREE.Mesh(
-          new THREE.BoxGeometry(100, 5, 100),
-          new THREE.MeshLambertMaterial({ color: 0xff0000, transparent: true, opacity: 0 })
-          // new THREE.ShadowMaterial({ color: 0x444444 })
-        );
-        floor.position.y = - 2.5;
-        // floor.receiveShadow = true;
-        scene.add(floor);
-        physics.addMesh(floor);
+      //   physics = await AmmoPhysics();
+      //   const floor = new THREE.Mesh(
+      //     new THREE.BoxGeometry(100, 5, 100),
+      //     new THREE.MeshLambertMaterial({ color: 0xff0000, transparent: true, opacity: 0 })
+      //     // new THREE.ShadowMaterial({ color: 0x444444 })
+      //   );
+      //   floor.position.y = - 2.5;
+      //   // floor.receiveShadow = true;
+      //   scene.add(floor);
+      //   physics.addMesh(floor);
 
-      }
+      // }
 
 
       // physics = await AmmoPhysics();
@@ -330,10 +332,16 @@ class YJAmmo {
       dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);
       broadphase = new Ammo.btDbvtBroadphase();
       solver = new Ammo.btSequentialImpulseConstraintSolver();
-      physicsWorld = new Ammo.btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
+      
+			softBodySolver = new Ammo.btDefaultSoftBodySolver();
+
+      // physicsWorld = new Ammo.btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
+			physicsWorld = new Ammo.btSoftRigidDynamicsWorld( dispatcher, broadphase, solver, collisionConfiguration, softBodySolver );
       physicsWorld.setGravity(new Ammo.btVector3(0, gravity, 0));
+			physicsWorld.getWorldInfo().set_m_gravity( new Ammo.btVector3( 0, gravity, 0 ) );
       console.log("初始化 ammo  完成");
       transformAux1 = new Ammo.btTransform();
+      console.log("physicsWorld 00 ",physicsWorld);
 
       // var ghostObject = new Ammo.btPairCachingGhostObject();
       // ghostObject.setOverlapFilterCallback({
@@ -470,6 +478,9 @@ class YJAmmo {
     }
 
     const rigidBodies = [];
+    this.GetRigidBodies = function(){
+      return rigidBodies;
+    }
     function createRigidBody(object, physicsShape, mass, pos, quat, vel, angVel) {
       // if (pos) {
       //   object.position.copy(pos);
@@ -580,8 +591,6 @@ class YJAmmo {
         // quat = object.quaternion;
       }
 
-      const localInertia = new Ammo.btVector3(0, 0, 0);
-      physicsShape.calculateLocalInertia(mass, localInertia);
 
       const transform = new Ammo.btTransform();
       transform.setIdentity();
@@ -589,8 +598,11 @@ class YJAmmo {
       quat = object.getWorldQuaternion(new THREE.Quaternion());
       transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
       transform.setRotation(new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w));
-
       const motionState = new Ammo.btDefaultMotionState(transform);
+      
+      const localInertia = new Ammo.btVector3(0, 0, 0);
+      physicsShape.calculateLocalInertia(mass, localInertia);
+
       const rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, physicsShape, localInertia);
       const body = new Ammo.btRigidBody(rbInfo);
 
@@ -847,6 +859,7 @@ class YJAmmo {
     // 新的凹包碰撞计算，使用此生成凹包碰撞
     function GetTriangleMeshShap(Entity, _scale) {
       let vertices = Entity.geometry.getAttribute('position').array;
+      // let indices = vertices.length/3;
       let indices = Entity.geometry.index.array;
       if (_scale == undefined) {
         _scale = { x: 1, y: 1, z: 1 };
@@ -917,9 +930,7 @@ class YJAmmo {
 
     //加载凸包碰撞体
     this.CreateTriangeMeshCollider = function (Entity, _scale, pos, quat, id, triggerName) {
-      // return;
-      // pos.set(6, 0.5, 20);
-      // quat.setFromAxisAngle(new THREE.Vector3(0, 0, 1), 0 * Math.PI / 180);
+
       if (colliderMat == null) {
         // colliderMat = new THREE.MeshPhongMaterial({ color: 0xffff00, transparent: true, opacity: 0.1 });
       }
@@ -957,8 +968,7 @@ class YJAmmo {
       const body = createColliderRigidBody(threeObject, shape, 0, pos, quat);
       threeObject.userData.tag = "collider";
 
-      // console.log(" getCollisionFlags = " + body.getCollisionFlags() );
-      // console.log(" isKinematicObject = " + body.isKinematicObject() );
+      
       body.threeObject = threeObject;
       // body.triggerName = triggerName;
       // body.modelId = id;
@@ -1105,7 +1115,26 @@ class YJAmmo {
         rigidbody.setMotionState(ms);
       }
     }
-
+    this.SetPhysicBodyPosRota = function (rigidbody, pos, quat) {
+      const ms = rigidbody.getMotionState();
+      if (ms) {
+        // 经测试，需要连续设置两次才会成功
+        for (let i = 0; i < 1; i++) {
+          ms.setWorldTransform(transformAux1);
+          transformAux1.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
+          if (quat != undefined) { 
+            transformAux1.setRotation(new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w));
+          }
+        }
+        const p = transformAux1.getOrigin();
+        rigidbody.threeObject.position.set(p.x(), p.y(), p.z());
+        if (quat != undefined) {
+          const q = transformAux1.getRotation();
+          rigidbody.threeObject.quaternion.set(q.x(), q.y(), q.z(), q.w());
+        }
+        rigidbody.setMotionState(ms);
+      }
+    }
 
     this.SetPlayerPos = function (pos) {
       // console.error(" 设置玩家坐标 ");
@@ -1724,6 +1753,24 @@ class YJAmmo {
 
     }
     //#endregion
+    let needUpdateJS = [];
+    this.AddNeedUpdateJS = function (js) {
+      for (let i = 0; i < needUpdateJS.length; i++) {
+        const element = needUpdateJS[i];
+        if (element == js) { return; }
+
+      }
+      needUpdateJS.push(js);
+    }
+    this.RemoveNeedUpdateJS = function (js) {
+      for (let i = needUpdateJS.length - 1; i >= 0; i--) {
+        const element = needUpdateJS[i];
+        if (element == js) {
+          needUpdateJS.splice(i, 1);
+          return;
+        }
+      }
+    }
 
     this.SetEnabled = function (e) {
       if (enabled == e) { return; }
@@ -1736,7 +1783,9 @@ class YJAmmo {
         return;
       }
       render();
-
+      for (let i = 0; i < needUpdateJS.length; i++) {
+        needUpdateJS[i]._update();
+      } 
     }
     this._update = function () {
 
@@ -1766,6 +1815,7 @@ class YJAmmo {
 
     }
 
+    // let windForce = new Ammo.btVector3(0.05, 0, 0);
     function updatePhysics(deltaTime) {
 
       physicsWorld.stepSimulation(deltaTime, 10);
@@ -1775,6 +1825,12 @@ class YJAmmo {
 
         const objThree = rigidBodies[i];
         const objPhys = objThree.userData.physicsBody;
+
+
+        // let force = objThree.rotation /(deltaTime * deltaTime);
+        // force += new Ammo.btVector3(0.05, 0, 0)/(deltaTime * deltaTime);
+        // objPhys.setLinearVelocity(force);
+ 
         const ms = objPhys.getMotionState();
         if (ms) {
 
@@ -2228,6 +2284,9 @@ class YJAmmo {
     this.SetRigidbodySleep = function (b) {
       enabledRigidbody = b;
     }
+    this.GetPlayerRigidbody = function(){
+      return rigidbody;
+    }
     function YJgenerateObject() {
 
       let threeObject = null;
@@ -2317,7 +2376,7 @@ class YJAmmo {
       // console.log( " 角色 默认碰撞类型 " , rigidbody.getCollisionFlags());
 
       //开启刚体模拟。默认为开启
-      rigidbody.setActivationState(true);
+      // rigidbody.setActivationState(true); 
       moveForce = new Ammo.btVector3(0, 0, 0);
       moveForce.setY(downForce);
 

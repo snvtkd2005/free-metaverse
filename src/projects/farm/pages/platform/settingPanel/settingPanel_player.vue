@@ -96,6 +96,10 @@
         type="range" min="0" :max="animClip.duration" step="1">
     </div>
 
+    <div class=" flex w-full   ">
+      <input ref="viewFarCtrl" class=" ml-2  outline-none w-40  " @input="ballRadiusChangeFn" v-model="ballRadius"
+        type="range" min="0.05" max="3" step="0.01" >
+    </div>
   </div>
 
 
@@ -119,9 +123,18 @@
   <div class=" w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('动作列表')">
     <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">查看已有动作</div>
   </div>
-  <div class=" w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('下载模型')">
-    <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">下载模型</div>
+  
+  <div class="  mt-2  w-11/12 h-10 mx-auto text-white flex justify-between " >
+    <div class="  bg-445760 rounded-md inline-block px-2 leading-10   cursor-pointer  " @click="ClickBtnHandler('idle')" >idle</div>
+    <div class="  bg-445760 rounded-md inline-block px-2 leading-10   cursor-pointer  " @click="ClickBtnHandler('TPose')" >TPose</div>
+    <div class="  bg-445760 rounded-md inline-block px-2 leading-10   cursor-pointer  " @click="ClickBtnHandler('选中角色')" >选中角色</div>
+    <div class="  bg-445760 rounded-md inline-block px-2 leading-10   cursor-pointer  " @click="ClickBtnHandler('显示骨骼')" >显示骨骼</div>
   </div>
+
+  <!-- <div class=" w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('下载模型')">
+    <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">下载模型</div>
+  </div> -->
+
   <div class=" mt-2 w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('保存')">
     <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">保存</div>
   </div>
@@ -238,6 +251,7 @@ export default {
         duration: 100,
       },
       auto: true,
+      ballRadius:0.5,
     };
   },
   created() {
@@ -275,6 +289,9 @@ export default {
     this.setSettingItemByProperty("isLoop", this.currentAnimData.isLoop);
   },
   methods: {
+    ballRadiusChangeFn(v){
+      _Global.YJAmmoPlayerBody.CreateSphere(this.ballRadius);
+    },
     ClickBtnHandler(e) {
 
       if (e == "选择可映射角色") {
@@ -304,6 +321,23 @@ export default {
       }
       if (e == "清空骨骼映射") {
         this.settingData.boneList = []; 
+      }
+      
+      if (e == "TPose") {
+        this.ChangePlayerAnim("T-Pose"); 
+      }
+      if (e == "idle") {
+        this.ChangePlayerAnim("idle"); 
+      }
+      
+      if (e == "选中角色") {
+        let obj = _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
+        _Global.YJ3D._YJSceneManager.GetTransformManager().attach(obj.GetGroup());
+      }
+      
+      if (e == "显示骨骼") {
+        this.displayBoneDummy = !this.displayBoneDummy;
+        _Global.SceneManager.DisplayBoneDummy(this.displayBoneDummy);
       }
       
     },
@@ -643,7 +677,7 @@ export default {
         
         let _YJAnimator = _Global.YJ3D._YJSceneManager
               .GetSingleTransformComponent("Animator");
-            _YJAnimator.ChangeAnim(this.animName);
+            // _YJAnimator.ChangeAnim(this.animName);
 
         let { time, duration } = _YJAnimator.GetCurrentTime();
         time = parseInt(time * 24);

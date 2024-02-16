@@ -46,6 +46,15 @@ class YJMeshRenderer {
       }
       return bones;
     }
+    this.GetAllBoneModel = function () {
+      let boneNode = [];
+      model.traverse(function (item) {
+        if (item instanceof THREE.Bone) {
+          boneNode.push(item);
+        }
+      }); 
+      return boneNode;
+    }
     // 模糊获取骨骼
     this.GetBoneVague = function (boneName, callback) {
       // console.log("从模型中查找bone ", playerObj,boneName);
@@ -207,7 +216,7 @@ class YJMeshRenderer {
           model.scale.set(1 * meshScale, 1 * meshScale, 1 * meshScale);
 
           scene.add(model);
-          // console.log(" 加载模型完成 ", model);
+          console.log(" 加载模型完成 11 ", model);
           _this._YJSceneManager.addLoadMesh(modelPath, model);
           
           TraverseOwner(model);
@@ -221,8 +230,7 @@ class YJMeshRenderer {
           if (errorback) {
             errorback(e);
           }
-          console.log("加载模型出错" + modelPath);
-          console.error(e);
+          console.error("加载模型出错",e, modelPath);
           LoadCompleted(callback);
           
         });
@@ -370,8 +378,9 @@ class YJMeshRenderer {
     function TraverseOwner(model) {
       model.traverse(function (item) {
         if (item instanceof THREE.Mesh) {
+          // console.log(" item ",item);
           item.transform = owner;
-          item.tag = tag;
+          item.tag = tag; 
         }
       });
     }
@@ -413,6 +422,7 @@ class YJMeshRenderer {
               // console.log("加载模型的信息 ",modelData);
               return;
             }
+
 
             if (noShadow) {
 

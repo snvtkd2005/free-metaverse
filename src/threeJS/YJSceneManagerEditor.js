@@ -304,6 +304,7 @@ class YJSceneManager {
         modelData.scale = { x: 1, y: 1, z: 1 };
 
         scope.Create_LoadUserModelManager().ImportModel(modelData, (tranform) => {
+          console.log(" 单品模型加载完成 ！！！！");
           singleTransform = tranform;
           // if (callback) {
           //   callback();
@@ -350,6 +351,9 @@ class YJSceneManager {
     let singleTransform = null;
     this.SetSelectTransform = function (tranform) {
       singleTransform = tranform;
+    }
+    this.GetSelectTransform = function () {
+      return singleTransform;
     }
     this.CreateSingleModel = function (modelPath, callback, errorback) {
 

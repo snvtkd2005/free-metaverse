@@ -54,7 +54,7 @@ class YJAnimator {
       }
     }
     this.ChangeAnim = function (animName) {
-      // console.log(" in change anim ", animName,oldAnimName); 
+      console.error(" in change anim ", animName,oldAnimName); 
       if (oldAnimName == animName) { return; }
       oldAnimName = animName;
       if (activateAllActions(animName)) {
@@ -70,7 +70,7 @@ class YJAnimator {
             scope.ChangeAnimByAnimData(animName, isLoop, anim);
           });
         } else {
-          console.log(" messageData ",messageData);
+          // console.log(" messageData ",messageData);
           _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.id, animName, (isLoop, anim) => {
             scope.ChangeAnimByAnimData(animName, isLoop, anim);
           });

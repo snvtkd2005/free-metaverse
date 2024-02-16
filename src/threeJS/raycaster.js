@@ -207,11 +207,12 @@ class YJRaycaster extends EventDispatcher {
         const element = intersects[i].object;
         // console.log("点击筛选",element); 
         if (element.visible == false) { continue; }
-        if (element.name == "ignoreRaycast") { continue; }
+        if (element.name == "ignoreRaycast") { continue; } 
         if (element.tag == "ignoreRaycast") { continue; }
         if (element.name == "trigger") { continue; }
         if (element.tag == "helper") { continue; }
         if (element.type == "GridHelper") { continue; }
+        if (element.type == "LineSegments") { continue; } 
         if (element.isIgnore) { continue; }
         if (element.type == "TransformControlsPlane") { continue; }
         if (element.parent.parent && element.parent.parent.isTransformControlsGizmo) { continue; }

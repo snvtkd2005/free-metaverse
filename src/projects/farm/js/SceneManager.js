@@ -81,18 +81,126 @@ import * as YJTHREE from "/@/utils/utils_threejs.js";
 import Animation from "../../../threeJS/nothing/Animation.js";
 import Test from "../../../threeJS/nothing/Test.js";
 import { YJAnimator } from "../../../threeJS/components/YJAnimator";
+import { YJAmmoRope } from "../../../threeJS/components/YJAmmoRope.js";
 
 class SceneManager {
   constructor(scene, renderer, camera, _this, modelParent, indexVue, callback) {
     let scope = this;
     let _YJNPCManager = null;
     let _YJ3dPhotoPlane = null;
-
+    let inInputing = false;
+    let inJoystick = false;
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
     this.Init = function () {
       InitFn();
+      
+    }
+    function InitInput(){
+
+      new YJKeyboard((event) => {
+
+        if (inInputing) {
+          return;
+        }
+        let key = event.code;
+        inJoystick = false;
+        if (_YJCar != null) {
+          _YJCar.SetKeyboard(key);
+        }
+
+        if (key == "Escape") {
+          ClearTarget();
+
+          if (oldTarget != null) {
+            _YJProjector.SetActive(false);
+            oldTarget = null;
+            ChangeTarget();
+          }
+          return;
+        }
+
+
+        if (key == "Tab") {
+          // tab切换目标
+          _SceneDyncManager.TabChangeTarget();
+          return;
+        }
+        let skillIndex = -1;
+        if (key == "Digit1") {
+          skillIndex = 0;
+        }
+        if (key == "Digit2") {          
+          skillIndex = 1; 
+        } 
+        if (key == "Digit3") {          
+          skillIndex = 2; 
+        }
+        if (key == "Digit4") {          
+          skillIndex = 3; 
+        }
+        if (key == "Digit5") {          
+          skillIndex = 4;
+        } 
+        if (key == "Digit6") {
+          skillIndex = 5;
+        }
+        if (key == "Digit7") {
+          skillIndex = 6;
+        }
+        if (key == "Digit8") {
+          skillIndex = 7;
+        }
+        if(skillIndex>-1 && indexVue.$refs.HUD ){
+          indexVue.$refs.HUD.$refs.skillPanel_virus.ClickSkillIndex(skillIndex);
+        }
+
+ 
+        if (key == "KeyM") {
+          //   //  开关地图
+          //   if (setting.keyM != undefined && setting.keyM && _this.$parent.clickOpenPanel) {
+          //     _this.$parent.clickOpenPanel("小地图");
+          //   }
+          return;
+        }
+        // if (key == "Digit3") {
+        //   scope.UserModel("attack", "南瓜");
+        //   return;
+        // }
+        // if (key == "Digit4") {
+        //   scope.UserModel("attack", "胡萝卜");
+        //   return;
+        // }
+        if (key == "KeyT") { 
+          scope.PickDownWeapon();
+          return;
+        }
+        if (key == "KeyF") {
+          if (_YJCar != null) {
+            if (!InDriving) {
+              scope.InCar();
+              InDriving = true;
+            } else {
+              scope.OutCar();
+              InDriving = false;
+            }
+          }
+        }
+
+
+        
+        _Global.YJ3D.YJController.onKeyDown(event);
+      }, (event) => {
+        inJoystick = true;
+        let key = event.code;
+        if (_YJCar != null) {
+          _YJCar.SetKeyboardUp(key);
+        }
+
+        _Global.YJ3D.YJController.onKeyUp(event);
+      });
+
     }
 
 
@@ -122,8 +230,7 @@ class SceneManager {
 
     let sceneName = "";
 
-    let allDyncModel = [];
-    let inJoystick = true;
+    let allDyncModel = []; 
     this.JoystickAxis = function (x, y) {
       if (!inJoystick) { return; }
       // console.log("摇杆 ",x,y);
@@ -225,11 +332,14 @@ class SceneManager {
 
       if (modelPath.includes("TestScene")) {
 
+        InitInput();
         YJTHREE.CreateGrid(scene,100,10);
         YJTHREE.CreateFloorCollider(scene,"floor");
         YJTHREE.CreateFloorCollider(scene,"landcollider");
         
         _YJshaderLX = new YJshaderLX(_this, scene,camera,renderer );
+        //  _this._YJSceneManager.AddNeedUpdateJS(new YJAmmoRope(_this,scene));
+         _YJGlobal._YJAmmo.AddNeedUpdateJS(new YJAmmoRope(_this,scene));
         // let _YJTrailRenderer = new YJTrailRenderer(_this, scene, _this.YJController.GetAmmoPlayer() );
         
         let _YJLoadModel = new YJLoadModel(_this, scene);
@@ -287,18 +397,6 @@ class SceneManager {
 
         console.log("== 汽车 car 3 ==");
 
-        new YJKeyboard((key) => {
-          inJoystick = false;
-          if (_YJCar != null) {
-            _YJCar.SetKeyboard(key);
-          }
-        }, (key) => {
-          inJoystick = true;
-
-          if (_YJCar != null) {
-            _YJCar.SetKeyboardUp(key);
-          }
-        });
 
         let modelPath = "models/Scene3/carPos.gltf";
         let _YJLoadModel = new YJLoadModel(_this, scene);
@@ -357,19 +455,7 @@ class SceneManager {
         sceneName = "CarScene";
 
         console.log("== 汽车 car 5 ==");
-
-        new YJKeyboard((key) => {
-          inJoystick = false;
-          if (_YJCar != null) {
-            _YJCar.SetKeyboard(key);
-          }
-        }, (key) => {
-          inJoystick = true;
-
-          if (_YJCar != null) {
-            _YJCar.SetKeyboardUp(key);
-          }
-        });
+ 
 
         let modelPath = "models/CarScene/carPos.gltf";
         let _YJLoadModel = new YJLoadModel(_this, scene);

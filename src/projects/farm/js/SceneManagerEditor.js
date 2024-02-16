@@ -6,13 +6,13 @@ import * as THREE from "three";
 import TWEEN from '@tweenjs/tween.js';
 
 import { YJLoadModel } from "/@/threeJS/YJLoadModel.js";
- 
+
 // import { YJ3dPhotoPlane } from "/@/threeJS/YJ3dPhotoPlane.js";
 import { YJ3dPhotoPlane } from "./YJ3dPhotoPlane.js";
 
 import { YJProjector } from "/@/threeJS/components/YJProjector.js";
 import { ReflectorMesh } from "/@/js/ReflectorMesh.js";
- 
+
 import { YJCar } from "/@/threeJS/model/YJCar.js";
 import { YJKeyboard } from "/@/threeJS/YJKeyboard.js";
 
@@ -22,6 +22,8 @@ import { getSceneData } from "./sceneApi.js"
 
 import { YJSceneDyncManagerEditor } from "./YJSceneDyncManagerEditor.js";
 import { SceneManagerMetaworld } from "./SceneManagerMetaworld.js";
+import { YJAmmoRope } from "../../../threeJS/components/YJAmmoRope.js";
+import { YJAmmoPlayerBody } from "../../../threeJS/components/YJAmmoPlayerBody.js";
 
 class SceneManager {
   constructor(scene, renderer, camera, _this, modelParent, indexVue, callback) {
@@ -137,18 +139,18 @@ class SceneManager {
         if (key == "Digit1") {
           skillIndex = 0;
         }
-        if (key == "Digit2") {          
-          skillIndex = 1; 
-        } 
-        if (key == "Digit3") {          
-          skillIndex = 2; 
+        if (key == "Digit2") {
+          skillIndex = 1;
         }
-        if (key == "Digit4") {          
-          skillIndex = 3; 
+        if (key == "Digit3") {
+          skillIndex = 2;
         }
-        if (key == "Digit5") {          
+        if (key == "Digit4") {
+          skillIndex = 3;
+        }
+        if (key == "Digit5") {
           skillIndex = 4;
-        } 
+        }
         if (key == "Digit6") {
           skillIndex = 5;
         }
@@ -158,11 +160,11 @@ class SceneManager {
         if (key == "Digit8") {
           skillIndex = 7;
         }
-        if(skillIndex>-1 && indexVue.$refs.HUD ){
+        if (skillIndex > -1 && indexVue.$refs.HUD) {
           indexVue.$refs.HUD.$refs.skillPanel_virus.ClickSkillIndex(skillIndex);
         }
 
- 
+
         if (key == "KeyM") {
           //   //  开关地图
           //   if (setting.keyM != undefined && setting.keyM && _this.$parent.clickOpenPanel) {
@@ -178,7 +180,7 @@ class SceneManager {
         //   scope.UserModel("attack", "胡萝卜");
         //   return;
         // }
-        if (key == "KeyT") { 
+        if (key == "KeyT") {
           scope.PickDownWeapon();
           return;
         }
@@ -192,24 +194,24 @@ class SceneManager {
               InDriving = false;
             }
           }
-          
+
           // if (_this._YJSceneManager) {
           //   _this._YJSceneManager.ClickInteractive();
           // }
         }
 
 
-        if(_Global.TransformController.getUsing()){
+        if (_Global.TransformController.getUsing()) {
           let mode = _Global.TransformController.getMode();
           _Global.TransformController.onKeyDown(event);
-          if((key == "KeyW" && mode != "translate") 
-          || (key == "KeyE" && mode != "rotate") 
-          || (key == "KeyR" && mode != "scale") 
-          ){
+          if ((key == "KeyW" && mode != "translate")
+            || (key == "KeyE" && mode != "rotate")
+            || (key == "KeyR" && mode != "scale")
+          ) {
             return;
           }
         }
-        
+
         _Global.YJ3D.YJController.onKeyDown(event);
       }, (event) => {
         inJoystick = true;
@@ -233,7 +235,7 @@ class SceneManager {
 
       _SceneDyncManager = new YJSceneDyncManagerEditor(_this, indexVue, scope);
 
-      
+
       scope.AddChangeTargetListener((b) => {
         if (indexVue.$refs.gameUI) {
           indexVue.$refs.gameUI.SetTargetVaild(b);
@@ -283,7 +285,7 @@ class SceneManager {
     this.SetTriggerOverlap = (b, id, owner) => {
       console.log(" in Overlap ", b, id, owner);
       if (owner.isYJTransform) {
-        let msg = owner.GetMessage(); 
+        let msg = owner.GetMessage();
         if (msg.pointType == "weapon") {
 
           if (_this.YJController.isInDead()) {
@@ -291,7 +293,7 @@ class SceneManager {
             return;
           }
           let state = _this.YJController.GetUserDataItem("weaponData");
-          console.log(" 碰到武器 ", msg.data,state);
+          console.log(" 碰到武器 ", msg.data, state);
           // 判断角色是否可以拾取武器
           if (state != null && state.weaponId != "") {
             return;
@@ -304,14 +306,14 @@ class SceneManager {
           //   , animNameIdle
           //   , animNameWalk, animNameRun, animNameReady, animNameAttack } = msg.data;
 
-          
-          let { boneName,weaponType
+
+          let { boneName, weaponType
             , position
-            , rotation  } = msg.data;
-          _this.YJController.SetUserDataItem("weaponData",msg.data);
+            , rotation } = msg.data;
+          _this.YJController.SetUserDataItem("weaponData", msg.data);
           // _this.YJController.SetUserDataItem("weaponData", "pickType", pickType);
           // _this.YJController.SetUserDataItem("weaponData", "weaponType", weaponType);
-          _this.YJController.SetUserDataItem("weaponData", "weaponId",  owner.GetData().folderBase);
+          _this.YJController.SetUserDataItem("weaponData", "weaponId", owner.GetData().folderBase);
           // _this.YJController.SetUserDataItem("weaponData", "attackSpeed", attackSpeed);
           // _this.YJController.SetUserDataItem("weaponData", "vaildDis", vaildDis);
           // _this.YJController.SetUserDataItem("weaponData", "animNameIdle", animNameIdle);
@@ -324,34 +326,34 @@ class SceneManager {
           // if(msg.data.readyParticleId){
           //   _this.YJController.SetUserDataItem("weaponData", "readyParticleId", msg.data.readyParticleId);
           // }
- 
 
-          _this.YJController.SetUserDataItem("weaponDataData",{});
+
+          _this.YJController.SetUserDataItem("weaponDataData", {});
           _this.YJController.SetUserDataItem("weaponDataData", owner.GetData());
 
 
           let realyBoneName = boneName;
           let boneList = _this.YJPlayer.GetavatarData().boneList;
-          if(boneList){
+          if (boneList) {
             for (let i = 0; i < boneList.length; i++) {
               const item = boneList[i];
-              if(item.targetBone == boneName){ 
-                realyBoneName = item.boneName; 
+              if (item.targetBone == boneName) {
+                realyBoneName = item.boneName;
               }
             }
           }
 
-          let realyPos = [0,0,0];
-          let realyRota = [0,0,0];
-          let realyScale = [1,1,1];
+          let realyPos = [0, 0, 0];
+          let realyRota = [0, 0, 0];
+          let realyScale = [1, 1, 1];
           let refBoneList = _this.YJPlayer.GetavatarData().equipPosList;
-          if(refBoneList){
+          if (refBoneList) {
             for (let i = 0; i < refBoneList.length; i++) {
               const item = refBoneList[i];
-              if(item.targetBone == boneName && item.weaponType == weaponType){
-                realyPos = item.position?item.position:realyPos;
-                realyRota = item.rotation?item.rotation:realyRota;
-                realyScale = item.scale?item.scale:realyScale;
+              if (item.targetBone == boneName && item.weaponType == weaponType) {
+                realyPos = item.position ? item.position : realyPos;
+                realyRota = item.rotation ? item.rotation : realyRota;
+                realyScale = item.scale ? item.scale : realyScale;
               }
             }
           }
@@ -361,7 +363,7 @@ class SceneManager {
             let weaponModel = owner.GetGroup();
             boneAttachList.push(
               {
-                boneName:boneName,
+                boneName: boneName,
                 parent: weaponModel.parent,
                 transform: owner
               });
@@ -376,11 +378,11 @@ class SceneManager {
             // weaponModel.scale.set(100, 100, 100);
 
             let pos = realyPos;
-            let rotaV3 = realyRota;          
+            let rotaV3 = realyRota;
             let scale = realyScale;
             weaponModel.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
             weaponModel.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
-            weaponModel.scale.set(100*scale[0], 100*scale[1], 100*scale[2]);
+            weaponModel.scale.set(100 * scale[0], 100 * scale[1], 100 * scale[2]);
 
 
             // 绑定到骨骼后，清除trigger
@@ -409,7 +411,7 @@ class SceneManager {
         }
         // console.log(" in overlap yjtransform ", msg);
 
-      } 
+      }
       if (b) {
         if (id == "portal_001" || id == "portal_002") {
           if (id == "portal_001") {
@@ -615,7 +617,7 @@ class SceneManager {
     this.ReceivePlayer = function (model) {
       // 
       // console.log("接收道具 ",model);
-      if(!model){
+      if (!model) {
         return;
       }
       if (_this.YJController.isInDead()) {
@@ -720,7 +722,7 @@ class SceneManager {
       if (boneAttachList.length == 0) { return; }
 
       _this.YJController.SetUserDataItem("weaponData", null);
- 
+
       // _this.YJController.SetUserDataItem("weaponData", "weaponId", "");
       // _this.YJController.SetUserDataItem("weaponData", "weaponType", "");
       // _this.YJController.SetUserDataItem("weaponData", "transId", "");
@@ -781,8 +783,11 @@ class SceneManager {
       oldTarget = targetModel;
 
       if (targetModel == null) {
-        indexVue.$refs.HUD.$refs.headerUI.display = false;
+        if (indexVue.$refs.HUD) {
+          indexVue.$refs.HUD.$refs.headerUI.display = false;
+        }
         ClearProjector();
+        _Global.YJ3D._YJSceneManager.GetTransformManager().detach();
         return;
       }
       let npcComponent = targetModel.GetComponent("NPC");
@@ -956,6 +961,12 @@ class SceneManager {
         return;
       }
       console.log("点击物体 ", modelType);
+      if (modelType == "bonedummy") {
+        // 选中创建的骨骼参考虚拟物体
+        _Global.YJ3D._YJSceneManager.GetTransformManager().attach(hitObject.parent);
+        return;
+      }
+
       if (modelType == "chair") {
         if (hitObject.owner != undefined) {
 
@@ -1099,15 +1110,15 @@ class SceneManager {
     }
 
     // 加载地图id内的模型完成
-    this.LoadMapCompleted = ()=>{
+    this.LoadMapCompleted = () => {
       _SceneDyncManager.InitDyncSceneModels();
     }
     this.ChangeScene = function (e) {
- 
+
       let routerPath = _this.$route.path.toLowerCase();
-      if ( routerPath.includes("metaworld")) {
+      if (routerPath.includes("metaworld")) {
         new SceneManagerMetaworld(scene, renderer, camera, _this, modelParent, indexVue);
-      }  
+      }
 
       indexVue.$nextTick(() => {
         if (indexVue.$refs.gameUI) {
@@ -1121,7 +1132,126 @@ class SceneManager {
           indexVue.$refs.gameUI.ChangeScene(e.roomName);
         }
       });
-      return; 
+
+      // const ball = new THREE.Mesh(new THREE.SphereGeometry(2, 20, 20), new THREE.MeshStandardMaterial({ color: 0xff0000 }));
+      // scene.add(ball);
+      console.log("renderer.sortObjects ", renderer.sortObjects);
+      renderer.sortObjects = false;
+      let modelData = JSON.parse(localStorage.getItem("modelData"));
+      if (modelData.modelType == "角色模型") {
+        //给骨骼添加dummy显示
+        let bones = _Global.YJ3D._YJSceneManager
+          .GetSingleTransformComponent("MeshRenderer").GetAllBoneModel();
+        for (let i = 0; i < bones.length; i++) {
+          const item = bones[i];
+          if (
+             item.name == "node__0_1L_-467894"
+            || item.name == "袖_0_1_R"
+            || item.name == "袖_0_1_L"
+            || item.name == "后摆_1_0"
+            || item.name == "后摆_1_1"
+            || item.name == "后摆_1_2"
+            || item.name == "后摆_1_3"
+            || item.name == "后摆_1_4"
+            || item.name == "后摆_1_5"
+            || item.name == "后摆_1_6"
+            || item.name == "后摆_1_7"
+            || item.name == "后摆_1_8"
+            || item.name == "后摆_1_9"
+            || item.name == "后摆_1_10"
+            || item.name == "后摆_1_11"
+            || item.name == "侧髪_2_1_L"
+            || item.name == "侧髪_2_1_R"
+            || item.name == "后髪_0_1"
+
+          ) {
+            let _YJAmmoRope = new YJAmmoRope(_this, scene);
+            _YJAmmoRope.CreateRopeBone(item);
+            // _YJGlobal._YJAmmo.AddNeedUpdateJS(_YJAmmoRope);
+
+            console.log(" 添加袖子物理节点 ");
+          }
+          // scene.attach(ball);
+        }
+
+
+        let obj = _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
+        console.log("GetSingleModelTransform ", obj);
+        let _YJAmmoPlayerBody = new YJAmmoPlayerBody(_this, scene);
+        _YJAmmoPlayerBody.CreateRopeBone(obj.GetGroup());
+
+        // setInterval(() => {
+        //   obj.GetGroup().position.add(new THREE.Vector3(0.01,0,0));
+        // }, 20);
+
+        // bones.forEach(bone => {
+        //   console.log(bone);
+        //   const ball = new THREE.Mesh(new THREE.SphereGeometry(222.2, 20, 20), new THREE.MeshPhongMaterial({ color: 0x202020 }));
+        //   ball.castShadow = true;
+        //   ball.receiveShadow = true;
+        //   bone.add(ball);
+        // });
+
+
+      }
+
+
+      console.log(" =======场景加载完成 ");
+      return;
+    }
+    this.DisplayBoneDummy = function (b) {
+      let bones = _Global.YJ3D._YJSceneManager
+        .GetSingleTransformComponent("MeshRenderer").GetAllBoneModel();
+      for (let i = 0; i < bones.length; i++) {
+        const item = bones[i];
+
+        if (b) {
+
+          let boneHeight = 0.02;
+          let pos1 = item.getWorldPosition(new THREE.Vector3());
+          if (item.children.length > 0) {
+            for (let i = 0; i < item.children.length; i++) {
+              const element = item.children[i];
+              if (element.isBone) {
+
+                let pos2 = element.getWorldPosition(new THREE.Vector3());
+                boneHeight = pos1.distanceTo(pos2);
+                console.log(" 骨骼长度 ", boneHeight);
+              }
+            }
+          } else {
+
+          }
+
+          const ball = new THREE.Mesh(
+            new THREE.ConeGeometry(0.02, boneHeight, 3),
+            // new THREE.SphereGeometry(0.02, 20, 20), 
+            new THREE.MeshBasicMaterial(
+              {
+                color: 0x0000ff,
+                transparent: true,
+                opacity: 0.5,
+              }
+            ));
+          item.attach(ball);
+          ball.position.set(0, boneHeight / 2, 0);
+          ball.rotation.set(0, 0, 0);
+          ball.tag = "bonedummy";
+          ball.name = item.name;
+          item.bonedummy = ball
+          // ball.renderOrder = 10;
+          // item.renderOrder = 10;
+          ball.renderOrder = Number.MAX_SAFE_INTEGER;
+          item.renderOrder = Number.MAX_SAFE_INTEGER;
+        }else{
+          if(item.bonedummy){
+            item.remove(item.bonedummy);
+            item.bonedummy = undefined;
+          }
+        }
+
+        // scene.attach(ball);
+      }
     }
 
 

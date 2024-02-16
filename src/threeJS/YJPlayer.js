@@ -340,7 +340,7 @@ class YJPlayer {
             if (controllerCallback) {
               controllerCallback(group, playerGroup);
             }
-            console.log("创建 本地角色 == > " + playerName, playerHeight);
+            console.log("创建 本地角色 == > " + playerName, playerHeight,avatarData.rotaY);
             _this.YJController.SetTargetHeight(playerHeight);
 
           } else {

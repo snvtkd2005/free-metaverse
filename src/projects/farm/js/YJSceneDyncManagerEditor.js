@@ -1261,6 +1261,7 @@ class YJSceneDyncManagerEditor {
 
     function init() {
       _YJSkillParticleManager = new YJSkillParticleManager(_this);
+      //弹幕管理器
       _YJDMManager = new YJDMManager_bilibili(indexVue,scope,_SceneManager);
       update();
     }

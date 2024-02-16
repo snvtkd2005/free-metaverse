@@ -1001,7 +1001,9 @@ class YJController {
 
       // RotaBase(x,y);
     }
-
+    this.CallRotaBase = function(x, y){
+      RotaBase(x,y);
+    }
 
     //鼠标左键或右键拖动控制左右旋转， 视角上下旋转
     function RotaBase(x, y) {
@@ -3469,8 +3471,8 @@ class YJController {
         camp: "lm", //阵营
         speed: 8, //移动速度
         level: 1, //等级
-        health: 200, //当前剩余生命值
-        maxHealth: 200, //最大生命值
+        health: 500, //当前剩余生命值
+        maxHealth: 500, //最大生命值
         strength: 30, //攻击力
         armor: 0, //护甲
         energy: 0, //能量

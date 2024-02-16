@@ -23,6 +23,35 @@ class YJDMManager_bilibili {
     }
     this.stopAudio = function (id) { 
     }
+    let dmCtrl = [
+      {msg:"走",event:()=>_Global.YJ3D.YJController.onKeyDown({code:"KeyW"})},
+      {msg:"停",event:()=>_Global.YJ3D.YJController.onKeyUp({code:"KeyW"})},
+      {msg:"攻击",event:()=>{
+        _Global.YJ3D.YJController.onKeyUp({code:"KeyW"});
+        _Global.YJ3D.YJController.SetInteractiveNPC("点击技能", "普通攻击");
+      }},
+      {msg:"11",event:()=>{
+        indexVue.$refs.HUD.$refs.skillPanel_virus.ClickSkillIndex(0); 
+      }},
+      {msg:"22",event:()=>{
+        indexVue.$refs.HUD.$refs.skillPanel_virus.ClickSkillIndex(1); 
+      }},
+      {msg:"33",event:()=>{
+        indexVue.$refs.HUD.$refs.skillPanel_virus.ClickSkillIndex(2); 
+      }},
+      {msg:"44",event:()=>{
+        indexVue.$refs.HUD.$refs.skillPanel_virus.ClickSkillIndex(3); 
+      }},
+      {msg:"55",event:()=>{
+        indexVue.$refs.HUD.$refs.skillPanel_virus.ClickSkillIndex(4); 
+      }},
+      {msg:"左转",event:()=>{
+        _Global.YJ3D.YJController.CallRotaBase(0.5, 0);
+      }},
+      {msg:"右转",event:()=>{
+        _Global.YJ3D.YJController.CallRotaBase(-0.5, 0);
+      }},
+    ];
     function init() {
       new socket_bilibili((data)=>{
         let {cmd, msg, uname, uid,uface } = data;
@@ -37,6 +66,12 @@ class YJDMManager_bilibili {
                 _SceneManager.ReceivePlayer( propList[i]);
               }
               // return;
+            } 
+            for (let i = 0; i < dmCtrl.length; i++) {
+              const element = dmCtrl[i];
+              if(element.msg==msg){
+                element.event(); 
+              }
             }
             if (_Global.YJDync) {
               _Global._YJDyncManager.SendSceneStateAll("转发", { type: "弹幕", state: {uface,uname,msg} });

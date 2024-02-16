@@ -1,9 +1,9 @@
 
-<!-- // 场景编辑UI -->
+<!-- 单品编辑UI -->
 <template>
   <div class="absolute left-0 top-0 z-999 w-full h-full flex flex-col">
     <button ref="opacityBtn" class="opacity-0"></button>
-    <!-- 顶部 -->
+    <!-- 顶部工具栏 -->
     <div class="
         absolute
         z-20
@@ -14,13 +14,10 @@
         flex
         bg-445760
         text-gray-200
-      ">
-      <!-- 顶部工具栏 -->
-      <!-- table -->
+      "> 
       <div class="flex">
         <el-upload v-if="hasImport" class="bg-transparent" action="" multiple :before-upload="handleBeforeUpload"
-          :accept="accept" :show-file-list="false">
-          <!-- :before-upload="changeFile" -->
+          :accept="accept" :show-file-list="false"> 
           <div class="p-2 w-20 cursor-pointer hover:bg-546770">导入</div>
         </el-upload>
 
@@ -42,23 +39,9 @@
     <!-- 中部 -->
 
     <!-- 摆放模型 -->
-
     <YJmetaBase :avatarData="avatarData" ref="YJmetaBase" />
     <div class="hidden absolute top-0 left-0 cutimg overflow-hidden">
       <canvas id="nowcanvas" class="bg-white"> </canvas>
-    </div>
-    <loadingPanel class="absolute z-50 left-0 top-0" ref="loadingPanel" />
-
-    <!-- 右侧检视面板 @click="inAddComponent=false;"-->
-    <div class="absolute right-0 top-0 w-80 h-full bg-546770">
-      <settingPanelCtrl ref="settingPanelCtrl" />
-      
-      <!-- <div class=" mt-10 w-80 h-10 border-t text-white cursor-pointer " @click.stop="inAddComponent=true;">
-        <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">Add Component</div>
-      </div>
-      <div class="  mt-2 w-80 flex   " v-if="inAddComponent">
-        <addComponent ref="addComponent" />
-      </div> -->
     </div>
 
     <!-- 修改名称 -->
@@ -68,22 +51,7 @@
         :placeholder="modelData.name" @focus="removeThreeJSfocus" @blur="addThreeJSfocus" />
     </div>
 
-    <!-- 截图区域安全区域 -->
-    <PanelCut @cancel="CancelCut" ref="PanelCut" />
-
-    <modelSelectPanel ref="modelSelectPanel" />
-    <animPanel ref="animPanel" />
-    <boneConvertPanel ref="boneConvertPanel" />
-
-    <div class=" absolute left-24 top-10">
-      <!-- 左上角血条头像 -->
-      <headerUI ref="headerUI" />
-    </div>
-
-    <skillProgressUI ref="skillProgressUI" />
-
     <!-- 与后台交互的操作提示 -->
-    <!---->
     <div v-if="tipData.opening" class="absolute left-0 top-10 w-full flex">
       <div class="
           mx-auto
@@ -118,6 +86,27 @@
         </div>
       </div>
     </div>
+
+    <!-- 右侧检视面板 -->
+    <div class="absolute right-0 top-0 w-80 h-full bg-546770">
+      <settingPanelCtrl ref="settingPanelCtrl" />
+    </div>
+
+    <!-- 截图区域安全区域 -->
+    <PanelCut @cancel="CancelCut" ref="PanelCut" />
+
+    <modelSelectPanel ref="modelSelectPanel" />
+    <animPanel ref="animPanel" />
+    <boneConvertPanel ref="boneConvertPanel" />
+
+    <div class=" absolute left-24 top-10">
+      <!-- 左上角血条头像 -->
+      <headerUI ref="headerUI" />
+    </div>
+    <loadingPanel class="absolute z-50 left-0 top-0" ref="loadingPanel" />
+
+    <skillProgressUI ref="skillProgressUI" />
+
   </div>
 </template>
 
@@ -168,6 +157,7 @@ export default {
     return {
       inAddComponent: false,
       hasUI: true,
+      
       panelState: {
         // setting: false,
         setting: false,

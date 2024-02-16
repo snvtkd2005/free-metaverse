@@ -48,6 +48,9 @@ export default {
     userName: "test", 
     // 默认角色
     avatarName: "小孩",
+    // avatarName: "fox",
+    // avatarName: "unity娘",
+    
   },
   // 角色选择界面的角色信息
   playerImgPath: [
@@ -130,6 +133,7 @@ export default {
       nameScale: 1,
       // 模型缩放
       modelScale: 1,
+      rotaY:3.14,
       img: "img/player/farmPlayer.png",
       modelType: "角色",
       // modelPath: "models/playerSkin/UTC_body.gltf", 
@@ -189,8 +193,8 @@ export default {
     {
       id: "小孩",
       name: "小孩",
-      height: 0.1,
-      // height: 1.7,
+      // height: 0.1,
+      height: 1.7,
       nameScale: 1,
       // 模型缩放
       modelScale: 1,
@@ -252,6 +256,7 @@ export default {
       height: 1.4,
       nameScale: 1,
       modelScale: 1,
+      rotaY:3.14,
       img: "images/player/13.png",
       modelType: "角色",
       modelPath: "models/player/unitychan/unitychan.gltf",
@@ -269,13 +274,14 @@ export default {
       name: "fox",
       height: 1.7,
       nameScale: 1,
-      modelScale: 0.01,
+      modelScale: 1,
+      rotaY:1,
       img: "models/player/fox/1658030620950_thrumb.png",
       modelType: "角色",
       modelPath: "models/player/fox/Fox.fbx",
       animationsData: [
         { clipIndex: 0, animName: "idle", timeScale: 1, connected: false, targetIndex: 0 },
-        { clipIndex: 1, animName: "walk", timeScale: 1, connected: false, targetIndex: 2 },
+        { clipIndex: 1, animName: "run", timeScale: 1, connected: false, targetIndex: 2 },
         { clipIndex: 2, animName: "jump", timeScale: 1, connected: false, targetIndex: 1 }
       ]
     },

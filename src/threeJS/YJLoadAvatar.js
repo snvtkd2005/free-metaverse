@@ -386,7 +386,7 @@ class YJLoadAvatar {
 
           playerObj.position.set(0, 0, 0); //原点位置
 
-          playerObj.rotation.set(0, 3.14, 0); // 
+          // playerObj.rotation.set(0, 3.14, 0); // 
 
           // console.log("animData = ",animData);
 

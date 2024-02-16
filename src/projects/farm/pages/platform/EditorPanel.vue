@@ -35,9 +35,7 @@
           :placeholder="modelData.name" @focus="removeThreeJSfocus" @blur="addThreeJSfocus" />
       </div>
 
-      <!-- <div ref="container" class=" absolute z-auto left-0 top-0 w-1/2 h-1/2 bg-black "></div> -->
       <!-- 与后台交互的操作提示 -->
-      <!---->
       <div v-if="tipData.opening" class=" absolute left-0 top-10 w-full flex  ">
         <div class=" mx-auto flex w-auto  bg-blue-400 text-white text-xl rounded-lg h-10">
           <div class=" px-4  mx-auto self-center ">

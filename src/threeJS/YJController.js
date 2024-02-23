@@ -3651,9 +3651,9 @@ class YJController {
     }
 
 
-    this.SetPlayerAnimName = function (_animName) {
+    this.SetPlayerAnimName = function (_animName,animNameFullback) {
       animName = _animName;
-      _YJPlayer.ChangeAnim(animName);
+      _YJPlayer.ChangeAnim(animName,animNameFullback);
     }
     this.ChangeAnimDirect = function (_animName) {
       animName = _animName;
@@ -3670,6 +3670,7 @@ class YJController {
       oldrotateY = -100;
       // _player.add(new THREE.AxesHelper(2));
       scene.remove(temp);
+      // console.log(" 朝向目标 ");
     }
 
     this.DyncPlayerState = function (state) {

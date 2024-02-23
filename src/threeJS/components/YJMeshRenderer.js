@@ -216,7 +216,7 @@ class YJMeshRenderer {
           model.scale.set(1 * meshScale, 1 * meshScale, 1 * meshScale);
 
           scene.add(model);
-          console.log(" 加载模型完成 11 ", model);
+          // console.log(" 加载模型完成 11 ", model);
           _this._YJSceneManager.addLoadMesh(modelPath, model);
           
           TraverseOwner(model);

@@ -98,6 +98,15 @@ class YJLoadUserModelManager {
       }
       return null;
     }
+    
+    this.GetTransformByModelId = function (modelId) {
+      for (let i = 0; i < allTransform.length; i++) {
+        if (allTransform[i].modelId == modelId) {
+          return allTransform[i].transform;
+        }
+      }
+      return null;
+    }
     //#region 使用物理模拟判断是否与其他模型重叠，重叠时无法放置模型
     let Ammo = null;
     let _YJAmmo = null;
@@ -268,16 +277,17 @@ class YJLoadUserModelManager {
         modelId++;
         id = modelId;
       }
+
       object.id = id;
       let uuid = object.GetUUID();
       if (parent == null || parent == scene) {
-        allTransform.push({ uuid: uuid, id: id,modelName:modelData.name, transform: object });
+        allTransform.push({ uuid: uuid, id: id,modelName:modelData.name,modelId:modelData.modelId, transform: object });
       }
 
       object.modelData = JSON.parse(JSON.stringify(modelData));
       object.SetPosRota(modelData.pos, modelData.rotaV3, modelData.scale);
       object.SetModelPath(modelData.modelPath);
-      object.SetData(modelData.folderBase, modelData.modelType, id, mapId);
+      object.SetData(modelData.folderBase, modelData.modelType, id, mapId,modelData.active,modelData.modelId);
       _this._YJSceneManager.AddNeedUpdateJS(object);
 
       let modelPath = modelData.modelPath;
@@ -522,6 +532,7 @@ class YJLoadUserModelManager {
         });
       } else {
         MeshRenderer.load(modelPath, () => {
+          object.SetMessage(modelData.message);
           if (callback) {
             callback(object);
           }
@@ -763,7 +774,14 @@ class YJLoadUserModelManager {
         }
       }, id);
     }
-
+    this.DuplicateModelNPC = function (modelData, callback, id) {
+      CreateTransform(null, modelData, (object) => {
+        modelDataList.push(object.GetData());
+        if (callback) {
+          callback(object);
+        }
+      }, id);
+    }
     // 加载单个场景的模型
     this.CallLoadSceneModelByIndex = function (data) {
       modelDataList = data;

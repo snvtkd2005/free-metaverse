@@ -99,6 +99,7 @@ class SceneManager {
       //   RequestSceneData();
       // }, 1000);
 
+      _Global.SceneManager = scope;
 
       _YJGlobal._SceneManager = scope;
 
@@ -172,14 +173,33 @@ class SceneManager {
           //   }
           return;
         }
-        // if (key == "Digit3") {
-        //   scope.UserModel("attack", "南瓜");
-        //   return;
-        // }
-        // if (key == "Digit4") {
-        //   scope.UserModel("attack", "胡萝卜");
-        //   return;
-        // }
+        if (key == "Digit3") {
+          let yjtransform = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId("弓箭手");
+          let boss = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId("boss");
+          let modelData = JSON.parse(JSON.stringify(yjtransform.modelData));
+          modelData.active = true;
+          _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().DuplicateModelNPC(modelData,(copy)=>{
+            // 测试显示指定名称id的NPC
+            copy.SetActive(true);
+            let npc = copy.GetComponent("NPC");
+            if(npc.isDead){
+              npc.Dync({title:"重新生成"});
+            }
+            _Global.DyncManager.AddNpc(copy); 
+            npc.CreateHeader("https://i1.hdslb.com/bfs/face/d5c63d43ac8d77ba400ba392ff1d396c85897b0c.jpg");
+
+            // let npcComponent = copy.GetComponent("NPC");
+            // _Global.DyncManager.NPCAddFireGroup(npcComponent,boss.id);
+            //并指定其目标为指定名称id的npc
+            // copy.GetComponent("NPC").SetNpcTarget(boss.GetComponent("NPC"),true,true);
+          },new Date().getTime());
+          return;
+        }
+        if (key == "Digit4") {
+          // 开始战斗
+          _Global.DyncManager.FireOn(); 
+          return;
+        }
         if (key == "KeyT") {
           scope.PickDownWeapon();
           return;
@@ -199,11 +219,12 @@ class SceneManager {
           //   _this._YJSceneManager.ClickInteractive();
           // }
         }
-
+ 
 
         if (_Global.TransformController.getUsing()) {
           let mode = _Global.TransformController.getMode();
-          _Global.TransformController.onKeyDown(event);
+          _Global.TransformController.onKeyDown(event); 
+
           if ((key == "KeyW" && mode != "translate")
             || (key == "KeyE" && mode != "rotate")
             || (key == "KeyR" && mode != "scale")
@@ -752,11 +773,18 @@ class SceneManager {
     }
 
     //#region 对npc的伤害显示在屏幕上
-    this.UpdateNpcDamageValue = function (owner, type, value, pos) {
+    let damageStatistics = [];
+    this.ResetDamageStatistics = function(){
+      damageStatistics = [];
+    }
+    this.GetDamageStatistics = function(){
+      return damageStatistics;
+    }
+    this.UpdateNpcDamageValue = function (from,to, type, value, pos,addredius) {
       let _pos = _Global.YJ3D._YJSceneManager.WorldPosToScreenPos(pos);
-      // console.log("伤害和坐标", value, _pos);
-      indexVue.$refs.HUD.$refs.damageUI.AddDamage(owner, type, value, _pos);
-
+      // console.log("伤害和坐标", from,to,value, _pos);
+      indexVue.$refs.HUD.$refs.damageUI.AddDamage(to, type, value, _pos,addredius);
+      damageStatistics.push({from,to,value});
     }
 
     //#endregion

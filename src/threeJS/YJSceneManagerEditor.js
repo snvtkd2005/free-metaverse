@@ -2065,21 +2065,25 @@ class YJSceneManager {
           for (let i = hotPointJS.length - 1; i >= 0; i--) {
             hotPointJS[i].SetTriggerVisible(hotPointTriggerVisible);
           }
+          return;
         }
         if (key == "ShiftLeft+C") {
           colliderVisible = !colliderVisible;
           displayColliderFn(colliderVisible);
+          return;
         }
 
+        if (key == "ControlLeft+D") {
+          if (_this.$parent.$parent.DuplicateModel) {
+            _this.$parent.$parent.DuplicateModel();
+          }
+          return;
+        }
+        key = key.code;
         // 删除选中的模型
         if (key == "Delete") {
           if (_this.$parent.$parent.DelModel) {
             _this.$parent.$parent.DelModel();
-          }
-        }
-        if (key == "ControlLeft+D") {
-          if (_this.$parent.$parent.DuplicateModel) {
-            _this.$parent.$parent.DuplicateModel();
           }
         }
         // 取消选中

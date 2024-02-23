@@ -116,6 +116,8 @@ export default {
     },
     UpdateCheckWindowResize() {
 
+      // console.log(" resize 3d panel ",this.containerWidth, this.containerHeight);
+
       if (this.$refs.container && !this.isMobile) {
         this.containerWidth = this.$refs.container.clientWidth;
         this.containerHeight = this.$refs.container.clientHeight;
@@ -134,7 +136,7 @@ export default {
       ) {
       } else {
         this.windowWidth = this.containerWidth;
-        this.windowHeight = this.containerHeight;
+        this.windowHeight = this.containerHeight; 
         if (this.onlyLandscape) {
           if (this.windowWidth <= this.windowHeight) {
             this.onWindowResizeFn(this.windowHeight, this.windowWidth, true);

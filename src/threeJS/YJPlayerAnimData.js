@@ -164,12 +164,20 @@ class YJPlayerAnimData {
                   }
                 });
               }
+              return;
             }
           }
         }
+
+        if (callback) {
+          callback("",null);
+        }
+        return;
         //*/
 
       }
+
+
     }
 
     async function loadAssset(path, callback) {
@@ -486,6 +494,7 @@ class YJPlayerAnimData {
     }
     this.GetAnimNameByPlayStateAndWeapon = function (e, weaponData) {
       let animName = "";
+      let animNameFullback = ""; //没有动作时的回滚动作
       switch (e) {
         case "普通攻击":
           animName = "fight attack"; //空手状态 攻击状态 拳击动作 
@@ -539,6 +548,8 @@ class YJPlayerAnimData {
           break;
         case "移动":
           animName = "run";
+          animNameFullback = "run";  
+
           if (weaponData) {
             // let _animName = GetAnimName(e, weaponData);
             let _animName = weaponData.animNameRun;
@@ -549,6 +560,7 @@ class YJPlayerAnimData {
           break;
         case "停止移动":
           animName = "idle";
+          animNameFullback = "idle";  
           if (weaponData) {
             // let _animName = GetAnimName(e, weaponData);
             let _animName = weaponData.animNameIdle;
@@ -559,6 +571,7 @@ class YJPlayerAnimData {
           break;
         case "战斗结束":
           animName = "idle";
+          animNameFullback = "idle";  
           if (weaponData) {
             // let _animName = GetAnimName(e, weaponData);
             let _animName = weaponData.animNameIdle;
@@ -570,6 +583,7 @@ class YJPlayerAnimData {
 
         case "行走":
           animName = "walk";
+          animNameFullback = "walk";  
           if (weaponData) {
             // let _animName = GetAnimName(e, weaponData);
             let _animName = weaponData.animNameWalk;
@@ -595,8 +609,10 @@ class YJPlayerAnimData {
         default:
           break;
       }
-
-      return animName;
+      if(animNameFullback == ""){
+        animNameFullback = animName;
+      }
+      return {animName,animNameFullback} ;
     }
 
 

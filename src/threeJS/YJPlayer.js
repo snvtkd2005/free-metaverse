@@ -378,7 +378,11 @@ class YJPlayer {
         },
         (animName) => {
           _this._YJSceneManager.CreateOrLoadPlayerAnimData().GetExtendAnim(avatarId, animName, (isLoop, anim) => {
-            avatar.ChangeAnimByAnimData(animName, isLoop, anim);
+            if(anim != null){
+              avatar.ChangeAnimByAnimData(animName, isLoop, anim);
+            }else{
+              avatar.ChangeAnim(animNameFullback);
+            }
           });
         }
       );
@@ -788,9 +792,11 @@ class YJPlayer {
     //----------PC 端 同步角色动作 开始-----------------
 
     var oldAnimName = "";
+    let animNameFullback = "";
     //切换动画
-    this.ChangeAnim = function (animName) {
+    this.ChangeAnim = function (animName,_animNameFullback) {
       // console.log("切换动画 ", animName);
+      animNameFullback = _animNameFullback;
       ChangeAnimFn(animName);
     }
     function ChangeAnimFn(animName) {
@@ -1318,6 +1324,10 @@ class YJPlayer {
       // console.log("in "+(local?'自身':'其他')+   " pos = " + posToString(getWorldPosition()) + "  rota = "+posToString(playerObj.rotation));
       // console.log("in playerObj   pos = " + posToString(playerObj.position) + "  rota = "+posToString(playerObj.rotation));
 
+    }
+ 
+    this.GetCamp = function () {
+      return scope.camp;
     }
   }
 }

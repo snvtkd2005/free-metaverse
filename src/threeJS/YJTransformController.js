@@ -20,8 +20,8 @@ class YJTransformController {
       }
     }
     
-    this.getUsing = function(){
-      return selectMesh != null;
+    this.getUsing = function(){ 
+      return selectMesh;
     } 
     this.getMode = function(){
       return transformController.getMode();
@@ -45,6 +45,7 @@ class YJTransformController {
       }
 
       transformController = new TransformControls(camera, renderer.domElement);
+
       // transformController.addEventListener( 'change', render );
       transformController.addEventListener('dragging-changed', function (event) {
         if (_this.YJController) {
@@ -95,6 +96,7 @@ class YJTransformController {
       transformController.visible = false;
     }
     this.onKeyDown = function(event){
+      // console.log(event);
       switch (event.keyCode) {
 
         case 81: // Q
@@ -117,7 +119,7 @@ class YJTransformController {
           break;
 
         case 69: // E
-        transformController.setMode('rotate');
+          transformController.setMode('rotate');
 
           //旋转Y
           transformController.showY = true;
@@ -217,14 +219,9 @@ class YJTransformController {
       selectMesh = null;
       transformController.visible = false;
       _Global.SetEnableGravity(true);
-    }
 
-
-
-    InitTransformController();
-    //#region 
-    //#endregion
-
+    } 
+    InitTransformController();  
 
   }
 }

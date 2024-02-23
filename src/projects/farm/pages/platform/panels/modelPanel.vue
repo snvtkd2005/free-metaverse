@@ -1,9 +1,9 @@
 
 <template>
   <!-- 模型库 模型列表选择 -->
-  <div v-if="isOpen" class=" w-full h-full bg-445760  ">
+  <div v-if="isOpen" class=" w-full h-full bg-445760 flex flex-col  ">
     <!-- 分类table -->
-    <div class="flex bg-546770">
+    <div class="flex bg-546770 h-8">
       <div v-for="(item, i) in modelTable" :key="i" :index="item.name"
         class=" mr-2 text-sm w-auto h-8 self-center  cursor-pointer flex"
         :class="selectModelTable == item.name ? 'bg-445760 text-white ' : ' text-gray-400 '"
@@ -18,9 +18,9 @@
     </div>
 
     <!-- 模型库 分类筛选后列表 -->
-    <div class=" overflow-y-auto overscroll-auto flex flex-wrap mt-1 w-full h-40 text-white">
+    <div class=" overflow-y-auto overscroll-auto flex flex-wrap w-full pt-1 grow text-white">
       <div v-for="(item, i) in modelsList" :key="i" :index="item.icon"
-        class=" w-20 h-20 rounded-md  hover:bg-blue-400cursor-pointer  flex flex-col text-xs "
+        class=" w-20 h-20 rounded-md  hover:bg-blue-400 cursor-pointer  flex flex-col text-xs "
         v-show="item.modelType == selectModelTable" :class="selectModelItem.name == item.name ? 'bg-blue-400' : ' '"
         @click="ChangeSceneByUI(item)">
         <div class=" w-full h-16  rounded-md self-center mx-auto">

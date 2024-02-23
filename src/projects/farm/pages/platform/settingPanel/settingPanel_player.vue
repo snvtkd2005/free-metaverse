@@ -386,6 +386,8 @@ export default {
     },
 
     getMessage() {
+      this.settingData.weaponData=undefined;
+      this.settingData.weapon=undefined;
       return {
         pointType: this.pointType,
         data: this.settingData,

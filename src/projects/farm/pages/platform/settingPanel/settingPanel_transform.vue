@@ -9,6 +9,7 @@
              overflow-hidden 
             ">
     <div class=" text-left ">变换</div>
+
     <div class=" w-full">
       <YJinputCtrl :setting="setting" />
     </div> 
@@ -33,11 +34,15 @@ YJinputCtrl,
     return { 
       isLock:false,
       settingData: {
+        modelId:"",
+        active:true,
         position: [0, 0, 0],
         rotation: [0, 0, 0],
         scale: [1, 1,1], 
       }, 
       setting: [ 
+        { property: "modelId", display: true, title: "唯一id", type: "text", value: "", callback: this.ChangeValue },
+        { property: "active", display: true, title: "是否显示", type: "toggle", value: true, callback: this.ChangeValue },
         { property: "position", display: true, title: "坐标", type: "vector3", value: [0, 0, 0], step: 0.01, callback: this.ChangeValue },
         { property: "rotation", display: true, title: "旋转", type: "vector3", value: [0, 0, 0], step: 0.1, callback: this.ChangeValue },
         { property: "scale", display: true, title: "缩放", type: "vector3", value: [1,1, 1], step: 0.01, callback: this.ChangeValue },
@@ -45,9 +50,6 @@ YJinputCtrl,
     };
   },
   created() {
-
-    this.parent = this.$parent.$parent;
-    this.initValue();
 
   },
   mounted() { 
@@ -58,6 +60,8 @@ YJinputCtrl,
       this.Utils.SetSettingItemByProperty(this.setting, "position", this.settingData.position);
       this.Utils.SetSettingItemByProperty(this.setting, "rotation", this.settingData.rotation);
       this.Utils.SetSettingItemByProperty(this.setting, "scale", this.settingData.scale);
+      this.Utils.SetSettingItemByProperty(this.setting, "active", this.settingData.active);
+      this.Utils.SetSettingItemByProperty(this.setting, "modelId", this.settingData.modelId);
     },  
     Init(transformJS) {
       this.transformJS = transformJS;
@@ -83,6 +87,15 @@ YJinputCtrl,
       } 
       if (this.setting[i].property == "scale") { 
         this.transformJS.SetScaleArray(e);
+        return;
+      } 
+      
+      if (this.setting[i].property == "active") { 
+        this.transformJS.SetActive(e);
+        return;
+      } 
+      if (this.setting[i].property == "modelId") { 
+        this.transformJS.SetModelId(e);
         return;
       } 
     },

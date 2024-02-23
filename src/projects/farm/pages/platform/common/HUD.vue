@@ -22,7 +22,7 @@
     <damageUI ref="damageUI" />
     <fireStateUI ref="fireStateUI" />
 
-    <DMPanel ref="DMPanel" />
+    <!-- <DMPanel ref="DMPanel" /> -->
 
 
   </div>

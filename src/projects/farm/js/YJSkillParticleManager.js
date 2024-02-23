@@ -28,7 +28,7 @@ class YJSkillParticleManager {
           return;
         }
       }
-      console.log(" 创建旧 拖尾效果 ");
+      // console.log(" 创建旧 拖尾效果 ");
 
       let group = new THREE.Group();
       _Global.YJ3D.scene.add(group);
@@ -97,7 +97,7 @@ class YJSkillParticleManager {
       );
 
       let modelData = res.data; 
-      console.log(" 加载特效 ",modelData);
+      // console.log(" 加载特效 ",modelData);
 
       modelData.folderBase = particleId;
       // modelData.pos = _Global.YJ3D._YJSceneManager.GetPlayerPosReduceHeight();

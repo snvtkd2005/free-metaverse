@@ -17,12 +17,15 @@ class YJTransform {
   constructor(_this, scene, id, pos, rota, name, callback) {
     let scope = this;
     this.isYJTransform = true;
+    this.isYJNPC = false;
     this.modelData = null;
     this.id = -1;
     var model = null;
     let data = {
       id: id, //资源id
+      modelId:"",
       name: name, // 资源名字
+      active:true,//是否显示
       volume: { x: 1, y: 1, z: 1 }, //占用空间体积
       pos: { x: 0, y: 0, z: 0 }, //坐标
       rotaV3: { x: 0, y: 0, z: 0 }, //旋转
@@ -39,13 +42,19 @@ class YJTransform {
     this.AddChildren = function (tranform) {
       children.push(tranform);
     }
-    this.SetData = function (folderBase, modelType, id, mapId) {
+    this.SetData = function (folderBase, modelType, id, mapId,active,modelId) {
       data.folderBase = folderBase;
       data.modelType = modelType;
       data.id = id;
+      data.modelId = modelId;
       data.mapId = mapId;
       if (mapId == undefined) {
         data.mapId = "npcLevel1";
+      }
+      if (active == undefined) {
+        data.active = true;
+      }else{
+        data.active = active;
       }
       this.id = id;
       group.name = modelType + name;
@@ -54,12 +63,15 @@ class YJTransform {
     let de2reg = 57.29578;
     this.GetTransform = function () {
       return {
+        modelId:data.modelId,
+        active:data.active,
         position: [data.pos.x, data.pos.y, data.pos.z],
         rotation: [data.rotaV3.x * de2reg, data.rotaV3.y * de2reg, data.rotaV3.z * de2reg],
         scale: [data.scale.x, data.scale.y, data.scale.z]
       };
     }
     this.GetData = function () {
+      // console.error( data.modelId,"" ,data);
       return data;
     }
     this.GetMessage = function () {
@@ -68,11 +80,17 @@ class YJTransform {
     this.SetMessage = function (message) {
       data.message = message;
 
+      // 静态模型message为空
+      if(message == null){
+        this.SetActive(data.active);
+        return;
+      }
       if (message.pointType == "npc") {
         let com = this.GetComponent("NPC");
         com.SetMessage(message.data);
         this.GetComponent("MeshRenderer").SetSize(message.data.avatarData.modelScale);
         this.GetComponent("MeshRenderer").SetRotaArray(message.data.avatarData.rotation);
+        this.isYJNPC = true;
 
       }
       if (message.pointType == "player" || message.pointType == "avatar") {
@@ -80,8 +98,6 @@ class YJTransform {
         com.SetMessage(message.data);
         this.GetComponent("MeshRenderer").SetSize(message.data.modelScale);
         this.GetComponent("MeshRenderer").SetRotaArray(message.data.rotation);
-
-
       }
       if (message.pointType == "UV动画") {
         let com = this.GetComponent("UVAnim");
@@ -115,6 +131,10 @@ class YJTransform {
         let com = this.GetComponent("Geometry");
         com.SetMessage(message.data);
       }
+      
+      setTimeout(() => {
+        this.SetActive(data.active);
+      }, 200);
     }
     let handlerList = [];
     this.AddHandle = function (handler) {
@@ -139,8 +159,17 @@ class YJTransform {
         }
       }
     }
+    this.SetModelId = function(modelId){
+      data.modelId = modelId;
+    }
     this.SetActive = function (b) {
+      // console.error( " in SetActive ",b);
+      if(group.visible == b){
+        return;
+      }
+      
       group.visible = b;
+      data.active = b;
 
       if (b) {
         _this._YJSceneManager.AddNeedUpdateJS(scope);
@@ -159,7 +188,9 @@ class YJTransform {
       let modelData = JSON.parse(JSON.stringify(scope.modelData));
       scope.SetPosRota(modelData.pos, modelData.rotaV3, modelData.scale);
       let message = data.message;
-
+      if(message == null){ 
+        return;
+      }
       if (b) {
         if (message.pointType == "interactive") {
           let com = this.GetComponent("Interactive");
@@ -377,6 +408,7 @@ class YJTransform {
       data.scale.y = group.scale.y;
       data.scale.z = group.scale.z;
 
+      // console.log(" 编辑结束 ",data.rotaV3);
       if (transformChangeHandler) {
         transformChangeHandler(this.GetTransform());
       }

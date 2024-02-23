@@ -582,7 +582,14 @@ class YJLoadAvatar {
       }
     }
     this.ChangeAnimByAnimData = function (animName, isLoop, anim) {
-      if (animName == "") { return; }
+      if (animName == "") { 
+        console.error(" 找不到动作 ");
+        return; 
+      }
+      if (anim == null) { 
+        console.error(" 找不到动作 ",animName);
+        return; 
+      }
       let action = mixer.clipAction(anim);
       actions.push({
         action: action, animName: animName,
@@ -599,22 +606,12 @@ class YJLoadAvatar {
 
     function activateAllActions(animName) {
       // console.log(animName,actions);
-      let has = false;
-      // for (let i = 0; i < actions.length; i++) {
-      //   const element = actions[i];
-      //   element.action.stop(); 
-      // }
-      // return;
+      let has = false; 
       for (let i = 0; i < actions.length; i++) {
         const element = actions[i];
         if (element.animName == animName) {
           has = true;
-        }
-        // setWeight(element.action, element.animName == animName ? element.weight : 0, element.timeScale);
-        // if (element.action != undefined) { 
-        //   element.action.reset();
-        //   element.action.play();
-        // }
+        } 
       }
       if (has) {
         for (let i = 0; i < actions.length; i++) {
@@ -633,30 +630,16 @@ class YJLoadAvatar {
       }
       // 如果要播放的动作，不在已有动作列表中，则去扩展动作中查找
       if (!has) {
-        
         if (missAnimCallback) {
           missAnimCallback(animName);
         }
-      }
-
-
-
-      // actions.forEach(function (actionData) { 
-      //   if (actionData.action != undefined) {
-      //     console.log("播放", actionData.action);
-      //     actionData.action.reset();
-      //     actionData.action.play();
-      //   }
-      // });
+      } 
 
     }
-    function setWeight(action, weight, scale) {
-      // console.log("切换动画 time scale  " + scale);
+    function setWeight(action, weight, scale) { 
       if (action == undefined) { return; }
-      action.enabled = true;
-      // console.log("action   scale =   " , action);
-      action.setEffectiveTimeScale(scale*1);
-      // console.log("action   weight =   " , action);
+      action.enabled = true; 
+      action.setEffectiveTimeScale(scale*1); 
       action.setEffectiveWeight(weight);
     }
 

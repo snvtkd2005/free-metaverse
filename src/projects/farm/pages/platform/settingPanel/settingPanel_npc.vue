@@ -1,6 +1,6 @@
 
 <template>
-  <div class="w-full max-w-md p-2 text-white rounded-lg overflow-hidden">
+  <div class="w-full max-w-md p-2 h-full   text-white rounded-lg ">
     <div class="text-left">npc 设置</div>
     <div class=" w-full">
       <YJinputCtrl :setting="setting" />
@@ -151,8 +151,8 @@ export default {
         
         { property: "avatar", display: true, title: "角色", type: "file", filetype: "avatar", value: "", callback: this.ClickHandler, },
         { property: "weapon", display: true, title: "装备", type: "file", filetype: "weapon", value: "", callback: this.ClickHandler, },
-        { property: "relifeTime", display: true, title: "重新生成间隔时间", type: "num", step: 1, value: 0, callback: this.ChangeValue },
-        { property: "inAreaRandom", display: true, title: "是否区域内随机", type: "toggle", value: false, callback: this.ChangeValue },
+        { property: "relifeTime", display: true, title: "死亡后重新生成间隔时间(0表示不重新生成)", type: "num", step: 1, value: 0, callback: this.ChangeValue },
+        { property: "inAreaRandom", display: true, title: "是否区域内随机移动", type: "toggle", value: false, callback: this.ChangeValue },
         { property: "areaRadius", display: false, title: "区域半径",unit:"m", type: "slider", value: 1, min: 0, max: 5, step: 0.1, callback: this.ChangeValue },
 
       ],
@@ -323,8 +323,9 @@ export default {
             let _YJAnimator = singleTransform.GetComponent("Animator");
             _YJAnimator.Destroy();
             _YJAnimator.UpdateModel(scope.GetModel(), scope.GetAnimations());
-            singleTransform.GetComponent("NPC").SetMessage(this.settingData);
-
+            // singleTransform.GetComponent("NPC").SetMessage(this.settingData);
+            singleTransform.SetMessage(this.getMessage());
+            _YJAnimator.ChangeAnimDirect("idle");
           },
           (e) => { }
         );
@@ -411,7 +412,7 @@ export default {
       }
       this.ChangeUIState();
 
-      console.log(i + " " + this.setting[i].value);
+      // console.log(i + " " + this.setting[i].value);
     },
     ClickUVAnim(i, e) {
       this.Utils.SetSettingItemByProperty(this.setting, this.setting[i].property, e);

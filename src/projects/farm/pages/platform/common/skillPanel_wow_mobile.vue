@@ -6,7 +6,7 @@
 
     <div class=" w-auto px-2 mx-auto h-full flex gap-2 pointer-events-auto rounded-lg ">
 
-      <div skill_first class=" absolute left-0 top-0 w-12 h-12 text-left " 
+      <div class=" absolute left-0 top-0 w-12 h-12 text-left pointer-events-auto cursor-pointer " 
        @click="UserModel(skill_first)" @mouseover="LookSkill($event, skill_first); hover = true;" @mouseleave="hover = false;">
         <div class=" relative flex w-full h-full   ">
           <div class=" self-center mx-auto w-full h-full  bg-black rounded-full ">
@@ -19,7 +19,7 @@
 
 
 
-    <div v-if="hover" class=" absolute  w-2 h-2  text-white  " :style="' position:absolute; left:' +
+    <div class=" hidden absolute  w-2 h-2  text-white  " :style="' position:absolute; left:' +
       (hoverPanelOffset.x) +
       'px;top:' +
       (hoverPanelOffset.y) +

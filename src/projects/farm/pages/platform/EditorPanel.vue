@@ -1,18 +1,29 @@
 
 <!-- // 场景编辑UI -->
 <template>
-  <div class="  absolute left-0 top-0  w-full h-full flex flex-col ">
-
+  <div class="absolute left-0 top-0 w-full h-full flex flex-col">
     <!-- 顶部工具栏 -->
-    <div class=" absolute z-20 left-0 top-0 w-full flex bg-445760  text-gray-200 " :style="topStyle">
-      <div class=" flex ">
-        <div v-for="(item, i) in tableList" :key="i" :index="item.id"
-          class="  px-6  flex  h-full text-center cursor-pointer  hover:bg-546770  " @click="ChangeTable(item)">
-          <div class=" self-center">
+    <div
+      class="absolute z-30 left-0 top-0 w-full flex bg-445760 text-gray-200"
+      :style="topStyle"
+    >
+      <div class="flex">
+        <div
+          v-for="(item, i) in tableList"
+          :key="i"
+          :index="item.id"
+          class="px-6 flex h-full text-center cursor-pointer hover:bg-546770"
+          @click="ChangeTable(item)"
+        >
+          <div class="self-center">
             {{ item.content }}
           </div>
-          <div v-if="(item.id == 'save_model' && !item.value) ||
-            (item.id == 'save_thrumb' && !item.value)">
+          <div
+            v-if="
+              (item.id == 'save_model' && !item.value) ||
+              (item.id == 'save_thrumb' && !item.value)
+            "
+          >
             *
           </div>
         </div>
@@ -20,85 +31,130 @@
     </div>
 
     <!-- 中间3d画面 -->
-    <div class=" absolute " :style="panel3dStyle">
+    <div class="absolute" :style="panel3dStyle">
       <YJmetaBase ref="YJmetaBase" />
-      <div class="  absolute left-0 top-0 w-full h-full pointer-events-none ">
+      <div class="absolute left-0 top-0 w-full h-full pointer-events-none">
         <HUD ref="HUD" />
       </div>
 
       <!-- 修改名称 -->
-      <div class=" absolute left-2 top-2 flex text-white ">
-        <div class="   w-auto h-6 mt-1">
-          场景名:
-        </div>
-        <input class=" bg-transparent placeholder-gray-400 p-1" type="text" v-model="modelData.name"
-          :placeholder="modelData.name" @focus="removeThreeJSfocus" @blur="addThreeJSfocus" />
+      <div class="absolute left-2 top-2 flex text-white">
+        <div class="w-auto h-6 mt-1">场景名:</div>
+        <input
+          class="bg-transparent placeholder-gray-400 p-1"
+          type="text"
+          v-model="modelData.name"
+          :placeholder="modelData.name"
+          @focus="removeThreeJSfocus"
+          @blur="addThreeJSfocus"
+        />
       </div>
 
       <!-- 与后台交互的操作提示 -->
-      <div v-if="tipData.opening" class=" absolute left-0 top-10 w-full flex  ">
-        <div class=" mx-auto flex w-auto  bg-blue-400 text-white text-xl rounded-lg h-10">
-          <div class=" px-4  mx-auto self-center ">
+      <div v-if="tipData.opening" class="absolute left-0 top-10 w-full flex">
+        <div
+          class="mx-auto flex w-auto bg-blue-400 text-white text-xl rounded-lg h-10"
+        >
+          <div class="px-4 mx-auto self-center">
             {{ tipData.tipContent }}
           </div>
         </div>
       </div>
 
       <!-- 操作提示 -->
-      <div class=" hidden md:flex absolute left-0 bottom-2 w-auto pointer-events-none  ">
-        <div class="  flex w-auto text-white text-md rounded-lg h-auto">
-          <div class=" px-4 text-left mx-auto self-center ">
-            键盘操作：<br>
-            G:重力开关<br>
-            Esc:取消选中<br>
-            F:上下车<br>
-            T:扔掉武器<br>
-            Ctrl+D:原地复制选中模型<br>
+      <div
+        class="hidden md:flex absolute left-0 bottom-2 w-auto pointer-events-none"
+      >
+        <div class="flex w-auto text-white text-md rounded-lg h-auto">
+          <div class="px-4 text-left mx-auto self-center">
+            键盘操作：<br />
+            G:重力开关<br />
+            Esc:取消选中<br />
+            F:上下车<br />
+            T:扔掉武器<br />
+            Ctrl+D:原地复制选中模型<br />
           </div>
         </div>
       </div>
 
-
-      <div class=" hidden absolute top-0 left-0 cutimg overflow-hidden">
+      <div class="hidden absolute top-0 left-0 cutimg overflow-hidden">
         <canvas id="nowcanvas" class="bg-white"> </canvas>
       </div>
       <!-- 右上角按钮 -->
-      <div class=" absolute right-2 top-2 ">
+      <div class="absolute right-2 top-2">
         <settingPanel ref="settingPanel" />
       </div>
     </div>
 
     <!-- 右侧检视面板 -->
-    <div class=" absolute right-0 top-0 h-full bg-546770" :style="settingPanelStyle">
+    <div
+      class="absolute right-0 top-0 h-full bg-546770 flex"
+      :style="settingPanelStyle"
+    >
+      <div
+        ref="settingPanelDrag"
+        style="cursor: ew-resize"
+        @mouseover="panelData.settingPanelStyle.hover = true"
+        @mouseleave="panelData.settingPanelStyle.hover = false"
+        class="absolute -left-1 z-20 h-full w-2"
+        :class="
+          panelData.settingPanelStyle.hover ? ' bg-gray-400 ' : ' bg-opacity-0'
+        "
+      ></div>
       <settingPanelCtrl ref="settingPanelCtrl" />
     </div>
 
     <!-- 中间下部模型面板 -->
     <div :style="modelPanelStyle">
+      <div
+        ref="modelPanelDrag"
+        style="cursor: ns-resize"
+        @mouseover="panelData.modelPanelStyle.hover = true"
+        @mouseleave="panelData.modelPanelStyle.hover = false"
+        class="absolute -top-1 z-20 h-2 w-full"
+        :class="
+          panelData.modelPanelStyle.hover ? ' bg-gray-400 ' : ' bg-opacity-0'
+        "
+      ></div>
+
       <modelPanel ref="modelPanel" />
     </div>
 
     <!-- 左边场景模型面板 -->
-    <div class=" absolute z-10 left-0  " :style="hierarchyStyle">
-      <hierarchy ref="hierarchyPanel" title="场景模型列表" :modelList="modelList" />
+    <div class="absolute z-10 left-0" :style="hierarchyStyle">
+      <div
+        ref="hierarchyDrag"
+        style="cursor: ew-resize"
+        @mouseover="panelData.hierarchyStyle.hover = true"
+        @mouseleave="panelData.hierarchyStyle.hover = false"
+        class="absolute -right-1 z-20 h-full w-2"
+        :class="
+          panelData.hierarchyStyle.hover ? ' bg-gray-400 ' : ' bg-opacity-0'
+        "
+      ></div>
+      <hierarchy
+        ref="hierarchyPanel"
+        title="场景模型列表"
+        :modelList="modelList"
+      />
     </div>
 
-    <loadingPanel :loadingUrl="loadingUrl" class="absolute z-50 left-0 top-0 w-full h-full " ref="loadingPanel" />
+    <loadingPanel
+      :loadingUrl="loadingUrl"
+      class="absolute z-50 left-0 top-0 w-full h-full"
+      ref="loadingPanel"
+    />
     <modelSelectPanel ref="modelSelectPanel" />
     <!-- 给npc添加技能 -->
     <skillSelectPanel ref="skillSelectPanel" />
 
     <!-- 截图区域安全区域 -->
     <PanelCut @cancel="CancelCut" ref="PanelCut" />
-
   </div>
 </template>
 
 <script>
-
-
 import PlayerAnimData from "../../data/platform/playerAnimSetting.js";
-
 
 import YJmetaBase from "./YJmetaBase.vue";
 
@@ -108,7 +164,6 @@ import modelPanel from "./panels/modelPanel.vue";
 
 import modelSelectPanel from "./panels/modelSelectPanel.vue";
 import skillSelectPanel from "./panels/skillSelectPanel.vue";
-
 
 import settingPanelCtrl from "./settingPanel/settingPanelCtrl.vue";
 
@@ -123,17 +178,16 @@ import loadingPanel from "./loadingPanel2.vue";
 
 import { SceneManager } from "../../js/SceneManagerEditor.js";
 
-
 import { Interface } from "../../js/Interface_editor.js";
+import { DragDivArea } from "/@/threeJS/common/DragDivArea.js";
 
-import {
-  GetAllScene, UploadSceneFile
-} from "../../js/uploadThreejs.js";
+import { GetAllScene, UploadSceneFile } from "../../js/uploadThreejs.js";
 
 export default {
   name: "EditorPanel",
   components: {
-    loadingPanel, YJmetaBase,
+    loadingPanel,
+    YJmetaBase,
     modelPanel,
     modelSelectPanel,
     skillSelectPanel,
@@ -195,24 +249,24 @@ export default {
       _SceneManager: null,
       tableList: [
         // { id: 10000, content: "导入", },
-        { id: 'save_thrumb', content: "截图（制作缩略图）", value: true },
+        { id: "save_thrumb", content: "截图（制作缩略图）", value: true },
         // { id: 10000, content: "保存", },
-        { id: 10000, content: "保存场景配置", },
-        { id: 'save_model', content: "保存场景模型", value: true },
+        { id: 10000, content: "保存场景配置" },
+        { id: "save_model", content: "保存场景模型", value: true },
         { id: "create_geometry", content: "创建几何体", value: true },
         { id: "single_collider", content: "显示碰撞体", value: false },
         { id: "single_planeState", content: "隐藏地面", value: true },
-        { id: "save_view", content: "设置为访问视角", },
-        { id: "load_view", content: "还原到访问视角", },
+        { id: "save_view", content: "设置为访问视角" },
+        { id: "load_view", content: "还原到访问视角" },
         // { id: 10000, content: "发布", },
       ],
       viewFar: 5,
 
       // npc音效
-      npcMusicUrl: '',
+      npcMusicUrl: "",
 
       inMeeting: false,
-      meetingOwner: '',
+      meetingOwner: "",
       oldSceneName: "",
 
       // 是否开启音视频
@@ -270,11 +324,11 @@ export default {
 
       niaokanUI: false,
       projectionList: [
-        { id: '10001', content: '岛2', pos: { x: -500, y: -500 } },
-        { id: '10002', content: '岛3', pos: { x: -500, y: -500 } },
-        { id: '10003', content: '岛4', pos: { x: -500, y: -500 } },
-        { id: '10004', content: '岛5', pos: { x: -500, y: -500 } },
-        { id: '10005', content: '岛1', pos: { x: -500, y: -500 } },
+        { id: "10001", content: "岛2", pos: { x: -500, y: -500 } },
+        { id: "10002", content: "岛3", pos: { x: -500, y: -500 } },
+        { id: "10003", content: "岛4", pos: { x: -500, y: -500 } },
+        { id: "10004", content: "岛5", pos: { x: -500, y: -500 } },
+        { id: "10005", content: "岛1", pos: { x: -500, y: -500 } },
       ],
 
       openModelPanel: "",
@@ -300,7 +354,6 @@ export default {
         hasEditored: false,
         // 界面设置
         setting: {
-
           // 是否始终强制横屏
           onlyLandscape: true,
 
@@ -339,9 +392,8 @@ export default {
           // 键盘G键 是否允许开关重力.
           canEnableGravity: true,
 
-          // 是否开启滑动阻尼 
+          // 是否开启滑动阻尼
           canDampingRota: false,
-
 
           // 是否有天空球
           hasEnvmap: false,
@@ -351,12 +403,10 @@ export default {
           hasSceneHDR: false,
           envSceneHDRPath: "020.hdr",
 
-
-
           // 是否启用摄像机遮挡时拉近摄像机功能
           // hasCamRaycast: false,
           hasCamRaycast: true,
-          camRaycastMode: "near",  // near 视角拉近 ; transparent 透明遮挡物。
+          camRaycastMode: "near", // near 视角拉近 ; transparent 透明遮挡物。
           // camRaycastMode: "transparent",  // near 视角拉近 ; transparent 透明遮挡物。
 
           // 是否启用3d做法的小地图
@@ -378,7 +428,7 @@ export default {
           // 是否有角色
           hasAvatar: true,
 
-          // 操作方式。 0 键鼠控制/遥感控制，1 鼠标点击地面 
+          // 操作方式。 0 键鼠控制/遥感控制，1 鼠标点击地面
           contrlState: 0,
           //舍弃/>-1控制隐藏角色。该值由 cameraOffset 在YJController.中计算得出 键鼠控制时，摄像机距离
           wheelValue: -8,
@@ -412,7 +462,6 @@ export default {
           // 摄像机上下旋转的限制弧度. x顶部角度，y底部角度
           // targetRota: { x: -1.25, y: -0.03 },
           targetRota: { x: -1.56, y: 1.3 },
-
 
           playerPos: { x: 0, y: 20, z: 20 },
           playerRotaV3: { x: 0, y: 0, z: 0 },
@@ -468,11 +517,8 @@ export default {
           DirectionalLightPos: { x: 0, y: 30, z: 0 },
           DirectionalLightIntensity: 1,
 
-
-          backgroundColor: '#A7D0FF',
-
+          backgroundColor: "#A7D0FF",
         },
-
       },
       sceneLoadUrl: "",
       oldFileName: "",
@@ -485,7 +531,7 @@ export default {
         current: 1,
         count: 10,
         tipContent: "sdfsdf",
-      }
+      },
     };
   },
   created() {
@@ -493,7 +539,6 @@ export default {
     this.sceneLoadUrl = this.$uploadSceneUrl;
   },
   mounted() {
-
     if (_Global.reloadTimes == 1) {
       window.location.reload();
       _Global.reloadTimes = 0;
@@ -516,7 +561,13 @@ export default {
     }
 
     this.loadingName = "loading.jpg";
-    this.loadingUrl = this.$uploadSceneUrl + this.folderBase + "/" + this.loadingName + '?time=' + new Date().getTime();
+    this.loadingUrl =
+      this.$uploadSceneUrl +
+      this.folderBase +
+      "/" +
+      this.loadingName +
+      "?time=" +
+      new Date().getTime();
 
     console.log(" this.folderBase ", this.folderBase, this.loadingUrl);
     this.$refs.YJmetaBase.SetloadingPanel(this.$refs.loadingPanel);
@@ -536,7 +587,6 @@ export default {
     //   this.Enter();
     // }
 
-
     if (this.modelData.modelType == undefined) {
       this.RequestGetAllScene(() => {
         // console.log(" this.modelData  = ", this.modelData);
@@ -550,31 +600,79 @@ export default {
             });
           });
           this.Enter();
-
         } else {
           this.inCreate = false;
           this.RequestGetAllSceneData();
         }
 
-        document.title = this.oldFileName; 
+        document.title = this.oldFileName;
       });
     }
 
     this.setPanelSize();
     document.addEventListener("visibilitychange", () => {
       _Global.inFocus = !document.hidden;
-      if(!_Global.inFocus){
+      if (!_Global.inFocus) {
         //暂停背景音乐
       }
-      this.$refs.YJmetaBase.EventHandler(_Global.inFocus?"播放音乐":"暂停音乐");
+      this.$refs.YJmetaBase.EventHandler(
+        _Global.inFocus ? "播放音乐" : "暂停音乐"
+      );
 
       // console.log(" _Global.inFocus ", _Global.inFocus);
     });
+
+    let offsetsettingPanelDrag = 0;
+    new DragDivArea(
+      this.$refs.settingPanelDrag,
+      () => {
+        offsetsettingPanelDrag = this.panelData.settingPanelStyle.width;
+      },
+      (x, y) => {
+        let f = offsetsettingPanelDrag + (x * window.innerWidth) / 2;
+        f = this.mathf.clamp(f, 280, 450);
+        f = parseInt(f);
+        localStorage.setItem("settingPanelStyle_width", f);
+        this.panelData.settingPanelStyle.width = f;
+        this.resizePanel();
+      }
+    );
+
+    let offsetmodelPanelDrag = 0;
+    new DragDivArea(
+      this.$refs.modelPanelDrag,
+      () => {
+        offsetmodelPanelDrag = this.panelData.modelPanelStyle.height;
+      },
+      (x, y) => {
+        let f = offsetmodelPanelDrag - (y * window.innerHeight) / 2;
+        f = this.mathf.clamp(f, 115, 440);
+        f = parseInt(f);
+        localStorage.setItem("modelPanelStyle_height", f);
+        this.panelData.modelPanelStyle.height = f;
+        this.resizePanel();
+      }
+    );
+
+    let offsethierarchyDrag = 0;
+    new DragDivArea(
+      this.$refs.hierarchyDrag,
+      () => {
+        offsethierarchyDrag = this.panelData.hierarchyStyle.width;
+      },
+      (x, y) => {
+        let f = offsethierarchyDrag - (x * window.innerWidth) / 2;
+        f = this.mathf.clamp(f, 240, 400);
+        f = parseInt(f);
+        localStorage.setItem("hierarchyStyle_width", f);
+        this.panelData.hierarchyStyle.width = f;
+        this.resizePanel();
+      }
+    );
   },
   methods: {
     setMaxMin(isMax) {
       if (isMax) {
-
         this.panelData.settingPanelStyle.width = 0;
         this.panelData.topStyle.height = 0;
         this.panelData.topStyle.display = "none";
@@ -607,40 +705,52 @@ export default {
     },
     // 计算各个panel的宽高
     setPanelSize() {
-      this.panelData.settingPanelStyle.width = 280;
+      this.panelData.settingPanelStyle.width =
+        localStorage.getItem("settingPanelStyle_width") ?? 280;
 
       this.panelData.topStyle.height = 40;
       this.panelData.topStyle.display = "";
 
       this.panelData.hierarchyStyle.left = 0;
       this.panelData.hierarchyStyle.top = this.panelData.topStyle.height;
-      this.panelData.hierarchyStyle.width = 240;
-      this.panelData.hierarchyStyle.height = window.innerHeight - this.panelData.topStyle.height;
+      this.panelData.hierarchyStyle.width =
+        localStorage.getItem("hierarchyStyle_width") ?? 240;
+      this.panelData.hierarchyStyle.height =
+        window.innerHeight - this.panelData.topStyle.height;
 
-      this.panelData.modelPanelStyle.left = this.panelData.hierarchyStyle.width;
+      // console.log("界面全部尺寸 ", this.panelData);
+      // console.log(" localStorage.getItem(modelPanelStyle_height) ", localStorage.getItem("modelPanelStyle_height"));
+
       this.panelData.modelPanelStyle.bottom = 0;
-      this.panelData.modelPanelStyle.width = window.innerWidth - this.panelData.settingPanelStyle.width - this.panelData.hierarchyStyle.width;
-      this.panelData.modelPanelStyle.height = 200;
+      this.panelData.modelPanelStyle.height =
+        localStorage.getItem("modelPanelStyle_height") ?? 200;
       this.panelData.modelPanelStyle.display = "";
 
-      this.panelData.panel3dStyle.left = this.panelData.hierarchyStyle.width;
       this.panelData.panel3dStyle.top = this.panelData.topStyle.height;
-      this.panelData.panel3dStyle.width = window.innerWidth - this.panelData.settingPanelStyle.width - this.panelData.hierarchyStyle.width;
-      this.panelData.panel3dStyle.height = window.innerHeight - this.panelData.topStyle.height - this.panelData.modelPanelStyle.height;
-      // console.log("界面全部尺寸 ", this.panelData);
 
       if (_Global.YJ3D && _Global.YJ3D.YJRaycaster) {
-        _Global.YJ3D.YJRaycaster.SetOffset(this.panelData.hierarchyStyle.width, this.panelData.topStyle.height);
+        _Global.YJ3D.YJRaycaster.SetOffset(
+          this.panelData.hierarchyStyle.width,
+          this.panelData.topStyle.height
+        );
       }
       if (this.$refs.settingPanelCtrl.$refs.settingPanel) {
         this.$refs.settingPanelCtrl.$refs.settingPanel.fullScreen = false;
       }
 
       this.resizePanel();
-      this.ChangePanel('setting');
-
+      this.ChangePanel("setting");
     },
     resizePanel() {
+      this.panelData.panel3dStyle.width =
+        window.innerWidth -
+        this.panelData.hierarchyStyle.width -
+        this.panelData.settingPanelStyle.width;
+      this.panelData.panel3dStyle.height =
+        window.innerHeight -
+        this.panelData.topStyle.height -
+        this.panelData.modelPanelStyle.height;
+      this.panelData.panel3dStyle.left = this.panelData.hierarchyStyle.width;
       this.panel3dStyle = `
       position: absolute; 
       left: ${this.panelData.panel3dStyle.left}px;
@@ -654,6 +764,12 @@ export default {
       top: ${this.panelData.hierarchyStyle.top}px;
       width: ${this.panelData.hierarchyStyle.width}px;
       height: ${this.panelData.hierarchyStyle.height}px;`;
+
+      this.panelData.modelPanelStyle.width =
+        window.innerWidth -
+        this.panelData.hierarchyStyle.width -
+        this.panelData.settingPanelStyle.width;
+      this.panelData.modelPanelStyle.left = this.panelData.hierarchyStyle.width;
 
       this.modelPanelStyle = `
       position: absolute; 
@@ -671,13 +787,12 @@ export default {
       display: ${this.panelData.topStyle.display}; 
       height: ${this.panelData.topStyle.height}px; 
       `;
-
     },
 
     GetPlayerAnimData() {
       return PlayerAnimData;
     },
-    PlayBGAudio(){
+    PlayBGAudio() {
       this.$refs.YJmetaBase.EventHandler("播放音乐");
     },
     addMetaWorldCoordinate(item) {
@@ -733,10 +848,8 @@ export default {
       }
       _Global.YJ3D.threeJSfocus();
       this.inputing = false;
-
     },
     Enter() {
-
       // 用户首次进入先使用默认角色
       let avatarId = PlayerAnimData.defaultUser.avatarId;
 
@@ -746,7 +859,10 @@ export default {
       }
       // 如果场景限制角色，则使用场景限制角色
       if (this.sceneData.avatarList && this.sceneData.avatarList.length > 0) {
-        avatarId = this.sceneData.avatarList[this.Utils.RandomInt(0, this.sceneData.avatarList.length - 1)].folderBase;
+        avatarId =
+          this.sceneData.avatarList[
+            this.Utils.RandomInt(0, this.sceneData.avatarList.length - 1)
+          ].folderBase;
       }
 
       this.userName = "aa";
@@ -780,29 +896,32 @@ export default {
           // if (callback) {
           //   callback();
           // }
-
         }
       );
       this.$refs.modelPanel.Init();
-
     },
 
     async RequestGetAllSceneData() {
       let res = await this.$axios.get(
-        this.sceneLoadUrl + this.folderBase + "/" + "setting.txt" + "?time=" + new Date().getTime()
+        this.sceneLoadUrl +
+          this.folderBase +
+          "/" +
+          "setting.txt" +
+          "?time=" +
+          new Date().getTime()
       );
 
       console.log(" 获取场景配置 ", res.data);
       this.sceneData = res.data;
       this.sceneData.setting.hasCamRaycast = false;
-      this.sceneData.setting.camOffsetY = this.sceneData.setting.playerHeight / 2;
+      this.sceneData.setting.camOffsetY =
+        this.sceneData.setting.playerHeight / 2;
       this.sceneData.setting.title = this.oldFileName;
       document.title = this.oldFileName;
 
       this.Enter();
     },
     async RequestGetAllSceneModelData() {
-
       if (this.inCreate) {
         setTimeout(() => {
           this.updateSceneModelData();
@@ -813,7 +932,12 @@ export default {
       // let path = this.sceneLoadUrl + this.folderBase + "/" + this.folderBase + "_scene.txt";
       // console.log(" 获取场景 模型文本路径 ", path);
       let res = await this.$axios.get(
-        this.sceneLoadUrl + this.folderBase + "/" + "scene.txt" + "?time=" + new Date().getTime()
+        this.sceneLoadUrl +
+          this.folderBase +
+          "/" +
+          "scene.txt" +
+          "?time=" +
+          new Date().getTime()
       );
 
       this.modelList.splice(0, this.modelList.length);
@@ -823,8 +947,13 @@ export default {
         const element = data[i];
         this.modelList.push(element);
       }
-      console.log(" 获取场景 模型 ", data, data.length, this.modelList, this.modelList.length);
-
+      console.log(
+        " 获取场景 模型 ",
+        data,
+        data.length,
+        this.modelList,
+        this.modelList.length
+      );
 
       _Global.YJ3D._YJSceneManager.CreateSenceBy(this.modelList);
 
@@ -843,7 +972,7 @@ export default {
 
       let s = JSON.stringify(this.modelData);
       let fromData = new FormData();
-      //服务器中的本地地址 
+      //服务器中的本地地址
       fromData.append("fileToUpload", this.$stringtoBlob(s, "data.txt"));
       fromData.append("folderBase", this.folderBase);
       UploadSceneFile(fromData).then((res) => {
@@ -856,12 +985,10 @@ export default {
           }
         }
       });
-
     },
 
     // 保存场景配置数据。新建时调用、配置改变时主动调用
     updateSceneData(callback) {
-
       this.sceneData.hasEditored = true;
       console.log(" 保存场景配置 ", this.sceneData);
       // console.log(" 保存场景配置 ", this.sceneData.AmbientLightData.backgroundColor);
@@ -870,7 +997,7 @@ export default {
 
       let s = JSON.stringify(this.sceneData);
       let fromData = new FormData();
-      //服务器中的本地地址 
+      //服务器中的本地地址
       fromData.append("fileToUpload", this.$stringtoBlob(s, "setting.txt"));
       fromData.append("folderBase", this.folderBase);
       UploadSceneFile(fromData).then((res) => {
@@ -887,11 +1014,10 @@ export default {
 
     /**
      *
-     * 
+     *
      */
 
     editorModelList(type, item) {
-
       this.tableList[2].value = false;
       if (type == "增加") {
         this.modelList.push(item);
@@ -905,7 +1031,7 @@ export default {
             this.modelList.splice(i, 1);
           }
         }
-        console.log(this.modelList); 
+        console.log(this.modelList);
       }
     },
 
@@ -914,12 +1040,14 @@ export default {
       this.tableList[2].value = true;
 
       this.modelList = [];
-      this.modelList = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetModelList();
+      this.modelList = _Global.YJ3D._YJSceneManager
+        .Create_LoadUserModelManager()
+        .GetModelList();
       console.log("this.modelList 1111 ", this.modelList);
       // return;
       let s = JSON.stringify(this.modelList);
       let fromData = new FormData();
-      //服务器中的本地地址 
+      //服务器中的本地地址
       fromData.append("fileToUpload", this.$stringtoBlob(s, "scene.txt"));
       fromData.append("folderBase", this.folderBase);
       UploadSceneFile(fromData).then((res) => {
@@ -934,7 +1062,7 @@ export default {
       this.modelList = [];
       let s = JSON.stringify(this.modelList);
       let fromData = new FormData();
-      //服务器中的本地地址 
+      //服务器中的本地地址
       fromData.append("fileToUpload", this.$stringtoBlob(s, "scene.txt"));
       fromData.append("folderBase", this.folderBase);
       UploadSceneFile(fromData).then((res) => {
@@ -944,9 +1072,7 @@ export default {
       });
 
       _Global.YJ3D._YJSceneManager.LoadDone();
-
     },
-
 
     // 保存模型缩略图，并上传
     updateModelIconPic(dataurl) {
@@ -967,7 +1093,6 @@ export default {
           this.SetTip("缩略图制作成功！");
         }
       });
-
     },
 
     SetTip(tipContent) {
@@ -978,21 +1103,18 @@ export default {
       }, 2000);
     },
     CancelCut() {
-
       _Global.SendMsgTo3D("单品", "显示角色");
       // _Global.ChangeFirstThird(false);
       _Global.SetEnableGravity(true);
       // _Global.SetDisplayFloor(true);
     },
     ChangeTable(item) {
-
       if (item.content.includes("截图")) {
-
         this.$refs.PanelCut.safeOrder = true;
         _Global.SetEnableGravity(false);
         // _Global.SetDisplayFloor(false);
         _Global.SendMsgTo3D("单品", "隐藏角色");
-        // _Global.ChangeFirstThird(true); 
+        // _Global.ChangeFirstThird(true);
         return;
       }
       if (item.content.includes("保存场景配置")) {
@@ -1037,15 +1159,13 @@ export default {
         // }
         return;
       }
-      
+
       // 创建几何体
       if (item.id == "create_geometry") {
         this.$refs.modelPanel.CreateGeometry();
         return;
       }
-      
     },
-
 
     SelectModel(item) {
       _Global.YJ3D._YJSceneManager.SelectModel(item.uuid);
@@ -1055,7 +1175,6 @@ export default {
       _Global.YJ3D.YJController.SetCameraWheelPos(-this.viewFar);
       // 取消焦点
       this.$refs.viewFarCtrl.blur();
-
     },
     changeViewSliderValue(e) {
       this.viewFar = -e;
@@ -1070,11 +1189,14 @@ export default {
     },
 
     UpdateSkin(_YJPlayer, playerName, playerState) {
-
       // this._SceneManager.UpdateSkin(_YJPlayer, playerName, playerState);
       // return;
       // console.error(" 同步换装数据 ",playerName, playerState);
-      if (playerName != "litleUnityChain2" || playerState == null || playerState == undefined) {
+      if (
+        playerName != "litleUnityChain2" ||
+        playerState == null ||
+        playerState == undefined
+      ) {
         _YJPlayer.ChangeSkinCompleted();
         return;
       }
@@ -1086,8 +1208,10 @@ export default {
         }
       }
       let skinData = avatarData.skinData;
-      if (skinData == undefined || skinData.length <= 1) { return; }
-      let sp = playerState.split('_');
+      if (skinData == undefined || skinData.length <= 1) {
+        return;
+      }
+      let sp = playerState.split("_");
       for (let i = 0; i < skinData.length; i++) {
         skinData[i].selected = parseInt(sp[i]);
       }
@@ -1113,17 +1237,42 @@ export default {
         if (element.title == "eye") {
           targetPath = element.modelPath[element.selected];
 
-          _YJPlayer.ChangeSkin(targetPath, element.part, element.mode, faceSourcePath);
-          _YJPlayer.ChangeSkin(targetPath, "Face", element.mode, faceSourcePath);
-          _YJPlayer.ChangeSkin(faceAddPath, "Face", "addTexture", faceSourcePath);
+          _YJPlayer.ChangeSkin(
+            targetPath,
+            element.part,
+            element.mode,
+            faceSourcePath
+          );
+          _YJPlayer.ChangeSkin(
+            targetPath,
+            "Face",
+            element.mode,
+            faceSourcePath
+          );
+          _YJPlayer.ChangeSkin(
+            faceAddPath,
+            "Face",
+            "addTexture",
+            faceSourcePath
+          );
         }
         if (element.title == "hair") {
           targetPath = element.modelPath[element.selected];
-          _YJPlayer.ChangeSkin(targetPath, element.part, element.mode, faceSourcePath);
+          _YJPlayer.ChangeSkin(
+            targetPath,
+            element.part,
+            element.mode,
+            faceSourcePath
+          );
         }
         if (element.title == "coat") {
           targetPath = element.modelPath[element.selected];
-          _YJPlayer.ChangeSkin(targetPath, element.part, element.mode, faceSourcePath);
+          _YJPlayer.ChangeSkin(
+            targetPath,
+            element.part,
+            element.mode,
+            faceSourcePath
+          );
         }
       }
       setTimeout(() => {
@@ -1147,10 +1296,12 @@ export default {
       this.$refs.settingPanelCtrl.ChangePanel(e);
     },
 
-
     ChangeAvatar(playerName, callback) {
       if (this.$refs.gameUI) {
-        this.$refs.gameUI.ChangeAvatar(this.$refs.YJmetaBase.GetAvatarData(playerName), callback);
+        this.$refs.gameUI.ChangeAvatar(
+          this.$refs.YJmetaBase.GetAvatarData(playerName),
+          callback
+        );
       }
     },
     GetUseId() {
@@ -1158,8 +1309,6 @@ export default {
     },
     //由角色选择界面传入 角色类型、用户名
     ClickSelectPlayerOK(selectPlayerName, userName) {
-
-
       this.userName = userName;
       localStorage.setItem("username", this.userName);
       this.avatarName = selectPlayerName;
@@ -1183,12 +1332,6 @@ export default {
       // 显示玩家姓名条
       _Global.YJ3D.SetNickName(userName);
 
-
-
-
-
-
-
       console.log("场景加载完成------------");
 
       var that = this;
@@ -1201,7 +1344,6 @@ export default {
         that.$refs.YJmetaBase.ThreejsHumanChat.YJController.onblur();
       };
     },
-
 
     SetTriggerOverlap(b, id, owner) {
       if (this._SceneManager) {
@@ -1225,7 +1367,6 @@ export default {
             this.$refs.YJDync.DirectSendUserData();
           }
           _Global.YJ3D.YJController.SetTransmit();
-
         }
       }
       if (this._SceneManager == null) {
@@ -1258,7 +1399,7 @@ export default {
     },
 
     LoadingProcess(f) {
-      // 3d加载进度   0-1 
+      // 3d加载进度   0-1
       // console.log(" 加载场景进度 " ,f);
 
       if (this.$refs.scenePanel) {
@@ -1269,13 +1410,9 @@ export default {
     load3dComplete(callback) {
       console.log("场景加载完成------------");
 
-
       if (!this.initCompleted) {
-
-
         _Global.YJ3D.PlayVideo();
         _Global.YJ3D.AddVideoListener();
-
 
         this.hasGameUI = true;
         this.$nextTick(() => {
@@ -1285,11 +1422,9 @@ export default {
           }
 
           this.Interface.SelectPlayerCompleted(this.avatarName, this.userName);
-
         });
 
         this._SceneManager.ChangeScene(this.sceneData);
-
 
         this.$nextTick(() => {
           if (this.$refs.YJDync) {
@@ -1303,9 +1438,7 @@ export default {
             _Global.mainUser = true;
           }
         });
-
       } else {
-
         if (this.$refs.YJDync) {
           this.$refs.YJDync.ChangeRoom(this.sceneData.roomName);
         }
@@ -1327,8 +1460,11 @@ export default {
       this.Interface.load3dComplete();
       this._SceneManager.LoadMapCompleted();
       this.$refs.YJmetaBase.OpenThreejs();
-      if(this.sceneData.setting.hasBGM && this.sceneData.setting.BGMurl){
-        this.$refs.YJmetaBase.addAudio("bgmusic",this.sceneData.setting.BGMurl);
+      if (this.sceneData.setting.hasBGM && this.sceneData.setting.BGMurl) {
+        this.$refs.YJmetaBase.addAudio(
+          "bgmusic",
+          this.sceneData.setting.BGMurl
+        );
       }
 
       setTimeout(() => {
@@ -1374,8 +1510,6 @@ export default {
       }
     },
 
-
-
     // 点击角色NPC，显示NPC下方的光圈
     ClickPlayer(owner) {
       if (this._SceneManager) {
@@ -1386,7 +1520,10 @@ export default {
       if (this.$refs.chatPanel && owner.GetName() == "ChatGPT001号") {
         this.$refs.chatPanel.SetDisplay(true);
       }
-      if (this.$refs.chatPanelNPC && (owner.GetName() == "咕叽" || owner.GetName() == "坐")) {
+      if (
+        this.$refs.chatPanelNPC &&
+        (owner.GetName() == "咕叽" || owner.GetName() == "坐")
+      ) {
         this.$refs.chatPanelNPC.SetYJNPC(owner, this.userName);
         this.$refs.chatPanelNPC.SetDisplay(true);
       }
@@ -1409,12 +1546,13 @@ export default {
       //   this.$refs.modelPanel.SetModel(hitObject.owner);
       // }
       if (hitObject.transform != undefined) {
-
         console.log(" 点击模型 transform ", hitObject.transform);
 
         // 激活上一个选中模型的碰撞
         if (this.clickModelJS != null) {
-          _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().EditorEnd(this.clickModelJS);
+          _Global.YJ3D._YJSceneManager
+            .GetLoadUserModelManager()
+            .EditorEnd(this.clickModelJS);
           _Global.YJ3D._YJSceneManager._YJTransformManager.detach();
           this.clickModelJS = null;
         }
@@ -1429,38 +1567,47 @@ export default {
     },
     SetSelectTransformByUUID(uuid) {
       this.ClickFloor();
-      this.SetSelectTransform(_Global.YJ3D._YJSceneManager.GetLoadUserModelManager().GetTransformByUUID(uuid));
+      this.SetSelectTransform(
+        _Global.YJ3D._YJSceneManager
+          .GetLoadUserModelManager()
+          .GetTransformByUUID(uuid)
+      );
     },
     SetSelectTransform(transform) {
       this.clickModelJS = transform;
-      _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().EditorStart(this.clickModelJS);
-      _Global.YJ3D._YJSceneManager._YJTransformManager.attach(transform.GetGroup());
+      _Global.YJ3D._YJSceneManager
+        .GetLoadUserModelManager()
+        .EditorStart(this.clickModelJS);
+      _Global.YJ3D._YJSceneManager._YJTransformManager.attach(
+        transform.GetGroup()
+      );
       this.UpdateComponentPanel();
-
-
     },
     UpdateComponentPanel() {
       _Global.YJ3D._YJSceneManager.SetSelectTransform(this.clickModelJS);
-      this._SceneManager.SetTargetModel(null);
 
-      this.ChangePanel('');
- 
+      this.ChangePanel("");
+
       this.$refs.settingPanelCtrl.isTransform = true;
       this.$nextTick(() => {
-        this.$refs.settingPanelCtrl.$refs.settingPanel_transform.Init(this.clickModelJS);
+        this.$refs.settingPanelCtrl.$refs.settingPanel_transform.Init(
+          this.clickModelJS
+        );
       });
       let component = this.clickModelJS.GetComponent("UVAnim");
       if (component != null) {
-        this.ChangePanel('uvAnim');
+        this.ChangePanel("uvAnim");
         this.$nextTick(() => {
-          this.$refs.settingPanelCtrl.$refs.settingPanel_uvAnim.Init(component.GetData());
+          this.$refs.settingPanelCtrl.$refs.settingPanel_uvAnim.Init(
+            component.GetData()
+          );
         });
         console.log(component);
         return;
       }
       component = this.clickModelJS.GetComponent("Screen");
       if (component != null) {
-        this.ChangePanel('screen');
+        this.ChangePanel("screen");
         let msg = this.clickModelJS.GetMessage();
         this.$nextTick(() => {
           this.$refs.settingPanelCtrl.$refs.settingPanel_screen.Init(msg.data);
@@ -1471,47 +1618,53 @@ export default {
 
       component = this.clickModelJS.GetComponent("Particle");
       if (component != null) {
-        this.ChangePanel('particle');
+        this.ChangePanel("particle");
         let msg = this.clickModelJS.GetMessage();
         this.$nextTick(() => {
-          this.$refs.settingPanelCtrl.$refs.settingPanel_particle.Init(msg.data);
+          this.$refs.settingPanelCtrl.$refs.settingPanel_particle.Init(
+            msg.data
+          );
         });
         console.log(component);
         return;
       }
       component = this.clickModelJS.GetComponent("NPC");
       if (component != null) {
-        this.ChangePanel('npc');
+        this.ChangePanel("npc");
         let msg = this.clickModelJS.GetMessage();
         this.$nextTick(() => {
           this.$refs.settingPanelCtrl.$refs.settingPanel_npc.Init(msg.data);
         });
         console.log(component);
-        // 
+        //
         this._SceneManager.SetTargetModel(this.clickModelJS);
         return;
       }
       component = this.clickModelJS.GetComponent("Weapon");
       if (component != null) {
-        this.ChangePanel('weapon');
+        this.ChangePanel("weapon");
         let msg = this.clickModelJS.GetMessage();
         // this.$nextTick(() => {
         // });
         setTimeout(() => {
-          this.$refs.settingPanelCtrl.$refs.settingPanel_weapon.GetAnimList(this.avatarId);
+          this.$refs.settingPanelCtrl.$refs.settingPanel_weapon.GetAnimList(
+            this.avatarId
+          );
           this.$refs.settingPanelCtrl.$refs.settingPanel_weapon.Init(msg.data);
           this.$refs.settingPanelCtrl.$refs.settingPanel_weapon.isLock = true;
         }, 20);
-        this.$message('设置武器请到武器单品中设置');
+        this.$message("设置武器请到武器单品中设置");
         // console.log("武器请到武器单品中设置");
         return;
       }
       component = this.clickModelJS.GetComponent("Interactive");
       if (component != null) {
-        this.ChangePanel('interactive');
+        this.ChangePanel("interactive");
         let msg = this.clickModelJS.GetMessage();
         this.$nextTick(() => {
-          this.$refs.settingPanelCtrl.$refs.settingPanel_interactive.Init(msg.data);
+          this.$refs.settingPanelCtrl.$refs.settingPanel_interactive.Init(
+            msg.data
+          );
         });
         console.log(component);
         return;
@@ -1519,7 +1672,7 @@ export default {
 
       component = this.clickModelJS.GetComponent("Trail");
       if (component != null) {
-        this.ChangePanel('trail');
+        this.ChangePanel("trail");
         let msg = this.clickModelJS.GetMessage();
         this.$nextTick(() => {
           this.$refs.settingPanelCtrl.$refs.settingPanel_trail.Init(msg.data);
@@ -1528,10 +1681,10 @@ export default {
         return;
       }
       let components = [
-        {comName:"Trail",panel:"trail"},
-        {comName:"Shader",panel:"shader"},
-        {comName:"Geometry",panel:"geometry"},
-      ]
+        { comName: "Trail", panel: "trail" },
+        { comName: "Shader", panel: "shader" },
+        { comName: "Geometry", panel: "geometry" },
+      ];
       for (let i = 0; i < components.length; i++) {
         const item = components[i];
         component = this.clickModelJS.GetComponent(item.comName);
@@ -1539,13 +1692,14 @@ export default {
           this.ChangePanel(item.panel);
           let msg = this.clickModelJS.GetMessage();
           this.$nextTick(() => {
-            this.$refs.settingPanelCtrl.$refs['settingPanel_'+item.panel].Init(msg.data);
+            this.$refs.settingPanelCtrl.$refs[
+              "settingPanel_" + item.panel
+            ].Init(msg.data);
           });
           console.log(component);
           return;
         }
       }
-      
     },
 
     DelModel() {
@@ -1554,27 +1708,35 @@ export default {
         this.editorModelList("删除", this.clickModelJS.GetData());
 
         _Global.YJ3D._YJSceneManager._YJTransformManager.detach();
-        _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().DelUserModel(this.clickModelJS);
+        _Global.YJ3D._YJSceneManager
+          .GetLoadUserModelManager()
+          .DelUserModel(this.clickModelJS);
         this.clickModelJS = null;
-        this.ChangePanel('');
-
+        this.ChangePanel("");
       }
     },
     DuplicateModel() {
       if (this.clickModelJS != null) {
-        _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().DuplicateModel(this.clickModelJS.GetData(), (transform) => {
-          _Global.YJ3D._YJSceneManager._YJTransformManager.attach(transform.GetGroup());
-          this.clickModelJS = transform;
-          this.UpdateComponentPanel();
-          this.$refs.hierarchyPanel.SelectModelBy3d(this.clickModelJS.GetUUID());
-          this.tableList[2].value = false; 
-        });
+        _Global.YJ3D._YJSceneManager
+          .GetLoadUserModelManager()
+          .DuplicateModel(this.clickModelJS.GetData(), (transform) => {
+            _Global.YJ3D._YJSceneManager._YJTransformManager.attach(
+              transform.GetGroup()
+            );
+            this.clickModelJS = transform;
+            this.UpdateComponentPanel();
+            this.$refs.hierarchyPanel.SelectModelBy3d(
+              this.clickModelJS.GetUUID()
+            );
+            this.tableList[2].value = false;
+          });
       }
     },
     ClickFloor() {
-
       if (this.clickModelJS != null) {
-        _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().EditorEnd(this.clickModelJS);
+        _Global.YJ3D._YJSceneManager
+          .GetLoadUserModelManager()
+          .EditorEnd(this.clickModelJS);
         _Global.YJ3D._YJSceneManager._YJTransformManager.detach();
         this.clickModelJS = null;
         this.ChangePanel("");
@@ -1595,12 +1757,10 @@ export default {
     },
 
     ClickHotPointOwner(hitObject) {
-
       let hotPointData = hitObject.owner.GetHotPointData();
       // console.log(" hotpointdata  ", hotPointData);
       if (hotPointData.type) {
         if (hotPointData.type == "设置角色位置") {
-
           _Global.YJ3D._YJSceneManager.SetPlayerPosRota(
             hotPointData.pos,
             hotPointData.rotaV3
@@ -1613,7 +1773,6 @@ export default {
           this.viewFarIndex = 2;
         }
       }
-
     },
 
     ClickInstancedMesh(InstancedMeshOwner, index) {
@@ -1624,11 +1783,11 @@ export default {
       }
       InstancedMeshOwner.Click(index);
 
-      _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().LoadStaticModel(
-        InstancedMeshOwner.GetModelData(), (transform) => {
+      _Global.YJ3D._YJSceneManager
+        .GetLoadUserModelManager()
+        .LoadStaticModel(InstancedMeshOwner.GetModelData(), (transform) => {
           this.clickModelJS = transform;
-        }
-      );
+        });
     },
 
     // 把视角切换到指定id的热点视角位置
@@ -1659,7 +1818,6 @@ export default {
       return this.GetPublicUrl() + this.sceneData.modelPath;
     },
 
-
     //获取小地图图片url
     GetMinMapData() {
       let minMapData = this.sceneData.minMapData;
@@ -1668,7 +1826,6 @@ export default {
     ClickNiaokan() {
       _Global.YJ3D.YJController.ResetToNiaokanView();
     },
-
   },
 };
 </script>

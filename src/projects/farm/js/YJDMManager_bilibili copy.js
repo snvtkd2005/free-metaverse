@@ -24,7 +24,51 @@ class YJDMManager_bilibili {
     }
     this.stopAudio = function (id) {
     }
-    let dmCtrl = [ 
+    let dmCtrl = [
+      { msg: "走", event: () => _Global.YJ3D.YJController.onKeyDown({ code: "KeyW" }) },
+      { msg: "停", event: () => _Global.YJ3D.YJController.onKeyUp({ code: "KeyW" }) },
+      {
+        msg: "攻击", event: () => {
+          _Global.YJ3D.YJController.onKeyUp({ code: "KeyW" });
+          _Global.YJ3D.YJController.SetInteractiveNPC("点击技能", "普通攻击");
+        }
+      },
+      {
+        msg: "11", event: () => {
+          indexVue.$refs.HUD.$refs.skillPanel_virus.ClickSkillIndex(0);
+        }
+      },
+      {
+        msg: "22", event: () => {
+          indexVue.$refs.HUD.$refs.skillPanel_virus.ClickSkillIndex(1);
+        }
+      },
+      {
+        msg: "33", event: () => {
+          indexVue.$refs.HUD.$refs.skillPanel_virus.ClickSkillIndex(2);
+        }
+      },
+      {
+        msg: "44", event: () => {
+          indexVue.$refs.HUD.$refs.skillPanel_virus.ClickSkillIndex(3);
+        }
+      },
+      {
+        msg: "55", event: () => {
+          indexVue.$refs.HUD.$refs.skillPanel_virus.ClickSkillIndex(4);
+        }
+      },
+      {
+        msg: "左转", event: () => {
+          _Global.YJ3D.YJController.CallRotaBase(0.5, 0);
+        }
+      },
+      {
+        msg: "右转", event: () => {
+          _Global.YJ3D.YJController.CallRotaBase(-0.5, 0);
+        }
+      },
+
       {
         msg: "1", event: (state) => {
           GanerateNPC("弓箭手", "红方", state);
@@ -34,7 +78,8 @@ class YJDMManager_bilibili {
         msg: "弓箭手", event: (state) => {
           GanerateNPC("弓箭手", "红方", state);
         }
-      }, 
+      },
+
       {
         msg: "2", event: (state) => {
           GanerateNPC("战士", "红方", state);
@@ -44,32 +89,39 @@ class YJDMManager_bilibili {
         msg: "战士", event: (state) => {
           GanerateNPC("战士", "红方", state);
         }
-      }, 
+      },
+
+      {
+        msg: "11", event: (state) => {
+          GanerateNPC("魔暴龙", "蓝方", state);
+        }
+      },
+      {
+        msg: "魔暴龙", event: (state) => {
+          GanerateNPC("魔暴龙", "蓝方", state);
+        }
+      },
+
+      {
+        msg: "22", event: (state) => {
+          GanerateNPC("森林狼", "蓝方", state);
+        }
+      },
+      {
+        msg: "森林狼", event: (state) => {
+          GanerateNPC("森林狼", "蓝方", state);
+        }
+      },
+
       {
         msg: "复活", event: (state) => {
           resetLife(state);
-        }
-      }, 
-      {
-        msg: "护甲", event: (state) => {
-          eventHander("护甲",state);
-        }
-      },
-      {
-        msg: "赞", event: (state) => {
-          eventHander("点赞",state);
-        }
-      },
-      
-      {
-        msg: "分身", event: (state) => {
-          eventHander("分身",state);
         }
       },
       {
         msg: "加入", event: (state) => {
           let random = RandomInt(0,1);
-          let camp =  "红方";
+          let camp =  random?"蓝方":"红方";
           random = RandomInt(0,1);
           let assetId = "";
           if(camp == "蓝方"){
@@ -81,42 +133,6 @@ class YJDMManager_bilibili {
         }
       },
     ];
-    function eventHander(t,state){
-      
-      if(t=="点赞"){
-        let npcs = _Global._YJNPCManager.GetSameCampNPCInFire(1000);
-        for (let i = 0; i < npcs.length; i++) {
-          const npcComponent = npcs[i];
-          npcComponent.Dync({title:"加生命",value:50});
-        }
-        return;
-      }
-
-      let { uface, uname, msg } = state;
-      let has = false;
-      let npcComponent = null;
-      for (let j = 0; j < DMPlayer.length && !has; j++) {
-        const item = DMPlayer[j];
-        if(uname == item.uname){ 
-          npcComponent = _Global._YJNPCManager.GetNpcComponentById(item.npcId);
-          has = true;
-        }
-      }
-
-      if(t=="护甲"){
-        if(npcComponent!=null){
-          npcComponent.Dync({title:"加护甲",value:50}); 
-        }
-        return;
-      }
-      if(t=="分身"){
-        if(npcComponent!=null){
-          npcComponent.Dync({title:"npc技能攻击",skill:{type:"hyperplasia",value:1,times:new Date().getTime()}}); 
-        }
-        return;
-      }
-      
-    }
     this.DMPlayerDamageStatistics = function(damageStatistics){
       for (let i = damageStatistics.length-1; i >= 0; i--) {
         const item = damageStatistics[i];
@@ -264,7 +280,6 @@ class YJDMManager_bilibili {
             break;
           case world_configs.LIVE_OPEN_PLATFORM_LIKE:
             console.log(uname, " 点赞 ");
-            eventHander("点赞");
             //所有玩家加10点生命
             if (_Global.YJDync) {
               _Global._YJDyncManager.SendSceneStateAll("转发", { type: "所有人加生命", state: 200 });

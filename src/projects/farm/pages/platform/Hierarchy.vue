@@ -9,7 +9,7 @@
       @click="SelectModel(item)" :class="selectUUID==item.uuid?' bg-black ':''">
       <div class=" flex justify-between h-6 ">
         <div class=" w-full flex  justify-between ">
-          <div class=" self-center truncate">
+          <div class=" w-1/3 max-w-20 self-center truncate">
             {{ item.name }} {{ (item.modelType=='NPC模型'? item.npcName:'') }}
           </div>
           <div class=" self-center text-left truncate w-12">

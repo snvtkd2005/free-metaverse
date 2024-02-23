@@ -108,9 +108,8 @@ class socket_bilibili {
 							heartBeatThisFn(game_info.game_id)
 						}, 20000);
 						scope.handleCreateSocket();
-					} else {
-						// console.log("-----游戏开始失败-----")
-						// console.log("原因：", data)
+					} else { 
+						console.log("-----游戏开始失败-----，原因：", data)
 						if (data.code == 7002 || 7001) {
 							scope.gameEnd();
 							setTimeout(() => {

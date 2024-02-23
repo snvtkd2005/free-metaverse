@@ -170,6 +170,9 @@ class YJPlayerFireCtrl {
 				} else {
 					fn();
 				}
+
+				_this.YJController.PlayerLookatPos(npcTransform.GetWorldPos());
+
 			}
 
 			// 范围攻击
@@ -608,9 +611,9 @@ class YJPlayerFireCtrl {
 				return false;
 			}
 			let playerPos = _this.YJController.GetPlayerWorldPos();
-			playerPos.y = 1;
+			playerPos.y += 1;
 			npcPos = npcTransform.GetWorldPos();
-			npcPos.y = 1;
+			npcPos.y += 1;
 			// 与目标之间有遮挡
 			let b2 = CheckColliderBetween(npcPos, playerPos);
 			if (b2) { _Global.SceneManager.FireState("无法攻击目标"); canAttack = false; return false; }
@@ -633,6 +636,7 @@ class YJPlayerFireCtrl {
 					// 如果准备好攻击，则立即攻击
 					if (readyAttack) {
 						readyAttack = false;
+
 						if (!inFire) {
 							EventHandler("进入战斗");
 						}
@@ -714,9 +718,11 @@ class YJPlayerFireCtrl {
 			}
 			return false;
 		}
-
+		let animNameFullback = "";
 		function GetAnimNameByPlayStateAndWeapon(e, weaponData) {
-			return _Global.CreateOrLoadPlayerAnimData().GetAnimNameByPlayStateAndWeapon(e, weaponData);
+			let an = _Global.CreateOrLoadPlayerAnimData().GetAnimNameByPlayStateAndWeapon(e, weaponData);
+			animName = an.animName;
+			animNameFullback = an.animNameFullback;
 		}
 		function GetSkillDataByWeapon(weaponData) {
 			return _Global.CreateOrLoadPlayerAnimData().GetSkillDataByWeapon(weaponData);
@@ -804,13 +810,13 @@ class YJPlayerFireCtrl {
 						//播放音效
 						_Global.YJAudioManager().playAudio(_fire.audio);
 					}
-					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
+					GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					_Global.ReportTo3D("设置技能进度条", "完成");
 					CheckTargetDead();
 					break;
 				case "赤手攻击":
 					playerState = PLAYERSTATE.ATTACK;
-					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
+					GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					break;
 				case "准备战斗":
 					playerState = PLAYERSTATE.ATTACK;
@@ -820,7 +826,7 @@ class YJPlayerFireCtrl {
 					attackStepSpeed = a;
 					//播放音效
 					_Global.YJAudioManager().playAudio(raid);
-					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
+					GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					_Global.ReportTo3D("设置技能进度条", attackStepSpeed);
 
 					if (vaildAttackLater == null) {
@@ -834,11 +840,11 @@ class YJPlayerFireCtrl {
 					break;
 				case "受伤":
 					playerState = PLAYERSTATE.ATTACK;
-					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
+					GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					break;
 				case "death":
 					playerState = PLAYERSTATE.DEAD;
-					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
+					GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					EventHandler("中断技能");
 
 					_Global.DyncManager.SendSceneStateAll("玩家死亡",
@@ -855,35 +861,35 @@ class YJPlayerFireCtrl {
 					break;
 				case "sitting":
 					playerState = PLAYERSTATE.SITTING;
-					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
+					GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					break;
 				case "normal":
 					playerState = PLAYERSTATE.NORMAL;
-					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
+					GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					break;
 				case "跳跃":
 					canAttack = false;
-					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
+					GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					EventHandler("中断技能");
 
 					break;
 				case "取消跳跃":
-					animName = GetAnimNameByPlayStateAndWeapon("停止移动", weaponData);
+					GetAnimNameByPlayStateAndWeapon("停止移动", weaponData);
 					break;
 				case "移动":
 					canAttack = false;
-					animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
+					GetAnimNameByPlayStateAndWeapon(e, weaponData);
 
 					EventHandler("中断技能");
 
 					break;
 				case "停止移动":
 					if (playerState == PLAYERSTATE.NORMAL) {
-						animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
+						GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					}
 					if (playerState == PLAYERSTATE.ATTACK) {
 						if (!canAttack) {
-							animName = GetAnimNameByPlayStateAndWeapon("准备战斗", weaponData);
+							GetAnimNameByPlayStateAndWeapon("准备战斗", weaponData);
 							if (npcTransform != null) {
 								ReadyFire(); //有目标停止移动时，自动攻击
 							}
@@ -892,7 +898,7 @@ class YJPlayerFireCtrl {
 					break;
 				case "战斗结束":
 					if (playerState == PLAYERSTATE.NORMAL) {
-						animName = GetAnimNameByPlayStateAndWeapon(e, weaponData);
+						GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					}
 
 					break;
@@ -907,7 +913,7 @@ class YJPlayerFireCtrl {
 			// console.log(" 玩家动作 ",weaponData, e,animName);
 
 			// console.log(" 玩家动作 ", canAttack, e, animName);
-			_this.YJController.SetPlayerAnimName(animName);
+			_this.YJController.SetPlayerAnimName(animName,animNameFullback);
 		}
 		var updateId = null;
 		function update() {

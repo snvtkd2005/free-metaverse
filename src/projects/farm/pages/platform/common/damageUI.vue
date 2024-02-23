@@ -10,10 +10,11 @@
       'px;'+
       'opacity:'+item.opacity+';'
       ">
-      <div class=" w-32 h-14  flex  text-yellow-400
-                    ">
+      <div class=" w-32 h-14  flex  "
+      :class="item.addredius=='redius'?' text-yellow-400 ':' text-green-400 '"
+      >
         <div class="  self-center mx-auto text-4xl ">
-          {{ item.value }}
+        {{item.addredius=='redius'?'-':'+' }}  {{  item.value }}
         </div>
       </div>
     </div>
@@ -51,8 +52,8 @@ export default {
   },
   methods: {
 
-    AddDamage(owner, type, value, pos) {
-      this.damageList.push({ owner: owner, type: type, value: value, pos: pos, opacity: 1,time:0 });
+    AddDamage(owner, type, value, pos,addredius) {
+      this.damageList.push({ owner: owner, type: type, value: value, pos: pos,addredius:addredius, opacity: 1,time:0 });
       // console.log(" ", this.damageList[this.damageList.length - 1]);
     },
     animate() {

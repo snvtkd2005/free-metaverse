@@ -47,7 +47,6 @@ class YJTransformManager {
     }
     let transformController;
 
-    Init();
     function Init() {
       transformController = new YJTransformController(scene, renderer, camera, _this);
       _Global.TransformController = transformController;
@@ -65,6 +64,8 @@ class YJTransformManager {
     this.SetRotaAxis = function(bx,by,bz){
       transformController.SetRotaAxis(bx,by,bz);
     }
+    
+    Init();
   }
 }
 

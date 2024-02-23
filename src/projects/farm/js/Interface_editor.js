@@ -25,6 +25,7 @@ class Interface {
     _Global.setting = {
       inEditor: inEditor, //是否编辑模式
       navPointMesh: new THREE.Mesh(spare, material),
+      DMGame:true,
     }
     _Global.user = {
       camp: 1000
@@ -181,9 +182,7 @@ class Interface {
     this.DyncManager = function () {
       return _this._SceneManager.GetDyncManager();
     }
-    this.SceneManager = function () {
-      return _this._SceneManager;
-    }
+    
     this.YJDync = function () {
       return _this.$refs.YJDync;
     }
@@ -643,11 +642,11 @@ class Interface {
     _Global.addEventListener = this.addEventListener;
 
     // 执行事件
-    this.applyEvent = function (e) {
+    this.applyEvent = function (e,v) {
       for (let i = 0; i < eventList.length; i++) {
         const element = eventList[i];
         if (element.eventName == e) {
-          element.fn();
+          element.fn(v);
         }
       }
     }
@@ -671,7 +670,6 @@ class Interface {
       _Global.applyEvent("3d加载完成");
       _Global.YJDync = this.YJDync();
       _Global.DyncManager = this.DyncManager();
-      _Global.SceneManager = this.SceneManager();
       // 场景加载完成后，重新更新相机射线偏移，
       // 窗口大小位置不一样会导致射线偏移,所以需要重新计算
       if(_this.setPanelSize){
@@ -787,10 +785,10 @@ class Interface {
       const gl = canvas.getContext("webgl2");
       WEBGL_lose_context = gl.getExtension("WEBGL_lose_context");
       canvas.addEventListener("webglcontextlost", (event) => {
-        console.log(" webgl 上下文丢失 ", event);
+        console.log(" webgl 上下文丢失 ", event); 
         setTimeout(() => {
           WEBGL_lose_context.restoreContext();
-        }, 3000);
+        }, 20);
       });
     }
 

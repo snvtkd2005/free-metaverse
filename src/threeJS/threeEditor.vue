@@ -906,7 +906,7 @@ export default {
 
         //其他玩家姓名条显示在屏幕上，面向摄像机
         // this.UpdatePlayerName();
-
+        // this.renderer.clear();
 
 
         // console.error( 'THREE.WebGLState: 222222222', _Global.texImage2DError );

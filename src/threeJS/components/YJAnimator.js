@@ -53,9 +53,16 @@ class YJAnimator {
         mixer.clipAction(animations[j]).setEffectiveWeight(0);
       }
     }
-    this.ChangeAnim = function (animName) {
-      console.error(" in change anim ", animName,oldAnimName); 
+    
+    let animNameFullback = "";
+    this.ChangeAnimDirect = function(animName){
+      oldAnimName = "";
+      this.ChangeAnim(animName);
+    }
+    this.ChangeAnim = function (animName,_animNameFullback) {
+      // console.error(" in change anim ", animName,oldAnimName); 
       if (oldAnimName == animName) { return; }
+      animNameFullback = _animNameFullback;
       oldAnimName = animName;
       if (activateAllActions(animName)) {
 
@@ -64,15 +71,25 @@ class YJAnimator {
         if (message == null) {
           return false;
         }
+        // console.error(" in 加载扩展动作 ", animName,oldAnimName); 
+
         let messageData = message.data;
         if (messageData.avatarData) {
           _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.avatarData.id, animName, (isLoop, anim) => {
-            scope.ChangeAnimByAnimData(animName, isLoop, anim);
+            if(anim!=null){
+              scope.ChangeAnimByAnimData(animName, isLoop, anim);
+            }else{
+              scope.ChangeAnim(animNameFullback);
+            }
           });
         } else {
           // console.log(" messageData ",messageData);
           _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.id, animName, (isLoop, anim) => {
-            scope.ChangeAnimByAnimData(animName, isLoop, anim);
+            if(anim!=null){
+              scope.ChangeAnimByAnimData(animName, isLoop, anim);
+            }else{
+              scope.ChangeAnim(animNameFullback);
+            }
           });
         }
       }

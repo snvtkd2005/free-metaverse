@@ -79,7 +79,10 @@ class DragDivArea extends EventDispatcher {
     let offsetX = 0;
     let offsetY = 0;
     this.onMouseMove = function (event) {
-
+      if (!mouseDown) {
+        event.stopPropagation();
+        return;
+      }
       // return;
 
       event.preventDefault();

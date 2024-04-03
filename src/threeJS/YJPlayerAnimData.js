@@ -513,6 +513,7 @@ class YJPlayerAnimData {
           break;
         case "准备战斗":
           animName = "fight idle"; //空手状态 战斗准备状态
+          animNameFullback = "idle";  
           if (weaponData) {
             // let _animName = GetAnimName(e, weaponData);
             let _animName = weaponData.animNameReady;

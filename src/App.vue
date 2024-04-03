@@ -19,6 +19,10 @@ export default {
 
 <style>
 
+.input-bg{
+  background-color: #35444b;
+  color: white;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

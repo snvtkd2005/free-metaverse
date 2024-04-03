@@ -60,8 +60,8 @@ class YJAnimator {
       this.ChangeAnim(animName);
     }
     this.ChangeAnim = function (animName,_animNameFullback) {
-      // console.error(" in change anim ", animName,oldAnimName); 
-      if (oldAnimName == animName) { return; }
+      // console.error(" in change anim ", animName,oldAnimName,_animNameFullback); 
+      if (oldAnimName == animName) { return; } 
       animNameFullback = _animNameFullback;
       oldAnimName = animName;
       if (activateAllActions(animName)) {
@@ -78,8 +78,8 @@ class YJAnimator {
           _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.avatarData.id, animName, (isLoop, anim) => {
             if(anim!=null){
               scope.ChangeAnimByAnimData(animName, isLoop, anim);
-            }else{
-              scope.ChangeAnim(animNameFullback);
+            }else{ 
+              ChangeAnimFn(animNameFullback);
             }
           });
         } else {
@@ -87,8 +87,8 @@ class YJAnimator {
           _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.id, animName, (isLoop, anim) => {
             if(anim!=null){
               scope.ChangeAnimByAnimData(animName, isLoop, anim);
-            }else{
-              scope.ChangeAnim(animNameFullback);
+            }else{ 
+              ChangeAnimFn(animNameFullback);
             }
           });
         }
@@ -96,16 +96,47 @@ class YJAnimator {
       //
       return false;
     }
+    
+    function ChangeAnimFn(animName) {
+      if (activateAllActions(animName)) {
+
+      } else {
+        let message = scope.transform.GetMessage();
+        if (message == null) {
+          return false;
+        }
+        // console.error(" in 加载扩展动作 ", animName,oldAnimName); 
+
+        let messageData = message.data;
+        if (messageData.avatarData) {
+          _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.avatarData.id, animName, (isLoop, anim) => {
+            if(anim!=null){
+              scope.ChangeAnimByAnimData(animName, isLoop, anim);
+            }
+          });
+        } else {
+          // console.log(" messageData ",messageData);
+          _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.id, animName, (isLoop, anim) => {
+            if(anim!=null){
+              scope.ChangeAnimByAnimData(animName, isLoop, anim);
+            }
+          });
+        }
+      }
+      //
+      return false;
+    }
+
+
+
     this.ChangeAnimByIndex = function (i, timeScale) {
       if (i >= animations.length) {
         return false;
       }
-
-
+ 
       console.log(i, animations, timeScale);
-      for (let j = 0; j < animations.length; j++) {
-        // mixer.clipAction(animations[i]).stop();
-        mixer.clipAction(animations[i]).setEffectiveWeight(0);
+      for (let j = 0; j < animations.length; j++) { 
+        mixer.clipAction(animations[j]).setEffectiveWeight(0);
       }
       let action = mixer.clipAction(animations[i]);
       action.timeScale = parseInt(timeScale);
@@ -190,9 +221,7 @@ class YJAnimator {
             currentTime = 0;
             currentDuration = currentAction._clip.duration; 
           }
-        }
-        oldAnimName = animName;
-
+        }  
         return true;
       }
       return false;
@@ -200,6 +229,8 @@ class YJAnimator {
     function setWeight(action, weight, scale) {
       if (action == undefined) { return; }
       action.enabled = true;
+      // console.log(" 动画scale 22" ,scale);
+      oldScale = scale;
       action.setEffectiveTimeScale(scale);
       action.setEffectiveWeight(weight);
     }  
@@ -208,6 +239,19 @@ class YJAnimator {
       animations = [];
       mixer = null;
       cancelAnimationFrame(updateId);
+    }
+    let oldScale = 0;
+    this.SetActionScale = function(scale){
+      if(!currentAction){
+        return;
+      }
+      scale = scale.toFixed(2);
+      if(oldScale == scale){
+        return;
+      }
+      // console.log(" 动画scale " ,scale);
+      oldScale = scale;
+      currentAction.setEffectiveTimeScale(scale);
     }
 
 
@@ -289,6 +333,17 @@ class YJAnimator {
     }
     function Init() {
       mixer = new THREE.AnimationMixer(model);
+      
+      model.traverse(function (item) {
+        if (item instanceof THREE.Mesh) {
+          item.frustumCulled = false;  //解决物体在某个角度不显示的问题
+        }
+      });
+
+      mixer.addEventListener('finished', function (e) {
+        scope.applyEvent("动作结束");
+      });
+      
       animCount = animations.length;
       try {
         for (let i = 0; i < animCount; i++) {
@@ -560,7 +615,22 @@ class YJAnimator {
     }
      
 
-    function update() {
+    let eventList = [];
+    // 添加事件监听
+    this.addEventListener = function (e, fn) {
+      eventList.push({ eventName: e, fn: fn });
+    } 
+    // 执行事件
+    this.applyEvent = function (e, v, v2) {
+      for (let i = 0; i < eventList.length; i++) {
+        const element = eventList[i];
+        if (element.eventName == e) {
+          element.fn(v, v2);
+        }
+      }
+    }
+
+    function update() { 
       updateId = requestAnimationFrame(update);
 
       if (mixer !== null) {

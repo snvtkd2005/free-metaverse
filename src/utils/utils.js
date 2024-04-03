@@ -2,6 +2,7 @@ import { SaveImgGetFileName, SaveTxtGetFileName, SaveFileOSSAPI, DelFileAPI } fr
 
 
 export const RandomInt = (min, max) => {
+  if(min == max){return min;}
   return min + Math.floor(Math.random() * (max - min + 1));
 }
 

@@ -38,6 +38,7 @@
 
     <!-- 中部 -->
 
+    
     <!-- 摆放模型 -->
     <YJmetaBase :avatarData="avatarData" ref="YJmetaBase" />
     <div class="hidden absolute top-0 left-0 cutimg overflow-hidden">
@@ -106,6 +107,10 @@
     <loadingPanel class="absolute z-50 left-0 top-0" ref="loadingPanel" />
 
     <skillProgressUI ref="skillProgressUI" />
+      <!-- 右上角按钮 -->
+      <div class="absolute right-96 top-12">
+        <settingPanel ref="settingPanel" />
+      </div>
 
   </div>
 </template>
@@ -122,6 +127,8 @@ import PanelCut from "./PanelCut.vue";
 import modelSelectPanel from "./panels/modelSelectPanel.vue";
 import animPanel from "./panels/animPanel.vue";
 import boneConvertPanel from "./panels/boneConvertPanel.vue";
+
+import settingPanel from "./settingPanel/settingPanelSimple.vue";
 
 // 加载进度页
 import loadingPanel from "./loadingPanel2.vue";
@@ -147,7 +154,7 @@ export default {
     animPanel,
     boneConvertPanel,
     settingPanelCtrl,
-    
+    settingPanel,
     addComponent,
     PanelCut,
     headerUI,
@@ -223,7 +230,7 @@ export default {
       fileName: "",
       fileList: [],
       fileSize: 5,
-      accept: ".jpg,.jpeg,.bmp,.png,.bin,.gltf,.glb,.fbx,.FBX",
+      accept: ".jpg,.jpeg,.bmp,.png,.bin,.gltf,.glb,.fbx,.FBX,.mtl,.obj",
       loadTip: "加载中，请稍候。。。",
 
       folderPath: "models/staticModels/",
@@ -369,11 +376,32 @@ export default {
                   }
                 }
               }
+              this.$refs.settingPanelCtrl.$refs.settingPanel_equip.SetAnimList(canAnimList);
+            });
+        }, 1000);
+      }
+      if (this.modelData.modelType == "武器模型") {
+        setTimeout(() => {
+          _Global.YJ3D._YJSceneManager
+            .CreateOrLoadPlayerAnimData()
+            .GetAllAnim(this.avatarId, (temp) => {
+              let animList = _Global.animList;
+              let canAnimList = [];
+              for (let i = 0; i < animList.length; i++) {
+                const anim = animList[i];
+                anim.has = false;
+                for (let j = 0; j < temp.length; j++) {
+                  const element = temp[j];
+                  if (element == anim.animName && element != "") {
+                    anim.has = true;
+                    canAnimList.push({ label: anim.content, value: anim.animName });
+                  }
+                }
+              }
               this.$refs.settingPanelCtrl.$refs.settingPanel_weapon.SetAnimList(canAnimList);
             });
         }, 1000);
       }
-
       if (this.modelData.modelType == "角色" ||this.modelData.modelType == "拖尾模型"  ) {
         this.hasImport = false;
       }
@@ -553,11 +581,12 @@ export default {
 
       _Global.YJ3D._YJSceneManager.ResetBackgroundColor();
     },
-    CancelCut() {
-      _Global.SendMsgTo3D("单品", "显示角色");
+    CancelCut() { 
+      _Global.YJ3D.YJPlayer.DisplayAvatar(true);
       // _Global.ChangeFirstThird(false);
-      _Global.SetEnableGravity(true);
-      _Global.SetDisplayFloor(true);
+      _Global.SetEnableGravity(true); 
+      _Global.YJ3D._YJSceneManager.SetDisplayFloor(true);
+      _Global.YJ3D._YJSceneManager.SetDisplayFloorCollider(true);
     },
 
     ChangeTable(item) {
@@ -567,10 +596,12 @@ export default {
         this.$refs.PanelCut.safeOrder = true;
         //关闭重力、隐藏角色、隐藏地面、隐藏碰撞体、视角放到物体几何中心
 
-        _Global.SetEnableGravity(false);
-        _Global.SetDisplayFloor(false);
-        // _Global.ChangeFirstThird(true);
-        _Global.SendMsgTo3D("单品", "隐藏角色");
+        _Global.SetEnableGravity(false); 
+        _Global.YJ3D._YJSceneManager.SetDisplayFloor(false);
+
+        // _Global.ChangeFirstThird(true); 
+        _Global.YJ3D.YJPlayer.DisplayAvatar(false);
+        _Global.YJ3D._YJSceneManager.SetDisplayFloorCollider(false);
         return;
       }
       // 是否显示碰撞体
@@ -606,8 +637,9 @@ export default {
       // 隐藏地面
       if (item.id == "single_planeState") {
         item.value = !item.value;
-        item.content = item.value ? "隐藏地面" : "显示地面";
-        _Global.SetDisplayFloor(item.value);
+        item.content = item.value ? "隐藏地面" : "显示地面"; 
+        _Global.YJ3D._YJSceneManager.SetDisplayFloor(item.value);
+
         // if (!item.value) {
         //   _Global.ChangeFirstThird(true);
         //   _Global.SetEnableGravity(false);
@@ -780,6 +812,7 @@ export default {
       if (
         fileName.indexOf(".gltf") > -1 ||
         fileName.indexOf(".fbx") > -1 ||
+        fileName.indexOf(".obj") > -1 ||
         fileName.indexOf(".glb") > -1
       ) {
         this.modelName = file.name;

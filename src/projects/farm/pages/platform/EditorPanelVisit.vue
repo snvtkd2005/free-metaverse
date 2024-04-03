@@ -1,32 +1,85 @@
 
 <template>
-  <!-- 场景访问 -->
-  <div class="main absolute left-0 top-0 z-999 w-full h-full flex flex-col">
-    <!-- 摆放模型 -->
+  <div
+    class="main absolute left-0 top-0 z-999 w-full h-full flex flex-col overflow-hidden"
+  >
+    <!-- 中间3d画面 -->
+    <div class="absolute" :style="panel3dStyle">
+      <YJmetaBase ref="YJmetaBase" />
 
-    <YJmetaBase ref="YJmetaBase" />
+      <div class="hidden absolute top-0 left-0 cutimg overflow-hidden">
+        <canvas id="nowcanvas" class="bg-white"> </canvas>
+      </div>
 
-    <div class="hidden absolute top-0 left-0 cutimg overflow-hidden">
-      <canvas id="nowcanvas" class="bg-white"> </canvas>
+      <!-- 当在键鼠/遥感控制模式 并且在移动端时，显示左右遥感 -->
+      <div v-if="isMobile && hasAvatar && contrlState == 0">
+        <JoystickLeftPanel class="" ref="JoystickLeftPanel" />
+        <!-- <JoystickRightPanel class=" " ref="JoystickRightPanel" /> -->
+      </div>
+
+      <loadingPanel
+        :loadingUrl="loadingUrl"
+        class="absolute z-50 left-0 top-0 w-full h-full pointer-events-none"
+        ref="loadingPanel"
+      />
+
+      <HUD v-if="hasHUD" ref="HUD" />
+
+      <!-- 鸟瞰2d点位 -->
+      <div
+        v-if="niaokanUI"
+        class="absolute left-0 top-0 z-0 w-full h-full pointer-events-none overflow-hidden"
+      >
+        <div>
+          <div
+            v-for="(item, i) in projectionList"
+            :key="i"
+            :index="item.id"
+            class="text-xl"
+            :style="
+              ' position:absolute; left:' +
+              item.pos.x +
+              'px;top:' +
+              item.pos.y +
+              'px'
+            "
+          >
+            <div v-if="item.display" class="w-1 h-1 relative">
+              <div
+                class="w-32 h-10 transform -translate-x-16 -translate-y-5 pointer-events-auto cursor-pointer bg-gray-800 bg-opacity-80 rounded-xl flex text-white"
+                @click="ClickHandler('点击投影2d', item.event)"
+              >
+                <div class="self-center mx-auto">
+                  {{ item.content + " " }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        v-if="false"
+        class="hidden xl:flex absolute left-2 bottom-10 w-auto pointer-events-none"
+      >
+        <div
+          class="flex w-auto bg-black bg-opacity-20 text-white text-md rounded-lg h-auto"
+        >
+          <div class="px-2 text-left mx-auto self-center">
+            键盘操作：<br />
+            G:重力开关<br />
+            M:小地图开关<br />
+            H:九宫格展示开关<br />
+            F:上下车<br />
+            T:扔掉武器<br />
+          </div>
+        </div>
+      </div>
     </div>
-
-    <!-- 当在键鼠/遥感控制模式 并且在移动端时，显示左右遥感 -->
-    <div v-if="isMobile && contrlState == 0">
-      <JoystickLeftPanel class="" ref="JoystickLeftPanel" />
-      <!-- <JoystickRightPanel class=" " ref="JoystickRightPanel" /> -->
-    </div>
-
-    <loadingPanel
-      :loadingUrl="loadingUrl"
-      class="absolute z-50 left-0 top-0 w-full h-full pointer-events-none"
-      ref="loadingPanel"
-    />
-
-    <HUD ref="HUD" />
 
     <!-- 多人同步 -->
     <YJDync
-      v-if="inLoadCompleted"
+      v-if="isMultiGame && inLoadCompleted"
       class="absolute z-50 left-0 top-0 w-full h-full"
       ref="YJDync"
     />
@@ -43,39 +96,6 @@
       video_url="./public/farm/videos/movieSD.mp4"
       type="video/mp4"
     />
-
-    <div
-      v-if="false"
-      class="
-        hidden
-        xl:flex
-        absolute
-        left-2
-        bottom-10
-        w-auto
-        pointer-events-none
-      "
-    >
-      <div
-        class="
-          flex
-          w-auto
-          bg-black bg-opacity-20
-          text-white text-md
-          rounded-lg
-          h-auto
-        "
-      >
-        <div class="px-2 text-left mx-auto self-center">
-          键盘操作：<br />
-          G:重力开关<br />
-          M:小地图开关<br />
-          H:九宫格展示开关<br />
-          F:上下车<br />
-          T:扔掉武器<br />
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -196,13 +216,9 @@ export default {
 
       displayMinMap: true,
 
-      niaokanUI: false,
+      niaokanUI: true,
       projectionList: [
-        { id: "10001", content: "岛2", pos: { x: -500, y: -500 } },
-        { id: "10002", content: "岛3", pos: { x: -500, y: -500 } },
-        { id: "10003", content: "岛4", pos: { x: -500, y: -500 } },
-        { id: "10004", content: "岛5", pos: { x: -500, y: -500 } },
-        { id: "10005", content: "岛1", pos: { x: -500, y: -500 } },
+        // { id: "10001", content: "岛2", pos: { x: -500, y: -500 } },
       ],
 
       openModelPanel: "",
@@ -229,6 +245,15 @@ export default {
       sceneLoadUrl: "",
       oldFileName: "",
       sceneModelListDataPath: "",
+      isMultiGame: true,
+      settingVersion: "",
+      panel3dStyle:`
+      position: absolute; 
+      left:0px;
+      top:0px;
+      width:100%;
+      height:100%;
+      `,
     };
   },
   created() {
@@ -237,8 +262,14 @@ export default {
   mounted() {
     if (this.$route.params.folderBase != undefined) {
       this.folderBase = this.$route.params.folderBase;
+      if (this.$route.params.version != undefined) {
+        this.settingVersion = this.$route.params.version;
+      }
     } else if (this.$route.query.folderBase != undefined) {
       this.folderBase = this.$route.query.folderBase;
+      if (this.$route.query.version != undefined) {
+        this.settingVersion = this.$route.query.version;
+      }
     } else {
       let modelData = JSON.parse(localStorage.getItem("modelData"));
       this.modelData = modelData;
@@ -246,25 +277,21 @@ export default {
       this.folderBase = modelData.folderBase;
     }
 
+    // if (localStorage.getItem("userName")) {
+    // } else {
+    //   //没有输入过昵称，则跳转到角色选择页
+    //   localStorage.setItem("needEnter", "1");
+    //   localStorage.setItem("visitfolderBase", this.folderBase);
+    //   this.$router.replace("/selectPlayerSingle");
+    //   return;
+    // }
 
-    if (localStorage.getItem("userName")) {
-    } else {
-      //没有输入过昵称，则跳转到角色选择页
-      localStorage.setItem("needEnter", "1");
-      localStorage.setItem("visitfolderBase", this.folderBase);
-      //
-      this.$router.replace("/selectPlayerSingle");
-
-      return;
-    }
-
-    let reloadTimes = localStorage.getItem("reloadTimes");
-    if (reloadTimes) {
-      localStorage.removeItem("reloadTimes");
-      window.location.reload();
-      return;
-    }
-
+    // let reloadTimes = localStorage.getItem("reloadTimes");
+    // if (reloadTimes) {
+    //   localStorage.removeItem("reloadTimes");
+    //   window.location.reload();
+    //   return;
+    // }
 
     this.Interface = new Interface(this, false);
     this.loadingName = "loading.jpg";
@@ -283,16 +310,18 @@ export default {
 
     document.addEventListener("visibilitychange", () => {
       _Global.inFocus = !document.hidden;
-      if(!_Global.inFocus){
+      if (!_Global.inFocus) {
         //暂停背景音乐
       }
-      this.$refs.YJmetaBase.EventHandler(_Global.inFocus?"播放音乐":"暂停音乐");
+      this.$refs.YJmetaBase.EventHandler(
+        _Global.inFocus ? "播放音乐" : "暂停音乐"
+      );
 
       // console.log(" _Global.inFocus ", _Global.inFocus);
     });
   },
   methods: {
-    PlayBGAudio(){
+    PlayBGAudio() {
       this.$refs.YJmetaBase.EventHandler("播放音乐");
     },
     // 获取所有单品
@@ -397,20 +426,33 @@ export default {
         this.sceneLoadUrl +
           this.folderBase +
           "/" +
-          "setting.txt" +
+          "setting" +
+          this.settingVersion +
+          ".txt" +
           "?time=" +
           new Date().getTime()
       );
 
       // this.sceneData = JSON.parse(res.data) ;
       this.sceneData = res.data;
-      this.sceneData.setting.hasCamRaycast = true;
-      this.sceneData.setting.camOffsetY = this.sceneData.setting.playerHeight / 2;
+      // this.sceneData.setting.hasCamRaycast = true;
+      this.sceneData.setting.camOffsetY =
+        this.sceneData.setting.playerHeight / 2;
       console.log(" 获取场景配置 ", this.sceneData);
+      this.isMultiGame = this.sceneData.setting.multiGame;
 
+      this.isDMGame = this.sceneData.setting.isDMGame;
+      _Global.isDMGame = this.isDMGame;
+
+      this.hasHUD = this.sceneData.setting.hasHUD;
       document.title = this.sceneData.setting.title;
-      
+      this.isDMGame = this.sceneData.setting.isDMGame;
+
       _Global.skillList_scene = this.sceneData.skillList;
+      _Global.hasAvatar = this.sceneData.setting.hasAvatar;
+      this.hasAvatar = this.sceneData.setting.hasAvatar;
+      _Global.user.camp =
+        (this.sceneData.user && this.sceneData.user.camp) ?? 1000;
 
       this.$refs.YJmetaBase.Reload();
 
@@ -670,27 +712,33 @@ export default {
       this.Interface.load3dComplete();
       this._SceneManager.LoadMapCompleted();
       this.$refs.YJmetaBase.OpenThreejs();
-      if(this.sceneData.setting.hasBGM && this.sceneData.setting.BGMurl){
-        this.$refs.YJmetaBase.addAudio("bgmusic",this.sceneData.setting.BGMurl);
+      if (this.sceneData.setting.hasBGM && this.sceneData.setting.BGMurl) {
+        this.$refs.YJmetaBase.addAudio(
+          "bgmusic",
+          this.sceneData.setting.BGMurl
+        );
+      }
+    },
+
+    ClickHandler(t, msg) {
+      if (t == "点击投影2d") {
+        if (msg.title == "jump") {
+          // 新窗口 新标签
+          // window.open("https://www.baidu.com", "_blank");
+          window.open(msg.content, "_blank");
+        }
       }
     },
     // 3转2坐标
     UpdateProjectionUI(_projectionList) {
-      // this.projectionList=[];
-      // this.projectionList = _projectionList;
-      for (let i = 0; i < _projectionList.length; i++) {
-        for (let ii = 0; ii < this.projectionList.length; ii++) {
-          if (_projectionList[i].id == this.projectionList[ii].id) {
-            this.projectionList[ii].pos = _projectionList[i].pos;
-          }
-        }
-      }
+      this.projectionList = [];
+      this.projectionList = _projectionList;
       // console.log(" 3转2 ",_projectionList);
     },
 
     SetViewState(e) {
       this.displayMinMap = e == "人视";
-      this.niaokanUI = e == "鸟瞰";
+      // this.niaokanUI = e == "鸟瞰";
 
       if (e == "人视") {
         for (let ii = 0; ii < this.projectionList.length; ii++) {
@@ -789,9 +837,6 @@ export default {
       if (this.$refs.loadingPanel) {
         this.$refs.loadingPanel.DisplayLoading(false);
       }
-      // setTimeout(() => {
-      //   this.ChangeViewById(10004);
-      // }, 2000);
     },
     ClickNiaokan() {
       _Global.YJ3D.YJController.ResetToNiaokanView();

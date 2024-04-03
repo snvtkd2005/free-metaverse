@@ -4,6 +4,8 @@ import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 
+import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader.js";
+import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 
 import { ObjectLoader } from "three";
 
@@ -63,6 +65,13 @@ class YJLoadModel {
 
     //加载热点的obj 模型
     function loadFbx(name, modelPath, pos, rota, size, createCollider, modelItem, callback) {
+      
+       
+      let mesh = _this._YJSceneManager.checkLoadMesh(modelPath);
+      if (mesh != null) {
+        LoadMesh(mesh, name, pos, rota, size, createCollider, modelItem, callback);
+        return;
+      }
       var fbxLoader = new FBXLoader();
       fbxLoader.load(
         modelPath,
@@ -76,8 +85,9 @@ class YJLoadModel {
           let scale = 0.01;
           model.scale.set(size.x * scale, size.y * scale, size.z * scale);
 
-          scene.add(model);
+          // scene.add(model);
           // console.log(" 加载模型完成 " ,model );
+          _this._YJSceneManager.addLoadMesh(modelPath, model);
 
 
           if (callback) {
@@ -94,7 +104,44 @@ class YJLoadModel {
         }
       );
     }
+    function loadObj(name, modelPath, pos, rota, size, createCollider, modelItem, callback) {
+      new MTLLoader()
+        .load(modelPath.replace('.obj', '.mtl'), function (materials) {
+          materials.preload();
 
+          new OBJLoader()
+            .setMaterials(materials)
+            .load(modelPath, function (object) {
+
+              model = object;
+
+              model.name = name;
+              model.position.set(pos.x, pos.y, pos.z); //  
+              model.rotation.set(rota.x, rota.y, rota.z);
+              let scale = 1;
+              // let scale = 0.01;
+              model.scale.set(size.x * scale, size.y * scale, size.z * scale);
+
+              // scene.add(model);
+              // console.log(" 加载模型完成 " ,model );
+              _this._YJSceneManager.addLoadMesh(modelPath, model);
+
+              if (callback) {
+                callback(scope);
+              }
+              if (createCollider) {
+                //创建collider 
+                CreateColliderFn(model, size);
+              } else {
+
+              }
+              LoadCompleted();
+
+            }
+            );
+
+        });
+    }
     this.load = function (name, modelPath, pos, rota, _size, createCollider, modelItem, callback) {
       size = _size;
       this.modelItem = modelItem;
@@ -106,8 +153,16 @@ class YJLoadModel {
       if (modelPath.indexOf(".json") > -1) {
         type = "json";
       }
+      if (modelPath.indexOf(".obj") > -1) {
+        type = "obj";
+      }
       if (type == "fbx") {
         loadFbx(name, modelPath, pos, rota, size, createCollider, modelItem, callback);
+        return;
+      }
+
+      if (type == "obj") {
+        loadObj(name, modelPath, pos, rota, size, createCollider, modelItem, callback);
         return;
       }
       if (type == "gltf") {
@@ -128,7 +183,7 @@ class YJLoadModel {
         LoadMesh(mesh, name, pos, rota, size, createCollider, modelItem, callback);
         return;
       }
- 
+
       // group.add(new THREE.AxesHelper(3));
 
       const loader = new GLTFLoader();

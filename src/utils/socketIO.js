@@ -24,6 +24,7 @@ class YJsocketIO {
 			const socket = new VueSocketio({
 				debug: false,
 
+				// connection: SocketIO("ws://192.168.71.108:3333"),
 				// connection: SocketIO("ws://127.0.0.1:3333"),
 				// connection: SocketIO("ws://www.snvtkd2005.com:3333"),
 				connection: SocketIO("wss://www.snvtkd2005.com:3333"),

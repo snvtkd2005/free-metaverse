@@ -19,19 +19,26 @@ class YJAudioManager {
 
       let audio = document.createElement("audio");
       audio.src = audioUrl;
+      audio.volume = 0.5;
       // audio.loop = true;
       audio.autoplay = true;
       audio.addEventListener("ended", ()=>{
-        console.log(" 移除元素 ");
+        // console.log(" 移除元素 ");
         audio.remove();
+        if(id){
+          // this.stopAudio(id);
+        }else{
+          audio.pause();
+          audio.remove();
+        }
       }); 
-      console.log(" 播放音效 ", fireAudio,id);
-      if(id){
-        audioList.push({id:id,audio:audio});
-      }
+      // console.log(" 播放音效 ", fireAudio,id);
+      // if(id){
+      //   audioList.push({id:id,audio:audio});
+      // }
     }
     this.stopAudio = function (id) {
-      console.log(" 停止音效 ",id,audioList);
+      // console.log(" 中断音效 ",id,audioList);
 
       for (let i = audioList.length-1; i >=0; i--) {
         const element = audioList[i];

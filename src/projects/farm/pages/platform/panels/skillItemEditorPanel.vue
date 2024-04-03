@@ -1,7 +1,7 @@
 
 // 技能添加弹窗
 <template>
-  <el-dialog :title="dialogTitle" class="    text-white  create-card" center v-model="inAdd" :modal-append-to-body="false"
+  <el-dialog :title="dialogTitle" class="   bg-546770 text-white  create-card" center v-model="inAdd" :modal-append-to-body="false"
     width="35%">
 
     <div class=" w-full">
@@ -37,7 +37,11 @@ export default {
       //目标
       targetType: [
         { label: "无需目标", value: "none" },
-        { label: "随机", value: "random" },
+        { label: "自身", value: "self" },
+        { label: "自身瞬时位置", value: "selfPos" },
+        { label: "随机友方", value: "randomFriendly" },
+        { label: "随机敌方", value: "randomEnemy" },
+        { label: "生命值最少的友方", value: "minHealthFriendly" },
         { label: "当前目标", value: "target" },
         { label: "区域内", value: "area" },
       ],
@@ -45,9 +49,27 @@ export default {
       effectType: [
         { label: "debuff/每秒伤害", value: "perDamage" },
         { label: "直接伤害", value: "damage" },
+        { label: "恢复生命", value: "addHealth" },
         { label: "吐息/持续伤害", value: "contDamage" },
         { label: "增生/镜像-生成n个复制", value: "hyperplasia" },
         { label: "进化-伤害提高百分比", value: "evolution" },
+        { label: "控制", value: "control" },
+        { label: "护盾", value: "shield" },
+      ],
+      
+      // 控制id
+      controlId: [
+        { label: "冰霜新星", value: "冰霜新星" }, 
+        { label: "嘲讽", value: "嘲讽" }, 
+        { label: "冲锋", value: "冲锋" }, 
+      ],
+      shieldId: [
+        { label: "寒冰护体", value: "寒冰护体" }, 
+      ],
+      skillFirePart:[
+        { label: "无", value: "" }, 
+        { label: "右掌心", value: "RightHand" }, 
+        { label: "左掌心", value: "LeftHand" }, 
       ],
       settingData: {
         skillName: "致命一击",
@@ -59,6 +81,7 @@ export default {
         //效果 damage直接伤害、perDamage每秒伤害、contDamage持续伤害、冻结、眩晕等状态
         effect: {
           type: "damage",
+          controlId:1, //控制id 1=冰霜新星
           value: 100,
           time: 1,
           duration: 3,
@@ -75,6 +98,7 @@ export default {
         skillReadyParticleId: "", //吟唱特效
         skillReadyAudio: "", //吟唱音效
         skillFireParticleId: "", //施放特效
+        skillFirePart: "", //施放部位
         skillFireAudio: "", //施放音效
         //效果增强
         effectEnhance: "none",
@@ -86,7 +110,8 @@ export default {
         { property: "icon", display: true, title: "技能图标", type: "file", filetype: "image", value: "", callback: this.ChangeValue },
 
         { property: "trigger-type", display: true, title: "触发时机", type: "drop", options: [], value: "", callback: this.ChangeValue },
-        { property: "trigger-value", display: true, title: "触发值", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
+        { property: "trigger-value", display: true, title: "触发值", type: "num", step: 1, value: 1, callback: this.ChangeValue, },
+        { property: "trigger-CD", display: true, title: "冷却时间", type: "num", step: 1, value: 0, callback: this.ChangeValue },
         { property: "target-type", display: true, title: "目标类型", type: "drop", options: [], value: "", callback: this.ChangeValue },
         { property: "target-value", display: true, title: "目标数量", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
 
@@ -95,6 +120,7 @@ export default {
         { property: "skillReadyParticleId", display: true, title: "吟唱特效", type: "file", filetype: "particle", value: "", callback: this.ChangeValue },
         { property: "skillReadyAudio", display: true, title: "吟唱音效", type: "file", filetype: "audio", value: "", callback: this.ChangeValue },
         { property: "animName", display: true, title: "施放动作", type: "drop", options: [], value: "", callback: this.ChangeValue },
+        { property: "skillFirePart", display: true, title: "施放部位", type: "drop", options: [], value: "", callback: this.ChangeValue },
         { property: "skillFireParticleId", display: true, title: "施放特效", type: "file", filetype: "particle", value: "", callback: this.ChangeValue },
         { property: "skillFireAudio", display: true, title: "施放音效", type: "file", filetype: "audio", value: "", callback: this.ChangeValue },
 
@@ -106,6 +132,7 @@ export default {
         { property: "effect-duration", display: true, title: "持续时间", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
         { property: "effect-describe", display: true, title: "效果描述", type: "text", value: "", callback: this.ChangeValue, },
         { property: "effect-icon", display: true, title: "debuff图标", type: "file", filetype: "image", accept: "", value: "", callback: this.ChangeValue },
+        { property: "effect-controlId", display: true, title: "控制id", type: "drop", options: [], value: "", callback: this.ChangeValue },
 
         { property: "describe", display: true, title: "效果描述", type: "textarea", value: "", callback: this.ChangeValue, },
 
@@ -154,7 +181,9 @@ export default {
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "trigger-type", "options", this.triggerType);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "target-type", "options", this.targetType);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-type", "options", this.effectType);
-
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-controlId", "options", this.controlId);
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "skillFirePart", "options", this.skillFirePart);
+      
       // return;
       this.avatarName = "女射手";
       this.animList = _Global.animList;
@@ -206,6 +235,7 @@ export default {
       }
       if (property == "effect-type") {
         if (e == "damage") {
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-time", "value", true);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-time", "display", false);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "display", false);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-duration", "display", false);
@@ -238,6 +268,25 @@ export default {
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-duration", "display", false);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-icon", "display", false);
         }
+        if (e == "control") {
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-value", "display", false);
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-time", "display", false);
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "display", false);
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-duration", "display", false);
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-icon", "display", false);
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-controlId", "options", this.controlId);
+          
+        }
+        
+        if (e == "shield") {
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-value", "display", false);
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-time", "display", false);
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "display", false);
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-duration", "display", false);
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-icon", "display", false);
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-controlId", "options", this.shieldId);
+        }
+        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-controlId", "display", e == "control" || e == "shield"); 
 
       }
 
@@ -292,12 +341,17 @@ export default {
         // 玩家技能都是点击技能图标触发的
         describe = "";
       }
+      let targetCamp = "友方"
+      if (item.effect.type.toLowerCase().includes("damage") ) {
+        targetCamp = "敌方";
+      }
 
-      if (item.target.type == "none") {
+
+      if (item.target.type == "none" || item.target.type == "self") {
         describe += "自身";
       }
       if (item.target.type == "random") {
-        describe += "对随机" + item.target.value + "个目标";
+        describe += "对随机最多" + item.target.value + "个"+targetCamp +"目标";
       }
 
       if (item.target.type == "target") {
@@ -305,6 +359,10 @@ export default {
       }
       if (item.target.type == "area") {
         describe += "对" + item.vaildDis + "范围内最多" + item.target.value + "个目标";
+      }
+
+      if (item.target.type == "minHealthFriendly") {
+        describe += "对生命值最少的友方";
       }
 
       if (item.effect.type == "evolution") {
@@ -321,9 +379,15 @@ export default {
       if (item.effect.type == "damage") {
         describe += ",造成" + item.effect.value + "点伤害";
       }
-
+      if (item.effect.type == "addHealth") {
+        describe += ",恢复" + item.effect.value + "点生命值";
+      }
+      
       if (item.effect.type == "perDamage") {
         describe += ",每" + item.effect.time + "秒造成" + item.effect.value + "点伤害，持续" + item.effect.duration + "秒";
+      }
+      if (item.effect.type == "control") {
+        describe += "施放控制效果" + item.effect.controlId   ;
       }
       return describe;
     },

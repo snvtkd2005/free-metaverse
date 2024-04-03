@@ -190,7 +190,7 @@ export default {
       if (url.includes("m3u8")) {
       } else {
         console.error("直播流只能为 m3u8 格式");
-        return;
+        // return;
       }
       // if (this.oldUrl == url) {
       //   setTimeout(() => {

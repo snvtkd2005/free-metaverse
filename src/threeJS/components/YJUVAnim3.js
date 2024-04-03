@@ -2,7 +2,7 @@
 import * as THREE from "three";
 
 class YJUVAnim3 {
-  constructor(_this,model) {
+  constructor(_this,model,parent) {
     var scope = this;
     let num = 0;
 
@@ -91,20 +91,22 @@ class YJUVAnim3 {
           playing = true;
         }, 20);
       }
- 
- 
-      if(data.isLookatCam){
-        _this._YJSceneManager.AddLookatHotPoint(model,data);
+      if(speed == 0 && speedY == 0){
+        playing = false;
       }
+ 
+      // if(data.isLookatCam){
+      //   _this._YJSceneManager.AddLookatHotPoint(parent,data);
+      // }
     }
     let data = null;
     this.SetMessage = function ( msg) {
       if (msg == null || msg == undefined || msg == "") { return; }
       // data = JSON.parse(msg);
       data = (msg);
-      console.log("in uvanim3 msg = ", data);
+      // console.log("in uvanim3 msg = ", data);
       
-      _this._YJSceneManager.RemoveLookatHotPoint(model);
+      // _this._YJSceneManager.RemoveLookatHotPoint(parent);
         
       InitFn();
     }
@@ -115,7 +117,7 @@ class YJUVAnim3 {
 
     //删除模型
     this.Destroy = function () { 
-      _this._YJSceneManager.RemoveLookatHotPoint(model);
+      // _this._YJSceneManager.RemoveLookatHotPoint(parent);
     }
 
     //#region 
@@ -210,6 +212,19 @@ class YJUVAnim3 {
 
 
         }
+      }
+ 
+      if(data.isLookatCam){
+        
+        var lookatPos = new THREE.Vector3();  
+        _Global.YJ3D.camera.getWorldPosition(lookatPos);
+        if(data.isLockY){
+          var nameWorlPos = new THREE.Vector3();
+          parent.getWorldPosition(nameWorlPos);
+          lookatPos.y = nameWorlPos.y; 
+        }
+        parent.lookAt(lookatPos);
+        
       }
 
 

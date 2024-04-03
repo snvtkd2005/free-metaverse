@@ -87,7 +87,7 @@ class SceneManagerMetaworld {
         return;
       }
       inLoadingMap = false;
-      _Global.SceneManager.LoadMapCompleted();
+      _Global._SceneManager.LoadMapCompleted();
 
       //九宫格地图加载完成 
       indexVue.LoadMapCompleted();

@@ -1059,6 +1059,10 @@ class YJAmmo {
     }
 
     function SetGravityActiveFn() {
+      // if(_Global.setting.inEditor){
+      //   enableGravity = false;
+      //   return;
+      // }
       if (enableGravity) {
         rigidbody.setGravity(new Ammo.btVector3(0, gravity, 0));
 

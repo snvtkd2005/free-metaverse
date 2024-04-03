@@ -1,6 +1,7 @@
 
 
 import * as THREE from "three";
+import { YJTween } from "./YJTween";
 
 
 // 模型基类： transform 组件
@@ -19,12 +20,11 @@ class YJTransform {
     this.isYJTransform = true;
     this.isYJNPC = false;
     this.modelData = null;
-    this.id = -1;
-    var model = null;
+    this.id = -1; 
     let data = {
-      id: id, //资源id
-      modelId:"",
-      name: name, // 资源名字
+      id: id, //资源生成唯一id，用过加载记录
+      modelId:"", //模型id，可通过此id查找模型
+      name: name, // 物体名
       active:true,//是否显示
       volume: { x: 1, y: 1, z: 1 }, //占用空间体积
       pos: { x: 0, y: 0, z: 0 }, //坐标
@@ -32,32 +32,50 @@ class YJTransform {
       scale: { x: 1, y: 1, z: 1 }, //缩放
       modelPath: "", //模型加载路径
       modelType: "", // 模型类型：静态模型、动画模型、热点、特效
-      folderBase: "", // 文件夹名
+      folderBase: "", // 文件夹名，通过此属性加载资源
       mapId: "", //地图id
-      message: null, //模型热点信息
+      message: null, //物体携带的信息，用于区分不同物理
       uuid: "",//在场景中的唯一标识
-
+      children : [], //子transform的folderBase
+      parent:"", //父transform的id
+      siblingIndex:0, //相对父物体的排序
     }
     let children = [];
     this.AddChildren = function (tranform) {
       children.push(tranform);
     }
-    this.SetData = function (folderBase, modelType, id, mapId,active,modelId) {
-      data.folderBase = folderBase;
-      data.modelType = modelType;
+    this.GetChildren = function(){
+      return children;
+    }
+    this.SetParent = function(p){
+      p.add(group);
+      this.ResetPosRota();
+    }
+    this.SetData = function (modelData, id, mapId) {
+      data.folderBase = modelData.folderBase;
+      data.modelType = modelData.modelType;
+      data.children = modelData.children??[];
+      data.parent = modelData.parent??"";
       data.id = id;
-      data.modelId = modelId;
+      data.modelId = modelData.modelId;
       data.mapId = mapId;
+      data.components = modelData.components??[];
       if (mapId == undefined) {
         data.mapId = "npcLevel1";
       }
-      if (active == undefined) {
+      if (modelData.active == undefined) {
         data.active = true;
       }else{
-        data.active = active;
-      }
+        data.active = modelData.active;
+      } 
+
       this.id = id;
-      group.name = modelType + name;
+      group.name = data.modelType + name;
+      // console.log(" group.name =  ",group.name ,data.active);
+
+      for (let i = 0; i < data.components.length; i++) {
+        this.UpdateComponents(i,data.components[i]);
+      }
 
     }
     let de2reg = 57.29578;
@@ -113,7 +131,9 @@ class YJTransform {
       }
       if (message.pointType == "weapon") {
         let com = this.GetComponent("Weapon");
-        com.SetMessage(message.data);
+        if(com){
+          com.SetMessage(message.data);
+        }
       }
       if (message.pointType == "interactive") {
         let com = this.GetComponent("Interactive");
@@ -132,6 +152,8 @@ class YJTransform {
         com.SetMessage(message.data);
       }
       
+
+
       setTimeout(() => {
         this.SetActive(data.active);
       }, 200);
@@ -162,6 +184,22 @@ class YJTransform {
     this.SetModelId = function(modelId){
       data.modelId = modelId;
     }
+    this.AddComponents = function(msg){
+      if(data.components == undefined){
+        data.components = [];
+      }
+      data.components.push(msg);
+    } 
+    this.UpdateComponents = function(index,msg){
+      data.components[index] = (msg);
+      if(msg.type == "tween"){
+        let tween = new YJTween(group);
+        tween.SetMessage(msg.data);
+      }
+    }
+    this.GetActive  = function(){
+      return data.active;
+    }
     this.SetActive = function (b) {
       // console.error( " in SetActive ",b);
       if(group.visible == b){
@@ -181,12 +219,12 @@ class YJTransform {
         for (let i = 0; i < children.length; i++) {
           const child = children[i];
           child.SetActive(b);
-        }
-        return;
+        } 
       }
 
-      let modelData = JSON.parse(JSON.stringify(scope.modelData));
-      scope.SetPosRota(modelData.pos, modelData.rotaV3, modelData.scale);
+      // let modelData = JSON.parse(JSON.stringify(scope.modelData));
+      // scope.SetPosRota(modelData.pos, modelData.rotaV3, modelData.scale);
+
       let message = data.message;
       if(message == null){ 
         return;
@@ -210,6 +248,11 @@ class YJTransform {
         }
       }
 
+      // if (message.pointType == "NPC模型") {
+      //   let com = this.GetComponent("NPC");
+      //   com.SetActive(b);
+      // }
+
       // let _Animator = this.GetComponent("Animator");
       // if (_Animator != null) {
       //   if (b) {
@@ -219,10 +262,7 @@ class YJTransform {
       //   }
       // }
     }
-
-    this.GetModel = function () {
-      return model;
-    }
+ 
     this.GetGroup = function () {
       return group;
     }
@@ -283,7 +323,7 @@ class YJTransform {
     }
 
     this.ResetSetPosRota = function (pos, rota) {
-      if (model == null) { return; }
+      if (group == null) { return; }
       this.SetPosRota(pos, rota);
       this.DestroyCollider();
       CreateColliderFn();
@@ -294,8 +334,10 @@ class YJTransform {
     this.ResetPosRota = function () {
       let pos = data.pos;
       let rota = data.rotaV3;
+      let size = data.scale;
       group.position.set(pos.x, pos.y, pos.z); // 
       group.rotation.set(rota.x, rota.y, rota.z); // 
+      group.scale.set(size.x, size.y, size.z);
 
     }
     //用户摆放自定义的模型，位置跟随鼠标悬浮的地面位置
@@ -336,18 +378,34 @@ class YJTransform {
       group.scale.set(size.x, size.y, size.z);
       data.scale = { x: size.x, y: size.y, z: size.z };
     }
+    this.GetScale = function(){
+      return data.scale.x; 
+    }
+    this.AddScale = function (size) {
+      data.scale.x += size.x;
+      data.scale.y += size.y;
+      data.scale.z += size.z;
+      group.scale.set(data.scale.x,data.scale.y, data.scale.z );
+    }
     this.SetScaleArray = function (e) { 
       this.SetScale({ x: e[0], y: e[1], z: e[2] });
     }
     let oldTransData = {
       pos: { x: 0, y: 0, z: 0 },
       rotaV3: { x: 0, y: 0, z: 0 },
+      actionScale:1,
+    }
+    this.UpdateDataByType = function(type,value){
+      if(type=="actionScale"){
+        oldTransData.actionScale = value;
+      }
     }
     // 有新玩家加入时，清空旧数据，让transform同步
     this.ClearOldTransData = function () {
       oldTransData = {
         pos: { x: 0, y: 0, z: 0 },
         rotaV3: { x: 0, y: 0, z: 0 },
+        actionScale:1,
       }
     }
     this.CheckSamePos = function () {
@@ -358,7 +416,9 @@ class YJTransform {
       let pos = group.position.clone();
       if (oldTransData.pos.x == pos.x &&
         oldTransData.pos.y == pos.y &&
-        oldTransData.pos.z == pos.z) {
+        oldTransData.pos.z == pos.z &&
+        oldTransData.rotaV3.y == rotaV3.y
+        ) {
         return null;
       }
       oldTransData.pos = pos;
@@ -388,7 +448,7 @@ class YJTransform {
     }
     //放下后，获取模型的坐标和旋转，记录到服务器，让其他客户端创建
     this.GetPosRota = function (callback) {
-      callback(model.position, model.rotation);
+      callback(group.position, group.rotation);
     }
 
     // 拖拽开始
@@ -507,7 +567,7 @@ class YJTransform {
     //同步
     this.Dync = function (_model) {
       let state = _model.state;
-      if (_model.modelType == "装备模型") {
+      if (_model.modelType == "武器模型") {
         if (state.display == undefined) {
           return;
         }

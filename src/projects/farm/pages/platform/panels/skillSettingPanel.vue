@@ -46,11 +46,25 @@
         </template>
       </el-table-column>
 
+      <el-table-column   label="目标数量" width="100">
+        <template #default="scope">
+          <div>
+            {{scope.row && scope.row.target &&  scope.row.target.value }}
+          </div>
+        </template>
+      </el-table-column>
+
       <el-table-column prop="vaildDis" class=" truncate " label="攻击范围" width="100" />
       <el-table-column prop="castTime" label="吟唱时间" width="100" />
       <el-table-column prop="animNameReady" label="吟唱动作" width="100" />
       <el-table-column prop="animName" label="施放动作" width="100" />
-
+      <el-table-column   label="效果类型" width="100">
+        <template #default="scope">
+          <div>
+            {{scope.row && scope.row.effect &&  scope.row.effect.type }}
+          </div>
+        </template>
+      </el-table-column>
 
       <el-table-column label="描述" width="200">
         <template #default="scope">
@@ -253,14 +267,13 @@ export default {
         this.inAdd = true;
 
         this.$refs.skillItemEditorPanel.dialogTitle = "新建技能";
-        this.$refs.skillItemEditorPanel.initValue(this.settingData);
+        this.$refs.skillItemEditorPanel.initValue(JSON.parse(JSON.stringify(this.settingData)));
       }
       if (e == "编辑") {
         this.editorIndex = i;
-        this.inAdd = true;
-        this.settingData = JSON.parse(JSON.stringify(item));
+        this.inAdd = true; 
         this.$refs.skillItemEditorPanel.dialogTitle = "编辑技能";
-        this.$refs.skillItemEditorPanel.initValue(this.settingData);
+        this.$refs.skillItemEditorPanel.initValue(JSON.parse(JSON.stringify(item)));
 
       }
       if (e == "删除") {

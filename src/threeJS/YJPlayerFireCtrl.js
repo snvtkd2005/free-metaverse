@@ -77,7 +77,7 @@ class YJPlayerFireCtrl {
 
 					if (skillItem == undefined || skillItem == "普通攻击") {
 						if (npcTransform == null) {
-							_Global.SceneManager.FireState("我没有目标");
+							_Global._SceneManager.FireState("我没有目标");
 							return;
 						}
 						// 判断目标是否可攻击
@@ -473,7 +473,7 @@ class YJPlayerFireCtrl {
 
 				PlayerAddFire();
 				//自动显示其头像 
-				_Global.SceneManager.SetTargetModel(npcTransform);
+				_Global._SceneManager.SetTargetModel(npcTransform);
 
 				EventHandler("设置目标", npcComponent);
 
@@ -524,7 +524,9 @@ class YJPlayerFireCtrl {
 		function UpdateData() {
 			_this.YJController.directUpate();
 			// _this.YJController.updateBaseData(baseData);
-
+			if(baseData && baseData.maxHealth){
+				_YJPlayer.UpdateHealth(baseData.health,baseData.maxHealth);
+			}
 		}
 		this.SetInteractiveNPC = function (_npcTransform) {
 			SelectNPC(_npcTransform);
@@ -581,10 +583,10 @@ class YJPlayerFireCtrl {
 		let vaildAttackLater = null;
 		let vaildAttackLater2 = null;
 		let attackStepSpeed = 3; //攻击间隔/攻击速度
-		let fireParticleId = ''; //攻击特效id 
 		
 		let toIdelLater = null;
 		let skillName = "";
+		let fireParticleId = ''; //攻击特效id 
 		let readyskillAudioName = "";
 		let vaildAttackDis = 3; //有效攻击距离
 		let canAttack = false;
@@ -600,13 +602,13 @@ class YJPlayerFireCtrl {
 		}
 		function CheckCanAttack() {
 			if (!npcTransform) {
-				_Global.SceneManager.FireState("我没有目标");
+				_Global._SceneManager.FireState("我没有目标");
 				return false;
 			}
 			//如果目标阵营不可攻击
 			let b0 = CheckCamp();
 			if (!b0) {
-				_Global.SceneManager.FireState("不能攻击这个目标");
+				_Global._SceneManager.FireState("不能攻击这个目标");
 				canAttack = false;
 				return false;
 			}
@@ -616,10 +618,10 @@ class YJPlayerFireCtrl {
 			npcPos.y += 1;
 			// 与目标之间有遮挡
 			let b2 = CheckColliderBetween(npcPos, playerPos);
-			if (b2) { _Global.SceneManager.FireState("无法攻击目标"); canAttack = false; return false; }
+			if (b2) { _Global._SceneManager.FireState("无法攻击目标"); canAttack = false; return false; }
 			// 不在攻击范围内
 			let b = inVaildArea(playerPos.distanceTo(npcPos));
-			if (!b) { _Global.SceneManager.FireState("太远了"); canAttack = false; return false; }
+			if (!b) { _Global._SceneManager.FireState("太远了"); canAttack = false; return false; }
 			return b && !b2;
 		}
 		function CheckState() {
@@ -631,6 +633,9 @@ class YJPlayerFireCtrl {
 					return;
 				}
 
+				if(_YJPlayer.isDead){
+					return;
+				}
 				// console.log("距离目标", dis);
 				if (canAttack && CheckCanAttack()) {
 					// 如果准备好攻击，则立即攻击
@@ -745,7 +750,10 @@ class YJPlayerFireCtrl {
 					_Global.YJAudioManager().stopAudio(readyskillAudioName);
 					inSkill = false;
 				}
-				
+				if (toIdelLater != null) {
+					clearTimeout(toIdelLater);
+					toIdelLater = null; 
+				} 
 
 			}
 			if (e == "进入战斗" || e == "设置目标") {
@@ -781,7 +789,7 @@ class YJPlayerFireCtrl {
 
 			if (npcComponent.isDead) {
 				npcTransform = null;
-				_Global.SceneManager.SetTargetModel(npcTransform);
+				_Global._SceneManager.SetTargetModel(npcTransform);
 				playerState = PLAYERSTATE.NORMAL;
 				if (toIdelLater != null) {
 					clearTimeout(toIdelLater);

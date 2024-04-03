@@ -4,28 +4,13 @@
 
 import * as THREE from "three";
 
-
-import { YJAnimModel } from "./components/YJAnimModel";
-import { YJBillboard } from "./model/YJBillboard";
-import { YJHotPoint } from "./YJHotPoint";
-import { YJ3DAudio } from "./YJ3DAudio";
-import { YJLight } from "./YJLight";
-import { YJUVanim } from "./YJUVanim";
-import { YJUVanim2 } from "./YJUVanim2";
-import { YJNPC } from "./YJNPC";
-import { YJPathfindingCtrl } from "./pathfinding/YJPathfindingCtrl.js";
-
-
 class YJNPCManager {
   constructor() {
     let scope = this;
     let npcModelList = [];
-    let _YJPathfindingCtrl = null;
+    
     function Init() {
-      // if (_YJPathfindingCtrl == null) {
-      //   _YJPathfindingCtrl = new YJPathfindingCtrl(scene, _this.GetPublicUrl(), () => { });
-      // }
-
+      _Global._YJNPCManager = scope;
       npcModelList = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetAllTransformByModelType("NPC模型");
 
     }
@@ -129,7 +114,7 @@ class YJNPCManager {
       for (let i = 0; i < npcModelList.length; i++) {
         const element = npcModelList[i].transform;
         let npcComponent = element.GetComponent("NPC");
-        if(!npcComponent.isDead && npcComponent.transform.modelData.active){
+        if(!npcComponent.isDead && element.GetActive()){
           npcs.push(element); 
         }
       }
@@ -157,9 +142,25 @@ class YJNPCManager {
       return npcs;
     }
     
+     
+    this.GetSameCampNPCInFire = function (camp) {
+      let npcs = [];
+      let npcModelList = this.GetAllVaildNPC();
+      // console.log(" 所有有效npc ",npcModelList);
+      for (let i = 0; i < npcModelList.length; i++) {
+        const element = npcModelList[i];
+        let npcComponent = element.GetComponent("NPC");
+        // 相同阵营 
+        if (npcComponent.GetCamp() == camp) {
+          npcs.push(npcComponent); 
+        }
+      }
+      return npcs;
+    }
     this.GetNoSameCampNPCInFire = function (camp) {
       let npcs = [];
       let npcModelList = this.GetAllVaildNPC();
+      // console.log(" 所有有效npc ",npcModelList);
       for (let i = 0; i < npcModelList.length; i++) {
         const element = npcModelList[i];
         let npcComponent = element.GetComponent("NPC");
@@ -170,6 +171,51 @@ class YJNPCManager {
         npcs.push(npcComponent); 
       }
       return npcs;
+    }
+    // 有效距离内的所有
+    this.GetNoSameCampNPCInFireInVailDis = function (fromPos,camp,dis) {
+      let npcs = [];
+      let npcModelList = this.GetAllVaildNPC();
+      // console.log(" 所有有效npc ",npcModelList);
+      for (let i = 0; i < npcModelList.length; i++) {
+        const element = npcModelList[i];
+        let npcComponent = element.GetComponent("NPC");
+        // 不相同阵营 
+        if (npcComponent.GetCamp() == camp) {
+          continue;
+        }
+        let npcPos = element.GetWorldPos();
+        let distance = fromPos.distanceTo(npcPos); 
+        if (distance <= dis) {
+          npcs.push(npcComponent); 
+        } 
+      }
+      return npcs;
+    }
+    //获取最近的单个目标
+    this.GetNoSameCampNPCInFireByNearestDis = function (fromPos,camp,vaildDis) {
+      let npc = null;
+      let npcModelList = this.GetAllVaildNPC();
+      let dis = 10000;
+      if(vaildDis){
+        dis = vaildDis;
+      }
+      // console.log(" 所有有效npc ",npcModelList);
+      for (let i = 0; i < npcModelList.length; i++) {
+        const element = npcModelList[i];
+        let npcComponent = element.GetComponent("NPC");
+        // 不相同阵营 
+        if (npcComponent.GetCamp() == camp) {
+          continue;
+        }
+        let npcPos = element.GetWorldPos();
+        let distance = fromPos.distanceTo(npcPos); 
+        if (distance <= dis) {
+          dis = distance;
+          npc = (npcComponent); 
+        }
+      }
+      return npc;
     }
     this.GetSameCampNPCInFire = function (camp) {
       let npcs = [];
@@ -209,13 +255,48 @@ class YJNPCManager {
       return npcs;
     }
 
+    this.DestroyNpc = function (id) {
+      // console.log("移除npc ", id);
+      for (let i = npcModelList.length - 1; i >= 0; i--) {
+        if (npcModelList[i].id == id) {
+          let transform = npcModelList[i].transform;
+          let npc = transform.GetComponent("NPC");
+          npc.SetNpcTargetToNone(); 
+          transform.Destroy();
+          npcModelList.splice(i,1);
+          return;
+        }
+      }
+    }
+    this.RemoveNpcById = function (npcId) { 
+      for (let i = npcModelList.length -1; i >=0; i--) {
+        const element = npcModelList[i].transform;
+        if (element.id == npcId) {
+          element.Destroy();
+          npcModelList.splice(i,1);
+          return;
+        }
+      } 
+    }
+    this.HiddenNpcById = function (npcId) { 
+      for (let i = npcModelList.length -1; i >=0; i--) {
+        const element = npcModelList[i].transform;
+        if (element.id == npcId) {
+          let npc = element.GetComponent("NPC");
+          if(!npc.isDead){
+            npc.SetNpcTargetToNone(); 
+          } 
+          element.SetActive(false);
+          return;
+        }
+      } 
+    }
     this.DestoryById = function (npcId) {
-      let has = false;
-      for (let i = npcModelList.length - 1; i >= 0 && !has; i--) {
+      for (let i = npcModelList.length - 1; i >= 0; i--) {
         if (npcModelList[i].id == npcId) {
           npcModelList[i].transform.Destroy();
           npcModelList.splice(i, 1);
-          has = true;
+          return;
         }
       }
     }
@@ -232,6 +313,44 @@ class YJNPCManager {
         return;
       }
     }
+
+    //#region 
+    //#endregion
+    
+    //#region 同步生成npc
+    this.DuplicateNPC = function(modelId,npcId,cb) {
+      let npcTransform = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId(modelId);
+      if(npcTransform == null){
+        console.error("不该进入此判断：", modelId + " 不存在");
+        return;
+      }
+      let modelData = JSON.parse(JSON.stringify(npcTransform.modelData));
+      modelData.active = true;
+      modelData.id = npcId;
+      _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().DuplicateModelNPC(modelData, (copy) => {
+        // 测试显示指定名称id的NPC
+        copy.SetActive(true);  
+        scope.AddNpc(copy);
+        if(cb){
+          cb(copy);
+        }
+      }, npcId);
+    }
+
+    this.DuplicateNPCByModelData = function(modelData,npcId,cb) {
+      modelData.id = npcId;
+      modelData.active = true;
+      _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().DuplicateModelNPC(modelData, (copy) => {
+        // 测试显示指定名称id的NPC
+        copy.SetActive(true);  
+        scope.AddNpc(copy);
+        if(cb){
+          cb(copy);
+        }
+      }, npcId);
+    }
+    //#endregion
+
     Init();
 
   }

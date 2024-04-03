@@ -312,7 +312,7 @@ class YJTrailRenderer {
 
             uniforms["mainTex"].value = map;
             material.color.set(data.color);
-            console.error("in 拖尾 msg = ", scope.id, data);
+            // console.error("in 拖尾 msg = ", scope.id, data);
             if (_Global.setting.inEditor && !scope.used) {
                 splinePath = [];
                 let pos = oldPos.clone();

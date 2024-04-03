@@ -34,7 +34,7 @@
     <div class="absolute" :style="panel3dStyle">
       <YJmetaBase ref="YJmetaBase" />
       <div class="absolute left-0 top-0 w-full h-full pointer-events-none">
-        <HUD ref="HUD" />
+        <HUD v-if="hasHUD" ref="HUD" />
       </div>
 
       <!-- 修改名称 -->
@@ -84,6 +84,39 @@
       <div class="absolute right-2 top-2">
         <settingPanel ref="settingPanel" />
       </div>
+
+      <!-- 鸟瞰2d点位 -->
+      <div
+        v-if="niaokanUI"
+        class="absolute left-0 top-0 z-10 w-full h-full pointer-events-none overflow-hidden"
+      >
+        <div>
+          <div
+            v-for="(item, i) in projectionList"
+            :key="i"
+            :index="item.id"
+            class="text-xl flex"
+            :style="
+              ' position:absolute; left:' +
+              item.pos.x +
+              'px;top:' +
+              item.pos.y +
+              'px'
+            "
+          >
+            <div class="w-1 h-1 relative">
+              <div
+                class="w-32 h-14 transform -translate-x-16 -translate-y-7 pointer-events-auto cursor-pointer bg-gray-800 bg-opacity-80 rounded-xl flex text-white"
+                @click="ClickHandler('点击投影2d', item.event)"
+              >
+                <div class="self-center mx-auto">
+                  {{ item.content + " " }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- 右侧检视面板 -->
@@ -132,11 +165,7 @@
           panelData.hierarchyStyle.hover ? ' bg-gray-400 ' : ' bg-opacity-0'
         "
       ></div>
-      <hierarchy
-        ref="hierarchyPanel"
-        title="场景模型列表"
-        :modelList="modelList"
-      />
+      <hierarchy ref="hierarchyPanel" title="场景模型列表" />
     </div>
 
     <loadingPanel
@@ -180,8 +209,14 @@ import { SceneManager } from "../../js/SceneManagerEditor.js";
 
 import { Interface } from "../../js/Interface_editor.js";
 import { DragDivArea } from "/@/threeJS/common/DragDivArea.js";
+import SceneData from "../../data/platform/sceneSetting_editor.js";
 
-import { GetAllScene, UploadSceneFile } from "../../js/uploadThreejs.js";
+import {
+  GetAllScene,
+  UploadSceneFile,
+  GetAllGroup,
+  UploadGroupFile,
+} from "../../js/uploadThreejs.js";
 
 export default {
   name: "EditorPanel",
@@ -322,13 +357,9 @@ export default {
 
       displayMinMap: true,
 
-      niaokanUI: false,
+      niaokanUI: true,
       projectionList: [
-        { id: "10001", content: "岛2", pos: { x: -500, y: -500 } },
-        { id: "10002", content: "岛3", pos: { x: -500, y: -500 } },
-        { id: "10003", content: "岛4", pos: { x: -500, y: -500 } },
-        { id: "10004", content: "岛5", pos: { x: -500, y: -500 } },
-        { id: "10005", content: "岛1", pos: { x: -500, y: -500 } },
+        // { id: "10001", content: "岛2", pos: { x: -500, y: -500 } },
       ],
 
       openModelPanel: "",
@@ -532,6 +563,7 @@ export default {
         count: 10,
         tipContent: "sdfsdf",
       },
+      settingVersion: "",
     };
   },
   created() {
@@ -547,17 +579,32 @@ export default {
 
     if (this.$route.path.toLowerCase().includes("editorscene")) {
       localStorage.setItem("modelType", "场景");
+      this.sceneType = "scene";
+      this.sceneLoadUrl = this.$uploadSceneUrl;
+    }
+
+    if (this.$route.path.toLowerCase().includes("editorgroup")) {
+      localStorage.setItem("modelType", "组合");
+      this.sceneType = "group";
+      this.sceneLoadUrl = this.$uploadGroupUrl;
     }
 
     if (this.$route.params.folderBase != undefined) {
       this.folderBase = this.$route.params.folderBase;
+      if (this.$route.params.version != undefined) {
+        this.settingVersion = this.$route.params.version;
+      }
     } else if (this.$route.query.folderBase != undefined) {
       this.folderBase = this.$route.query.folderBase;
+      if (this.$route.query.version != undefined) {
+        this.settingVersion = this.$route.query.version;
+      }
     } else {
       let modelData = JSON.parse(localStorage.getItem("modelData"));
       this.modelData = modelData;
       this.oldFileName = this.modelData.name;
       this.folderBase = modelData.folderBase;
+      this.settingVersion = "";
     }
 
     this.loadingName = "loading.jpg";
@@ -572,20 +619,6 @@ export default {
     console.log(" this.folderBase ", this.folderBase, this.loadingUrl);
     this.$refs.YJmetaBase.SetloadingPanel(this.$refs.loadingPanel);
     this.$refs.PanelCut.Init(_Global.YJ3D);
-
-    // 没有icon表示为新建的场景
-    // if (this.modelData.icon) {
-    //   this.inCreate = false;
-    //   this.RequestGetAllSceneData();
-    //   return;
-    // } else {
-    //   this.updateSceneTxtData(() => {
-    //     this.updateSceneData(() => {
-    //       this.updateSceneModelDataNone();
-    //     });
-    //   });
-    //   this.Enter();
-    // }
 
     if (this.modelData.modelType == undefined) {
       this.RequestGetAllScene(() => {
@@ -602,7 +635,13 @@ export default {
           this.Enter();
         } else {
           this.inCreate = false;
-          this.RequestGetAllSceneData();
+          if (this.sceneType == "scene") {
+            this.RequestGetAllSceneData();
+          } else {
+            this.sceneData = SceneData;
+            console.log(" 进入组合设置 ");
+            this.Enter();
+          }
         }
 
         document.title = this.oldFileName;
@@ -626,7 +665,9 @@ export default {
     new DragDivArea(
       this.$refs.settingPanelDrag,
       () => {
-        offsetsettingPanelDrag = this.panelData.settingPanelStyle.width;
+        offsetsettingPanelDrag = parseInt(
+          this.panelData.settingPanelStyle.width
+        );
       },
       (x, y) => {
         let f = offsetsettingPanelDrag + (x * window.innerWidth) / 2;
@@ -642,7 +683,7 @@ export default {
     new DragDivArea(
       this.$refs.modelPanelDrag,
       () => {
-        offsetmodelPanelDrag = this.panelData.modelPanelStyle.height;
+        offsetmodelPanelDrag = parseInt(this.panelData.modelPanelStyle.height);
       },
       (x, y) => {
         let f = offsetmodelPanelDrag - (y * window.innerHeight) / 2;
@@ -658,7 +699,7 @@ export default {
     new DragDivArea(
       this.$refs.hierarchyDrag,
       () => {
-        offsethierarchyDrag = this.panelData.hierarchyStyle.width;
+        offsethierarchyDrag = parseInt(this.panelData.hierarchyStyle.width);
       },
       (x, y) => {
         let f = offsethierarchyDrag - (x * window.innerWidth) / 2;
@@ -669,6 +710,8 @@ export default {
         this.resizePanel();
       }
     );
+
+    this.$refs.hierarchyPanel.init();
   },
   methods: {
     setMaxMin(isMax) {
@@ -705,16 +748,27 @@ export default {
     },
     // 计算各个panel的宽高
     setPanelSize() {
-      this.panelData.settingPanelStyle.width =
-        localStorage.getItem("settingPanelStyle_width") ?? 280;
+      let settingPanelStyle_width = localStorage.getItem(
+        "settingPanelStyle_width"
+      );
+      if (!settingPanelStyle_width) {
+        settingPanelStyle_width = 280;
+      }
+
+      this.panelData.settingPanelStyle.width = settingPanelStyle_width;
 
       this.panelData.topStyle.height = 40;
       this.panelData.topStyle.display = "";
 
       this.panelData.hierarchyStyle.left = 0;
       this.panelData.hierarchyStyle.top = this.panelData.topStyle.height;
-      this.panelData.hierarchyStyle.width =
-        localStorage.getItem("hierarchyStyle_width") ?? 240;
+
+      let hierarchyStyle_width = localStorage.getItem("hierarchyStyle_width");
+      if (!hierarchyStyle_width) {
+        hierarchyStyle_width = 240;
+      }
+      this.panelData.hierarchyStyle.width = hierarchyStyle_width;
+
       this.panelData.hierarchyStyle.height =
         window.innerHeight - this.panelData.topStyle.height;
 
@@ -722,8 +776,14 @@ export default {
       // console.log(" localStorage.getItem(modelPanelStyle_height) ", localStorage.getItem("modelPanelStyle_height"));
 
       this.panelData.modelPanelStyle.bottom = 0;
-      this.panelData.modelPanelStyle.height =
-        localStorage.getItem("modelPanelStyle_height") ?? 200;
+
+      let modelPanelStyle_height = localStorage.getItem(
+        "modelPanelStyle_height"
+      );
+      if (!modelPanelStyle_height) {
+        modelPanelStyle_height = 200;
+      }
+      this.panelData.modelPanelStyle.height = modelPanelStyle_height;
       this.panelData.modelPanelStyle.display = "";
 
       this.panelData.panel3dStyle.top = this.panelData.topStyle.height;
@@ -806,31 +866,39 @@ export default {
       this.sceneData.metaWorldCoordinate.splice(i, 1);
       this.updateSceneData();
     },
-
-    async RequestGetAllScene(callback) {
-      GetAllScene().then((res) => {
-        // console.log("获取所有场景数据，查找当前场景数据  ", res);
-        //先记录旧照片
-        if (res.data.txtDataList) {
-          let txtDataList = res.data.txtDataList;
-          for (let i = 0; i < txtDataList.length; i++) {
-            const item = txtDataList[i];
-            // let item = JSON.parse(element);
-            if (item.folderBase == this.folderBase) {
-              localStorage.setItem("modelData", JSON.stringify(item));
-              this.modelData = item;
-              this.oldFileName = this.modelData.name;
-              if (callback) {
-                callback();
-              }
-              return;
+    encodeData(res, callback) {
+      if (res.data.txtDataList) {
+        let txtDataList = res.data.txtDataList;
+        for (let i = 0; i < txtDataList.length; i++) {
+          const item = txtDataList[i];
+          // let item = JSON.parse(element);
+          if (item.folderBase == this.folderBase) {
+            localStorage.setItem("modelData", JSON.stringify(item));
+            this.modelData = item;
+            this.oldFileName = this.modelData.name;
+            if (callback) {
+              callback();
             }
-          }
-          if (callback) {
-            callback();
+            return;
           }
         }
-      });
+        if (callback) {
+          callback();
+        }
+      }
+    },
+    async RequestGetAllScene(callback) {
+      if (this.sceneType == "scene") {
+        GetAllScene().then((res) => {
+          this.encodeData(res, callback);
+        });
+      }
+
+      if (this.sceneType == "group") {
+        GetAllGroup().then((res) => {
+          this.encodeData(res, callback);
+        });
+      }
     },
 
     //在点击threeJS界面时，还原threejs的键盘监听。
@@ -906,7 +974,9 @@ export default {
         this.sceneLoadUrl +
           this.folderBase +
           "/" +
-          "setting.txt" +
+          "setting" +
+          this.settingVersion +
+          ".txt" +
           "?time=" +
           new Date().getTime()
       );
@@ -918,6 +988,15 @@ export default {
         this.sceneData.setting.playerHeight / 2;
       this.sceneData.setting.title = this.oldFileName;
       document.title = this.oldFileName;
+
+      this.isDMGame = this.sceneData.setting.isDMGame;
+      _Global.isDMGame = this.isDMGame;
+
+      this.hasHUD = this.sceneData.setting.hasHUD;
+      _Global.hasAvatar = this.sceneData.setting.hasAvatar;
+      this.hasAvatar = this.sceneData.setting.hasAvatar;
+      _Global.user.camp =
+        (this.sceneData.user && this.sceneData.user.camp) ?? 1000;
 
       this.Enter();
     },
@@ -966,20 +1045,14 @@ export default {
 
     // 保存场景简要信息。新建时调用
     updateSceneTxtData(callback) {
-      // console.log(this.modelData);
-
       this.modelData.icon = this.folderBase + "/" + "thumb.jpg";
-
       let s = JSON.stringify(this.modelData);
       let fromData = new FormData();
-      //服务器中的本地地址
       fromData.append("fileToUpload", this.$stringtoBlob(s, "data.txt"));
       fromData.append("folderBase", this.folderBase);
-      UploadSceneFile(fromData).then((res) => {
-        //先记录旧照片
+      this._UploadSceneFile(fromData, (res) => {
         if (res.data == "SUCCESS") {
           console.log(" 上传模型数据文件成功 ");
-
           if (callback) {
             callback();
           }
@@ -993,14 +1066,16 @@ export default {
       console.log(" 保存场景配置 ", this.sceneData);
       // console.log(" 保存场景配置 ", this.sceneData.AmbientLightData.backgroundColor);
 
-      // return;
-
       let s = JSON.stringify(this.sceneData);
       let fromData = new FormData();
       //服务器中的本地地址
-      fromData.append("fileToUpload", this.$stringtoBlob(s, "setting.txt"));
+      fromData.append(
+        "fileToUpload",
+        this.$stringtoBlob(s, "setting" + this.settingVersion + ".txt")
+      );
       fromData.append("folderBase", this.folderBase);
-      UploadSceneFile(fromData).then((res) => {
+
+      this._UploadSceneFile(fromData, (res) => {
         //先记录旧照片
         if (res.data == "SUCCESS") {
           console.log(" 上传  场景配置数据 成功 ");
@@ -1050,7 +1125,8 @@ export default {
       //服务器中的本地地址
       fromData.append("fileToUpload", this.$stringtoBlob(s, "scene.txt"));
       fromData.append("folderBase", this.folderBase);
-      UploadSceneFile(fromData).then((res) => {
+
+      this._UploadSceneFile(fromData, (res) => {
         //先记录旧照片
         if (res.data == "SUCCESS") {
           console.log(" 上传 场景模型清单数据 成功 ");
@@ -1065,13 +1141,30 @@ export default {
       //服务器中的本地地址
       fromData.append("fileToUpload", this.$stringtoBlob(s, "scene.txt"));
       fromData.append("folderBase", this.folderBase);
-      UploadSceneFile(fromData).then((res) => {
+
+      this._UploadSceneFile(fromData, (res) => {
         //先记录旧照片
         if (res.data == "SUCCESS") {
         }
       });
 
       _Global.YJ3D._YJSceneManager.LoadDone();
+    },
+    _UploadSceneFile(fromData, callback) {
+      if (this.sceneType == "scene") {
+        UploadSceneFile(fromData).then((res) => {
+          if (callback) {
+            callback(res);
+          }
+        });
+      }
+      if (this.sceneType == "group") {
+        UploadGroupFile(fromData).then((res) => {
+          if (callback) {
+            callback(res);
+          }
+        });
+      }
     },
 
     // 保存模型缩略图，并上传
@@ -1085,11 +1178,11 @@ export default {
         this.$dataURLtoBlob(dataurl, "thumb.jpg")
       );
       fromData.append("folderBase", this.folderBase);
-      UploadSceneFile(fromData).then((res) => {
+
+      this._UploadSceneFile(fromData, (res) => {
         //先记录旧照片
         if (res.data == "SUCCESS") {
           console.log(" 上传模型缩略图 ");
-
           this.SetTip("缩略图制作成功！");
         }
       });
@@ -1128,9 +1221,9 @@ export default {
       }
 
       if (item.content.includes("设置为访问视角")) {
-        _Global.SavePlayerPos();
+        _Global.YJ3D._YJSceneManager.SavePlayerPos();
         setTimeout(() => {
-          _Global.SavePlayerPos();
+          _Global.YJ3D._YJSceneManager.SavePlayerPos();
           this.updateSceneData();
         }, 100);
         return;
@@ -1481,26 +1574,35 @@ export default {
       //   this.ChangeViewById(10004);
       // }, 2000);
     },
-    // 3转2坐标
-    UpdateProjectionUI(_projectionList) {
-      // this.projectionList=[];
-      // this.projectionList = _projectionList;
-      for (let i = 0; i < _projectionList.length; i++) {
-        for (let ii = 0; ii < this.projectionList.length; ii++) {
-          if (_projectionList[i].id == this.projectionList[ii].id) {
-            this.projectionList[ii].pos = _projectionList[i].pos;
-          }
-          // if(_projectionList[i].id == this.projectionList[i].id){
-          //   this.projectionList[i].pos = _projectionList[i].pos;
-          // }
+    ClickHandler(t, msg) {
+      if (t == "点击投影2d") {
+        if (msg.title == "jump") {
+          // 新窗口 新标签
+          // window.open("https://www.baidu.com", "_blank");
+          window.open(msg.content, "_blank");
         }
       }
-      // console.log(" 3转2 ",_projectionList);
+    },
+    // 3转2坐标
+    UpdateProjectionUI(_projectionList) {
+      this.projectionList = [];
+      this.projectionList = _projectionList;
+      // for (let i = 0; i < _projectionList.length; i++) {
+      //   for (let ii = 0; ii < this.projectionList.length; ii++) {
+      //     if (_projectionList[i].id == this.projectionList[ii].id) {
+      //       this.projectionList[ii].pos = _projectionList[i].pos;
+      //     }
+      //     // if(_projectionList[i].id == this.projectionList[i].id){
+      //     //   this.projectionList[i].pos = _projectionList[i].pos;
+      //     // }
+      //   }
+      // }
+      // console.log(" 3转2 ", this.niaokanUI, _projectionList);
     },
 
     SetViewState(e) {
       this.displayMinMap = e == "人视";
-      this.niaokanUI = e == "鸟瞰";
+      // this.niaokanUI = e == "鸟瞰";
 
       if (e == "人视") {
         for (let ii = 0; ii < this.projectionList.length; ii++) {
@@ -1587,6 +1689,12 @@ export default {
       _Global.YJ3D._YJSceneManager.SetSelectTransform(this.clickModelJS);
 
       this.ChangePanel("");
+      //其他通用组件
+      let _components = this.clickModelJS.GetData().components;
+      console.log(" 当前物体的通用组件 ",this.clickModelJS.GetData(),_components);
+      if(_components){
+        this.$refs.settingPanelCtrl.setComponent(_components);  
+      }
 
       this.$refs.settingPanelCtrl.isTransform = true;
       this.$nextTick(() => {
@@ -1717,9 +1825,10 @@ export default {
     },
     DuplicateModel() {
       if (this.clickModelJS != null) {
+        let modelData = this.clickModelJS.GetData();
         _Global.YJ3D._YJSceneManager
           .GetLoadUserModelManager()
-          .DuplicateModel(this.clickModelJS.GetData(), (transform) => {
+          .DuplicateModel(modelData, (transform) => {
             _Global.YJ3D._YJSceneManager._YJTransformManager.attach(
               transform.GetGroup()
             );

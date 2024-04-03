@@ -31,11 +31,11 @@ class YJPathfindingCtrl {
     let inEditor = false;
     function Init() {
       inEditor = _Global.setting.inEditor;
+      // inEditor = true;
       let group = new THREE.Group();
       scene.add(group);
 
       pathfinding = new Pathfinding();
-      console.log("初始化寻路。。。", pathfinding, inEditor);
 
       if (inEditor) {
         pathfindingHelper = new PathfindingHelper();
@@ -43,6 +43,7 @@ class YJPathfindingCtrl {
       }
 
       ZONE = 'npcLevel1';
+      console.log("初始化寻路。。。",ZONE, pathfinding, inEditor);
 
       const geometries = [];
 
@@ -58,8 +59,8 @@ class YJPathfindingCtrl {
 
             navmesh = node;
 
-            // const wireframeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, transparent: true });
-            // navmesh.material = wireframeMaterial;
+            const wireframeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, wireframe: true, transparent: true });
+            navmesh.material = wireframeMaterial;
 
             // const navWireframe = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
             //   color: 0x808080,
@@ -76,6 +77,7 @@ class YJPathfindingCtrl {
             // if (!inEditor) {
             //   navmesh.visible = false;
             // }
+            // navmesh.visible = true;
             navmesh.visible = false;
 
             // 
@@ -87,10 +89,22 @@ class YJPathfindingCtrl {
             matrix.compose(position, quaternion, scale);
             const instanceGeometry = navmesh.geometry.clone();
             instanceGeometry.applyMatrix4(matrix);
-            if (geometries.length == 0) {
-              geometries.push(instanceGeometry);
-            }
 
+            // if (geometries.length == 0) {
+            //   geometries.push(instanceGeometry);
+            // }
+
+            // geometries.push(instanceGeometry);
+            
+            console.time('createZone()');
+            const zone = Pathfinding.createZone(instanceGeometry);
+            console.timeEnd('createZone()');
+            pathfinding.setZoneData(ZONE, zone);
+            hasPathfinding = true;
+            if (callback) {
+              callback();
+            }
+            return;
 
           }
           // console.log(" zone = ", pathfinding.zones);
@@ -178,7 +192,8 @@ class YJPathfindingCtrl {
             // pathfinding.setZoneData(ZONE, zone);
 
 
-            navmesh.visible = false;
+            navmesh.visible = true;
+            // navmesh.visible = false;
 
 
 
@@ -191,8 +206,14 @@ class YJPathfindingCtrl {
             matrix.compose(position, quaternion, scale);
             const instanceGeometry = navmesh.geometry.clone();
             instanceGeometry.applyMatrix4(matrix);
-            geometries.push(instanceGeometry);
 
+            // geometries.push(instanceGeometry);
+            
+            console.time('createZone()');
+            const zone = Pathfinding.createZone(instanceGeometry);
+            console.timeEnd('createZone()');
+            pathfinding.setZoneData(ZONE, zone);
+            return;
           }
           // console.log(" zone = ", pathfinding.zones);
         }
@@ -228,7 +249,9 @@ class YJPathfindingCtrl {
 
     let getTimes = 0;
     this.GetNavpath = function (ZONE, fromPos, targetPos) {
-      if (!hasPathfinding) {
+      let navpath = [];
+      let tempV3 = new THREE.Vector3(0, 0, 0);
+      if (!hasPathfinding ) {
         tempV3.set(targetPos.x, targetPos.y, targetPos.z);
         navpath = [tempV3];
         return navpath;
@@ -236,7 +259,7 @@ class YJPathfindingCtrl {
       // fromPos.y = 0; 
       // targetPos.y = fromPos.y;
       // console.log(" 查找寻路路径 ", ZONE, fromPos, targetPos);
-      groupId = pathfinding.getGroup(ZONE, fromPos, true);
+      let groupId = pathfinding.getGroup(ZONE, fromPos, true);
       // console.log("groupId " + groupId);
       try {
         const closest = pathfinding.getClosestNode(fromPos, ZONE, groupId); //返回离目标位置最近的节点
@@ -246,21 +269,24 @@ class YJPathfindingCtrl {
         console.error(ZONE,error);
         tempV3.set(targetPos.x, targetPos.y, targetPos.z);
         navpath = [tempV3];
-        return navpath;
+        // console.error(" 无法寻路 直接移动到目标点 000 ");
+        
       }
-      getTimes++;
-      if (navpath == null && getTimes < 3) {
-        if(getTimes==2){
-          getTimes = 0;
-          tempV3.set(targetPos.x, targetPos.y, targetPos.z);
-          navpath = [tempV3];
-          // console.error(" 无法寻路 直接移动到目标点");
-
-        }else{
-          return this.GetNavpath(ZONE, fromPos, targetPos);
-        }
-
-        // targetPos.x += 0.5;
+      if (navpath == null ) {
+        
+        tempV3.set(targetPos.x, targetPos.y, targetPos.z);
+        navpath = [tempV3];
+        // console.error(" 无法寻路 直接移动到目标点");
+        
+        // if(getTimes==1){
+        //   getTimes = 0;
+        //   tempV3.set(targetPos.x, targetPos.y, targetPos.z);
+        //   navpath = [tempV3];
+        //   console.error(" 无法寻路 直接移动到目标点");
+        //   return navpath;
+        // }else{
+        //   // return this.GetNavpath(ZONE, fromPos, targetPos);
+        // }
       }
       
       if (navpath) {

@@ -69,7 +69,7 @@
         </div>
       </div>
 
-      <!-- 技能添加弹窗 -->
+      
       <div v-if="inAdd" class=" absolute top-0 right-0 text-white bg-black bg-opacity-40   ">
 
         <div v-for="(item, i) in animFrom" :key="i" class=" 
@@ -203,7 +203,6 @@ export default {
       console.log(e, item, i);
       if (e == "上传") {
         this.$parent.$refs.settingPanelCtrl.$refs.settingPanel_player.SetAnimName(item);
-        this.isOpen = false;
         return;
       }
       if (e == "读取") {

@@ -178,9 +178,25 @@ export default {
         { property: "AmbientLightData-fogFar", display: true, title: "雾远距离", type: "int", value: "250", callback: this.ChangeValue },
         // { property: "AmbientLightData-DirectionalLightIntensity", display: true, title: "太阳光强度", type: "slider", value: 1, step: 0.1, min: 0, max: 2, callback: this.ChangeValue },
         { property: "hasFloor", display: true, title: "启用默认地面", type: "toggle", value: true, callback: this.ChangeValue },
+        { property: "setting-hasCamRaycast", display: true, title: "启用摄像机遮挡", type: "toggle", value: true, callback: this.ChangeValue },
+        { property: "setting-multiGame", display: true, title: "启用多人模式", type: "toggle", value: true, callback: this.ChangeValue },
+        { property: "setting-isDMGame", display: true, title: "是否弹幕游戏", type: "toggle", value: false, callback: this.ChangeValue },
+        { property: "setting-hasAvatar", display: true, title: "启用第三人称角色", type: "toggle", value: true, callback: this.ChangeValue },
+        { property: "setting-hasHUD", display: true, title: "是否有界面", type: "toggle", value: true, callback: this.ChangeValue },
+        { property: "setting-targetRota", display: true, title: "上下角度限制", type: "vector2xy", step:0.01, value: true, callback: this.ChangeValue },
+        // { property: "setting-cameraOffset", display: true, title: "视角中心偏移", type: "vector3xyz", step:0.01, value: true, callback: this.ChangeValue },
+        {
+          property: "user-camp", display: true, title: "阵营", type: "drop", value: 1000, options: [
+            // { value: 1000, label: '联盟npc' },
+            // { value: 1001, label: '部落npc' },
+            { value: 10000, label: '部落' },
+            { value: 1000, label: '联盟' },
+            // { value: 9000, label: '中立' },
+          ], callback: this.ChangeValue,
+        },
       ],
       sceneData: {
-        //限制改场景使用的技能、角色。只记录id
+        
       },
       avatarList: [],
       skillList: [],
@@ -218,8 +234,7 @@ export default {
       this.skillList = this.sceneData.skillList;
       _Global.skillList_scene = this.skillList;
 
-      this.Utils.SetSettingItemByPropertyAll(this.setting, this.sceneData);
-
+      this.Utils.SetSettingItemByPropertyAll(this.setting, this.sceneData); 
 
       this.ChangeUIState();
 
@@ -377,17 +392,20 @@ export default {
 
       console.log(i, property, e);
 
-      // let sp = property.split('-');
-      // if (sp.length == 1) {
-      //   this.settingData[sp[0]] = e;
-      // } else {
-      //   this.settingData[sp[0]][sp[1]] = e;
-      // }
+      let sp = property.split('-');
+      if (sp.length == 1) {
+        this.sceneData[sp[0]] = e;
+      } else {
+        if(this.sceneData[sp[0]] == undefined){
+          this.sceneData[sp[0]] = {};
+        }
+        this.sceneData[sp[0]][sp[1]] = e;
+      }
 
       this.ChangeUIState();
 
       if (property == "AmbientLightData-AmbientLightIntensity") {
-        _Global.YJ3D._YJSceneManager.SetAmbientLightIntensity(e);
+        _Global.YJ3D._YJSceneManager.SetAmbientIntensity(e);
       }
       if (property == "AmbientLightData-backgroundColor") {
         _Global.SetBackgroundColor(e);
@@ -416,7 +434,10 @@ export default {
       if (property == "setting-hasBGM") {
         this.sceneData.setting.hasBGM = e;
       }
-      
+      if (property == "setting-targetRota") {
+        _Global.YJ3D.YJController.SetMinMax(e); 
+      }
+
       if(property.toLowerCase().includes("fog")){
         _Global.SendMsgTo3D("设置雾",{
           visible:this.Utils.GetSettingItemValueByProperty(this.setting, 'AmbientLightData-hasFog'),

@@ -5,8 +5,7 @@
 <!-- npm i vue3-video-play -S    -->
 <!-- 更新vue到3.2.4
 npm install vue@3.2.4   -->
-
-// 播放直播流
+ 
 <template>
   <!--   v-bind="options" -->
 <!-- :src="video_url" 

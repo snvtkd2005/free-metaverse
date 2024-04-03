@@ -63,14 +63,33 @@ class YJGeometry {
         _this._YJSceneManager.CreateTriangeMeshTrigger(mesh, size,
           data.tiggerTag, "triggerArea", owner);  
       } 
+      
+      if(data.isProjection){
+        _this._YJSceneManager.AddProjectionUI(
+          {
+            content: data.name,
+            tag:data.tiggerTag,
+            transform:owner,
+            event:data.event,
+          });  
+      } 
+      if(data.isPosRef){
+        //位置参考物体
+        _this._YJSceneManager.AddPosRef(
+          {
+            content: data.name,
+            tag:data.tiggerTag,
+            pos:owner.GetWorldPos()
+          });  
+      } 
       if(!_Global.setting.inEditor){
         mesh.visible = false;
       }
     }
     this.Reset = function () {
-      createLater = setTimeout(() => {
-        Init();
-      }, 200);
+      // createLater = setTimeout(() => {
+      //   Init();
+      // }, 200);
     }
     this.CreateTrigger = function () {
       this.Destroy();
@@ -101,7 +120,7 @@ class YJGeometry {
       if (msg == null || msg == undefined || msg == "") { return; }
       // data = JSON.parse(msg);
       data = (msg);
-      console.log("in YJGeometry msg = ", data);
+      // console.log("in YJGeometry msg = ", data);
       Init();
     }
 

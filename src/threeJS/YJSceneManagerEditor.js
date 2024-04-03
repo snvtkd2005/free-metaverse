@@ -52,6 +52,7 @@ import { YJUVAnim3 } from "./components/YJUVAnim3.js";
 
 import { YJStaticMeshMerged } from "./YJStaticMeshMerged.js";
 import { YJCar } from "./model/YJCar.js";
+import { YJPlayerNameManager } from "./YJPlayerNameManager.js";
 
 
 class YJSceneManager {
@@ -72,6 +73,8 @@ class YJSceneManager {
         return _YJLoadUserModelManager;
       }
       _YJLoadUserModelManager = new YJLoadUserModelManager(_this, modelParent, camera);
+      let _YJPlayerNameManager = new YJPlayerNameManager();
+      this.AddNeedUpdateJS(_YJPlayerNameManager);
       return _YJLoadUserModelManager;
     }
 
@@ -218,7 +221,10 @@ class YJSceneManager {
      * @returns {组件} 获取当前编辑的Transform的指定组件 
      */
     this.GetSingleTransformComponent = function (componentName) {
-      return this.GetSingleModelTransform().GetComponent(componentName);
+      if(singleTransform){
+        return singleTransform.GetComponent(componentName);
+      }
+      return null;
     }
     this.AddComponent = function (component, data) {
       if (singleTransform == null) { return; }
@@ -498,14 +504,6 @@ class YJSceneManager {
     }
 
 
-    // 还原角色位置
-    this.ResetPlayerPos = function () {
-      let pos = new THREE.Vector3(playerPos.x, playerPos.y + 0.1, playerPos.z);
-      _YJAmmo.SetPlayerPos(pos);
-      _this.YJController.SetPlayerRota3(playerSetting.rotaV3);
-      _this.YJController.SetContrlState(setting.contrlState, setting.wheelValue);
-
-    }
 
     // 初始化创建地图 和 设置角色位置
     function CreateSingleScene() {
@@ -525,9 +523,9 @@ class YJSceneManager {
 
 
       if (platform == "pcweb") {
+        _this.YJController.SetAmmoCtrl(_YJAmmo);
         // _this.YJController.SetPlayerRota(playerSetting.rotaV3);
         _this.YJController.SetPlayerRota3(playerSetting.rotaV3);
-        _this.YJController.SetAmmoCtrl(_YJAmmo);
         _this.YJController.GetAmmoPlayer().add(listener);
         listener.rotation.y = 3.14;
       }
@@ -757,8 +755,7 @@ class YJSceneManager {
         scope.SetViewState(e);
       });
       _this.YJController.OnRotaBase(() => {
-        UpdateProjectionUI();
-        // scope.UpdateProjectionUI(); 
+        UpdateProjectionUI(); 
       });
 
 
@@ -797,6 +794,7 @@ class YJSceneManager {
           CreateFloor();
         }
 
+
       } else {
         if (floor == null) {
           return;
@@ -817,7 +815,7 @@ class YJSceneManager {
         scope.CreateModelMeshCollider(floorCollider, new THREE.Vector3(1, 1, 1),
           new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, Math.PI / 2, 0));
 
-        this.SetPlayerPos({ x: 0, y: 10, z: 0 });
+        // this.SetPlayerPos({ x: 0, y: 10, z: 0 });
 
       } else {
 
@@ -1325,8 +1323,7 @@ class YJSceneManager {
       ClearArray(animModelJS);
       ClearArray(camPosLookatPosList);
       ClearArray(playerPosPointList);
-      ClearArray(projectionUIList);
-      ClearArray(projectionUIList);
+      ClearArray(projectionUIList); 
       ClearArray(projectionUIDataList);
       ClearArray(viewStateListenerList);
 
@@ -1599,7 +1596,7 @@ class YJSceneManager {
       if (_this.$parent.SetViewState) {
         _this.$parent.SetViewState(e);
       }
-      b_displayProjectionUI = e == "鸟瞰";
+      // b_displayProjectionUI = e == "鸟瞰";
 
       UpdateProjectionUI();
 
@@ -1614,17 +1611,6 @@ class YJSceneManager {
 
 
     //#region 鸟瞰时，三维物体映射到2dUI上
-    // 鸟瞰时，三维物体映射到2dUI上
-    let projectionUIList = [];
-    let projectionUIDataList = [];
-
-    this.AddProjectionUI = function (fn) {
-      projectionUIList.push({ id: fn.GetId(), _hotPoint: fn });
-      projectionUIDataList.push({ id: fn.GetId(), pos: { x: 0, y: 0 } });
-
-      // console.log("添加3转2", projectionUIList);
-
-    }
 
     // 获取模型相对于界面的2d坐标
     this.GetObjectPosToScreenPos = function (obj) {
@@ -1634,18 +1620,45 @@ class YJSceneManager {
       return getScreenPosition(pos);
     }
 
-    let b_displayProjectionUI = false;
+    let b_displayProjectionUI = true;
     this.SetDisplayProjectionUI = function (b) {
       b_displayProjectionUI = b;
     }
+    
+    // 鸟瞰时，三维物体映射到2dUI上
+    let projectionUIList = [];
+    let projectionUIDataList = [];
+
+    this.DisplayProjectionUI = function (v,b) {
+      for (let i = 0; i < projectionUIDataList.length; i++) {
+        const item = projectionUIDataList[i];
+        if(item.tag==v || item.content == v){
+          item.display = b;
+          return;
+        }
+      } 
+    }
+    this.AddProjectionUI = function (msg) {
+      projectionUIList.push({ id: msg.tag, _hotPoint: msg.transform });
+      projectionUIDataList.push({ id:msg.tag,display:true,content:msg.content,event:msg.event, pos: { x: 0, y: 0 } });
+      // console.log("添加3转2", projectionUIList);
+    }
+    let posRefList = [];
+    this.AddPosRef = function (msg) {
+      posRefList.push({ id:msg.tag,content:msg.content,pos:msg.pos});
+    }
+    this.GetPosRefList = function(){
+      return posRefList;
+    }
     // 实时刷新三维物体，世界坐标转屏幕坐标，更新div
     function UpdateProjectionUI() {
+      // console.log(" in UpdateProjectionUI ",b_displayProjectionUI);
       if (b_displayProjectionUI) {
         for (let i = 0; i < projectionUIList.length; i++) {
           const item = projectionUIList[i]._hotPoint;
-          let pos = getScreenPosition(item.GetPointWorldPos());
+          let pos = getScreenPosition(item.GetWorldPos());
           projectionUIDataList[i].pos = pos;
-          // console.log("id = "+projectionUIDataList[i].id + " pos = ",pos );
+          // console.log("id = "+projectionUIDataList[i].content + " pos = ",pos );
         }
         //传到界面
         if (_this.$parent.UpdateProjectionUI) {
@@ -1675,6 +1688,7 @@ class YJSceneManager {
         let vector = world_vector.project(camera);
         let halfWidth = windowWidth / 2;
         let halfHeight = windowHeight / 2;
+        
         return {
           x: Math.round(vector.x * halfWidth + halfWidth),
           y: Math.round(-vector.y * halfHeight + halfHeight),
@@ -1800,7 +1814,7 @@ class YJSceneManager {
       // console.log("添加模型", path, mesh);
 
       let materials = [];
-      if (path.includes(".fbx")) {
+      if (path.includes(".fbx") || path.includes(".obj")) {
 
         // mesh.traverse(function (item) {
         //   if (item.isMesh) {
@@ -1843,7 +1857,8 @@ class YJSceneManager {
           // console.log(" 找到相同模型 ",path);
           if (callback) {
             callback({
-              mesh: loadMesh[i].mesh,
+              mesh: cloneAvatar(loadMesh[i].mesh.scene,loadMesh[i].mesh.animations),
+              // mesh: loadMesh[i].mesh,
               materials: loadMesh[i].materials,
             });
           }
@@ -1859,6 +1874,7 @@ class YJSceneManager {
           // if (callback) {
           //   callback(model);
           // }
+          // console.log(" 加载完成 ",path);
           scope.DirectLoadMesh(path, callback);
 
         });
@@ -2320,6 +2336,16 @@ class YJSceneManager {
       }, 20);
     }
 
+    // 还原角色位置
+    this.ResetPlayerPos = function () {
+      let pos = new THREE.Vector3(playerPos.x, playerPos.y , playerPos.z);
+      _YJAmmo.SetPlayerPos(pos);
+      _this.YJController.SetCameraOffset(setting.cameraOffset);
+      _this.YJController.SetPlayerRota3(playerSetting.rotaV3);
+      // _this.YJController.SetContrlState(setting.contrlState, setting.wheelValue);
+      _this.YJController.SetCameraWheelPos(setting.wheelValue);
+      
+    }
     // 保存threejs中的坐标和旋转，用来直接设置threejs。不需要做坐标旋转转换
     this.SavePlayerPos = function () {
       setting.playerPos = _YJAmmo.GetPlayerPos();
@@ -2327,19 +2353,28 @@ class YJSceneManager {
       setting.playerRotaV3 = { x: rota.x, y: rota.y, z: rota.z };
       setting.cameraOffset.y = getWorldPosition(camera).y - playerPos.y;
       setting.cameraOffset.z = camera.position.x;
-
-
+      setting.wheelValue = _this.YJController.GetCameraWheel();
       playerPos = setting.playerPos;
-      playerSetting.rotaV3 = setting.playerRotaV3;
-      // console.log(sceneData); 
+      playerSetting.rotaV3 = setting.playerRotaV3; 
+
     }
 
 
 
     this.VisibleDirectionalLight = function (b) {
+      sceneData.AmbientLightData.hasDirectionalLight = b;
       if (_DirectionalLight != null) {
         _DirectionalLight.visible = b;
-        sceneData.AmbientLightData.hasDirectionalLight = b;
+      }else{
+        if(b){
+          CreateDirectionalLight(lightData.DirectionalLightPos, lightData.DirectionalLightIntensity);
+        }
+      }
+    }
+    this.VisibleAmbientLight = function (b) {
+      sceneData.AmbientLightData.hasAmbientLight = b;
+      if (_DirectionalLight != null) {
+        _DirectionalLight.visible = b;
       }else{
         if(b){
           CreateDirectionalLight(lightData.DirectionalLightPos, lightData.DirectionalLightIntensity);
@@ -2517,7 +2552,7 @@ class YJSceneManager {
       // console.log(currentLoadCount + "/" + needLoadCount);
     }
     this.LoadDone = function () {
-      console.error(" 加载场景完成 ！！ ");
+      console.log(" 加载场景完成 ！！ ");
 
       _this.$parent.LoadingProcess(100);
 
@@ -3381,10 +3416,11 @@ class YJSceneManager {
 
 
       loadTexDeltaTime++;
+      var camWorlPos = GetCameraWorldPos();
 
       //热点实时面向摄像机
       for (var i = 0; i < lookatList.length; i++) {
-        lookatList[i].lookAt(GetCameraWorldPos());
+        lookatList[i].lookAt(camWorlPos);
       }
 
       for (var i = 0; i < animHotPointList.length; i++) {

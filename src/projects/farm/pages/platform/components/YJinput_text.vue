@@ -2,7 +2,7 @@
 // 场景设置
 <template>
   <!-- 顶部 -->
-  <input class=" w-full px-1" ref="input" type="text" :value="value" @focus="focus" @blur="blur">
+  <input class=" w-full px-1 input-bg" ref="input" type="text" :value="value" @focus="focus" @blur="blur">
 </template>
 
 <script>

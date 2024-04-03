@@ -66,11 +66,17 @@ class YJWeapon {
       if (msg == null || msg == undefined || msg == "") { return; }
       // data = JSON.parse(msg);
       data = (msg);
-      // console.log("in weapon msg = ", data);
-
+      console.log("in weapon msg = ", data);
       scope.transform.isIgnoreRaycast = true;
-      
       meshTrigger = new YJTrigger(_this,parent, transform, "weapon");
+      if(data.fire.pos && data.fire.pos.length == 3){
+        if(_Global.setting.inEditor){
+          let axes = new THREE.AxesHelper(10);
+          group.add(axes);
+          let pos = data.fire.pos;
+          axes.position.set(pos[0],pos[1],pos[2]);
+        }
+      }
       // object.AddComponent("Trigger", meshTrigger);
     }
  

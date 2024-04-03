@@ -102,7 +102,8 @@ export default {
         // 攻击速度
         attackSpeed: 1,
         // 有效距离
-        vaildDis: 1,
+        vaildDis: 1, 
+
       },
 
       setting: [
@@ -122,7 +123,7 @@ export default {
         {
           property: "weaponType",
           display: true,
-          title: "装备类型",
+          title: "武器类型",
           type: "drop",
           value: "sword",
           options: [
@@ -221,7 +222,7 @@ export default {
           callback: this.ChangeValue,
         },
         {
-          property: "ready-particle",
+          property: "ready-audio",
           display: true,
           title: "吟唱音效",
           type: "file",
@@ -237,6 +238,16 @@ export default {
           type: "file",
           filetype: "particle",
           value: "",
+          callback: this.ChangeValue,
+        },
+        
+        {
+          property: "fire-pos",
+          display: true,
+          title: "施放特效位置",
+          type: "vector3",
+          value: [0,0,0],
+          step:0.01,
           callback: this.ChangeValue,
         },
         {
@@ -263,6 +274,7 @@ export default {
         // { value: "humanfemale_hd_bone_49", label: "右手腕" },
         { value: "LeftHand", label: "左手腕" },
         { value: "RightHand", label: "右手腕" },
+        { value: "Back1", label: "背部1" },
       ],
       // character/human/female/humanfemale_hd_bone_89 左手腕
       // character/human/female/humanfemale_hd_bone_49 右手腕
@@ -504,10 +516,15 @@ export default {
       // return;
 
       this.setting[i].value = e;
+      let property = this.setting[i].property;
+      let sp = property.split('-');
+      if (sp.length == 1) {
+        this.settingData[sp[0]] = e;
+      } else {
+        this.settingData[sp[0]][sp[1]] = e;
+      }
+      console.log(i + " ",this.setting[i].property,  this.setting[i].value);
 
-      this.settingData[this.setting[i].property] = e;
-
-      console.log(i + " " + this.setting[i].value);
       // console.log(i + " " + this.setting[i].value + " " + e);
       if (this.setting[i].property.includes("animName")) {
         _Global.SendMsgTo3D("切换角色动作", e);
@@ -517,6 +534,13 @@ export default {
       }
       if (this.setting[i].property == "boneName") {
         _Global.SendMsgTo3D("单品放置在骨骼上", e);
+        return;
+      }
+      if (this.setting[i].property == "fire-pos") {
+        
+        let weapon = _Global.YJ3D._YJSceneManager
+          .GetSingleTransformComponent("Weapon");
+          weapon.SetMessage(this.settingData);
         return;
       }
       // this.Update();
@@ -543,6 +567,7 @@ export default {
       };
     },
     save() {
+      
       this.saveFn();
     },
     saveTrans() {

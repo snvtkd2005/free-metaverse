@@ -92,6 +92,7 @@ class YJSkillParticleManager {
         }
       }
 
+      console.log(" 加载特效id ",particleId);
       let res = await _this.$axios.get(
         _this.$uploadGroupUrl + particleId + "/" + "data.txt" + "?time=" + new Date().getTime()
       );
@@ -105,7 +106,7 @@ class YJSkillParticleManager {
       
       modelData.rotaV3 = { x: 0, y: 0, z: 0 };
       modelData.scale = { x: 1, y: 1, z: 1 };
-      _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().ImportModel(modelData,(object)=>{
+      _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().DuplicateModelVisit(modelData,(object)=>{
         // console.log("加载组合模型", object);
         // particleList.push(object); 
         shootTargetList.push({particleId:particleId,callback:callback, startPos: startPos, target: target, time: 0,used:true, particle: object });

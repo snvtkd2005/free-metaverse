@@ -55,7 +55,7 @@ class YJTransformController {
 
         // console.log("正在拖拽 ",selectMesh.owner);
         // console.log("正在拖拽 ",selectMesh.position);
-        // console.log("正在拖拽 ",selectMesh.rotation);
+        console.log("正在拖拽 ",selectMesh.rotation);
         // event.value true:开始   false:结束
         if (event.value && selectMesh.owner && selectMesh.owner.isYJTransform) {
           selectMesh.owner.DragStart();

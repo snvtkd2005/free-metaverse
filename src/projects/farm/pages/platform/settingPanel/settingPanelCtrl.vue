@@ -11,6 +11,14 @@
       <settingPanel_transform ref="settingPanel_transform" />
     </div>
 
+    <!-- <div v-if="components.tween" :class="isTransform?'mt-0':'mt-10'" class="  w-full border-t  max-w-md ">
+    </div> -->
+    <div v-for="(item, i) in components" :key="i" :class="isTransform?'mt-0':'mt-10'" class="  w-full border-t  max-w-md ">
+      <div v-if="item.type=='tween'" class="self-center">
+        <settingPanel_tween ref="settingPanel_tween" :index="i" :data=item.data />
+      </div>
+    </div>
+
     <!-- uv动画设置面板 -->
     <div v-if="panelState.uvAnim" :class="isTransform?'mt-0':'mt-10'" class="  w-full border-t  max-w-md ">
       <settingPanel_uvAnim ref="settingPanel_uvAnim" />
@@ -70,6 +78,24 @@
     <div v-if="panelState.geometry" :class="isTransform?'mt-0':'mt-10'" class="  w-full border-t max-w-md">
       <settingPanel_geometry ref="settingPanel_geometry" />
     </div>
+
+    <!-- 装备 -->
+    <div v-if="panelState.equip" :class="isTransform?'mt-0':'mt-10'" class="  w-full border-t max-w-md">
+      <settingPanel_equip ref="settingPanel_equip" />
+    </div>
+    
+    <div class=" mt-2 w-full h-10 text-white cursor-pointer " @click="addComponent()">
+      <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">添加组件</div>
+
+      <div class="  text-black mt-2 overflow-y-scroll h-auto flex flex-wrap  " v-if="selectTitle == '添加组件' ">
+      <div v-for="(item, i) in componentList" :key="i" class=" bg-white self-center w-auto h-auto relative flex">
+        <div class=" w-16 h-6 text-center leading-6 self-center mx-auto mt-2 cursor-pointer " @click="ClickItem(item)">
+          <!-- <img class=" w-full h-full object-fill hover:opacity-70 " :src="$uploadUrl + item" /> -->
+          <div>{{item}}</div>
+        </div>
+      </div>
+    </div>
+    </div>
   </div>
 </template>
 
@@ -90,8 +116,10 @@ import settingPanel_interactive from "./settingPanel_interactive.vue";
 import settingPanel_trail from "./settingPanel_trail.vue";
 import settingPanel_shader from "./settingPanel_shader.vue";
 import settingPanel_geometry from "./settingPanel_geometry.vue";
+import settingPanel_equip from "./settingPanel_equip.vue";
 
 import settingPanel_transform from "./settingPanel_transform.vue";
+import settingPanel_tween from "./settingPanel_tween.vue";
 
 
 export default {
@@ -112,6 +140,8 @@ export default {
     settingPanel_shader,
     settingPanel_transform,
     settingPanel_geometry,
+    settingPanel_equip,
+    settingPanel_tween,
   },
   data() {
     return {
@@ -131,7 +161,11 @@ export default {
         trail: false,
         shader:false,
         geometry:false,
+        equip:false,
       },
+      components:[],
+      componentList:['tween'],
+      selectTitle:"",
     };
   },
   created() {
@@ -160,7 +194,19 @@ export default {
         this.isTransform = false;
       }
     },
+    addComponent(){
+      this.selectTitle = "添加组件";
+    },
+    ClickItem(item){
+      this.selectTitle = "";
 
+      _Global.YJ3D._YJSceneManager.GetSingleModelTransform().AddComponents({type:item,data:null});
+      // this.components.push({type:item,data:null});
+    },
+    setComponent(c){
+      console.log(" 当前物体有通用组件",c);
+      this.components = c;
+    }
   },
 };
 </script>

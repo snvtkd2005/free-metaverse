@@ -3,14 +3,13 @@
 <template>
   <!-- 顶部 -->
   <input
-    class="w-full border-gray-200 border  px-1"
+    class="w-full border-gray-200 border  px-1 input-bg"
     ref="input"
     type="number"
     :step="step"
     :value="value" 
     @focus="focus"
-    @blur="blur" 
-    onkeypress="return (/[\d]/.test(String.fromCharCode(event.keyCode)))"
+    @blur="blur"  
     @keydown.native="checkNumber"
   />
 </template>
@@ -25,8 +24,10 @@ export default {
   created() {},
   mounted() {
     let that = this;
-    this.$refs.input.addEventListener("input", function () {
+    this.$refs.input.addEventListener("input", function (e) {
       // this.$emit("OnInput",this.value);
+      let value = e.srcElement.value;
+      // value = value.replace(/[^\-?\d.]/g,'');
       if(that.type == "int"){
         this.value = parseInt(this.value);
       }

@@ -315,7 +315,7 @@ YJinputCtrl,
         this.ChangeAnim("idle");
         console.log("设置 animations ", this.animations);
       }else{
-        if(this.settingData.animationsExtendData.length>0){
+        if(this.settingData.animationsExtendData && this.settingData.animationsExtendData.length>0){
           for (let i = 0; i < this.settingData.animationsExtendData.length; i++) {
             const item = this.settingData.animationsExtendData[i];
             if(item.animName){

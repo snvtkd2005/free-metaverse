@@ -71,7 +71,7 @@ export default {
      
     setTimeout(() => {
       if(_Global.YJ3D && _Global.YJ3D._YJSceneManager){
-        this.sceneSetting.hasDirectionalLight = _Global.YJ3D._YJSceneManager.GetSceneData().hasDirectionalLight;
+        this.sceneSetting.hasDirectionalLight = _Global.YJ3D._YJSceneManager.GetSceneData().AmbientLightData.hasDirectionalLight;
       }
     }, 5000);
 
@@ -119,6 +119,7 @@ export default {
           name: path.replace("/", ""),
           query: {
             folderBase: this.parent.folderBase,
+            version: this.parent.settingVersion,
           },
         });
         window.open(href.href, "_blank");

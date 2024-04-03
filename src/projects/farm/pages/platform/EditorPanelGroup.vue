@@ -84,7 +84,7 @@
 
     <!-- 左边场景模型面板 -->
     <div class=" absolute z-10 left-0  " :style="hierarchyStyle">
-      <hierarchy ref="hierarchyPanel" title="组合模型列表" :modelList="modelList" />
+      <hierarchy ref="hierarchyPanel" title="组合模型列表" />
     </div>
 
     <loadingPanel :loadingUrl="loadingUrl" class="absolute z-50 left-0 top-0 w-full h-full " ref="loadingPanel" />
@@ -542,6 +542,7 @@ export default {
     }
 
     this.setPanelSize();
+    this.$refs.hierarchyPanel.init();
 
   },
   methods: {
@@ -764,8 +765,8 @@ export default {
       );
       console.log(" 获取场景配置 ", res.data);
       this.sceneData = res.data;
-      this.sceneData.setting.hasCamRaycast = false;
-      this.sceneData.setting.camOffsetY = this.sceneData.setting.playerHeight / 2;
+      // this.sceneData.setting.hasCamRaycast = false;
+      // this.sceneData.setting.camOffsetY = this.sceneData.setting.playerHeight / 2;
 
       this._YJuserData.SetSceneData(this.sceneData);
       this.Enter();
@@ -798,12 +799,13 @@ export default {
 
       _Global.YJ3D._YJSceneManager.CreateSenceBy(this.modelList);
 
-      setTimeout(() => {
-        this.modelList = [];
-        this.modelList = this.$refs.modelPanel._LoadUserModelManager.GetModelList();
+      // setTimeout(() => {
+      //   this.modelList = [];
+      // this.modelList = _Global.YJ3D._YJSceneManager
+      //   .Create_LoadUserModelManager()
+      //   .GetModelList();
 
-        console.log(" 获取场景 模型 333 ", this.modelList, this.modelList.length);
-      }, 5000);
+      // }, 5000);
     },
 
     // 保存场景简要信息。新建时调用
@@ -867,7 +869,9 @@ export default {
     // 保存场景模型列表数据，同时更新模型massage数据
     updateSceneModelData() {
       this.modelList = [];
-      this.modelList = this.$refs.modelPanel._LoadUserModelManager.GetModelList();
+      this.modelList = _Global.YJ3D._YJSceneManager
+        .Create_LoadUserModelManager()
+        .GetModelList();
       console.log("this.modelList 1111 ", this.modelList);
       // return;
       let s = JSON.stringify(this.modelList);

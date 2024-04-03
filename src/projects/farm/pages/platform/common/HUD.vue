@@ -1,7 +1,7 @@
 
 <template>
   <!-- HUD -->
-  <div class=" absolute left-0 top-0 w-full h-full pointer-events-none ">
+  <div class=" absolute left-0 top-0 w-full h-full pointer-events-none   ">
 
     <div class=" absolute bottom-20  w-full   ">
       <skillPanel_virus ref="skillPanel_virus" />
@@ -22,8 +22,7 @@
     <damageUI ref="damageUI" />
     <fireStateUI ref="fireStateUI" />
 
-    <!-- <DMPanel ref="DMPanel" /> -->
-
+    <DMPanel v-if="isDMGame" ref="DMPanel" />
 
   </div>
 </template>
@@ -54,12 +53,15 @@ export default {
   },
   data() {
     return {
+      isDMGame:false,
     };
   },
   created() {
 
   },
   mounted() {
+    console.log(" ========== in HUD ",_Global.isDMGame);
+    this.isDMGame = _Global.isDMGame;
   },
   methods: {
 

@@ -3,8 +3,8 @@
 <template>
   <!-- 场景加载进度条 -->
   <div v-if="displayerLoading"
-    class=" absolute  bg-black bg-opacity-1  w-full h-full top-0 left-0 z-50    text-white">
-    <img v-if="loadingUrl" class=" w-full h-full " :src="loadingUrl" alt="">
+    class=" absolute  bg-black bg-opacity-0  w-full h-full top-0 left-0 z-50    text-white">
+    <img v-if="loadingUrl && hasBG" @error="hasBG=false;" class=" w-full h-full " :src="loadingUrl" alt="">
     <!-- 圆形进度条 -->
     <div class=" hidden absolute self-center w-96 h-96
         flex
@@ -46,6 +46,7 @@ export default {
   },
   data() {
     return {
+      hasBG:true,
       canEnter: false,
       displayerLoading: true,
 
@@ -86,9 +87,10 @@ export default {
       if (state == "success") {
         this.canEnter = true;
         console.log(" 加载成功 隐藏loading ");
-        // setTimeout(() => {
-        //   this.OpenThreejs();
-        // }, 20);
+
+        setTimeout(() => {
+          this.OpenThreejs();
+        }, 200);
       }
       if (state == "begin") {
         this.displayerLoading = true;
@@ -99,11 +101,7 @@ export default {
         this.$parent.LoadingProcess(process / 100);
       }
       if (!this.displayerLoading) { return; }
-      this.loadingProcessValue = process;
-      // if (process == 100) { 
-      //   this.displayerLoading = false;
-      // }
-
+      this.loadingProcessValue = process; 
       this.loadingCircleBar.UpdateCircle(process);
     },
     OpenThreejs() {

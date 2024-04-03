@@ -59,10 +59,10 @@ class socket_bilibili {
 				getAuth(JSON.stringify(fromData)).then((res) => {
 					console.log("-----鉴权成功-----")
 					// console.log("返回：", res)
-
+					scope.gameEnd();
 					setTimeout(() => {
 						gameStartFn();
-					}, 2000);
+					}, 200);
 				})
 					.catch((err) => {
 						console.log("-----鉴权失败-----")
@@ -200,7 +200,7 @@ class socket_bilibili {
 			let { msg, uname, uid,uface } = data;
 
 			let callbackData = {
-				cmd, msg, uname, uid,uface
+				cmd, msg, uname, uid,uface,data
 			};
 			if (callback) {
 				callback(callbackData);

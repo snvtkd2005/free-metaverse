@@ -186,11 +186,11 @@ class YJController {
     // 摄像机在角色后方的偏移位置
     let cameraOffset = new THREE.Vector3(0, 5, -7);
     this.SetCameraOffset = function (pos) {
-
       cameraOffset.x = pos.x;
       cameraOffset.y = pos.y;
       cameraOffset.z = pos.z;
-      camPosRefGroup.position.set(cameraOffset.x, cameraOffset.y, cameraOffset.z);
+      // camPosRefGroup.position.set(cameraOffset.x, cameraOffset.y, cameraOffset.z);
+      camPosRefGroup.position.copy(cameraOffset);
       // camPosRefGroup.add(new THREE.AxesHelper(5));
     }
 
@@ -416,7 +416,7 @@ class YJController {
         let b = Math.abs(cameraOffset.z);
         let c = Math.sqrt(a * a + b * b);
         let r = Math.asin(a / c);
-        wheelCurrentValue = -c;
+        // wheelCurrentValue = -c;
 
 
 
@@ -1726,7 +1726,12 @@ class YJController {
       if(_player){
         _player.rotation.set(0, _playerY, 0);
       }
-      camBaseParent.rotation.set(0, 0, 0);
+      if(camBaseParent){
+        camBaseParent.rotation.set(0, 0, 0);
+      }
+      if(_YJAmmoPlayer == null){
+        return;
+      }
       _YJAmmoPlayer.rotation.set(rota.x, rota.y, rota.z);
 
       let lookatQuat = _YJAmmoPlayer.getWorldQuaternion(new THREE.Quaternion());
@@ -2016,6 +2021,9 @@ class YJController {
     }
 
     //设置摄像机的视角距离
+    this.GetCameraWheel = function(){
+      return wheelCurrentValue;
+    }
     this.SetCameraWheelPos = function (f) {
       wheelCurrentValue = f;
       currentCam.set(wheelCurrentValue, 0, 0);
@@ -3468,7 +3476,7 @@ class YJController {
       },
 
       baseData: {
-        camp: "lm", //阵营
+        camp: "1000", //阵营
         speed: 8, //移动速度
         level: 1, //等级
         health: 500, //当前剩余生命值
@@ -3697,6 +3705,7 @@ class YJController {
         content: content,
         msg: msg,
       });
+      _YJPlayer.resetLife();
     }
  
     this.SetPlayerState = function (e, type) {
@@ -3954,8 +3963,8 @@ class YJController {
       this.domElement.removeEventListener('touchend', _onTouchEnd, false);
       this.domElement.removeEventListener('touchmove', _onTouchMove, false);
 
-      window.removeEventListener('keydown', _onKeyDown);
-      window.removeEventListener('keyup', _onKeyUp);
+      // window.removeEventListener('keydown', _onKeyDown);
+      // window.removeEventListener('keyup', _onKeyUp);
 
       if (pointerLock) {
         return;

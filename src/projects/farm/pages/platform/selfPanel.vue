@@ -325,10 +325,10 @@
           <div
             v-for="(item, i) in audioList"
             :key="i"
-            class="self-center w-60 h-auto relative"
+            class="self-center w-60 h-auto bg-blue-200 rounded-lg p-2 relative"
           >
             <div
-              class="w-60 h-32 self-center mx-auto overflow-hidden cursor-pointer"
+              class="w-full h-14 self-center mx-auto overflow-hidden cursor-pointer"
               @click="SelectItem('audio', item)"
             >
               <div class="rounded-xl bg-gray-100 border w-full">
@@ -339,18 +339,18 @@
                 ></audio>
               </div>
             </div>
-            <div class="flex flex-wrap w-5/6 gap-3">
+            <div class="flex flex-wrap mt-1 w-full gap-3">
               <div
                 v-for="(tagItem, ii) in item.tags"
                 :key="ii"
-                class="border rounded-3xl border-gray-300 w-auto h-8"
+                class="border rounded-3xl border-white w-auto h-auto"
               >
                 <div class="flex h-full text-gray-600">
                   <div class="self-center mx-auto px-4">{{ tagItem }}</div>
                 </div>
               </div>
             </div>
-            <div class="mt-2 w-full px-2 flex text-sm justify-between">
+            <div class="mt-2 w-full truncate px-2 flex text-sm justify-between">
               <text>{{ item.folderBase + "/" + item.name }}</text>
             </div>
             <div class="hidden mt-2 px-2 flex text-xs justify-between">
@@ -425,7 +425,7 @@
     >
       <div
         class="h-auto self-center mx-auto bg-white rounded-xl flex flex-col justify-between p-5"
-        v-if="dialogTitle == '创建单品' || dialogTitle == '创建场景'"
+        v-if="dialogTitle == '创建单品' || dialogTitle == '创建场景' || dialogTitle == '创建组合'"
       >
       <div class=" text-yellow-600 flex " >
         操作步骤请查看演示视频： 

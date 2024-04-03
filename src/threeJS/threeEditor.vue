@@ -1,12 +1,30 @@
 <template>
-  <div tabindex="-1" id="contain" class=" w-full h-full " ref="container">
-  </div>
+  <div tabindex="-1" id="contain" class="w-full h-full" ref="container"></div>
   <!-- :style="'height: ' + height + 'px' + ';'" -->
-  <img v-if="customCursor" ref="cursor" :src="cursorUrl" class=" pointer-events-none   w-10 h-10 "
-    :style="'  position:absolute; z-index:999999; left: ' + cursorLeft + 'px;top: ' + cursorTop + 'px;'" alt="">
+  <img
+    v-if="customCursor"
+    ref="cursor"
+    :src="cursorUrl"
+    class="pointer-events-none w-10 h-10"
+    :style="
+      '  position:absolute; z-index:999999; left: ' +
+      cursorLeft +
+      'px;top: ' +
+      cursorTop +
+      'px;'
+    "
+    alt=""
+  />
   <!-- 视频  hidden-->
-  <div id="videoParent" class="   w-1/2 h-1/2 absolute top-0 left-0 pointer-events-none">
-    <div v-for="(item, i) in videoList" :key="i" class="video-box w-40 h-40 p-5 rounded-full">
+  <div
+    id="videoParent"
+    class="w-1/2 h-1/2 absolute top-0 left-0 pointer-events-none"
+  >
+    <div
+      v-for="(item, i) in videoList"
+      :key="i"
+      class="video-box w-40 h-40 p-5 rounded-full"
+    >
       <YJmedia :ref="item.id" :mediaType="item.type" :mediaId="item.id" />
       <!-- <div>{{ item.id }}</div> -->
     </div>
@@ -16,11 +34,9 @@
 
  
 <script >
-
 import * as THREE from "three";
 
 import Stats from "three/examples/jsm/libs/stats.module.js";
-
 
 import { YJRaycaster } from "./raycaster.js";
 
@@ -57,8 +73,6 @@ export default {
     };
   },
   mounted() {
-
-
     this.scene = null;
     this.camera = null;
     this.renderer = null;
@@ -112,18 +126,13 @@ export default {
   },
 
   methods: {
-
-
     // 设置相机正交或透视
     SetCamProjection(e) {
       if (e == "透视") {
-
       } else {
-
       }
     },
     AddVideo(id, type, callback) {
-
       for (let i = 0; i < this.videoList.length; i++) {
         const element = this.videoList[i];
         if (element.id == id) {
@@ -146,7 +155,9 @@ export default {
     },
     PlayVideo() {
       this.touchTime++;
-      if (this.touchTime >= 3) { return; }
+      if (this.touchTime >= 3) {
+        return;
+      }
 
       if (this.$parent.$parent.PlayBGAudio) {
         this.$parent.$parent.PlayBGAudio();
@@ -157,7 +168,7 @@ export default {
         for (let i = 0; i < videoList.length; i++) {
           const element = videoList[i];
           const video = document.getElementById(element.videoId);
-          video.setAttribute('crossorigin', 'anonymous');
+          video.setAttribute("crossorigin", "anonymous");
           video.loop = true;
           video.play();
         }
@@ -166,7 +177,7 @@ export default {
       for (let i = 0; i < this.videoList.length; i++) {
         const element = this.videoList[i];
         const video = document.getElementById(element.id);
-        video.setAttribute('crossorigin', 'anonymous');
+        video.setAttribute("crossorigin", "anonymous");
         video.loop = true;
         video.play();
       }
@@ -178,18 +189,17 @@ export default {
         const element = this.videoList[i];
         if (element.id != ignoreId) {
           const video = document.getElementById(element.id);
-          video.setAttribute('crossorigin', 'anonymous');
+          video.setAttribute("crossorigin", "anonymous");
 
           video.play();
           console.log("激活播放视频", element.id);
-
         }
       }
     },
 
     PlayVideoById(id, loop) {
       const video = document.getElementById(id);
-      video.setAttribute('crossorigin', 'anonymous');
+      video.setAttribute("crossorigin", "anonymous");
       video.loop = loop;
       video.play();
     },
@@ -217,7 +227,11 @@ export default {
 
     requestPointerLock() {
       let div_test = this.$refs.container;
-      div_test.requestPointerLock = div_test.requestPointerLock || div_test.msRequestPointerLock || div_test.mozRequestPointerLock || div_test.webkitRequestPointerLock;
+      div_test.requestPointerLock =
+        div_test.requestPointerLock ||
+        div_test.msRequestPointerLock ||
+        div_test.mozRequestPointerLock ||
+        div_test.webkitRequestPointerLock;
       div_test.requestPointerLock();
       this.YJController.addPointerEventListener();
     },
@@ -227,15 +241,19 @@ export default {
       this.pointerLock = true;
 
       let that = this;
-      document.addEventListener('pointerlockchange', function () {
-        if (document.pointerLockElement == that.$refs.container) {
-          // console.log(" in pointerlockchange == ");
-          that.YJController.addPointerEventListener();
-        } else {
-          // console.log(" in pointerlockchange !!== ");
-          that.YJController.removePointerEventListener();
-        }
-      }, false);
+      document.addEventListener(
+        "pointerlockchange",
+        function () {
+          if (document.pointerLockElement == that.$refs.container) {
+            // console.log(" in pointerlockchange == ");
+            that.YJController.addPointerEventListener();
+          } else {
+            // console.log(" in pointerlockchange !!== ");
+            that.YJController.removePointerEventListener();
+          }
+        },
+        false
+      );
     },
     initListener() {
       var that = this;
@@ -261,7 +279,7 @@ export default {
       // });
 
       this.$refs.container.addEventListener("mousemove", (e) => {
-        let offset = { left: 0, top: 0, };
+        let offset = { left: 0, top: 0 };
         if (this.YJRaycaster) {
           offset = this.YJRaycaster.getOffset();
         }
@@ -275,7 +293,6 @@ export default {
         that.threeJSfocus();
         that.YJController.mouseDragOn = true;
         that.PlayVideo();
-
       });
     },
     //  在场景加载完成后，为移动端单独创建监听触摸事件，触摸后播放视频。
@@ -288,7 +305,9 @@ export default {
     //让threejs获取焦点，div必须添加 tabindex="-1"
     threeJSfocus() {
       // console.log(" 点击 threeJS页面  ",this.canAddListner,this.infocus);
-      if (!this.canAddListner || this.infocus) { return; }
+      if (!this.canAddListner || this.infocus) {
+        return;
+      }
       this.$refs.container.focus();
       this.YJController.addEventListener();
       this.infocus = true;
@@ -304,10 +323,11 @@ export default {
       this.canAddListner = b;
     },
 
-
     // 移动端强制横屏时，射线检测点击位置要重新计算
     SetforcedLandscape(forcedLandscape) {
-      if (!this.$parent.isMobile) { return; }
+      if (!this.$parent.isMobile) {
+        return;
+      }
       if (this.YJController) {
         this.YJController.SetforcedLandscape(forcedLandscape);
       }
@@ -317,7 +337,6 @@ export default {
     },
     // 浏览器窗口变动触发的方法
     onWindowResize(w, h) {
-
       this.windowWidth = w;
       this.windowHeight = h;
 
@@ -332,18 +351,19 @@ export default {
       this.renderer.setSize(this.windowWidth, this.windowHeight);
 
       if (this._YJSceneManager != null) {
-        this._YJSceneManager.onWindowResize(this.windowWidth, this.windowHeight);
+        this._YJSceneManager.onWindowResize(
+          this.windowWidth,
+          this.windowHeight
+        );
       }
     },
     SetCameraFov(f) {
-
       if (this.camera == null) {
         return;
       }
       this.camera.fov = f;
       this.camera.updateProjectionMatrix();
     },
-
 
     //在登录页面，预加载三维场景
     BeforeLoadThreejs() {
@@ -365,7 +385,6 @@ export default {
       this.$refs.container.append(this.renderer.domElement);
 
       if (userData == undefined) {
-
       } else {
         this.userData = userData;
         this.platform = userData.platform;
@@ -402,17 +421,18 @@ export default {
             return;
           }
           console.log(
-            "点击模型 " ,hitObject,
+            "点击模型 ",
+            hitObject,
             hitObject.tag +
-            " " +
-            hitObject.name +
-            " 点击坐标 " +
-            hitPoint.x +
-            " " +
-            hitPoint.y +
-            " " +
-            hitPoint.z +
-            " "
+              " " +
+              hitObject.name +
+              " 点击坐标 " +
+              hitPoint.x +
+              " " +
+              hitPoint.y +
+              " " +
+              hitPoint.z +
+              " "
           );
 
           if (
@@ -434,7 +454,6 @@ export default {
             return;
           }
           if (hitObject.tag == "hotPoint") {
-
             this.ClickHotPoint(hitObject.modelData, hitObject.owner);
             return;
           }
@@ -443,13 +462,12 @@ export default {
             return;
           }
 
-          if (hitObject.tag.indexOf('交互物品') > -1) {
+          if (hitObject.tag.indexOf("交互物品") > -1) {
             this.ClickModel(hitObject.owner);
             return;
           }
 
           this.ClickModel(hitObject);
-
         },
         (hoverObject, hoverPoint) => {
           this.HoverObject(hoverObject, hoverPoint);
@@ -513,7 +531,7 @@ export default {
       // document.body.style.cursor =
       //   `url(${cursor}),pointer`; //显示手型光标
 
-      document.body.style.cursor = 'none';
+      document.body.style.cursor = "none";
       // "url(" + this.$publicUrl + cursor + "),auto"; //显示手型光标
     },
 
@@ -604,7 +622,7 @@ export default {
       this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); // 渲染器
       this.renderer.setSize(this.windowWidth, this.windowHeight);
       this.renderer.shadowMap.enabled = true; // 开启阴影
-      // this.renderer.shadowMap.width = 2048; 
+      // this.renderer.shadowMap.width = 2048;
       // this.renderer.shadowMap.height = 2048;
 
       // console.log("22222");
@@ -636,7 +654,6 @@ export default {
         stats.domElement.style.zIndex = "9999";
         this.$refs.container.appendChild(stats.domElement);
       }
-
     },
     //设置渲染分辨率，降低会有锯齿，但流畅度会提升
     SetPixelRatio(f) {
@@ -657,13 +674,11 @@ export default {
         let canvas = this.renderer.domElement;
         this.renderer.render(this.scene, this.camera);
         return canvas.toDataURL("image/jpeg");
-
       }
     },
     ResetRender() {
       this.renderer.setSize(this.windowWidth, this.windowHeight);
     },
-
 
     InitSceneManager(callback) {
       console.log("初始化场景管理器");
@@ -692,10 +707,19 @@ export default {
         that.PlayVideo();
       });
     },
+    GetWidthHeight(){
+      let w = this.windowWidth;
+      let h = this.windowHeight;
+      return {
+        w, h
+      };
+    },
+    GetContainer(){
+      return this.$refs.container;
+    },
     AddThreeDocumentListener(fn) {
       this.$refs.container.addEventListener("click", fn);
       // this.renderer.domElement.addEventListener("click",fn);
-
     },
     GetThreeDocument() {
       return this.renderer.domElement;
@@ -708,8 +732,6 @@ export default {
         this.renderer.domElement,
         this
       );
-
-
 
       // this.YJController.wheelMin = -30;
       // this.YJController.wheelMax = -0.01;
@@ -725,11 +747,8 @@ export default {
       //控制摄像机的初始角度
       let targetRota = new THREE.Vector3(0, 0, -3.14 / 8); //4
       this.YJController.SetTargetRota(targetRota);
-
     },
     //#endregion
-
-
 
     //#region 切换模型皮肤
     ChangeAvatar(name, isLocal) {
@@ -763,7 +782,7 @@ export default {
       }
     },
 
-    //#region 
+    //#region
     //#endregion
 
     //#region 移动端控制角色移动的 摇杆
@@ -787,7 +806,6 @@ export default {
         this.YJController.RotaByJoystickAxis(x, y);
       } else {
       }
-
     },
     //#endregion
 
@@ -798,7 +816,6 @@ export default {
     //因为一旦连接到服务器就会同步数据，避免在场景未加载完就同步数据
     //所以设置为先加载场景，再连接服务器
     load3dComplete() {
-
       this.addEventForMobilePlayVideo();
       //三维加载完成
       if (this.$parent.ThreeLoadCompleted) {
@@ -826,7 +843,6 @@ export default {
         this.YJPlayer.CreateNameTrans(this.nickName);
         this.YJPlayer.id = id;
       }
-
     },
     SetNickName(e) {
       this.nickName = e;
@@ -835,7 +851,7 @@ export default {
       this.YJPlayer.CreateChatTrans(e);
     },
     //生成角色
-    GeneratePlayer(callback) {
+    GeneratePlayer(callback) { 
       // console.log("创建角色" ,this.userData);
       this.YJPlayer = new YJPlayer(
         this,
@@ -858,27 +874,18 @@ export default {
       if (this.nickName != "") {
         this.YJPlayer.CreateNameTrans(this.nickName);
       }
-
-      let playerHeight = 0;
       if (this.userData != null) {
-        playerHeight = this.YJPlayer.LoadPlayer(this.userData.avatarId);
+        this.YJPlayer.LoadPlayer(this.userData.avatarId);
       } else {
         this.YJPlayer.LoadPlayer("none");
       }
 
       this.YJController.SetPlayer(this.YJPlayer);
-      //设置控制器的中心为: 角色高度（角色眼睛位置的高度）， 摄像机到目标的距离
-      // this.YJController.SetTarget(
-      //   new THREE.Vector3(0, playerHeight, 0),
-      //   this.$parent.avatarData.setting.camZ
-      // );
-
     },
 
     ClickQQ() {
       window.location.href = "tencent://message/?uin=406729769";
     },
-
 
     //------------------------实时update
     //实时刷新
@@ -894,10 +901,9 @@ export default {
       timeStamp += delta;
       //限制帧率在30帧
       if (timeStamp > singleFrameTime) {
-
         this.YJController.update();
         this._YJSceneManager.update();
-        
+
         if (this.enableRenderer) {
           this.renderer.render(this.scene, this.camera);
         }
@@ -908,12 +914,10 @@ export default {
         // this.UpdatePlayerName();
         // this.renderer.clear();
 
-
         // console.error( 'THREE.WebGLState: 222222222', _Global.texImage2DError );
         // console.log( ' info ', this.renderer.info );
         // console.log( ' draw call ', this.renderer.info.render.calls  );
         // console.error( ' Scene polycount : ', this.renderer.info.render.triangles  );
-
       }
     },
     renderSceneOneTimes() {
@@ -954,16 +958,13 @@ export default {
       }
     },
 
-
-
-
     // 设置本地角色移动到指定坐标， 用于小地图跳转
     SetLocalPlayerToPos(_pos) {
       let pos = { x: _pos.x, y: 5, z: _pos.z };
       this._YJSceneManager.SetPlayerPos(pos);
     },
     //设置本地角色移动到目标角色位置 传送
-    SetLocalPlayerToOtherUserPos(otherUserId) { },
+    SetLocalPlayerToOtherUserPos(otherUserId) {},
     //设置本地角色移动到 指定id的模型位置 传送
     SetLocalPlayerToCustomModel(modelId) {
       //本地模型可能被销毁。改为从服务器获取

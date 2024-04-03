@@ -297,6 +297,7 @@ class YJClient {
           // 默认没有姓名条，在多人模式中，需调用创建姓名条 
           ThreejsHumanChat.CallCreateNameTrans(nickName, id);
           ThreejsHumanChat.YJPlayer.camp = _Global.user.camp;
+          ThreejsHumanChat.YJController.SetUserDataItem("baseData","camp", _Global.user.camp);
         }
 
         // console.log("生成本地角色 " + id);
@@ -319,8 +320,7 @@ class YJClient {
         _YJPlayer.setPlayerDefaultPos(_YJSceneManager.getPlayerDefaultPos());
 
         _YJPlayer.CreateNameTrans(nickName);
-        _YJPlayer.id = id;
-        _YJPlayer.camp = _Global.user.camp;
+        _YJPlayer.id = id; 
         allPlayer.push({
           player: _YJPlayer,
           id: id,

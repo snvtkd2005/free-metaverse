@@ -142,7 +142,7 @@ export default {
           this.timeCurrent = 0;
           this.inGame = false;
 
-          let damageStatistics = (_Global.SceneManager.GetDamageStatistics());
+          let damageStatistics = (_Global._SceneManager.GetDamageStatistics());
 
           for (let i = 0; i < damageStatistics.length; i++) {
             const item = damageStatistics[i];
@@ -160,7 +160,7 @@ export default {
           }
           this.damageStatistics = _Global.DMManager.DMPlayerDamageStatistics(this.damageStatistics);
 
-          _Global.SceneManager.ResetDamageStatistics();
+          _Global._SceneManager.ResetDamageStatistics();
 
         });
       }, 5000);
@@ -236,9 +236,7 @@ export default {
         this.deltaTime += delta * 1;
         if (this.deltaTime >= this.timeCount) {
           this.deltaTime = 0;
-          this.inGame = true;
-          // 开始游戏
-          _Global.DyncManager.FireOn();
+          this.inGame = true; 
           _Global.inGame = true;
         }
         this.timeCurrent = parseInt(this.timeCount - this.deltaTime);

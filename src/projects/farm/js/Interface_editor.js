@@ -19,19 +19,39 @@ import IconData from "../data/iconData.js";
 class Interface {
   // _this 为三维主页面vue
   constructor(_this, inEditor) {
+    
+    let eventList = [];
+    // 添加事件监听
+    this.addEventListener = function (e, fn) {
+      eventList.push({ eventName: e, fn: fn });
+    }
+    _Global.addEventListener = this.addEventListener;
+
+    // 执行事件
+    this.applyEvent = function (e,v) {
+      for (let i = 0; i < eventList.length; i++) {
+        const element = eventList[i];
+        if (element.eventName == e) {
+          element.fn(v);
+        }
+      }
+    }
+    _Global.applyEvent = this.applyEvent;
+    _Global.hasAvatar = true;
+
+    
     // npc巡逻点模型
     let spare = new THREE.SphereGeometry(0.1, 10);
     const material = new THREE.MeshLambertMaterial({ color: 0xff0000 });
     _Global.setting = {
       inEditor: inEditor, //是否编辑模式
       navPointMesh: new THREE.Mesh(spare, material),
-      DMGame:true,
+      DMGame:!inEditor,
     }
     _Global.user = {
       camp: 1000
     }
-    _Global.inFocus = true;
-
+    _Global.inFocus = true; 
 
     let cursorUrl = null;
     // 切换光标
@@ -345,7 +365,7 @@ class Interface {
       if (type == "角色死亡") {
 			  _this.$refs.HUD.$refs.fireStateUI.SetState("inDead",true);
 				// 放下武器
-        _Global.SceneManager.PickDownWeapon();
+        _Global._SceneManager.PickDownWeapon();
         return;
       }
       if (type == "坐标转地图id") {
@@ -413,20 +433,6 @@ class Interface {
     }
     _Global.SetAmbientLightIntensity = this.SetAmbientLightIntensity;
 
-    //保存角色初始位置和角度
-    this.SavePlayerPos = function () {
-      _Global.YJ3D._YJSceneManager.SavePlayerPos();
-    }
-    _Global.SavePlayerPos = this.SavePlayerPos;
- 
-    // 是否显示地面
-    this.SetDisplayFloor = function (b) {
-      _Global.YJ3D._YJSceneManager.SetDisplayFloor(b);
-    }
-    _Global.SetDisplayFloor = this.SetDisplayFloor;
-
-
-
 
     // 第一人称 第三人称视角切换.改变camwheel 距离
     this.ChangeFirstThird = function (first) {
@@ -460,7 +466,7 @@ class Interface {
       _Global.YJ3D.YJController.SetPlayerAnimName(animName);
 
       if (_this.$refs.YJDync) {
-        _this.$refs.YJDync.DirectSendUserData();
+        _this.$refs.YJDync._YJClient.DirectSendUserData();
       } 
     }
     //设置角色动作
@@ -634,23 +640,6 @@ class Interface {
     _Global.GetYJPathfindingCtrl = this.YJPathfindingCtrl;
     _Global.YJAudioManager = this.YJAudioManager;
 
-    let eventList = [];
-    // 添加事件监听
-    this.addEventListener = function (e, fn) {
-      eventList.push({ eventName: e, fn: fn });
-    }
-    _Global.addEventListener = this.addEventListener;
-
-    // 执行事件
-    this.applyEvent = function (e,v) {
-      for (let i = 0; i < eventList.length; i++) {
-        const element = eventList[i];
-        if (element.eventName == e) {
-          element.fn(v);
-        }
-      }
-    }
-    _Global.applyEvent = this.applyEvent;
 
 
     // 如果3d加载好了能点击跳转时候 执行一下
@@ -753,7 +742,7 @@ class Interface {
 
     // 直接发送角色数据更新。角色移动为每秒发送一次，其他的角色状态要立即发送
     this.DirectSendUserData = function () {
-      _this.$refs.YJDync.DirectSendUserData();
+      _this.$refs.YJDync._YJClient.DirectSendUserData();
     }
     _Global.DirectSendUserData = this.DirectSendUserData;
 

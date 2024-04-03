@@ -17,69 +17,6 @@
       <YJinputCtrl :setting="setting" />
     </div> 
 
-    <!-- <div v-for="(item, i) in setting" :key="i" class=" text-xs  text-left flex justify-between w-80 h-auto mb-2     ">
-      <div class=" self-center w-48  truncate">
-        {{ item.title }}
-      </div>
-      <div class=" self-center w-20 ">
-        <div v-if="item.type == 'color'" class=" flex gap-2 ">
-          <YJinput_color :value="item.value" :callback="item.callback" />
-        </div>
-
-        <div v-if="item.type == 'file'" class=" relative flex  gap-2 cursor-pointer  " @click="SelectFile(item, i)">
-          <div>{{ item.url }}</div>
-          <div class=" absolute right-0 w-auto h-6 rounded-sm bg-gray-50 flex">
-            <div class=" text-xs pl-1 self-center mx-auto w-10 h-4 leading-4  rounded-sm text-black">
-              浏览...
-            </div>
-          </div>
-        </div>
-
-        <div v-if="item.type == 'upload'" class=" relative flex  gap-2 cursor-pointer  ">
-          <div>{{ item.value }}</div>
-          <el-upload class="bg-transparent" action="" :before-upload="handleBeforeUpload"
-            :accept="accept" :show-file-list="false">
-            <div class="p-2 w-20 cursor-pointer bg-gray-500
-            hover:bg-546770">上传</div>
-          </el-upload>
-        </div>
-
-        <div v-if="item.type == 'num'" class=" flex gap-2 text-black ">
-          <YJinput_number :value="item.value" :step="item.step" :index="i" :callback="item.callback" />
-        </div>
-
-        <div v-if="item.type == 'slider'" class=" flex gap-2 ">
-          <YJinput_range :value="item.value" :step="item.step" :min="item.min" :max="item.max"
-            :callback="item.callback" />
-          <div>{{ item.value }}</div>
-        </div>
-
-        <div v-if="item.type == 'toggle'" class=" w-4 h-4 ">
-          <YJinput_toggle class=" w-4 h-4 " :value="item.value" :index="i" :callback="item.callback" />
-        </div>
-
-        <div v-if="item.type == 'text'" class=" w-20 h-4 text-black ">
-          <YJinput_text class=" w-20 h-4 " :value="item.value" :index="i" :callback="item.callback" />
-        </div>
-
-        <div v-if="item.type == 'drop'" class=" w-20 h-16 text-black ">
-          <YJinput_drop class=" w-32 h-16 " :value="item.value" :options="item.options" :index="i"
-            :callback="item.callback" />
-        </div>
-
-        <div v-if="item.type == 'vector3'" class=" w-auto h-6 text-black ">
-          <YJinput_vector3 class=" w-auto h-6 " :value="item.value" :step="item.step" :index="i"
-            :callback="item.callback" />
-        </div>
-
-      </div>
-      <div class=" self-center ml-2 w-4  truncate">
-        {{ item.unit }}
-      </div>
-
-    </div> -->
-
-
     <!-- <div class=" mt-4 flex h-16 ">
       <div class="  self-center ">
         用户上传的动作
@@ -96,7 +33,34 @@
         type="range" min="0" :max="animClip.duration" step="1">
     </div>
 
-    <div class=" flex w-full   ">
+ 
+    <input class=" ml-2  outline-none w-40  " @input="dircChangeFn" v-model="dirc.x"
+        type="range" min="-1" :max="1" step="1">
+         
+    <input class=" ml-2  outline-none w-40  " @input="dircChangeFn" v-model="dirc.y"
+        type="range" min="-1" :max="1" step="1">
+    <input class=" ml-2  outline-none w-40  " @input="dircChangeFn" v-model="dirc.z"
+        type="range" min="-1" :max="1" step="1">
+    <input class=" ml-2  outline-none w-40  " @input="dircChangeFn" v-model="dirc.w"
+        type="range" min="0" :max="2" step="1">
+
+    <div class=" w-full flex   ">
+      <div class="  cursor-pointer" >stiffnessForce</div>
+      <input class=" ml-2  outline-none w-40  " @input="dircChangeFn" v-model="dirc.stiffnessForce"
+        type="range" min="0" :max="1" step="0.001">
+        <div>{{dirc.stiffnessForce}}</div>
+    </div>
+
+    <div class=" w-full flex   ">
+      <div class="  cursor-pointer" >dragForce</div>
+      <input class=" ml-2  outline-none w-40  " @input="dircChangeFn" v-model="dirc.dragForce"
+        type="range" min="0" :max="1" step="0.01">
+        <div>{{dirc.dragForce}}</div>
+    </div>
+         
+
+    <div class=" hidden w-full   ">
+      <div class=" bg-gray-400 cursor-pointer" @click=" auto = !auto">球形碰撞</div>
       <input ref="viewFarCtrl" class=" ml-2  outline-none w-40  " @input="ballRadiusChangeFn" v-model="ballRadius"
         type="range" min="0.05" max="3" step="0.01" >
     </div>
@@ -159,14 +123,7 @@
  */
 
 
-
-import YJinput_color from "../components/YJinput_color.vue";
-import YJinput_range from "../components/YJinput_range.vue";
-import YJinput_number from "../components/YJinput_number.vue";
-import YJinput_text from "../components/YJinput_text.vue";
-import YJinput_toggle from "../components/YJinput_toggle.vue";
-import YJinput_drop from "../components/YJinput_drop.vue";
-import YJinput_vector3 from "../components/YJinput_vector3.vue";
+ 
 import YJinputCtrl from "../components/YJinputCtrl.vue";
 
 // import settingPanel_npcSkill from "./settingPanel_npcSkill.vue";
@@ -178,14 +135,7 @@ import { UploadFile, UploadSkill, UploadPlayerFile } from "../../../js/uploadThr
 export default {
   name: "settingpanel_player",
   components: {
-    settingPanel_avatar,
-    YJinput_color,
-    YJinput_range,
-    YJinput_number,
-    YJinput_text,
-    YJinput_toggle,
-    YJinput_drop,
-    YJinput_vector3,
+    settingPanel_avatar, 
     YJinputCtrl,
     // settingPanel_npcSkill, 
   },
@@ -252,6 +202,14 @@ export default {
       },
       auto: true,
       ballRadius:0.5,
+      dirc:{
+        x:0,
+        y:1,
+        z:0,
+        w:1,
+        stiffnessForce:0.01,
+        dragForce:0.4,
+      }
     };
   },
   created() {
@@ -291,6 +249,10 @@ export default {
   methods: {
     ballRadiusChangeFn(v){
       _Global.YJAmmoPlayerBody.CreateSphere(this.ballRadius);
+    },
+    dircChangeFn(v){
+      _Global.dirc = this.dirc;
+      console.log(_Global.dirc);
     },
     ClickBtnHandler(e) {
 
@@ -337,7 +299,7 @@ export default {
       
       if (e == "显示骨骼") {
         this.displayBoneDummy = !this.displayBoneDummy;
-        _Global.SceneManager.DisplayBoneDummy(this.displayBoneDummy);
+        _Global._SceneManager.DisplayBoneDummy(this.displayBoneDummy);
       }
       
     },
@@ -561,8 +523,6 @@ export default {
         if (e == "") { 
           let singleTransform = _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
           singleTransform.GetComponent("MeshRenderer").RemoveWeapon();
-          
-
         }else{  
 
           let weaponData = e;
@@ -570,7 +530,7 @@ export default {
           this.boneName = weaponData.message.data.boneName;
           this.weaponType = weaponData.message.data.weaponType; 
         this.Utils.SetSettingItemByProperty(this.setting, "weapon", weaponData.icon);
- 
+          console.log("武器数据 ",e);
 
         let hasBone = false;
         for (let i = 0; i < this.settingData.boneList.length; i++) {
@@ -611,7 +571,7 @@ export default {
             };
           this.settingData.equipPosList.push(equipData);
         } 
-
+        console.log("equipPosList ",this.settingData.equipPosList);
           //加载武器并让角色使用
           let singleTransform =
               _Global.YJ3D._YJSceneManager.GetSingleModelTransform();

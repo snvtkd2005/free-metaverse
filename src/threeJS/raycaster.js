@@ -213,6 +213,7 @@ class YJRaycaster extends EventDispatcher {
         if (element.tag == "helper") { continue; }
         if (element.type == "GridHelper") { continue; }
         if (element.type == "LineSegments") { continue; } 
+        if (element.type == "AxesHelper") { continue; } 
         if (element.isIgnore) { continue; }
         if (element.type == "TransformControlsPlane") { continue; }
         if (element.parent.parent && element.parent.parent.isTransformControlsGizmo) { continue; }

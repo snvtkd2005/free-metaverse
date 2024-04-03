@@ -3,12 +3,11 @@ import * as THREE from "three";
 
 import TWEEN from '@tweenjs/tween.js';
 
-import { YJParabola } from "/@/threeJS/YJParabola.js"; 
+import { YJParabola } from "/@/threeJS/YJParabola.js";
 
 import { YJSkillParticleManager } from "./YJSkillParticleManager.js";
-import { YJDMManager_bilibili } from "./YJDMManager_bilibili.js";
 
-import { YJNPCManager } from "/@/threeJS/YJNPCManager.js"; 
+import { YJNPCManager } from "/@/threeJS/YJNPCManager.js";
 
 // 场景同步数据
 
@@ -19,14 +18,12 @@ class YJSceneDyncManagerEditor {
     let dyncModelList = [];
     dyncModelList.push({ id: "offsetTime", modelType: "offsetTime", state: { offsetTime: 0, startTime: 1675586194683 } });
 
-    this.GetDyncModelList = ()=>{
+    this.GetDyncModelList = () => {
       return dyncModelList;
     }
 
- 
+
     let _YJSkillParticleManager = null;
-    let _YJDMManager = null;
-    let _YJNPCManager = null;
     // 初始化场景中需要同步的模型。每个客户端都执行
     this.InitDyncSceneModels = () => {
 
@@ -41,7 +38,7 @@ class YJSceneDyncManagerEditor {
         ) {
           if (element.modelType == "NPC模型") {
             let relifeTime = element.message.data.relifeTime;
-            if (relifeTime && relifeTime>0 ) {
+            if (relifeTime && relifeTime > 0) {
               state.relifeTime = 8 + relifeTime;
             } else {
               state.relifeTime = 0;
@@ -56,7 +53,10 @@ class YJSceneDyncManagerEditor {
             let model = element.message.data;
             // console.log("交互模型",model);
             // indexVue.$refs.HUD.$refs.skillPanel_virus.initIcon({describe: model.describe,type: model.type, value: model.buffValue, imgPath:  model.imgPath });
-            indexVue.$refs.HUD.$refs.skillPanel_virus.initIcon(model);
+            if (indexVue && indexVue.$refs.HUD) {
+              indexVue.$refs.HUD.$refs.skillPanel_virus.initIcon(model);
+            }
+
             addVirus(model);
           }
           dyncModelList.push({ id: element.id, modelType: element.modelType, state: state });
@@ -64,8 +64,7 @@ class YJSceneDyncManagerEditor {
       }
 
 
-      _YJNPCManager = new YJNPCManager(_this); 
-      _Global._YJNPCManager = _YJNPCManager;
+      new YJNPCManager();
       if (_Global.setting.inEditor) {
         _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().AllNpcTransformNav();
         return;
@@ -90,7 +89,6 @@ class YJSceneDyncManagerEditor {
       // 增加额外的同步信息
       let data = { id: model.type, modelType: "交互模型", state: { value: 0, count: 0 } };
       dyncModelList.push(data);
-      _YJDMManager.addProp(data);
     }
     this.SendDataToServer = (type, data) => {
 
@@ -104,7 +102,7 @@ class YJSceneDyncManagerEditor {
         return;
       }
 
-      if (type == "npc技能" || type == "npc技能攻击") {
+      if (type == "npc技能" || type == "npc技能攻击" || type == "受到技能" || type == "解除技能") {
         let { npcId, skill } = data;
         if (type == "npc技能") {
           _SceneManager.SetTargetSkill(npcId, skill);
@@ -132,14 +130,14 @@ class YJSceneDyncManagerEditor {
     // 每0.5秒检测一次。巡视NPC是否能发现玩家。每个玩家独立计算，计算后再做npc目标同步
     function CheckNpcLookat() {
 
-      if (_Global.YJ3D.YJController.isInDead()) {
+      if (_Global.YJ3D.YJController.isInDead() || !_Global.hasAvatar) {
         return;
       }
       playerPos = _Global.YJ3D.YJController.GetPlayerWorldPos();
 
-      let npcs = _YJNPCManager.GetNoSameCampNPC(playerPos);
+      let npcs = _Global._YJNPCManager.GetNoSameCampNPC(playerPos);
       for (let i = 0; i < npcs.length; i++) {
-        const npcComponent = npcs[i];  
+        const npcComponent = npcs[i];
         if (_Global.mainUser) {
           // 第三个参数表示是否查找npc附近的npc，让附近的npc一起攻击玩家
           npcComponent.SetNpcTarget(_Global.YJ3D.YJPlayer, true, true);
@@ -160,7 +158,7 @@ class YJSceneDyncManagerEditor {
       }
       playerPos = _Global.YJ3D.YJController.GetPlayerWorldPos();
 
-      let canSelectNpc = _YJNPCManager.GetForwardNoSameCampNPC(playerPos); 
+      let canSelectNpc = _Global._YJNPCManager.GetForwardNoSameCampNPC(playerPos);
       tabSelectIndex++;
       if (tabSelectIndex >= canSelectNpc.length) {
         tabSelectIndex = 0;
@@ -172,11 +170,11 @@ class YJSceneDyncManagerEditor {
 
     // 添加增生的npc
     this.AddNpc = function (npcTransform) {
-      _YJNPCManager.AddNpc(npcTransform); 
+      _Global._YJNPCManager.AddNpc(npcTransform);
     }
     // 设置npc1附近的npc共同攻击npc1的目标
     this.SetNearNPCTarget = function (npcComponent1, targetModel) {
-      let npcs = _YJNPCManager.GetNearNPC(npcComponent1, targetModel); 
+      let npcs = _Global._YJNPCManager.GetNearNPC(npcComponent1, targetModel);
       for (let i = 0; i < npcs.length; i++) {
         const npcComponent = npcs[i];
         npcComponent.SetNpcTarget(targetModel, true, false);
@@ -185,25 +183,29 @@ class YJSceneDyncManagerEditor {
     }
 
     this.GetNpcById = function (npcId) {
-      return _YJNPCManager.GetNpcTransformById(npcId); 
+      return _Global._YJNPCManager.GetNpcTransformById(npcId);
     }
 
     // 战斗组，用来做npc的攻击目标，第一目标死亡，攻击第二目标
     let fireGroup = [
     ];
+    // 判断是否有正在进行的战斗
+    this.CheckHasFire = function () {
+      return fireGroup.length != 0;
+    }
+    let checkFireInterval = null;
     // NPC加入战斗.由NPC受伤、或npc查找可视范围玩家调用开启战斗
     this.NPCAddFire = function (npcComponent, targetModel) {
       let hasGroup = false;
 
       for (let i = 0; i < fireGroup.length; i++) {
         const element = fireGroup[i];
-        for (let j = 0; j < element.peopleList.length; j++) {
-          const npc = element.peopleList[j];
-          if (npc.id == npcComponent.transform.id) {
-            if (npcComponent.fireId == -1) {
-              npcComponent.fireId = element.fireId;
-            }
-            return;
+
+        let hasNpc = false;
+        for (let j = 0; j < element.peopleList.length && !hasNpc; j++) {
+          const player = element.peopleList[j];
+          if (player.id == npcComponent.transform.id) {
+            hasNpc = true;
           }
         }
 
@@ -212,62 +214,101 @@ class YJSceneDyncManagerEditor {
           const player = element.peopleList[j];
           if (player.id == targetModel.id) {
             cPlayer = true;
-            element.peopleList.push({ id: npcComponent.transform.id, camp: npcComponent.GetCamp(),targetId:targetModel.id });
-            scope.SendSceneState("战斗状态");
           }
         }
-        if (cPlayer) {
-          npcComponent.fireId = element.fireId;
+
+        if (hasNpc || cPlayer) {
           hasGroup = true;
+        }
+
+
+        if (!hasNpc) {
+          if (npcComponent.fireId == -1) {
+            npcComponent.fireId = element.fireId;
+          }
+          element.peopleList.push({ id: npcComponent.transform.id, camp: npcComponent.GetCamp(), targetId: targetModel.id });
           console.log(npcComponent.npcName + " npc 加入正在进行中的战斗 ", element);
+        }
+
+        if (!cPlayer) {
+          if (targetModel.fireId == -1) {
+            targetModel.fireId = element.fireId;
+          }
+          element.peopleList.push({ id: targetModel.id, camp: targetModel.camp, targetId: npcComponent.transform.id });
+          console.log(targetModel.GetNickName() + " 玩家 加入正在进行中的战斗 ", element);
+        } else {
+
         }
       }
       if (hasGroup) {
         return;
       }
+      if (fireGroup.length > 0) {
+        console.error("不该进入此判断： 开启第二场战斗 ");
+      }
       let fireId = new Date().getTime();
       // camp 阵营数值: 1000联盟 1001部落  10000共同敌人
-      fireGroup.push({ fireId: fireId, 
+      fireGroup.push({
+        fireId: fireId,
         peopleList: [
-          { id: targetModel.id, camp: targetModel.GetCamp(),targetId:npcComponent.transform.id }, 
-          { id: npcComponent.transform.id, camp:  npcComponent.GetCamp(),targetId:targetModel.id }] });
+          { id: targetModel.id, camp: targetModel.GetCamp(), targetId: npcComponent.transform.id },
+          { id: npcComponent.transform.id, camp: npcComponent.GetCamp(), targetId: targetModel.id }]
+      });
       targetModel.fireId = fireId;
       npcComponent.fireId = fireId;
-      console.log(" 开始新的战斗 ", fireGroup[fireGroup.length - 1]);
+      if (npcComponent.isYJNPC) {
+        npcComponent.SetNpcTarget(targetModel, true, true);
+      }
+      if (targetModel.isYJNPC) {
+        targetModel.SetNpcTarget(npcComponent, true, true);
+      }
+      console.log(" 开始新的战斗 ", targetModel.GetNickName() + " " + npcComponent.GetNickName(), fireGroup[fireGroup.length - 1]);
       //让玩家加入战斗
       scope.SendSceneStateAll("玩家加入战斗", { playerId: targetModel.id, fireId: fireId });
       scope.SendSceneState("战斗状态");
 
+      // if(checkFireInterval){
+      //   clearInterval(checkFireInterval);
+      // }
+      // checkFireInterval = setInterval(() => {
+      //   LoopCheckFireFn();
+      // }, 500);
     }
-    this.NPCAddFireGroup = function (npcComponent,targetId) {
-      if(fireGroup.length==0){
-        return;
+    this.NPCAddFireGroup = function (npcComponent, targetId) {
+      if (fireGroup.length == 0) {
+        return false;
+      }
+      if (fireGroup.length == 2) {
+        console.error("不该进入此判断： 存在第二场战斗 ");
       }
       const element = fireGroup[0];
       npcComponent.fireId = element.fireId;
-      element.peopleList.push({ id: npcComponent.transform.id, camp: npcComponent.GetCamp(),targetId:targetId });
-      console.log("加入战斗 ",fireGroup);
+      element.peopleList.push({ id: npcComponent.transform.id, camp: npcComponent.GetCamp(), targetId: targetId });
+      // console.log(npcComponent.GetNickName()+"加入战斗 ",element);
+      return true;
     }
 
     function radomNum(minNum, maxNum) {
       return parseInt(Math.random() * (maxNum - minNum + 1) + minNum, 10);
     }
 
-    this.GetPlayerByRandom = function (camp) {
+    this.GetNoSameCampByRandom = function (camp) {
       if (!_Global.YJClient) {
-        return {
-          playerId: _Global.YJ3D.YJPlayer.id,
-          player: _Global.YJ3D.YJPlayer,
-        };
+        if (_Global.hasAvatar) {
+          return {
+            playerId: _Global.YJ3D.YJPlayer.id,
+            player: _Global.YJ3D.YJPlayer,
+          };
+        }
       }
       let players = [];
       let id = "";
       let player = null;
-      if(_Global.setting.DMGame){
+      if (_Global.setting.DMGame) {
         players = _Global._YJNPCManager.GetNoSameCampNPCInFire(camp);
         player = players[radomNum(0, players.length - 1)];
         id = player.transform.id
-      }else{
+      } else {
         players = _Global.YJClient.GetAllPlayer();
         id = player.id
       }
@@ -276,8 +317,46 @@ class YJSceneDyncManagerEditor {
         player: player,
       }
     }
+
+    this.GetSameCampByRandom = function (camp) {
+      if (!_Global.YJClient) {
+        if (_Global.hasAvatar) {
+          return {
+            playerId: _Global.YJ3D.YJPlayer.id,
+            player: _Global.YJ3D.YJPlayer,
+          };
+        }
+      }
+      let players = [];
+      let id = "";
+      let player = null;
+      if (_Global.setting.DMGame) {
+        players = _Global._YJNPCManager.GetSameCampNPCInFire(camp);
+        if(players.length>0){
+          player = players[radomNum(0, players.length - 1)];
+          id = player.transform.id;
+        }
+      } else {
+        players = _Global.YJClient.GetAllPlayer();
+        id = player.id
+      }
+      return {
+        playerId: id,
+        player: player,
+      }
+    }
+    this.GetSameCamp = function (camp) {
+      let players = [];  
+      if (_Global.setting.DMGame) {
+        players = _Global._YJNPCManager.GetSameCampNPCInFire(camp);
+      } else {
+        players = _Global.YJClient.GetAllPlayer();
+      }
+      return players;
+    }
+
     this.GetPlayerById = function (playerId) {
-      let playerMirror = _YJNPCManager.GetNpcTransformById(playerId);
+      let playerMirror = _Global._YJNPCManager.GetNpcTransformById(playerId);
       if (playerMirror) {
         return playerMirror.GetComponent("NPC");
       }
@@ -315,7 +394,7 @@ class YJSceneDyncManagerEditor {
     }
 
     // npc范围攻击。 获取npc范围内的玩家
-    this.GetPlayerByNpcForwardInFireId = function (npcTransform, fireId, vaildDistance, max, ingorePlayerId) {
+    this.GetPlayerByNpcForwardInFireId = function (npcComponent, fireId, vaildDistance, max, ingorePlayerId) {
       let num = 0;
       if (ingorePlayerId != undefined) {
         // 群攻设置最多数量的目标时，且存在忽略npcId时，数量-1
@@ -324,36 +403,48 @@ class YJSceneDyncManagerEditor {
           return [];
         }
       }
-      return CheckPlayersInNpcForward(npcTransform, vaildDistance);
-      return [];
+      // return CheckPlayersInNpcForward(npcTransform, vaildDistance);
+      // return [];
+      let npcs = [];
 
-      for (let i = 0; i < fireGroup.length; i++) {
-        const element = fireGroup[i];
-        if (element.fireId == fireId || true) {
-          let npcs = [];
-          for (let j = element.playerList.length - 1; j >= 0; j--) {
-            const playerId = element.playerList[j];
-            if (ingorePlayerId != playerId) {
-              let vaildNpc = CheckPlayerInNpcForward(npcTransform, vaildDistance, playerId);
-              if (vaildNpc != null) {
-                num++;
-                npcs.push(vaildNpc);
-                if (num >= max) {
-                  return npcs;
-                }
-              }
-            }
-          }
-          return npcs;
+      if (_Global.setting.DMGame) {
+        let allnpcs = _Global._YJNPCManager.GetNoSameCampNPCInFireInVailDis(npcComponent.GetWorldPos(), npcComponent.GetCamp(), vaildDistance);
+
+        let count = allnpcs.length >= max ? max : allnpcs.length;
+        for (let i = 0; i < count; i++) {
+          npcs.push(allnpcs[i]);
         }
+        return npcs;
+      } else {
+        // players = _Global.YJClient.GetAllPlayer(); 
       }
+
+      // for (let i = 0; i < fireGroup.length; i++) {
+      //   const element = fireGroup[i];
+      //   if (element.fireId == fireId || true) {
+      //     for (let j = element.playerList.length - 1; j >= 0; j--) {
+      //       const playerId = element.playerList[j];
+      //       if (ingorePlayerId != playerId) {
+      //         let vaildNpc = CheckPlayerInNpcForward(npcTransform, vaildDistance, playerId);
+      //         if (vaildNpc != null) {
+      //           num++;
+      //           npcs.push(vaildNpc);
+      //           if (num >= max) {
+      //             return npcs;
+      //           }
+      //         }
+      //       }
+      //     }
+      //     return npcs;
+      //   }
+      // }
       return [];
     }
 
 
     // 在一场战斗中，获取玩家前方技能有效范围内的npc
-    function CheckNpcInPlayerForward(vaildDistance, npcId) { 
-      return _YJNPCManager.CheckNpcInPlayerForward(vaildDistance, npcId,playerPos);
+    function CheckNpcInPlayerForward(vaildDistance, npcId) {
+      return _Global._YJNPCManager.CheckNpcInPlayerForward(vaildDistance, npcId, playerPos);
     }
 
     // 玩家范围攻击npc。 在一场战斗中，玩家施放技能，获取玩家前方技能有效范围内的最多max数量的npc
@@ -390,81 +481,32 @@ class YJSceneDyncManagerEditor {
     }
 
     this.GetNpcByPlayerForwardInArea = function (vaildDistance, max) {
-      return _YJNPCManager.GetNpcByPlayerForwardInArea(vaildDistance, max,playerPos);
+      return _Global._YJNPCManager.GetNpcByPlayerForwardInArea(vaildDistance, max, playerPos);
     }
 
 
-    this.RemoveNPCFireId = function (npcComponent) {
-      // console.log(npcComponent.npcName + "npc 死亡或其他 请求离开战斗" + npcComponent.fireId);
-      for (let i = fireGroup.length - 1; i >= 0; i--) {
-        const element = fireGroup[i];
-        if (element.fireId == npcComponent.fireId) {
-          let cNpc = false;
-          for (let j = element.peopleList.length - 1; j >= 0 && !cNpc; j--) {
-            const npc = element.peopleList[j];
-            if (npc.id == npcComponent.transform.id) {
-              npcComponent.fireId = -1;
-              element.peopleList.splice(j, 1);
-              cNpc = true;
-            }
-          }
-          let targetId = npcComponent.transform.id;
-          if (cNpc) {
-            console.log(" npcId["+targetId+"]  离开战斗,原因:胜利、死亡或其他 ", );
-          }
-          if (element.peopleList.length == 0) {
-            fireGroup.splice(i, 1);
-            _Global.applyEvent("战斗结束");
-            return;
-          }
-          console.log(" 战斗参与者剩余 ", element.peopleList);
-
-          if (CheckSameCamp(element.peopleList)) {
-            _Global.applyEvent("战斗结束",element.peopleList[0].camp);
-            for (let k = element.peopleList.length - 1; k >= 0; k--) {
-              const people = element.peopleList[k];
-              this.SendSceneStateAll("玩家脱离战斗", people.id);
-            }
-            fireGroup.splice(i, 1); 
-            return;
-          }else{
-            for (let k = element.peopleList.length - 1; k >= 0; k--) {
-              const people = element.peopleList[k];
-              if(people.targetId == targetId){ 
-                console.log(" npcId ["+ people.id+ "] 的目标 ["+targetId+"] 已死亡，即将查找下一个目标 " );
-                people.targetId = null;
-                GetFireIdPlayer({npcId:people.id, camp:people.camp, fireId:element.fireId});
-              }else if(people.targetId == null){  
-                GetFireIdPlayer({npcId:people.id, camp:people.camp, fireId:element.fireId});
-              }else if(people.targetId == people.id){  
-                GetFireIdPlayer({npcId:people.id, camp:people.camp, fireId:element.fireId});
-              }
-            }
-          }
-
-        }
-      }
-    }
 
     this.FireOn = function () {
-      if(fireGroup.length>0){
+      if (fireGroup.length > 0) {
         return;
       }
       let fireId = new Date().getTime();
       // camp 阵营数值: 1000联盟 1001部落  10000共同敌人
-      fireGroup.push({ fireId: fireId, 
-        peopleList: [] });
+      fireGroup.push({
+        fireId: fireId,
+        peopleList: []
+      });
       console.log(" 开始新的战斗 ", fireGroup[fireGroup.length - 1]);
       const element = fireGroup[0];
-      let npcs = _YJNPCManager.GetAllVaildNPC();
+      let npcs = _Global._YJNPCManager.GetAllVaildNPC();
       for (let i = 0; i < npcs.length; i++) {
         const npcComponent = npcs[i].GetComponent("NPC");
         npcComponent.fireId = fireId;
-        element.peopleList.push({ id: npcComponent.transform.id, camp: npcComponent.GetCamp(),targetId:null } );
+        element.peopleList.push({ id: npcComponent.transform.id, camp: npcComponent.GetCamp(), targetId: null });
       }
       for (let k = element.peopleList.length - 1; k >= 0; k--) {
-        const people = element.peopleList[k]; 
-        GetFireIdPlayer({npcId:people.id, camp:people.camp, fireId:fireId});
+        const people = element.peopleList[k];
+        GetFireIdPlayer({ npcId: people.id, camp: people.camp, fireId: fireId });
       }
       scope.SendSceneState("战斗状态");
       _Global.applyEvent("战斗开始");
@@ -497,18 +539,18 @@ class YJSceneDyncManagerEditor {
           RemoveFromArroy(element.peopleList, players);
           if (element.peopleList.length == 0) {
             fireGroup.splice(i, 1);
+            FireOff();
             continue;
           }
 
           if (CheckSameCamp(element.peopleList)) {
-            _Global.applyEvent("战斗结束",element.peopleList[0].camp);
-
+            let camp = element.peopleList[0].camp;
             for (let k = element.peopleList.length - 1; k >= 0; k--) {
               const people = element.peopleList[k];
               this.SendSceneStateAll("玩家脱离战斗", people.id);
             }
             fireGroup.splice(i, 1);
-            // console.log(" 战斗结束 22 ", element.fireId);
+            FireOff(camp);
             continue;
           }
         }
@@ -526,6 +568,15 @@ class YJSceneDyncManagerEditor {
       }
       return true;
     }
+    function FireOff(camp) {
+      if (!_Global.createCompleted) {
+        return false;
+      }
+      _Global.applyEvent("战斗结束", camp);
+    }
+    this.ClearFire = function () {
+      fireGroup = [];
+    }
     function RemoveFromArroy(peopleList, items) {
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
@@ -539,13 +590,13 @@ class YJSceneDyncManagerEditor {
           }
         }
         if (CheckSameCamp(peopleList)) {
-          _Global.applyEvent("战斗结束",peopleList[0].camp);
-
+          let camp = peopleList[0].camp;
           for (let k = peopleList.length - 1; k >= 0; k--) {
             const people = peopleList[k];
-            this.SendSceneStateAll("玩家脱离战斗", people.id);
+            scope.SendSceneStateAll("玩家脱离战斗", people.id);
           }
-          fireGroup.splice(0, 1); 
+          fireGroup.splice(0, 1);
+          FireOff(camp);
           return;
         }
       }
@@ -563,7 +614,7 @@ class YJSceneDyncManagerEditor {
       }
       array.push(item);
     }
-    this.AddFireGroup = function (id, camp, fireId,targetId) {
+    this.AddFireGroup = function (id, camp, fireId, targetId) {
       for (let i = 0; i < fireGroup.length; i++) {
         const element = fireGroup[i];
         if (element.fireId == fireId) {
@@ -575,7 +626,7 @@ class YJSceneDyncManagerEditor {
               return;
             }
           }
-          element.peopleList.push({ id: id, camp: camp,targetId:targetId });
+          element.peopleList.push({ id: id, camp: camp, targetId: targetId });
           console.log(" 加入战斗组 ", element);
         }
       }
@@ -598,12 +649,12 @@ class YJSceneDyncManagerEditor {
         if (hasNpc || hasPlayer) {
           if (!hasNpc) {
             npcComponent.fireId = element.fireId;
-            element.peopleList.push({ id: npcComponent.transform.id, camp: npcComponent.GetCamp(),targetId:targetModel.id });
+            element.peopleList.push({ id: npcComponent.transform.id, camp: npcComponent.GetCamp(), targetId: targetModel.id });
             console.log(" 玩家加入战斗触发 npc加入战斗");
           }
           if (!hasPlayer) {
             targetModel.fireId = element.fireId;
-            element.peopleList.push({ id: targetModel.id, camp: targetModel.camp,targetId:npcComponent.transform.id});
+            element.peopleList.push({ id: targetModel.id, camp: targetModel.camp, targetId: npcComponent.transform.id });
             console.log(" 玩家加入战斗触发 玩家加入战斗");
           }
           return;
@@ -614,7 +665,7 @@ class YJSceneDyncManagerEditor {
     }
 
     //npc被攻击时初次进入战斗时，让附近的npc也加入战斗
-    this.NPCAddFireById = function (npcComponent, fireId,targetId) {
+    this.NPCAddFireById = function (npcComponent, fireId, targetId) {
       // console.log("让npc"+ npcComponent.npcName+" 加入战斗 "+ fireId);
       for (let i = 0; i < fireGroup.length; i++) {
         const element = fireGroup[i];
@@ -629,8 +680,8 @@ class YJSceneDyncManagerEditor {
             }
           }
           npcComponent.fireId = fireId;
-          element.peopleList.push({ id: npcComponent.transform.id, camp: npcComponent.GetCamp(),targetId:targetId });
-          console.log("npc ["+npcComponent.npcName + "] 加入 附近的战斗 ", element);
+          element.peopleList.push({ id: npcComponent.transform.id, camp: npcComponent.GetCamp(), targetId: targetId });
+          // console.log("npc [" + npcComponent.npcName + "] 加入 附近的战斗 ", element);
         }
       }
       this.SendSceneState("战斗状态");
@@ -651,51 +702,190 @@ class YJSceneDyncManagerEditor {
     this.RequestNextFireIdPlayer = function (state) {
       if (_Global.mainUser) {
         GetFireIdPlayer(state);
-      } else {
-        this.SendSceneState("请求下一个目标", state);
       }
     }
+
+    this.RemoveNPCFireId = function (id,fireId) {
+      // console.log(npcComponent.npcName + "npc 死亡或其他 请求离开战斗" + npcComponent.fireId);
+      for (let i = fireGroup.length - 1; i >= 0; i--) {
+        const element = fireGroup[i];
+        if (element.fireId == fireId) {
+          for (let j = element.peopleList.length - 1; j >= 0; j--) {
+            const people = element.peopleList[j];
+            if (people.targetId == id) {
+              people.targetId = null;
+            }else if (people.id == id) {
+              element.peopleList.splice(j, 1);
+            }
+          }
+          if (element.peopleList.length == 0) {
+            fireGroup.splice(i, 1);
+            FireOff();
+            return;
+          } 
+        }
+      }
+
+      LoopCheckFireFn();
+
+    }
+    this.NPCTargetToNone = function (state) {
+      let { npcId, camp, fireId, ignorePlayerId, vaildDis } = state;
+      // console.log(npcComponent.npcName + "npc 死亡或其他 请求离开战斗" + npcComponent.fireId);
+      for (let i = fireGroup.length - 1; i >= 0; i--) {
+        const element = fireGroup[i];
+        if (element.fireId == fireId) {
+          for (let j = element.peopleList.length - 1; j >= 0; j--) {
+            const people = element.peopleList[j];
+            if (people.id == npcId) {
+              people.targetId = null;
+              GetFireIdPlayer(state, people);
+              return;
+            }
+          }
+        }
+      } 
+
+    }
+    this.LoopCheckFire = function () {
+      LoopCheckFireFn();
+    }
+    function LoopCheckFireFn() {
+
+      for (let i = fireGroup.length - 1; i >= 0; i--) {
+        const element = fireGroup[i];
+        if (CheckSameCamp(element.peopleList)) {
+          let camp = element.peopleList[0].camp;
+          for (let k = element.peopleList.length - 1; k >= 0; k--) {
+            const people = element.peopleList[k];
+            scope.SendSceneStateAll("玩家脱离战斗", people.id);
+          }
+          fireGroup.splice(i, 1);
+          FireOff(camp);
+          return;
+        } else {
+          for (let k = element.peopleList.length - 1; k >= 0; k--) {
+            const people = element.peopleList[k];
+            if (people == undefined || people.id == undefined) {
+              element.peopleList.splice(i, 1);
+              continue;
+            }
+            if (people.targetId == people.id) {
+              let npcComponent = _Global._YJNPCManager.GetNpcComponentById(people.id);
+              if (npcComponent == null) {
+                console.error(" npcId [" + people.id + "] 为空，不应该进入此判断 ");
+              } else {
+                console.error(" 不该进入此判断:  [" + npcComponent.npcName + "] 的目标 是自身 ");
+              }
+              people.targetId = null;
+            }
+            if (people.targetId == null) {
+              // console.log(" 2222 npcId ["+ people.id+ "] 的目标 ["+targetId+"] 已死亡，即将查找下一个目标 " );
+              GetFireIdPlayer({ npcId: people.id, camp: people.camp, fireId: element.fireId }, people);
+            }
+          }
+        }
+        // console.log(" 战斗参与者剩余 ", element.peopleList);
+
+
+      }
+    }
+
     // 给npc查找同战斗组中的可攻击玩家
-    function GetFireIdPlayer(state) {
-      let { npcId, camp, fireId,ignorePlayerId } = state;
-      let npcComponent = _YJNPCManager.GetNpcComponentById(npcId);
-      if(npcComponent == null){
-        console.error(" npcId ["+ npcId+ "] 为空，不应该进入此判断 " , state);
+    function GetFireIdPlayer(state, people) {
+      let { npcId, camp, fireId, ignorePlayerId, vaildDis } = state;
+      let npcComponent = _Global._YJNPCManager.GetNpcComponentById(npcId);
+      if (npcComponent == null) {
+        console.error(" 不该进入此判断: npcId [" + npcId + "] 为空 ", state);
         return;
       }
-      npcComponent.SetNpcTargetToNoneDrict();
-      console.log(" npc ["+ npcComponent.npcName+ "] 查找下一个目标 " , state);
+      if (npcComponent.isDead) {
+        return;
+      }
+      if (!npcComponent.canMove) {
+        vaildDis = npcComponent.GetVaildAttackDis();
+      }else{
+        vaildDis = undefined;
+      }
+      // if(npcComponent.npcName.includes("阳光万里")){
+      //   console.log(vaildDis," ["+ npcComponent.npcName+ "] ");
+      // }
+
+      const player = _Global._YJNPCManager.GetNoSameCampNPCInFireByNearestDis(npcComponent.GetWorldPos(), camp, vaildDis);
+      if (player) {
+        if (player.isYJNPC) {
+          if (npcId == player.transform.id) {
+            console.error(" 不该进入此判断: [" + player.npcName + "] 的目标是自身 ");
+          }
+          // if (npcComponent.npcName.includes("怀特迈恩")) {
+          //   console.log(vaildDis, " [" + npcComponent.npcName + "] 找到目标 [" + player.npcName + "] ");
+          // }
+          if (people) {
+            people.targetId = player.transform.id;
+          }
+          npcComponent.SetNpcTargetToNoneDrict();
+          npcComponent.SetNpcTarget(player, true, false);
+          return;
+        }
+        if (player.isLocal) {
+          if (_this.YJController.GetUserData().baseData.health > 0) {
+            //发送npc目标
+            npcComponent.SetNpcTarget(player, true, false);
+            return;
+          }
+        } else {
+          if (player.GetUserData().baseData.health > 0) {
+            //发送npc目标
+            npcComponent.SetNpcTarget(player, true, false);
+            return;
+          }
+        }
+      }
+      npcComponent.CheckNextTarget();
+      // npcComponent.SetNpcTargetToNone(true, false);
+      return;
+
+      // let otherNoSameCamp = [];
+      // console.log(" ["+ npcComponent.npcName+ "] 查找下一个目标 " , state);
       for (let i = 0; i < fireGroup.length; i++) {
         const element = fireGroup[i];
         if (element.fireId == fireId) {
           for (let j = 0; j < element.peopleList.length; j++) {
             const people = element.peopleList[j];
-            // console.log( " 查找同一战斗中的参与者 ", people.camp);
-            if (people.camp != camp) {
-              // if (people.camp == 10000 || people.camp == 1001) {
-              //   let ps = scope.GetNpcByPlayerForwardInFireId(fireId, camp, 100, 1);
-              //   if (ps.length >= 0) {
-              //     console.log(npcComponent.npcName + " 找到目标 ", ps[0].npcName);
-              //     npcComponent.SetNpcTarget(ps[0], false, false);
-              //     return;
-              //   }
-              //   return;
-              // }
-
-              if(ignorePlayerId == people.id){
+            // console.log( " ["+ npcComponent.npcName+ "]  查找同一战斗中的参与者 ", people.camp);
+            if (people.camp != camp && people.id != npcId && people.targetId == null) {
+              if (ignorePlayerId == people.id) {
                 continue;
               }
-              const player = scope.GetPlayerById(people.id);
+              // otherNoSameCamp.push(people.id);
+              // const player = scope.GetPlayerById(people.id);
+              // let playerMirror = _Global._YJNPCManager.GetNpcTransformById(playerId);
+              const player = _Global._YJNPCManager.GetNoSameCampNPCInFireByNearestDis(npcComponent.GetWorldPos(), camp, vaildDis);
+              if (player) {
+                if (player.isYJNPC) {
+                  if (!player.isDead) {
 
-              if (player) { 
-                if(player.isYJNPC && !player.isDead){
-                  people.targetId = player.transform.id;
-                  console.log(" npc ["+ npcComponent.npcName+ "] 找到目标 ["+ people.targetId +"] ");
-                  npcComponent.SetNpcTarget(player, true, false);
+                    // if(camp == 1000){
+                    //   console.error(" ["+ npcComponent.npcName+ "] 找到目标 ["+ player.npcName+"] ");
+                    // }
+                    if (people.id == player.transform.id) {
+                      console.error(" [" + people.id + "] 找到目标 [" + player.npcName + "] ");
+                    }
+                    // console.log(distance,vaildDis," ["+ npcComponent.npcName+ "] 找到目标 ["+ player.transform.GetComponent("NPC").npcName+"] ");
+                    people.targetId = player.transform.id;
+                    npcComponent.SetNpcTargetToNoneDrict();
+                    npcComponent.SetNpcTarget(player, true, false);
+                  } else {
+                    // console.log(" ["+ npcComponent.npcName+ "] 的目标已死亡 ");
+                    continue;
+                  }
                   return;
                 }
 
-                console.log(" npc ["+ npcComponent.npcName+ "] 的目标是玩家 ", player.GetUserData());
+                // console.log(" ["+ npcComponent.npcName+ "] 的目标是玩家 ",people.id,player, player.GetUserData());
+                if (player.camp == camp) {
+                  continue;
+                }
                 if (player.isLocal) {
                   if (_this.YJController.GetUserData().baseData.health > 0) {
                     //发送npc目标
@@ -714,9 +904,18 @@ class YJSceneDyncManagerEditor {
           }
         }
       }
+
+      // for (let i = 0; i < otherNoSameCamp.length; i++) {
+      //   const element = otherNoSameCamp[i];
+
+      // }
       if (npcComponent != null) {
+        // console.error( " ["+ npcComponent.npcName+ "]  找不到附近的敌人 ");
+        setTimeout(() => {
+          npcComponent.CheckNextTarget();
+        }, 500);
         //npc移除战斗组
-        scope.RemoveNPCFireId(npcComponent);
+        // scope.RemoveNPCFireId(npcComponent);
         npcComponent.SetNpcTargetToNone(true, false);
       }
 
@@ -779,14 +978,27 @@ class YJSceneDyncManagerEditor {
         _Global._YJDyncManager.SendSceneStateAll("转发", { type: "玩家加入战斗", state: msg });
         return;
       }
-      if (type == "NPC对玩家") {
-        if (!_Global.YJClient) {
-          this.Receive({ type: "NPC对玩家", state: msg });
+      if (type == "NPC对NPC") {
+        if (!_Global.mainUser) {
           return;
         }
-        _Global._YJDyncManager.SendSceneStateAll("转发", { type: "NPC对玩家", state: msg });
+        let state = msg;
+        let p = scope.GetPlayerById(state.targetId);
+        if (p && p.isPlayer == undefined) {
+          p.ReceiveDamageByPlayer(this.GetNpcById(state.npcId), state.skillName, state.effect);
+          
+        }
         return;
       }
+      if (type == "NPC对玩家") {
+        if (!_Global.YJClient) {
+          this.Receive({ type: type, state: msg });
+          return;
+        }
+        _Global._YJDyncManager.SendSceneStateAll("转发", { type: type, state: msg });
+        return;
+      }
+
       if (type == "玩家对NPC") {
 
         if (!_Global.YJClient) {
@@ -836,10 +1048,6 @@ class YJSceneDyncManagerEditor {
         _Global._YJDyncManager.SendSceneState("转发", { type: type, state: fireGroup });
         return;
       }
-      if (type == "请求下一个目标") {
-        _Global._YJDyncManager.SendSceneState("转发", { type: type, state: msg });
-        return;
-      }
       _Global._YJDyncManager.SendSceneState("转发", { type: type, state: msg });
 
     }
@@ -847,6 +1055,46 @@ class YJSceneDyncManagerEditor {
     // 接收 转发 数据
     this.Receive = function (data) {
       let { type, state } = data;
+      if (type == "重新生成") {
+        if (!_Global.mainUser) {
+          let { modelId } = state;
+          let npcComponent = _Global._YJNPCManager.GetNpcComponentById(modelId);
+          if (npcComponent) {
+            if (npcComponent.isDead) {
+              npcComponent.Dync({ title: "重新生成" });
+            }
+            return;
+          }
+          let redboss = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId(modelId);
+          let npc = redboss.GetComponent("NPC");
+          if (npc.isDead) {
+            npc.Dync({ title: "重新生成" });
+          }
+        }
+        return;
+      }
+      if (type == "移除npc") {
+        if (!_Global.mainUser) {
+          let { npcId } = state;
+          _Global._YJNPCManager.RemoveNpcById(npcId);
+        }
+        return;
+      }
+      if (type == "生成npc") {
+        if (!_Global.mainUser) {
+          let { modelId, npcId } = state;
+          _Global._YJNPCManager.DuplicateNPC(modelId, npcId, (copy) => {
+            let { uname, uface } = state;
+            if (uname) {
+              let npc = copy.GetComponent("NPC");
+              npc.CreateHeader(uface);
+              npc.SetName(uname);
+            }
+          });
+        }
+        return;
+      }
+
       if (type == "玩家死亡") {
         if (_Global.mainUser) {
           this.RemovePlayerFireId(state.playerId, state.fireId);
@@ -854,11 +1102,13 @@ class YJSceneDyncManagerEditor {
         return;
       }
       if (type == "所有人加生命") {
-        _SceneManager.ReceivePlayer({buff:"addHealth",buffValue:state});
+        _SceneManager.ReceivePlayer({ buff: "addHealth", buffValue: state });
         return;
       }
       if (type == "弹幕") {
-        indexVue.$refs.HUD.$refs.DMPanel.receiveMsg(state);
+        if (indexVue.$refs.HUD.$refs.DMPanel) {
+          indexVue.$refs.HUD.$refs.DMPanel.receiveMsg(state);
+        }
         return;
       }
       // console.log(" 接收 ", type, state);
@@ -866,8 +1116,8 @@ class YJSceneDyncManagerEditor {
         if (_Global.YJ3D.YJPlayer.id == state) {
           _this.YJController.SetInteractiveNPC("玩家脱离战斗");
         }
-        if (_Global.mainUser) { 
-          _YJNPCManager.EventHandler(data);
+        if (_Global.mainUser) {
+          _Global._YJNPCManager.EventHandler(data);
         }
         return;
       }
@@ -887,7 +1137,7 @@ class YJSceneDyncManagerEditor {
               console.log("玩家加入战斗后，让其镜像设置目标", mirrorId);
               let mirrorNpc = mirror.GetComponent("NPC");
               mirrorNpc.fireId = fireId;
-              mirrorNpc.CheckNextTarget();
+              // mirrorNpc.CheckNextTarget();
             }
           }
         }
@@ -906,27 +1156,30 @@ class YJSceneDyncManagerEditor {
           // 对npc的伤害显示在屏幕上
           let pos = this.GetNpcById(npcId).GetWorldPos().clone();
           pos.y += this.GetNpcById(npcId).GetComponent("NPC").GetBaseModel().playerHeight;
-          _Global.SceneManager.UpdateNpcDamageValue("self", "normal",_Global.user.camp, effect.value, pos,"redius");
+          _Global._SceneManager.UpdateNpcDamageValue("self", "normal", _Global.user.camp, effect.value, pos, "redius");
 
         }
         return;
       }
-      if (type == "NPC对玩家") {
-
-        if (state.targetId == _Global.YJ3D.YJPlayer.id) {
-          _this.YJController.ReceiveDamage(this.GetNpcById(state.npcId), state.skillName, state.effect);
+      if (type == "NPC对NPC") {
+        if (!_Global.mainUser) {
           return;
         }
-
         let p = scope.GetPlayerById(state.targetId);
-        // console.log(" NPC对玩家镜像 ",state, p, typeof p);
         if (p && p.isPlayer == undefined) {
           p.ReceiveDamageByPlayer(this.GetNpcById(state.npcId), state.skillName, state.effect);
         }
         return;
       }
+      if (type == "NPC对玩家") {
+        // console.log(" NPC对玩家镜像 ",state);
+        if (state.targetId == _Global.YJ3D.YJPlayer.id) {
+          _this.YJController.ReceiveDamage(this.GetNpcById(state.npcId), state.skillName, state.effect);
+          return;
+        }
+      }
 
-      if (type == "npc技能" || type == "npc技能攻击") {
+      if (type == "npc技能" || type == "npc技能攻击" || type == "受到技能" || type == "解除技能") {
         let { npcId, skill } = state;
         if (type == "npc技能") {
           // npc技能施法/吟唱状态
@@ -945,18 +1198,13 @@ class YJSceneDyncManagerEditor {
       }
 
       if (type == "战斗状态") {
+        if (_Global.mainUser) {
+          return;
+        }
         fireGroup = state;
         console.log("战斗状态同步改变 ", fireGroup);
         return;
       }
-      if (type == "请求下一个目标") {
-        if (_Global.mainUser) {
-          console.log("设置下一个目标 ", state);
-          GetFireIdPlayer(state);
-        }
-        return;
-      }
-
 
       if (type == "获取场景状态") {
         let { sceneModels, userModels } = state;
@@ -975,34 +1223,7 @@ class YJSceneDyncManagerEditor {
           }
           if (!has) {
             console.log(" 添加用户生成模型 ", _state);
-            let modelData = _state.state;
-            let _playerId = modelData.id;
-            let ownerId = modelData.ownerId;
-            _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().DuplicateModel(modelData, (transform) => {
-              transform.SetActive(false);
-              transform.id = _playerId;
-              setTimeout(() => {
-                scope.AddNpc(transform);
-                let _npcComponent = transform.GetComponent("NPC");
-                _npcComponent.id = _playerId;
-                transform.SetActive(true);
-                if (ownerId == _Global.YJ3D.YJPlayer.id) {
-                  _this.YJController.SetInteractiveNPC("添加镜像", _playerId);
-                }
-                _npcComponent.setOwnerPlayer(scope.GetPlayerById(ownerId));
-
-                if (_Global.mainUser) {
-                  let player = scope.GetPlayerById(ownerId);
-                  if (player.playerMirrors == undefined) {
-                    player.playerMirrors = [];
-                  }
-                  player.playerMirrors.push(_playerId);
-                }
-
-              }, 1000);
-            }, _playerId);
-
-
+            AddModel(_state);
           }
         }
 
@@ -1017,7 +1238,7 @@ class YJSceneDyncManagerEditor {
               has = true;
             }
           }
-          if(!has){
+          if (!has) {
             dyncModelList.push(_state);
           }
 
@@ -1077,57 +1298,78 @@ class YJSceneDyncManagerEditor {
         }
       }
     }
+
+    function AddModel(singleData) {
+      let { id, modelType, state } = singleData;
+      if (modelType == "NPC模型") {
+        let { modelId, npcId, dmData, modelData } = state;
+        if (modelId) {
+          if (!_Global.mainUser) {
+            _Global._YJNPCManager.DuplicateNPC(modelId, npcId, (copy) => {
+              if (dmData) {
+                let { uname, uface } = dmData;
+                let npc = copy.GetComponent("NPC");
+                npc.CreateHeader(uface);
+                npc.SetName(uname);
+              }
+
+            });
+          }
+          return;
+        }
+
+        let _playerId = modelData.id;
+        let ownerId = modelData.ownerId;
+        _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().DuplicateModel(modelData, (transform) => {
+          transform.SetActive(false);
+          transform.id = _playerId;
+          setTimeout(() => {
+            scope.AddNpc(transform);
+            let _npcComponent = transform.GetComponent("NPC");
+            _npcComponent.id = _playerId;
+            transform.SetActive(true);
+            if (ownerId == _Global.YJ3D.YJPlayer.id) {
+              _this.YJController.SetInteractiveNPC("添加镜像", _playerId);
+            }
+            _npcComponent.setOwnerPlayer(scope.GetPlayerById(ownerId));
+
+            if (_Global.mainUser) {
+              let player = scope.GetPlayerById(ownerId);
+              if (player.playerMirrors == undefined) {
+                player.playerMirrors = [];
+              }
+              player.playerMirrors.push(_playerId);
+            }
+
+          }, 1000);
+        }, _playerId);
+      }
+
+    }
+    function RemoveModel(singleData) {
+      let { id, modelType, state } = singleData;
+      if (modelType == "NPC模型") {
+        _Global._YJNPCManager.RemoveNpcById(id);
+      }
+
+    }
     //接收服务器下发
     this.ReceiveFromServer = function (sceneState) {
+      if (_Global.mainUser) {
+        return;
+      }
       console.log(" 接收服务器下发 更新单个模型 ", sceneState);
       let model = sceneState.state;
       switch (sceneState.title) {
         case "添加":
-          let modelData = model.state;
-          let _playerId = modelData.id;
-          let ownerId = modelData.ownerId;
-          _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().DuplicateModel(modelData, (transform) => {
-            transform.SetActive(false);
-            transform.id = _playerId;
-            setTimeout(() => {
-              scope.AddNpc(transform);
-              let _npcComponent = transform.GetComponent("NPC");
-              _npcComponent.id = _playerId;
-              transform.SetActive(true);
-              if (ownerId == _Global.YJ3D.YJPlayer.id) {
-                _this.YJController.SetInteractiveNPC("添加镜像", _playerId);
-              }
-              _npcComponent.setOwnerPlayer(scope.GetPlayerById(ownerId));
-
-              if (_Global.mainUser) {
-                let player = scope.GetPlayerById(ownerId);
-                if (player.playerMirrors == undefined) {
-                  player.playerMirrors = [];
-                }
-                player.playerMirrors.push(_playerId);
-              }
-
-            }, 1000);
-          }, _playerId);
-
-
-
+          AddModel(model);
           return;
         case "删除":
-          let { npcId, playerId } = model;
-          if (_Global.YJ3D.YJPlayer.id == playerId) {
-            _this.YJController.SetInteractiveNPC("删除镜像", npcId);
-          }
-          _YJNPCManager.DestoryById(npcId); 
-          let has = false; 
-          for (let i = 0; i < dyncModelList.length && !has; i++) {
-            const element = dyncModelList[i];
-            if (element.id == npcId) {
-              dyncModelList.splice(i, 1);
-              has = true;
-            }
-          }
-
+          RemoveModel(model);
+          // let { npcId, playerId } = model;
+          // if (_Global.YJ3D.YJPlayer.id == playerId) {
+          //   _this.YJController.SetInteractiveNPC("删除镜像", npcId);
+          // } 
           return;
         case "更新道具数量":
           if (model.modelType == "交互模型") {
@@ -1177,7 +1419,7 @@ class YJSceneDyncManagerEditor {
       // console.log("接收 同步信息 ", id, title, data);
 
       if (title == "同步trail") {
-        let { startPos, targetId, targetType, time,firePid } = data;
+        let { startPos, targetId, targetType, time, firePid } = data;
         //根据id查找模型
         let target = null;
         if (targetType == "player") {
@@ -1188,7 +1430,7 @@ class YJSceneDyncManagerEditor {
         }
         if (target != null) {
           let _startPos = new THREE.Vector3(startPos.x, startPos.y, startPos.z);
-          shootTargetFn(_startPos, target, time,firePid);
+          shootTargetFn(_startPos, target, time, firePid);
         }
         return;
       }
@@ -1198,21 +1440,21 @@ class YJSceneDyncManagerEditor {
 
 
     //角色离线移除角色时，如果npc以该角色为目标，则让npc查找下一个目标
-    this.DelPlayer = function (id) { 
-      _YJNPCManager.DelPlayer(id); 
+    this.DelPlayer = function (id) {
+      _Global._YJNPCManager.DelPlayer(id);
     }
 
     //#region 
     //#endregion
 
     //#region 
-    this.shootTarget = function (startPos, target, time, targetType,firePid,callback) {
+    this.shootTarget = function (startPos, target, time, targetType, firePid, callback) {
       // console.log(" 同步trail target ", target.id, targetType);
-      scope.UpdateModel("", "同步trail", { startPos: startPos, targetId: target.id,firePid:firePid, targetType: targetType, time: time });
-      shootTargetFn(startPos.clone(), target, time,firePid,callback );
-    } 
-    function shootTargetFn(startPos, target, time,firePid,callback){
-      _YJSkillParticleManager.shootTargetFn(startPos.clone(), target, firePid,callback);
+      scope.UpdateModel("", "同步trail", { startPos: startPos, targetId: target.id, firePid: firePid, targetType: targetType, time: time });
+      shootTargetFn(startPos.clone(), target, time, firePid, callback);
+    }
+    function shootTargetFn(startPos, target, time, firePid, callback) {
+      _YJSkillParticleManager.shootTargetFn(startPos.clone(), target, firePid, callback);
 
       // _YJSkillParticleManager.shootTargetFn(startPos.clone(), target, "1704443871265");
     }
@@ -1224,13 +1466,11 @@ class YJSceneDyncManagerEditor {
 
     function init() {
       _YJSkillParticleManager = new YJSkillParticleManager(_this);
-      //弹幕管理器
-      _YJDMManager = new YJDMManager_bilibili(indexVue,scope,_SceneManager);
       update();
     }
     function update() {
       requestAnimationFrame(update);
-      TWEEN.update(); 
+      TWEEN.update();
     }
     init();
 

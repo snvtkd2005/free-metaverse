@@ -24,6 +24,7 @@ import { YJSceneDyncManagerEditor } from "./YJSceneDyncManagerEditor.js";
 import { SceneManagerMetaworld } from "./SceneManagerMetaworld.js";
 import { YJAmmoRope } from "../../../threeJS/components/YJAmmoRope.js";
 import { YJAmmoPlayerBody } from "../../../threeJS/components/YJAmmoPlayerBody.js";
+import { SpringManager } from "../../../threeJS/common/SpringManager.js";
 
 class SceneManager {
   constructor(scene, renderer, camera, _this, modelParent, indexVue, callback) {
@@ -99,7 +100,7 @@ class SceneManager {
       //   RequestSceneData();
       // }, 1000);
 
-      _Global.SceneManager = scope;
+      _Global._SceneManager = scope;
 
       _YJGlobal._SceneManager = scope;
 
@@ -172,34 +173,7 @@ class SceneManager {
           //     _this.$parent.clickOpenPanel("小地图");
           //   }
           return;
-        }
-        if (key == "Digit3") {
-          let yjtransform = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId("弓箭手");
-          let boss = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId("boss");
-          let modelData = JSON.parse(JSON.stringify(yjtransform.modelData));
-          modelData.active = true;
-          _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().DuplicateModelNPC(modelData,(copy)=>{
-            // 测试显示指定名称id的NPC
-            copy.SetActive(true);
-            let npc = copy.GetComponent("NPC");
-            if(npc.isDead){
-              npc.Dync({title:"重新生成"});
-            }
-            _Global.DyncManager.AddNpc(copy); 
-            npc.CreateHeader("https://i1.hdslb.com/bfs/face/d5c63d43ac8d77ba400ba392ff1d396c85897b0c.jpg");
-
-            // let npcComponent = copy.GetComponent("NPC");
-            // _Global.DyncManager.NPCAddFireGroup(npcComponent,boss.id);
-            //并指定其目标为指定名称id的npc
-            // copy.GetComponent("NPC").SetNpcTarget(boss.GetComponent("NPC"),true,true);
-          },new Date().getTime());
-          return;
-        }
-        if (key == "Digit4") {
-          // 开始战斗
-          _Global.DyncManager.FireOn(); 
-          return;
-        }
+        } 
         if (key == "KeyT") {
           scope.PickDownWeapon();
           return;
@@ -802,7 +776,6 @@ class SceneManager {
       if (targetModel != null) {
         if (targetModel != transform) {
           targetModel.RemoveHandle();
-
         } else {
           return;
         }
@@ -969,8 +942,11 @@ class SceneManager {
         if (message.pointType == "npc") {
           // 头像
           this.SetTargetModel(transform);
-          // console.log(" 点击NPC 在脚下显示光圈 ", message);
-          _this.YJController.SetInteractiveNPC("选中npc", transform);
+          console.log(" 点击NPC  ", transform.GetComponent("NPC"));
+          _this.YJController.SetInteractiveNPC("选中npc",transform);
+          if(_Global.LogFireById){
+            _Global.LogFireById(transform.id);
+          }
         }
       }
 
@@ -978,7 +954,7 @@ class SceneManager {
     this.ClickModel = (hitObject) => {
       // console.log("点击模型 ",hitObject);
       // console.log("点击模型.transform ", hitObject.transform);
-      if (hitObject.transform) {
+      if (hitObject.transform && hitObject.transform.GetActive()) {
         this.ClickModelTransform(hitObject.transform);
         return;
       }
@@ -1050,7 +1026,7 @@ class SceneManager {
       }
 
       _Global.ReportTo3D("切换光标", "正常");
-      if (hoverObject.transform && hoverObject.transform.GetData) {
+      if (hoverObject.transform && hoverObject.transform.GetActive && hoverObject.transform.GetActive() && hoverObject.transform.GetData) {
         // 点击NPC
         // console.log(" 右键点击 transform ", message);
         let message = hoverObject.transform.GetData().message;
@@ -1060,7 +1036,9 @@ class SceneManager {
           // console.log(" == in scene manager editor  hover npc  ", message.pointType == "npc");
 
           if (message.pointType == "npc") {
-            if (message.data.baseData.camp != _Global.user.camp && message.data.baseData.health != 0) {
+            if (message.data.baseData.camp != _Global.user.camp 
+              && message.data.baseData.health != 0
+              ) {
               //敌人  
               _Global.ReportTo3D("切换光标", "可攻击");
             }
@@ -1160,12 +1138,56 @@ class SceneManager {
           indexVue.$refs.gameUI.ChangeScene(e.roomName);
         }
       });
+      console.log("renderer.sortObjects ", renderer.sortObjects);
+      let modelData = JSON.parse(localStorage.getItem("modelData"));
+      if (modelData.modelType == "角色模型") {
+        //给骨骼添加dummy显示
 
+        if(modelData.modelPath.includes("unitychan")){
+          let _SpringManager = new SpringManager();
+          _this._YJSceneManager.AddNeedUpdateJS(_SpringManager);
+        }
+        if(modelData.modelPath.includes("蓝虚拟人")){
+          let _SpringManager = new SpringManager();
+          _this._YJSceneManager.AddNeedUpdateJS(_SpringManager);
+        }
+        if(modelData.modelPath.includes("rentitest")){
+          let _SpringManager = new SpringManager();
+          _this._YJSceneManager.AddNeedUpdateJS(_SpringManager);
+        }
+        
+        // let transform = _Global.YJ3D._YJSceneManager.GetSingleModelTransform().GetGroup();
+        // let time = 0;
+        // setInterval(() => {
+        //   time+=0.1;
+        //   transform.rotation.y += Math.sin(time) * 0.1;
+        // }, 20);
+
+        // let obj = _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
+        // console.log("GetSingleModelTransform ", obj);
+        // let _YJAmmoPlayerBody = new YJAmmoPlayerBody(_this, scene);
+        // _YJAmmoPlayerBody.CreateRopeBone(obj.GetGroup());
+
+        // setInterval(() => {
+        //   obj.GetGroup().position.add(new THREE.Vector3(0.01,0,0));
+        // }, 20);
+
+        // bones.forEach(bone => {
+        //   console.log(bone);
+        //   const ball = new THREE.Mesh(new THREE.SphereGeometry(222.2, 20, 20), new THREE.MeshPhongMaterial({ color: 0x202020 }));
+        //   ball.castShadow = true;
+        //   ball.receiveShadow = true;
+        //   bone.add(ball);
+        // });
+
+
+      }
+
+      return;
       // const ball = new THREE.Mesh(new THREE.SphereGeometry(2, 20, 20), new THREE.MeshStandardMaterial({ color: 0xff0000 }));
       // scene.add(ball);
       console.log("renderer.sortObjects ", renderer.sortObjects);
       renderer.sortObjects = false;
-      let modelData = JSON.parse(localStorage.getItem("modelData"));
       if (modelData.modelType == "角色模型") {
         //给骨骼添加dummy显示
         let bones = _Global.YJ3D._YJSceneManager
@@ -1244,7 +1266,7 @@ class SceneManager {
 
                 let pos2 = element.getWorldPosition(new THREE.Vector3());
                 boneHeight = pos1.distanceTo(pos2);
-                console.log(" 骨骼长度 ", boneHeight);
+                // console.log(" 骨骼长度 ", boneHeight);
               }
             }
           } else {

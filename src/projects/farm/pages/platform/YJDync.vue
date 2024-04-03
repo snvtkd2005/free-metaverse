@@ -605,6 +605,7 @@ export default {
       if(this.currentChatStr[0] == '/'){
         _Global.SetPlayerEmote(this.currentChatStr);
         this.currentChatStr = "";
+        
         return;
       }
 

@@ -11,6 +11,7 @@ import { YJPlayerDync } from "./YJPlayerDync.js";
 import { YJPlayerChat } from "./YJPlayerChat.js";
 
 import TWEEN from '@tweenjs/tween.js';
+import { YJPlayerNameTrans } from "./YJPlayerNameTrans.js";
 
 class YJPlayer {
   constructor(_this, scene, local, nickName, controllerCallback,loadAvatarMirrorCompleted) {
@@ -52,6 +53,7 @@ class YJPlayer {
     }
 
     let _YJPlayerDync = null;
+    let _YJPlayerNameTrans = null;
     //初始化摄像机父物体，移动时，移动父物体， 旋转时，横向旋转父物体，竖向旋转摄像机
     const Init = () => {
 
@@ -69,6 +71,10 @@ class YJPlayer {
 
       _YJPlayerDync = new YJPlayerDync(_this, scene, scope, playerGroup);
       _YJPlayerDync.DyncPlayerState({ type: "脚底光圈", msg: "生成" });
+
+      if(local){
+        scope.camp = _Global.user.camp;
+      }
     }
     this.DyncPlayerState = function (state) {
       return _YJPlayerDync.DyncPlayerState(state);
@@ -261,10 +267,17 @@ class YJPlayer {
 
     this.LoadPlayer = function (id) {
 
-      if (_this.$parent.sceneData.setting.firstPerson == undefined && _this.$parent.sceneData.setting.hasAvatar == undefined) {
+      if (!_Global.hasAvatar && this.isLocal) {
+        console.log("无角色浏览"); 
+        if (controllerCallback) {
+          controllerCallback(group, playerGroup);
+        }
+        return;
+      }
+      if (_this.$parent.sceneData.setting.firstPerson == undefined ) {
 
       } else {
-        if (_this.$parent.sceneData.setting.firstPerson || (!_this.$parent.sceneData.setting.hasAvatar)) {
+        if (_this.$parent.sceneData.setting.firstPerson) {
           if (controllerCallback) {
             controllerCallback(group, playerGroup);
           }
@@ -291,7 +304,9 @@ class YJPlayer {
     }
     this.ChangeSkinCompleted = function () {
       group.visible = true;
-      namePosTrans.visible = true;
+      if(namePosTrans){
+        namePosTrans.visible = true;
+      }
       if (!this.isLocal) {
         group.rotation.set(defaultplayerSetting.rotaV3.x, defaultplayerSetting.rotaV3.y + Math.PI, defaultplayerSetting.rotaV3.z);
       }
@@ -308,7 +323,7 @@ class YJPlayer {
         modelPath = _this.GetPublicUrl() + modelPath;
       }
 
-      console.log("加载角色0",modelPath,avatarData,animationsData);
+      // console.log("加载角色0",modelPath,avatarData,animationsData);
       avatar = new YJLoadAvatar(
         _this,
         _this.scene,
@@ -522,6 +537,10 @@ class YJPlayer {
     //----------姓名条 开始-----------------
     let hasName = false;
     this.CreateNameTrans = function (e) {
+      if (!_Global.hasAvatar  && this.isLocal) { 
+        return;
+      }
+
       nickName = e;
       hasName = true;
       CreateNameTransFn();
@@ -573,10 +592,10 @@ class YJPlayer {
 
       // console.log("显示姓名条 "+nickName + " nameScale = " + nameScale);
       const resetButtonText = createText(nickName, 0.06);
-
+ 
       let mat = new THREE.MeshBasicMaterial({
         transparent: true,
-        color: 0x000066,
+        color: _Global.user.camp != scope.camp ? '#ee0000' : '#ffffff',
         depthWrite: false,
         map: resetButtonText.material.map,
       }); // 材质
@@ -601,11 +620,20 @@ class YJPlayer {
       if (_YJPlayerChat == null) {
         _YJPlayerChat = new YJPlayerChat(namePosTrans, nameScale);
       }
+      if (_YJPlayerNameTrans == null) {
+        _YJPlayerNameTrans = new YJPlayerNameTrans(namePosTrans);
+        _YJPlayerNameTrans.CreateHealth(_Global.user.camp == scope.camp ? 0x00ff00 : 0xff0000);
+      }
+
       // _YJPlayerChat.CreateChatTrans("测试测测试"); 
       // _YJPlayerChat.CreateChatTrans("1测试测试测试试试测试测试测试测试测试测试1"); 
       // _YJPlayerChat.CreateChatTrans("测试测试测试试测试测试试测试测试试测试测试测试测试测试测试测试"); 
     }
-
+    this.resetLife = function(){
+      if (_YJPlayerNameTrans != null) { 
+        _YJPlayerNameTrans.resetLife();
+      }
+    }
     //#endregion
 
     //#region 聊天内容框
@@ -615,6 +643,11 @@ class YJPlayer {
         _YJPlayerChat = new YJPlayerChat(namePosTrans, nameScale);
       }
       _YJPlayerChat.CreateChatTrans(e);
+    }
+    this.UpdateHealth = function(health,maxHealth){
+      if (_YJPlayerNameTrans != null) {
+        _YJPlayerNameTrans.UpdateHealth(health,maxHealth); 
+      }
     }
     //#endregion
 
@@ -982,12 +1015,15 @@ class YJPlayer {
       }
       if(oldUserData.baseData){
         this.isDead = oldUserData.baseData.health <= 0;
+        this.camp = oldUserData.baseData.camp;
+        this.UpdateHealth(oldUserData.baseData.health,oldUserData.baseData.maxHealth);
+
       }
 
       // 同步拾取物体
       dyncPickModel(userData.weaponData);
 
-      // console.log("获取角色镜像同步数据",userData);
+      // console.log("获取角色镜像同步数据",userData,oldUserData);
 
 
       if(userData.animName.includes("idle")){
@@ -999,7 +1035,6 @@ class YJPlayer {
       }else{
         this.ChangeAnim(userData.animName);
       }
-
 
       // 行走动画权重
       this.SetWalkWeight(userData.animWeight);
@@ -1190,6 +1225,7 @@ class YJPlayer {
       // 行走动画权重
       scope.SetWalkWeight(userData.animWeight);
 
+      // console.log("获取角色镜像同步数据 22",userData,oldUserData);
 
       var pos = userData.pos;
       // console.log("接收动作和权重 " + userData.animName + "  " + userData.animWeight);
@@ -1307,6 +1343,7 @@ class YJPlayer {
         // lookatPos.y = nameWorlPos.y ;
         lookatPos.y = Math.max(nameWorlPos.y, camWorlPos.y);
         namePosTrans.lookAt(lookatPos);
+
       }
 
       if (!hasPlayer) { return; }

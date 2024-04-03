@@ -107,8 +107,8 @@ export default {
       }
       if (url.includes("m3u8")) {
       } else {
-        console.error("直播流只能为 m3u8 格式");
-        return;
+        console.log("直播流只能为 m3u8 格式");
+        // return;
       }
 
       console.log("HLS播放器播放 ",url);

@@ -1,6 +1,9 @@
 import * as THREE from "three";
 
 import { createText } from 'three/examples/jsm/webxr/Text2D.js';
+import { YJPlayerNameTrans } from "../YJPlayerNameTrans";
+import { YJEquip } from "./YJEquip";
+import { YJSkill } from "./YJSkill";
 
 import { YJshader_dissolve } from "/@/threeJS/loader/YJshader_dissolve";
 
@@ -19,7 +22,11 @@ class YJNPC {
     this.fireId = -1; //战斗组id  -1表示未在战斗中
     this.isDead = false;
     this.id = 0;
+    this.canMove = true;
     this.isYJNPC = true;
+    this.deadedHidden = true;
+    this.canLevelUp = false;
+    this.inControl = false; //是否被控制
     let group = null;
     let playerHeight;
     let nameScale = 1;
@@ -51,6 +58,14 @@ class YJNPC {
       Dead: 'dead',//死亡 
     }
 
+    // 初始常量
+    const CONST_BASEDATA = {
+      level: 1, //等级
+      health: 100, //生命值
+      maxHealth: 100, //生命值
+      strength: 20, //攻击力
+      armor: 0,
+    }
     let baseData = {
       state: 'normal', //状态
       camp: 1001, //阵营
@@ -59,10 +74,13 @@ class YJNPC {
       health: 100, //生命值
       maxHealth: 100, //生命值
       strength: 20, //攻击力
+      armor: 0,
       fireId: -1, //战斗组id  -1表示未在战斗中
-      armor:0,
     }
 
+    let _YJPlayerNameTrans = null;
+    let _YJEquip = null;
+    let _YJSkill = null;
     //#region  固定
     function Init() {
       group = new THREE.Group();
@@ -72,12 +90,14 @@ class YJNPC {
       // parent.add(fromGroup);
       // fromGroup.rotation.set(Math.PI/2,0,0);
       playerPosition = parent.position;
+      oldMovePos = playerPosition.clone();
       group.rotation.y += Math.PI;
 
+      _YJEquip = new YJEquip(scope);
+      _YJSkill = new YJSkill(scope);
       // group.add(new THREE.AxesHelper(5)); // 场景添加坐标轴
       // return;
       // update();
-
     }
 
     let data = null;
@@ -86,17 +106,29 @@ class YJNPC {
     this.npcName = "";
     this.SetName = function (v) {
       this.npcName = v;
-      CreateNameTrans(this.npcName);
-    }
+      // CreateNameTrans(this.npcName);
+      // console.log(" 重置昵称 ",v);
 
+      scope.applyEvent("重置昵称", this.npcName);
+
+    }
+    this.ResetName = function () {
+      this.npcName = data.name;
+      scope.applyEvent("重置昵称", this.npcName);
+    }
     //创建姓名条参考物体
     let namePosTrans = null;
     function CreateNameTrans(content) {
-
+      // console.log(" 设置姓名条 ",content);
+      _Global._YJPlayerNameManager.CreateNameTrans(
+        scope, scope.id, content, playerHeight, parent.scale.x, nameScale, _Global.user.camp != baseData.camp ? '#ee0000' : '#ffffff'
+      );
+      return;
       if (namePosTrans == null) {
         namePosTrans = new THREE.Group();
         namePosTrans.name = "npcname";
         group.add(namePosTrans);
+        _YJPlayerNameTrans = new YJPlayerNameTrans(namePosTrans);
       } else {
         namePosTrans.remove(namePosTrans.children[0]);
       }
@@ -109,11 +141,7 @@ class YJNPC {
       resetButtonText.position.set(0, 0, 0.0051);
       resetButtonText.scale.set(1, 1, 1);
       resetButtonText.name = "nameBar";
-
-
       resetButtonText.material.color.set(_Global.user.camp != baseData.camp ? '#ee0000' : '#ffffff');
-
-
       namePosTrans.add(resetButton);
       resetButton.name = "ignoreRaycast";
       resetButton.position.set(0, 0, 0);
@@ -121,93 +149,23 @@ class YJNPC {
       resetButton.scale.set(size, size, size);
       namePosTrans.scale.set(nameScale, nameScale, nameScale);
 
-      scope.CreateHealth();
     }
 
-    let lookAtObj = null;
-
-    // 姓名条始终朝向摄像机
-    function nameTransLookatCamera() {
-      if (namePosTrans != null) {
-        var lookatPos = new THREE.Vector3();
-        var camWorlPos = new THREE.Vector3();
-        _this.camera.getWorldPosition(camWorlPos);
-        lookatPos.x = camWorlPos.x;
-        lookatPos.z = camWorlPos.z;
-        var nameWorlPos = new THREE.Vector3();
-        namePosTrans.getWorldPosition(nameWorlPos);
-        // lookatPos.y = nameWorlPos.y ;
-        lookatPos.y = Math.max(nameWorlPos.y, camWorlPos.y);
-        namePosTrans.lookAt(lookatPos);
-        if (healthPlaneAnchor) {
-          healthPlaneAnchor.scale.set(baseData.health / baseData.maxHealth, 1, 1);
-        }
-      }
-
-      if (lookAtObj != null) {
-        var fromPos = new THREE.Vector3();
-        lookAtObj.getWorldPosition(fromPos);
-        group.lookAt(fromPos.x, fromPos.y, fromPos.z);
-      }
-    }
 
     //#region 音视频通话 小图标窗口
 
-    let headerPlane = null;
     //创建用户头像
-    this.CreateHeader = function (video) {
-      if (video == false || video == null) {
-        if (headerPlane != null) {
-          namePosTrans.remove(headerPlane); // 向该场景中添加物体
-          headerPlane = null;
-        }
-        return;
-      }
-      if (headerPlane == null) {
-        let radius = 0.525;
-        let planeGeometry = new THREE.CylinderGeometry(radius, radius, 0.01, 40, 1);
-        const texture = new THREE.TextureLoader().load(video);
-        texture.encoding = 3001; //3000  3001
-        const material = new THREE.MeshBasicMaterial({ map: texture });
-        headerPlane = new THREE.Mesh(planeGeometry, material);
-        headerPlane.rotation.y = Math.PI / 2;
-        headerPlane.rotation.x = Math.PI / 2;
-        headerPlane.position.set(0, 0.8, 0);
-        headerPlane.name = "header";
-        namePosTrans.add(headerPlane); // 向该场景中添加物体
-      } else {
-        headerPlane.material.map = new THREE.TextureLoader().load(video);
-      }
+    this.CreateHeader = function (faceUrl) {
+      //  _YJPlayerNameTrans.CreateHeader(faceUrl);
+      // _Global._YJPlayerNameManager.CreateHeaderById(scope.id,faceUrl );
+      scope.applyEvent("创建头像", faceUrl);
     }
-
-    let healthPlaneBG = null;
-    let healthPlane = null;
-    let healthPlaneAnchor = null;
+    //创建用户血条
     this.CreateHealth = function () {
+      // _YJPlayerNameTrans.CreateHealth(_Global.user.camp == this.GetCamp() ? 0x00ff00 : 0xff0000);
+      // _Global._YJPlayerNameManager.CreateHealthById(scope.id,_Global.user.camp == this.GetCamp() ? 0x00ff00 : 0xff0000);
+      scope.applyEvent("创建血条", _Global.user.camp == this.GetCamp() ? 0x00ff00 : 0xff0000);
 
-      if (healthPlane == null) {
-        let w = 1;
-        let h = 0.1;
-        let planeGeometry = new THREE.PlaneGeometry(w, h, 1, 1); // 生成平面
-
-        // const texture = new THREE.TextureLoader().load( video); 
-        // texture.encoding = 3001; //3000  3001
-        const material = new THREE.MeshBasicMaterial({
-          color: _Global.user.camp == this.GetCamp()?0x00ff00: 0xff0000,
-        });
-        healthPlaneAnchor = new THREE.Group();
-        healthPlane = new THREE.Mesh(planeGeometry, material);
-        healthPlane.rotation.y = 0;
-        healthPlane.position.set(0, 0.2, 0);
-        healthPlane.name = "health";
-        namePosTrans.add(healthPlane); // 向该场景中添加物体
-        namePosTrans.add(healthPlaneAnchor); // 向该场景中添加物体
-        healthPlaneAnchor.position.set(-0.5, 0.2, 0);
-        healthPlaneAnchor.attach(healthPlane);
-
-      } else {
-        // healthPlane.material.map = new THREE.TextureLoader().load( video); 
-      }
     }
 
 
@@ -232,7 +190,9 @@ class YJNPC {
     }
 
 
-
+    this.recodeMat = function () {
+      recodeMat();
+    }
     // 记录模型材质
     function recodeMat() {
       scope.transform.GetGroup().traverse(function (item) {
@@ -244,8 +204,20 @@ class YJNPC {
         }
       });
     }
+    this.SetActive = function (b) {
+      if (b) {
+
+      } else {
+        Clear();
+        scope.applyEvent("npc尸体消失");
+      }
+    }
     //销毁组件
     this.Destroy = function () {
+      Clear();
+      scope.applyEvent("Destroy");
+    }
+    function Clear() {
       if (_Global.setting.inEditor) {
         console.log("删除移动点");
         // for (let i = movePosMeshList.length - 1; i >= 0; i--) {
@@ -254,12 +226,13 @@ class YJNPC {
         movePosMeshList = [];
       }
       EventHandler("中断技能", true);
-
       // 清除技能触发
       ClearFireLater();
       if (laterNav) {
         clearTimeout(laterNav);
       }
+      scope.applyEvent("脱离战斗或死亡");
+
     }
     //放下后，获取模型的坐标和旋转，记录到服务器，让其他客户端创建
     this.GetPosRota = function (callback) {
@@ -283,40 +256,44 @@ class YJNPC {
       parent.lookAt(lookatPos);
     }
     let oldAnimName = "";
-    this.ChangeAnim = function (v) {
+    this.ChangeAnim = function (v, b) {
       if (oldAnimName != v) {
         if (_Global.mainUser) {
           //发送动作同步
-          SendModelState({ title: "设置动作", animName: v, });
+          SendModelState({ title: "设置动作", animName: v, animNameFullback: b });
         }
+      } else {
+        return;
       }
-      _YJAnimator.ChangeAnim(v);
+      if (scope.isDead && v != "death") {
+        v = "death";
+      }
+      _YJAnimator.ChangeAnim(v, b ? b : v);
       oldAnimName = v;
 
+      _YJEquip.ChangeAnim(v);
+      // if (scope.npcName.includes("一叶")) {
+      //   console.error(scope.GetNickName() + " 切换动作 ", v);
+      // } 
     }
 
+
+    this.ChangeAnimDirect = function (animName) {
+      _YJAnimator.ChangeAnimDirect(animName);
+    }
 
 
     // 不在战斗且未死亡，且不在miss中，才可以设置
     this.isCanSetTarget = function () {
       return baseData.state != stateType.Back && baseData.state != stateType.Fire && baseData.state != stateType.Dead;
     }
+    this.GetState = function () {
+      return baseData.state;
+    }
     this.GetCamp = function () {
       return baseData.camp;
     }
 
-    // 移除武器
-    this.RemoveWeapon = function () {
-      if (weaponData != null) {
-        //移除旧武器
-        scope.GetBoneVague(weaponData.boneName, (bone) => {
-          if (bone.weaponModel) {
-            bone.remove(bone.weaponModel);
-          }
-        });
-        weaponData = null;
-      }
-    }
 
     // 通过碰撞检测两个点之间是否可到达
     function AddDirectPosToNavmesh(movePos) {
@@ -398,22 +375,25 @@ class YJNPC {
         if (data.inAreaRandom) {
           let startPos = parent.position.clone();
           let targetPos = fireBeforePos.clone();
-          if (data.areaRadius == undefined) {
-            data.areaRadius = 1;
-          }
-          targetPos.x += radomNum(-data.areaRadius, data.areaRadius);
-          targetPos.z += radomNum(-data.areaRadius, data.areaRadius);
-          targetPos.y += 5;
-          let p = targetPos.clone();
-          p.y -= 10;
-          let point = CheckTrainPos(targetPos, p);
-          GetNavpath(startPos, point ? point : targetPos);
-          // console.log(" npc 巡逻随机范围 ");
+          // if (data.areaRadius == undefined) {
+          //   data.areaRadius = 1;
+          // }
+          // targetPos.x += radomNum(-data.areaRadius, data.areaRadius);
+          // targetPos.z += radomNum(-data.areaRadius, data.areaRadius);
+          // targetPos.y += 5;
+          // let p = targetPos.clone();
+          // p.y -= 10;
+          // let point = CheckTrainPos(targetPos, p);
+          GetNavpath(startPos, targetPos);
+          // GetNavpath(startPos, point ? point : targetPos);
+          // console.log(GetNickName() + "  巡逻随机范围 ", targetPos);
         } else {
-          let navPosIndex = radomNum(0, movePos.length - 1);
-          GetNavpath(parent.position.clone(), movePos[navPosIndex]);
-          _Global.DyncManager.UpdateModel(scope.id, "navPosIndex",
-            { navPosIndex: navPosIndex });
+          if (movePos.length > 1) {
+            let navPosIndex = radomNum(0, movePos.length - 1);
+            GetNavpath(parent.position.clone(), movePos[navPosIndex]);
+            _Global.DyncManager.UpdateModel(scope.id, "navPosIndex",
+              { navPosIndex: navPosIndex });
+          }
         }
       }
       // console.log("navpath ", navpath);
@@ -435,7 +415,7 @@ class YJNPC {
     this.PathfindingCompleted = function () {
       if (data.movePos && data.movePos.length > 1) {
         this.UpdateNavPos("停止巡逻", data.movePos);
-      } 
+      }
     }
 
     let posMesh = _Global.setting.navPointMesh;
@@ -546,16 +526,36 @@ class YJNPC {
 
     let getnavPathTime = 20;
     let getnavpathTimes = 0;
+    this.SetNavPathToNone = function () {
+      SetNavPathToNone();
+    }
     // 清空寻路路径
     function SetNavPathToNone() {
       // console.log(" 清空寻路路径 ");
       navpath = [];
       doonce = 0;
       isMoving = false;
+      oldTargetPos = null;
     }
+    let randomRedius = 5;
+    let oldTargetPos = null;
     // 获取寻路路径
     function GetNavpath(fromPos, targetPos) {
+      if (!scope.canMove) { return; }
+      if (oldTargetPos && targetPos.distanceTo(oldTargetPos) < 0.1) {
+        // console.log(" 目标点不变 ",oldTargetPos,targetPos);
+        return;
+      } else {
+      }
+      // if(scope.npcName.includes("阳光万里") ){
+      //   console.error(GetNickName() + ' 寻路 ',targetPos);
+      // }
+
+      oldTargetPos = targetPos.clone();
+      randomRedius = vaildAttackDis;
       // console.log("查到寻路路径 ",scope.transform.GetData().mapId);
+      targetPos.x += radomNum(-1 * randomRedius, 1 * randomRedius);
+      targetPos.z += radomNum(-1 * randomRedius, 1 * randomRedius);
       let _navpath = _Global.GetNavpath(scope.transform.GetData().mapId, fromPos, targetPos);
       if (_navpath == null) {
         // console.log("查到寻路路径 为空 ", _navpath, getnavpathTimes, navpath);
@@ -595,35 +595,62 @@ class YJNPC {
 
     //#region  SetMessage
     let skillList = [];
+    this.GetSkillList = function () {
+      return skillList;
+    }
+    let modelScale = 1;
     this.SetMessage = function (msg) {
       if (msg == null || msg == undefined || msg == "") { return; }
       // data = JSON.parse(msg);
       data = (msg);
       scope.id = scope.transform.id;
-      // console.log("in NPC msg = ", scope.id, data);
+      // console.log( scope.GetNickName() + "in NPC msg = ", scope.id, data);
 
 
       this.npcName = data.name;
       baseData = data.baseData;
+
       if (baseData.camp == "bl") {
         baseData.camp = 1001;
       }
       if (!baseData.armor) {
         baseData.armor = 0;
       }
+
+      CONST_BASEDATA.armor = baseData.armor;
+      CONST_BASEDATA.maxHealth = baseData.maxHealth;
+      CONST_BASEDATA.strength = baseData.strength;
+      CONST_BASEDATA.level = baseData.level;
+
+      modelScale = data.avatarData.modelScale;
       nameScale = data.avatarData.nameScale;
       playerHeight = data.avatarData.height;
       CreateNameTrans(this.npcName);
+      scope.CreateHealth();
       scope.transform.isIgnoreRaycast = true;
       // 第一次加载时，把数据加入到全局角色数据中
       _Global.CreateOrLoadPlayerAnimData().AddAvatarData(data.avatarData);
 
       _YJAnimator.SetAnimationsData(data.avatarData.animationsData);
 
+      _YJAnimator.addEventListener("动作结束", () => {
+        if (_YJSkill.GetinSkill()) {
+          scope.applyEvent("施放结束或中断");
+
+          GetAnimNameByPlayStateAndWeapon("准备战斗", weaponData);
+          scope.ChangeAnim(animName, animNameFullback);
+          // if (scope.npcName.includes("一叶")) {
+          //   console.error(scope.GetNickName() +animName + " 到达动作循环点 ");
+          // } 
+        }
+      });
+
       if (data.skillList == undefined) {
         data.skillList = [];
       }
       skillList = data.skillList;
+      _YJSkill.SetSkill(skillList, baseData);
+      // console.log(scope.GetNickName() + " 技能 ", skillList);
       if (data.inAreaRandom) {
 
       } else {
@@ -632,64 +659,12 @@ class YJNPC {
         }
       }
 
-      this.RemoveWeapon();
-
       if (data.weaponData && data.weaponData.message) {
         weaponData = data.weaponData.message.data;
-        let boneName = "";
-
-        if(data.avatarData.boneList){
-          for (let i = 0; i < data.avatarData.boneList.length; i++) {
-            const element = data.avatarData.boneList[i];
-            if(element.targetBone ==weaponData.boneName ){
-              boneName = element.boneName; 
-            }
-          }
-        }
-        if(boneName == ""){
-          boneName = weaponData.boneName;
-        }
-        //加载武器
-        _this._YJSceneManager.DirectLoadMesh(_this.$uploadUrl + data.weaponData.modelPath, (meshAndMats) => {
-          scope.GetBoneVague(boneName, (bone) => {
-
-            let weaponModel = (meshAndMats.mesh).scene.clone();
-            weaponModel.traverse(function (item) {
-              if (item instanceof THREE.Mesh) {
-                item.transform = scope;
-                item.tag = "weapon";
-              }
-            });
-
-            bone.attach(weaponModel);
-            bone.weaponModel = weaponModel;
-
-            let pos = weaponData.position;
-            let rotaV3 = weaponData.rotation;
-            if(data.avatarData.equipPosList){
-              for (let i = 0; i < data.avatarData.equipPosList.length; i++) {
-                const element = data.avatarData.equipPosList[i];
-                if(element.targetBone ==weaponData.boneName && element.weaponType == weaponData.weaponType){
-                  pos = element.position;
-                  rotaV3 = element.rotation;
-                }
-              }
-            }
-            weaponModel.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
-            weaponModel.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
-            weaponModel.scale.set(100, 100, 100);
-            scope.ChangeAnim("none");
-            scope.SetPlayerState("normal");
-            this.PathfindingCompleted();
-            // 记录材质
-            if (materials.length == 0) {
-              recodeMat();
-            }
-          });
-        });
       }
+
+      _YJEquip.SetMessage(data);
       if (weaponData == null) {
-        scope.ChangeAnim("none");
         scope.SetPlayerState("normal");
         this.PathfindingCompleted();
         // 记录材质
@@ -698,13 +673,60 @@ class YJNPC {
         }
       }
       fireBeforePos = scope.GetWorldPos();
+      // console.log( scope.GetNickName() + " fireBeforePos  11 = ",fireBeforePos);
 
       if (data.isCopy) {
         skillList = [];
         ClearFireLater();
       }
     }
+
+    this.ChangeEquip = function (type, data) {
+      _YJEquip.ChangeEquip(type, data);
+    }
     //#endregion 
+
+    this.GetBoneVagueFire = function(part, callback) {
+      let boneName = "";
+      if (data.avatarData.boneList) {
+          for (let i = 0; i < data.avatarData.boneList.length; i++) {
+              const element = data.avatarData.boneList[i];
+              if (element.targetBone == part) {
+                  boneName = element.boneName;
+              }
+          }
+      }
+      if (boneName == "") {
+          boneName = part;
+      }
+      // console.log("查找 ",part,boneName);
+      scope.GetBoneVague(boneName, (bone) => {
+          // bone.add(new THREE.AxesHelper(100));
+          if (callback) {
+              callback(bone.getWorldPosition(new THREE.Vector3()));
+          }
+      });
+
+  }
+
+    this.GetShootingStartPos = function() {
+      let pos = scope.GetPlayerWorldPos();
+      let weaponModel = _YJEquip.getWeaponModel();
+      if (weaponModel) {
+        var { _fire } = GetSkillDataByWeapon(weaponData);
+        if (_fire.pos && _fire.pos.length == 3) {
+          pos = weaponModel.getWorldPosition(new THREE.Vector3());
+          pos.x += _fire.pos[0];
+          pos.y += _fire.pos[1];
+          pos.z += _fire.pos[2];
+          // let axse = new THREE.AxesHelper(10);
+          // weaponModel.add(axse);
+          // axse.position.set(_fire.pos[0], _fire.pos[1], _fire.pos[2]);
+        }
+      }
+      return pos;
+    }
+
 
     //#region  动作切换
 
@@ -724,10 +746,12 @@ class YJNPC {
           cutStartTime = new Date().getTime();
 
           if (cutSkill) {
-            if (inSkill) {
+            if (_YJSkill.GetinSkill()) {
               _Global.DyncManager.SendDataToServer("npc技能",
                 { npcId: scope.id, skill: "中断" });
-              inSkill = false;
+
+              scope.applyEvent("施放结束或中断");
+
             }
           }
           // console.log(" 记录中断的时间 ",cutStartTime);
@@ -740,576 +764,145 @@ class YJNPC {
     let toIdelLater = null;
     let skillName = "";
     let vaildAttackDis = 3; //有效攻击距离
+    this.GetVaildAttackDis = function () {
+      return vaildAttackDis + scope.transform.GetData().scale.x;
+    }
+    function setVaildAttackDis(v) {
+      vaildAttackDis = v;//* modelScale;
+    }
+
     let readyAttack = false;
     let readyAttack_doonce = 0;
 
-    let fireLater = [];
-    let inSkill = false;//是否在使用施法技能攻击
 
-		let animNameFullback = "";
+    let animNameFullback = "";
     function GetAnimNameByPlayStateAndWeapon(e, weaponData) {
-      let an =  _Global.CreateOrLoadPlayerAnimData().GetAnimNameByPlayStateAndWeapon(e, weaponData);
+      let an = _Global.CreateOrLoadPlayerAnimData().GetAnimNameByPlayStateAndWeapon(e, weaponData);
       animName = an.animName;
-			animNameFullback = an.animNameFullback;
+      animNameFullback = an.animNameFullback;
+      // console.log({animName,animNameFullback});
     }
     function GetSkillDataByWeapon(weaponData) {
       return _Global.CreateOrLoadPlayerAnimData().GetSkillDataByWeapon(weaponData);
     }
 
 
-    this.SetPlayerState = function (e, castTime, animNameReady, _animName, effect) {
+    let oldState = "";
+    let inStateTimes = 0;
 
-      switch (e) {
-        case "普通攻击":
-          var { s, v, a } = GetSkillDataByWeapon(weaponData);
-          skillName = s;
-          vaildAttackDis = v;
-          attackStepSpeed = a;
-          GetAnimNameByPlayStateAndWeapon(e, weaponData);
-
-          cutStartTime = new Date().getTime();
-          // console.log(" 记录上一次成功攻击的时间 ",cutStartTime);
-          break;
-
-        case "法术准备":
-
-          EventHandler("中断技能", false);
-
-          animName = animNameReady;
-          if (vaildAttackLater == null) {
-            vaildAttackLater = setTimeout(() => {
-              if (targetModel != null && targetModel.isDead) {
-                TargetDead();
-                return;
-              }
-              this.SetPlayerState("法术攻击", "", "", _animName, effect);
-              vaildAttackLater = null;
-            }, attackStepSpeed * 1000);
-          }
-
-          break;
-        case "法术攻击":
-
-          animName = _animName;
-          vaildAttackLater2 = setTimeout(() => {
-            if (targetModel.isDead) {
-              EventHandler("中断技能");
-              return;
-            }
-            //有效攻击 && 
-            SendDamageToTarget(targetModel, effect);
-
-            _Global.DyncManager.SendDataToServer("npc技能攻击",
-              { npcId: scope.id, skill: effect });
-
-          }, attackStepSpeed * 100);
-
-          toIdelLater = setTimeout(() => {
-            scope.SetPlayerState("准备战斗");
-            toIdelLater = null;
-            inSkill = false;
-          }, attackStepSpeed * 400);//间隔等于攻击动作时长
-
-
-          break;
-
-
-        case "随机法术准备":
-          EventHandler("中断技能", false);
-          animName = animNameReady;
-          if (vaildAttackLater == null) {
-            vaildAttackLater = setTimeout(() => {
-              if (randomSelectModel != null && randomSelectModel.isDead) {
-                TargetDead();
-                return;
-              }
-              this.SetPlayerState("随机法术攻击", "", "", _animName, effect);
-              vaildAttackLater = null;
-            }, attackStepSpeed * 1000);
-          }
-          break;
-
-        case "随机法术攻击":
-
-          animName = _animName;
-          vaildAttackLater2 = setTimeout(() => {
-            if (randomSelectModel.isDead) {
-              EventHandler("中断技能");
-              return;
-            }
-            //有效攻击 && 
-            SendDamageToTarget(randomSelectModel, effect);
-
-            _Global.DyncManager.SendDataToServer("npc技能攻击",
-              { npcId: scope.id, skill: effect });
-
-          }, attackStepSpeed * 100);
-
-          toIdelLater = setTimeout(() => {
-            scope.SetPlayerState("准备战斗");
-            toIdelLater = null;
-            inSkill = false;
-          }, attackStepSpeed * 400);//间隔等于攻击动作时长
-          break;
-
-        case "无目标法术准备":
-          EventHandler("中断技能", false);
-          animName = animNameReady;
-          if (vaildAttackLater == null) {
-            vaildAttackLater = setTimeout(() => {
-              this.SetPlayerState("无目标法术攻击", "", "", _animName, effect);
-              vaildAttackLater = null;
-            }, attackStepSpeed * 1000);
-          }
-          break;
-        case "无目标法术攻击":
-          animName = _animName;
-          vaildAttackLater2 = setTimeout(() => {
-            //有效攻击 && 
-            SendSkill(effect);
-            effect.times = hyperplasiaTimes;
-            _Global.DyncManager.SendDataToServer("npc技能攻击",
-              { npcId: scope.id, skill: effect });
-          }, attackStepSpeed * 100);
-
-          toIdelLater = setTimeout(() => {
-            scope.SetPlayerState("准备战斗");
-            toIdelLater = null;
-            inSkill = false;
-          }, attackStepSpeed * 400);//间隔等于攻击动作时长
-          break;
-        case "持续伤害法术":
-          animName = _animName;
-          toIdelLater = setTimeout(() => {
-            scope.SetPlayerState("准备战斗");
-            toIdelLater = null;
-            inSkill = false;
-          }, attackStepSpeed * 1000);//间隔等于攻击动作时长
-          break;
-        case "准备战斗":
-
-          var { s, v, a } = GetSkillDataByWeapon(weaponData);
-          vaildAttackDis = v;
-          attackStepSpeed = a;
-          GetAnimNameByPlayStateAndWeapon(e, weaponData);
-          if (targetModel != null && targetModel.isDead) {
-            TargetDead();
-            return;
-          }
-          // 计算技能施法时间
-          let offsetTime = attackStepSpeed * 1000;
-          if (_offsetTime != 0) {
-            _offsetTime += new Date().getTime() - cutStartTime - attackStepSpeed * 300;
-            if (_offsetTime > offsetTime) {
-              offsetTime = 20;
-            } else {
-              offsetTime -= _offsetTime;
-            }
-            // console.log(" 计算施法时间 减去 ",_offsetTime);
-            // console.log(" 计算施法时间 ", offsetTime);
-            _offsetTime = 0;
-          }
-
-          if (vaildAttackLater == null) {
-            vaildAttackLater = setTimeout(() => {
-              if (targetModel != null && targetModel.isDead) {
-                TargetDead();
-                return;
-              }
-              readyAttack = true;
-              vaildAttackLater = null;
-
-            }, offsetTime);
-          }
-
-          break;
-        case "受伤":
-          GetAnimNameByPlayStateAndWeapon(e, weaponData);
-
-          break;
-        case "normal":
-          GetAnimNameByPlayStateAndWeapon("停止移动", weaponData);
-          break;
-        case "death":
-          EventHandler("中断技能", true);
-          animName = "death";
-          break;
-        case "跑向目标":
-          baseData.speed = RUNSPEED;
-          GetAnimNameByPlayStateAndWeapon("移动", weaponData);
-          EventHandler("中断技能");
-
-          break;
-        case "丢失目标":
-          GetAnimNameByPlayStateAndWeapon("移动", weaponData);
-          EventHandler("中断技能");
-
-          break;
-        case "巡逻":
-          baseData.speed = WALKSPEED;
-          GetAnimNameByPlayStateAndWeapon("行走", weaponData);
-
-          if (data.isPlayer) {
-            baseData.speed = RUNSPEED;
-            GetAnimNameByPlayStateAndWeapon("移动", weaponData);
-          }
-          break;
-        default:
-          break;
-      }
-      // console.log(" in npc SetPlayerState  ", e, animName);
-
-      scope.ChangeAnim(animName);
-    }
 
 
     function CheckCanAttack() {
 
-      let playerPos = targetModel.GetWorldPos();
-      playerPos.y = 1;
+      let targetPos = targetModel.GetWorldPos();
+      targetPos.y = 1;
       npcPos = scope.GetWorldPos();
       npcPos.y = 1;
       // 与目标之间有遮挡
-      let b2 = CheckColliderBetween(npcPos, playerPos);
+      let b2 = CheckColliderBetween(npcPos, targetPos);
       if (b2) { return false; }
       return true;
     }
     function CheckVaildArea() {
-      // console.log(" npc追击距离 ",playerPos.distanceTo(fireBeforePos));
+      // console.log(" npc追击距离 ",targetPos.distanceTo(fireBeforePos));
       // 超出追击距离后，请求下一个目标。 没有下一个目标时，返回巡逻点
-      if (playerPos.distanceTo(fireBeforePos) >= 100) {
-        CheckNextTarget();
+      if (targetPos.distanceTo(fireBeforePos) >= 100) {
         return false;
       }
       return true;
     }
     //#endregion 
 
-    //#region 技能检测
+    //#region 设置目标 接收伤害
 
-    // 每次进入战斗，初始化其技能
-    function CheckSkill() {
-      for (let i = 0; i < skillList.length; i++) {
-        const skillItem = skillList[i];
-        // 触发方式 每间隔n秒触发。在进入战斗时调用
-        if (skillItem.trigger.type == "perSecond") {
-          fireLater.push({
-            type: "interval", fn:
-              setInterval(() => {
-                if (_Global.mainUser) {
-                  if (targetModel == null || targetModel.isDead) {
-                    return;
-                  }
-                  if (inSkill) {
-                    return;
-                  }
-                  SkillGo(skillItem);
-                }
-              }, (skillItem.trigger.value + skillItem.castTime) * 1000)
-          }
-          );
-        }
+    let laterCheckNextTarget = null;
+    this.CheckNextTarget = () => {
+      if (laterCheckNextTarget != null) {
+        clearTimeout(laterCheckNextTarget);
+        laterCheckNextTarget = null;
       }
-      CheckSkill_Health();
+      // if (scope.npcName.includes("ZH画渣")) {
+      //   console.error(scope.GetNickName() + " 查找目标 ");
+      // }
+      laterCheckNextTarget = setTimeout(() => {
+        CheckNextTarget();
+      }, 500);
     }
-    // 随机选中的玩家
-    let randomSelectModel = null;
-    //监听生命触发技能。
-    // 血量触发时，每个血量只能触发一次，如果正在施放其他触发技能，则本次血量触发失效
-    let healthTrigger = [];
-    function CheckSkill_Health() {
-      let healthPerc = parseInt(baseData.health / baseData.maxHealth * 100);
-      // console.log("npc 血量 百分比 ", healthPerc);
-      for (let i = 0; i < skillList.length; i++) {
-        const skillItem = skillList[i];
-        // 触发方式  血量达到n%触发，血量改变时调用
-        if (skillItem.trigger.type == "health") {
-          if (healthPerc <= skillItem.trigger.value) {
-            if (_Global.mainUser) {
-              // console.log(" 达到触发条件，请求触发npc技能 ",skillName);
-              let has = false;
-              for (let j = 0; j < healthTrigger.length && !has; j++) {
-                const element = healthTrigger[j];
-                if (element == skillItem.trigger.value) {
-                  // console.log(" 施法重复，阻止触发npc技能 ",skillName);
-                  has = true;
-                }
-              }
-              if (has) {
-                continue;
-              }
-              if (inSkill) {
-                // console.log(" 正在施法其他技能，阻止触发npc技能 ",skillName);
-                return;
-              }
-              // console.log(" 触发npc技能 ",skillName); 
-              healthTrigger.push(skillItem.trigger.value);
-              SkillGo(skillItem);
+
+    
+    this.TargetDead = function() {
+
+    }
+      function TargetDead() {
+      TargetNone();
+      // targetModel = null;
+      // return;
+      // console.log(GetNickName() + " 的目标已死亡");
+      CheckNextTarget();
+    }
+    function TargetNone() {
+      inRequestNext = false;
+      scope.applyEvent("施放结束或中断");
+
+      oldTargetPos = null;
+      oldState = "";
+      readyAttack_doonce = 0;
+    }
+    function CheckNextTarget() {
+      if (!_Global.mainUser) {
+        console.error("不该进入CheckNextTarget：非主控");
+        return;
+      }
+      if (scope.isDead) {
+        return;
+      }
+      if (scope.fireId == -1) {
+        scope.SetNpcTargetToNone();
+        scope.fireOff();
+        return;
+      }
+      if (targetModel != null && targetModel.isDead) {
+        scope.SetNpcTargetToNoneDrict();
+      } else {
+        if (!scope.canMove) {
+          if (targetModel == null || targetModel.isDead) {
+
+          } else {
+            if (outVaildArea) {
+
+            } else {
+              return;
+            }
+          }
+        } else {
+          if (targetModel != null) {
+            if (targetModel.isDead) {
+              scope.SetNpcTargetToNoneDrict();
+            } else {
+              return;
             }
           }
         }
-      }
-    }
-
-
-    // 向玩家发送技能特效
-    function shootTarget(taget, time) {
-      let pos = parent.position.clone();
-      pos.y += playerHeight / 2;
-      _Global.DyncManager.shootTarget(pos, taget, time, "player");
-    }
-
-    function SkillGo(skillItem) {
-
-      inSkill = true;
-      let effect = skillItem.effect;
-      effect.skillName = skillItem.skillName;
-      skillItem.effect.skillName = skillItem.skillName;
-
-      if (skillItem.castTime > 0) {
-        // 需要施法的技能才发送技能同步，瞬发技能无需同步
-        _Global.DyncManager.SendDataToServer("npc技能",
-          { npcId: scope.id, skill: skillItem });
-        attackStepSpeed = skillItem.castTime;
-        vaildAttackDis = skillItem.vaildDis;
-        //取消寻路，让npc站住施法
-        SetNavPathToNone();
-      }
-
-      if (skillItem.target.type == "target") {
-        // 持续伤害
-        if (effect.type == "contDamage") {
-          let num = 0;
-          let count = parseInt(skillItem.castTime / effect.time);
-
-          for (let k = 0; k < count; k++) {
-            setTimeout(() => {
-              if (baseData.health == 0) {
-                inSkill = false;
-                return;
-              }
-              // 目标攻击
-              if (targetModel == null || targetModel.isDead) {
-                inSkill = false;
-                return;
-              }
-              SendDamageToTarget(targetModel, effect);
-              num++;
-              if (num == count) {
-                inSkill = false;
-              }
-            }, effect.time * k * 1000);
-          }
-          scope.SetPlayerState("持续伤害法术", "", "", skillItem.animName, effect);
-          return;
-        }
-        if (skillItem.castTime > 0) {
-          scope.SetPlayerState("法术准备", skillItem.castTime, skillItem.animNameReady, skillItem.animName, effect);
-        } else {
-          scope.SetPlayerState("法术攻击", "", "", skillItem.animName, effect);
-        }
-      }
-
-      // 范围攻击
-      if (skillItem.target.type == "area") {
-        let players = _Global.DyncManager.GetPlayerByNpcForwardInFireId(
-          scope.transform, scope.fireId, vaildAttackDis, skillItem.target.value);
-
-        // 持续伤害
-        if (effect.type == "contDamage") {
-          let num = 0;
-          let count = parseInt(skillItem.castTime / effect.time);
-
-          for (let k = 0; k < count; k++) {
-            setTimeout(() => {
-              if (baseData.health == 0) {
-                inSkill = false;
-                return;
-              }
-              for (let l = 0; l < players.length; l++) {
-                if (players[l].isDead) {
-                  return;
-                }
-                SendDamageToTarget(players[l], effect);
-              }
-              num++;
-              if (num == count) {
-                inSkill = false;
-              }
-            }, effect.time * k * 1000);
-          }
-          scope.SetPlayerState("持续伤害法术", "", "", skillItem.animName, effect);
-          return;
-        }
 
       }
 
-      if (skillItem.target.type == "random") {
-        let { player, playerId } = _Global.DyncManager.GetPlayerByRandom(scope.GetCamp());
-        randomSelectModel = player;
-        skillItem.effect.playerId = playerId;
-        if (skillItem.castTime > 0) {
-          vaildAttackDis = skillItem.vaildDis;
-          attackStepSpeed = skillItem.castTime;
-          scope.SetPlayerState("随机法术准备", skillItem.castTime, skillItem.animNameReady, skillItem.animName, skillItem.effect);
-        } else {
-          scope.SetPlayerState("随机法术攻击", "", "", skillItem.animName, skillItem.effect);
-        }
-      }
 
-      if (skillItem.target.type == "none") {
-        if (skillItem.castTime > 0) {
-          scope.SetPlayerState("无目标法术准备", skillItem.castTime, skillItem.animNameReady, skillItem.animName, effect);
-        } else {
-          scope.SetPlayerState("无目标法术攻击", "", "", skillItem.animName, effect);
-        }
-      }
-    }
-    // 根据技能数据计算对目标造成伤害
-    function SendDamageToTarget(target, effect) {
-
-      // 玩家镜像
-      if (data.isPlayer) {
-        SendDamageToTarget2(target, effect);
-        return;
-      }
-      if (target == null) {
-        return;
-      }
-      let { type, skillName, value, time, duration } = effect;
-
-      // 发送战斗记录
-      _Global.DyncManager.SendFireRecode({ targetId: target.id, npcId: scope.id, npcName: scope.npcName, skillName: skillName, strength: value });
-      // 发送技能特效
-      shootTarget(target, attackStepSpeed * 300);
-
-      if (target != null && target.isDead) {
-        TargetDead();
-        return;
-      }
-      _Global.DyncManager.SendSceneStateAll("NPC对玩家", { targetId: target.id, npcId: scope.id, npcName: scope.npcName, skillName: skillName, effect: effect });
-
-
-    }
-    function SendDamageToTarget2(target, effect) {
-      if (target == null) {
-        return;
-      }
-
-      if (target != null && target.isDead) {
-        TargetDead();
-        return;
-      }
-      let { type, skillName, value, time, duration } = effect;
-
-      // 发送战斗记录
-      _Global.DyncManager.SendFireRecode({ playerId: scope.id, npcId: target.transform.id, npcName: target.npcName, skillName: skillName, strength: value });
-      // 发送技能特效
-      shootTarget(target, attackStepSpeed * 300);
-
-      _Global.DyncManager.SendSceneStateAll("玩家对NPC", { playerId: scope.id, npcId: target.transform.id, npcName: target.npcName, skillName: skillName, effect: effect });
-    }
-
-    let oldSkillList = [];
-    let hyperplasiaTimes = 0;
-    // 施放不需要目标的技能 如 增生
-    function SendSkill(effect) {
-      let { type, skillName, value, time, duration, describe } = effect;
-      //增生
-      if (type == "hyperplasia") {
-        let modelData = scope.transform.GetData();
-        hyperplasiaTimes++;
-        hyperplasia(modelData, 0, value, hyperplasiaTimes);
-      }
-      //进化
-      if (type == "evolution") {
-        oldSkillList = JSON.parse(JSON.stringify(skillList));
-
-        // 所有技能伤害增加v%
-        for (let i = 0; i < skillList.length; i++) {
-          const skillItem = skillList[i];
-          // 触发方式 每间隔n秒触发。在进入战斗时调用
-          if (skillItem.target.type != "none") {
-            skillItem.effect.value += skillItem.effect.value * value * 0.01;
-          }
-        }
-      }
-      // 发送战斗记录
-      _Global.DyncManager.SendFireRecode({ npcId: scope.id, npcName: scope.npcName, skillName: skillName, describe: describe });
-
-    }
-
-    let hyperplasiaTrans = [];
-    function hyperplasia(modelData, num, count, times) {
-      modelData = JSON.parse(JSON.stringify(modelData));
-      modelData.scale = { x: 1, y: 1, z: 1 };
-      let data = modelData.message.data;
-      data.name = scope.npcName + "的增生" + times + "_" + (num + 1);
-      let pos = scope.GetWorldPos();
-      modelData.pos.x = pos.x + (num + 1);
-      modelData.pos.y = pos.y;
-      modelData.pos.z = pos.z;
-      data.isCopy = true;
-      if (data.baseData.maxHealth > 200) {
-        data.baseData.maxHealth = 200;
-      }
-
-      data.baseData.strength = 20;
-      data.baseData.health = data.baseData.maxHealth;
-
-      // console.log("创建增生 ", data.name);
-      _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().DuplicateModel(modelData, (transform) => {
-
-        transform.SetActive(false);
-        setTimeout(() => {
-
-          let npcComponent = transform.GetComponent("NPC");
-          hyperplasiaTrans.push(npcComponent);
-          _Global.DyncManager.AddNpc(transform);
-          if(targetModel){
-            npcComponent.SetNpcTarget(targetModel);
-            _Global.DyncManager.NPCAddFireById(npcComponent, scope.fireId, targetModel.id);
-          }
-          transform.SetActive(true);
-
-        }, 20);
-        num++;
-        if (num == count) {
-        } else {
-          hyperplasia(modelData, num, count, times);
-        }
-      }, scope.id + "_" + times + "_" + num);
-    }
-
-    //#endregion
-
-    //#region 设置目标 接收伤害
-
-
-
-    this.CheckNextTarget = () => {
-      CheckNextTarget();
-    }
-
-    function TargetDead() {
-      // targetModel = null;
-      console.log(scope.npcName + " 的目标已死亡");
-    }
-    function CheckNextTarget() {
-      console.error(scope.npcName + " 查找下一个目标 =====", scope.fireId);
-
-      if (scope.fireId == -1) {
-        scope.SetNpcTargetToNone();
-        return;
-      }
       // 向主控请求下一个目标
+      // console.error(scope.GetNickName()+ "向主控请求下一个目标");
+      _Global.DyncManager.NPCTargetToNone({
+        npcId: scope.id, camp: baseData.camp, fireId: scope.fireId
+        , ignorePlayerId: targetModel ? targetModel.id : null,
+        vaildDis: vaildAttackDis
+      });
+
       // 获取战斗组中的其他玩家作为目标。 没有时，npc结束战斗
-      _Global.DyncManager.RequestNextFireIdPlayer(
-        {
-          npcId: scope.id, camp: baseData.camp, fireId: scope.fireId
-          , ignorePlayerId: targetModel ? targetModel.id : null
-        }
-      );
+      // _Global.DyncManager.RequestNextFireIdPlayer(
+      //   {
+      //     npcId: scope.id, camp: baseData.camp, fireId: scope.fireId
+      //     , ignorePlayerId: targetModel ? targetModel.id : null,
+      //     vaildDis: vaildAttackDis
+      //   }
+      // );
     }
 
 
@@ -1318,6 +911,9 @@ class YJNPC {
       ownerPlayer = _ownerPlayer;
       oldPlayerPos.y = -100;
       scope.FollowPlayer();
+    }
+    this.GetIsPlayer = function () {
+      return data.isPlayer;
     }
     // 玩家生成的镜像或宠物，在玩家移动后，跟随玩家
     this.FollowPlayer = function () {
@@ -1354,91 +950,143 @@ class YJNPC {
     }
     this.GetPlayerWorldPos = function () {
       let pos = scope.transform.GetWorldPos();
-      pos.y += playerHeight / 2;
+      pos.y += playerHeight / 2 * modelScale;
       return pos;
     }
 
+    // 设置不在战斗状态
+    this.SetFireOff = function () {
+
+      baseData.health = baseData.maxHealth;
+    }
     let fireBeforePos = null;
+    this.fireOff = function () {
+      if (scope.isDead) {
+        return;
+      }
+      scope.fireId = -1;
+      targetModel = null;
+      TargetNone();
+
+      if (data.isPlayer) {
+        baseData.state = stateType.Normal;
+      } else {
+        // 只有敌方NPC失去目标时，才会进入返回状态
+        baseData.state = stateType.Back;
+      }
+      if (!this.canMove) {
+        baseData.state = stateType.Normal;
+      }
+      EventHandler("中断技能");
+      scope.SetPlayerState("normal");
+      // 清除技能触发
+      ClearFireLater();
+      if (!scope.canMove) {
+        return;
+      }
+      if (laterNav != null) {
+        clearTimeout(laterNav);
+        laterNav = null;
+      }
+      laterNav = setTimeout(() => {
+
+        if (data.isPlayer) {
+          oldPlayerPos.y = -100;
+          scope.FollowPlayer();
+          return;
+        }
+        let currentPos = scope.GetWorldPos();
+        if (currentPos.distanceTo(fireBeforePos) >= 20) {
+          baseData.speed = MISSSPEED;
+        }
+        // console.log(scope.GetNickName() + " fireBeforePos  22 = ",fireBeforePos);
+        vaildAttackDis = 0;
+        GetNavpath(parent.position.clone(), fireBeforePos);
+      }, 1000);
+
+    }
+
     this.SetNpcTargetToNoneDrict = function () {
       targetModel = null;
+      outVaildArea = false;
     }
     this.SetNpcTargetToNone = function (isLocal) {
+
       targetModel = null;
-      if (targetModel == null) {
-
-        ClearFireLater();
-        // 暂停1秒
-        SetNavPathToNone();
-        EventHandler("中断技能");
-        if (data.isPlayer) {
-          baseData.state = stateType.Normal;
-        } else {
-          // 只有敌方NPC失去目标时，才会进入返回状态
-          baseData.state = stateType.Back;
-
-          baseData.health = baseData.maxHealth;
-        }
-
-        scope.SetPlayerState("normal");
-        ClearLater("清除巡逻");
-
-        UpdateData();
-
-        if (isLocal) {
-          SendModelState({ title: "设置目标", playerId: "", });
-        }
-
-        laterNav = setTimeout(() => {
-
-          if (data.isPlayer) {
-            oldPlayerPos.y = -100;
-            scope.FollowPlayer();
-            return;
-          }
-          let currentPos = scope.GetWorldPos();
-          if (currentPos.distanceTo(fireBeforePos) >= 20) {
-            baseData.speed = MISSSPEED;
-          }
-          GetNavpath(parent.position.clone(), fireBeforePos);
-        }, 1000);
+      outVaildArea = false;
+      // 暂停1秒
+      SetNavPathToNone();
+      EventHandler("中断技能");
 
 
-        return;
+      GetAnimNameByPlayStateAndWeapon("准备战斗", weaponData);
+      scope.ChangeAnim(animName, animNameFullback);
+
+      ClearLater("清除巡逻");
+
+      if (isLocal) {
+        SendModelState({ title: "设置目标", playerId: "", });
       }
 
     }
 
+    this.LogFire = function () {
+      console.log("fireid = ", scope.fireId);
+      console.log("inskill = ", _YJSkill.GetinSkill());
+      console.log("targetmodel = ", targetModel);
+      console.log("canmove = ", scope.canMove);
+      console.log("inControl = ", scope.inControl);
+      if (targetModel) {
+        console.log("targetModel.isDead = ", targetModel.isDead);
+        // console.log(GetNickName() + ' 距离目标 ',dis,vaildAttackDis + scope.transform.GetData().scale.x);
+      }
+      console.log("navpath.length = ", navpath.length);
+      // console.log(" npc追击距离 ",playerPosition.distanceTo(fireBeforePos));
+      console.log(" state ", baseData.state);
+      console.log(" 目标距离 ", targetPos.distanceTo(scope.GetWorldPos()));
+      if (oldTargetPos) {
+        console.log(" 上个距离目标 ", targetPos.distanceTo(oldTargetPos));
+      }
+      console.log(" 是否在有效距离 ", CheckVaildArea());
+      console.log(" 是否可以攻击（与目标之间有遮挡则不能攻击） ", CheckCanAttack());
+      console.log(" readyAttack_doonce ", readyAttack_doonce);
+      console.log(" readyAttack ", readyAttack);
+
+    }
     // 设置NPC的战斗目标
     this.SetNpcTarget = function (_targetModel, isLocal, checkNear) {
       //_targetModel 是 YJPlayer 或 YJNPC
-
+      inRequestNext = false;
 
       if (_targetModel == null) {
-        this.SetNpcTargetToNone(isLocal, checkNear);
+        this.SetNpcTargetToNone(isLocal);
         return;
       }
       // console.log(" npc进入战斗 00 ", baseData.state == stateType.Back);
-      if (scope.fireId == -1 && baseData.state == stateType.Back || scope.isDead) {
+      // if (scope.fireId == -1 && baseData.state == stateType.Back || scope.isDead) {
+      //   return;
+      // }
+      if (scope.isDead) {
         return;
       }
-
 
       if (targetModel == null) {
         targetModel = _targetModel;
         //加入战斗
-        if (isLocal && checkNear) {
-          _Global.DyncManager.NPCAddFire(scope, targetModel);
-        }
+        // if (isLocal && checkNear) {
+        //   _Global.DyncManager.NPCAddFire(scope, targetModel);
+        // }
 
         // 停止寻路
         SetNavPathToNone();
       }
 
-      if (targetModel == null) {
+      if (targetModel == null || targetModel.isDead) {
+        TargetDead();
         return;
       }
+      // console.log(" GetNickName() + ' 获取到目标 ', targetModel, baseData.state);
 
-      console.log(" npc [" + scope.npcName + '] 获取到目标 ', targetModel, baseData.state);
 
 
       if (laterNav != null) {
@@ -1448,11 +1096,14 @@ class YJNPC {
 
       let npcPos = parent.position.clone();
       readyAttack = false;
+      readyAttack_doonce = 0;
+      targetPos = targetModel.GetWorldPos();
 
-      let playerPosRef = targetModel.GetWorldPos().clone();
-      playerPosRef.y = npcPos.y;
-      parent.lookAt(playerPosRef);
+      let targetPosRef = targetPos.clone();
+      targetPosRef.y = npcPos.y;
+      parent.lookAt(targetPosRef);
 
+      scope.applyEvent("设置目标", targetModel);
       baseData.speed = RUNSPEED;
       if (isLocal) {
         SendModelState({
@@ -1463,21 +1114,16 @@ class YJNPC {
           maxHealth: baseData.maxHealth
         }
         );
-        if (checkNear) {
-          _Global.DyncManager.SetNearNPCTarget(scope, targetModel);
-        }
+        // if (checkNear) {
+        //   _Global.DyncManager.SetNearNPCTarget(scope, targetModel);
+        // }
       }
-
       if (baseData.state == stateType.Normal) {
-        baseData.state = stateType.Fire;
-        //首次进入战斗时，计算其技能
-        CheckSkill();
-        // console.log(" 首次进入战斗时，计算其技能 00 ", baseData.state);
-
+        //首次进入战斗时，计算其技能 
+        scope.applyEvent("首次进入战斗");
       }
-      scope.SetPlayerState("准备战斗");
-
-      // console.log( this.npcName +" npc进入战斗  ", scope.fireId);
+      baseData.state = stateType.Fire;
+      // scope.SetPlayerState("准备战斗");
     }
     function removeDebuffById(id) {
       for (let i = baseData.debuffList.length - 1; i >= 0; i--) {
@@ -1486,31 +1132,46 @@ class YJNPC {
           baseData.debuffList.splice(i, 1);
         }
       }
+      // if (_YJPlayerNameTrans) {
+      //   _YJPlayerNameTrans.removeDebuffById(id);
+      // }
+      // _Global._YJPlayerNameManager.removeDebuffByPlayerId(scope.id,id );
+      scope.applyEvent("移除buff", id);
+
+
+
       UpdateData();
     }
-    function CheckHealth() {
+    this.isFullHealth = function () {
+      return baseData.health == baseData.maxHealth;
+    }
+    function CheckHealth(fromName) {
       if (baseData.health <= 0) {
         baseData.health = 0;
-        baseData.debuffList = undefined;
+        CombatLog("[" + fromName + "]" + " 杀死了 " + GetNickName());
       }
       UpdateData();
     }
     function RealyDamage(strength, from) {
       // 伤害显示在屏幕上
       let pos = scope.GetWorldPos().clone();
-      pos.y += playerHeight*nameScale;
+      pos.y += playerHeight * nameScale;
       let v = 0;
+      if (strength == 0) {
+        return v;
+      }
       if (baseData.armor >= strength) {
         baseData.armor -= strength;
-        _Global.SceneManager.UpdateNpcDamageValue(from, scope.npcName, scope.GetCamp(), "格挡", pos, "redius");
+        _Global._SceneManager.UpdateNpcDamageValue(from, scope.npcName, scope.GetCamp(), "吸收", pos, "redius");
         return 0;
       } else {
         // 至少会受到1点伤害
         v = strength - baseData.armor;
         baseData.armor = 0;
+        scope.applyEvent("技能护甲归零");
         v = v > 0 ? v : 1;
       }
-      _Global.SceneManager.UpdateNpcDamageValue(from, scope.npcName, scope.GetCamp(), v, pos, "redius");
+      _Global._SceneManager.UpdateNpcDamageValue(from, scope.npcName, scope.GetCamp(), v, pos, "redius");
 
       return v;
     }
@@ -1540,7 +1201,55 @@ class YJNPC {
       }
       maxDamagePlayerId = plid;
     }
+
+
+    function SendModelState(msg) {
+      _Global.DyncManager.SendModelState(scope.transform.GetData().id,
+        {
+          modelType: scope.transform.GetData().modelType,
+          msg: msg
+        });
+    }
+
+    let fireLater = [];
+    // 死亡或离开战斗时，清除延迟执行事件
+    function ClearFireLater() {
+      for (let i = 0; i < fireLater.length; i++) {
+        if (fireLater[i].type == "interval") {
+          clearInterval(fireLater[i].fn);
+        }
+        if (fireLater[i].type == "timeout") {
+          clearTimeout(fireLater[i].fn);
+        }
+      }
+      scope.applyEvent("死亡或离开战斗");
+
+      if (laterCheckNextTarget != null) {
+        clearTimeout(laterCheckNextTarget);
+        laterCheckNextTarget = null;
+      }
+      receiveDamageData = [];
+      fireLater = [];
+    }
+
+    //#endregion
+
+    //#region 接收技能 接收伤害
+    this.GetHealthPerc = function () {
+      return parseInt(baseData.health / baseData.maxHealth * 100);
+    }
+
+    this.GetNickName = function () {
+      return "[" + scope.npcName + "]";
+    }
+    function GetNickName() {
+      return "[" + scope.npcName + "]";
+    }
     this.ReceiveDamage = function (_targetModelId, skillName, effect) {
+      if (!_Global.mainUser) {
+        console.error("不该进入：非主控");
+        return;
+      }
       //_targetModel 是 YJPlayer 或 YJNPC 
       if (baseData.health == 0) {
         scope.isDead = true;
@@ -1556,7 +1265,12 @@ class YJNPC {
         this.SetNpcTarget(_Global.DyncManager.GetPlayerById(_targetModelId), true, true);
       } else {
       }
-      console.log("受到来自 的伤害 ", _targetModelId, _Global.DyncManager.GetPlayerById(_targetModelId));
+
+      fromName = targetModel.GetNickName();
+
+      CombatLog("玩家 [" + fromName + "] " + " 攻击 " + GetNickName() + " 造成 " + value + " 点伤害 ");
+
+      // console.log(GetNickName() + "受到来自玩家["+targetModel.GetNickName()+"] 的伤害 ", _targetModelId, _Global.DyncManager.GetPlayerById(_targetModelId));
 
       //在移动中受到攻击，判断下一个目标
       if (maxDamagePlayerId != 0 && isMoving) {
@@ -1590,17 +1304,24 @@ class YJNPC {
                 if (num == count) {
                   removeDebuffById(id);
                 }
-                CheckHealth();
+                CheckHealth(fromName);
               }, time * 1000 * i)
           }
           );
         }
-        baseData.debuffList.push({ id: id, icon: _this.$uploadUVAnimUrl + icon, describe: describe });
+        let buffIcon = _this.$uploadUVAnimUrl + icon;
+        baseData.debuffList.push({ id: id, icon: buffIcon, describe: describe });
+        // if (_YJPlayerNameTrans) {
+        //   _YJPlayerNameTrans.addDebuff(id, buffIcon);
+        // }
+        // _Global._YJPlayerNameManager.addDebuffByPlayerId(scope.id,id,buffIcon );
+        scope.applyEvent("添加buff", id, buffIcon);
+
         return;
       }
-      CheckHealth();
+      CheckHealth(fromName);
 
-      // console.log(this.npcName + " 受到 " + targetModel.GetPlayerName() + " 使用 " + skillName + " 攻击 剩余 " + baseData.health);
+      // console.log(GetNickName() + " 受到 " + targetModel.GetPlayerName() + " 使用 " + skillName + " 攻击 剩余 " + baseData.health);
 
       ClearLater("清除准备战斗");
 
@@ -1616,43 +1337,78 @@ class YJNPC {
 
 
     }
-
+    function CombatLog(from, to, type, content) {
+      if (_Global.CombatLog) {
+        _Global.CombatLog.log(from, to, type, content);
+      }
+    }
     let fromName = "";
     this.ReceiveDamageByPlayer = function (_targetModel, skillName, effect) {
+      if (!_Global.mainUser) {
+        console.error("不该进入：非主控");
+        return;
+      }
+
       //_targetModel 是 YJPlayer 或 YJNPC 
       if (baseData.health == 0) {
         scope.isDead = true;
         return;
       }
-      let { type, value, time, duration, describe, icon } = effect;
+      let { type, value, time, duration, describe, icon, fromName } = effect;
 
+      if (type == "addHealth") {
+        scope.Dync({ title: "加生命", value: value });
+        CombatLog("[" + fromName + "]" + " 治疗 " + GetNickName() + " 恢复 " + value + " 点生命 ");
+        return;
+      }
 
       if (targetModel == null) {
-        if (_targetModel.isYJNPC) {
-          _targetModel = _targetModel.GetComponent("NPC");
-          fromName = _targetModel.npcName;
+        if (_targetModel) {
+          if (_targetModel.isYJNPC) {
+            _targetModel = _targetModel.GetComponent("NPC");
+            fromName = _targetModel.npcName;
+          }
+          this.SetNpcTarget(_targetModel, true, false);
         }
-        this.SetNpcTarget(_targetModel, true, false);
       } else {
-        if (_targetModel.isYJTransform && _targetModel.isYJNPC) {
-          // _targetModel = _targetModel.GetComponent("NPC");
-          fromName = _targetModel.modelData.message.data.name;
+        if (_targetModel) {
+          if (_targetModel.isYJTransform && _targetModel.isYJNPC) {
+            // _targetModel = _targetModel.GetComponent("NPC");
+            fromName = _targetModel.modelData.message.data.name;
+          }
+        }
+
+        // 当npc的目标在攻击范围以外，则使用攻击npc的对象作为新的目标
+        if (!scope.canMove && outVaildArea) {
+          if (_targetModel) {
+            this.SetNpcTargetToNoneDrict();
+            if (_targetModel.isYJTransform && _targetModel.isYJNPC) {
+              _targetModel = _targetModel.GetComponent("NPC");
+              fromName = _targetModel.npcName;
+            }
+            this.SetNpcTarget(_targetModel, true, false);
+          }
         }
       }
       // console.log("受到来自 222 的伤害 ", _targetModel);
 
+      if (type == "control" || type == "shield") {
+        _YJSkill.ReceiveDamageByPlayer(_targetModel, skillName, effect);
+        return;
+      }
+
       value = RealyDamage(value, fromName);
 
-
-
-      // console.log(" npc接收伤害 ", effect);
+      // console.log(" npc接收技能攻击 ", effect);
       // 直接伤害 或 持续伤害
       if (type == "damage" || type == "contDamage") {
         baseData.health -= (value);
+        CombatLog("[" + fromName + "]" + " 攻击 " + GetNickName() + " 造成 " + value + " 点伤害 ");
 
       }
       // 每n秒伤害，持续m秒
       if (type == "perDamage") {
+        CombatLog(fromName, scope.npcName, "技能攻击", effect.skillName);
 
         //每秒伤技能是debuff，显示在角色状态上
         if (baseData.debuffList == undefined) {
@@ -1670,52 +1426,34 @@ class YJNPC {
                 if (num == count) {
                   removeDebuffById(id);
                 }
-                CheckHealth();
+                CheckHealth(fromName);
               }, time * 1000 * i)
           }
           );
         }
-        baseData.debuffList.push({ id: id, icon: _this.$uploadUVAnimUrl + icon, describe: describe });
+        let buffIcon = _this.$uploadUVAnimUrl + icon;
+        baseData.debuffList.push({ id: id, icon: buffIcon, describe: describe });
+        // if (_YJPlayerNameTrans) {
+        //   _YJPlayerNameTrans.addDebuff(id, buffIcon);
+        // }
+        // _Global._YJPlayerNameManager.addDebuffByPlayerId(scope.id,id,buffIcon );
+        scope.applyEvent("添加buff", id, buffIcon);
+
         return;
       }
-      CheckHealth();
 
-      // console.log(this.npcName + " 受到 " + targetModel.GetPlayerName() + " 使用 " + skillName + " 攻击 剩余 " + baseData.health);
+      CheckHealth(fromName);
+
+      // console.log(GetNickName() + " 受到 " + targetModel.GetPlayerName() + " 使用 " + skillName + " 攻击 剩余 " + baseData.health);
 
       ClearLater("清除准备战斗");
 
       SendModelState({
-        playerId: scope.isDead ? '' : targetModel.id,
+        playerId: scope.isDead ? '' : targetModel ? targetModel.id : "",
         health: baseData.health,
         maxHealth: baseData.maxHealth
       }
       );
-    }
-    function SendModelState(msg) {
-      _Global.DyncManager.SendModelState(scope.transform.GetData().id,
-        {
-          modelType: scope.transform.GetData().modelType,
-          msg: msg
-        });
-    }
-
-    // 死亡或离开战斗时，清除延迟执行事件
-    function ClearFireLater() {
-      for (let i = 0; i < fireLater.length; i++) {
-        if (fireLater[i].type == "interval") {
-          clearInterval(fireLater[i].fn);
-        }
-        if (fireLater[i].type == "timeout") {
-          clearTimeout(fireLater[i].fn);
-        }
-      }
-      baseData.debuffList = undefined;
-      receiveDamageData = [];
-      fireLater = [];
-      healthTrigger = [];
-      if (oldSkillList.length != 0) {
-        skillList = JSON.parse(JSON.stringify(oldSkillList));
-      }
     }
 
     //#endregion
@@ -1723,132 +1461,11 @@ class YJNPC {
     //#region 
     //#endregion
 
-    //#region 接收同步
-    // 接收同步
-    this.Dync = function (msg) {
-      console.log("接收npc同步数据 ", msg);
-      if (msg.title == "脱离战斗") {
-        console.log(" npc 脱离战斗 ");
-        scope.SetNpcTargetToNone();
-        //增生角色死亡
-        if (hyperplasiaTrans.length > 0) {
-          for (let i = 0; i < hyperplasiaTrans.length; i++) {
-            hyperplasiaTrans[i].Dead();
-          }
-          hyperplasiaTrans = [];
-        }
-        return;
-      }
-      if (msg.title == "重新生成") {
-        resetLife();
-        return;
-      }
-      if (msg.title == "加护甲") {
-        if(scope.isDead){return;}
-        baseData.armor += msg.value;
-        return;
-      }
-      
-      if (msg.title == "加生命") {
-        if(scope.isDead){return;}
-        baseData.health += msg.value;
-        if(baseData.health>= baseData.maxHealth){
-          baseData.health= baseData.maxHealth;
-        }
-        console.log("["+scope.npcName + "] 加 "+msg.value+"生命");
-        
-        let pos = scope.GetWorldPos().clone();
-        pos.y += playerHeight*nameScale;
-        _Global.SceneManager.UpdateNpcDamageValue("热心观众", scope.npcName, scope.GetCamp(), msg.value, pos, "add");
-
-        return;
-      }
-      if (msg.title == "npc技能") {
-        //取消寻路，让npc站住施法
-        SetNavPathToNone();
-        let skillItem = msg.skill;
-        if (skillItem == "中断") {
-          inSkill = false;
-          return;
-        }
-        inSkill = true;
-        return;
-      }
-      if (msg.title == "npc技能攻击") {
-        let effect = msg.skill;
-        //增生
-        if (effect.type == "hyperplasia") {
-          let { value, times } = effect;
-          hyperplasiaTimes = times;
-          let modelData = scope.transform.GetData();
-          hyperplasia(modelData, 0, value, times);
-        }
-        //进化
-        if (effect.type == "evolution") {
-          let { value } = effect;
-
-          oldSkillList = JSON.parse(JSON.stringify(skillList));
-          // 所有技能伤害增加v%
-          for (let i = 0; i < skillList.length; i++) {
-            const skillItem = skillList[i];
-            // 触发方式 每间隔n秒触发。在进入战斗时调用
-            if (skillItem.target.type != "none") {
-              skillItem.effect.value += skillItem.effect.value * value * 0.01;
-            }
-          }
-        }
-        inSkill = true;
-        return;
-      }
-
-
-      if (msg.title == "设置目标") {
-        if (msg.fireId) {
-          scope.fireId = msg.fireId;
-        }
-        if (msg.playerId) {
-          if (targetModel == null) {
-            baseData.state = stateType.Fire;
-            this.SetNpcTarget(_Global.DyncManager.GetPlayerById(msg.playerId));
-          }
-        } else {
-          baseData.state = stateType.Normal;
-          scope.fireId = -1;
-          this.SetNpcTargetToNone();
-        }
-
-        return;
-      }
-      if (msg.title == "设置动作") {
-        scope.ChangeAnim(msg.animName);
-        return;
-      }
-
-      if (msg.health != undefined) {
-        if (msg.health == 0) {
-          if (baseData.health == baseData.maxHealth) {
-            baseData.health = msg.health;
-            // 模型渐隐消失
-            // scope.transform.Destroy();
-            targetModel = null;
-            scope.transform.SetActive(false);
-            return;
-          }
-        }
-        baseData.health = msg.health;
-        if (baseData.health == 0) {
-          scope.isDead = true;
-          activeFalse();
-        }
-        UpdateData();
-      }
-
-    }
-    //#endregion
-
-
     //#region 死亡 重生 和刷新数据
     function UpdateData() {
+      if (!_Global.mainUser) {
+        return;
+      }
       scope.transform.UpdateData(); // 触发更新数据的回调事件
       if (baseData.health == 0) {
         ClearLater("清除巡逻");
@@ -1859,6 +1476,7 @@ class YJNPC {
         maxHealth: baseData.maxHealth
       }
       );
+      scope.applyEvent("healthChange", baseData.health, baseData.maxHealth);
     }
     this.Dead = function () {
       dead();
@@ -1869,54 +1487,186 @@ class YJNPC {
       eventList.push({ eventName: e, fn: fn });
     }
     // 执行事件
-    this.applyEvent = function (e) {
+    this.applyEvent = function (e, v, v2) {
       for (let i = 0; i < eventList.length; i++) {
         const element = eventList[i];
         if (element.eventName == e) {
-          element.fn();
+          element.fn(v, v2);
         }
       }
     }
+    let currentExp = 0;
+    let needExp = 200;
+    this.SetLevelToOne = function () {
+
+      baseData.maxHealth = CONST_BASEDATA.maxHealth;
+      baseData.strength = CONST_BASEDATA.strength;
+      baseData.level = CONST_BASEDATA.level;
+      currentExp = 0;
+      needExp = 200;
+      baseData.health = baseData.maxHealth;
+    }
+    this.SetLevelData = function (data) {
+      baseData.maxHealth = data.maxHealth;
+      baseData.strength = data.strength;
+      baseData.level = data.level;
+      currentExp = data.currentExp;
+      needExp = data.needExp;
+      baseData.health = baseData.maxHealth;
+    }
+    // 伤害输出和杀敌数控制等级提升
+    this.SetLevel = function (level) {
+      if (level == 1) {
+        baseData.maxHealth = CONST_BASEDATA.maxHealth;
+        baseData.strength = CONST_BASEDATA.strength;
+        baseData.level = CONST_BASEDATA.level;
+        currentExp = 0;
+        needExp = 200;
+      }
+      baseData.health = baseData.maxHealth;
+      scope.applyEvent("等级提升", baseData.level, baseData.strength);
+      scope.applyEvent("经验值变化", currentExp, needExp);
+      UpdateData();
+
+    }
+    this.GetLevel = function () {
+      return baseData.level;
+    }
+    this.LevelUp = function () {
+      if (scope.isDead) {
+        return;
+      }
+      baseData.level++;
+      baseData.maxHealth *= 1.2;
+      baseData.maxHealth = Math.floor(baseData.maxHealth);
+      baseData.strength *= 1.2;
+      baseData.strength = Math.floor(baseData.strength);
+      baseData.health = baseData.maxHealth;
+      currentExp = 0;
+      needExp *= 2;
+      UpdateData();
+      scope.applyEvent("等级提升", baseData.level, baseData.strength);
+      scope.applyEvent("经验值变化", currentExp, needExp);
+
+    }
+    this.AddExp = function (exp) {
+      AddExpFn(exp);
+    }
+    function AddExpFn(exp) {
+      if (!scope.canLevelUp) {
+        return;
+      }
+      currentExp += exp;
+      scope.applyEvent("经验值变化", currentExp, needExp);
+
+      if (currentExp >= needExp) {
+        scope.LevelUp();
+      }
+
+    }
     // 死亡
     function dead() {
+      if (!_Global.mainUser) {
+        console.error("不该进入：非主控");
+        return;
+      }
+
       if (targetModel != null) {
         targetModel = null;
       }
       scope.isDead = true;
-
+      scope.inControl = false;
+      // CombatLog(GetNickName() + " 死亡");
       // 设为死亡状态
       baseData.state = stateType.Dead;
       // 从一场战斗中移除npc
-      _Global.DyncManager.RemoveNPCFireId(scope);
+      _Global.DyncManager.RemoveNPCFireId(scope.transform.id, scope.fireId);
+      scope.fireId = -1;
       // 清除技能触发
       ClearFireLater();
       // 停止寻路
       SetNavPathToNone();
       scope.SetPlayerState("death");
       activeFalse();
+      //死亡音效
+      if (!data.isCopy && data.deadAudio) {
+        playAudio(data.deadAudio, "dead");
+      }
+      scope.applyEvent("死亡");
+    }
+    this.playAudio = function (audioSrc, type) {
+      playAudio(audioSrc, type);
+    }
+    function playAudio(audioSrc, type) {
+      let v = radomNum(1, 10);
+      if (type == "dead") {
+        if (v < 10) {
+          return;
+        }
+      }
+      if (type == "普通攻击" || type == "准备战斗") {
+        if (v < 9) {
+          return;
+        }
+      } else {
+        if (v < 5) {
+          return;
+        }
+      }
+      // console.log(type,v);
+      _Global.YJAudioManager().playAudio(audioSrc, type);
     }
     function activeFalse() {
-      setTimeout(() => {
-        CreateNameTrans("");
-        _Global.SceneManager.ReceiveEvent("npc尸体消失", scope.transform);
-        // 执行溶解特效
-        // new YJshader_dissolve(scope.transform.GetGroup());
-      }, 5000);
-      setTimeout(() => {
-        // 模型渐隐消失
-        scope.transform.SetActive(false);
 
-        scope.applyEvent("死亡");
+      if (baseData.debuffList) {
+        for (let i = baseData.debuffList.length - 1; i >= 0; i--) {
+          const item = baseData.debuffList[i];
+          // if (_YJPlayerNameTrans) {
+          //   _YJPlayerNameTrans.removeDebuffById(item.id);
+          // }
+          // _Global._YJPlayerNameManager.removeDebuffByPlayerId(scope.id,item.id );
+          scope.applyEvent("移除buff", item.id);
 
-        if (data.isPlayer) {
-          _Global.DyncManager.SendSceneState("删除", { type: "玩家镜像", npcId: scope.id, playerId: data.ownerId });
         }
-        // scope.transform.Destroy();
-        //一分钟后重新刷新。告诉主控
-        // setTimeout(() => {
-        //   resetLife();
-        // }, 60000);
-      }, 7000);
+      }
+      baseData.debuffList = undefined;
+
+      scope.applyEvent("脱离战斗或死亡");
+
+
+
+      // 死亡后是否消失
+      if (!scope.deadedHidden) {
+        return;
+      }
+
+
+      fireLater.push({
+        type: "timeout", fn:
+          setTimeout(() => {
+            _Global._SceneManager.ReceiveEvent("npc尸体消失", scope.transform);
+            // 执行溶解特效
+            // new YJshader_dissolve(scope.transform.GetGroup());
+          }, 5000)
+      });
+      fireLater.push({
+        type: "timeout", fn:
+          setTimeout(() => {
+            scope.applyEvent("npc尸体消失");
+
+            // 模型渐隐消失
+            scope.transform.SetActive(false);
+            if (data.isPlayer) {
+              _Global.DyncManager.SendSceneState("删除", { type: "玩家镜像", npcId: scope.id, playerId: data.ownerId });
+            }
+          }, 7000)
+      });
+
+      // scope.transform.Destroy();
+      //一分钟后重新刷新。告诉主控
+      // setTimeout(() => {
+      //   resetLife();
+      // }, 60000);
     }
     // 死亡后重新生成
     function resetLife() {
@@ -1924,7 +1674,6 @@ class YJNPC {
       targetModel = null;
       scope.isDead = false;
       scope.transform.SetActive(true);
-      CreateNameTrans(scope.npcName);
       // 还原材质
       materials.forEach(item => {
         item.mesh.material = item.mat;
@@ -1934,196 +1683,34 @@ class YJNPC {
       baseData.armor = 0;
       baseData.health = baseData.maxHealth;
       baseData.state = stateType.Normal;
-      scope.ChangeAnim("none");
       scope.SetPlayerState("normal");
       scope.RadomNavPos();
-      ClearFireLater();
+      fireBeforePos = scope.GetWorldPos();
 
-      if (healthPlaneAnchor) {
-        healthPlaneAnchor.scale.set(1, 1, 1);
-        namePosTrans.add(healthPlaneAnchor); // 向该场景中添加物体
-        healthPlaneAnchor.position.set(-0.5, 0.2, 0);
-      }
+      // if (_YJPlayerNameTrans != null) {
+      //   _YJPlayerNameTrans.resetLife();
+      // }
+      // _Global._YJPlayerNameManager.resetLifeByPlayerId(scope.id);
+
+      scope.applyEvent("healthChange", baseData.health, baseData.maxHealth);
+      scope.applyEvent("重生");
+
     }
     //#endregion
 
 
-    //#region  战斗检测
-    let playerPos = null;
-    function CheckState() {
-      if (baseData.state == stateType.Normal) {
-      }
-
-      if (baseData.state == stateType.Fire) {
-        // console.log(' 在战斗中 ', targetModel, targetModel.isDead);
-
-        if (targetModel == null) {
-          scope.SetPlayerState("准备战斗");
-          return;
-        }
-        if (inSkill) {
-          return;
-        }
-        if (targetModel != null && targetModel.isDead) {
-          return;
-        }
-        // 逻辑见note/npc策划.md 战斗策略
-        playerPos = targetModel.GetWorldPos();
-        let npcPos = parent.position.clone();
-        let playerPosRef = playerPos.clone();
-        playerPosRef.y = npcPos.y;
-
-        let dis = playerPosRef.distanceTo(npcPos);
-        if (dis < vaildAttackDis + scope.transform.GetData().scale.x && CheckCanAttack()) {
-          SetNavPathToNone();
-          parent.lookAt(playerPosRef.clone());
-          if (readyAttack_doonce == 0) {
-            readyAttack = false;
-            scope.SetPlayerState("准备战斗");
-          }
-          readyAttack_doonce++;
-          // console.log(" 进入攻击范围内 ，停止跑动，进入战斗状态 ");
-          //攻击
-          if (readyAttack) {
-            readyAttack = false;
-
-            ClearLater("清除准备战斗");
-
-            scope.SetPlayerState("普通攻击");
-            vaildAttackLater2 = setTimeout(() => {
-              //有效攻击 && 
-              var { s, v, a } = GetSkillDataByWeapon(weaponData);
-              SendDamageToTarget(targetModel, { skillName: s, type: "damage", value: baseData.strength });
-
-
-              //攻击结束之后，判断下一个目标
-              if (maxDamagePlayerId != 0) {
-                // console.log(" 设置下一个目标 ", maxDamagePlayerId, targetModel.id);
-                if (maxDamagePlayerId != targetModel.id) {
-                  targetModel = _Global.DyncManager.GetPlayerById(maxDamagePlayerId);
-                }
-              }
-
-
-            }, attackStepSpeed * 100);
-
-            toIdelLater = setTimeout(() => {
-              scope.SetPlayerState("准备战斗");
-              toIdelLater = null;
-            }, attackStepSpeed * 400);//间隔等于攻击动作时长
-
-          }
-
-          getnavpathTimes = 0;
-        } else {
-
-          EventHandler("中断技能");
-          if (!CheckVaildArea()) {
-            return;
-          }
-          getnavPathTime++;
-          if (getnavPathTime > 20) {
-            //跑向目标 
-            GetNavpath(npcPos, playerPos);
-            getnavPathTime = 0;
-          }
-          readyAttack_doonce = 0;
-        }
-        // console.log( scope.npcName + " in fire " + dis);
-      }
-    }
-
-    //#endregion
-
-    this._update = function () {
-      nameTransLookatCamera();
-      if (_Global.mainUser) {
-        CheckState();
-        tick(clock.getDelta());
-
-
-        // 主控实时发送坐标来同步。
-        let oldTransData = scope.transform.CheckSamePos();
-        if (oldTransData == null) {
-          return;
-        }
-        _Global.DyncManager.UpdateModel(scope.id, "pos",
-          oldTransData);
-      }
-    }
 
     function radomNum(minNum, maxNum) {
       return parseInt(Math.random() * (maxNum - minNum + 1) + minNum, 10);
     }
+    this.SetActionScale = function (v) {
+      _YJAnimator.SetActionScale(v);
+    }
 
     let oldMovePos = null;
     let samePosTimes = 0;
-    //寻路
-    function tick(dt) {
-      if (!(navpath || []).length) return;
+    let moveLength = 0;
 
-      let targetPosition = navpath[0];
-      const velocity = targetPosition.clone().sub(playerPosition);
-
-      if (velocity.lengthSq() > 0.00075 * baseData.speed) {
-        velocity.normalize();
-        // Move player to target
-        playerPosition.add(velocity.multiplyScalar(0.015 * baseData.speed));
-        // console.log(" in tick 222 ", playerPosition);
-
-        // let pos = raycasterDownPos(playerPosition.clone());
-        let pos = playerPosition.clone();
-
-        // 在同一位置停留时间超过1秒，则取消移动
-        // if (oldMovePos != pos) {
-        //   oldMovePos = pos.clone();
-        // }
-        // if (pos.distanceTo(oldMovePos) < 0.1) {
-        //   samePosTimes++;
-        //   if (samePosTimes > 30) {
-        //     navpath = [];
-        //     doonce = 0;
-        //     baseData.state = stateType.Normal;
-        //     scope.SetPlayerState("normal");
-        //     return;
-        //   }
-        // }
-        // console.log(pos, oldMovePos);
-
-
-        parent.position.copy(pos);
-
-        if (baseData.state == stateType.Normal) {
-          scope.SetPlayerState("巡逻");
-        } else if (baseData.state == stateType.Back) {
-          scope.SetPlayerState("丢失目标");
-        } else {
-          scope.SetPlayerState("跑向目标");
-        }
-        // console.log(" npc往目标移动 ", velocity.lengthSq(), 0.00075 * baseData.speed);
-        isMoving = true;
-
-
-      } else {
-        // Remove node from the path we calculated
-        navpath.shift();
-        doonce = 0;
-        if (navpath.length == 0) {
-          // console.log("到达目标位置");
-          if (baseData.state == stateType.Back) {
-            //返回模式到达目标点后，切换为正常模式
-            baseData.state = stateType.Normal;
-            ChangeEvent("准备巡逻");
-          } else if (baseData.state == stateType.Normal) {
-            ChangeEvent("准备巡逻");
-          }
-          isMoving = false;
-        } else {
-          lookAtTargetPos();
-        }
-
-      }
-    }
     //清除延时
     function ClearLater(e) {
       if (e == "清除巡逻") {
@@ -2146,7 +1733,7 @@ class YJNPC {
       if (e == "准备巡逻") {
         scope.SetPlayerState("normal");
         ClearLater("清除巡逻");
-
+        return;
         laterNav = setTimeout(() => {
           //在正常模式到达目标点，表示在巡逻过程中。再次到下一个巡逻点
           //随机执行其他idle动作、随机等待时长，让npc行为更自然
@@ -2159,7 +1746,6 @@ class YJNPC {
 
     //向模型下方发出射线，返回碰到物体的碰撞点坐标
     let raytDricV3 = new THREE.Vector3(0, 0, 0);
-
     function raycasterDownPos(pos) {
 
       pos.y += 5;
@@ -2189,6 +1775,459 @@ class YJNPC {
       pos.y -= 5;
       return pos.clone();
     }
+
+    let lookAtObj = null;
+
+    // 姓名条始终朝向摄像机
+    function nameTransLookatCamera() {
+      if (namePosTrans != null) {
+        var lookatPos = new THREE.Vector3();
+        var camWorlPos = new THREE.Vector3();
+        _this.camera.getWorldPosition(camWorlPos);
+        lookatPos.x = camWorlPos.x;
+        lookatPos.z = camWorlPos.z;
+        var nameWorlPos = new THREE.Vector3();
+        namePosTrans.getWorldPosition(nameWorlPos);
+        // lookatPos.y = nameWorlPos.y ;
+        lookatPos.y = Math.max(nameWorlPos.y, camWorlPos.y);
+        namePosTrans.lookAt(lookatPos);
+      }
+
+      if (lookAtObj != null) {
+        var fromPos = new THREE.Vector3();
+        lookAtObj.getWorldPosition(fromPos);
+        group.lookAt(fromPos.x, fromPos.y, fromPos.z);
+      }
+    }
+
+    this._update = function () {
+      // nameTransLookatCamera();
+      if (_Global.mainUser) {
+        CheckState();
+        if (this.canMove && !scope.inControl) {
+          tick(clock.getDelta());
+        }
+
+        this.applyEvent("pos", playerPosition);
+
+        // 主控实时发送坐标来同步。
+        let oldTransData = scope.transform.CheckSamePos();
+        if (oldTransData == null) {
+          return;
+        }
+        // this.applyEvent("pos",oldTransData.pos);
+        _Global.DyncManager.UpdateModel(scope.id, "pos",
+          oldTransData);
+      }
+    }
+
+
+    this.SetPlayerState = function (e, _animName) {
+      if (oldState == e) {
+        // if (scope.npcName.includes("阳光万里2") || scope.npcName.includes("ZH画渣")) {
+        //   console.error(GetNickName() + " 状态切换次数 ", inStateTimes, e);
+        // }
+        return;
+      }
+      oldState = e;
+      inStateTimes++;
+
+      switch (e) {
+
+        case "准备战斗":
+
+          var { s, v, a, _ready } = GetSkillDataByWeapon(weaponData);
+          setVaildAttackDis(v);
+
+          attackStepSpeed = a;
+
+          if (_ready) {
+            // fireParticleId = _ready.particle; 
+            //播放音效
+            playAudio(_ready.audio, "准备战斗");
+          }
+          GetAnimNameByPlayStateAndWeapon(e, weaponData);
+          if (targetModel != null && targetModel.isDead) {
+            TargetDead();
+            return;
+          }
+          // 计算技能施法时间
+          let offsetTime = attackStepSpeed * 1000;
+          if (_offsetTime != 0) {
+            _offsetTime += new Date().getTime() - cutStartTime - attackStepSpeed * 300;
+            if (_offsetTime > offsetTime) {
+              offsetTime = 20;
+            } else {
+              offsetTime -= _offsetTime;
+            }
+            // console.log(" 计算施法时间 减去 ",_offsetTime);
+            // console.log(" 计算施法时间 ", offsetTime);
+            _offsetTime = 0;
+          }
+
+          if (vaildAttackLater == null) {
+            vaildAttackLater = setTimeout(() => {
+              readyAttack = true;
+              vaildAttackLater = null;
+              if (targetModel != null && targetModel.isDead) {
+                TargetDead();
+                return;
+              }
+            }, offsetTime);
+          }
+
+          break;
+        case "普通攻击":
+          var { s, v, a, _fire } = GetSkillDataByWeapon(weaponData);
+          skillName = s;
+          setVaildAttackDis(v);
+          attackStepSpeed = a;
+          let fireParticleId = "";
+          if (_fire) {
+            fireParticleId = _fire.particle;
+            //播放音效
+            playAudio(_fire.audio, "普通攻击");
+          }
+          scope.applyEvent("攻击", skillName, fireParticleId);
+          GetAnimNameByPlayStateAndWeapon(e, weaponData);
+          cutStartTime = new Date().getTime();
+          // console.log(" 记录上一次成功攻击的时间 ",cutStartTime);
+          break;
+        case "施法":
+          animName = _animName;
+          break;
+        case "受伤":
+          GetAnimNameByPlayStateAndWeapon(e, weaponData);
+          break;
+        case "normal":
+          GetAnimNameByPlayStateAndWeapon("停止移动", weaponData);
+          break;
+        case "停止移动":
+          GetAnimNameByPlayStateAndWeapon("停止移动", weaponData);
+          break;
+        case "death":
+          EventHandler("中断技能");
+          animName = "death";
+          break;
+        case "跑向目标":
+          baseData.speed = RUNSPEED;
+          GetAnimNameByPlayStateAndWeapon("移动", weaponData);
+          EventHandler("中断技能");
+
+          break;
+        case "丢失目标":
+          GetAnimNameByPlayStateAndWeapon("移动", weaponData);
+          EventHandler("中断技能");
+
+          break;
+        case "巡逻":
+          baseData.speed = WALKSPEED;
+          GetAnimNameByPlayStateAndWeapon("行走", weaponData);
+
+          if (data.isPlayer) {
+            baseData.speed = RUNSPEED;
+            GetAnimNameByPlayStateAndWeapon("移动", weaponData);
+          }
+          break;
+        default:
+          break;
+      }
+      // console.log(" in npc SetPlayerState  ", e, animName);
+      scope.ChangeAnim(animName, animNameFullback);
+    }
+
+    //#region  战斗检测
+    let targetPos = null;
+    //是否超出攻击范围
+    let outVaildArea = false;
+    //是否正确请求下一个目标
+    let inRequestNext = false;
+
+    this.SetValue = function (e, v) {
+      if (e == "readyAttack_doonce") {
+        readyAttack_doonce = v;
+      }
+    }
+    function CheckState() {
+      if (baseData.state == stateType.Normal) {
+      }
+
+      if (baseData.state == stateType.Fire) {
+        // if(scope.npcName.includes("阳光万里") && targetModel){
+        //   console.log(GetNickName() + ' 在战斗中 ',outVaildArea,_YJSkill.GetinSkill(), targetModel.isDead);
+        // }
+
+        if (_YJSkill.GetinSkill()) {
+          return;
+        }
+        if (targetModel == null) {
+          TargetNone();
+          // scope.SetPlayerState("准备战斗");
+          return;
+        }
+        if (targetModel != null && targetModel.isDead) {
+          // scope.SetPlayerState("准备战斗");
+          TargetDead();
+          return;
+        }
+
+
+        // 逻辑见note/npc策划.md 战斗策略
+        targetPos = targetModel.GetWorldPos();
+        let npcPos = parent.position.clone();
+        let targetPosRef = targetPos.clone();
+        targetPosRef.y = npcPos.y;
+
+        let dis = targetPosRef.distanceTo(npcPos);
+
+        // if(scope.npcName.includes("ZH画渣") && targetModel){
+        //   console.log(GetNickName() + ' 距离目标 ',dis,vaildAttackDis + scope.transform.GetData().scale.x);
+        // }
+        if (dis < vaildAttackDis + scope.transform.GetData().scale.x && CheckCanAttack()) {
+          SetNavPathToNone();
+          parent.lookAt(targetPosRef.clone());
+          if (readyAttack_doonce == 0) {
+            readyAttack = false;
+            scope.SetPlayerState("准备战斗");
+          }
+          readyAttack_doonce++;
+          outVaildArea = false;
+          inRequestNext = false;
+
+          // if(scope.npcName.includes("ZH画渣") ){
+          //   console.log(GetNickName() +" 进入攻击范围内 ，准备攻击  ",readyAttack);
+          // }
+          //攻击
+          if (readyAttack) {
+            readyAttack = false;
+
+            ClearLater("清除准备战斗");
+
+            scope.SetPlayerState("普通攻击");
+
+            //有效攻击 && 
+            var { s, v, a } = GetSkillDataByWeapon(weaponData);
+            scope.applyEvent("普通攻击目标", targetModel, { skillName: s, type: "damage", value: baseData.strength });
+
+            vaildAttackLater2 = setTimeout(() => {
+              //攻击结束之后，判断下一个目标
+              if (maxDamagePlayerId != 0) {
+                // console.log(" 设置下一个目标 ", maxDamagePlayerId, targetModel.id);
+                if (maxDamagePlayerId != targetModel.id) {
+                  targetModel = _Global.DyncManager.GetPlayerById(maxDamagePlayerId);
+                }
+              }
+            }, attackStepSpeed * 100);
+            if (toIdelLater != null) { clearTimeout(toIdelLater); }
+            toIdelLater = setTimeout(() => {
+              // scope.SetPlayerState("准备战斗");
+              readyAttack_doonce = 0;
+              toIdelLater = null;
+            }, attackStepSpeed * 400);//间隔等于攻击动作时长
+
+          }
+
+          getnavpathTimes = 0;
+        } else {
+          if (!scope.canMove) {
+            // console.log(GetNickName() +" 不可移动，但它的目标超出距离范围 ");
+            outVaildArea = true;
+            if (!inRequestNext) {
+              CheckNextTarget();
+              inRequestNext = true;
+            }
+          }
+          EventHandler("中断技能");
+          readyAttack_doonce = 0;
+          if (!CheckVaildArea()) {
+            return;
+          }
+          getnavPathTime++;
+          if (getnavPathTime > 20) {
+            if (!scope.canMove) {
+            } else {
+              //跑向目标 
+              GetNavpath(npcPos, targetPos);
+            }
+            getnavPathTime = 0;
+          }
+        }
+        // console.log( GetNickName() + " in fire " + dis);
+      }
+    }
+    //#endregion
+    //寻路
+    function tick(dt) {
+      if (!(navpath || []).length) return;
+
+      let targetPosition = navpath[0];
+      const velocity = targetPosition.clone().sub(playerPosition);
+
+      if (velocity.lengthSq() > 0.00075 * baseData.speed) {
+        velocity.normalize();
+        // Move player to target  
+        playerPosition.add(velocity.multiplyScalar(0.015 * baseData.speed));
+        // console.log(" in tick 222 ", playerPosition);
+
+        // let pos = raycasterDownPos(playerPosition.clone());
+        let pos = playerPosition.clone();
+
+        // 在同一位置停留时间超过1秒，则取消移动
+
+        moveLength = pos.distanceTo(oldMovePos);
+
+        // console.log(" in tick moveLength = ", moveLength);
+
+        // if (moveLength < 0.1) {
+        //   samePosTimes++;
+        //   if (samePosTimes > 30) {
+        //     navpath = [];
+        //     doonce = 0;
+        //     baseData.state = stateType.Normal;
+        //     scope.SetPlayerState("normal");
+        //     return;
+        //   }
+        // }
+        scope.SetActionScale(moveLength * 4);
+        scope.transform.UpdateDataByType("actionScale", moveLength * 4);
+        // console.log(pos, oldMovePos);
+        if (oldMovePos != pos) {
+          oldMovePos = pos.clone();
+        }
+
+        parent.position.copy(pos);
+        if (baseData.state == stateType.Normal) {
+          scope.SetPlayerState("巡逻");
+        } else if (baseData.state == stateType.Back) {
+          scope.SetPlayerState("丢失目标");
+        } else {
+          scope.SetPlayerState("跑向目标");
+        }
+        // console.log(" npc往目标移动 ", velocity.lengthSq(), 0.00075 * baseData.speed);
+        isMoving = true;
+        if (targetModel != null && targetModel.isDead) {
+          navpath = [];
+          TargetDead();
+        }
+
+      } else {
+        // Remove node from the path we calculated
+        navpath.shift();
+        doonce = 0;
+        if (navpath.length == 0) {
+          // console.log("到达目标位置");
+          if (baseData.state == stateType.Back) {
+            //返回模式到达目标点后，切换为正常模式
+            baseData.state = stateType.Normal;
+            ChangeEvent("准备巡逻");
+          } else if (baseData.state == stateType.Normal) {
+            ChangeEvent("准备巡逻");
+          }
+          isMoving = false;
+        } else {
+          lookAtTargetPos();
+        }
+
+      }
+    }
+
+    //#region 接收同步
+    // 接收同步
+    this.Dync = function (msg) {
+      // console.log("接收npc同步数据 ", msg);
+      if (msg.title == "脱离战斗") {
+        // console.log(" npc 脱离战斗 ", hyperplasiaTrans);
+        scope.fireId = -1;
+        scope.SetNpcTargetToNone();
+        //增生角色死亡
+        scope.applyEvent("脱离战斗或死亡");
+        return;
+      }
+      if (msg.title == "重新生成") {
+        resetLife();
+        return;
+      }
+      if (msg.title == "加护甲") {
+        if (scope.isDead) { return; }
+        baseData.armor += msg.value;
+        return;
+      }
+
+      if (msg.title == "加生命") {
+        if (scope.isDead) { return; }
+        baseData.health += msg.value;
+        if (baseData.health >= baseData.maxHealth) {
+          baseData.health = baseData.maxHealth;
+        }
+        // console.log(GetNickName() + " 加 " + msg.value + "生命");
+        UpdateData();
+        let pos = scope.GetWorldPos().clone();
+        pos.y += playerHeight * nameScale;
+        _Global._SceneManager.UpdateNpcDamageValue("热心观众", scope.npcName, scope.GetCamp(), msg.value, pos, "add");
+
+        return;
+      }
+      if (msg.title == "npc技能"
+        || msg.title == "解除技能"
+        || msg.title == "受到技能"
+        || msg.title == "npc技能攻击"
+      ) {
+        //取消寻路，让npc站住施法
+        SetNavPathToNone();
+        let skillItem = msg.skill;
+        if (skillItem == "中断") {
+          EventHandler("中断技能");
+          return;
+        }
+        scope.applyEvent("同步技能", msg);
+        return;
+      }
+
+
+      if (msg.title == "设置目标") {
+        if (msg.fireId) {
+          scope.fireId = msg.fireId;
+        }
+        if (msg.playerId) {
+          if (targetModel == null) {
+            baseData.state = stateType.Fire;
+            // this.SetNpcTarget(_Global.DyncManager.GetPlayerById(msg.playerId));
+          }
+        } else {
+          baseData.state = stateType.Normal;
+          scope.fireId = -1;
+        }
+
+        return;
+      }
+      if (msg.title == "设置动作") {
+        scope.ChangeAnim(msg.animName, msg.animNameFullback);
+        return;
+      }
+
+      if (msg.health != undefined) {
+        if (msg.health == 0) {
+          if (baseData.health == baseData.maxHealth) {
+            baseData.health = msg.health;
+            // 模型渐隐消失
+            // scope.transform.Destroy();
+            targetModel = null;
+            scope.transform.SetActive(false);
+            return;
+          }
+        }
+        baseData.health = msg.health;
+        if (baseData.health == 0) {
+          scope.isDead = true;
+          activeFalse();
+        }
+        scope.transform.UpdateData(); // 触发更新数据的回调事件
+
+      }
+
+    }
+    //#endregion
+
 
     Init();
 

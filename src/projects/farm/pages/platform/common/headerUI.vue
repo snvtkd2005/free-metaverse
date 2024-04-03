@@ -1,6 +1,6 @@
 
 <template>
-  <div v-if="display" class="  absolute left-2 top-2  flex text-white origin-top-left transform scale-50 xl:scale-100 "
+  <div v-if="display" class="  absolute left-64 top-2  flex text-white origin-top-left transform scale-50 xl:scale-100 "
     style="width:273px;height:109px;" @mouseenter="hover = true" @mouseleave="hover = false">
 
     <!-- 生命法术条 -->

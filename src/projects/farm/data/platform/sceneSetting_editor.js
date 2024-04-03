@@ -7,13 +7,19 @@ export default {
   roomName: "3dfarm",
   platform: "pcweb",
   isMobile:false,
-
+  hasEditored:true,
+  user:{
+    camp:1000,
+  },
   // 界面设置
   setting: {
     
     // 是否始终强制横屏
     onlyLandscape:true,
     
+    // 是否多人模式
+    multiGame:true,
+
     // 是否应用辉光效果
     useBloom:false,
     // useBloom:true,
@@ -78,10 +84,12 @@ export default {
     isLockStartAerial:false,
 
     // 是否第一人称视角
-    // firstPerson :true,
+    firstPerson :true,
     
     // 是否有角色
     hasAvatar:true,
+    // 是否有界面
+    hasHUD:true,
 
     // 操作方式。 0 键鼠控制/遥感控制，1 鼠标点击地面 
     contrlState: 0,
@@ -119,7 +127,7 @@ export default {
     targetRota: { x: -1.56, y: 1.3 },
 
 
-    playerPos:{ x: 0, y: 10,z:5 },
+    playerPos:{ x: 0, y: 0,z:5 },
     playerRotaV3: { x: 0, y:3.14, z: 0 },
     // 玩家刚体高度
     playerHeight: 1.7,
@@ -161,9 +169,11 @@ export default {
     //环境光 纯白颜色、强度
     ambientColor:0xffffff,
     AmbientLightIntensity: 1,
+    hasAmbientLight:true,
+
 
     // 方向光坐标和强度
-    hasDirectionalLight:false,
+    hasDirectionalLight:true,
     // DirectionalLightPos: { x: 255, y: 30, z: -115 },
     DirectionalLightPos: { x: 0, y: 30, z: 0 },
     DirectionalLightIntensity: 1,

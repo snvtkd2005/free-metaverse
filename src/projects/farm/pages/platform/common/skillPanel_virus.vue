@@ -161,7 +161,7 @@ export default {
         return;
       }
       console.log(" 点击道具栏 ", item);
-      _Global.SceneManager.UserModel(item);
+      _Global._SceneManager.UserModel(item);
       return;
       _Global.SendMsgTo3D("点击技能栏", item.animList[0].animName);
     },

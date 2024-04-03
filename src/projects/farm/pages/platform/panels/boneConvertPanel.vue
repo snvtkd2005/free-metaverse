@@ -1,7 +1,6 @@
 
 // 骨骼映射
-<template>
-  <!-- 模型库 模型列表选择 -->
+<template> 
   <div v-if="isOpen" class="
       absolute
       w-full
@@ -13,8 +12,7 @@
     ">
     <div class=" absolute bottom-0 mx-auto w-1/2 h-1/2 p-2 bg-gray-100 
       rounded-tr-lg rounded-tl-lg pointer-events-auto ">
-
-      <!-- 技能面板 -->
+ 
       <div class="
               w-full 
              text-gray-500 
@@ -25,7 +23,7 @@
           <div class=" text-left ">当前角色的骨骼的绑定关系</div>
         </div>
         <div class="mt-2 overflow-y-scroll h-96  ">
-          <div v-for="(item, i) in boneList" :key="i" class=" flex  text-base  text-left  h-auto  ">
+          <div v-for="(item, i) in boneList" :key="i" class=" flex  text-base  justify-between  text-left  h-auto  ">
             <div
             class=" w-auto  truncate mb-2  cursor-pointer flex  justify-between "
             :class="selectBoneName == item.boneName?' bg-black bg-opacity-60  text-white ':' text-black ',
@@ -33,6 +31,7 @@
               @click="ClickBone(item)">
               <text>{{ item.boneName }}</text>
             </div>
+            <div class=" mr-20">{{item.targetBone}}</div>
           </div>
         </div>
         <div class=" absolute -right-5 -top-16 rounded-full w-10 h-10 bg-white text-black flex cursor-pointer "
@@ -51,11 +50,11 @@
       <div class=" absolute top-0 right-0 text-white bg-black bg-opacity-40    ">
 
         <div v-for="(item, i) in baseBoneList" :key="i" class=" 
-               text-xs  text-left flex w-80 px-4 py-2 h-auto mb-2     ">
-          <div :style="' left:' + item.x + 'px;top:' + item.y + 'px;'" class="absolute ">
+               text-xs  text-left flex w-4 p-2 h-auto mb-2     ">
+          <div :style="' left:' + item.x + 'px;top:' + item.y + 'px;'" class="absolute pointer-events-none ">
             <div
               :class="item.targetBone == '' ?  'bg-red-500' : 'bg-blue-500'"
-              class="   self-center  truncate w-4 h-4  rounded-full " @click="SelectBone(item)">
+              class="   self-center  truncate w-4 h-4 cursor-pointer pointer-events-auto rounded-full " @click="SelectBone(item)">
             </div>
             <div class="  mx-auto  self-center w-40  truncate">
               {{ item.boneName }}
@@ -98,6 +97,7 @@ export default {
 
         { targetBone: "", boneName: "Hips", part: "中心点", x: 150, y: 150 },
 
+        { targetBone: "", boneName: "Back1", part: "背部1", x: 350, y: 80 },
         { targetBone: "", boneName: "Spine", part: "脊柱", x: 150, y: 130 },
         { targetBone: "", boneName: "Spine1", part: "脊柱1", x: 150, y: 110 },
         { targetBone: "", boneName: "Spine2", part: "脊柱2", x: 150, y: 90 },

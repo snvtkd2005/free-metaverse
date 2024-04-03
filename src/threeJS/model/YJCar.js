@@ -88,6 +88,7 @@ class YJCar {
     }
 
     this.SetKeyboard = function (key) {
+        // console.log("汽车控制",key,keysActions[key]);
       if (!canMoving) { return; }
 
       if (keysActions[key]) {

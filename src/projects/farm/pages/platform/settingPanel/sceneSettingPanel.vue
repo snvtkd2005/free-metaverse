@@ -163,12 +163,17 @@ export default {
     return {
       // 场景设置
       setting: [
+        { property: "setting-onlyLandscape", display: true, title: "是否强制横屏", type: "toggle", value: false, callback: this.ChangeValue },
         { property: "setting-hasSceneHDR", display: true, title: "启用环境hdr", type: "toggle", value: false, callback: this.ChangeValue },
         { property: "setting-envSceneHDRPath", display: true, title: "环境hdr", type: "file",filetype:"hdr", value: "" },
         { property: "setting-hasEnvmap", display: true, title: "启用全景球", type: "toggle", value: false, callback: this.ChangeValue },
         { property: "setting-envmapPath", display: true, title: "全景球hdr", type: "file",filetype:"hdr", value: "" },
         { property: "setting-hasBGM", display: true, title: "启用背景音乐", type: "toggle", value: false, callback: this.ChangeValue },
         { property: "setting-BGMurl", display: true, title: "背景音乐", type: "file",filetype:"audio", value: "" },
+        { property: "setting-useBloom", display: true, title: "启用辉光", type: "toggle", value: false, callback: this.ChangeValue },
+        { property: "bloomData-bloomTexStrength", display: false, title: "辉光贴图强度", type: "num",step:0.1, value: "0.1", callback: this.ChangeValue },
+        { property: "setting-enabledGravity", display: true, title: "启用重力", type: "toggle", value: false, callback: this.ChangeValue },
+        
         { property: "AmbientLightData-backgroundColor", display: true, title: "画布背景色", type: "color", value: "#A7D0FF", callback: this.ChangeValue },
         // { property: "AmbientLightData-ambientColor", display: true, title: "环境光颜色", type: "color", value: "#ffffff", callback: this.ChangeValue },
         { property: "AmbientLightData-AmbientLightIntensity", display: true, title: "环境光强度", type: "slider", value: 1, step: 0.1, min: 0, max: 2, callback: this.ChangeValue },
@@ -177,9 +182,13 @@ export default {
         { property: "AmbientLightData-fogNear", display: true, title: "雾近距离", type: "int", value: "30", callback: this.ChangeValue },
         { property: "AmbientLightData-fogFar", display: true, title: "雾远距离", type: "int", value: "250", callback: this.ChangeValue },
         // { property: "AmbientLightData-DirectionalLightIntensity", display: true, title: "太阳光强度", type: "slider", value: 1, step: 0.1, min: 0, max: 2, callback: this.ChangeValue },
+        
+        { property: "shadowData-resource", display: true, title: "阴影分辨率", type: "int", value: "256", callback: this.ChangeValue },
+        
         { property: "hasFloor", display: true, title: "启用默认地面", type: "toggle", value: true, callback: this.ChangeValue },
         { property: "setting-hasCamRaycast", display: true, title: "启用摄像机遮挡", type: "toggle", value: true, callback: this.ChangeValue },
         { property: "setting-multiGame", display: true, title: "启用多人模式", type: "toggle", value: true, callback: this.ChangeValue },
+        { property: "setting-isMMD", display: true, title: "启用MMD模式", type: "toggle", value: true, callback: this.ChangeValue },
         { property: "setting-isDMGame", display: true, title: "是否弹幕游戏", type: "toggle", value: false, callback: this.ChangeValue },
         { property: "setting-hasAvatar", display: true, title: "启用第三人称角色", type: "toggle", value: true, callback: this.ChangeValue },
         { property: "setting-hasHUD", display: true, title: "是否有界面", type: "toggle", value: true, callback: this.ChangeValue },
@@ -374,6 +383,11 @@ export default {
         this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "AmbientLightData-fogColor", "display", hasFog );
         this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "AmbientLightData-fogNear", "display", hasFog );
         this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "AmbientLightData-fogFar", "display", hasFog );
+
+
+        let useBloom  = this.Utils.GetSettingItemValueByProperty(this.setting, 'setting-useBloom');
+        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "bloomData-bloomTexStrength", "display", useBloom );
+        
         
     },
     ChangeImage(type, e) {
@@ -393,7 +407,12 @@ export default {
       console.log(i, property, e);
 
       let sp = property.split('-');
-      if (sp.length == 1) {
+      if (sp.length == 3) {
+        if(this.sceneData[sp[0]][sp[1]] == undefined){
+          this.sceneData[sp[0]][sp[1]] = {};
+        }
+        this.sceneData[sp[0]][sp[1]][sp[2]] = e;
+      }else if (sp.length == 1) {
         this.sceneData[sp[0]] = e;
       } else {
         if(this.sceneData[sp[0]] == undefined){
@@ -407,6 +426,10 @@ export default {
       if (property == "AmbientLightData-AmbientLightIntensity") {
         _Global.YJ3D._YJSceneManager.SetAmbientIntensity(e);
       }
+      if (property == "AmbientLightData-DirectionalLightIntensity") {
+        _Global.YJ3D._YJSceneManager.SetDirectionalIntensity(e);
+      }
+      
       if (property == "AmbientLightData-backgroundColor") {
         _Global.SetBackgroundColor(e);
       }
@@ -417,7 +440,7 @@ export default {
 
       if (property == "hasFloor") {
         this.sceneData.hasFloor = e;
-        _Global.SetDisplayFloor(e);
+        _Global.YJ3D._YJSceneManager.SetDisplayFloor(e);
       }
       if (property == "setting-hasEnvmap") {
         _Global.enableHDR(

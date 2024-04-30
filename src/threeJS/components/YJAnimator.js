@@ -332,6 +332,11 @@ class YJAnimator {
       update();
     }
     function Init() {
+
+      if(model==null){
+        return;
+      }
+
       mixer = new THREE.AnimationMixer(model);
       
       model.traverse(function (item) {

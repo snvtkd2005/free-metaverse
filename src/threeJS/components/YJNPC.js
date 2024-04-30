@@ -539,8 +539,15 @@ class YJNPC {
     }
     let randomRedius = 5;
     let oldTargetPos = null;
+    this.MoveToTargetFast = function(){
+      scope.canMove = true;
+      baseData.speed *= 5;
+      lookAtTargetPos();
+      navpath = [ targetModel.GetWorldPos()];
+      // GetNavpath(parent.position.clone(),  targetModel.GetWorldPos(),0);
+    }
     // 获取寻路路径
-    function GetNavpath(fromPos, targetPos) {
+    function GetNavpath(fromPos, targetPos,_randomRedius) {
       if (!scope.canMove) { return; }
       if (oldTargetPos && targetPos.distanceTo(oldTargetPos) < 0.1) {
         // console.log(" 目标点不变 ",oldTargetPos,targetPos);
@@ -552,7 +559,11 @@ class YJNPC {
       // }
 
       oldTargetPos = targetPos.clone();
-      randomRedius = vaildAttackDis;
+      if(_randomRedius != undefined){
+        randomRedius = _randomRedius;
+      }else{
+        randomRedius = vaildAttackDis;
+      }
       // console.log("查到寻路路径 ",scope.transform.GetData().mapId);
       targetPos.x += radomNum(-1 * randomRedius, 1 * randomRedius);
       targetPos.z += radomNum(-1 * randomRedius, 1 * randomRedius);
@@ -661,6 +672,8 @@ class YJNPC {
 
       if (data.weaponData && data.weaponData.message) {
         weaponData = data.weaponData.message.data;
+        var { s, v, a, _ready } = GetSkillDataByWeapon(weaponData);
+        setVaildAttackDis(v);
       }
 
       _YJEquip.SetMessage(data);
@@ -686,30 +699,30 @@ class YJNPC {
     }
     //#endregion 
 
-    this.GetBoneVagueFire = function(part, callback) {
+    this.GetBoneVagueFire = function (part, callback) {
       let boneName = "";
       if (data.avatarData.boneList) {
-          for (let i = 0; i < data.avatarData.boneList.length; i++) {
-              const element = data.avatarData.boneList[i];
-              if (element.targetBone == part) {
-                  boneName = element.boneName;
-              }
+        for (let i = 0; i < data.avatarData.boneList.length; i++) {
+          const element = data.avatarData.boneList[i];
+          if (element.targetBone == part) {
+            boneName = element.boneName;
           }
+        }
       }
       if (boneName == "") {
-          boneName = part;
+        boneName = part;
       }
       // console.log("查找 ",part,boneName);
       scope.GetBoneVague(boneName, (bone) => {
-          // bone.add(new THREE.AxesHelper(100));
-          if (callback) {
-              callback(bone.getWorldPosition(new THREE.Vector3()));
-          }
+        // bone.add(new THREE.AxesHelper(100));
+        if (callback) {
+          callback(bone.getWorldPosition(new THREE.Vector3()));
+        }
       });
 
-  }
+    }
 
-    this.GetShootingStartPos = function() {
+    this.GetShootingStartPos = function () {
       let pos = scope.GetPlayerWorldPos();
       let weaponModel = _YJEquip.getWeaponModel();
       if (weaponModel) {
@@ -767,6 +780,9 @@ class YJNPC {
     this.GetVaildAttackDis = function () {
       return vaildAttackDis + scope.transform.GetData().scale.x;
     }
+    this.SetVaildAttackDis = function(v){
+      setVaildAttackDis(v);
+    }
     function setVaildAttackDis(v) {
       vaildAttackDis = v;//* modelScale;
     }
@@ -793,7 +809,9 @@ class YJNPC {
 
 
     function CheckCanAttack() {
-
+      if (targetModel == null) {
+        return false;
+      }
       let targetPos = targetModel.GetWorldPos();
       targetPos.y = 1;
       npcPos = scope.GetWorldPos();
@@ -829,11 +847,11 @@ class YJNPC {
       }, 500);
     }
 
-    
-    this.TargetDead = function() {
+
+    this.TargetDead = function () {
 
     }
-      function TargetDead() {
+    function TargetDead() {
       TargetNone();
       // targetModel = null;
       // return;
@@ -859,6 +877,9 @@ class YJNPC {
       if (scope.fireId == -1) {
         scope.SetNpcTargetToNone();
         scope.fireOff();
+        return;
+      }
+      if (_YJSkill.GetinSkill()) {
         return;
       }
       if (targetModel != null && targetModel.isDead) {
@@ -888,7 +909,9 @@ class YJNPC {
 
 
       // 向主控请求下一个目标
-      // console.error(scope.GetNickName()+ "向主控请求下一个目标");
+      // if ( scope.npcName.includes("我回来哩") ) {
+      //   console.error(scope.GetNickName() + "向主控请求下一个目标");
+      // }
       _Global.DyncManager.NPCTargetToNone({
         npcId: scope.id, camp: baseData.camp, fireId: scope.fireId
         , ignorePlayerId: targetModel ? targetModel.id : null,
@@ -1029,6 +1052,7 @@ class YJNPC {
       }
 
     }
+
 
     this.LogFire = function () {
       console.log("fireid = ", scope.fireId);
@@ -1824,7 +1848,7 @@ class YJNPC {
 
     this.SetPlayerState = function (e, _animName) {
       if (oldState == e) {
-        // if (scope.npcName.includes("阳光万里2") || scope.npcName.includes("ZH画渣")) {
+        // if (scope.npcName.includes("阳光万里2") || scope.npcName.includes("我回来哩")) {
         //   console.error(GetNickName() + " 状态切换次数 ", inStateTimes, e);
         // }
         return;
@@ -2074,7 +2098,7 @@ class YJNPC {
 
         // 在同一位置停留时间超过1秒，则取消移动
 
-        moveLength = pos.distanceTo(oldMovePos);
+        moveLength = pos.distanceTo(oldMovePos)* 5;
 
         // console.log(" in tick moveLength = ", moveLength);
 
@@ -2088,8 +2112,8 @@ class YJNPC {
         //     return;
         //   }
         // }
-        scope.SetActionScale(moveLength * 4);
-        scope.transform.UpdateDataByType("actionScale", moveLength * 4);
+        scope.SetActionScale(moveLength );
+        scope.transform.UpdateDataByType("actionScale", moveLength );
         // console.log(pos, oldMovePos);
         if (oldMovePos != pos) {
           oldMovePos = pos.clone();

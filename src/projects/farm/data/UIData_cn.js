@@ -74,6 +74,7 @@ export default {
         template: [
           // {  templateType:"Scene",name: "第一人称", content: "第一人称漫游" },
           { templateType: "Scene", name: "第三人称", content: "第三人称漫游场景" },
+          { templateType: "Scene", name: "数字人", content: "数字人" },
           // {  templateType:"Scene",name: "单品展示", content: "单品展示" },
           // {  templateType:"Scene",name: "360全景", content: "全景图漫游" },
         ],

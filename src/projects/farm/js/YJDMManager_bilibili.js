@@ -570,25 +570,23 @@ class YJDMManager_bilibili {
         }
       }
       if (t == "多重射击") {
-        let count = 3;
         let targetCount = 2;
         let strength = 15;
         if (lv) {
-
-          count = Math.min(5, Math.max(lv, 3));
+ 
           targetCount = lv + 1;
           strength = 5 * lv;
 
           // 10000表示是礼物触发
           if (lv == 10000) {
-            count = 10; targetCount = 10; strength = 30;
+             targetCount = 10; strength = 300;
           }
         }
         return {
           type: t,
-          castTime: 0.2 * count,
+          castTime: 0.2 ,
           skillName: t,
-          vaildDis: 20,
+          vaildDis: 20, 
           target: { type: "area", value: targetCount },
           effect: { type: "contDamage", time: 0.2, skillName: t, value: strength }
         };
@@ -1560,7 +1558,7 @@ class YJDMManager_bilibili {
 
 
 
-      setTimeout(() => {
+      _Global.addEventListener("3d加载完成",() => {
 
         // target.GetComponent("NPC").addEventListener("死亡", () => {
         //   //主播角色死亡，立即结束战斗
@@ -1581,6 +1579,8 @@ class YJDMManager_bilibili {
             let has = false;
             for (let j = 0; j < DMPlayer.length && !has; j++) {
               if (DMPlayer[j].uname == world_configs.dmplayer[i].uname) {
+                DMPlayer[j].assetId = world_configs.dmplayer[i].assetId;
+                DMPlayer[j].skill[0].level = world_configs.dmplayer[i].skill[0].level;
                 has = true;
               }
             }
@@ -1593,7 +1593,7 @@ class YJDMManager_bilibili {
           }
 
 
-          for (let i = 10; i >= 0; i--) {
+          for (let i = 12; i >= 0; i--) {
             DMPlayer.splice(DMPlayer.length - i, 1);
           }
 
@@ -1721,7 +1721,7 @@ class YJDMManager_bilibili {
         //   model.SetActive(true); 
         // });
 
-      }, 5000);
+      });
 
       _Global.addEventListener("战斗开始", () => {
         _Global.createCompleted = false;

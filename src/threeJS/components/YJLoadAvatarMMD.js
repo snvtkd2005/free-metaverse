@@ -2,27 +2,22 @@
 
 
 import * as THREE from "three";
-import { SpringBone } from "./SpringBone.js";
 
 import { MMDLoader } from 'three/examples/jsm/loaders/MMDLoader.js';
 import { MMDAnimationHelper } from 'three/examples/jsm/animation/MMDAnimationHelper.js';
-
 import TWEEN from '@tweenjs/tween.js';
-import { FaceBone } from "./FaceBone.js";
-import { Tonemapping } from "./tonemapping.js";
+import { FaceBone } from "../common/FaceBone.js";
 import { YJLoadAnimation } from "/@/threeJS/loader/YJLoadAnimation.js";
-import { YJPlayerAnimData } from "../YJPlayerAnimData.js";
-import { createAnimationClip, createAnimationClip_mmd2mixamo2, createAnimationClip2, createAnimationClipScale } from "/@/utils/utils_threejs.js";
 
-class SpringManager {
-    constructor() {
+class YJLoadAvatarMMD {
+    constructor(group) {
         let scope = this;
 
         let helper, ikHelper, physicsHelper;
         let mesh;
-        let mainMesh = null;
-        let scene;
-        let group = new THREE.Group();
+        let mainMesh = null; 
+        // let group = scene;
+        // let group = new THREE.Group();
 
         const clock = new THREE.Clock();
 
@@ -59,6 +54,7 @@ class SpringManager {
                 name: "刻晴",
                 // url: "./public/models/mmd/miku/刻晴身体.pmx",
                 url: "./public/models/mmd/miku/01 刻晴-霓裾翩跹/刻晴.pmx",
+                // url: "./public/models/mmd/miku/01 刻晴-霓裾翩跹/刻晴22.pmx",
 
                 offset: [],
             },
@@ -107,8 +103,8 @@ class SpringManager {
                 // url: "./public/models/mmd/vmds/Standing Draw Arrow.json", //快速
                 // url: "./public/models/mmd/vmds/T-Pose.fbx", //快速
                 // url: "./public/models/mmd/vmds/Y Bot@Kiss.fbx", //快速
-                url: "./public/models/mmd/vmds/Running.fbx", //快速
-                // url: "./public/models/mmd/vmds/X Bot@Rifle Walk.fbx", //快速
+                // url: "./public/models/mmd/vmds/Running.fbx", //快速
+                url: "./public/models/mmd/vmds/X Bot@Rifle Walk.fbx", //快速
 
                 // url: "./public/models/mmd/vmds/walk001.vmd", //快速
                 // url:"./public/models/mmd/vmds/walk002.vmd", //慢速
@@ -246,7 +242,7 @@ class SpringManager {
 
             let vmdFile = vmddata.url;
             let pos = new THREE.Vector3(0, 0, 0);
-            if (offset.length == 3) {
+            if (offset && offset.length == 3) {
                 pos.x = offset[0];
                 pos.y = offset[1];
                 pos.z = offset[2];
@@ -283,11 +279,9 @@ class SpringManager {
                 group.add(mesh);
                 if (part == "body") {
                     mmdBoneList = [];
-                    baseMMDBoneList = [];
                     mesh.traverse((item) => {
                         if (item.type == "Bone") {
                             mmdBoneList.push({ mesh: item, boneName: item.name, rota: { x: 0, y: 0, z: 0 }, scale: { x: 1, y: 1, z: 1 } });
-                            baseMMDBoneList.push({ boneName: item.name, mesh: item });
 
                             // for (let j = 0; j < boneRefList.length; j++) {
                             //     const mmdBone = boneRefList[j];
@@ -303,7 +297,6 @@ class SpringManager {
                             item.frustumCulled = false;  //解决物体在某个角度不显示的问题
                         }
                     });
-                    new FaceBone(mesh);
 
                     // let skeleton = new THREE.SkeletonHelper(mesh);
                     // skeleton.visible = true;
@@ -459,6 +452,7 @@ class SpringManager {
 
                 }
                 if (true) {
+                    // new FaceBone(mesh);
                     // console.log(" boby ", mesh);
                     let materials = mesh.material;
                     let matIndex = -1;
@@ -617,7 +611,7 @@ class SpringManager {
 
                 // console.log(f);
             });
-            // console.log(newAction);
+            console.log(newAction);
 
             if (!sameBone) {
                 // 如果动作文件中的骨骼名不同，则需要记录初始骨骼坐标和旋转
@@ -655,7 +649,6 @@ class SpringManager {
         let myanimation;
         const loader = new MMDLoader();
         function anycToMain() {
-
             if (mainMesh == null) {
                 return;
             }
@@ -1689,7 +1682,6 @@ class SpringManager {
 
 
                 let tracks = [];
-                let offset = new THREE.Vector3();
                 for (let i = 0; i < anim.tracks.length; i++) {
                     const mixamoBone = anim.tracks[i];
                     for (let j = 0; j < boneRefList.length; j++) {
@@ -1701,21 +1693,21 @@ class SpringManager {
                             const values = [mixamoBone.values.length];
                             let mmdbone = getMMDBone(mmdBone.mmd);
                             let mixamobone = getMixamoBone(mmdBone.mixamo);
+
                             let mmdY = mmdbone.getWorldPosition(new THREE.Vector3()).y;
                             let mixiamoY = mixamobone.getWorldPosition(new THREE.Vector3()).y;
-                            offset.y = (mmdY - mixiamoY) - mixiamoY + 0.4;
-                            // offset.y = (mmdY - 10)-10 + 0.4; 
-                            // console.log(mmdY, mixiamoY);
+                            let offsetY = (mmdY - mixiamoY) - mixiamoY + 0.4;
+                            // console.log(offsetY);
                             let posScale = 0.1;
                             for (let i = 0; i < mixamoBone.values.length; i = i + 3) {
                                 values[i] = mixamoBone.values[i] * posScale;
-                                values[i + 1] = (mixamoBone.values[i + 1]) * posScale + offset.y;
+                                values[i + 1] = (mixamoBone.values[i + 1]) * posScale + offsetY;
                                 values[i + 2] = mixamoBone.values[i + 2] * posScale;
                             }
 
                             const track = new THREE.VectorKeyframeTrack(trackName, times, values);
                             tracks.push(track);
-                            // console.log("替换", mmdBone.mixamo, mmdBone.mmd);
+                            console.log("替换", mmdBone.mixamo, mmdBone.mmd);
                         }
                         if ((mixamoBone.name) == (mmdBone.mixamo + ".quaternion")) {
                             const trackName = mixamoBone.name.replace(mmdBone.mixamo, mmdBone.mmd);
@@ -1767,18 +1759,17 @@ class SpringManager {
 
                             const track = new THREE.QuaternionKeyframeTrack(trackName, times, values);
                             tracks.push(track);
-                            // console.log("替换", mmdBone.mixamo, mmdBone.mmd);
+                            console.log("替换", mmdBone.mixamo, mmdBone.mmd);
                         }
                     }
 
                 }
-
                 anim = new THREE.AnimationClip(currentAnimName, -1, tracks); anim.optimize();
-                // console.log(anim.tracks);
+                console.log(anim.tracks);
                 animwalk_mmd = anim.tracks;
                 // return;
 
-                directChangeAllAnim(anim, animData.loop, offset);
+                directChangeAllAnim(anim, animData.loop);
                 return;
 
 
@@ -1786,7 +1777,7 @@ class SpringManager {
 
             });
         }
-        function directChangeAllAnim(anim, loop, offset) {
+        function directChangeAllAnim(anim, loop) {
 
             for (let i = 0; i < modelList.length; i++) {
                 const element = modelList[i];
@@ -1794,7 +1785,6 @@ class SpringManager {
                     let mixer = helper.objects.get(element.mesh).mixer;
                     ChangeAnim2(element.currentActionIndex, mixer, mixer.clipAction(anim), loop);
                     element.currentActionIndex = element.vmdFiles.length;
-                    // element.mesh.position.add(offset);
                 }
             }
 
@@ -2216,7 +2206,6 @@ class SpringManager {
 
             }, null, null);
         }
-
         function loadBase(vmddata) {
 
             loader.loadWithAnimation(modelFile_base, vmddata.url, function (mmd) {
@@ -2264,171 +2253,50 @@ class SpringManager {
             }, null, null);
 
         }
-        function init() {
-            scene = _Global.YJ3D.scene;
+        function init() { 
 
-            scene.add(group);
+            // scene.add(group);
 
-            // CreateSphereFn(scene, 0.5, 0xffffff, new THREE.Vector3(1, 1, 0), "bloom");
-
-            let vmddata = GetVmdByName(currentAnimName);
-
-            LoadCopyToMake("./public/models/mmd/miku/刻晴身体 - 副本.pmx", vmddata.url);
             // let scale = 0.1;
             // group.scale.set(scale, scale, scale);
 
-            _Global.MMDManager = scope;
             // new Tonemapping(_Global.YJ3D.renderer, scene);
 
-            helper = new MMDAnimationHelper({
-                afterglow: 2.0
-            });
-
-            loadBase(vmddata);
 
 
+            // loadBase(vmddata);
 
-            helper.enable('animation', false);
-            helper.enable('physics', false);
+            // helper.enable('animation', false);
+            // helper.enable('physics', false);
 
-            setTimeout(() => {
-                helper.enable('animation', true);
-                helper.enable('physics', true);
-            }, 2000);
+            // setTimeout(() => {
+            //     helper.enable('animation', true);
+            //     helper.enable('physics', true);
+            // }, 2000);
 
             // LoadMMD(loader, GetHairByName("hair", currentpmx_hair), vmddata);
-            LoadMMD(loader, GetHairByName("body", currentpmx_body), vmddata);
 
-            return;
-            // _Global.YJ3D._YJSceneManager._YJTransformManager.attach(
-            //     group
-            // );
-
-            // LoadMMD(loader, modelFile_all, vmdFiles, new THREE.Vector3(2, 0, 0));
-
-            let bones = _Global.YJ3D._YJSceneManager
-                .GetSingleTransformComponent("MeshRenderer").GetAllBoneModel();
-
-            let model = _Global.YJ3D._YJSceneManager
-                .GetSingleTransformComponent("MeshRenderer").GetModel();
-
-            model.traverse(function (item) {
-                if (
-                    item.type === "SkinnedMesh"
-                ) {
-                    console.log((item));
-                }
-            });
-
-
-            for (let i = 0; i < bones.length; i++) {
-                const item = bones[i];
-                if (
-                    item.name.includes("J_L_HeadRibbon_00")
-                    || item.name.includes("J_L_HeadRibbon_01")
-
-                    || item.name.includes("J_R_HeadRibbon_00")
-                    || item.name.includes("J_R_HeadRibbon_01")
-
-                    || item.name.includes("J_L_HairTail_00")
-                    || item.name.includes("J_L_HairTail_01")
-                    || item.name.includes("J_L_HairTail_02")
-                    || item.name.includes("J_L_HairTail_03")
-                    || item.name.includes("J_L_HairTail_04")
-                    || item.name.includes("J_L_HairTail_05")
-
-                    || item.name.includes("J_R_HairTail_00")
-                    || item.name.includes("J_R_HairTail_01")
-                    || item.name.includes("J_R_HairTail_02")
-                    || item.name.includes("J_R_HairTail_03")
-                    || item.name.includes("J_R_HairTail_04")
-                    || item.name.includes("J_R_HairTail_05")
-
-                    || item.name.includes("J_L_HairFront_00")
-                    || item.name.includes("J_R_HairFront_00")
-
-                    || item.name.includes("J_L_HairSide_00")
-                    || item.name.includes("J_L_HairSide_01")
-                    || item.name.includes("J_R_HairSide_00")
-                    || item.name.includes("J_R_HairSide_01")
-
-                    || item.name.includes("J_L_Skirt_00")
-                    || item.name.includes("J_L_Skirt_01")
-                    || item.name.includes("J_L_SusoFront_00")
-
-                    || item.name.includes("J_L_SkirtBack_00")
-                    || item.name.includes("J_L_SkirtBack_01")
-                    || item.name.includes("J_L_SusoBack_00")
-
-                    || item.name.includes("J_R_Skirt_00")
-                    || item.name.includes("J_R_Skirt_01")
-                    || item.name.includes("J_R_SusoFront_00")
-
-                    || item.name.includes("J_R_SkirtBack_00")
-                    || item.name.includes("J_R_SkirtBack_01")
-                    || item.name.includes("J_R_SusoBack_00")
-
-                    || item.name.includes("J_L_Mune_00")
-                    || item.name.includes("J_L_Mune_01")
-                    || item.name.includes("J_R_Mune_00")
-                    || item.name.includes("J_R_Mune_01")
-
-
-
-                    || item.name.includes("renti65")
-                    || item.name.includes("renti66")
-                    // || item.name.includes("renti67")
-
-                ) {
-                    let _SpringBone = new SpringBone(item, item.children[0], _Global.YJ3D.scene, model);
-                    scope.Add(_SpringBone);
-                }
-                // console.log(item.name);
-                // scene.attach(ball);
-            }
-
-
-            model.traverse(function (item) {
-                if (
-                    item.name.includes("renti65")
-                    || item.name.includes("renti66")
-                    // || item.name.includes("renti67")
-
-                ) {
-                    let _SpringBone = new SpringBone(item, item.children[0], _Global.YJ3D.scene, model);
-                    scope.Add(_SpringBone);
-                }
-                // console.log(item.name);
-            });
 
             // let transform = _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
             // _Global.YJ3D._YJSceneManager._YJTransformManager.attach(
             //     transform.GetGroup()
             // );
         }
-        let springBone = [];
-        this.Add = function (s) {
-            springBone.push(s);
-        }
-
-        this._update = function () {
-
-            tick(clock.getDelta());
-            for (let i = 0; i < springBone.length; i++) {
-                springBone[i].UpdateSpring();
+        this._LoadMMD = function(url,callback){
+            let data = {
+                part: "body", 
+                url: url, 
             }
-            TWEEN.update();
-        }
-        function tick(dt) {
-
-            if (tposeModel_mixer !== null) {
-                // 更新混合器相关的时间
-                tposeModel_mixer.update(dt);
+            
+            let vmddata =  {
+                name: "idle", 
+                url: "./public/models/mmd/vmds/idle.vmd",
+                loop: true,
             }
-            helper.update(dt);
-        }
-        init();
+            LoadMMD(loader, data, vmddata,callback);
+        } 
+        init(); 
     }
 }
 
-export { SpringManager };
+export { YJLoadAvatarMMD };

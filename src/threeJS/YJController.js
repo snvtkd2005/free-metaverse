@@ -596,7 +596,7 @@ class YJController {
     }
     let display = true;
     function Display(b) {
-      if (_player == null) { return; }
+      if (_player == null || _YJPlayer == null) { return; }
 
       if (onWheelChangeAction) {
         onWheelChangeAction(wheelCurrentValue);

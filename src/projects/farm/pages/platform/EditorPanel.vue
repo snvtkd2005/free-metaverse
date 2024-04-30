@@ -1,7 +1,7 @@
 
 <!-- // 场景编辑UI -->
 <template>
-  <div class="absolute left-0 top-0 w-full h-full flex flex-col">
+  <div class="absolute left-0 top-0 w-full h-full flex flex-col overflow-hidden">
     <!-- 顶部工具栏 -->
     <div
       class="absolute z-30 left-0 top-0 w-full flex bg-445760 text-gray-200"
@@ -121,7 +121,7 @@
 
     <!-- 右侧检视面板 -->
     <div
-      class="absolute right-0 top-0 h-full bg-546770 flex"
+      class="absolute right-0 top-0 h-full bg-546770 flex overflow-hidden"
       :style="settingPanelStyle"
     >
       <div
@@ -992,6 +992,9 @@ export default {
       this.isDMGame = this.sceneData.setting.isDMGame;
       _Global.isDMGame = this.isDMGame;
 
+      this.isMMD = this.sceneData.setting.isMMD;
+      _Global.isMMD = this.isMMD;
+
       this.hasHUD = this.sceneData.setting.hasHUD;
       _Global.hasAvatar = this.sceneData.setting.hasAvatar;
       this.hasAvatar = this.sceneData.setting.hasAvatar;
@@ -1198,7 +1201,7 @@ export default {
     CancelCut() {
       _Global.SendMsgTo3D("单品", "显示角色");
       // _Global.ChangeFirstThird(false);
-      _Global.SetEnableGravity(true);
+      // _Global.SetEnableGravity(true);
       // _Global.SetDisplayFloor(true);
     },
     ChangeTable(item) {
@@ -1245,7 +1248,7 @@ export default {
       if (item.id == "single_planeState") {
         item.value = !item.value;
         item.content = item.value ? "隐藏地面" : "显示地面";
-        _Global.SetDisplayFloor(item.value);
+        _Global.YJ3D._YJSceneManager.SetDisplayFloor(item.value);
         // if (!item.value) {
         //   _Global.ChangeFirstThird(true);
         //   _Global.SetEnableGravity(false);

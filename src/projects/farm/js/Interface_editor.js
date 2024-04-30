@@ -148,10 +148,12 @@ class Interface {
             let item = modelsList[i];
             if (item.modelType == "角色模型") {
               // 到角色数据中，模型路径、动画数据
-              let data = item.message.data;
-              data.modelPath = _this.$uploadUrl + item.modelPath;
-              data.icon = "thumb.png";
-              _Global.CreateOrLoadPlayerAnimData().AddAvatarData(data);
+              if(item.message){
+                let data = item.message.data;
+                data.modelPath = _this.$uploadUrl + item.modelPath;
+                data.icon = "thumb.png";
+                _Global.CreateOrLoadPlayerAnimData().AddAvatarData(data);
+              }
             } else {
               // this.modelsList.push(item);
             }
@@ -221,8 +223,7 @@ class Interface {
     // 向3d页发送
     this.SendMsgTo3D = (type, msg) => {
       console.log("向3d页发送", type, msg);
-      if (type == "删除folderBase") {
-        // _Global.SendMsgTo3D("删除folderBase","1699605982197");
+      if (type == "删除folderBase") { 
         // _Global.SendMsgTo3D("删除folderBase",{type:"uploadsAudio/",folderBase:"1704941752535"});
         // _Global.SendMsgTo3D("删除folderBase",{type:"uploads/",folderBase:"1704941752535"});
         // _Global.SendMsgTo3D("删除folderBase",{type:"uploads/",folderBase:"wow_prefabs"});
@@ -656,7 +657,6 @@ class Interface {
         _YJAudioManager = new YJAudioManager(_this);
         
       }
-      _Global.applyEvent("3d加载完成");
       _Global.YJDync = this.YJDync();
       _Global.DyncManager = this.DyncManager();
       // 场景加载完成后，重新更新相机射线偏移，
@@ -664,10 +664,9 @@ class Interface {
       if(_this.setPanelSize){
         _this.setPanelSize();
       } 
+ 
+      _Global.applyEvent("3d加载完成");
 
-      // 调用2d的
-      if (_Global.load3dComplete == null) { return; }
-      _Global.load3dComplete();
     }
 
     // 再次开始游戏，跳转到游戏装置前

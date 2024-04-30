@@ -1,32 +1,30 @@
 
-<template> 
+<template>
   <!-- 右上角按钮 -->
-  <div class="h-10 flex gap-x-1  text-gray-200">
-
-    <div class=" p-2 flex  h-10 text-center  cursor-pointer  bg-black bg-opacity-40  "
-      :class="sceneSetting.hasDirectionalLight ? ' bg-opacity-80 ' : 'bg-opacity-40 '" @click="ChangeSetting('太阳光')">
-      <div class=" self-center">
-        太阳光
-      </div>
+  <div class="h-10 flex gap-x-1 text-gray-200">
+    <div
+      class="p-2 flex h-10 text-center cursor-pointer bg-black bg-opacity-40"
+      :class="
+        sceneSetting.hasDirectionalLight ? ' bg-opacity-80 ' : 'bg-opacity-40 '
+      "
+      @click="ChangeSetting('太阳光')"
+    >
+      <div class="self-center">太阳光</div>
     </div>
 
-    <div class=" p-2 flex h-10 text-center cursor-pointer  bg-black bg-opacity-40 " @click="ChangeSetting('环境光')">
-      <div class=" self-center">
-        环境光
-      </div>
-    </div> 
-  </div>
+    <div
+      class="p-2 flex h-10 text-center cursor-pointer bg-black bg-opacity-40"
+      @click="ChangeSetting('环境光')"
+    >
+      <div class="self-center">环境光</div>
+    </div>
+  </div> 
 </template>
 
 <script>
-
-
-
 export default {
   name: "settingpanel",
-  components: {
-
-  },
+  components: {},
   data() {
     return {
       // 场景设置
@@ -41,41 +39,37 @@ export default {
         setting: true,
         model: true,
       },
-      fullScreen:false,
+      fullScreen: false, 
     };
   },
-  created() {
-
-  },
+  created() {},
   mounted() {
     this.parent = this.$parent;
 
-     
     setTimeout(() => {
-      if(_Global.YJ3D && _Global.YJ3D._YJSceneManager){
-        this.sceneSetting.hasDirectionalLight = _Global.YJ3D._YJSceneManager.GetSceneData().AmbientLightData.hasDirectionalLight;
+      if (_Global.YJ3D && _Global.YJ3D._YJSceneManager) {
+        this.sceneSetting.hasDirectionalLight =
+          _Global.YJ3D._YJSceneManager.GetSceneData().AmbientLightData.hasDirectionalLight;
       }
     }, 5000);
-
   },
   methods: {
-
     ChangePanel(e) {
-      
       if ("全屏" == e) {
-        this.fullScreen = !this.fullScreen; 
+        this.fullScreen = !this.fullScreen;
         this.parent.setMaxMin(this.fullScreen);
         return;
       }
       if ("导出" == e) {
         // 由服务器把场景配置、场景模型数据、模型文件夹、程序文件夹等打包成zip压缩包下载
-        // 
+        //
         return;
       }
       if ("设置" == e) {
-        this.parent.ChangePanel('setting');
+        this.parent.ChangePanel("setting");
         return;
       }
+
       if ("模型" == e) {
         this.panelState.model = !this.panelState.model;
         this.parent.$refs.modelPanel.SetVisible(this.panelState.model);
@@ -86,20 +80,24 @@ export default {
         return;
       }
       this.openModelPanel = e;
-    },
+    }, 
     ChangeSetting(title, e) {
       if (title == "太阳光") {
-        this.sceneSetting.hasDirectionalLight = !this.sceneSetting.hasDirectionalLight;
-        _Global.YJ3D._YJSceneManager.VisibleDirectionalLight( this.sceneSetting.hasDirectionalLight);
+        this.sceneSetting.hasDirectionalLight =
+          !this.sceneSetting.hasDirectionalLight;
+        _Global.YJ3D._YJSceneManager.VisibleDirectionalLight(
+          this.sceneSetting.hasDirectionalLight
+        );
         return;
       }
       if (title == "环境光") {
         this.sceneSetting.hasAmbientLight = !this.sceneSetting.hasAmbientLight;
-        _Global.YJ3D._YJSceneManager.SetAmbientIntensity( this.sceneSetting.hasAmbientLight?1:0);
+        _Global.YJ3D._YJSceneManager.SetAmbientIntensity(
+          this.sceneSetting.hasAmbientLight ? 1 : 0
+        );
         return;
       }
       if (title == "启动") {
-
         let path = "/editorVisit";
         // 新窗口 新标签
         let href = this.$router.resolve({
@@ -112,9 +110,7 @@ export default {
         window.open(href.href, "_blank");
         return;
       }
-
     },
-
   },
 };
 </script>

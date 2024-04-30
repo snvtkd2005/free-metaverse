@@ -630,12 +630,7 @@ export default {
       // this.renderer.setPixelRatio(this.$parent.isMobile ? 1 : 1.5); //推荐
       this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); //推荐
       // this.renderer.setPixelRatio(window.devicePixelRatio); //推荐
-
       // this.renderer.setPixelRatio(2); //推荐
-
-      // this.renderer.gammaIntput = true;
-      // this.renderer.gammaOutput = true;
-      // this.renderer.gammaFactor = 5;
 
       //添加组
       this.pointsParent = new THREE.Group();

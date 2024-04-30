@@ -139,8 +139,15 @@ export default {
     //是否有寻路网格
     hasPathfinding:false,
 
+    // 重力开关
+    enabledGravity:false,
     // 玩家刚体半径
     playerRadius:0.2,
+  },
+
+  // 辉光数据
+  bloomData: {
+    bloomTexStrength: 0.5,
   },
 
   // 热点数据
@@ -149,7 +156,11 @@ export default {
     triggerAreaRotaSpeed: 0.01,
   },
 
-
+  // 阴影数据
+  shadowData:{
+    // 分辨率
+    resource:256,
+  },
   // 小地图数据
   minMapData: {
     // 小地图图片路径
@@ -167,13 +178,14 @@ export default {
   // 环境光和方向光参数
   AmbientLightData: {
     //环境光 纯白颜色、强度
-    ambientColor:0xffffff,
+    ambientColor:0x666666,
+    // ambientColor:0xffffff,
     AmbientLightIntensity: 1,
-    hasAmbientLight:true,
+    hasAmbientLight:false,
 
 
     // 方向光坐标和强度
-    hasDirectionalLight:true,
+    hasDirectionalLight:false,
     // DirectionalLightPos: { x: 255, y: 30, z: -115 },
     DirectionalLightPos: { x: 0, y: 30, z: 0 },
     DirectionalLightIntensity: 1,

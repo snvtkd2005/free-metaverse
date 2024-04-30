@@ -407,7 +407,9 @@ class YJPlayer {
     this.GetAvatarName = function () {
       return playerName;
     }
-
+    this.GetAvatarId = function () {
+      return avatarId;
+    }
     this.ChangeAvatar = function (id, isLocal) {
 
       // console.log("切换角色11");
@@ -910,7 +912,7 @@ class YJPlayer {
 
     let display_avatar = true;
     this.DisplayAvatar = function (b) {
-      if (b == undefined) { return; }
+      if (b == undefined || playerObj == null ) { return; }
       if (display_avatar == b) { return; }
       if (b) {
         playerObj.scale.set(modelScale, modelScale, modelScale); //模型缩放

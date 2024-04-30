@@ -45,16 +45,16 @@ class YJSkillParticleManager {
       for (let i = shootTargetList2.length - 1; i >= 0; i--) {
         const item = shootTargetList2[i];
         if (item.trailRenderer.trail.used) {
-          item.time += 0.03;
-          if (item.time >= 1) {
-            item.trailRenderer.trail.stop();
-            if(item.callback){
-              item.callback();
-            }
-            return;
-          }
+          // item.time += 0.03;
+          // if (item.time >= 1) {
+          //   item.trailRenderer.trail.stop();
+          //   if(item.callback){
+          //     item.callback();
+          //   }
+          //   return;
+          // }
           
-          if (item.startPos.distanceTo(item.target.GetPlayerWorldPos()) < 0.2) {
+          if (item.startPos.distanceTo(item.target.GetPlayerWorldPos()) < 1) {
             item.used = false; 
             item.trailRenderer.trail.stop();
             if(item.callback){
@@ -62,10 +62,15 @@ class YJSkillParticleManager {
             }
             return;
           }
-
-          // item.startPos.lerp(item.target.GetWorldPos(), item.time);
-          item.startPos.lerp(item.target.GetPlayerWorldPos(), item.time);
-          item.trailRenderer.group.position.copy(item.startPos);
+          
+          let targetPos = item.target.GetPlayerWorldPos();
+          let group = item.trailRenderer.group;
+          group.lookAt(targetPos); 
+          item.startPos.add(group.getWorldDirection(new THREE.Vector3()) .multiplyScalar(1.5));
+          group.position.copy(item.startPos);
+          
+          // item.startPos.lerp(item.target.GetPlayerWorldPos(), item.time);
+          // item.trailRenderer.group.position.copy(item.startPos);
         }
       }
     }
@@ -115,12 +120,37 @@ class YJSkillParticleManager {
       // console.log(" 加载组合数据 ",modelData);
 
     }
+    // function UpdateTrailRenderer() {
+    //   for (let i = shootTargetList.length - 1; i >= 0; i--) {
+    //     const item = shootTargetList[i];
+    //     if (item.used) {
+    //       item.time += 0.01;
+    //       if (item.time >= 1) {
+    //         item.used = false; 
+    //         item.particle.SetActive(false);
+    //         if(item.callback){
+    //           item.callback();
+    //         }
+    //         return;
+    //       }
+    //       if (item.startPos.distanceTo(item.target.GetPlayerWorldPos()) < 0.2) {
+    //         item.used = false; 
+    //         item.particle.SetActive(false);
+    //         if(item.callback){
+    //           item.callback();
+    //         }
+    //         return;
+    //       }
+    //       item.startPos.lerp(item.target.GetPlayerWorldPos(), item.time);
+    //       item.particle.GetGroup().position.copy(item.startPos);
+    //     }
+    //   }
+    // }
     function UpdateTrailRenderer() {
       for (let i = shootTargetList.length - 1; i >= 0; i--) {
         const item = shootTargetList[i];
-        if (item.used) {
-          item.time += 0.01;
-          if (item.time >= 1) {
+        if (item.used) { 
+          if (item.startPos.distanceTo(item.target.GetPlayerWorldPos()) < 1) {
             item.used = false; 
             item.particle.SetActive(false);
             if(item.callback){
@@ -128,20 +158,14 @@ class YJSkillParticleManager {
             }
             return;
           }
-          if (item.startPos.distanceTo(item.target.GetPlayerWorldPos()) < 0.2) {
-            item.used = false; 
-            item.particle.SetActive(false);
-            if(item.callback){
-              item.callback();
-            }
-            return;
-          }
-          item.startPos.lerp(item.target.GetPlayerWorldPos(), item.time);
-          item.particle.GetGroup().position.copy(item.startPos);
+          let targetPos = item.target.GetPlayerWorldPos();
+          let group = item.particle.GetGroup();
+          group.lookAt(targetPos); 
+          item.startPos.add(group.getWorldDirection(new THREE.Vector3()) .multiplyScalar(1.5));
+          group.position.copy(item.startPos);
         }
       }
     }
-
     
     function MoveToPosTweenFn(fromPos, targetPos, length, updateCB, callback) {
       let movingTween = new TWEEN.Tween(fromPos).to(targetPos, length).easing(TWEEN.Easing.Cubic.InOut)

@@ -408,34 +408,7 @@ export const dmplayer = [
         "state": "run",
         "posId": "24"
     },
-    {
-        "level": 8,
-        "uname": "你好莎莎",
-        "uface": "https://i1.hdslb.com/bfs/face/f341170fe1f85f1695b76af8791c783afe6570f1.jpg",
-        "assetId": "弓箭手3",
-        "camp": "血色十字军",
-        "npcId": "你好莎莎",
-        "isDead": false,
-        "health": 1072,
-        "maxHealth": 1072,
-        "currentExp": 15380,
-        "needExp": 25600,
-        "strength": 66,
-        "skill": [
-          {
-            "op": "",
-            "name": "多重射击",
-            "icon": "./public/images/skillIcon/spell_hunter_exoticmunitions_poisoned.png",
-            "unLockLevel": 3,
-            "level": 2,
-            "cCD": 1.6000000000000003,
-            "CD": 6,
-            "perCD": "4.4"
-          }
-        ],
-        "state": "run",
-        "posId": "13"
-      },{
+      {
         "level": 3,
         "uname": "l老a",
         "uface": "https://i1.hdslb.com/bfs/face/cc65f3515da9b9331559abe19c04c9f8bf101116.jpg",
@@ -479,7 +452,157 @@ export const dmplayer = [
         ],
         "state": "run",
         "posId": "24"
-      }
+      },
+      {
+        "level": 11,
+        "uname": "_落地水",
+        "uface": "https://i1.hdslb.com/bfs/face/c6600394c896d1d05f562c3f11f86ebf28b5d54c.jpg",
+        "assetId": "弓箭手3",
+        "camp": "血色十字军",
+        "npcId": "_落地水",
+        "isDead": false,
+        "health": 1571,
+        "maxHealth": 1851,
+        "currentExp": 19420,
+        "needExp": 204800,
+        "strength": 112,
+        "skill": [
+          {
+            "op": "",
+            "name": "多重射击",
+            "icon": "./public/images/skillIcon/spell_hunter_exoticmunitions_poisoned.png",
+            "unLockLevel": 3,
+            "level": 2,
+            "cCD": 2.0000000000000004,
+            "CD": 6,
+            "perCD": "4.0"
+          }
+        ],
+        "state": "run",
+        "posId": "13"
+      },
+      {
+          "level": 13,
+          "uname": "你好莎莎",
+          "uface": "https://i1.hdslb.com/bfs/face/f341170fe1f85f1695b76af8791c783afe6570f1.jpg",
+          "assetId": "弓箭手3",
+          "camp": "血色十字军",
+          "npcId": "你好莎莎",
+          "isDead": false,
+          "health": 1072,
+          "maxHealth": 1072,
+          "currentExp": 15380,
+          "needExp": 25600,
+          "strength": 66,
+          "skill": [
+            {
+              "op": "",
+              "name": "多重射击",
+              "icon": "./public/images/skillIcon/spell_hunter_exoticmunitions_poisoned.png",
+              "unLockLevel": 3,
+              "level": 130,
+              "cCD": 1.6000000000000003,
+              "CD": 6,
+              "perCD": "4.4"
+            }
+          ],
+          "state": "run",
+          "posId": "13"
+        }
 
 ]
 
+// { name: "嘴线大",
+// value: 0, // 口轮匝肌 0为正常，1为最大
+// duration: 0,
+// },
+// {name: "嘴线小",
+// value: 0, // 口轮匝肌 0为正常，1为最小
+// duration: 0,
+// },
+
+export const  faceData = [
+    {
+        name: "眉毛位置上",
+        value: 0, // 为0时居中，为1时最上
+        duration: 0,//表示value从上一个值变为目标值的持续时间，单位秒
+    },{ name: "眉毛位置下",
+        value: 0,  // 为0时居中，为1时最下 
+        duration: 0,},
+    {name: "眉毛生气",
+        value: 0,  // 为0时正常，为1时生气
+        duration: 0,
+    },
+    { name: "眉毛委屈",
+        value: 0,  // 为0时正常，为1时委屈
+        duration: 0,
+    },
+    { name: "闭眼",
+        value: 0, // 0为睁眼，1为闭眼
+        duration: 0,
+    },
+    {name: "闭眼笑",
+        value: 0, // 0为睁眼，1为微笑状态的闭眼
+        duration: 0,
+    },
+    {name: "睁眼生气",
+        value: 0, // 0为正常，1为睁眼状态生气
+        duration: 0,
+    },
+    {name: "眼惊吓",
+        value: 0, // 0为正常，1为眼惊吓
+        duration: 0,
+    },
+    {name: "睁眼委屈", 
+        value: 0, // 0为正常，1为睁眼状态委屈
+        duration: 0,
+    },
+    { name: "瞳孔小",
+        value: 0, // 0为最大，1为最小
+        duration: 0,
+    },
+    { name: "嘴惊吓",
+        value: 0, // 0为正常，1为张嘴惊吓状
+        duration: 0,
+    },
+    {name: "嘴生气", 
+        value: 0, // 0为正常，1为张嘴生气状
+        duration: 0,
+    },
+    {name: "嘴发呆", 
+        value: 0, // 0为正常，1为张嘴发呆无语状
+        duration: 0,
+    },
+    { name: "嘴吧张开",
+        value: 0, // 0为正常，1为嘴吧张开最大
+        duration: 0,
+    },
+    {name: "嘴角下",
+        value: 0, // 0为正常，1为闭嘴委屈状
+        duration: 0,
+    },
+    { name: "嘴角上",
+        value: 0, // 0为正常，1为闭嘴微笑状
+        duration: 0,
+    },
+    {name: "嘴型a", 
+        value: 0, // 0为正常，1为发音a
+        duration: 0,
+    },
+    {name: "嘴型i", 
+        value: 0, // 0为正常，1为发音i
+        duration: 0,
+    },
+    {name: "嘴型u",
+        value: 0, // 0为正常，1为发音u
+        duration: 0,
+    },
+    {name: "嘴型e", 
+        value: 0, // 0为正常，1为发音e
+        duration: 0,
+    },
+    {name: "嘴型o", 
+        value: 0, // 0为正常，1为发音o
+        duration: 0,
+    },
+];

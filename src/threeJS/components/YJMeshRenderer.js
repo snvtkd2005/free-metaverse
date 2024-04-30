@@ -7,8 +7,12 @@ import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 
+import { MMDLoader } from 'three/examples/jsm/loaders/MMDLoader.js';
+import { MMDAnimationHelper } from 'three/examples/jsm/animation/MMDAnimationHelper.js';
+
 
 import { ObjectLoader } from "three";
+import { YJLoadAvatarMMD } from "./YJLoadAvatarMMD";
 
 // meshRenderer组件
 
@@ -319,6 +323,10 @@ class YJMeshRenderer {
       if (modelPath.indexOf(".obj") > -1) {
         type = "obj";
       }
+      
+      if (modelPath.indexOf(".pmx") > -1) {
+        type = "pmx";
+      }
       if (type == "fbx") {
         meshScale = 0.01;
         loadFbx(modelPath, callback, errorback);
@@ -334,6 +342,61 @@ class YJMeshRenderer {
         loadGltf(modelPath, callback, errorback);
         return;
       }
+      if (type == "pmx") {
+        loadMMD(modelPath, callback, errorback);
+        return;
+      }
+
+    }
+    // let mmdCtrl = null;
+    function loadMMD(modelPath, callback, errorback) {
+      LoadCompleted(callback);
+
+      // mmdCtrl = new YJLoadAvatarMMD(scene);
+      // mmdCtrl._LoadMMD(modelPath,()=>{
+      //   LoadCompleted(callback);
+      // });
+      return;
+      let meshAndMats = _this._YJSceneManager.checkLoadMesh(modelPath);
+      if (meshAndMats != null) {
+        LoadMesh(meshAndMats.mesh, callback);
+        return;
+      }
+
+
+      const loader = new GLTFLoader();
+      loader.setDRACOLoader(_this._YJSceneManager.GetDracoLoader());
+
+      // + ("?time="+new Date().getTime())
+      loader.load(modelPath, function (gltf) {
+        // console.log("加载模型 00 ",modelPath);
+
+        model = gltf.scene;
+
+        gltf.animations =[];
+        animations = gltf.animations;
+
+        model.transform = owner;
+
+        scene.add(model);
+        _this._YJSceneManager.addLoadMesh(modelPath, gltf);
+
+        TraverseOwner(model);
+        if (hasCollider) {
+          CreateColliderFn(model);
+        }
+        LoadCompleted(callback);
+
+      }, undefined, function (e) {
+        console.log("加载模型出错" + modelPath, e);
+        console.error(e);
+
+        if (errorback) {
+          errorback(e);
+        }
+        // LoadCompleted(callback);
+
+      });
 
     }
     function loadGltf(modelPath, callback, errorback) {

@@ -113,9 +113,11 @@ class YJTransform {
       }
       if (message.pointType == "player" || message.pointType == "avatar") {
         let com = this.GetComponent("Avatar");
-        com.SetMessage(message.data);
-        this.GetComponent("MeshRenderer").SetSize(message.data.modelScale);
-        this.GetComponent("MeshRenderer").SetRotaArray(message.data.rotation);
+        if(com){
+          com.SetMessage(message.data);
+          this.GetComponent("MeshRenderer").SetSize(message.data.modelScale);
+          this.GetComponent("MeshRenderer").SetRotaArray(message.data.rotation);
+        }
       }
       if (message.pointType == "UV动画") {
         let com = this.GetComponent("UVAnim");

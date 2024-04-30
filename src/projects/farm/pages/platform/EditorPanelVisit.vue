@@ -1,10 +1,11 @@
 
 <template>
   <div
-    class="main absolute left-0 top-0 z-999 w-full h-full flex flex-col overflow-hidden"
+    class=" absolute left-0 top-0 z-999 w-full h-full flex flex-col overflow-hidden"
+    :class=" sceneData.setting.onlyLandscape?'main':''"
   >
     <!-- 中间3d画面 -->
-    <div class="absolute" :style="panel3dStyle">
+    <div class="absolute overflow-hidden " :style="panel3dStyle">
       <YJmetaBase ref="YJmetaBase" />
 
       <div class="hidden absolute top-0 left-0 cutimg overflow-hidden">
@@ -22,7 +23,7 @@
         class="absolute z-50 left-0 top-0 w-full h-full pointer-events-none"
         ref="loadingPanel"
       />
-
+ 
       <HUD v-if="hasHUD" ref="HUD" />
 
       <!-- 鸟瞰2d点位 -->
@@ -346,9 +347,11 @@ export default {
             let item = modelsList[i];
             if (item.modelType == "角色模型") {
               // 到角色数据中，模型路径、动画数据
+              if(item.message){
               let data = item.message.data;
               data.modelPath = this.$uploadUrl + item.modelPath;
               _Global.CreateOrLoadPlayerAnimData().AddAvatarData(data);
+              }
             }
           }
           if (callback) {
@@ -444,9 +447,11 @@ export default {
       this.isDMGame = this.sceneData.setting.isDMGame;
       _Global.isDMGame = this.isDMGame;
 
+      this.isMMD = this.sceneData.setting.isMMD;
+      _Global.isMMD = this.isMMD;
+
       this.hasHUD = this.sceneData.setting.hasHUD;
-      document.title = this.sceneData.setting.title;
-      this.isDMGame = this.sceneData.setting.isDMGame;
+      document.title = this.sceneData.setting.title; 
 
       _Global.skillList_scene = this.sceneData.skillList;
       _Global.hasAvatar = this.sceneData.setting.hasAvatar;
@@ -709,7 +714,6 @@ export default {
         }
       }
       this.initCompleted = true;
-      this.Interface.load3dComplete();
       this._SceneManager.LoadMapCompleted();
       this.$refs.YJmetaBase.OpenThreejs();
       if (this.sceneData.setting.hasBGM && this.sceneData.setting.BGMurl) {
@@ -718,6 +722,8 @@ export default {
           this.sceneData.setting.BGMurl
         );
       }
+      this.Interface.load3dComplete();
+
     },
 
     ClickHandler(t, msg) {

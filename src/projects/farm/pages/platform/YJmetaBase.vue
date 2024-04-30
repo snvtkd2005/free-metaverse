@@ -116,7 +116,7 @@ export default {
     },
     UpdateCheckWindowResize() {
 
-      // console.log(" resize 3d panel ",this.containerWidth, this.containerHeight);
+      // console.log(" resize 3d panel ",this.onlyLandscape,this.containerWidth, this.containerHeight);
 
       if (this.$refs.container && !this.isMobile) {
         this.containerWidth = this.$refs.container.clientWidth;

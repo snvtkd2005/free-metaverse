@@ -34,6 +34,7 @@ import * as Mathf from "/@/utils/mathf.js";
 import { YJShader } from "./components/YJShader";
 import { YJGeometry } from "./components/YJGeometry";
 import { RandomInt } from "../utils/utils";
+import { YJAnimatorMMD } from "./components/YJAnimatorMMD";
 
 // 加载静态物体
 class YJLoadUserModelManager {
@@ -382,11 +383,16 @@ class YJLoadUserModelManager {
       } else if (modelData.modelType == "角色模型") {
 
         MeshRenderer.load(modelPath, (scope) => {
-          let component = new YJAnimator(scope.GetModel(), scope.GetAnimations());
-          object.AddComponent("Animator", component);
+          if(modelPath.includes("pmx")){
+            let component = new YJAnimatorMMD(object.GetGroup(),modelPath);
+            object.AddComponent("Animator", component);
+          }else{
+            let component = new YJAnimator(scope.GetModel(), scope.GetAnimations());
+            object.AddComponent("Animator", component);
+            let avatar = new YJAvatar(_this, object.GetGroup(), component);
+            object.AddComponent("Avatar", avatar);
+          }
 
-          let avatar = new YJAvatar(_this, object.GetGroup(), component);
-          object.AddComponent("Avatar", avatar);
 
           if (modelData.message != undefined) {
             object.SetMessage(modelData.message);

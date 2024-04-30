@@ -371,7 +371,7 @@ export default {
   data() {
     return {
       inGame: false,
-      timeCount: 30,
+      timeCount: 15,
       waveNum: 1,
       waveCount: 6,
       timeCurrent: "", //游戏开始倒计时

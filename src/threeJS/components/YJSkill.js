@@ -43,14 +43,14 @@ class YJSkill {
             scope.addEventListener("设置目标", (_targetModel) => {
                 targetModel = _targetModel;
             });
- 
-            
+
+
             scope.addEventListener("脱离战斗或死亡", () => {
                 ClearControlModel();
-                
+
                 if (hyperplasiaTrans.length > 0) {
                     for (let i = 0; i < hyperplasiaTrans.length; i++) {
-                    hyperplasiaTrans[i].Dead();
+                        hyperplasiaTrans[i].Dead();
                     }
                     hyperplasiaTrans = [];
                 }
@@ -106,8 +106,9 @@ class YJSkill {
             }
             if (type == "shield") {
                 if (effect.controlId == "寒冰护体") {
-                    baseData.armor += value;
-                    ReceiveSkill("寒冰护体", "on");
+                    baseData.armor = value;
+                    if(ReceiveSkill("寒冰护体", "on")){
+                    }
                 }
                 return;
             }
@@ -133,7 +134,7 @@ class YJSkill {
                 if (state == "on") {
                     scope.inControl = true;
                     if (HasControlModel(skillName)) {
-                        return;
+                        return false;
                     }
                     _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().CopyModel("冰霜新星模型", (model) => {
                         model.SetPos(scope.GetWorldPos());
@@ -160,7 +161,7 @@ class YJSkill {
 
                 if (state == "on") {
                     if (HasControlModel(skillName)) {
-                        return;
+                        return false;
                     }
                     _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().CopyModel("寒冰护体", (model) => {
                         model.SetPos(scope.GetWorldPos());
@@ -179,6 +180,9 @@ class YJSkill {
                     }
                 }
             }
+            return true;
+
+
         }
         function ClearControlModel() {
 
@@ -272,16 +276,9 @@ class YJSkill {
 
             readyskillAudioName = skillName;
 
-
-            if (skillItem.castTime > 0) {
-                // 需要施法的技能才发送技能同步，瞬发技能无需同步
-                _Global.DyncManager.SendDataToServer("npc技能",
-                    { npcId: scope.id, skill: skillItem });
-                attackStepSpeed = skillItem.castTime;
-                //取消寻路，让npc站住施法
-                scope.SetNavPathToNone();
-            }
             vaildAttackDis = skillItem.vaildDis;
+            attackStepSpeed = skillItem.castTime;
+            scope.SetVaildAttackDis(vaildAttackDis);
 
             let { skillFireAudio, skillFirePart, skillFireParticleId, skillReadyAudio, skillReadyParticleId } = skillItem;
             if (skillFirePart) {
@@ -291,20 +288,27 @@ class YJSkill {
                 fireParticleId = skillFireParticleId;
             }
 
+
             let targetType = skillItem.target.type;
             if (targetType == "target") {
 
-                if (targetModel && targetModel.isDead) {
+                if (targetModel == null || (targetModel && targetModel.isDead)) {
                     skillEnd();
                     return false;
                 }
+                let { type, skillName, value, time, duration, describe, controlId } = effect;
+
+                if (controlId == "冲锋") {
+                    //移动速度提高，冲向目标
+                    scope.MoveToTargetFast();
+                }
                 // 持续伤害
-                if (effect.type == "contDamage") {
+                else if (effect.type == "contDamage") {
                     let num = 0;
                     let count = parseInt(skillItem.castTime / effect.time);
 
                     for (let k = 0; k < count; k++) {
-                        setTimeout(() => {
+                        castSkillList.push(setTimeout(() => {
                             if (baseData.health == 0) {
                                 skillEnd();
                                 return;
@@ -319,7 +323,7 @@ class YJSkill {
                             if (num == count) {
                                 skillEnd();
                             }
-                        }, effect.time * k * 1000);
+                        }, effect.time * k * 1000));
                     }
                     scope.SetPlayerState("施法", skillItem.animName);
                     if (toIdelLater != null) { clearTimeout(toIdelLater); };
@@ -327,8 +331,7 @@ class YJSkill {
                         scope.SetValue("readyAttack_doonce", 0);
                         toIdelLater = null;
                         skillEnd();
-                    }, attackStepSpeed * 1000);//间隔等于攻击动作时长
-
+                    }, attackStepSpeed * 1000);//间隔等于攻击动作时长 
                 } else {
 
                     if (skillItem.castTime > 0) {
@@ -413,7 +416,7 @@ class YJSkill {
                     let num = 0;
                     let count = parseInt(skillItem.castTime / effect.time);
                     for (let k = 0; k < count; k++) {
-                        setTimeout(() => {
+                        castSkillList.push(setTimeout(() => {
                             if (baseData.health == 0) {
                                 skillEnd();
                                 return;
@@ -428,7 +431,7 @@ class YJSkill {
                             if (num == count) {
                                 skillEnd();
                             }
-                        }, effect.time * k * 1000);
+                        }, effect.time * k * 1000));
                     }
                     scope.SetPlayerState("施法", skillItem.animName);
                     if (toIdelLater != null) { clearTimeout(toIdelLater); };
@@ -511,8 +514,6 @@ class YJSkill {
                 }
 
                 if (skillItem.castTime > 0) {
-                    vaildAttackDis = skillItem.vaildDis;
-                    attackStepSpeed = skillItem.castTime;
                     scope.SetPlayerState("施法", skillItem.animNameReady);
                     EventHandler("中断技能", false);
                     if (vaildAttackLater == null) {
@@ -629,7 +630,84 @@ class YJSkill {
 
             scope.playAudio(skillItem.skillReadyAudio, readyskillAudioName);
             inSkill = true;
+
+            if (skillItem.castTime > 0) {
+                // 需要施法的技能才发送技能同步，瞬发技能无需同步
+                _Global.DyncManager.SendDataToServer("npc技能",
+                    { npcId: scope.id, skill: skillItem });
+                attackStepSpeed = skillItem.castTime;
+                //取消寻路，让npc站住施法
+                scope.SetNavPathToNone();
+            }
             return true;
+        }
+        
+        let skillList = [];
+        let oldSkillList = [];
+        let hyperplasiaTimes = 0;
+        // 施放不需要目标或目标是自身的技能 如 增生
+        function SendSkill(effect) {
+            let { type, skillName, value, time, duration, describe, controlId } = effect;
+            // console.log("施放不需要目标或目标是自身的技能 00 ", effect);
+            if (type == "shield") {
+                //
+                // console.log("施放不需要目标或目标是自身的技能 ", controlId);
+                if (controlId == "寒冰护体") {
+                    effect.value = 500;
+                    scope.ReceiveDamageByPlayer(null, controlId, effect);
+                }
+            }
+            if (type == "control") {
+                //
+                // console.log("施放不需要目标或目标是自身的技能 ", controlId);
+
+                if (controlId == "冰霜新星") {
+                    // 冻结20米内的敌人。 冰霜新星冻结特效
+                    let npcs = _Global._YJNPCManager.GetNoSameCampNPCInFireInVailDis(scope.GetWorldPos(), scope.GetCamp(), 20);
+                    if (npcs.length == 0) {
+                        return false;
+                    }
+                    effect.value = 0;
+                    for (let i = 0; i < npcs.length; i++) {
+                        const npcComponent = npcs[i];
+                        npcComponent.ReceiveDamageByPlayer(null, controlId, effect);
+                    }
+
+                    // 冰霜新星施放特效
+                    _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().CopyModel("冰霜新星", (model) => {
+                        model.SetPos(scope.GetWorldPos());
+                        model.SetActive(true);
+                    });
+                }
+            }
+            //
+            if (type == "addHealth") {
+                scope.Dync({ title: "加生命", value: value });
+            }
+            //增生
+            if (type == "hyperplasia") {
+                effect.times = hyperplasiaTimes;
+                let modelData = scope.transform.GetData();
+                hyperplasiaTimes++;
+                hyperplasia(modelData, 0, value, hyperplasiaTimes);
+            }
+            //进化
+            if (type == "evolution") {
+                oldSkillList = JSON.parse(JSON.stringify(skillList));
+
+                // 所有技能伤害增加v%
+                for (let i = 0; i < skillList.length; i++) {
+                    const skillItem = skillList[i];
+                    // 触发方式 每间隔n秒触发。在进入战斗时调用
+                    if (skillItem.target.type != "none") {
+                        skillItem.effect.value += skillItem.effect.value * value * 0.01;
+                    }
+                }
+            }
+            return true;
+            // 发送战斗记录
+            _Global.DyncManager.SendFireRecode({ npcId: scope.id, npcName: scope.npcName, skillName: skillName, describe: describe });
+
         }
         let fireLater = [];
         let inSkill = false;//是否在使用施法技能攻击
@@ -642,10 +720,12 @@ class YJSkill {
                 if (skillItem.trigger.type == "perSecond") {
                     skillItem.CD = skillItem.trigger.value;
 
-                    if (skillItem.castTime > 0) {
-                        // 冷却时间一定要比施放时间更长
-                        if (skillItem.castTime >= skillItem.CD) {
-                            skillItem.CD = skillItem.castTime + 0.5;
+                    if (skillItem.CD == 0) {
+                        if (skillItem.castTime > 0) {
+                            // 冷却时间一定要比施放时间更长
+                            if (skillItem.castTime >= skillItem.CD) {
+                                skillItem.CD = skillItem.castTime + 0.5;
+                            }
                         }
                     }
 
@@ -690,7 +770,7 @@ class YJSkill {
                                             // }
                                             // skillCDlist.push({skillName:skillItem.skillName,skillItem:skillItem});
                                         }
-                                        // if (scope.npcName.includes("一叶")) {
+                                        // if (scope.npcName.includes("老a")) {
                                         //   console.log(scope.GetNickName() + " 施放技能 ", skillItem);
                                         // }
                                         if (SkillGo(skillItem)) {
@@ -771,6 +851,10 @@ class YJSkill {
         let toIdelLater = null;
         let _offsetTime = 0;
         let cutStartTime = 0;
+
+        // 当前正在引导或施放的法术
+        let castSkillList = [];
+
         function EventHandler(e, cutSkill = true) {
             if (e == "中断技能") {
                 if (vaildAttackLater != null || vaildAttackLater2 != null || toIdelLater != null) {
@@ -792,6 +876,11 @@ class YJSkill {
                     }
                     // console.log(" 记录中断的时间 ",cutStartTime);
                 }
+                for (let i = 0; i < castSkillList.length; i++) {
+                    clearTimeout(castSkillList[i]);
+                }
+                castSkillList = [];
+
             }
         }
         // 向玩家发送技能特效
@@ -876,73 +965,6 @@ class YJSkill {
             _Global.DyncManager.SendSceneStateAll("玩家对NPC", { playerId: scope.id, npcId: target.transform.id, npcName: target.npcName, skillName: skillName, effect: effect });
         }
 
-        let skillList = [];
-        let oldSkillList = [];
-        let hyperplasiaTimes = 0;
-        // 施放不需要目标或目标是自身的技能 如 增生
-        function SendSkill(effect) {
-            let { type, skillName, value, time, duration, describe, controlId } = effect;
-            // console.log("施放不需要目标或目标是自身的技能 00 ", effect);
-            if (type == "shield") {
-                //
-                // console.log("施放不需要目标或目标是自身的技能 ", controlId);
-                if (controlId == "寒冰护体") {
-                    effect.value = 500;
-                    scope.ReceiveDamageByPlayer(null, controlId, effect);
-                }
-            }
-
-            if (type == "control") {
-                //
-                // console.log("施放不需要目标或目标是自身的技能 ", controlId);
-                if (controlId == "冰霜新星") {
-                    // 冻结20米内的敌人。 冰霜新星冻结特效
-                    let npcs = _Global._YJNPCManager.GetNoSameCampNPCInFireInVailDis(scope.GetWorldPos(), scope.GetCamp(), 20);
-                    if (npcs.length == 0) {
-                        return false;
-                    }
-                    effect.value = 0;
-                    for (let i = 0; i < npcs.length; i++) {
-                        const npcComponent = npcs[i];
-                        npcComponent.ReceiveDamageByPlayer(null, controlId, effect);
-                    }
-
-                    // 冰霜新星施放特效
-                    _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().CopyModel("冰霜新星", (model) => {
-                        model.SetPos(scope.GetWorldPos());
-                        model.SetActive(true);
-                    });
-                }
-            }
-            //
-            if (type == "addHealth") {
-                scope.Dync({ title: "加生命", value: value });
-            }
-            //增生
-            if (type == "hyperplasia") {
-                effect.times = hyperplasiaTimes;
-                let modelData = scope.transform.GetData();
-                hyperplasiaTimes++;
-                hyperplasia(modelData, 0, value, hyperplasiaTimes);
-            }
-            //进化
-            if (type == "evolution") {
-                oldSkillList = JSON.parse(JSON.stringify(skillList));
-
-                // 所有技能伤害增加v%
-                for (let i = 0; i < skillList.length; i++) {
-                    const skillItem = skillList[i];
-                    // 触发方式 每间隔n秒触发。在进入战斗时调用
-                    if (skillItem.target.type != "none") {
-                        skillItem.effect.value += skillItem.effect.value * value * 0.01;
-                    }
-                }
-            }
-            return true;
-            // 发送战斗记录
-            _Global.DyncManager.SendFireRecode({ npcId: scope.id, npcName: scope.npcName, skillName: skillName, describe: describe });
-
-        }
 
         let hyperplasiaTrans = [];
         function hyperplasia(modelData, num, count, times) {

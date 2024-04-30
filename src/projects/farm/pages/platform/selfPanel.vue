@@ -1,7 +1,6 @@
 <!-- // 场景编辑UI -->
 <template>
   <div class="absolute left-0 top-0 z-999 w-full h-full flex">
-
     <!-- 中部 -->
     <div class="flex mt-0 w-11/12 md:w-5/6 h-full mx-auto bg-gray-100">
       <!-- 右 -->
@@ -15,7 +14,9 @@
           >
             <div
               class="w-full h-10 self-center flex cursor-pointer"
-              :class="currentTable == item.content ? ' bg-gray-300' : ' bg-gray-100'"
+              :class="
+                currentTable == item.content ? ' bg-gray-300' : ' bg-gray-100'
+              "
               @click="currentTable = item.content"
             >
               <div class="self-center mx-auto">{{ item.content }}</div>
@@ -24,14 +25,16 @@
         </div>
 
         <!-- 分类table -->
-        <div v-if="currentTable == '单品'" class=" mb-4 flex bg-546770">
+        <div v-if="currentTable == '单品'" class="mb-4 flex bg-546770">
           <div
             v-for="(item, i) in modelTable"
             :key="i"
             :index="item.name"
             class="mr-2 text-sm w-auto h-8 self-center cursor-pointer flex"
             :class="
-              selectModelTable == item.name ? 'bg-445760 text-white ' : ' text-gray-400 '
+              selectModelTable == item.name
+                ? 'bg-445760 text-white '
+                : ' text-gray-400 '
             "
             @click="selectModelTable = item.name"
           >
@@ -57,7 +60,9 @@
             >
               <!-- <img class=" w-full h-full    object-fill hover:opacity-70 " src="publicUrl + item.icon" /> -->
             </div>
-            <div class="absolute left-0 top-0 w-full h-full flex pointer-events-none">
+            <div
+              class="absolute left-0 top-0 w-full h-full flex pointer-events-none"
+            >
               <div class="self-center mx-auto">
                 {{ customPanel.createNewSingle }}
               </div>
@@ -69,7 +74,9 @@
             v-for="(item, i) in modelsList"
             :key="i"
             :index="item.name"
-            v-show="item.modelType == selectModelTable || selectModelTable == 'all'"
+            v-show="
+              item.modelType == selectModelTable || selectModelTable == 'all'
+            "
             class="w-40 h-auto relative"
           >
             <div
@@ -99,7 +106,7 @@
               <div class="cursor-pointer" @click="Editor(item)">
                 {{ base.editor }}
               </div>
-              <div class="cursor-pointer" @click="Delete(item)">
+              <div class="cursor-pointer" @click="Delete(item, i)">
                 {{ base.delete }}
               </div>
             </div>
@@ -119,7 +126,9 @@
             >
               <!-- <img class=" w-full h-full    object-fill hover:opacity-70 " src="publicUrl + item.icon" /> -->
             </div>
-            <div class="absolute left-0 top-0 w-full h-full flex pointer-events-none">
+            <div
+              class="absolute left-0 top-0 w-full h-full flex pointer-events-none"
+            >
               <div class="self-center mx-auto">
                 {{ customPanel.createNewGroup }}
               </div>
@@ -127,7 +136,11 @@
           </div>
 
           <!-- 选择列表 -->
-          <div v-for="(item, i) in groupList" :key="i" class="w-40 h-auto relative">
+          <div
+            v-for="(item, i) in groupList"
+            :key="i"
+            class="w-40 h-auto relative"
+          >
             <div
               class="w-40 h-28 bg-blue-200 rounded-lg self-center mx-auto cursor-pointer"
               @click="EditorGroup(item)"
@@ -155,7 +168,7 @@
               <div class="cursor-pointer" @click="EditorGroup(item)">
                 {{ base.editor }}
               </div>
-              <div class="cursor-pointer" @click="Delete(item)">
+              <div class="cursor-pointer" @click="Delete(item, i)">
                 {{ base.delete }}
               </div>
             </div>
@@ -175,7 +188,9 @@
             >
               <!-- <img class=" w-full h-full    object-fill hover:opacity-70 " src="publicUrl + item.icon" /> -->
             </div>
-            <div class="absolute left-0 top-0 w-full h-full flex pointer-events-none">
+            <div
+              class="absolute left-0 top-0 w-full h-full flex pointer-events-none"
+            >
               <div class="self-center mx-auto">
                 {{ customPanel.createNewScene }}
               </div>
@@ -193,7 +208,9 @@
               />
             </div>
 
-            <div class="mt-2 px-2 flex text-sm justify-between cursor-pointer truncate">
+            <div
+              class="mt-2 px-2 flex text-sm justify-between cursor-pointer truncate"
+            >
               <div>{{ item.name }}</div>
             </div>
 
@@ -208,7 +225,7 @@
               <div class="cursor-pointer" @click="EditorScene(item)">
                 {{ base.editor }}
               </div>
-              <div class="cursor-pointer" @click="Delete(item)">
+              <div class="cursor-pointer" @click="Delete(item, i)">
                 {{ base.delete }}
               </div>
             </div>
@@ -228,14 +245,20 @@
             >
               <!-- <img class=" w-full h-full    object-fill hover:opacity-70 " src="publicUrl + item.icon" /> -->
             </div>
-            <div class="absolute left-0 top-0 w-full h-full flex pointer-events-none">
+            <div
+              class="absolute left-0 top-0 w-full h-full flex pointer-events-none"
+            >
               <div class="self-center mx-auto">
                 {{ customPanel.createNewHDR }}
               </div>
             </div>
           </div>
 
-          <div v-for="(item, i) in jpgList" :key="i" class="w-40 h-auto relative">
+          <div
+            v-for="(item, i) in jpgList"
+            :key="i"
+            class="w-40 h-auto relative"
+          >
             <div class="w-40 h-20 self-center mx-auto cursor-pointer">
               <img
                 class="w-full h-full object-fill hover:opacity-70"
@@ -270,7 +293,9 @@
             >
               <!-- <img class=" w-full h-full    object-fill hover:opacity-70 " src="publicUrl + item.icon" /> -->
             </div>
-            <div class="absolute left-0 top-0 w-full h-full flex pointer-events-none">
+            <div
+              class="absolute left-0 top-0 w-full h-full flex pointer-events-none"
+            >
               <div class="self-center mx-auto">
                 {{ customPanel.createNewUVanim }}
               </div>
@@ -282,7 +307,9 @@
             :key="i"
             class="self-center w-32 h-auto relative"
           >
-            <div class="w-32 h-32 self-center mx-auto overflow-hidden cursor-pointer">
+            <div
+              class="w-32 h-32 self-center mx-auto overflow-hidden cursor-pointer"
+            >
               <img
                 class="w-full h-full object-fill hover:opacity-70 transform"
                 :src="this.$uploadUVAnimUrl + item"
@@ -315,7 +342,9 @@
             >
               <!-- <img class=" w-full h-full    object-fill hover:opacity-70 " src="publicUrl + item.icon" /> -->
             </div>
-            <div class="absolute left-0 top-0 w-full h-full flex pointer-events-none">
+            <div
+              class="absolute left-0 top-0 w-full h-full flex pointer-events-none"
+            >
               <div class="self-center mx-auto">
                 {{ customPanel.createNewUVanim }}
               </div>
@@ -335,7 +364,9 @@
                 <audio
                   class="w-full"
                   controls
-                  :src="this.$uploadAudioUrl + item.folderBase + '/' + item.name"
+                  :src="
+                    this.$uploadAudioUrl + item.folderBase + '/' + item.name
+                  "
                 ></audio>
               </div>
             </div>
@@ -358,7 +389,10 @@
               <div>{{ base.visite }} 177</div>
             </div>
             <div class="mt-2 px-2 flex text-xs justify-between">
-              <div class="cursor-pointer" @click="ClickHandler('编辑音频', item)">
+              <div
+                class="cursor-pointer"
+                @click="ClickHandler('编辑音频', item)"
+              >
                 {{ base.editor }}
               </div>
               <div class="cursor-pointer">{{ base.delete }}</div>
@@ -371,9 +405,7 @@
           <skillSettingPanel></skillSettingPanel>
         </div>
       </div>
-
     </div>
-
 
     <!-- 立即进入 -->
     <div
@@ -390,11 +422,12 @@
               class="w-full h-full object-fill hover:opacity-70"
               :src="uploadSceneUrl + currentSceneData.icon"
             />
-  
-            <div class="absolute left-0 top-0 z-999 w-full h-full flex pointer-events-none">
+
+            <div
+              class="absolute left-0 top-0 z-999 w-full h-full flex pointer-events-none"
+            >
               <canvas id="cv" width="600" height="600"></canvas>
             </div>
-
           </div>
           <div class="relative flex-grow flex-col justify-between">
             <div>{{ currentSceneData.name }}</div>
@@ -425,17 +458,28 @@
     >
       <div
         class="h-auto self-center mx-auto bg-white rounded-xl flex flex-col justify-between p-5"
-        v-if="dialogTitle == '创建单品' || dialogTitle == '创建场景' || dialogTitle == '创建组合'"
+        v-if="
+          dialogTitle == '创建单品' ||
+          dialogTitle == '创建场景' ||
+          dialogTitle == '创建组合'
+        "
       >
-      <div class=" text-yellow-600 flex " >
-        操作步骤请查看演示视频： 
-        <div  class="  underline underline-offset-4 text-blue-300 ">
-          <a target="_blank" href="https://www.bilibili.com/video/BV1Qk4y1g7bz"  > https://www.bilibili.com/video/BV1Qk4y1g7bz </a>
+        <div class="text-yellow-600 flex">
+          操作步骤请查看演示视频：
+          <div class="underline underline-offset-4 text-blue-300">
+            <a
+              target="_blank"
+              href="https://www.bilibili.com/video/BV1Qk4y1g7bz"
+            >
+              https://www.bilibili.com/video/BV1Qk4y1g7bz
+            </a>
+          </div>
         </div>
-      </div>
         <!-- 输入名称 -->
         <div class="flex mt-2 h-10">
-          <div class="w-auto h-6 mt-1 mr-2">{{ createForm.title }}{{ base.name }}</div>
+          <div class="w-auto h-6 mt-1 mr-2">
+            {{ createForm.title }}{{ base.name }}
+          </div>
           <input
             class="outline-none bg-transparent border placeholder-gray-400 p-1"
             type="text"
@@ -472,13 +516,17 @@
               <div class="mx-auto">{{ item.name }}</div>
             </div>
 
-            <div class="hidden mt-2 px-2 flex text-sm justify-between cursor-pointer">
+            <div
+              class="hidden mt-2 px-2 flex text-sm justify-between cursor-pointer"
+            >
               <div>{{ item.content }}</div>
             </div>
           </div>
         </div>
 
-        <div class="mt-2 text-left w-auto h-full">描述:{{ createForm.content }}</div>
+        <div class="mt-2 text-left w-auto h-full">
+          描述:{{ createForm.content }}
+        </div>
         <div class="w-full h-12 text-xl flex mt-4">
           <div
             class="self-center mx-auto inline-block p-3 bg-gray-300 rounded-lg shadow-lg"
@@ -547,7 +595,11 @@
         </el-upload>
 
         <div v-if="uvAnimUrl != ''">
-          <img class="w-96 h-48" :src="this.$uploadUVAnimUrl + uvAnimUrl" alt="" />
+          <img
+            class="w-96 h-48"
+            :src="this.$uploadUVAnimUrl + uvAnimUrl"
+            alt=""
+          />
         </div>
         <div class="h-full"></div>
         <div class="w-full h-12 text-xl flex">
@@ -625,6 +677,22 @@
           </div>
         </div>
       </div>
+
+      <div
+        class="self-center mx-auto bg-white rounded-xl flex flex-col justify-between p-5"
+        v-if="dialogTitle == '删除'"
+      >
+        <div>是否删除{{ deleteItem.name }}？</div>
+
+        <div class="w-full h-12 text-xl flex">
+          <div
+            class="self-center mx-auto inline-block p-3 bg-gray-300 rounded-lg shadow-lg cursor-pointer pointer-events-auto"
+            @click="DeleteOK()"
+          >
+            {{ base.ok }}
+          </div>
+        </div>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -654,8 +722,6 @@ import {
   GetAllAudio,
   UploadAudioFile,
 } from "../../js/uploadThreejs.js";
-
-
 
 export default {
   name: "selfPanel",
@@ -714,7 +780,7 @@ export default {
       uvAnimUrl: "",
 
       fileList: [],
-      selectModelTable: "all",
+      selectModelTable: "角色模型",
       modelTable: [],
     };
   },
@@ -743,7 +809,6 @@ export default {
     this.RequestGetAllScene();
     this.RequestGetAllHDR();
     this.RequestGetAllUVAnim();
- 
   },
   methods: {
     onblurInputTag() {
@@ -1078,7 +1143,7 @@ export default {
           }
           for (let i = 0; i < modelsList.length; i++) {
             const element = modelsList[i];
-            
+
             element.icon = element.folderBase + "/" + "thumb.png";
             this.modelsList.push(element);
           }
@@ -1312,7 +1377,28 @@ export default {
     },
 
     // 删除
-    Delete(item) {},
+    Delete(item, i) {
+      console.log(" 删除 ", item);
+      this.dialogTitle = "删除";
+      this.dialogVisible = true;
+      this.deleteItem = item;
+      this.deleteItemIndex = i;
+      // _Global.SendMsgTo3D("删除folderBase",{type:"uploadsGroup/",folderBase:"1704941752535"});
+    },
+    DeleteOK() {
+      this.dialogTitle = "";
+      this.dialogVisible = false;
+      return;
+      if (this.deleteItem.modelType == "角色模型") {
+        _Global.SendMsgTo3D("删除folderBase", {
+          type: "uploads/",
+          folderBase: item.folderBase,
+        });
+        this.modelsList.splice(this.deleteItemIndex, 1);
+      }
+
+      // _Global.SendMsgTo3D("删除folderBase",{type:"uploadsGroup/",folderBase:"1704941752535"});
+    },
 
     SelectScene(item) {
       localStorage.setItem("modelType", item.modelType);

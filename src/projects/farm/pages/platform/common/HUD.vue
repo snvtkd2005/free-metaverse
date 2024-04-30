@@ -23,6 +23,7 @@
     <fireStateUI ref="fireStateUI" />
 
     <DMPanel v-if="isDMGame" ref="DMPanel" />
+    <MMDpanel v-if="isMMD" ref="MMDpanel" />
 
   </div>
 </template>
@@ -39,6 +40,7 @@ import fireStateUI from "./fireStateUI.vue";
 import skillPanel_virus from "./skillPanel_virus.vue";
 
 import DMPanel from "./DMPanel_bilibili.vue";
+import MMDpanel from "./MMDpanel.vue";
 
 export default {
   name: "HUD",
@@ -50,10 +52,12 @@ export default {
     fireStateUI,
     skillPanel_virus,
     DMPanel,
+    MMDpanel,
   },
   data() {
     return {
       isDMGame:false,
+      isMMD:false,
     };
   },
   created() {
@@ -62,6 +66,7 @@ export default {
   mounted() {
     console.log(" ========== in HUD ",_Global.isDMGame);
     this.isDMGame = _Global.isDMGame;
+    this.isMMD = _Global.isMMD;
   },
   methods: {
 

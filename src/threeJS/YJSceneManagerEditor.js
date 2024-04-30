@@ -18,7 +18,7 @@ import { GetCurrentTime } from "/@/utils/api.js";
 import { EXRLoader } from 'three/examples/jsm/loaders/EXRLoader.js';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 
-import { nextTick } from "vue";
+import { nextTick, render } from "vue";
 import { YJCurve } from "./YJCurve.js";
 import { YJMinMap } from "./YJMinMap.js";
 import { YJLoadUserModelManager } from "./YJLoadUserModelManagerEditor.js";
@@ -509,7 +509,7 @@ class YJSceneManager {
     function CreateSingleScene() {
 
 
-      // console.log(" 初始化创建地图 和 设置角色位置 CreateSingleScene ");
+      console.log(" 初始化创建地图 和 设置角色位置 CreateSingleScene ",setting);
       //刷新角色换装信息
       if (_this.$parent.$parent.UpdateSkin && _this.YJPlayer) {
         _this.$parent.$parent.UpdateSkin(_this.YJPlayer, _this.YJPlayer.GetAvatarName(), localStorage.getItem("playerState"));
@@ -562,7 +562,9 @@ class YJSceneManager {
 
 
       setTimeout(() => {
-        _YJAmmo.SetGravityActive(true);
+        // _YJAmmo.SetGravityActive(true);
+        _YJAmmo.SetGravityActive(setting.enabledGravity == undefined ? true: setting.enabledGravity ) ;
+
       }, 2000);
 
       _this.$nextTick(function () {
@@ -585,7 +587,7 @@ class YJSceneManager {
 
         if (setting.useBloom != undefined && setting.useBloom) {
           // 辉光效果管理器
-          _YJBloomManager2 = new YJBloomManager2(_this, scene, camera, renderer, setting.bloomData);
+          _YJBloomManager2 = new YJBloomManager2(_this, scene, camera, renderer, sceneData.bloomData);
           needUpdateJS.push(_YJBloomManager2);
         }
         if (setting.changeScene != undefined && setting.changeScene) {
@@ -1115,7 +1117,8 @@ class YJSceneManager {
           sceneData.setting.envmapPath = path;
           scene.background = texture;
         }
-        // console.log("加载hdr完成");
+        _this.renderScene();
+        // console.log("加载hdr完成",scene.environment,scene.background);
       } else {
         if (isEnvmap) {
           scene.environment = null;
@@ -2389,14 +2392,15 @@ class YJSceneManager {
 
         // console.log(" 创建太阳光 ");
         const light = new THREE.DirectionalLight(0xffffff, intensity);
-
+        pos.x = 20;
+        pos.z = 20;
         _DirectionalLight = light;
         light.position.set(pos.x, pos.y, pos.z);
         light.castShadow = true;
 
         scene.add(light);
 
-        const dLight = 400;
+        const dLight = 100;
         const sLight = dLight * 0.25;
         light.shadow.camera.left = - sLight;
         light.shadow.camera.right = sLight;
@@ -2407,6 +2411,9 @@ class YJSceneManager {
         light.shadow.camera.far = dLight;
 
         let resourceSize = 256;
+        if(sceneData.shadowData && sceneData.shadowData.resource){
+          resourceSize = sceneData.shadowData.resource;
+        }
         light.shadow.mapSize.x = resourceSize * 4;
         light.shadow.mapSize.y = resourceSize * 4;
 
@@ -2414,7 +2421,7 @@ class YJSceneManager {
 
         // console.log(light.shadow.camera);
 
-        UpdateDirectionalLight(GetCameraWorldPos());
+        // UpdateDirectionalLight(GetCameraWorldPos());
 
         // _this.YJController.SetPlayerPosHandler((playerPos) => { 
         //   _DirectionalLight.position.copy(playerPos.clone().add(pos)); 
@@ -2425,10 +2432,7 @@ class YJSceneManager {
         // let lightHelper = new THREE.DirectionalLightHelper(_DirectionalLight);
         // scene.add(lightHelper);
         // let shadowCameraHelper = new THREE.CameraHelper(_DirectionalLight.shadow.camera);
-        // scene.add(shadowCameraHelper);
-        // scene.add(new THREE.AxesHelper(20))
-
-
+        // scene.add(shadowCameraHelper); 
         return;
 
 
@@ -3230,7 +3234,7 @@ class YJSceneManager {
       // this.scene.add(axes); // 场景添加坐标轴
 
       let planeGeometry = new THREE.PlaneGeometry(100, 100, 10, 10); // 生成平面
-      let planeMaterial = new THREE.MeshLambertMaterial({ color: 0x666666 }); // 材质
+      let planeMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff }); // 材质
       let plane = new THREE.Mesh(planeGeometry, planeMaterial);
       plane.rotation.x = -0.5 * Math.PI;
       plane.position.x = 0;

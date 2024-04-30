@@ -5,6 +5,7 @@ import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { createText } from 'three/examples/jsm/webxr/Text2D.js';
+import { YJAnimatorMMD } from "./components/YJAnimatorMMD";
 
 class YJLoadAvatar {
   constructor(_this, scene, _modelPath, animationData, owner, controllerCallback, missAnimCallback) {
@@ -22,7 +23,7 @@ class YJLoadAvatar {
     let settings;
 
     var playerObj = null;
-
+    let mmdCtrl = null;
     var modelPath;
     //初始化摄像机父物体，移动时，移动父物体， 旋转时，横向旋转父物体，竖向旋转摄像机
     const Init = () => {
@@ -59,13 +60,25 @@ class YJLoadAvatar {
       if (modelPath.indexOf(".gltf") > -1 || modelPath.indexOf(".glb") > -1) {
         type = "gltf";
       }
-      // console.log("加载角色模型 " + type);
+      if (modelPath.indexOf(".pmx") > -1) {
+        type = "mmd";
+      }
 
       if (type == "fbx") {
         loadFbx(animationData, controllerCallback);
       }
       if (type == "gltf") {
         loadGltf(animationData, controllerCallback);
+      }
+      console.log("加载角色模型 " ,modelPath, animationData);
+      
+      if (type == "mmd") {
+        playerObj  = new THREE.Group();
+        mmdCtrl = new YJAnimatorMMD(playerObj,modelPath,owner);
+
+        if (controllerCallback) {
+          controllerCallback(playerObj);
+        }
       }
     }
 
@@ -657,7 +670,9 @@ class YJLoadAvatar {
       }
       // console.error(" 直接设置玩家角色动作 22 " + animName);
       ChangeAnimDirectFn(animName);
-
+      if(mmdCtrl){
+        mmdCtrl.ChangeAnim(animName);
+      }
     }
     this.ChangeAnimDirect = function (animName) {
       oldAnimName = "";
@@ -702,6 +717,9 @@ class YJLoadAvatar {
       if (modelPath.indexOf(".gltf") > -1 || modelPath.indexOf(".glb") > -1) {
         type = "gltf";
       }
+      if (modelPath.indexOf(".pmx") > -1) {
+        type = "mmd";
+      }
       // console.log("加载角色模型 " + type);
       if (type == "fbx") {
         loadFbx(_animationData, _controllerCallback);
@@ -709,7 +727,15 @@ class YJLoadAvatar {
       if (type == "gltf") {
         loadGltf(_animationData, _controllerCallback);
       }
+      if (type == "mmd") {
+        loadMMD(_animationData, _controllerCallback);
+      }
     }
+    
+    const loadMMD = (animData, callback) => {
+       
+    }
+
     //----------PC 端 同步角色动作 结束-----------------
 
 

@@ -1,5 +1,5 @@
 
-import { createAnimationClip, createAnimationClip2, createAnimationClipScale } from "/@/utils/utils_threejs.js";
+import { createAnimationClip,createAnimationClip_mmd2mixamo, createAnimationClip2, createAnimationClipScale } from "/@/utils/utils_threejs.js";
 import { YJLoadAnimation } from "/@/threeJS/loader/YJLoadAnimation.js";
 
 // 读取模型的动作数据
@@ -170,7 +170,7 @@ class YJPlayerAnimData {
         }
 
         if (callback) {
-          callback("",null);
+          callback("", null);
         }
         return;
         //*/
@@ -189,6 +189,15 @@ class YJPlayerAnimData {
     this.LoadAssset = function (path, callback) {
       loadAssset(path, callback);
     }
+    this.loadByAnimFile = function (path,animName, callback) {
+      this.LoadAssset(path, (data) => {
+        // console.log(" 读取扩展动作 ", path, data);
+        if (callback) {
+          callback(createAnimationClip_mmd2mixamo(animName, data));
+        }
+      });
+    }
+
 
 
     this.GetAllAnim = function (id, callback) {
@@ -513,7 +522,7 @@ class YJPlayerAnimData {
           break;
         case "准备战斗":
           animName = "fight idle"; //空手状态 战斗准备状态
-          animNameFullback = "idle";  
+          animNameFullback = "idle";
           if (weaponData) {
             // let _animName = GetAnimName(e, weaponData);
             let _animName = weaponData.animNameReady;
@@ -549,7 +558,7 @@ class YJPlayerAnimData {
           break;
         case "移动":
           animName = "run";
-          animNameFullback = "run";  
+          animNameFullback = "run";
 
           if (weaponData) {
             // let _animName = GetAnimName(e, weaponData);
@@ -561,7 +570,7 @@ class YJPlayerAnimData {
           break;
         case "停止移动":
           animName = "idle";
-          animNameFullback = "idle";  
+          animNameFullback = "idle";
           if (weaponData) {
             // let _animName = GetAnimName(e, weaponData);
             let _animName = weaponData.animNameIdle;
@@ -572,7 +581,7 @@ class YJPlayerAnimData {
           break;
         case "战斗结束":
           animName = "idle";
-          animNameFullback = "idle";  
+          animNameFullback = "idle";
           if (weaponData) {
             // let _animName = GetAnimName(e, weaponData);
             let _animName = weaponData.animNameIdle;
@@ -584,7 +593,7 @@ class YJPlayerAnimData {
 
         case "行走":
           animName = "walk";
-          animNameFullback = "walk";  
+          animNameFullback = "walk";
           if (weaponData) {
             // let _animName = GetAnimName(e, weaponData);
             let _animName = weaponData.animNameWalk;
@@ -610,10 +619,10 @@ class YJPlayerAnimData {
         default:
           break;
       }
-      if(animNameFullback == ""){
+      if (animNameFullback == "") {
         animNameFullback = animName;
       }
-      return {animName,animNameFullback} ;
+      return { animName, animNameFullback };
     }
 
 
@@ -627,15 +636,18 @@ class YJPlayerAnimData {
       if (weaponData) {
         let { attackSpeed, vaildDis } = weaponData;
         if (attackSpeed != undefined) {
-          return { dis: vaildDis, speed: attackSpeed, 
-            ready:  weaponData.ready, 
+          return {
+            dis: vaildDis, speed: attackSpeed,
+            ready: weaponData.ready,
             fire: weaponData.fire,
           };
-        } 
+        }
       }
-      return { dis: 2, speed: 2, 
-        ready: {}, 
-        fire: {} };
+      return {
+        dis: 2, speed: 2,
+        ready: {},
+        fire: {}
+      };
     }
     // 根据武器获取攻击速度、攻击距离、攻击技能。 后期改为根据技能获取
     this.GetSkillDataByWeapon = function (weaponData) {
@@ -650,9 +662,11 @@ class YJPlayerAnimData {
       } else {
         skillName = "拳头";
       }
-      return { s: skillName, v: vaildAttackDis, a: attackStepSpeed, 
+      return {
+        s: skillName, v: vaildAttackDis, a: attackStepSpeed,
         _ready: ready,
-        _fire: fire};
+        _fire: fire
+      };
     }
     //#endregion
 

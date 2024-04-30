@@ -230,7 +230,8 @@ export default {
       fileName: "",
       fileList: [],
       fileSize: 5,
-      accept: ".jpg,.jpeg,.bmp,.png,.bin,.gltf,.glb,.fbx,.FBX,.mtl,.obj",
+      // accept: ".jpg,.jpeg,.bmp,.png,.bin,.gltf,.glb,.fbx,.FBX,.mtl,.obj",
+      accept: ".jpg,.jpeg,.bmp,.png,.bin,.gltf,.glb,.fbx,.FBX,.mtl,.obj,.vmd,.pmx",
       loadTip: "加载中，请稍候。。。",
 
       folderPath: "models/staticModels/",
@@ -813,6 +814,7 @@ export default {
         fileName.indexOf(".gltf") > -1 ||
         fileName.indexOf(".fbx") > -1 ||
         fileName.indexOf(".obj") > -1 ||
+        fileName.indexOf(".pmx") > -1 ||
         fileName.indexOf(".glb") > -1
       ) {
         this.modelName = file.name;

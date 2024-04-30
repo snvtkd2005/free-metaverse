@@ -26,12 +26,12 @@ class YJBloomManager2 {
     bloomLayer.set(BLOOM_SCENE);
 
     const params = {
-      baseTexStrength: 1.36,
-      bloomTexStrength: 0.25,
-      exposure: 1.18,
+      baseTexStrength: 1.5,
+      bloomTexStrength: 0.4,
+      exposure: 1.05,
       bloomThreshold: 0.5,
-      bloomStrength: 1.15,
-      bloomRadius: 0,
+      bloomStrength: 1.89,
+      bloomRadius: 0.18,
       toneMapping: 'Reinhard',
       scene: 'Scene with Glow'
     };
@@ -62,8 +62,8 @@ class YJBloomManager2 {
 
     let renderTarget = null;
 
-    // let hasGUI = true;
-    let hasGUI = false;
+    let hasGUI = true;
+    // let hasGUI = false;
 
     var uniforms;
     function Init() {
@@ -196,10 +196,15 @@ class YJBloomManager2 {
 
       render();
 
-      setTimeout(() => {
-        setupScene();
-        // BlinkFn("开始闪烁",0.1,1,3);
-      }, 1000);
+      
+      _Global.addEventListener("3d加载完成",() => {
+
+        setTimeout(() => {
+          setupScene();
+          // BlinkFn("开始闪烁",0.1,1,3);
+        }, 1000);
+
+      });
 
 
     }
@@ -272,7 +277,7 @@ class YJBloomManager2 {
           // console.log(obj.name);
 
           if (obj.name.indexOf("bloom") > -1 || obj.name == "bloom") {
-            // console.log("自发光的模型有 " + obj.name);
+            console.log("自发光的模型有 " + obj.name);
             obj.layers.enable(BLOOM_SCENE);
             // obj.material.emissiveMap = null;
             // obj.material.emissiveIntensity = 10;
@@ -286,6 +291,10 @@ class YJBloomManager2 {
 
           }
 
+          if (obj.tag.includes("bloom")) {
+            // console.log("自发光的模型有 " + obj.name);
+            obj.layers.enable(BLOOM_SCENE); 
+          }
 
           // obj.layers.enable(BLOOM_SCENE);
 

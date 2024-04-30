@@ -332,7 +332,7 @@ class YJSceneDyncManagerEditor {
       let player = null;
       if (_Global.setting.DMGame) {
         players = _Global._YJNPCManager.GetSameCampNPCInFire(camp);
-        if(players.length>0){
+        if (players.length > 0) {
           player = players[radomNum(0, players.length - 1)];
           id = player.transform.id;
         }
@@ -346,7 +346,7 @@ class YJSceneDyncManagerEditor {
       }
     }
     this.GetSameCamp = function (camp) {
-      let players = [];  
+      let players = [];
       if (_Global.setting.DMGame) {
         players = _Global._YJNPCManager.GetSameCampNPCInFire(camp);
       } else {
@@ -705,7 +705,7 @@ class YJSceneDyncManagerEditor {
       }
     }
 
-    this.RemoveNPCFireId = function (id,fireId) {
+    this.RemoveNPCFireId = function (id, fireId) {
       // console.log(npcComponent.npcName + "npc 死亡或其他 请求离开战斗" + npcComponent.fireId);
       for (let i = fireGroup.length - 1; i >= 0; i--) {
         const element = fireGroup[i];
@@ -714,7 +714,7 @@ class YJSceneDyncManagerEditor {
             const people = element.peopleList[j];
             if (people.targetId == id) {
               people.targetId = null;
-            }else if (people.id == id) {
+            } else if (people.id == id) {
               element.peopleList.splice(j, 1);
             }
           }
@@ -722,7 +722,7 @@ class YJSceneDyncManagerEditor {
             fireGroup.splice(i, 1);
             FireOff();
             return;
-          } 
+          }
         }
       }
 
@@ -744,7 +744,7 @@ class YJSceneDyncManagerEditor {
             }
           }
         }
-      } 
+      }
 
     }
     this.LoopCheckFire = function () {
@@ -804,7 +804,7 @@ class YJSceneDyncManagerEditor {
       }
       if (!npcComponent.canMove) {
         vaildDis = npcComponent.GetVaildAttackDis();
-      }else{
+      } else {
         vaildDis = undefined;
       }
       // if(npcComponent.npcName.includes("阳光万里")){
@@ -812,12 +812,15 @@ class YJSceneDyncManagerEditor {
       // }
 
       const player = _Global._YJNPCManager.GetNoSameCampNPCInFireByNearestDis(npcComponent.GetWorldPos(), camp, vaildDis);
+      // if (npcComponent.npcName.includes("老a")) {
+      //   console.log(vaildDis, " [" + npcComponent.npcName + "] "," 目标 ",player);
+      // }
       if (player) {
         if (player.isYJNPC) {
           if (npcId == player.transform.id) {
             console.error(" 不该进入此判断: [" + player.npcName + "] 的目标是自身 ");
           }
-          // if (npcComponent.npcName.includes("怀特迈恩")) {
+          // if (npcComponent.npcName.includes("怀特迈恩22") || scope.npcName.includes("我回来哩") ) {
           //   console.log(vaildDis, " [" + npcComponent.npcName + "] 找到目标 [" + player.npcName + "] ");
           // }
           if (people) {
@@ -986,7 +989,7 @@ class YJSceneDyncManagerEditor {
         let p = scope.GetPlayerById(state.targetId);
         if (p && p.isPlayer == undefined) {
           p.ReceiveDamageByPlayer(this.GetNpcById(state.npcId), state.skillName, state.effect);
-          
+
         }
         return;
       }

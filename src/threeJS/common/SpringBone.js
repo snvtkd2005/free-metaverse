@@ -9,11 +9,11 @@ class SpringBone {
         //次のボーン
 
         //ボーンの向き 
-        // const boneAxis = new THREE.Vector3(-1, 0, 0);
-        // const axisIndex = 0; //通用也使用物体的Y轴方向，通过世界矩阵索引1列为Y轴，   0为X轴
+        const boneAxis = new THREE.Vector3(-1, 0, 0);
+        const axisIndex = 0; //使用物体的Y轴方向，通过世界矩阵索引1列为Y轴，   0为X轴
 
-        const boneAxis = new THREE.Vector3(0, 1, 0); // threejs 中使用Y轴 
-        const axisIndex = 1; //通用也使用物体的Y轴方向，通过世界矩阵索引1列为Y轴，   0为X轴
+        // const boneAxis = new THREE.Vector3(0, 1, 0); // threejs 中使用Y轴 
+        // const axisIndex = 1; //使用物体的Y轴方向，通过世界矩阵索引1列为Y轴，   0为X轴
         let radius = 0.05;
 
         //各SpringBoneに設定されているstiffnessForceとdragForceを使用するか？
@@ -24,19 +24,12 @@ class SpringBone {
         let stiffnessForce = 0.01;
         //力の減衰力
         let dragForce = 0.4; 
-        // const springForce = new THREE.Vector3(0.0, -0.0001, 0.0);
-        const springForce = new THREE.Vector3(0.0, 0, 0.0);
+        const springForce = new THREE.Vector3(0.0, -0.0001, 0.0); 
         let colliders = [];
         this.SetCollider = function (mesh, radius) {
             colliders.push({ mesh, radius });
         }
-        function addCollider(otherBoneName, radius) {
-            // for (let i = 0; i < model.length; i++) {
-            //     const item = model[i];
-            //     if (item.name.includes(otherBoneName)) {
-            //         scope.SetCollider(item, redius);
-            //     }
-            // }
+        function addCollider(otherBoneName, radius) { 
             model.traverse(function (item) {
                 if (item.name.includes(otherBoneName)) {
                     scope.SetCollider(item, radius);
@@ -71,8 +64,7 @@ class SpringBone {
         function getWorldQuaternion(object) {
             return object.getWorldQuaternion(new THREE.Quaternion());
         }
-        function CreateSphereFn(parent, ballRadius, color) {
-            // return;
+        function CreateSphereFn(parent, ballRadius, color) { 
             let pos = new THREE.Vector3();
             const quat = new THREE.Quaternion();
 
@@ -110,14 +102,14 @@ class SpringBone {
 
 
             boneName = transform.name;
-            if (boneName.includes("J_R_Skirt_00") || boneName.includes("J_R_Skirt_01")) {
-                addCollider("Character1_RightUpLeg", 0.07);
-                addCollider("Character1_RightLeg", 0.15);
-                addCollider("Locator_RightUpLeg_Middle", 0.17);
-                // addCollider("Locator_RightUpLeg_Middle", 0.08);
+            // if (boneName.includes("J_R_Skirt_00") || boneName.includes("J_R_Skirt_01")) {
+            //     addCollider("Character1_RightUpLeg", 0.07);
+            //     addCollider("Character1_RightLeg", 0.15);
+            //     addCollider("Locator_RightUpLeg_Middle", 0.17);
+            //     // addCollider("Locator_RightUpLeg_Middle", 0.08);
 
-                console.log(colliders);
-            }
+            //     console.log(colliders);
+            // }
             // CreateSphereFn(child, 0.05, 0xffff00);
             CreateSphereFn(refObj, 0.05, 0xffff00);
 
@@ -160,7 +152,6 @@ class SpringBone {
             org = trs;
             //重置旋转 
             trs.quaternion.copy(identityQuat.clone().multiply(localRotation));
-            // trs.quaternion.copy(identityQuat.identity().clone().multiply(localRotation));
 
             // let sqrDt =   Time.deltaTime * Time.deltaTime;
             // let sqrDt = 0.00110889; //30帧
@@ -175,6 +166,7 @@ class SpringBone {
             force.add((prevTipPos.clone().sub(currTipPos).multiplyScalar(dragForce).multiplyScalar(1 / sqrDt)));
             // force += springForce / sqrDt;
             force.add(springForce.clone().multiplyScalar(1 / sqrDt));
+ 
             //前フレームと値が同じにならないように
             let temp = currTipPos.clone();
 
@@ -212,29 +204,18 @@ class SpringBone {
             if (_Global.dirc) { 
                 xAxis.setFromMatrixColumn(worldMatrix,  _Global.dirc.w); // 0 是列索引，对应X轴  
             }else{
+            // 现在 xAxis 包含了物体局部坐标系中X轴方向的世界坐标向量
                 xAxis.setFromMatrixColumn(worldMatrix, axisIndex); // 0 是列索引，对应X轴  
             } 
 
-            let mm = 1;
-            if(axisIndex == 0){
-                mm = boneAxis.x;
-            }
-            if(axisIndex == 1){                
-                mm = boneAxis.y;
-            } 
-            if(axisIndex == 2){                
-                mm = boneAxis.z;
-            }
-
-            aimVector = xAxis.clone().multiplyScalar(mm);
+            aimVector = xAxis.clone();
 
 
             // worldMatrix.extractBasis(new THREE.Vector3(), aimVector , new THREE.Vector3()); // 与上面代码同价
             // worldMatrix.extractBasis(aimVector, new THREE.Vector3() , new THREE.Vector3()); // 与上面代码同价
-            trs.matrixWorldAutoUpdate = true;
-            trs.matrixWorldNeedsUpdate = true;
+            // trs.matrixWorldAutoUpdate = true;
+            // trs.matrixWorldNeedsUpdate = true;
 
-            // 现在 xAxis 包含了物体局部坐标系中X轴方向的世界坐标向量
             // if (boneName.includes("J_L_HeadRibbon_00") ) {
             //     // console.log("aimVector ",aimVector.clone());
             //     console.log("getWorldPosition(trs) ",getWorldPosition(trs).clone());
@@ -243,12 +224,8 @@ class SpringBone {
 
 
 
-            let aimRotation = new THREE.Quaternion();
-            let offset = currTipPos.clone().sub(getWorldPosition(trs));
-            // offset.z *= -1;
-            // aimRotation.setFromUnitVectors(aimVector.clone(), currTipPos.clone().sub(getWorldPosition(trs)));
-            // aimRotation.setFromUnitVectors(offset,aimVector.clone());
-            aimRotation.setFromUnitVectors(aimVector, offset);
+            let aimRotation = new THREE.Quaternion(); 
+            aimRotation.setFromUnitVectors(aimVector, currTipPos.clone().sub(getWorldPosition(trs)));
  
             // if (boneName.includes("J_L_HeadRibbon_00")) {
             //     console.log("aimRotation ", aimRotation.clone());
@@ -261,20 +238,17 @@ class SpringBone {
             // aimRotation.setFromEuler(v);
 
 
+            
             scene.attach(refObj);
-
-            refObj.quaternion.copy( getWorldQuaternion(org).multiply(aimRotation));
-            // refObj.quaternion.multiplyQuaternions(getWorldQuaternion(trs),aimRotation);
+            refObj.quaternion.copy( getWorldQuaternion(trs).multiply(aimRotation));
             trs.parent.attach(refObj);
 
-
             trs.quaternion.copy(refObj.quaternion.clone());
-
+ 
  
             // if (boneName.includes("J_L_HeadRibbon_00")) {
             //     console.log("transform.quaternion ", getWorldQuaternion(transform).clone());
             // }
-            // refObj.position.copy(getWorldPosition(trs));
             refObj.position.copy(trs.position.clone());
 
             //应用旋转

@@ -371,6 +371,7 @@ class YJController {
       if (onRotaBase) {
         onRotaBase();
       }
+
     }
 
 
@@ -594,12 +595,33 @@ class YJController {
     this.SetWheelChangeHandler = function (callback) {
       onWheelChangeAction = callback;
     }
+
+    let eventList = [];
+    // 添加事件监听
+    this.addEvent = function (e, fn) {
+      eventList.push({ eventName: e, fn: fn });
+    }
+    // 执行事件
+    this.applyEvent = function (e, v, v2) {
+      for (let i = 0; i < eventList.length; i++) {
+        const element = eventList[i];
+        if (element.eventName == e) {
+          element.fn(v, v2);
+        }
+      }
+    }
+
+
     let display = true;
     function Display(b) {
       if (_player == null || _YJPlayer == null) { return; }
 
       if (onWheelChangeAction) {
         onWheelChangeAction(wheelCurrentValue);
+      }
+      if ((moveForward || moveLeft || moveRight || moveBackward)) {
+      } else {
+        scope.applyEvent("视角改变", 1111);
       }
       // console.error("设置模型显示或隐藏 ",b,lockDisplay,display);
 
@@ -857,7 +879,10 @@ class YJController {
     }
 
     function RotaBase_leftMouse(x, y) {
-
+      if ((moveForward || moveLeft || moveRight || moveBackward)) {
+      } else {
+        scope.applyEvent("视角改变", 111);
+      }
       if (forcedLandscape) {
         let xx = x;
         x = -y * 4;
@@ -1001,12 +1026,16 @@ class YJController {
 
       // RotaBase(x,y);
     }
-    this.CallRotaBase = function(x, y){
-      RotaBase(x,y);
+    this.CallRotaBase = function (x, y) {
+      RotaBase(x, y);
     }
 
     //鼠标左键或右键拖动控制左右旋转， 视角上下旋转
     function RotaBase(x, y) {
+      if ((moveForward || moveLeft || moveRight || moveBackward)) {
+      } else {
+        scope.applyEvent("视角改变", 2);
+      }
 
       if (forcedLandscape) {
         let xx = x;
@@ -1723,13 +1752,13 @@ class YJController {
       if (rota == undefined) { return; }
 
       _playerY = Math.PI / 2;
-      if(_player){
+      if (_player) {
         _player.rotation.set(0, _playerY, 0);
       }
-      if(camBaseParent){
+      if (camBaseParent) {
         camBaseParent.rotation.set(0, 0, 0);
       }
-      if(_YJAmmoPlayer == null){
+      if (_YJAmmoPlayer == null) {
         return;
       }
       _YJAmmoPlayer.rotation.set(rota.x, rota.y, rota.z);
@@ -2010,18 +2039,18 @@ class YJController {
     this.GetPlayerWorldPos = function () {
       return getWorldPosition(_YJAmmoPlayer);
     }
-    
+
     this.GetPlayerWorldPos2 = function () {
       let pos = _YJAmmo.GetPlayerPos();
       pos.y -= playerHeight / 2;
-      return pos; 
+      return pos;
     }
     this.GetCamTargetWorldDire = function () {
       return camTargetDirection.getWorldDirection(new THREE.Vector3());
     }
 
     //设置摄像机的视角距离
-    this.GetCameraWheel = function(){
+    this.GetCameraWheel = function () {
       return wheelCurrentValue;
     }
     this.SetCameraWheelPos = function (f) {
@@ -3153,6 +3182,9 @@ class YJController {
     //是否在地面。跳起后，实时检测是否已碰到地面，碰到地面时，不允许下降
     var _YJPlayer = null;
     var _YJPlayerFireCtrl = null;
+    this.GetPlayerFireCtrl = function(){
+      return _YJPlayerFireCtrl;
+    }
     this.SetPlayer = (yjplayer) => {
       _YJPlayer = yjplayer;
       _YJPlayer.owner = scope;
@@ -3235,8 +3267,8 @@ class YJController {
             hit_collider.name.indexOf("point") > -1 ||
             hit_collider.name.indexOf("hit") > -1 ||
             (hit_collider.tag != undefined && hit_collider.tag.indexOf("particle") > -1) ||
-            (hit_collider.tag != undefined && hit_collider.tag.indexOf("player") > -1) || 
-            (hit_collider.tag != undefined && hit_collider.tag.indexOf("weapon") > -1) || 
+            (hit_collider.tag != undefined && hit_collider.tag.indexOf("player") > -1) ||
+            (hit_collider.tag != undefined && hit_collider.tag.indexOf("weapon") > -1) ||
             hit_collider.parent.name == "ignoreRaycast" ||
             (hit_collider.isLine != null && hit_collider.isLine == true) ||
             (hit_collider.parent.parent && hit_collider.parent.parent.isTransformControlsGizmo) ||
@@ -3361,7 +3393,35 @@ class YJController {
       camera.position.set(wheelCurrentValue, 0, 0);
 
     }
+    this.CheckVaildTargetByRayline = function (fromPos, direction,list, callback) {
+      var raycaster_cameraLine = new THREE.Raycaster(fromPos, direction, 0, 0.51);
+      raycaster_cameraLine.camera = camera;
+      //只检测pointParent物体的子物体
+      var intersects_collider = raycaster_cameraLine.intersectObjects(list, true);
+      if (intersects_collider.length > 0) {
+        let hit_collider = GetTargetInvaildCastObj(intersects_collider);
+        if (hit_collider != null) {
+          if (callback) {
+            callback(hit_collider);
+          }
+        }
+        // console.log(" 目标障碍检测", hit_collider);
+      }
+    }
+    function GetTargetInvaildCastObj(intersects_collider) {
 
+      for (let i = 0; i < intersects_collider.length; i++) {
+        let hit_collider = intersects_collider[i].object;
+        if ( 
+          (hit_collider.tag != undefined && hit_collider.tag.indexOf("NPC模型") > -1)
+        ) {
+          return hit_collider;
+        }
+      }
+      return null;
+
+
+    }
     //#endregion
 
     var pai = Math.PI;
@@ -3430,6 +3490,26 @@ class YJController {
     let playerMoveDirection = new THREE.Vector2(0, 0);
     let oldplayerMoveDirection = new THREE.Vector2(0, 0);
 
+    // 用鼠标位置相对屏幕中心位置的角度控制角色朝向
+    let rotate_temp = new THREE.Group();
+    // rotate_temp.add(new THREE.AxesHelper(1));
+    // scene.add(rotate_temp);
+    this.SetPlayerRota4 = function (x, y, distance) {
+      if(rotate_temp == null || _player == null){
+        return;
+      }
+      let o = new THREE.Vector3(0);
+      let t = new THREE.Vector3(x, 0, y);
+      rotate_temp.position.copy(o);
+      rotate_temp.lookAt(t);
+      rotate_temp.rotateY(-Math.PI / 2);
+      _player.quaternion.copy(rotate_temp.quaternion);
+      rotate_temp.position.copy(scope.GetPlayerWorldPos());
+
+      rotate_temp.quaternion.copy(_player.getWorldQuaternion(new THREE.Quaternion()));
+      rotate_temp.translateZ(distance);
+      return rotate_temp.position.clone();
+    }
     // 插值旋转角色
     function lerpRotaPlayer() {
 
@@ -3565,10 +3645,10 @@ class YJController {
       _this._YJSceneManager.ResetPlayerPos();
 
       setTimeout(() => {
-        _YJPlayer.isDead = false; 
+        _YJPlayer.isDead = false;
         this.SetInteractiveNPC("重生");
-        this.SetCanMoving(true); 
-        this.directUpate(); 
+        this.SetCanMoving(true);
+        this.directUpate();
       }, 200);
     }
     // 是否已死亡
@@ -3659,9 +3739,9 @@ class YJController {
     }
 
 
-    this.SetPlayerAnimName = function (_animName,animNameFullback) {
+    this.SetPlayerAnimName = function (_animName, animNameFullback) {
       animName = _animName;
-      _YJPlayer.ChangeAnim(animName,animNameFullback);
+      _YJPlayer.ChangeAnim(animName, animNameFullback);
     }
     this.ChangeAnimDirect = function (_animName) {
       animName = _animName;
@@ -3690,15 +3770,15 @@ class YJController {
         content: "受到伤害",
         msg: { _targetModel: _targetModel, skillName: skillName, effect: effect },
       });
-    } 
+    }
     this.SetInteractiveNPC = function (content, msg) {
-      if(content == "删除镜像" || content == "重生"){
+      if (content == "删除镜像" || content == "重生") {
 
-      }else{
-        if(this.isInDead()){
+      } else {
+        if (this.isInDead()) {
           // 角色死亡后不接收道具效果
           return;
-        } 
+        }
       }
       _YJPlayerFireCtrl.OnPlayerState({
         title: "fire",
@@ -3707,7 +3787,7 @@ class YJController {
       });
       _YJPlayer.resetLife();
     }
- 
+
     this.SetPlayerState = function (e, type) {
       // console.log(" in SetPlayerState  ",e,type);
       if (playerState == PLAYERSTATE.INTERACTIVE) {
@@ -3906,6 +3986,8 @@ class YJController {
       }
 
       if (moveForward || moveLeft || moveRight || moveBackward) {
+
+        scope.applyEvent("视角改变", 11);
 
         // 在键鼠或遥感控制模式下，行走动作权重始终为1
         if (contrlState != CONTRLSTATE.MOUSE) {

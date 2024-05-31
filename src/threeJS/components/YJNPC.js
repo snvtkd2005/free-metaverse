@@ -609,7 +609,7 @@ class YJNPC {
     this.GetSkillList = function () {
       return skillList;
     }
-    let modelScale = 1;
+    let modelScale = 1; 
     this.SetMessage = function (msg) {
       if (msg == null || msg == undefined || msg == "") { return; }
       // data = JSON.parse(msg);
@@ -662,8 +662,11 @@ class YJNPC {
       skillList = data.skillList;
       _YJSkill.SetSkill(skillList, baseData);
       // console.log(scope.GetNickName() + " 技能 ", skillList);
+      if (data.canMove != undefined) {
+        scope.canMove = data.canMove;
+      }
       if (data.inAreaRandom) {
-
+        
       } else {
         if (data.movePos && data.movePos.length > 1) {
           this.UpdateNavPos("停止巡逻", data.movePos);
@@ -685,7 +688,7 @@ class YJNPC {
           recodeMat();
         }
       }
-      fireBeforePos = scope.GetWorldPos();
+      fireBeforePos = scope.GetWorldPos(); 
       // console.log( scope.GetNickName() + " fireBeforePos  11 = ",fireBeforePos);
 
       if (data.isCopy) {
@@ -1186,7 +1189,7 @@ class YJNPC {
       }
       if (baseData.armor >= strength) {
         baseData.armor -= strength;
-        _Global._SceneManager.UpdateNpcDamageValue(from, scope.npcName, scope.GetCamp(), "吸收", pos, "redius");
+        _Global._SceneManager.UpdateNpcDamageValue(from, scope.npcName,scope.id, scope.GetCamp(), "吸收", pos, "redius");
         return 0;
       } else {
         // 至少会受到1点伤害
@@ -1195,7 +1198,7 @@ class YJNPC {
         scope.applyEvent("技能护甲归零");
         v = v > 0 ? v : 1;
       }
-      _Global._SceneManager.UpdateNpcDamageValue(from, scope.npcName, scope.GetCamp(), v, pos, "redius");
+      _Global._SceneManager.UpdateNpcDamageValue(from, scope.npcName,scope.id, scope.GetCamp(), v, pos, "redius");
 
       return v;
     }
@@ -1686,6 +1689,21 @@ class YJNPC {
           }, 7000)
       });
 
+      if (!_Global.YJClient) {
+        //重新生成
+        let relifeTime = data.relifeTime;
+        if (relifeTime && relifeTime > 0) {
+          relifeTime = 8 + relifeTime;
+        } else {
+          relifeTime = 0;
+        }
+        if(relifeTime>0){
+          setTimeout(() => {
+            resetLife();
+          }, relifeTime*1000);
+        }
+      }
+
       // scope.transform.Destroy();
       //一分钟后重新刷新。告诉主控
       // setTimeout(() => {
@@ -1695,6 +1713,7 @@ class YJNPC {
     // 死亡后重新生成
     function resetLife() {
 
+      scope.transform.ResetPosRota(); 
       targetModel = null;
       scope.isDead = false;
       scope.transform.SetActive(true);
@@ -1710,6 +1729,7 @@ class YJNPC {
       scope.SetPlayerState("normal");
       scope.RadomNavPos();
       fireBeforePos = scope.GetWorldPos();
+
 
       // if (_YJPlayerNameTrans != null) {
       //   _YJPlayerNameTrans.resetLife();
@@ -2187,7 +2207,7 @@ class YJNPC {
         UpdateData();
         let pos = scope.GetWorldPos().clone();
         pos.y += playerHeight * nameScale;
-        _Global._SceneManager.UpdateNpcDamageValue("热心观众", scope.npcName, scope.GetCamp(), msg.value, pos, "add");
+        _Global._SceneManager.UpdateNpcDamageValue("热心观众", scope.npcName,scope.id, scope.GetCamp(), msg.value, pos, "add");
 
         return;
       }

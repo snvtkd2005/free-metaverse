@@ -16,11 +16,11 @@ class YJGeometry {
     let scope = this;
 
     var mesh = null;
-    let size = null; 
+    let size = null;
     let createLater = null;
-    function Init() { 
-      
-      if(mesh){
+    function Init() {
+
+      if (mesh) {
         parent.remove(mesh);
         _this._YJSceneManager.RemoveCollider(mesh);
       }
@@ -32,58 +32,64 @@ class YJGeometry {
         transparent: true,
         // opacity: 0.5,
         color: 0xffffff,
+        wireframe:true,
       });
       switch (data.geometryType) {
         case "box":
-          geo = new THREE.BoxGeometry(1,1,1); // 生成平面
+          geo = new THREE.BoxGeometry(1, 1, 1); // 生成平面
           break;
-      
+        case "plane":
+          geo = new THREE.PlaneGeometry(10, 10, 100,100); // 生成平面
+          break;
         default:
           break;
-      } 
+      }
       mesh = new THREE.Mesh(geo, material);
       parent.add(mesh);
       mesh.transform = owner;
       size = owner.GetData().scale;
       // trigger和collider使用不同材质
 
-      if(data.isCollider){
+      if (data.isCollider) {
         mesh.name = "geometry";
-      // if(item.name.indexOf("land")){
-      //   _this._YJSceneManager.AddLandCollider(item);
-      // }else{
-      //   _this._YJSceneManager.AddCollider(item);
-      // }
-        console.log(" 创建碰撞体 ",size);
+        // if(item.name.indexOf("land")){
+        //   _this._YJSceneManager.AddLandCollider(item);
+        // }else{
+        //   _this._YJSceneManager.AddCollider(item);
+        // }
+        console.log(" 创建碰撞体 ", size);
         _this._YJSceneManager.CreateTriangeMeshCollider(mesh, size);
       }
-      if(data.isTrigger){
+      if (data.isTrigger) {
         // mesh.name = "trigger";
         // mesh.modelType = "trigger";
         _this._YJSceneManager.CreateTriangeMeshTrigger(mesh, size,
-          data.tiggerTag, "triggerArea", owner);  
-      } 
-      
-      if(data.isProjection){
+          data.tiggerTag, "triggerArea", owner);
+      }
+
+      if (data.isProjection) {
         _this._YJSceneManager.AddProjectionUI(
           {
             content: data.name,
-            tag:data.tiggerTag,
-            transform:owner,
-            event:data.event,
-          });  
-      } 
-      if(data.isPosRef){
+            tag: data.tiggerTag,
+            transform: owner,
+            event: data.event,
+          });
+      }
+      if (data.isPosRef) {
         //位置参考物体
         _this._YJSceneManager.AddPosRef(
           {
             content: data.name,
-            tag:data.tiggerTag,
-            pos:owner.GetWorldPos()
-          });  
-      } 
-      if(!_Global.setting.inEditor){
+            tag: data.tiggerTag,
+            pos: owner.GetWorldPos()
+          });
+      }
+      if (!_Global.setting.inEditor) {
         mesh.visible = false;
+      }
+      if(data.isMesh){
+        mesh.visible = true;
       }
     }
     this.Reset = function () {
@@ -94,16 +100,16 @@ class YJGeometry {
     this.CreateTrigger = function () {
       this.Destroy();
       // return;
-      
+
     }
 
     //删除模型
     this.Destroy = function () {
-      if(createLater!=null){
+      if (createLater != null) {
         clearTimeout(createLater);
         createLater = null;
       }
-        
+
       this.DestroyCollider();
     }
     this.DestroyCollider = function () {
@@ -114,9 +120,9 @@ class YJGeometry {
         mesh = null;
       }
     }
-    
+
     let data = null;
-    this.SetMessage = function ( msg) {
+    this.SetMessage = function (msg) {
       if (msg == null || msg == undefined || msg == "") { return; }
       // data = JSON.parse(msg);
       data = (msg);

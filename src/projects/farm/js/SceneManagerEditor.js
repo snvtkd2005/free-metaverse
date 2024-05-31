@@ -237,6 +237,11 @@ class SceneManager {
         }
       });
 
+      _this.YJController.addEvent("视角改变",(e) => {
+        // console.log(e);
+        indexVue.$refs.HUD.$refs.damageUI.UpdatePos2d();
+
+      });
 
       _this.YJController.AddMovingListener(() => {
         if (pickTimeout != null) {
@@ -265,9 +270,11 @@ class SceneManager {
 
         inThrowing = false;
 
+
         // console.log(throwTimeout);
 
       });
+
 
       // posRef_huluobu = CreatePosRef(0.33, -0.953);
       // posRef_nangua = CreatePosRef(0.20, -0.953);
@@ -754,10 +761,13 @@ class SceneManager {
     this.GetDamageStatistics = function () {
       return damageStatistics;
     }
-    this.UpdateNpcDamageValue = function (from, to, type, value, pos, addredius) {
-      let _pos = _Global.YJ3D._YJSceneManager.WorldPosToScreenPos(pos);
+    this.UpdateNpcDamageValue = function (from, to,tarteId, type, value, pos, addredius) {
+
+      let _pos = _Global.YJ3D._YJSceneManager.WorldPosToScreenPos(pos.clone());
       // console.log("伤害和坐标", from,to,value, _pos);
-      indexVue.$refs.HUD.$refs.damageUI.AddDamage(to, type, value, _pos, addredius);
+      indexVue.$refs.HUD.$refs.damageUI.AddDamage(tarteId, type, value,pos.clone(), _pos, addredius);
+
+
       damageStatistics.push({ from, to, value });
     }
 
@@ -943,16 +953,35 @@ class SceneManager {
           // 头像
           this.SetTargetModel(transform);
           console.log(" 点击NPC  ", transform.GetComponent("NPC"));
+          EventHandler("点击NPC",transform);
           _this.YJController.SetInteractiveNPC("选中npc", transform);
           if (_Global.LogFireById) {
             _Global.LogFireById(transform.id);
           }
+          return;
         }
       }
+      EventHandler("点击空");
 
     }
+    
+    let eventHandlers = [];
+    this.addEventListener = function(e,event){
+      eventHandlers.push({eventName:e,event:event});  
+    }
+    function EventHandler(e,value,value2){
+      for (let i = 0; i < eventHandlers.length; i++) {
+        const item = eventHandlers[i];
+        if(item.eventName == e){
+          if(item.event){
+            item.event(value,value2);
+          }
+        }
+      }
+    }
+
     this.ClickModel = (hitObject) => {
-      // console.log("点击模型 ",hitObject);
+      console.log("点击模型 ",hitObject);
       // console.log("点击模型.transform ", hitObject.transform);
       if (hitObject.transform && hitObject.transform.GetActive()) {
         this.ClickModelTransform(hitObject.transform);
@@ -962,6 +991,7 @@ class SceneManager {
 
       let modelType = hitObject.tag;
       if (modelType == undefined) {
+        EventHandler("点击空");
         return;
       }
       console.log("点击物体 ", modelType);

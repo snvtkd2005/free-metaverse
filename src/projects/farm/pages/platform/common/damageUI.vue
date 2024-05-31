@@ -8,7 +8,8 @@
       'px;top:' +
       (item.pos.y - 28) +
       'px;'+
-      'opacity:'+item.opacity+';'
+      'opacity:'+item.opacity+';'+
+      'transform:scale('+item.scale+');'
       ">
       <div class=" w-32 h-14  flex  "
       :class="item.addredius=='redius'?' text-yellow-400 ':' text-green-400 '"
@@ -33,7 +34,7 @@ export default {
       display: false,
       damageList: [
         // {
-        //   owner: '自身', //自身还是宠物
+        //   owner: '', //目标id
         //   type: '普通', //普通、暴击
         //   value: 100,
         //   pos: { x: 464, y: 245 },
@@ -51,10 +52,24 @@ export default {
     this.animate();
   },
   methods: {
+    UpdatePos2d(){
+      // console.log(" in UpdatePos2d ");
+      for (let i = this.damageList.length-1; i >= 0; i--) {
+        const e = this.damageList[i];
+        let _pos = _Global.YJ3D._YJSceneManager.WorldPosToScreenPos(e.pos3d.clone());
+        e.pos = _pos; 
+      }
+    },
+    AddDamage(owner, type, value,pos3d, pos,addredius) {
+      for (let i = this.damageList.length-1; i >= 0; i--) {
+        const e = this.damageList[i];
+        if(e.owner==owner&&e.type==type){ 
+          this.damageList.splice(i, 1);
+        }
+      }
+      // console.log(" add ", pos3d);
 
-    AddDamage(owner, type, value, pos,addredius) {
-      this.damageList.push({ owner: owner, type: type, value: value, pos: pos,addredius:addredius, opacity: 1,time:0 });
-      // console.log(" ", this.damageList[this.damageList.length - 1]);
+      this.damageList.push({ owner: owner, type: type,scale:2, value: value, pos3d: pos3d, pos: pos,addredius:addredius, opacity: 1,time:0 });
     },
     animate() {
       requestAnimationFrame(this.animate);
@@ -62,6 +77,10 @@ export default {
         const item = this.damageList[i];
         item.time += this.speed;
         item.pos.y -= 0.51;
+        item.scale -= 0.1;
+        if (item.scale <= 1) {
+          item.scale = 1;
+        }
         if (item.time >= 0.51) {
           item.opacity -= this.speed;
         }

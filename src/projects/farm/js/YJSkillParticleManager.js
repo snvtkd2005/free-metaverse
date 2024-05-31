@@ -11,12 +11,12 @@ import TWEEN from '@tweenjs/tween.js';
 class YJSkillParticleManager {
   constructor(_this, scene, npcPath, npcStoryData, sceneManager) {
 
-      // _YJSkillParticleManager.shootTargetFn(null,null,"1704443871265");
+    // _YJSkillParticleManager.shootTargetFn(null,null,"1704443871265");
 
-      let _YJTrailRenderer = [];
-      
+    let _YJTrailRenderer = [];
+
     let shootTargetList2 = [];
-    function shootTargetFn2(startPos, target,callback) {
+    function shootTargetFn2(startPos, target, callback) {
       for (let i = 0; i < shootTargetList2.length; i++) {
         const element = shootTargetList2[i];
         if (!element.trailRenderer.trail.used) {
@@ -34,43 +34,55 @@ class YJSkillParticleManager {
       _Global.YJ3D.scene.add(group);
       group.position.copy(startPos);
       let trailRenderer = { group: group, trail: new YJTrailRenderer(_this, _Global.YJ3D.scene, group) };
-      
+
       trailRenderer.trail.start();
       _this._YJSceneManager.AddNeedUpdateJS(trailRenderer.trail);
-      
+
       _YJTrailRenderer.push(trailRenderer);
-      shootTargetList2.push({ startPos: startPos,callback:callback, target: target, time: 0, trailRenderer: trailRenderer });
+      shootTargetList2.push({ startPos: startPos, callback: callback, target: target, time: 0, trailRenderer: trailRenderer });
     }
     function UpdateTrailRenderer2() {
       for (let i = shootTargetList2.length - 1; i >= 0; i--) {
         const item = shootTargetList2[i];
         if (item.trailRenderer.trail.used) {
-          // item.time += 0.03;
-          // if (item.time >= 1) {
-          //   item.trailRenderer.trail.stop();
-          //   if(item.callback){
-          //     item.callback();
-          //   }
-          //   return;
-          // }
-          
-          if (item.startPos.distanceTo(item.target.GetPlayerWorldPos()) < 1) {
-            item.used = false; 
+
+          let targetPos = (new THREE.Vector3());
+          if (item.target.GetPlayerWorldPos) {
+            targetPos = item.target.GetPlayerWorldPos();
+          } else {
+            targetPos = item.target;
+          }
+          if (item.startPos.distanceTo(targetPos) < 1) {
+            item.used = false;
             item.trailRenderer.trail.stop();
-            if(item.callback){
+            if (item.callback) {
               item.callback();
             }
             return;
           }
-          
-          let targetPos = item.target.GetPlayerWorldPos();
+
           let group = item.trailRenderer.group;
-          group.lookAt(targetPos); 
-          item.startPos.add(group.getWorldDirection(new THREE.Vector3()) .multiplyScalar(1.5));
+          group.lookAt(targetPos);
+          item.startPos.add(group.getWorldDirection(new THREE.Vector3()).multiplyScalar(1.5));
           group.position.copy(item.startPos);
-          
-          // item.startPos.lerp(item.target.GetPlayerWorldPos(), item.time);
-          // item.trailRenderer.group.position.copy(item.startPos);
+
+          if (item.target.GetPlayerWorldPos) {
+          } else {
+            //射出射线，如果射线碰到物体，则结束移动
+            let fromPos = group.getWorldPosition(new THREE.Vector3());
+            let direction = group.getWorldDirection(new THREE.Vector3());
+            function che(fromPos, direction) {
+              _Global.YJ3D.YJController.CheckVaildTargetByRayline(fromPos, direction,
+                _Global.YJ3D.scene.children, (target) => {
+                  item.used = false;
+                  item.trailRenderer.trail.stop(); 
+                  if (item.callback) {
+                    item.callback(target);
+                  }
+                });
+            }
+            che(fromPos, direction);
+          }
         }
       }
     }
@@ -78,9 +90,9 @@ class YJSkillParticleManager {
     let scope = this;
     let particleList = [];
     let shootTargetList = [];
-    this.shootTargetFn = async function(startPos, target, particleId,callback) {
-      if(!particleId){
-        shootTargetFn2(startPos, target,callback); 
+    this.shootTargetFn = async function (startPos, target, particleId, callback) {
+      if (!particleId) {
+        shootTargetFn2(startPos, target, callback);
         return;
       }
       for (let i = 0; i < shootTargetList.length; i++) {
@@ -97,26 +109,26 @@ class YJSkillParticleManager {
         }
       }
 
-      console.log(" 加载特效id ",particleId);
+      console.log(" 加载特效id ", particleId);
       let res = await _this.$axios.get(
         _this.$uploadGroupUrl + particleId + "/" + "data.txt" + "?time=" + new Date().getTime()
       );
 
-      let modelData = res.data; 
+      let modelData = res.data;
       // console.log(" 加载特效 ",modelData);
 
       modelData.folderBase = particleId;
       // modelData.pos = _Global.YJ3D._YJSceneManager.GetPlayerPosReduceHeight();
       modelData.pos = startPos;
-      
+
       modelData.rotaV3 = { x: 0, y: 0, z: 0 };
       modelData.scale = { x: 1, y: 1, z: 1 };
-      _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().DuplicateModelVisit(modelData,(object)=>{
+      _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().DuplicateModelVisit(modelData, (object) => {
         // console.log("加载组合模型", object);
         // particleList.push(object); 
-        shootTargetList.push({particleId:particleId,callback:callback, startPos: startPos, target: target, time: 0,used:true, particle: object });
+        shootTargetList.push({ particleId: particleId, callback: callback, startPos: startPos, target: target, time: 0, used: true, particle: object });
       });
-       
+
       // console.log(" 加载组合数据 ",modelData);
 
     }
@@ -149,24 +161,60 @@ class YJSkillParticleManager {
     function UpdateTrailRenderer() {
       for (let i = shootTargetList.length - 1; i >= 0; i--) {
         const item = shootTargetList[i];
-        if (item.used) { 
-          if (item.startPos.distanceTo(item.target.GetPlayerWorldPos()) < 1) {
-            item.used = false; 
+        if (item.used) {
+          let targetPos = (new THREE.Vector3());
+          if (item.target.GetPlayerWorldPos) {
+            targetPos = item.target.GetPlayerWorldPos();
+          } else {
+            targetPos = item.target;
+          }
+
+          if (item.startPos.distanceTo(targetPos) < 1) {
+            item.used = false;
             item.particle.SetActive(false);
-            if(item.callback){
+            if (item.callback) {
               item.callback();
             }
             return;
           }
-          let targetPos = item.target.GetPlayerWorldPos();
+
           let group = item.particle.GetGroup();
-          group.lookAt(targetPos); 
-          item.startPos.add(group.getWorldDirection(new THREE.Vector3()) .multiplyScalar(1.5));
+          group.lookAt(targetPos);
+          item.startPos.add(group.getWorldDirection(new THREE.Vector3()).multiplyScalar(0.5));
+          // item.startPos.add(group.getWorldDirection(new THREE.Vector3()) .multiplyScalar(1.5));
           group.position.copy(item.startPos);
+
+          if (item.target.GetPlayerWorldPos) {
+          } else {
+            //射出射线，如果射线碰到物体，则结束移动
+            let fromPos = group.getWorldPosition(new THREE.Vector3());
+            let direction = group.getWorldDirection(new THREE.Vector3());
+            function che(fromPos, direction) {
+              _Global.YJ3D.YJController.CheckVaildTargetByRayline(fromPos, direction,
+                _Global.YJ3D.scene.children, (target) => {
+                  item.used = false;
+                  item.particle.SetActive(false);
+                  if (item.callback) {
+                    item.callback(target);
+                  }
+                });
+            }
+            che(fromPos, direction);
+          }
+
+          // let r1 = new THREE.Group();
+          // r1.position.copy(group.position);
+          // r1.rotation.copy(group.rotation);
+          // let of = 0.1;
+          // r1.translateX(of); 
+          // che(r1.position,direction);
+          // r1.translateX(-of*2);
+          // che(r1.position,direction);
+
         }
       }
     }
-    
+
     function MoveToPosTweenFn(fromPos, targetPos, length, updateCB, callback) {
       let movingTween = new TWEEN.Tween(fromPos).to(targetPos, length).easing(TWEEN.Easing.Cubic.InOut)
       let updateTargetPos = () => {
@@ -182,13 +230,13 @@ class YJSkillParticleManager {
         }
       });
     }
-    function init(){
+    function init() {
       _this._YJSceneManager.AddNeedUpdateJS(scope);
     }
-    this._update = function(){
+    this._update = function () {
       UpdateTrailRenderer();
       UpdateTrailRenderer2();
-      TWEEN.update(); 
+      TWEEN.update();
 
     }
     init();

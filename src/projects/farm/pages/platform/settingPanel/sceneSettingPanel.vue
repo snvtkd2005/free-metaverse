@@ -203,6 +203,18 @@ export default {
             // { value: 9000, label: '中立' },
           ], callback: this.ChangeValue,
         },
+        {
+          property: "controllerType", display: true, title: "控制方式", type: "drop", value: 1000, options: [
+            { value: 1000, label: 'wow' },
+            { value: 1001, label: 'roguelike' },
+          ], callback: this.ChangeValue,
+        },
+        {
+          property: "setting-projection", display: true, title: "投影", type: "drop", value: 'perspective', options: [
+            { value: 'orthographic', label: 'orthographic' },
+            { value: 'perspective', label: 'perspective' },
+          ], callback: this.ChangeValue,
+        }, 
       ],
       sceneData: {
         
@@ -460,7 +472,9 @@ export default {
       if (property == "setting-targetRota") {
         _Global.YJ3D.YJController.SetMinMax(e); 
       }
-
+      if (property == "setting-projection") {
+        _Global.YJ3D.changeProjection(e);
+      }
       if(property.toLowerCase().includes("fog")){
         _Global.SendMsgTo3D("设置雾",{
           visible:this.Utils.GetSettingItemValueByProperty(this.setting, 'AmbientLightData-hasFog'),

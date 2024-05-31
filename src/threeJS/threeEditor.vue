@@ -121,7 +121,7 @@ export default {
     this.enableRenderer = true;
 
     this.userData = null;
-    this.pauseRender = true;
+    this.pauseRender = false;
     // console.log( this.windowWidth, this.windowHeight);
   },
 
@@ -356,6 +356,16 @@ export default {
           this.windowHeight
         );
       }
+      // 正交相机自适应分辨率
+      if (this.camera.isOrthographicCamera) {
+        const frustumSize = 2;
+        const aspect = this.windowWidth / this.windowHeight;
+        this.camera.left = (-frustumSize * aspect) / 2;
+        this.camera.right = (frustumSize * aspect) / 2;
+        this.camera.top = frustumSize / 2;
+        this.camera.bottom = -frustumSize / 2;
+        this.camera.updateProjectionMatrix();
+      }
     },
     SetCameraFov(f) {
       if (this.camera == null) {
@@ -420,52 +430,52 @@ export default {
             // console.log(" 未点击到任何模型 ");
             return;
           }
-          console.log(
-            "点击模型 ",
-            hitObject,
-            hitObject.tag +
-              " " +
-              hitObject.name +
-              " 点击坐标 " +
-              hitPoint.x +
-              " " +
-              hitPoint.y +
-              " " +
-              hitPoint.z +
-              " "
-          );
+          // console.log(
+          //   "点击模型 ",
+          //   hitObject,
+          //   hitObject.tag +
+          //     " " +
+          //     hitObject.name +
+          //     " 点击坐标 " +
+          //     hitPoint.x +
+          //     " " +
+          //     hitPoint.y +
+          //     " " +
+          //     hitPoint.z +
+          //     " "
+          // );
 
-          if (
-            hitObject.name == "floor" ||
-            hitObject.name.indexOf("land") > -1 ||
-            hitObject.name == "Plane001"
-          ) {
-            this.ClickFloor(hitObject, hitPoint);
-            return;
-          }
+          // if (
+          //   hitObject.name == "floor" ||
+          //   hitObject.name.indexOf("land") > -1 ||
+          //   hitObject.name == "Plane001"
+          // ) {
+          //   this.ClickFloor(hitObject, hitPoint);
+          //   return;
+          // }
 
-          if (hitObject.name == "qq") {
-            this.ClickQQ();
-            return;
-          }
+          // if (hitObject.name == "qq") {
+          //   this.ClickQQ();
+          //   return;
+          // }
 
-          if (hitObject.tag == undefined) {
-            this.ClickModel(hitObject);
-            return;
-          }
-          if (hitObject.tag == "hotPoint") {
-            this.ClickHotPoint(hitObject.modelData, hitObject.owner);
-            return;
-          }
-          if (hitObject.tag == "player") {
-            this.ClickPlayer(hitObject.owner);
-            return;
-          }
+          // if (hitObject.tag == undefined) {
+          //   this.ClickModel(hitObject);
+          //   return;
+          // }
+          // if (hitObject.tag == "hotPoint") {
+          //   this.ClickHotPoint(hitObject.modelData, hitObject.owner);
+          //   return;
+          // }
+          // if (hitObject.tag == "player") {
+          //   this.ClickPlayer(hitObject.owner);
+          //   return;
+          // }
 
-          if (hitObject.tag.indexOf("交互物品") > -1) {
-            this.ClickModel(hitObject.owner);
-            return;
-          }
+          // if (hitObject.tag.indexOf("交互物品") > -1) {
+          //   this.ClickModel(hitObject.owner);
+          //   return;
+          // }
 
           this.ClickModel(hitObject);
         },
@@ -604,6 +614,58 @@ export default {
     //------------------初始化 three 场景容器
 
     //#region  初始化 three 场景容器
+    changeProjection(projection) {
+
+    //   var boundingBox = new THREE.Box3().setFromObject(this.scene);
+    //   // 计算正交相机的左、右、顶、底、近、远属性
+    // var size = boundingBox.getSize(new THREE.Vector3());
+    // var left = -size.x / 2;
+    // var right = size.x / 2;
+    // var top = size.y / 2;
+    // var bottom = -size.y / 2;
+    // var far = boundingBox.max.z;
+    // var near = boundingBox.min.z;
+ 
+    // // 设置相机属性
+    // this.camera.left = left;
+    // this.camera.right = right;
+    // this.camera.top = top;
+    // this.camera.bottom = bottom;
+    // this.camera.near = near;
+    // this.camera.far = far;
+ 
+    // // 更新相机的投影矩阵
+    // this.camera.updateProjectionMatrix();
+      // let projection = this.$parent.$parent.avatarData.setting.projection;
+      // console.log("projection ",projection);
+      // if (projection == "orthographic") {
+      //   const frustumSize = 2;
+      //   const aspect = this.windowWidth / this.windowHeight;
+      //   this.camera = new THREE.OrthographicCamera(
+      //     (frustumSize * aspect) / -2,
+      //     (frustumSize * aspect) / 2,
+      //     frustumSize / 2,
+      //     frustumSize / -2,
+      //     1,
+      //     1000
+      //   );
+        
+      //   this.camera.left = (-frustumSize * aspect) / 2;
+      //   this.camera.right = (frustumSize * aspect) / 2;
+      //   this.camera.top = frustumSize / 2;
+      //   this.camera.bottom = -frustumSize / 2;
+      //   // isOrthographicCamera
+      // } else {
+      //   this.camera = new THREE.PerspectiveCamera(
+      //     60,
+      //     this.windowWidth / this.windowHeight,
+      //     0.1,
+      //     1000
+      //   );
+      // }
+      // this.camera.updateProjectionMatrix();
+
+    },
     initScene() {
       this.scene = new THREE.Scene(); // 场景
       this.scene.name = "scene";
@@ -702,14 +764,15 @@ export default {
         that.PlayVideo();
       });
     },
-    GetWidthHeight(){
+    GetWidthHeight() {
       let w = this.windowWidth;
       let h = this.windowHeight;
       return {
-        w, h
+        w,
+        h,
       };
     },
-    GetContainer(){
+    GetContainer() {
       return this.$refs.container;
     },
     AddThreeDocumentListener(fn) {
@@ -846,7 +909,7 @@ export default {
       this.YJPlayer.CreateChatTrans(e);
     },
     //生成角色
-    GeneratePlayer(callback) { 
+    GeneratePlayer(callback) {
       // console.log("创建角色" ,this.userData);
       this.YJPlayer = new YJPlayer(
         this,
@@ -890,7 +953,7 @@ export default {
       }
       requestAnimationFrame(this.renderScene);
 
-      // if(this.pauseRender){return;}
+      if(this.pauseRender){return;}
       const delta = clock.getDelta(); //获取自上次调用的时间差
 
       timeStamp += delta;

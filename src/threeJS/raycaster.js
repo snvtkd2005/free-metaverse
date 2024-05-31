@@ -4,12 +4,9 @@
 
 
 import * as THREE from "three";
-import {
-  EventDispatcher,
-} from 'three';
+import { YJEvent } from "./YJEvent";
 
-
-class YJRaycaster extends EventDispatcher {
+class YJRaycaster extends YJEvent {
   constructor(_this, scene, camera, domElement, clickHit,
     hoverHit, hotPointObject, rightMouseUpCallback, hitInstancedMesh) {
     super();
@@ -79,6 +76,7 @@ class YJRaycaster extends EventDispatcher {
     let eventHandlers = [];
     this.addEventListener = function(e,event){
       eventHandlers.push({eventName:e,event:event});
+      // super.addEvent(e,event); 
     }
     function EventHandler(e,value,value2){
       if(e=="hover"){
@@ -92,6 +90,8 @@ class YJRaycaster extends EventDispatcher {
           }
         }
       }
+      // super.applyEvent(e,value,value2); 
+
     }
     //鼠标实时位置的射线检测
     const raycasterHover = (pos) => {
@@ -132,6 +132,7 @@ class YJRaycaster extends EventDispatcher {
 
     const raycasterClick = (pos) => {
       // console.log(  " in  raycaster Click"  );
+
 
 
       if (raycasterClickHotPoint(pos)) {
@@ -373,6 +374,7 @@ class YJRaycaster extends EventDispatcher {
         //鼠标左键
         case scope.mouseButtons.ORBIT:
           state = STATE.ROTATE;
+          EventHandler("onmousedown");
           break;
         case scope.mouseButtons.ZOOM:
           state = STATE.DOLLY;
@@ -395,6 +397,8 @@ class YJRaycaster extends EventDispatcher {
       
       mouse.x = ((event.clientX-offset.left) / containerWidth) * 2 - 1;
       mouse.y = -((event.clientY-offset.top) / containerHeight) * 2 + 1;
+
+      EventHandler("mousePos",mouse.x,mouse.y);
     }
     this.onMouseMove = function (event) {
 
@@ -433,6 +437,7 @@ class YJRaycaster extends EventDispatcher {
       UpdateMousePos(event); 
       // console.log(" mouse up " ," x = " + mouse.x + " y = " +mouse.y );
       oldHoverObj = null;
+      EventHandler("onmouseup");
 
       //鼠标点是否有位移，判断是否为滑动
       if (clickMousePosX != mouse.x || clickMousePosY != mouse.y) {
@@ -449,7 +454,8 @@ class YJRaycaster extends EventDispatcher {
       switch (state) {
 
         case STATE.ROTATE:
-          raycasterClick(mouse);
+          raycasterClick(mouse); 
+          EventHandler("leftmouseclick",mouse.x,mouse.y);
           break;
 
         case STATE.DOLLY:

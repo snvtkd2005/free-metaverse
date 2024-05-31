@@ -573,20 +573,20 @@ class YJDMManager_bilibili {
         let targetCount = 2;
         let strength = 15;
         if (lv) {
- 
+
           targetCount = lv + 1;
           strength = 5 * lv;
 
           // 10000表示是礼物触发
           if (lv == 10000) {
-             targetCount = 10; strength = 300;
+            targetCount = 10; strength = 300;
           }
         }
         return {
           type: t,
-          castTime: 0.2 ,
+          castTime: 0.2,
           skillName: t,
-          vaildDis: 20, 
+          vaildDis: 20,
           target: { type: "area", value: targetCount },
           effect: { type: "contDamage", time: 0.2, skillName: t, value: strength }
         };
@@ -915,12 +915,12 @@ class YJDMManager_bilibili {
           _Global.YJAudioManager().playAudio("1710913742348/levelup.ogg", " level up audio ");
           saveDMPlayer();
           let npcSkills = npc.GetSkillList();
-          if(npcSkills){
+          if (npcSkills) {
             return;
           }
           let skill = GetDMPlayerSkillByPlayerLevel("", lv);
           if (skill) {
-            addSkillInterval(npc, dmPlayer.npcId, skill, 0,dmPlayer.skill);
+            addSkillInterval(npc, dmPlayer.npcId, skill, 0, dmPlayer.skill);
             _Global.CombatLog.DMlog(npc.GetNickName() + " 学会技能 " + "【" + skill.name + "】");
           }
         });
@@ -928,9 +928,9 @@ class YJDMManager_bilibili {
         if (_Global.inGame) {
           let npcSkills = npc.GetSkillList();
 
-          if(npcSkills){
+          if (npcSkills) {
 
-          }else{
+          } else {
             let skills = dmPlayer.skill;
             if (skills) {
               for (let k = 0; k < skills.length; k++) {
@@ -939,17 +939,17 @@ class YJDMManager_bilibili {
                 if (dmPlayer.level >= unLockLevel) {
                   skill.perCD = 0;
                   cCD = CD;
-                  addSkillInterval(npc, dmPlayer.npcId, skill, k,skills);
+                  addSkillInterval(npc, dmPlayer.npcId, skill, k, skills);
                 }
               }
             }
           }
         }
         let npcSkills = npc.GetSkillList();
-        if(npcSkills.length>0){
+        if (npcSkills.length > 0) {
           let skills = dmPlayer.skill;
-          for (let i = skills.length-1; i >= 0; i--) {
-            skills.splice(i,1);
+          for (let i = skills.length - 1; i >= 0; i--) {
+            skills.splice(i, 1);
           }
           for (let i = 0; i < npcSkills.length; i++) {
             const skill = npcSkills[i];
@@ -958,7 +958,7 @@ class YJDMManager_bilibili {
             cSkill.unLockLevel = 1;
             cSkill.level = 1;
             cSkill.icon = indexVue.$uploadUVAnimUrl + skill.icon;
-            if(skill.trigger.type == "perSecond"){
+            if (skill.trigger.type == "perSecond") {
               cSkill.CD = skill.trigger.value;
               cSkill.cCD = cSkill.CD;
             }
@@ -967,13 +967,13 @@ class YJDMManager_bilibili {
           npc.addEventListener("技能CD", (skillName, cCD) => {
             for (let i = 0; i < skills.length; i++) {
               const skill = skills[i];
-              if(skill.name == skillName){ 
+              if (skill.name == skillName) {
                 dmVue.changeDMPlayerSkillCD(npcId, i, cCD);
               }
-            } 
+            }
           });
-        }else{
-          
+        } else {
+
           // dmPlayer.skill = JSON.parse(JSON.stringify(DMPlayerSkill));
 
         }
@@ -990,12 +990,12 @@ class YJDMManager_bilibili {
       }, npcId);
     }
 
-    function addSkillInterval(npc, npcId, skill, skillIndex,skills) {
+    function addSkillInterval(npc, npcId, skill, skillIndex, skills) {
       let { name, CD, cCD, level } = skill;
       if (name == "多重射击") {
         cCD = CD;
-        let intervalId = npcId +"_"+ new Date().getTime() + "_" + skillIndex;
-        console.log("添加多重射击interval " ,intervalId);
+        let intervalId = npcId + "_" + new Date().getTime() + "_" + skillIndex;
+        console.log("添加多重射击interval ", intervalId);
         intervalList.push({
           id: intervalId, fn: setInterval(() => {
             if (npc.isDead) {
@@ -1012,7 +1012,7 @@ class YJDMManager_bilibili {
             if (cCD == CD) {
               // 检查是否可以使用技能:多重射击，判断有效范围内是否有多个目标
               if (checkSkill(name, npc)) {
-                npcSkill(npc, GetSkill("多重射击", GetSkillLevel("多重射击",skills)));
+                npcSkill(npc, GetSkill("多重射击", GetSkillLevel("多重射击", skills)));
                 cCD = 0;
               }
               return;
@@ -1383,7 +1383,7 @@ class YJDMManager_bilibili {
                   _Global.createCompleted = true;
 
                   if (lv >= 4) {
-                    GenerateHot(["巴纳扎尔"], lv - 4 + 1,(lv - 4) + 1);
+                    GenerateHot(["巴纳扎尔"], lv - 4 + 1, (lv - 4) + 1);
 
                     _Global.YJAudioManager().playAudio("1711111909667/ui_raidbosswhisperwarning.ogg", " boss warning audio ");
 
@@ -1558,7 +1558,7 @@ class YJDMManager_bilibili {
 
 
 
-      _Global.addEventListener("3d加载完成",() => {
+      _Global.addEventListener("3d加载完成", () => {
 
         // target.GetComponent("NPC").addEventListener("死亡", () => {
         //   //主播角色死亡，立即结束战斗
@@ -1573,146 +1573,146 @@ class YJDMManager_bilibili {
         if (s) {
           // console.log(s);
           DMPlayer = JSON.parse(s);
-
-          let nosame = [];
-          for (let i = world_configs.dmplayer.length - 1; i >= 0; i--) {
-            let has = false;
-            for (let j = 0; j < DMPlayer.length && !has; j++) {
-              if (DMPlayer[j].uname == world_configs.dmplayer[i].uname) {
-                DMPlayer[j].assetId = world_configs.dmplayer[i].assetId;
-                DMPlayer[j].skill[0].level = world_configs.dmplayer[i].skill[0].level;
-                has = true;
-              }
-            }
-            if (!has) {
-              nosame.push(world_configs.dmplayer[i]);
-            }
-          }
-          for (let i = 0; i < nosame.length; i++) {
-            DMPlayer.push(nosame[i]);
-          }
-
-
-          for (let i = 12; i >= 0; i--) {
-            DMPlayer.splice(DMPlayer.length - i, 1);
-          }
-
-          for (let i = DMPlayer.length - 1; i >= 0; i--) {
-            let dmplayer = DMPlayer[i];
-            // if (dmplayer.uname.includes("阳光万里")) {
-            //   DMPlayer.splice(i, 1);
-            //   continue;
-            // }
-            
-            if (dmplayer.uname.includes("阳光万里")) {
-              dmplayer.skill[0].level = 2;
-            }
-            // if (dmplayer.uname.includes("你好莎莎")) {
-            //   dmplayer.skill[0].level = 2;
-            // }
-            // if (dmplayer.uname.includes("Choo")) {
-            //   dmplayer.skill[0].level = 1;
-            // }
-            // if(dmplayer.uname.includes("王元一局")){
-            //   for (let i = 0; i < dmplayer.skill.length; i++) {
-            //     const element = dmplayer.skill[i];
-            //     if(element.level == 1){
-            //       element.level = 2 
-            //     }
-            //   }
-            // }
-
-            if (dmplayer.posId == undefined) {
-              for (let j = 0; j < assetIdList.length; j++) {
-                if (dmplayer.assetId == assetIdList[j]) {
-                  let posId = posIdList[j];
-                  dmplayer.posId = posId;
-                }
-              }
-            }
-
-            dmplayer.health = dmplayer.maxHealth;
-            dmplayer.isDead = false;
-            dmplayer.state = "waite";
-            if (dmplayer.skill == undefined || dmplayer.skill.length==0) {
-              dmplayer.skill = [];
-              dmplayer.skill = JSON.parse(JSON.stringify(DMPlayerSkill));
-            } else {
-              for (let i = 0; i < dmplayer.skill.length; i++) {
-                const element = dmplayer.skill[i];
-                element.perCD = 0;
-                for (let j = 0; j < DMPlayerSkill.length; j++) {
-                  const element2 = DMPlayerSkill[j];
-                  if (element.name == element2.name) {
-                    element.CD = element2.CD;
-                    element.cCD = element2.CD;
-                  }
-                }
-              }
-            }
-          }
-
-          let count = DMPlayer.length;
-          if (count > 8) { count = 8; }
-          let hasAssetId = [];
-          //最多上场8人
-          for (let i = 0; i < count; i++) {
-            let dmplayer = DMPlayer[i];
-
-            dmplayer.level = dmplayer.level ?? 1;
-
-            dmplayer.health = dmplayer.health ?? 300;
-            dmplayer.maxHealth = dmplayer.maxHealth ?? 300;
-            dmplayer.currentExp = dmplayer.currentExp ?? 0;
-            dmplayer.needExp = dmplayer.needExp ?? 200;
-            dmplayer.strength = dmplayer.strength ?? 20;
-
-            if (dmplayer.level > 50 || dmplayer.level == 1) {
-              dmplayer.level = 1;
-              dmplayer.health = 300;
-              dmplayer.maxHealth = 300;
-              dmplayer.currentExp = 0;
-              dmplayer.needExp = 200;
-              dmplayer.strength = 20;
-            }
-            // dmplayer.level = 1;
-            // dmplayer.health = 300;
-            // dmplayer.maxHealth = 300;
-            // dmplayer.currentExp = 0;
-            // dmplayer.needExp = 200;
-            // dmplayer.strength = 20;
-
-            dmplayer.health = dmplayer.maxHealth;
-            dmplayer.npcId = dmplayer.uname;
-
-
-            let has = false;
-            for (let j = 0; j < hasAssetId.length && !has; j++) {
-              if (dmplayer.assetId == hasAssetId[j]) {
-                has = true;
-              }
-            }
-            if (has) {
-              for (let j = 0; j < assetIdList.length; j++) {
-                const a = assetIdList[j];
-                let hhas = false;
-                for (let k = 0; k < hasAssetId.length && !hhas; k++) {
-                  const b = hasAssetId[k];
-                  if (a == b) {
-                    hhas = true;
-                  }
-                }
-                if (!hhas) {
-                  dmplayer.assetId = a;
-                }
-              }
-            } else {
-            }
-            hasAssetId.push(dmplayer.assetId);
-            GanerateNPCFn(dmplayer);
-          }
-          dmVue.setDMPlayer(DMPlayer);
         }
+        let nosame = [];
+        for (let i = world_configs.dmplayer.length - 1; i >= 0; i--) {
+          let has = false;
+          for (let j = 0; j < DMPlayer.length && !has; j++) {
+            if (DMPlayer[j].uname == world_configs.dmplayer[i].uname) {
+              DMPlayer[j].assetId = world_configs.dmplayer[i].assetId;
+              DMPlayer[j].skill[0].level = world_configs.dmplayer[i].skill[0].level;
+              has = true;
+            }
+          }
+          if (!has) {
+            nosame.push(world_configs.dmplayer[i]);
+          }
+        }
+        for (let i = 0; i < nosame.length; i++) {
+          DMPlayer.push(nosame[i]);
+        }
+
+
+        for (let i = 12; i >= 0; i--) {
+          DMPlayer.splice(DMPlayer.length - i, 1);
+        }
+
+        for (let i = DMPlayer.length - 1; i >= 0; i--) {
+          let dmplayer = DMPlayer[i];
+          // if (dmplayer.uname.includes("阳光万里")) {
+          //   DMPlayer.splice(i, 1);
+          //   continue;
+          // }
+
+          if (dmplayer.uname.includes("阳光万里")) {
+            dmplayer.skill[0].level = 2;
+          }
+          // if (dmplayer.uname.includes("你好莎莎")) {
+          //   dmplayer.skill[0].level = 2;
+          // }
+          // if (dmplayer.uname.includes("Choo")) {
+          //   dmplayer.skill[0].level = 1;
+          // }
+          // if(dmplayer.uname.includes("王元一局")){
+          //   for (let i = 0; i < dmplayer.skill.length; i++) {
+          //     const element = dmplayer.skill[i];
+          //     if(element.level == 1){
+          //       element.level = 2 
+          //     }
+          //   }
+          // }
+
+          if (dmplayer.posId == undefined) {
+            for (let j = 0; j < assetIdList.length; j++) {
+              if (dmplayer.assetId == assetIdList[j]) {
+                let posId = posIdList[j];
+                dmplayer.posId = posId;
+              }
+            }
+          }
+
+          dmplayer.health = dmplayer.maxHealth;
+          dmplayer.isDead = false;
+          dmplayer.state = "waite";
+          if (dmplayer.skill == undefined || dmplayer.skill.length == 0) {
+            dmplayer.skill = [];
+            dmplayer.skill = JSON.parse(JSON.stringify(DMPlayerSkill));
+          } else {
+            for (let i = 0; i < dmplayer.skill.length; i++) {
+              const element = dmplayer.skill[i];
+              element.perCD = 0;
+              for (let j = 0; j < DMPlayerSkill.length; j++) {
+                const element2 = DMPlayerSkill[j];
+                if (element.name == element2.name) {
+                  element.CD = element2.CD;
+                  element.cCD = element2.CD;
+                }
+              }
+            }
+          }
+        }
+
+        let count = DMPlayer.length;
+        if (count > 8) { count = 8; }
+        let hasAssetId = [];
+        //最多上场8人
+        for (let i = 0; i < count; i++) {
+          let dmplayer = DMPlayer[i];
+
+          dmplayer.level = dmplayer.level ?? 1;
+
+          dmplayer.health = dmplayer.health ?? 300;
+          dmplayer.maxHealth = dmplayer.maxHealth ?? 300;
+          dmplayer.currentExp = dmplayer.currentExp ?? 0;
+          dmplayer.needExp = dmplayer.needExp ?? 200;
+          dmplayer.strength = dmplayer.strength ?? 20;
+
+          if (dmplayer.level > 50 || dmplayer.level == 1) {
+            dmplayer.level = 1;
+            dmplayer.health = 300;
+            dmplayer.maxHealth = 300;
+            dmplayer.currentExp = 0;
+            dmplayer.needExp = 200;
+            dmplayer.strength = 20;
+          }
+          // dmplayer.level = 1;
+          // dmplayer.health = 300;
+          // dmplayer.maxHealth = 300;
+          // dmplayer.currentExp = 0;
+          // dmplayer.needExp = 200;
+          // dmplayer.strength = 20;
+
+          dmplayer.health = dmplayer.maxHealth;
+          dmplayer.npcId = dmplayer.uname;
+
+
+          let has = false;
+          for (let j = 0; j < hasAssetId.length && !has; j++) {
+            if (dmplayer.assetId == hasAssetId[j]) {
+              has = true;
+            }
+          }
+          if (has) {
+            for (let j = 0; j < assetIdList.length; j++) {
+              const a = assetIdList[j];
+              let hhas = false;
+              for (let k = 0; k < hasAssetId.length && !hhas; k++) {
+                const b = hasAssetId[k];
+                if (a == b) {
+                  hhas = true;
+                }
+              }
+              if (!hhas) {
+                dmplayer.assetId = a;
+              }
+            }
+          } else {
+          }
+          hasAssetId.push(dmplayer.assetId);
+          GanerateNPCFn(dmplayer);
+        }
+        dmVue.setDMPlayer(DMPlayer);
+
 
         // _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().CopyModel("寒冰护体", (model) => {
         //   model.SetPos(target.GetWorldPos());
@@ -1726,10 +1726,10 @@ class YJDMManager_bilibili {
       _Global.addEventListener("战斗开始", () => {
         _Global.createCompleted = false;
 
-        
+
         let redboss = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId("redboss");
         let redbossNpc = redboss.GetComponent("NPC");
-        
+
         redbossNpc.canMove = false;
         redbossNpc.deadedHidden = false;
         redbossNpc.canLevelUp = true;
@@ -1767,7 +1767,7 @@ class YJDMManager_bilibili {
                   if (dmPlayer.level >= unLockLevel) {
                     skill.perCD = 0;
                     cCD = CD;
-                    addSkillInterval(npc, dmPlayer.npcId, skill, k,skills);
+                    addSkillInterval(npc, dmPlayer.npcId, skill, k, skills);
                   }
                 }
 
@@ -1800,17 +1800,17 @@ class YJDMManager_bilibili {
               if (element.msg == msg.toLowerCase()) {
                 msg = msg.toLowerCase();
                 element.event({ uface, uname, msg });
-              }else{
+              } else {
                 //如果发弹幕未加入到游戏，则自动发送加入
                 let isPlayer = false;
                 for (let i = 0; i < DMPlayer.length && !isPlayer; i++) {
                   const element = DMPlayer[i];
-                  if(element.uname == uname){
+                  if (element.uname == uname) {
                     isPlayer = true;
                   }
                 }
-                if(!isPlayer){
-                  element.event({ uface, uname, msg:"加入" });
+                if (!isPlayer) {
+                  element.event({ uface, uname, msg: "加入" });
                 }
 
               }

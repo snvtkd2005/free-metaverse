@@ -8,6 +8,7 @@ import { YJParabola } from "/@/threeJS/YJParabola.js";
 import { YJSkillParticleManager } from "./YJSkillParticleManager.js";
 
 import { YJNPCManager } from "/@/threeJS/YJNPCManager.js";
+import { YJController_roguelike } from "/@/threeJS/YJController_roguelike.js";
 
 // 场景同步数据
 
@@ -65,6 +66,7 @@ class YJSceneDyncManagerEditor {
 
 
       new YJNPCManager();
+      new YJController_roguelike();
       if (_Global.setting.inEditor) {
         _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().AllNpcTransformNav();
         return;
@@ -927,9 +929,9 @@ class YJSceneDyncManagerEditor {
     let playerData = [];
     //发送单个物体数据
     this.SendModelState = function (id, state) {
-      if (!_Global.YJClient) {
-        return;
-      }
+      // if (!_Global.YJClient) {
+      //   return;
+      // }
       this.SendSceneState("更新single", { id: id, modelType: state.modelType, state: state.msg });
     }
     // 发送一条战斗记录
@@ -1016,7 +1018,7 @@ class YJSceneDyncManagerEditor {
 
     //发送整个场景数据
     this.SendSceneState = function (type, msg) {
-      if (!_Global.YJClient) {
+      if (!_Global.YJClient) { 
         return;
       }
       if (type == undefined) {
@@ -1057,6 +1059,7 @@ class YJSceneDyncManagerEditor {
 
     // 接收 转发 数据
     this.Receive = function (data) {
+      // console.log(" Receive ",data);
       let { type, state } = data;
       if (type == "重新生成") {
         if (!_Global.mainUser) {
@@ -1159,7 +1162,7 @@ class YJSceneDyncManagerEditor {
           // 对npc的伤害显示在屏幕上
           let pos = this.GetNpcById(npcId).GetWorldPos().clone();
           pos.y += this.GetNpcById(npcId).GetComponent("NPC").GetBaseModel().playerHeight;
-          _Global._SceneManager.UpdateNpcDamageValue("self", "normal", _Global.user.camp, effect.value, pos, "redius");
+          _Global._SceneManager.UpdateNpcDamageValue("self", "normal",playerId, _Global.user.camp, effect.value, pos, "redius");
 
         }
         return;

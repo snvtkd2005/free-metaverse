@@ -14,6 +14,9 @@ class YJNPCManager {
       npcModelList = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetAllTransformByModelType("NPC模型");
 
     }
+    this.GetNPCs = function(){
+      return npcModelList;
+    }
     this.GetNpcByPlayerForwardInArea = function (vaildDistance, max, playerPos) {
       let num = 0;
       let npcs = [];

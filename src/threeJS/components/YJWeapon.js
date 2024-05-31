@@ -69,7 +69,7 @@ class YJWeapon {
       console.log("in weapon msg = ", data);
       scope.transform.isIgnoreRaycast = true;
       meshTrigger = new YJTrigger(_this,parent, transform, "weapon");
-      if(data.fire.pos && data.fire.pos.length == 3){
+      if(data.fire && data.fire.pos && data.fire.pos.length == 3){
         if(_Global.setting.inEditor){
           let axes = new THREE.AxesHelper(10);
           group.add(axes);

@@ -60,7 +60,10 @@ export default {
           title: "几何体类型",
           type: "drop",
           value: "box",
-          options: [{ value: "box", label: "Box" }],
+          options: [
+            { value: "box", label: "Box" },
+            { value: "plane", label: "plane" },
+          ],
           callback: this.ChangeValue,
         },
 
@@ -68,6 +71,14 @@ export default {
         //   { property: "row", display: true, title: "UV X", type: "num", value: 14, callback: this.ChangeValue },
         //   { property: "col", display: true, title: "UV Y", type: "num", value: 1, callback: this.ChangeValue },
         //   { property: "speed", display: true, title: "默认X轴播放速度", type: "slider", value: 1, min: 0, max: 5, step: 0.5, callback: this.ChangeValue },
+        {
+          property: "isMesh",
+          display: true,
+          title: "is mesh",
+          type: "toggle",
+          value: false,
+          callback: this.ChangeValue,
+        },
         {
           property: "isCollider",
           display: true,

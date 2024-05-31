@@ -117,6 +117,7 @@ export default {
         eventType: "no",//事件类型 
         contentData: {},//事件内容数据
         inAreaRandom:false, //是否区域内随机
+        canMove:true, //是否能移动
         areaRadius:1, //区域半径
         movePos: [
           { x: 0, y: 0, z: 0 },
@@ -163,6 +164,7 @@ export default {
         { property: "equipList", display: true, title: "已有装备", type: "equipList", value: "", callback: this.ClickHandler, },
         { property: "relifeTime", display: true, title: "死亡后重新生成间隔时间(0表示不重新生成)", type: "num", step: 1, value: 0, callback: this.ChangeValue },
         { property: "inAreaRandom", display: true, title: "是否区域内随机移动", type: "toggle", value: false, callback: this.ChangeValue },
+        { property: "canMove", display: true, title: "是否能移动", type: "toggle", value: true, callback: this.ChangeValue },
         { property: "areaRadius", display: false, title: "区域半径",unit:"m", type: "slider", value: 1, min: 0, max: 5, step: 0.1, callback: this.ChangeValue },
         { property: "fireAudio", display: true, title: "攻击音效", type: "file",filetype:"audio", value: "" },
         { property: "deadAudio", display: true, title: "死亡音效", type: "file",filetype:"audio", value: "" },

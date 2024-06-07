@@ -577,7 +577,7 @@ class YJPlayerFireCtrl {
 		}
 		// 生命值改变时，同步 
 		function UpdateData() {
-			_this.YJController.directUpate(); 
+			_this.YJController.directUpate();
 			if (baseData && baseData.maxHealth) {
 				_YJPlayer.UpdateHealth(baseData.health, baseData.maxHealth);
 			}
@@ -642,7 +642,7 @@ class YJPlayerFireCtrl {
 		let attackStepSpeed = 3; //攻击间隔/攻击速度,由武器中的攻击速度控制
 		let attackStepSpeedScale = 3; //攻速加成
 		function getAttackSpeed() {
-			_YJPlayer.GetAvatar().SetActionScale(1+attackStepSpeedScale*0.3);
+			_YJPlayer.GetAvatar().SetActionScale(1 + attackStepSpeedScale * 0.3);
 			return attackStepSpeed / attackStepSpeedScale;
 		}
 
@@ -691,8 +691,8 @@ class YJPlayerFireCtrl {
 			return b && !b2;
 		}
 		let targetMax = 1;
-		this.updateBasedata = function(e,v){
-			if(e=="多重射击"){
+		this.updateBasedata = function (e, v) {
+			if (e == "多重射击") {
 				targetMax += v;
 			}
 		}
@@ -741,8 +741,6 @@ class YJPlayerFireCtrl {
 						// 	baseData.energy -= 30;
 						// }
 						// 范围攻击。 max为1时，表示不使用范围攻击
-						let npcs = _Global.DyncManager.GetNpcByPlayerForwardInFireId(_YJPlayer.fireId, _YJPlayer.camp, vaildAttackDis, targetMax, npcTransform.id);
-						console.log(targetMax,npcs);
 						// 动作时长的前1/10段时，执行伤害
 						vaildAttackLater2 = setTimeout(() => {
 							// console.log(" 有效攻击目标 "); 
@@ -750,9 +748,13 @@ class YJPlayerFireCtrl {
 							//有效攻击
 							SendDamageToTarget(npcComponent, { skillName: s, type: "damage", value: baseData.strength });
 							// 范围攻击
-							for (let i = 0; i < npcs.length; i++) {
-								if(npcs[i] != npcComponent){
-									SendDamageToTarget(npcs[i], { skillName: s, type: "damage", value: baseData.strength });
+							if (targetMax > 1) {
+								let npcs = _Global.DyncManager.GetNpcByPlayerForwardInFireId(_YJPlayer.fireId, _YJPlayer.camp, vaildAttackDis, targetMax, npcTransform.id);
+								console.log(targetMax, npcs);
+								for (let i = 0; i < npcs.length; i++) {
+									if (npcs[i] != npcComponent) {
+										SendDamageToTarget(npcs[i], { skillName: s, type: "damage", value: baseData.strength });
+									}
 								}
 							}
 							PlayerAddFire();
@@ -1024,7 +1026,7 @@ class YJPlayerFireCtrl {
 		var updateId = null;
 		function update() {
 			updateId = requestAnimationFrame(update);
-			if(_Global.pauseGame){
+			if (_Global.pauseGame) {
 				return;
 			}
 			// 检测状态 战斗逻辑 

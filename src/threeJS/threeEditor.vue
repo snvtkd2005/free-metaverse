@@ -910,7 +910,7 @@ export default {
     },
     //生成角色
     GeneratePlayer(callback) {
-      // console.log("创建角色" ,this.userData);
+      console.log("创建角色" ,this.userData);
       this.YJPlayer = new YJPlayer(
         this,
         this.scene,

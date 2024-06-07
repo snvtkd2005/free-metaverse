@@ -39,6 +39,7 @@ class YJMeshRenderer {
           boneNode.push(item);
         }
       });
+      // 去掉同名
       for (let i = boneNode.length - 1; i > 0; i--) {
         const element = boneNode[i];
         if (element.parent.name == element.name) {
@@ -61,6 +62,29 @@ class YJMeshRenderer {
       });
       return boneNode;
     }
+    this.GetAllBoneInParent = function(boneName){
+      let parentBone = null;
+      model.traverse(function (item) {
+        if (item instanceof THREE.Bone) {
+          if(item.name == boneName && item.children.length>0){
+            parentBone = item;
+          }
+        }
+      });
+      let boneNode = []; 
+      boneNode.push(parentBone.name);
+      LoopFindChild2(parentBone,boneNode);
+      return boneNode;
+    }
+    function LoopFindChild2(parent,boneNode){
+      if(parent.children.length>0){
+        for (let i = 0; i < parent.children.length; i++) {
+          boneNode.push(parent.children[i].name);
+          LoopFindChild2(parent.children[i],boneNode);
+        }
+      }
+    }
+
     // 模糊获取骨骼
     this.GetBoneVague = function (boneName, callback) {
       // console.log("从模型中查找bone ", playerObj,boneName);

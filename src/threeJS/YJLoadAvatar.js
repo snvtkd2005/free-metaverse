@@ -18,11 +18,13 @@ class YJLoadAvatar {
 
     var mixer = null;//声明一个混合器变量
 
-    let idleAction, walkAction, jumpAction, runAction, floatingAction;
     let actions = [];
     let settings;
 
     var playerObj = null;
+    this.GetPlayerObj = function () {
+      return playerObj;
+    }
     let mmdCtrl = null;
     var modelPath;
     //初始化摄像机父物体，移动时，移动父物体， 旋转时，横向旋转父物体，竖向旋转摄像机
@@ -70,11 +72,11 @@ class YJLoadAvatar {
       if (type == "gltf") {
         loadGltf(animationData, controllerCallback);
       }
-      console.log("加载角色模型 " ,modelPath, animationData);
-      
+      console.log("加载角色模型 ", modelPath, animationData);
+
       if (type == "mmd") {
-        playerObj  = new THREE.Group();
-        mmdCtrl = new YJAnimatorMMD(playerObj,modelPath,owner);
+        playerObj = new THREE.Group();
+        mmdCtrl = new YJAnimatorMMD(playerObj, modelPath, owner);
 
         if (controllerCallback) {
           controllerCallback(playerObj);
@@ -114,16 +116,16 @@ class YJLoadAvatar {
 
     }
 
-    this.GetBone = function (boneName) {
-      playerObj.traverse(function (item) {
-        if (item instanceof THREE.Bone) {
-          if (item.name == boneName) {
-            return item;
-          }
-        }
-      });
-      return null;
-    }
+    // this.GetBone = function (boneName) {
+    //   playerObj.traverse(function (item) {
+    //     if (item instanceof THREE.Bone) {
+    //       if (item.name == boneName) {
+    //         return item;
+    //       }
+    //     }
+    //   });
+    //   return null;
+    // }
     function loadFbxFn(animData, callback, needCheck) {
       var fbxLoader = new FBXLoader();
       fbxLoader.load(modelPath,
@@ -199,17 +201,6 @@ class YJLoadAvatar {
           if (callback) {
             callback(playerObj);
           }
-
-
-
-          // 查看动画数据
-          // console.log(object.animations)
-          // // obj.animations[0]：获得剪辑对象clip
-          // idleAction = mixer.clipAction(object.animations[0]);
-          // // idleAction.timeScale = 1; //默认1，可以调节播放速度
-          // // idleAction.loop = THREE.LoopOnce; //不循环播放
-          // // idleAction.clampWhenFinished=true;//暂停在最后一帧播放的状态
-          // idleAction.play();//播放动画 
 
           return;
 
@@ -515,17 +506,10 @@ class YJLoadAvatar {
       GetFaceModelFn();
       if (mixer == undefined) { return; }
       if (animations.length == 0) { return; }
-      
+
       // console.log("动作数据为", animationData);
       for (let i = 0; i < animationData.length; i++) {
         const element = animationData[i];
-
-        if (element.animName == "walk") {
-          walkAction = mixer.clipAction(animations[element.targetIndex].clipAction);
-        }
-        if (element.animName == "run") {
-          runAction = mixer.clipAction(animations[element.targetIndex].clipAction);
-        }
 
         let action = mixer.clipAction(animations[element.targetIndex < 0 ? 0 : element.targetIndex].clipAction);
         action.timeScale = element.timeScale;
@@ -595,13 +579,13 @@ class YJLoadAvatar {
       }
     }
     this.ChangeAnimByAnimData = function (animName, isLoop, anim) {
-      if (animName == "") { 
+      if (animName == "") {
         console.error(" 找不到动作 ");
-        return; 
+        return;
       }
-      if (anim == null) { 
-        console.error(" 找不到动作 ",animName);
-        return; 
+      if (anim == null) {
+        console.error(" 找不到动作 ", animName);
+        return;
       }
       let action = mixer.clipAction(anim);
       actions.push({
@@ -619,12 +603,12 @@ class YJLoadAvatar {
 
     function activateAllActions(animName) {
       // console.log(animName,actions);
-      let has = false; 
+      let has = false;
       for (let i = 0; i < actions.length; i++) {
         const element = actions[i];
         if (element.animName == animName) {
           has = true;
-        } 
+        }
       }
       if (has) {
         for (let i = 0; i < actions.length; i++) {
@@ -637,7 +621,7 @@ class YJLoadAvatar {
             }
             currentAction = element.action;
             currentTime = 0;
-            currentDuration = currentAction._clip.duration; 
+            currentDuration = currentAction._clip.duration;
           }
         }
       }
@@ -646,13 +630,13 @@ class YJLoadAvatar {
         if (missAnimCallback) {
           missAnimCallback(animName);
         }
-      } 
+      }
 
     }
-    function setWeight(action, weight, scale) { 
+    function setWeight(action, weight, scale) {
       if (action == undefined) { return; }
-      action.enabled = true; 
-      action.setEffectiveTimeScale(scale*1); 
+      action.enabled = true;
+      action.setEffectiveTimeScale(scale * 1);
       action.setEffectiveWeight(weight);
     }
 
@@ -662,15 +646,9 @@ class YJLoadAvatar {
     var oldAnimName = "";
     //切换动画
     this.ChangeAnim = function (animName) {
-      if (animName == "run") {
-        // if (runAction == undefined) {
-        //   animName = "walk";
-        // } else {
-        // }
-      }
       // console.error(" 直接设置玩家角色动作 22 " + animName);
       ChangeAnimDirectFn(animName);
-      if(mmdCtrl){
+      if (mmdCtrl) {
         mmdCtrl.ChangeAnim(animName);
       }
     }
@@ -682,8 +660,10 @@ class YJLoadAvatar {
       if (!loadCompleted) { return; }
       if (oldAnimName == animName) { return; }
       oldAnimName = animName;
+      oldBlendAnim = "";
       activateAllActions(animName);
     }
+    let walkAction;
     this.SetWalkWeight = function (f) {
       if (walkAction == undefined) {
         return;
@@ -695,6 +675,222 @@ class YJLoadAvatar {
       }
       walkAction.setEffectiveWeight(f + 0.4);
       // console.log(" 设置 行走动作 权重 " + f);
+    }
+
+    this.GetBone = function (boneName, callback) {
+      playerObj.traverse(function (item) {
+        if (item instanceof THREE.Bone) {
+          if (item.name == boneName && item.children.length > 0) {
+            if (callback) {
+              callback(item);
+            }
+            return;
+          }
+        }
+      });
+    }
+    this.GetAllBoneInParent = function (boneName) {
+      let parentBone = null;
+      playerObj.traverse(function (item) {
+        if (item instanceof THREE.Bone) {
+          if (item.name == boneName && item.children.length > 0) {
+            parentBone = item;
+          }
+        }
+      });
+      let boneNode = [];
+      LoopFindChild2(parentBone, boneNode);
+      return boneNode;
+    }
+    function LoopFindChild2(parent, boneNode) {
+      if (parent.children.length > 0) {
+        boneNode.push(parent.name);
+        for (let i = 0; i < parent.children.length; i++) {
+          LoopFindChild2(parent.children[i], boneNode);
+        }
+      }
+    }
+    // 动作混合
+    let oldBlendAnim = "";
+    //animName上半身 ， animName0 下半身
+    this.layerBlendPerbone = function (animName, animName0, loop, loop0) {
+      if (oldBlendAnim == animName + animName0) {
+        return;
+      }
+      for (let i = 0; i < actions.length; i++) {
+        const e = actions[i];
+        if (e.animName == (animName + animName0 + "_" + animName)) {
+          oldBlendAnim = animName + animName0;
+          oldAnimName = "";
+          activateAllActions2(animName + animName0 + "_" + animName, animName + animName0 + "_" + animName0);
+
+          console.log(" in layerBlendPerbone ", oldBlendAnim);
+          return;
+        }
+      }
+      // 以boneName为界，提取animName的上半身数据，提取animName0的下半身数据，组合成新的动作数据
+      let action0 = null;
+      let action1 = null;
+      for (let i = 0; i < actions.length; i++) {
+        const element = actions[i];
+        if (element.animName == animName) {
+          action0 = element.action;
+        }
+        if (element.animName == animName0) {
+          action1 = element.action;
+        }
+      }
+      if (action0 == null) {
+        scope.ChangeAnim(animName);
+        return null;
+      }
+      if (action1 == null) {
+        scope.ChangeAnim(animName0);
+        return null;
+      }
+      oldBlendAnim = animName + animName0;
+      oldAnimName = "";
+
+      //获取上下半身的骨骼
+      // let allBone = scope.transform.GetComponent("MeshRenderer").GetAllBone(); 
+      let mixamorigSpine, mixamorigLeftUpLeg, mixamorigRightUpLeg;
+      mixamorigSpine = scope.GetAllBoneInParent("mixamorigSpine");
+      mixamorigLeftUpLeg = scope.GetAllBoneInParent("mixamorigLeftUpLeg");
+      mixamorigLeftUpLeg.push("mixamorigHips");
+      mixamorigRightUpLeg = scope.GetAllBoneInParent("mixamorigRightUpLeg");
+      for (let i = 0; i < mixamorigRightUpLeg.length; i++) {
+        mixamorigLeftUpLeg.push(mixamorigRightUpLeg[i]);
+      }
+      console.log("mixamorigSpine ", mixamorigSpine);
+      console.log("mixamorigLeftUpLeg ", mixamorigLeftUpLeg);
+
+      let tracks_spine = cutAction(mixamorigSpine, action0._clip);
+      let tracks_leftleg = cutAction(mixamorigLeftUpLeg, action1._clip);
+      // let tracks_rightleg = cutAction(mixamorigRightUpLeg,action1._clip);
+
+      let tracks = [];
+      for (let i = 0; i < tracks_spine.length; i++) {
+        tracks.push(tracks_spine[i]);
+      }
+      let animname = animName + animName0 + "_" + animName;
+      let anim = new THREE.AnimationClip(animname, -1, tracks); anim.optimize();
+      let action = mixer.clipAction(anim);
+
+      // if (!loop) {
+      //   action.loop = THREE.LoopOnce; //不循环播放
+      // action.clampWhenFinished = true;//暂停在最后一帧播放的状态
+      // }
+
+      console.log(animname, action);
+
+      actions.push({
+        action: action,
+        targetIndex: animations.length - 1, animName: animname, timeScale: 1, weight: 1
+        , isLoop: loop
+      });
+
+      tracks = [];
+      for (let i = 0; i < tracks_leftleg.length; i++) {
+        tracks.push(tracks_leftleg[i]);
+      }
+      animname = animName + animName0 + "_" + animName0;
+      anim = new THREE.AnimationClip(animname, -1, tracks); anim.optimize();
+      action = mixer.clipAction(anim);
+      // if (!loop0) {
+      // action.loop = THREE.LoopOnce; //不循环播放
+      // action.clampWhenFinished = true;//暂停在最后一帧播放的状态
+      // }
+      // console.log(action);
+      console.log(animname, action);
+
+      actions.push({
+        action: action,
+        targetIndex: animations.length - 1, animName: animname, timeScale: 1, weight: 1
+        , isLoop: loop0
+      });
+      activateAllActions2(animName + animName0 + "_" + animName, animName + animName0 + "_" + animName0);
+
+    }
+    let eventList = [];
+    // 添加事件监听
+    this.addEventListener = function (e, fn) {
+      eventList.push({ eventName: e, fn: fn });
+    }
+    // 执行事件
+    this.applyEvent = function (e, v, v2) {
+      for (let i = 0; i < eventList.length; i++) {
+        const element = eventList[i];
+        if (element.eventName == e) {
+          element.fn(v, v2);
+        }
+      }
+    }
+
+    function activateAllActions2(animName, animName0) {
+
+      let has = false;
+      for (let i = 0; i < actions.length; i++) {
+        const element = actions[i];
+        setWeight(element.action, 0, element.timeScale);
+        if (element.animName == animName) {
+          has = true;
+          currentAction = element.action;
+        }
+      }
+      if (has) {
+        for (let i = 0; i < actions.length; i++) {
+          const element = actions[i];
+          if (element.animName == animName || element.animName == animName0) {
+            setWeight(element.action, element.weight, element.timeScale);
+            if (element.action != undefined) {
+              element.action.reset();
+              element.action.play();
+            }
+
+          }
+        }
+        return true;
+      }
+      return false;
+    }
+    function cutAction(boneRefList, anim) {
+      let tracks = [];
+      for (let i = 0; i < anim.tracks.length; i++) {
+        const track0 = anim.tracks[i];
+        for (let j = 0; j < boneRefList.length; j++) {
+          const mmdBone = boneRefList[j];
+          if ((track0.name) == (mmdBone + ".position")) {
+            const trackName = track0.name;
+            const times = track0.times;
+            const values = track0.values;
+            const track = new THREE.VectorKeyframeTrack(trackName, times, values);
+            tracks.push(track);
+          }
+          if ((track0.name) == (mmdBone + ".quaternion")) {
+            const trackName = track0.name;
+            const times = track0.times;
+            const values = track0.values;
+            const track = new THREE.QuaternionKeyframeTrack(trackName, times, values);
+            tracks.push(track);
+          }
+        }
+
+      }
+      return tracks;
+    }
+
+    let oldScale = 0;
+    this.SetActionScale = function (scale) {
+      if (!currentAction) {
+        return;
+      }
+      scale = scale.toFixed(2);
+      // if(oldScale == scale){
+      //   return;
+      // }
+      // console.log(" 动画scale ", scale);
+      oldScale = scale;
+      currentAction.setEffectiveTimeScale(scale);
     }
 
 
@@ -731,9 +927,9 @@ class YJLoadAvatar {
         loadMMD(_animationData, _controllerCallback);
       }
     }
-    
+
     const loadMMD = (animData, callback) => {
-       
+
     }
 
     //----------PC 端 同步角色动作 结束-----------------
@@ -1416,16 +1612,21 @@ class YJLoadAvatar {
     let inLookat = false;
     let currentTime = 0;
     let currentAction = null;
+    this.GetCurrentAction = function () {
+      return currentAction;
+    }
+
     let currentDuration = 100;
     let auto = true;
     this.GetCurrentTime = function () {
-      return {time:currentTime,duration:currentDuration}; 
+      return { time: currentTime, duration: currentDuration };
     }
-    this.SetCurrentTime = function(e){
+    this.SetCurrentTime = function (e) {
       currentAction.time = e;
       auto = false;
     }
-    this._update = function()  {
+
+    this._update = function () {
 
       // updateId = requestAnimationFrame(update);
       if (mixer !== null && loadCompleted) {
@@ -1433,7 +1634,7 @@ class YJLoadAvatar {
         // 更新混合器相关的时间
         mixer.update(clock.getDelta());
         // && auto
-        if(currentAction ){
+        if (currentAction) {
           currentTime = currentAction.time;
           // console.log("执行模型动画 中 ",currentTime);
         }

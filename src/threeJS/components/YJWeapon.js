@@ -71,7 +71,7 @@ class YJWeapon {
       meshTrigger = new YJTrigger(_this,parent, transform, "weapon");
       if(data.fire && data.fire.pos && data.fire.pos.length == 3){
         if(_Global.setting.inEditor){
-          let axes = new THREE.AxesHelper(10);
+          let axes = new THREE.AxesHelper(1);
           group.add(axes);
           let pos = data.fire.pos;
           axes.position.set(pos[0],pos[1],pos[2]);

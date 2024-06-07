@@ -66,7 +66,10 @@ class YJSceneDyncManagerEditor {
 
 
       new YJNPCManager();
-      new YJController_roguelike();
+
+      let _YJController_roguelike = new YJController_roguelike();
+      _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(_YJController_roguelike);
+
       if (_Global.setting.inEditor) {
         _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().AllNpcTransformNav();
         return;
@@ -451,6 +454,9 @@ class YJSceneDyncManagerEditor {
 
     // 玩家范围攻击npc。 在一场战斗中，玩家施放技能，获取玩家前方技能有效范围内的最多max数量的npc
     this.GetNpcByPlayerForwardInFireId = function (fireId, camp, vaildDistance, max, ingoreNpcId) {
+      
+      return _Global._YJNPCManager.GetNpcByPlayerForwardInArea(vaildDistance,max, playerPos);
+      
       let num = 0;
       if (ingoreNpcId != undefined) {
         // 群攻设置最多数量的目标时，且存在忽略npcId时，数量-1

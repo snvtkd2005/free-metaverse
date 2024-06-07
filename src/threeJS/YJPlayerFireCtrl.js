@@ -12,6 +12,9 @@ class YJPlayerFireCtrl {
 
 		let animName = "";
 		let weaponData = null;
+		this.GetWeaponType = function () {
+			return weaponData;
+		}
 		let baseData = null;
 		//玩家动作状态机
 		var PLAYERSTATE = {
@@ -393,16 +396,37 @@ class YJPlayerFireCtrl {
 			});
 		}
 		function shootTarget(taget, time, callback) {
-			_Global.DyncManager.shootTarget(_this.YJController.GetPlayerWorldPos(), taget, time, "npc", fireParticleId, callback);
+			_Global.DyncManager.shootTarget(GetShootingStartPos(), taget, time, "npc", fireParticleId, callback);
 		}
+
+		let firePosRef = new THREE.Group();
+		function GetShootingStartPos() {
+			let pos = _this.YJController.GetPlayerWorldPos();
+			let weaponModel = _YJPlayer.getWeaponModel();
+			if (weaponModel) {
+				var { _fire } = GetSkillDataByWeapon(weaponData);
+				if (_fire.pos && _fire.pos.length == 3) {
+					weaponModel.parent.add(firePosRef);
+					firePosRef.position.copy(weaponModel.position);
+					let pos1 = firePosRef.position.clone();
+					pos1.x += _fire.pos[0] * 100;
+					pos1.z += _fire.pos[1] * 100;
+					pos1.y += _fire.pos[2] * 100;
+					firePosRef.position.copy(pos1);
+					pos = firePosRef.getWorldPosition(new THREE.Vector3());
+				}
+			}
+			return pos;
+		}
+
 		this.shootTargetPos = function (tagetPos, time, callback) {
-            scope.SetPlayerState("普通攻击");
-			// console.log(" 有效攻击目标 "); 
+			scope.SetPlayerState("普通攻击");
+			console.log(" in shootTargetPos ");
 			var { s, v, a } = GetSkillDataByWeapon(weaponData);
 			let effect = { type: "damage", time: 0.2, skillName: s, value: 10 };
-			
+
 			let temp = new THREE.Group();
-			temp.position.copy( _this.YJController.GetPlayerWorldPos()) ;
+			temp.position.copy(_this.YJController.GetPlayerWorldPos());
 			temp.lookAt(tagetPos.clone());
 			temp.translateZ(vaildAttackDis);
 			tagetPos.copy(temp.position);
@@ -422,7 +446,7 @@ class YJPlayerFireCtrl {
 						scope.SetPlayerState("准备战斗");
 						toIdelLater = null;
 					}, attackStepSpeed * 500);
-				}  
+				}
 
 			});
 		}
@@ -553,8 +577,7 @@ class YJPlayerFireCtrl {
 		}
 		// 生命值改变时，同步 
 		function UpdateData() {
-			_this.YJController.directUpate();
-			// _this.YJController.updateBaseData(baseData);
+			_this.YJController.directUpate(); 
 			if (baseData && baseData.maxHealth) {
 				_YJPlayer.UpdateHealth(baseData.health, baseData.maxHealth);
 			}
@@ -571,7 +594,6 @@ class YJPlayerFireCtrl {
 					clearTimeout(toIdelLater);
 					toIdelLater = null;
 				}
-				scope.SetPlayerState("停止移动");
 				return;
 			}
 			ReadyFire();
@@ -592,11 +614,15 @@ class YJPlayerFireCtrl {
 			if (!CheckCanAttack()) {
 				setTimeout(() => {
 					playerState = PLAYERSTATE.NORMAL;
-					scope.SetPlayerState("停止移动");
 				}, 500);
 			} else {
 				if (npcTransform == null) {
 					return;
+				}
+
+				if (toIdelLater != null) {
+					clearTimeout(toIdelLater);
+					toIdelLater = null;
 				}
 				// 右键点击目标后，使用基础技能攻击
 				scope.SetPlayerState("准备战斗");
@@ -613,7 +639,12 @@ class YJPlayerFireCtrl {
 		}
 		let vaildAttackLater = null;
 		let vaildAttackLater2 = null;
-		let attackStepSpeed = 3; //攻击间隔/攻击速度
+		let attackStepSpeed = 3; //攻击间隔/攻击速度,由武器中的攻击速度控制
+		let attackStepSpeedScale = 3; //攻速加成
+		function getAttackSpeed() {
+			_YJPlayer.GetAvatar().SetActionScale(1+attackStepSpeedScale*0.3);
+			return attackStepSpeed / attackStepSpeedScale;
+		}
 
 		let toIdelLater = null;
 		let skillName = "";
@@ -621,6 +652,10 @@ class YJPlayerFireCtrl {
 		let readyskillAudioName = "";
 		let vaildAttackDis = 3; //有效攻击距离
 		let canAttack = false;
+		let canMoveAttack = true; //是否支持移动中攻击
+
+		let isMoving = false; //是否正在移动
+
 		let inFire = false; //是否正在战斗状态
 		let readyAttack = false;
 		let npcComponent = null;
@@ -654,6 +689,12 @@ class YJPlayerFireCtrl {
 			let b = inVaildArea(playerPos.distanceTo(npcPos));
 			if (!b) { _Global._SceneManager.FireState("太远了"); canAttack = false; return false; }
 			return b && !b2;
+		}
+		let targetMax = 1;
+		this.updateBasedata = function(e,v){
+			if(e=="多重射击"){
+				targetMax += v;
+			}
 		}
 		function CheckState() {
 			if (playerState == PLAYERSTATE.ATTACK) {
@@ -694,14 +735,14 @@ class YJPlayerFireCtrl {
 						// 立即执行攻击动作
 						scope.SetPlayerState("普通攻击");
 
-						let max = 1;
-						if (baseData.energy >= 30) {
-							max = 8;
-							baseData.energy -= 30;
-						}
+						// targetMax = 1;
+						// if (baseData.energy >= 30) {
+						// 	targetMax = 8;
+						// 	baseData.energy -= 30;
+						// }
 						// 范围攻击。 max为1时，表示不使用范围攻击
-						let npcs = _Global.DyncManager.GetNpcByPlayerForwardInFireId(_YJPlayer.fireId, _YJPlayer.camp, vaildAttackDis, max, npcTransform.id);
-
+						let npcs = _Global.DyncManager.GetNpcByPlayerForwardInFireId(_YJPlayer.fireId, _YJPlayer.camp, vaildAttackDis, targetMax, npcTransform.id);
+						console.log(targetMax,npcs);
 						// 动作时长的前1/10段时，执行伤害
 						vaildAttackLater2 = setTimeout(() => {
 							// console.log(" 有效攻击目标 "); 
@@ -710,10 +751,12 @@ class YJPlayerFireCtrl {
 							SendDamageToTarget(npcComponent, { skillName: s, type: "damage", value: baseData.strength });
 							// 范围攻击
 							for (let i = 0; i < npcs.length; i++) {
-								SendDamageToTarget(npcs[i], { skillName: s, type: "damage", value: baseData.strength });
+								if(npcs[i] != npcComponent){
+									SendDamageToTarget(npcs[i], { skillName: s, type: "damage", value: baseData.strength });
+								}
 							}
 							PlayerAddFire();
-						}, attackStepSpeed * 300);
+						}, getAttackSpeed() * 300);
 
 
 					} else {
@@ -852,6 +895,11 @@ class YJPlayerFireCtrl {
 					GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					_Global.ReportTo3D("设置技能进度条", "完成");
 					CheckTargetDead();
+
+					if (canMoveAttack && isMoving) {
+						_Global.YJ3D.YJPlayer.GetAvatar().layerBlendPerbone(animName, "run", false, true);
+						return;
+					}
 					break;
 				case "赤手攻击":
 					playerState = PLAYERSTATE.ATTACK;
@@ -866,16 +914,21 @@ class YJPlayerFireCtrl {
 					//播放音效
 					_Global.YJAudioManager().playAudio(raid);
 					GetAnimNameByPlayStateAndWeapon(e, weaponData);
-					_Global.ReportTo3D("设置技能进度条", attackStepSpeed);
+
+					_Global.ReportTo3D("设置技能进度条", getAttackSpeed());
 
 					if (vaildAttackLater == null) {
 						// 技能施放时间到时，重新立即攻击
 						vaildAttackLater = setTimeout(() => {
 							readyAttack = true;
 							vaildAttackLater = null;
-						}, attackStepSpeed * 1000);
+						}, getAttackSpeed() * 1000);
 					}
 					CheckTargetDead();
+					if (canMoveAttack && isMoving) {
+						// _Global.YJ3D.YJPlayer.GetAvatar().layerBlendPerbone(animName, "run",false,true);
+						return;
+					}
 					break;
 				case "受伤":
 					playerState = PLAYERSTATE.ATTACK;
@@ -916,17 +969,28 @@ class YJPlayerFireCtrl {
 					GetAnimNameByPlayStateAndWeapon("停止移动", weaponData);
 					break;
 				case "移动":
-					canAttack = false;
-					GetAnimNameByPlayStateAndWeapon(e, weaponData);
-
-					EventHandler("中断技能");
-
+					isMoving = true;
+					if (canMoveAttack) {
+						GetAnimNameByPlayStateAndWeapon("普通攻击", weaponData);
+						// GetAnimNameByPlayStateAndWeapon("准备战斗", weaponData); 
+						_Global.YJ3D.YJPlayer.GetAvatar().layerBlendPerbone(animName, "run", false, true);
+						return;
+					} else {
+						canAttack = false;
+						EventHandler("中断技能");
+						GetAnimNameByPlayStateAndWeapon(e, weaponData);
+					}
 					break;
 				case "停止移动":
+					isMoving = false;
+
 					if (playerState == PLAYERSTATE.NORMAL) {
 						GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					}
 					if (playerState == PLAYERSTATE.ATTACK) {
+						if (canMoveAttack) {
+							GetAnimNameByPlayStateAndWeapon("准备战斗", weaponData);
+						}
 						if (!canAttack) {
 							GetAnimNameByPlayStateAndWeapon("准备战斗", weaponData);
 							if (npcTransform != null) {
@@ -934,12 +998,15 @@ class YJPlayerFireCtrl {
 							}
 						}
 					}
+					console.log(e, playerState, canAttack);
 					break;
 				case "战斗结束":
 					if (playerState == PLAYERSTATE.NORMAL) {
 						GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					}
-
+					if (isMoving) {
+						return;
+					}
 					break;
 
 				case "attack":
@@ -957,6 +1024,9 @@ class YJPlayerFireCtrl {
 		var updateId = null;
 		function update() {
 			updateId = requestAnimationFrame(update);
+			if(_Global.pauseGame){
+				return;
+			}
 			// 检测状态 战斗逻辑 
 			CheckState();
 		}

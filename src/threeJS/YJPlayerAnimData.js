@@ -525,7 +525,7 @@ class YJPlayerAnimData {
           animNameFullback = "idle";
           if (weaponData) {
             // let _animName = GetAnimName(e, weaponData);
-            let _animName = weaponData.animNameReady;
+            let _animName = weaponData.animNameReady; 
             if (_animName != undefined && _animName != "") {
               animName = _animName;
             }
@@ -584,7 +584,7 @@ class YJPlayerAnimData {
           animNameFullback = "idle";
           if (weaponData) {
             // let _animName = GetAnimName(e, weaponData);
-            let _animName = weaponData.animNameIdle;
+            let _animName = weaponData.animNameIdle; 
             if (_animName != undefined && _animName != "") {
               animName = _animName;
             }

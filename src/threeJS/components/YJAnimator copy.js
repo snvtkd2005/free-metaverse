@@ -7,34 +7,40 @@
 import * as THREE from "three";
 
 class YJAnimator {
-  constructor(model, animations) {
+  constructor(model, animations, msg) {
 
     let scope = this;
     // 创建一个时钟对象Clock
     var clock = new THREE.Clock();
 
     var mixer = null;//声明一个混合器变量
+    let oneAction, twoAction, threeAction;
+    let oneActionDuration = 0;
     let hotPointData = null;
 
     let animCount = 0;
     let actions = [];
+
+
     var updateId = null;
     let currentTime = 0;
     let oldAnimName = "";
 
     let currentAction = null;
     let currentDuration = 100;
-    let animNameFullback = "";
+    let auto = true;
     this.GetCurrentTime = function () {
       return {time:currentTime,duration:currentDuration}; 
     }
     this.SetCurrentTime = function(e){
       currentAction.time = e;
+      auto = false;
     }
+
+
     this.GetAnimation = function () {
       return animations;
     }
-
     let animationsData = [];
     this.SetAnimationsData = function (v) {
       // animationsData = v;
@@ -48,6 +54,7 @@ class YJAnimator {
       }
     }
     
+    let animNameFullback = "";
     this.ChangeAnimDirect = function(animName){
       oldAnimName = "";
       this.ChangeAnim(animName);
@@ -64,7 +71,8 @@ class YJAnimator {
         if (message == null) {
           return false;
         }
-        // console.error(" in 加载扩展动作 ", animName,oldAnimName); 
+        console.error(" in 加载扩展动作 ", animName,oldAnimName); 
+
         let messageData = message.data;
         if (messageData.avatarData) {
           _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.avatarData.id, animName, (isLoop, anim) => {
@@ -164,6 +172,7 @@ class YJAnimator {
       activateAllActions2(animName+animName0+"_"+animName,animName+animName0+"_"+animName0);
        
     }
+
     function activateAllActions2(animName,animName0) {
 
       for (let j = 0; j < animations.length; j++) {
@@ -193,6 +202,7 @@ class YJAnimator {
       }
       return false;
     }
+
     function cutAction(boneRefList, anim) {
       let tracks = [];
       for (let i = 0; i < anim.tracks.length; i++) {
@@ -317,7 +327,6 @@ class YJAnimator {
       // console.log("添加扩展动画 完成 ", animName);
 
     }
-
     function activateAllActions(animName) {
 
       for (let j = 0; j < animations.length; j++) {
@@ -350,10 +359,10 @@ class YJAnimator {
       }
       return false;
     }
-
     function setWeight(action, weight, scale) {
       if (action == undefined) { return; }
       action.enabled = true;
+      // console.log(" 动画scale 22" ,scale);
       oldScale = scale;
       action.setEffectiveTimeScale(scale);
       action.setEffectiveWeight(weight);
@@ -382,7 +391,7 @@ class YJAnimator {
     // 动画物体的同步。 用服务器统一的偏移时间来计算同步
     this.SetState = function (state) {
       let offsetTime = state.offsetTime;
-      offsetTime = parseInt(offsetTime % currentDuration / 1000);
+      offsetTime = parseInt(offsetTime % oneActionDuration / 1000);
       this.SetCurrentTime(offsetTime);
     }
 
@@ -393,7 +402,12 @@ class YJAnimator {
       pauseAllActions();
     }
     function pauseAllActions() {
-      console.log(" ======= 动画暂停 ===="); 
+      console.log(" ======= 动画暂停 ====");
+      // actions.forEach( function ( action ) {
+      //   action.paused = true;
+      // } );
+
+
       actions.forEach(function (action) {
         if (action.action != undefined) {
           action.action.paused = true;
@@ -401,14 +415,17 @@ class YJAnimator {
       });
     }
 
-    function unPauseAllActions() { 
+    function unPauseAllActions() {
+      // actions.forEach( function ( action ) {
+      //   action.paused = false;
+      // } );
+
       actions.forEach(function (action) {
         if (action.action != undefined) {
           action.action.paused = false;
         }
       });
     }
-
     let later = null;
     this.PlayAnim = function (e, callback) {
 
@@ -419,13 +436,13 @@ class YJAnimator {
 
       PlayAnimFn(e);
       if (e == "two") {
-        console.log("第二段动画时长 " + actions['two'].action._clip.duration);
+        console.log("第二段动画时长 " + twoAction._clip.duration);
         later = setTimeout(() => {
           PlayAnimFn("three");
           if (callback) {
             callback();
           }
-        }, Math.floor(actions['two'].action._clip.duration * 1000));
+        }, Math.floor(twoAction._clip.duration * 1000));
       }
 
     }
@@ -434,10 +451,10 @@ class YJAnimator {
 
       PlayAnimFn(e);
       if (e == "two") {
-        console.log("第二段动画时长 " + actions['two'].action._clip.duration);
+        console.log("第二段动画时长 " + twoAction._clip.duration);
         later = setTimeout(() => {
           PlayAnimFn("one");
-        }, Math.floor(actions['two'].action._clip.duration * 1000));
+        }, Math.floor(twoAction._clip.duration * 1000));
       }
     }
 
@@ -478,10 +495,33 @@ class YJAnimator {
       }
 
 
+      if (hotPointData) {
 
-      for (let i = 0; i < animCount; i++) {
-        playActinByIndex(i);
+        if (hotPointData.animType == "循环播放") {
+          // 默认循环 
+
+        }
+
+        if (hotPointData.animType == "全部同时播放") {
+          for (let i = 0; i < animCount; i++) {
+            playActinByIndex(i);
+          }
+        }
+
+        if (hotPointData.animType == "来回播放") {
+          oneAction.loop = THREE.LoopPingPong; // 乒乓循环播放
+          if (threeAction) {
+            threeAction.loop = THREE.LoopPingPong; // 乒乓循环播放
+          }
+          // console.log(" 来回播放 ");
+        }
+
+      } else {
+        for (let i = 0; i < animCount; i++) {
+          playActinByIndex(i);
+        }
       }
+
       playActinByIndex(0);
 
       update();
@@ -571,7 +611,17 @@ class YJAnimator {
     // 动画裁切帧数。 根据模型名判断
     //MOT项目，装置模型需拆分为3段动画。大厅（模型不动就只截第一帧）、出产品过程、出产品后循环
     let animCutData = [
-      { name: "wbds001", cut: [{ start: 0, end: 1 }, { start: 1, end: 299 }, { start: 300, end: 500 }] }, 
+      { name: "wbds001", cut: [{ start: 0, end: 1 }, { start: 1, end: 299 }, { start: 300, end: 500 }] },
+      { name: "zycx", cut: [{ start: 0, end: 1 }, { start: 11, end: 433 }, { start: 434, end: 500 }] },
+
+      { name: "xzzj003", cut: [{ start: 0, end: 130 }, { start: 131, end: 499 }, { start: 500, end: 750 }] },
+      { name: "zygy002", cut: [{ start: 0, end: 1 }, { start: 1, end: 140 }, { start: 141, end: 142 }] },
+      { name: "zbds001", cut: [{ start: 0, end: 1 }, { start: 1, end: 399 }, { start: 400, end: 560 }] },
+
+      { name: "zyzbsj002", cut: [{ start: 0, end: 1 }, { start: 1, end: 115 }, { start: 116, end: 120 }] },
+
+      { name: "dfsHUB", cut: [{ start: 0, end: 599 }, { start: 600, end: 850 }, { start: 600, end: 850 }] },
+      // 
     ]
     function CheckNeedCut(name) {
       // console.log("动画模型信息 ",hotPointData );
@@ -589,13 +639,44 @@ class YJAnimator {
     //拆分模型动画。模型、动画、拆分起始帧结束帧
     function SetModelAnimationClip(model, animations, needCut) {
       mixer = new THREE.AnimationMixer(model);
-      let action1 = mixer.clipAction(THREE.AnimationUtils.subclip(animations, 'A', needCut[0].start, needCut[0].end));
-      let action2 = mixer.clipAction(THREE.AnimationUtils.subclip(animations, 'B', needCut[1].start, needCut[1].end));
-      let action3 = mixer.clipAction(THREE.AnimationUtils.subclip(animations, 'C', needCut[2].start, needCut[2].end));
-      actions.push({ name: 'one', action: action1, weight: 1, scale: 1 });
-      actions.push({ name: 'two', action: action2, weight: 1, scale: 1 });
-      actions.push({ name: 'three', action: action3, weight: 1, scale: 1 }); 
+
+      oneAction = mixer.clipAction(THREE.AnimationUtils.subclip(animations, 'A', needCut[0].start, needCut[0].end));
+      twoAction = mixer.clipAction(THREE.AnimationUtils.subclip(animations, 'B', needCut[1].start, needCut[1].end));
+      threeAction = mixer.clipAction(THREE.AnimationUtils.subclip(animations, 'C', needCut[2].start, needCut[2].end));
+
+      actions.push({ name: 'one', action: oneAction, weight: 1, scale: 1 });
+      actions.push({ name: 'two', action: twoAction, weight: 1, scale: 1 });
+      actions.push({ name: 'three', action: threeAction, weight: 1, scale: 1 });
+
+      // mixer = new THREE.AnimationMixer(model);
+
+      // oneAction = mixer.clipAction(THREE.AnimationUtils.subclip(animations, 'A', 0, 1));
+      // twoAction = mixer.clipAction(THREE.AnimationUtils.subclip(animations, 'B', 1, 100));
+      // threeAction = mixer.clipAction(THREE.AnimationUtils.subclip(animations, 'C', 101, 200));
+
+      // actions.push({name:'one',action:oneAction,weight:1,scale:1});
+      // actions.push({name:'two',action:twoAction,weight:1,scale:1});
+      // actions.push({name:'three',action:threeAction,weight:1,scale:1});
+
     }
+
+    //     // let actions = [];
+    //     // let oneAction,twoAction,threeAction;
+    //     let needCut = [{start:0,end:599},{start:600,end:850},{start:600,end:850}];
+    // //    SetModelAnimationClip(gltf.scene,gltf.animations[0],needCut);
+    //     //拆分模型动画。模型、动画、拆分起始帧结束帧
+    //     function SetModelAnimationClip(model,animations,needCut) {
+    //       mixer = new THREE.AnimationMixer(model);
+
+    //       oneAction = mixer.clipAction(THREE.AnimationUtils.subclip(animations, 'A', needCut[0].start,needCut[0].end));
+    //       twoAction = mixer.clipAction(THREE.AnimationUtils.subclip(animations, 'B', needCut[1].start,needCut[1].end));
+    //       threeAction = mixer.clipAction(THREE.AnimationUtils.subclip(animations, 'C',  needCut[2].start,needCut[2].end));
+
+    //       actions.push({name:'one',action:oneAction,weight:1,scale:1});
+    //       actions.push({name:'two',action:twoAction,weight:1,scale:1});
+    //       actions.push({name:'three',action:threeAction,weight:1,scale:1}); 
+    //     } 
+
     // 按动画名称播放动画。通过设置动画权重来切换不同动画
     function PlayAnimFn(e) {
       if (later != null) {
@@ -633,23 +714,6 @@ class YJAnimator {
       if (msg.indexOf("animType") > -1) {
         hotPointData = JSON.parse(msg);
 
-        if (hotPointData) {
-
-          if (hotPointData.animType == "循环播放") {
-            // 默认循环 
-          }
-  
-          if (hotPointData.animType == "全部同时播放") {
-            
-          }
-  
-          if (hotPointData.animType == "来回播放") {
-            currentAction.loop = THREE.LoopPingPong; // 乒乓循环播放 
-            // console.log(" 来回播放 ");
-          }
-  
-        } else {
-        }
         // console.log("hotPointData " ,hotPointData);
         // type = hotPointData.animType;
         // hotPointId = hotPointData.id;
@@ -661,8 +725,33 @@ class YJAnimator {
         type = msg; return;
       }
 
+
       // msg = JSON.parse(msg); 
-    } 
+    }
+    function SetMessageFn(msg) {
+      if (msg == null || msg == undefined || msg == "") { return; }
+      console.log(" 设置动画模型 msg = ", msg);
+
+      //新的热点数据含 pointType 字段
+      if (msg.indexOf("animType") > -1) {
+        hotPointData = JSON.parse(msg);
+        // console.log(" 直接设置 动画模型 msg = " ,hotPointData,hotPointData.id);
+
+        // console.log("hotPointData " ,hotPointData);
+        // type = hotPointData.animType;
+        // hotPointId = hotPointData.id;
+
+        // console.log("hotPointData = " ,hotPointData);
+
+      } else {
+        // 不可删除，兼容旧版本
+        type = msg; return;
+      }
+
+
+      // msg = JSON.parse(msg); 
+    }
+     
 
     let eventList = [];
     // 添加事件监听
@@ -690,7 +779,8 @@ class YJAnimator {
           currentTime = currentAction.time;
           // console.log("执行模型动画 中 ",currentTime);
         }
-        // currentTime = mixer.time; 
+        // currentTime = mixer.time;
+        // currentTime = oneAction.time; 
         // console.log("执行模型动画 中 ",currentTime);
         // console.log("执行动画 中 ",mixer);
       }
@@ -698,5 +788,8 @@ class YJAnimator {
     }
 
   }
-} 
+}
+// oneAction.timeScale = 1; //默认1，可以调节播放速度
+// oneAction.clampWhenFinished = false;//暂停在最后一帧播放的状态
+// oneAction.enabled = true;
 export { YJAnimator };

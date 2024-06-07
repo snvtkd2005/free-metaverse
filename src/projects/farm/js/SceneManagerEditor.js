@@ -25,6 +25,7 @@ import { SceneManagerMetaworld } from "./SceneManagerMetaworld.js";
 import { YJAmmoRope } from "../../../threeJS/components/YJAmmoRope.js";
 import { YJAmmoPlayerBody } from "../../../threeJS/components/YJAmmoPlayerBody.js";
 import { SpringManager } from "../../../threeJS/common/SpringManager.js";
+import { YJController_roguelike } from "/@/threeJS/YJController_roguelike.js";
 
 class SceneManager {
   constructor(scene, renderer, camera, _this, modelParent, indexVue, callback) {
@@ -239,7 +240,9 @@ class SceneManager {
 
       _this.YJController.addEvent("视角改变",(e) => {
         // console.log(e);
-        indexVue.$refs.HUD.$refs.damageUI.UpdatePos2d();
+        if(indexVue && indexVue.$refs.HUD){
+          indexVue.$refs.HUD.$refs.damageUI.UpdatePos2d();
+        }
 
       });
 
@@ -275,6 +278,13 @@ class SceneManager {
 
       });
 
+
+      if (_Global.setting.inEditor) {
+        
+        let _YJController_roguelike = new YJController_roguelike();
+        _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(_YJController_roguelike);
+        return;
+      }
 
       // posRef_huluobu = CreatePosRef(0.33, -0.953);
       // posRef_nangua = CreatePosRef(0.20, -0.953);
@@ -370,7 +380,7 @@ class SceneManager {
                 transform: owner
               });
             bone.add(weaponModel);
-
+            _this.YJPlayer.addWeaponModel(weaponModel);
             // let pos = position;
             // let rotaV3 = rotation;
             // // console.log(" 设置武器坐标",rotaV3);
@@ -729,6 +739,7 @@ class SceneManager {
       // _this.YJController.SetUserDataItem("weaponData", "weaponType", "");
       // _this.YJController.SetUserDataItem("weaponData", "transId", "");
       _Global.SendMsgTo3D("放下武器");
+      _this.YJPlayer.removeWeaponModel();
 
       let transform = boneAttachList[0].transform;
       boneAttachList[0].parent.attach(transform.GetGroup());

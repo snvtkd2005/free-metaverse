@@ -25,6 +25,10 @@ class YJSkillParticleManager {
           element.time = 0;
           element.callback = callback;
           element.trailRenderer.trail.start();
+
+          let group = element.trailRenderer.group;
+          group.position.copy(startPos);
+
           return;
         }
       }

@@ -32,7 +32,11 @@ const router = createRouter({
       name: 'shader',
       component: () => import('../pages/shaderLX.vue')
     },
-
+    {
+      path: '/uitest',   // 访问编辑后保存在本地的场景
+      name: 'uitest',
+      component: () => import('../pages/platform/games/roguelike.vue')
+    },
     {
       path: '/visitLocal',   // 访问编辑后保存在本地的场景
       name: 'visitLocal',

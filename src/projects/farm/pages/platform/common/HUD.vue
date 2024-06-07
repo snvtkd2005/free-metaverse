@@ -22,9 +22,10 @@
     <damageUI ref="damageUI" />
     <fireStateUI ref="fireStateUI" />
 
-    <DMPanel v-if="isDMGame" ref="DMPanel" />
-    <MMDpanel v-if="isMMD" ref="MMDpanel" />
-
+    <DMPanel v-if=" gameType == 'DMGame'" ref="DMPanel" />
+    <MMDpanel v-if=" gameType == 'MMD'" ref="MMDpanel" />
+    <roguelike v-if=" gameType == 'Roguelike'" ref="roguelike" />
+    
   </div>
 </template>
 
@@ -41,6 +42,7 @@ import skillPanel_virus from "./skillPanel_virus.vue";
 
 import DMPanel from "./DMPanel_bilibili.vue";
 import MMDpanel from "./MMDpanel.vue";
+import roguelike from "../games/roguelike.vue";
 
 export default {
   name: "HUD",
@@ -53,20 +55,19 @@ export default {
     skillPanel_virus,
     DMPanel,
     MMDpanel,
+    roguelike,
   },
   data() {
-    return {
-      isDMGame:false,
-      isMMD:false,
+    return { 
+      gameType:"", //DMGame、MMD、Roguelike
     };
   },
   created() {
 
   },
   mounted() {
-    console.log(" ========== in HUD ",_Global.isDMGame);
-    this.isDMGame = _Global.isDMGame;
-    this.isMMD = _Global.isMMD;
+    console.log(" ========== in HUD ",_Global.gameType);
+    this.gameType = _Global.gameType; 
   },
   methods: {
 

@@ -84,7 +84,7 @@ export default {
     isLockStartAerial:false,
 
     // 是否第一人称视角
-    firstPerson :true,
+    firstPerson :false,
     
     // 是否有角色
     hasAvatar:true,

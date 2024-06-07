@@ -188,12 +188,18 @@ export default {
         { property: "hasFloor", display: true, title: "启用默认地面", type: "toggle", value: true, callback: this.ChangeValue },
         { property: "setting-hasCamRaycast", display: true, title: "启用摄像机遮挡", type: "toggle", value: true, callback: this.ChangeValue },
         { property: "setting-multiGame", display: true, title: "启用多人模式", type: "toggle", value: true, callback: this.ChangeValue },
-        { property: "setting-isMMD", display: true, title: "启用MMD模式", type: "toggle", value: true, callback: this.ChangeValue },
-        { property: "setting-isDMGame", display: true, title: "是否弹幕游戏", type: "toggle", value: false, callback: this.ChangeValue },
         { property: "setting-hasAvatar", display: true, title: "启用第三人称角色", type: "toggle", value: true, callback: this.ChangeValue },
         { property: "setting-hasHUD", display: true, title: "是否有界面", type: "toggle", value: true, callback: this.ChangeValue },
         { property: "setting-targetRota", display: true, title: "上下角度限制", type: "vector2xy", step:0.01, value: true, callback: this.ChangeValue },
         // { property: "setting-cameraOffset", display: true, title: "视角中心偏移", type: "vector3xyz", step:0.01, value: true, callback: this.ChangeValue },
+        {
+          property: "setting-gameType", display: true, title: "游戏类型", type: "drop", value: 'WOW', options: [
+            { value: 'Roguelike', label: '肉鸽' },
+            { value: 'DMGame', label: '塔防' },
+            { value: 'MMD', label: '数字人' }, 
+            { value: 'WOW', label: 'MMORPG' }, 
+          ], callback: this.ChangeValue,
+        },
         {
           property: "user-camp", display: true, title: "阵营", type: "drop", value: 1000, options: [
             // { value: 1000, label: '联盟npc' },
@@ -209,12 +215,12 @@ export default {
             { value: 1001, label: 'roguelike' },
           ], callback: this.ChangeValue,
         },
-        {
-          property: "setting-projection", display: true, title: "投影", type: "drop", value: 'perspective', options: [
-            { value: 'orthographic', label: 'orthographic' },
-            { value: 'perspective', label: 'perspective' },
-          ], callback: this.ChangeValue,
-        }, 
+        // {
+        //   property: "setting-projection", display: true, title: "投影", type: "drop", value: 'perspective', options: [
+        //     { value: 'orthographic', label: 'orthographic' },
+        //     { value: 'perspective', label: 'perspective' },
+        //   ], callback: this.ChangeValue,
+        // }, 
       ],
       sceneData: {
         

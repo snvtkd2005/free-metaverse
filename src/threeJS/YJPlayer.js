@@ -323,7 +323,7 @@ class YJPlayer {
         modelPath = _this.GetPublicUrl() + modelPath;
       }
 
-      // console.log("加载角色0",modelPath,avatarData,animationsData);
+      console.log("加载角色0",modelPath,avatarData,animationsData);
       avatar = new YJLoadAvatar(
         _this,
         _this.scene,
@@ -838,7 +838,7 @@ class YJPlayer {
       if (!hasPlayer) {
         return;
       }
-      if (oldAnimName == animName) { return; }
+      // if (oldAnimName == animName) { return; }
       if (avatar != null) {
         if (hasMount) {
           mountAvatar.ChangeAnim(animName);
@@ -1132,6 +1132,16 @@ class YJPlayer {
         if(pickBone[i] == boneName) {return true;}
       }
       return false;
+    }
+    let weaponModel = null;
+    this.addWeaponModel = function(_weaponModel){
+      weaponModel = _weaponModel;
+    }
+    this.getWeaponModel = function(_weaponModel){
+      return weaponModel;
+    }
+    this.removeWeaponModel = function(){
+      weaponModel = null;
     }
     // 同步拾取物体
     function dyncPickModel(_weaponData) {

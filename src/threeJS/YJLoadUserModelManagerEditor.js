@@ -270,6 +270,15 @@ class YJLoadUserModelManager {
 
       });
     }
+    this.LoadStaticModel2 = function (modelData, callback) {
+
+      // console.log("点击界面生成模型 ", modelData);
+      CreateTransform(null, modelData, (object) => {
+        if (callback) {
+          callback(object);
+        }
+      });
+    }
     let siblingIndex = 0;
     function CreateTransform(parent, modelData, callback, _Id, mapId) {
       // console.error(" load manager 加载模型 ",parent, modelData);

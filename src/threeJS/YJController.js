@@ -3741,7 +3741,10 @@ class YJController {
 
     this.SetPlayerAnimName = function (_animName, animNameFullback) {
       animName = _animName;
+      // console.error("切换动画 ", animName);
       _YJPlayer.ChangeAnim(animName, animNameFullback);
+      // _YJPlayer.ChangeAnimDirect(animName, animNameFullback);
+
     }
     this.ChangeAnimDirect = function (_animName) {
       animName = _animName;
@@ -3832,6 +3835,9 @@ class YJController {
 
 
     let inMoving = false;
+    this.CheckMoving = function(){
+      return inMoving;
+    }
     this.update = function () {
       const time = performance.now();
       // console.log("in yjcontroller   niaokanCamPos = " ,  niaokanCamPos  );

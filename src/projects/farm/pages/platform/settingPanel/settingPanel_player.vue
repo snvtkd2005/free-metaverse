@@ -34,38 +34,44 @@
     </div>
 
  
-    <input class=" ml-2  outline-none w-40  " @input="dircChangeFn" v-model="dirc.x"
-        type="range" min="-1" :max="1" step="1">
-         
-    <input class=" ml-2  outline-none w-40  " @input="dircChangeFn" v-model="dirc.y"
-        type="range" min="-1" :max="1" step="1">
-    <input class=" ml-2  outline-none w-40  " @input="dircChangeFn" v-model="dirc.z"
-        type="range" min="-1" :max="1" step="1">
-    <input class=" ml-2  outline-none w-40  " @input="dircChangeFn" v-model="dirc.w"
-        type="range" min="0" :max="2" step="1">
+    <div class=" hidden  ">
+        
+      <input class=" ml-2  outline-none w-40  " @input="dircChangeFn" v-model="dirc.x"
+          type="range" min="-1" :max="1" step="1">
+      <input class=" ml-2  outline-none w-40  " @input="dircChangeFn" v-model="dirc.y"
+          type="range" min="-1" :max="1" step="1">
+      <input class=" ml-2  outline-none w-40  " @input="dircChangeFn" v-model="dirc.z"
+          type="range" min="-1" :max="1" step="1">
+      <input class=" ml-2  outline-none w-40  " @input="dircChangeFn" v-model="dirc.w"
+          type="range" min="0" :max="2" step="1">
 
-    <div class=" w-full flex   ">
-      <div class="  cursor-pointer" >stiffnessForce</div>
-      <input class=" ml-2  outline-none w-40  " @input="dircChangeFn" v-model="dirc.stiffnessForce"
-        type="range" min="0" :max="1" step="0.001">
-        <div>{{dirc.stiffnessForce}}</div>
+      <div class=" w-full flex   ">
+        <div class="  cursor-pointer" >stiffnessForce</div>
+        <input class=" ml-2  outline-none w-40  " @input="dircChangeFn" v-model="dirc.stiffnessForce"
+          type="range" min="0" :max="1" step="0.001">
+          <div>{{dirc.stiffnessForce}}</div>
+      </div>
+
+      <div class=" w-full flex   ">
+        <div class="  cursor-pointer" >dragForce</div>
+        <input class=" ml-2  outline-none w-40  " @input="dircChangeFn" v-model="dirc.dragForce"
+          type="range" min="0" :max="1" step="0.01">
+          <div>{{dirc.dragForce}}</div>
+      </div>
+          
+
+      <div class=" hidden w-full   ">
+        <div class=" bg-gray-400 cursor-pointer" @click=" auto = !auto">球形碰撞</div>
+        <input ref="viewFarCtrl" class=" ml-2  outline-none w-40  " @input="ballRadiusChangeFn" v-model="ballRadius"
+          type="range" min="0.05" max="3" step="0.01" >
+      </div>
     </div>
 
-    <div class=" w-full flex   ">
-      <div class="  cursor-pointer" >dragForce</div>
-      <input class=" ml-2  outline-none w-40  " @input="dircChangeFn" v-model="dirc.dragForce"
-        type="range" min="0" :max="1" step="0.01">
-        <div>{{dirc.dragForce}}</div>
-    </div>
-         
-
-    <div class=" hidden w-full   ">
-      <div class=" bg-gray-400 cursor-pointer" @click=" auto = !auto">球形碰撞</div>
-      <input ref="viewFarCtrl" class=" ml-2  outline-none w-40  " @input="ballRadiusChangeFn" v-model="ballRadius"
-        type="range" min="0.05" max="3" step="0.01" >
-    </div>
   </div>
 
+  <div class=" w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('混合动作')">
+    <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">混合动作</div>
+  </div>
 
   <div class=" w-80 h-10 text-white cursor-pointer " @click="ClickBtnHandler('选择可映射角色')">
     <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">映射到同骨骼角色动画</div>
@@ -255,7 +261,13 @@ export default {
       console.log(_Global.dirc);
     },
     ClickBtnHandler(e) {
-
+      
+      if (e == "混合动作") {
+        
+        let _YJAnimator = _Global.YJ3D._YJSceneManager
+          .GetSingleTransformComponent("Animator");
+        _YJAnimator.layerBlendPerbone("shooting","run");
+      }
       if (e == "选择可映射角色") {
         // 只有骨骼相同，且有扩展动作的角色，才允许被映射
         // this.parent.$refs.modelSelectPanel.Init("角色模型");

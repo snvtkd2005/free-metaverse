@@ -444,11 +444,8 @@ export default {
       console.log(" 获取场景配置 ", this.sceneData);
       this.isMultiGame = this.sceneData.setting.multiGame;
 
-      this.isDMGame = this.sceneData.setting.isDMGame;
-      _Global.isDMGame = this.isDMGame;
-
-      this.isMMD = this.sceneData.setting.isMMD;
-      _Global.isMMD = this.isMMD;
+      this.gameType = this.sceneData.setting.gameType;
+      _Global.gameType = this.gameType;
 
       this.hasHUD = this.sceneData.setting.hasHUD;
       document.title = this.sceneData.setting.title; 

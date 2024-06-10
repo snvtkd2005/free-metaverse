@@ -90,6 +90,7 @@ class YJGeometry {
       }
       if(data.isMesh){
         mesh.visible = true;
+        mesh.receiveShadow = true;
       }
     }
     this.Reset = function () {

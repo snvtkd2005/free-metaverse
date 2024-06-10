@@ -1,6 +1,10 @@
 import { SaveImgGetFileName, SaveTxtGetFileName, SaveFileOSSAPI, DelFileAPI } from "./api.js";
 
 
+// function radomNum(minNum, maxNum) {
+//   return parseInt(Math.random() * (maxNum - minNum + 1) + minNum, 10);
+// }
+
 export const RandomInt = (min, max) => {
   if(min == max){return min;}
   return min + Math.floor(Math.random() * (max - min + 1));

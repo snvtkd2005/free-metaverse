@@ -310,13 +310,13 @@ class YJPlayerNameManager {
       }); 
       npc.addEventListener("死亡", () => {
         // resetButtonText.material.color.set('#666666'); //姓名条变灰
-        // resetButtonText.visible = false;
+        resetButtonText.visible = false;
       }); 
       npc.addEventListener("重生", () => {
         group.visible = true; 
         player.active = true;
 
-        // resetButtonText.visible = true;
+        resetButtonText.visible = true;
         // resetButtonText.material.color.set('#ffffff');
 
         if (player.healthPlaneAnchor) {

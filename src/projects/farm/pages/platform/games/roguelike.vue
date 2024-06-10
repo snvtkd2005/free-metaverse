@@ -69,9 +69,11 @@
                   v-for="(item, i) in cardList"
                   :key="item"
                   :index="i"
-                  class="w-1/3 bg-red-300 h-full text-gray-200 pointer-events-auto cursor-pointer"
+                  class="w-20 h-20 bg-red-300 text-gray-200 pointer-events-auto cursor-pointer"
                   @click="skill(item)"
                 >
+                  <!-- class="w-1/3 bg-red-300 h-full text-gray-200 pointer-events-auto cursor-pointer" -->
+
                   <div class="flex flex-col h-full relative">
                     <div
                       class="relative mx-auto"
@@ -161,10 +163,10 @@ export default {
   },
   created() {},
   mounted() {
-    this.cardList = roguelikeGameData.skill;
     this.property = roguelikeGameData.teamStats.property;
     setTimeout(() => {
-      _Global.addEventListener("显示roguelike卡牌", () => {
+      _Global.addEventListener("显示roguelike卡牌", (cardList) => {
+        this.cardList = cardList;
         this.displayCard = true;
       });
 
@@ -176,7 +178,11 @@ export default {
       _Global.addEventListener("存活时间", (v) => {
         this.timesStr = v; 
       });
-
+ 
+        _Global.addEventListener('主角生命值',(h,maxH)=>{
+          this.stats.health = h;
+          this.stats.maxHealth = maxH;
+        });
       // if (_Global.setting.inEditor) {
       //   return;
       // }

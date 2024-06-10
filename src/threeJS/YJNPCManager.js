@@ -17,7 +17,7 @@ class YJNPCManager {
     this.GetNPCs = function(){
       return npcModelList;
     }
-    this.GetNpcByPlayerForwardInArea = function (vaildDistance, max, playerPos) {
+    this.GetNpcByPlayerForwardInArea = function (vaildDistance, max, playerPos, ingoreNpcId) {
       let num = 0;
       let npcs = [];
       
@@ -26,6 +26,9 @@ class YJNPCManager {
         const element = npcModelList[i];
         let npcComponent = element.GetComponent("NPC");
         if (npcComponent.GetCamp() == _Global.user.camp) {
+          continue;
+        }
+        if (npcComponent.id == ingoreNpcId) {
           continue;
         }
         // 未判断npc是否在玩家前方

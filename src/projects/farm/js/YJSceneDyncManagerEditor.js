@@ -455,7 +455,7 @@ class YJSceneDyncManagerEditor {
     // 玩家范围攻击npc。 在一场战斗中，玩家施放技能，获取玩家前方技能有效范围内的最多max数量的npc
     this.GetNpcByPlayerForwardInFireId = function (fireId, camp, vaildDistance, max, ingoreNpcId) {
       
-      return _Global._YJNPCManager.GetNpcByPlayerForwardInArea(vaildDistance,max, playerPos);
+      return _Global._YJNPCManager.GetNpcByPlayerForwardInArea(vaildDistance,max, playerPos, ingoreNpcId);
       
       let num = 0;
       if (ingoreNpcId != undefined) {

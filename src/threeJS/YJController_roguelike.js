@@ -264,11 +264,12 @@ class YJController_roguelike {
         _Global.addEventListener('游戏继续',()=>{
         });
         _Global.addEventListener('选择roguelike卡牌',(card)=>{
-          
-          if(card.title == "多重射击"){
-            _Global.YJ3D.YJController.GetPlayerFireCtrl().updateBasedata(card.title,1);
-          }
+          _Global.YJ3D.YJController.GetPlayerFireCtrl().updateBasedata(card);
           playGame();
+        });
+        
+        _Global.addEventListener('主角生命值',(h,maxH)=>{
+
         });
       }
 
@@ -318,11 +319,33 @@ class YJController_roguelike {
       }
       _Global.applyEvent('杀敌数',currentKill,roguelikeGameData.needKill);
     }
+
+    // 占位符替换函数
+    function templateReplace(template, data) {
+      return template.replace(/\$\{(\w+)\}/g, function(match, key) {
+        return data[key] || match;
+      });
+    }
     // 在打开宝箱或完成当前击杀数时，弹出卡片选择
     function openCard(){
       pauseGame();
       //显示卡牌界面
-      let cards = roguelikeGameData.skill;
+      let cards = [];
+      let skills = roguelikeGameData.skills;
+      //随机取出3张卡片
+      for (let i = 0; i < skills.length; i++) {
+        const skill = skills[i];
+        skill.describe = templateReplace(skill.describe,skill); 
+        cards.push(skill);
+      }
+      let items = roguelikeGameData.items;
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        item.describe = templateReplace(item.describe,item); 
+        cards.push(item);
+      }
+
+
       _Global.applyEvent('显示roguelike卡牌',cards);
       
     }

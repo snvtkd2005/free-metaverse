@@ -6,6 +6,8 @@ import * as THREE from "three";
 class YJSkill {
     constructor(scope) {
 
+        let targetModel = null;
+        let baseData = null;
         function init() {
             scope.addEventListener("首次进入战斗", () => {
                 CheckSkill();
@@ -44,7 +46,6 @@ class YJSkill {
                 targetModel = _targetModel;
             });
 
-
             scope.addEventListener("脱离战斗或死亡", () => {
                 ClearControlModel();
 
@@ -55,13 +56,26 @@ class YJSkill {
                     hyperplasiaTrans = [];
                 }
             });
+
+            baseData = scope.GetBaseData();
         }
-        let targetModel = null;
-        let baseData = null;
 
         this.SetSkill = function (_skillList, _baseData) {
             skillList = _skillList;
             baseData = _baseData;
+        }
+        this.AddSkill = function (_skill) {
+            skillList.push(_skill);
+            CheckSkill_Persecond(_skill);
+        }
+        this.EditorSkill = function (_skill) {
+            for (let i = 0; i < skillList.length; i++) {
+                const skill = skillList[i];
+                if (skill.title == _skill.title) {
+                    skill = _skill;
+                    return;
+                }
+            }
         }
         this.GetinSkill = function () {
             return inSkill;
@@ -82,8 +96,10 @@ class YJSkill {
                 skillList = JSON.parse(JSON.stringify(oldSkillList));
             }
         }
-
-        this.ReceiveDamageByPlayer = function (_targetModel, skillName, effect) {
+        this.ReceiveControl = function (_targetModel, skillName, effect) {
+            ReceiveControl(_targetModel, skillName, effect);
+        }
+        function ReceiveControl(_targetModel, skillName, effect) {
             let { type, value, time, duration, describe, icon, fromName } = effect;
             if (type == "control") {
                 //冻结8秒
@@ -107,7 +123,7 @@ class YJSkill {
             if (type == "shield") {
                 if (effect.controlId == "寒冰护体") {
                     baseData.armor = value;
-                    if(ReceiveSkill("寒冰护体", "on")){
+                    if (ReceiveSkill("寒冰护体", "on")) {
                     }
                 }
                 return;
@@ -138,7 +154,7 @@ class YJSkill {
                     }
                     _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().CopyModel("冰霜新星模型", (model) => {
                         model.SetPos(scope.GetWorldPos());
-                        let nameScale = scope.transform.GetScale();
+                        let nameScale = scope.GetScale();
                         model.AddScale(new THREE.Vector3(nameScale, nameScale, nameScale));
                         model.SetActive(true);
                         AddControlModel(skillName, model);
@@ -165,9 +181,9 @@ class YJSkill {
                     }
                     _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().CopyModel("寒冰护体", (model) => {
                         model.SetPos(scope.GetWorldPos());
-                        let nameScale = scope.transform.GetScale();
+                        let nameScale = scope.GetScale();
                         model.SetScale(new THREE.Vector3(nameScale, nameScale, nameScale));
-                        scope.transform.GetGroup().attach(model.GetGroup());
+                        scope.GetGroup().attach(model.GetGroup());
                         model.SetActive(true);
                         AddControlModel(skillName, model);
                     });
@@ -641,7 +657,7 @@ class YJSkill {
             }
             return true;
         }
-        
+
         let skillList = [];
         let oldSkillList = [];
         let hyperplasiaTimes = 0;
@@ -649,16 +665,14 @@ class YJSkill {
         function SendSkill(effect) {
             let { type, skillName, value, time, duration, describe, controlId } = effect;
             // console.log("施放不需要目标或目标是自身的技能 00 ", effect);
-            if (type == "shield") {
+            if (type == "shield" || type == "control") {
                 //
                 // console.log("施放不需要目标或目标是自身的技能 ", controlId);
                 if (controlId == "寒冰护体") {
-                    effect.value = 500;
-                    scope.ReceiveDamageByPlayer(null, controlId, effect);
+                    ReceiveControl(null, controlId, effect);
                 }
-            }
-            if (type == "control") {
                 //
+                
                 // console.log("施放不需要目标或目标是自身的技能 ", controlId);
 
                 if (controlId == "冰霜新星") {
@@ -717,80 +731,91 @@ class YJSkill {
             for (let i = 0; i < skillList.length; i++) {
                 const skillItem = skillList[i];
                 // 触发方式 每间隔n秒触发。在进入战斗时调用
-                if (skillItem.trigger.type == "perSecond") {
-                    skillItem.CD = skillItem.trigger.value;
-
-                    if (skillItem.CD == 0) {
-                        if (skillItem.castTime > 0) {
-                            // 冷却时间一定要比施放时间更长
-                            if (skillItem.castTime >= skillItem.CD) {
-                                skillItem.CD = skillItem.castTime + 0.5;
-                            }
-                        }
-                    }
-
-                    skillItem.cCD = skillItem.CD;
-                    let cCD = skillItem.cCD;
-                    let CD = skillItem.CD;
-
-                    fireLater.push({
-                        type: "interval", fn:
-                            // setInterval(() => {
-                            //   if (_Global.mainUser) {
-                            //     // console.log( scope.GetNickName() + " 请求 施放技能 ",skillItem);
-
-                            //     if (inSkill) {
-
-                            //       if (skillItem.effect.type == "control") {
-                            //         EventHandler("中断技能");
-                            //       } else {
-                            //         return;
-                            //       }
-                            //     }
-                            //     console.log(scope.GetNickName() + " 施放技能 ", skillItem);
-                            //     SkillGo(skillItem);
-                            //   }
-                            // }, (skillItem.trigger.value + skillItem.castTime) * 1000)
-                            setInterval(() => {
-                                if (_Global.mainUser) {
-                                    if (cCD == CD) {
-                                        if (inSkill) {
-                                            // return;
-                                            if (skillItem.effect.type == "control" || skillItem.effect.type == "shield") {
-                                                EventHandler("中断技能");
-                                            } else {
-                                                // return;
-                                            }
-
-                                            // for (let i = 0; i < skillCDlist.length ; i++) {
-                                            //   const element = skillCDlist[i];
-                                            //   if(element.skillName == skillItem.skillName){
-                                            //     return; 
-                                            //   }
-                                            // }
-                                            // skillCDlist.push({skillName:skillItem.skillName,skillItem:skillItem});
-                                        }
-                                        // if (scope.npcName.includes("老a")) {
-                                        //   console.log(scope.GetNickName() + " 施放技能 ", skillItem);
-                                        // }
-                                        if (SkillGo(skillItem)) {
-                                            _Global.CombatLog.log(scope.npcName, "", "技能", skillItem.effect.skillName);
-                                            cCD = 0;
-                                        }
-                                        return;
-                                    }
-                                    cCD += 0.1;
-                                    if (cCD > CD) {
-                                        cCD = CD;
-                                    }
-                                    scope.applyEvent("技能CD", skillItem.skillName, cCD)
-                                }
-                            }, 100)
-                    }
-                    );
-                }
+                CheckSkill_Persecond(skillItem);
             }
             CheckSkill_Health();
+        }
+        function CheckSkill_Persecond(skillItem) {
+            if (skillItem.trigger.type == "perSecond") {
+
+                if (skillItem.trigger.CD) {
+                    skillItem.CD = skillItem.trigger.CD;
+                } else {
+                    skillItem.CD = skillItem.trigger.value;
+                }
+
+                if (skillItem.CD == 0) {
+                    if (skillItem.castTime > 0) {
+                        // 冷却时间一定要比施放时间更长
+                        if (skillItem.castTime >= skillItem.CD) {
+                            skillItem.CD = skillItem.castTime + 0.5;
+                        }
+                    }
+                }
+
+                skillItem.cCD = skillItem.CD;
+                let cCD = skillItem.cCD;
+                let CD = skillItem.CD;
+
+                fireLater.push({
+                    type: "interval", fn:
+                        // setInterval(() => {
+                        //   if (_Global.mainUser) {
+                        //     // console.log( scope.GetNickName() + " 请求 施放技能 ",skillItem);
+
+                        //     if (inSkill) {
+
+                        //       if (skillItem.effect.type == "control") {
+                        //         EventHandler("中断技能");
+                        //       } else {
+                        //         return;
+                        //       }
+                        //     }
+                        //     console.log(scope.GetNickName() + " 施放技能 ", skillItem);
+                        //     SkillGo(skillItem);
+                        //   }
+                        // }, (skillItem.trigger.value + skillItem.castTime) * 1000)
+                        setInterval(() => {
+                            if (_Global.pauseGame) { return; }
+                            if (_Global.mainUser) {
+                                if (cCD == CD) {
+                                    if (inSkill) {
+                                        // return;
+                                        if (skillItem.effect.type == "control" || skillItem.effect.type == "shield") {
+                                            EventHandler("中断技能");
+                                        } else {
+                                            // return;
+                                        }
+
+                                        // for (let i = 0; i < skillCDlist.length ; i++) {
+                                        //   const element = skillCDlist[i];
+                                        //   if(element.skillName == skillItem.skillName){
+                                        //     return; 
+                                        //   }
+                                        // }
+                                        // skillCDlist.push({skillName:skillItem.skillName,skillItem:skillItem});
+                                    }
+                                    // if (scope.npcName.includes("老a")) {
+                                    //   console.log(scope.GetNickName() + " 施放技能 ", skillItem);
+                                    // }
+                                    if (SkillGo(skillItem)) {
+                                        if (_Global.CombatLog) {
+                                            _Global.CombatLog.log(scope.npcName, "", "技能", skillItem.effect.skillName);
+                                        }
+                                        cCD = 0;
+                                    }
+                                    return;
+                                }
+                                cCD += 0.1;
+                                if (cCD > CD) {
+                                    cCD = CD;
+                                }
+                                scope.applyEvent("技能CD", skillItem.skillName, cCD)
+                            }
+                        }, 100)
+                }
+                );
+            }
         }
         // 随机选中的玩家
         let randomSelectModel = null;

@@ -76,6 +76,9 @@ class YJPlayer {
         scope.camp = _Global.user.camp;
       }
     }
+    this.GetGroup = function(){
+      return group;
+    }
     this.DyncPlayerState = function (state) {
       return _YJPlayerDync.DyncPlayerState(state);
     }

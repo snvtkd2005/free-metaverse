@@ -790,6 +790,15 @@ class YJNPC {
       vaildAttackDis = v;//* modelScale;
     }
 
+		this.GetBaseData = function(){ 
+			return baseData;
+		}
+    this.GetScale = function(){ 
+      return scope.transform.GetScale();
+		}
+    this.GetGroup = function(){  
+      return scope.transform.GetGroup();
+		}
     let readyAttack = false;
     let readyAttack_doonce = 0;
 
@@ -1369,6 +1378,7 @@ class YJNPC {
         _Global.CombatLog.log(from, to, type, content);
       }
     }
+    
     let fromName = "";
     this.ReceiveDamageByPlayer = function (_targetModel, skillName, effect) {
       if (!_Global.mainUser) {
@@ -1420,7 +1430,7 @@ class YJNPC {
       // console.log("受到来自 222 的伤害 ", _targetModel);
 
       if (type == "control" || type == "shield") {
-        _YJSkill.ReceiveDamageByPlayer(_targetModel, skillName, effect);
+        _YJSkill.ReceiveControl(_targetModel, skillName, effect);
         return;
       }
 

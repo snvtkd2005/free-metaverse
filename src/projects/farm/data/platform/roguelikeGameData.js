@@ -33,8 +33,29 @@ export default {
     },
 
   ],
-
-  needKill: 1, //当前等级需要击杀多少个敌人才能升级
+  // 每个等级需要的exp
+  /**
+    level:1, //当前等级
+    exp:200,//当前等级升级所需经验值
+    rewardType:"",//升级时奖励类型。 道具items、技能skill
+    rewardIds:[],//奖励id
+   */
+  needExpByLevels:[
+    {level:1,exp:30,rewardType:"skill",},
+    {level:2,exp:30,rewardType:"items",},
+    {level:3,exp:90,rewardType:"skill",},
+    // {level:1,exp:100,rewardType:"items",},
+    // {level:2,exp:150,rewardType:"items",},
+    // {level:3,exp:200,rewardType:"skill",},
+    {level:4,exp:300,rewardType:"items", },
+    {level:5,exp:400,rewardType:"items",},
+    {level:6,exp:500,rewardType:"skill",},
+    {level:7,exp:1000,rewardType:"items",},
+    {level:8,exp:1000,rewardType:"items",},
+    {level:9,exp:3000,rewardType:"items",},
+    {level:10,exp:4000,rewardType:"items",},
+    {level:11,exp:6000,rewardType:"items",},
+  ], //当前等级需要击杀多少个敌人才能升级
   // 单局游戏数据
   teamStats:
   {
@@ -54,7 +75,7 @@ export default {
     // 磁力范围、金钱倍率、经验值倍率、运气、躲避几率
 
     // 动作相关动画速度可变{移动速度、攻击速度}
-    
+
     property: {
       level: 1, //等级决定基础属性
       health: 10,
@@ -62,26 +83,26 @@ export default {
 
     },
   },
-  skillCount:[
+  skillCount: [
     {
-      title: "多重射击",
+      skillName: "多重射击",
       count: 2,//卡牌出现次数
     },
   ],
   // 技能
-  skills: [ 
+  skills: [
     {
-      type:"skill",
-      title: "多重射击",
+      type: "skill",
+      skillName: "多重射击",
       // 该结构表示：每10秒对当前目标造成10点伤害
       //触发时机 每间隔n秒触发、血量达到n%触发 perSecond  health
-      trigger: { type: "perSecond", value: 20,CD:3 },
+      trigger: { type: "perSecond", value: 20, CD: 3 },
       //目标
       target: { type: "area", value: 3 },// random随机 target目标 area范围攻击
       //效果 damage直接伤害、perDamage每秒伤害、contDamage持续伤害、冻结、眩晕等状态
       effect: {
         type: "damage",
-        controlId:1, //控制id 1=冰霜新星
+        controlId: 1, //控制id 1=冰霜新星
         value: 20,
         time: 1,
         duration: 3,
@@ -104,21 +125,19 @@ export default {
       effectEnhance: "none",
       icon: "", //技能图标      
       describe: "最多对${count}个目标造成${damage}点伤害",
-
     },
-    
     {
-      type:"skill",
-      title: "寒冰护体",
+      type: "skill",
+      skillName: "寒冰护体",
       // 该结构表示：每10秒对当前目标造成10点伤害
       //触发时机 每间隔n秒触发、血量达到n%触发 perSecond  health
-      trigger: { type: "perSecond", value: 20,CD:30 },
+      trigger: { type: "perSecond", value: 20, CD: 30 },
       //目标
       target: { type: "self", value: 3 },// random随机 target目标 area范围攻击
       //效果 damage直接伤害、perDamage每秒伤害、contDamage持续伤害、冻结、眩晕等状态
       effect: {
         type: "shield",
-        controlId:"寒冰护体", //控制id 1=冰霜新星
+        controlId: "寒冰护体", //控制id 1=冰霜新星
         value: 100,
         duration: 60,
         describe: "吸收100点伤害",
@@ -139,32 +158,44 @@ export default {
       //效果增强
       effectEnhance: "none",
       icon: "", //技能图标      
-      describe: "冰霜护盾，吸收伤害",
+      describe: "冰霜护盾，吸收伤害", 
+    },
+    {
+      type: "skill",
+      skillName: "冰霜新星",
+      // 该结构表示：每10秒对当前目标造成10点伤害
+      //触发时机 每间隔n秒触发、血量达到n%触发 perSecond  health
+      trigger: { type: "perSecond", value: 3, CD: 3 },
+      //目标
+      target: { type: "area", value: 20 },// random随机 target目标 area范围攻击
+      //效果 damage直接伤害、perDamage每秒伤害、contDamage持续伤害、冻结、眩晕等状态
+      effect: {
+        type: "control",
+        controlId: "冰霜新星", //控制id 1=冰霜新星
+        value: 100,
+        duration: 60,
+        describe: "吸收100点伤害",
+        icon: "",
+      }, //describe技能描述，duration持续时间。perDamage、冻结、眩晕等状态效果才需要持续时间
+      //技能施放的有效范围 或 范围攻击的游戏范围
+      vaildDis: 30, //  
+      //施放时间
+      castTime: 0, // 施法时间。 秒, 0表示瞬发
+      animNameReady: "two hand gun before attack", // 施法准备/读条动作
+      animName: "two hand gun attack", // 施法施放动作
 
+      skillReadyParticleId: "", //吟唱特效
+      skillReadyAudio: "", //吟唱音效
+      skillFireParticleId: "1710838494260", //施放特效
+      skillFirePart: "", //施放部位
+      skillFireAudio: "", //施放音效
+      //效果增强
+      effectEnhance: "none",
+      icon: "", //技能图标      
+      describe: "冰霜护盾，吸收伤害", 
     },
   ],
-  // 道具
-  // 道具名、道具效果
-  items: [
-    {
-      title: "暴击率",
-      count: 10,
-      value: 100,
-      describe: "暴击率提高${value}%",
-    },
-    {
-      title: "暴击伤害比例",
-      count: 10,
-      value: 10,
-      describe: "额外伤害提高${value}%",
-    },
-    {
-      title: "攻击速度",
-      count: 10,
-      value: 1,
-      describe: "攻击速度提高${value}%",
-    }
-  ],
+  
 }
 
 

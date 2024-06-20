@@ -23,6 +23,7 @@
     <fireStateUI ref="fireStateUI" />
 
     <DMPanel v-if=" gameType == 'DMGame'" ref="DMPanel" />
+    <DMrogue v-if=" gameType == 'DMRoguelike'" ref="DMrogue" />
     <MMDpanel v-if=" gameType == 'MMD'" ref="MMDpanel" />
     <roguelike v-if=" gameType == 'Roguelike'" ref="roguelike" />
     
@@ -41,6 +42,8 @@ import fireStateUI from "./fireStateUI.vue";
 import skillPanel_virus from "./skillPanel_virus.vue";
 
 import DMPanel from "./DMPanel_bilibili.vue";
+import DMrogue from "./DMPanel_DMrogue.vue";
+
 import MMDpanel from "./MMDpanel.vue";
 import roguelike from "../games/roguelike.vue";
 
@@ -56,6 +59,7 @@ export default {
     DMPanel,
     MMDpanel,
     roguelike,
+    DMrogue,
   },
   data() {
     return { 

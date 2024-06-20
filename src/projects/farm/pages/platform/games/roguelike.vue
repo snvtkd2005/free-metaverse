@@ -34,6 +34,48 @@
           <div class="  ">{{ timesStr }}</div>
         </div>
       </div>
+
+      <!-- 动作条 -->
+      <div>
+        
+                  <!-- 技能 -->
+                  <!-- <div class="w-full relative h-5 flex ">
+                    <div
+                      v-for="(skill, i) in item.skill"
+                      :key="i"
+                      class="flex mr-1"
+                    >
+                      <div class="w-8 h-8 bg-gray-500 relative">
+                        <div
+                          v-if="item.level < skill.unLockLevel"
+                          class="absolute left-0 top-0 bg-black opacity-50 w-full h-full"
+                        ></div>
+                        <div
+                          v-if="item.level >= skill.unLockLevel"
+                          class="absolute left-0 bottom-0 bg-black opacity-90 w-full h-full"
+                          :style="
+                            'height: ' + (1 - skill.cCD / skill.CD) * 100 + '%'
+                          "
+                        ></div>
+                        <div
+                          v-if="
+                            item.level >= skill.unLockLevel && skill.perCD > 0
+                          "
+                          class="absolute left-0 top-0 w-full h-full leading-8 text-xl"
+                        >
+                          {{ skill.perCD }}
+                        </div>
+                        <img class="w-full h-full" :src="skill.icon" alt="" />
+                        <div
+                          v-if="item.level >= skill.unLockLevel"
+                          class="absolute -right-1 -bottom-1 w-4 h-4 rounded-full bg-yellow-700 text-xs leading-4 p-px"
+                        >
+                          {{ skill.level }}
+                        </div>
+                      </div>
+                    </div>
+                  </div> -->
+      </div>
     </div>
 
     <!-- 技能或道具选择 -->
@@ -61,23 +103,23 @@
           <div class="pt-10 text-xl">宝箱或升级</div>
           <div class="absolute bottom-24 w-full pt-72 h-full">
             <!-- 战斗卡牌 -->
-            <div class="w-full h-full flex pointer-events-none">
+            <div class="w-full h-auto flex pointer-events-none">
               <div
-                class="relative w-full px-20 h-full gap-20 flex self-center mx-auto"
+                class="relative w-full px-20 h-auto grid grid-cols-4 gap-10 self-top mx-auto"
               >
                 <div
                   v-for="(item, i) in cardList"
                   :key="item"
                   :index="i"
-                  class="w-20 h-20 bg-red-300 text-gray-200 pointer-events-auto cursor-pointer"
+                  class="w-40 h-32 bg-red-300 text-gray-200 pointer-events-auto cursor-pointer"
                   @click="skill(item)"
                 >
                   <!-- class="w-1/3 bg-red-300 h-full text-gray-200 pointer-events-auto cursor-pointer" -->
 
+                  <!-- style="width: 220px; height: 298px" -->
                   <div class="flex flex-col h-full relative">
                     <div
                       class="relative mx-auto"
-                      style="width: 220px; height: 298px"
                     >
                       <img
                         class="w-full h-full"
@@ -87,9 +129,9 @@
                       />
                     </div>
                     <div class="w-full text-xl">
-                      {{ item.title }}
+                      {{ item.title }}{{ item.skillName }}
                     </div>
-                    <div class="px-4 absolute bottom-40 w-full">
+                    <div class="px-4 text-sm absolute bottom-4 w-full">
                       {{ item.describe }}
                     </div>
                   </div>
@@ -101,6 +143,8 @@
         </div>
       </div>
     </div>
+
+
   </div>
 </template>
 

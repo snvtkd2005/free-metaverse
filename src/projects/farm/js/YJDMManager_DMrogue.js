@@ -3,6 +3,7 @@
 
 
 import * as THREE from "three";
+import { GameRecord } from "../../../threeJS/common/gameRecord";
 import { RandomInt } from "../../../utils/utils";
 
 import { socket_bilibili } from "/@/utils/socket_bilibili.js";
@@ -66,7 +67,7 @@ import * as world_configs from "/@/utils/socket_bilibili/index.js";
 3个小怪，无技能
 
  */
-class YJDMManager_bilibili {
+class YJDMManager_DMrogue {
   constructor(indexVue, dmVue) {
     let scope = this;
 
@@ -90,7 +91,7 @@ class YJDMManager_bilibili {
       if (from) {
         target = from;
       } else {
-        target = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId("redboss").GetComponent("NPC");
+        // target = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId("redboss").GetComponent("NPC");
       }
 
       if (t == "冰霜新星") {
@@ -683,12 +684,12 @@ class YJDMManager_bilibili {
         }
         return;
       }
-      let redboss = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId(modelId);
-      redboss.ResetPosRota();
-      let npc = redboss.GetComponent("NPC");
-      if (npc.isDead) {
-        npc.Dync({ title: "重新生成" });
-      }
+      // let redboss = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId(modelId);
+      // redboss.ResetPosRota();
+      // let npc = redboss.GetComponent("NPC");
+      // if (npc.isDead) {
+      //   npc.Dync({ title: "重新生成" });
+      // }
     }
 
     function CheckNpcTarget(npcComponent) {
@@ -1040,10 +1041,9 @@ class YJDMManager_bilibili {
 
     let intervalList = []; //敌方npc生成位置
 
-    let loadModelPooling = 0;
+    let loadModelPooling = 0; //加载对象池中对象的次数
     function DuplicateModelNPC(modelId, state) {
-      let target = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId("redboss");
-      let targetCom = target.GetComponent("NPC");
+      let targetCom = null;
       let hasSelfNpc = false;
       for (let i = 0; i < selfNpcList.length; i++) {
         const npcComponent = selfNpcList[i].npc;
@@ -1055,21 +1055,20 @@ class YJDMManager_bilibili {
       if (hasSelfNpc) {
 
       } else {
-        if (targetCom.isDead) {
-          let a = [];
-          for (let i = 0; i < dmNpcList.length; i++) {
-            const npcComponent = dmNpcList[i].npc;
-            if (!npcComponent.isDead) {
-              a.push(i);
-            }
+        let a = [];
+        for (let i = 0; i < dmNpcList.length; i++) {
+          const npcComponent = dmNpcList[i].npc;
+          if (!npcComponent.isDead) {
+            a.push(i);
           }
-          if (a.length > 0) {
-            targetCom = dmNpcList[a[RandomInt(0, a.length - 1)]].npc;
-          }
+        }
+        if (a.length > 0) {
+          targetCom = dmNpcList[a[RandomInt(0, a.length - 1)]].npc;
         }
       }
       if (targetCom.isDead) {
         //全部死亡
+        console.error(" 检测到所有友方死亡 ");
         _Global.applyEvent("战斗结束", 10000);
         return;
       }
@@ -1145,6 +1144,7 @@ class YJDMManager_bilibili {
         }
         let npc = copy.GetComponent("NPC");
         npc.addEventListener("死亡", () => {
+          _GameRecord.addKill();
         });
         if (state) {
           let { uface, uname, msg } = state;
@@ -1190,7 +1190,6 @@ class YJDMManager_bilibili {
         let npc = copy.GetComponent("NPC");
         selfNpcList.push({ npcId, npc });
         npc.addEventListener("死亡", () => {
-
         });
         _Global._YJNPCManager.AddNpc(copy);
         if (_Global.inGame) {
@@ -1244,15 +1243,15 @@ class YJDMManager_bilibili {
           }
         }
 
-        let redboss = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId("redboss");
-        let npcComponent = redboss.GetComponent("NPC");
-        // console.log(" redboss.fireId = ",targetCom.fireId);
-        if (!npcComponent.isDead && npcComponent.fireId == -1 && npcs[0].fireId != -1) {
-          if (_Global.DyncManager.NPCAddFireGroup(npcComponent, null)) {
-            //并指定其目标为指定名称id的npc            
-            npcComponent.SetNpcTarget(npcs[0], true, true);
-          }
-        }
+        // let redboss = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId("redboss");
+        // let npcComponent = redboss.GetComponent("NPC");
+        // // console.log(" redboss.fireId = ",targetCom.fireId);
+        // if (!npcComponent.isDead && npcComponent.fireId == -1 && npcs[0].fireId != -1) {
+        //   if (_Global.DyncManager.NPCAddFireGroup(npcComponent, null)) {
+        //     //并指定其目标为指定名称id的npc            
+        //     npcComponent.SetNpcTarget(npcs[0], true, true);
+        //   }
+        // }
 
         // let gjs = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId("弓箭手1");
         // // let gjs = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId("战士");
@@ -1313,13 +1312,13 @@ class YJDMManager_bilibili {
             GenerateHot(["魔暴龙", "森林狼"], 10, 1, 5, () => {
 
               _Global.applyEvent("敌方攻势", 4);
-              GenerateHot(["魔暴龙", "森林狼"], 30, 0.5, 10, () => {
+              GenerateHot(["魔暴龙", "森林狼"], 10, 0.5, 10, () => {
 
                 _Global.applyEvent("敌方攻势", 5);
-                GenerateHot(["魔暴龙", "森林狼"], 40, 0.5, 10, () => {
+                GenerateHot(["魔暴龙", "森林狼"], 10, 0.5, 10, () => {
 
                   _Global.applyEvent("敌方攻势", 6);
-                  GenerateHot(["魔暴龙", "森林狼"], 50, 0.5);
+                  GenerateHot(["魔暴龙", "森林狼"], 20, 0.5);
                   GenerateHot(["boss"], 1, 1);
                   _Global.createCompleted = true;
                 });
@@ -1337,18 +1336,18 @@ class YJDMManager_bilibili {
 
             _Global.applyEvent("敌方攻势", 3);
             GenerateHot(["boss"], 1, 1);
-            GenerateHot(["魔暴龙", "森林狼"], 30, 1, 10, () => {
+            GenerateHot(["魔暴龙", "森林狼"], 15, 1, 10, () => {
 
               _Global.applyEvent("敌方攻势", 4);
               GenerateHot(["boss"], 3, 1);
-              GenerateHot(["魔暴龙", "森林狼"], 40, 0.5, 20, () => {
+              GenerateHot(["魔暴龙", "森林狼"], 20, 0.5, 20, () => {
 
                 _Global.applyEvent("敌方攻势", 5);
                 GenerateHot(["boss"], 3, 1);
-                GenerateHot(["魔暴龙", "森林狼"], 40, 0.5, 30, () => {
+                GenerateHot(["魔暴龙", "森林狼"], 20, 0.5, 30, () => {
 
                   _Global.applyEvent("敌方攻势", 6);
-                  GenerateHot(["魔暴龙", "森林狼"], 50, 0.5);
+                  GenerateHot(["魔暴龙", "森林狼"], 20, 0.5);
                   GenerateHot(["boss"], 3, 1);
                   _Global.createCompleted = true;
                 });
@@ -1413,18 +1412,43 @@ class YJDMManager_bilibili {
     }
 
 
-    function init() {
-      if (!_Global.setting.DMGame) {
+    function fire() {
+      let fromPos = _Global.YJ3D.YJController.GetPlayerWorldPos();
+
+      // 查找最近的敌人
+      let npc =  _Global._YJNPCManager.GetNoSameCampNPCInFireByNearestDis(fromPos,_Global.user.camp, 30);
+      if(npc==null){
         return;
       }
+      let npcTransform = npc.transform;
+      if (npcTransform) {
+        _Global.YJ3D.YJController.GetPlayerFireCtrl().SetInteractiveNPC(npcTransform);
+      } else {
+        // _Global.YJ3D.YJController.GetPlayerFireCtrl().shootTargetPos(tagetPos.clone(), "time");
+      }
+      return; 
+    }
+    function autoFire(){
+      setInterval(() => { 
+        if(_Global.YJ3D.YJController.isInDead()){
+          return;
+        } 
+        if (_Global.pausegame) {return;}
+        if (!_Global.inGame) {
+          if( _Global.YJ3D.YJController.GetPlayerFireCtrl().GetTarget()){
+            _Global.YJ3D.YJController.GetPlayerFireCtrl().SetInteractiveNPC(null);
+          } 
+          return;
+        }
 
-      // indexVue.panel3dStyle = `
-      // position: absolute; 
-      // left:256px;
-      // top:0px;
-      // width:${window.innerWidth - 256 - 256}px;
-      // height:100%;
-      // `
+        fire();
+      }, 500);
+    } 
+    let _GameRecord = null;
+    function init() {
+ 
+
+      console.error(" in DMRogue");
       _Global.DMManager = scope;
       posRefList = _Global.YJ3D._YJSceneManager.GetPosRefList();
       setInterval(() => {
@@ -1435,9 +1459,21 @@ class YJDMManager_bilibili {
         _Global._YJNPCManager.GetNpcComponentById(npcId).LogFire();
       })
 
+      _Global.YJ3D.YJController.GetPlayerFireCtrl().GetEquip().initWeapon({assetId: 1692787200597});
+
+      _Global.addEventListener('升级',()=>{ 
+
+      });
+      _Global.addEventListener('经验值',(c,v)=>{ 
+
+      });
+
+      autoFire();
+      _GameRecord = new GameRecord();
       // _Global.LogFireById(1711340121297)
 
       _Global.addEventListener("战斗结束", (msg) => {
+
         if (msg) {
           if (msg == 10000) {
             // gameLevel = 1;
@@ -1451,12 +1487,12 @@ class YJDMManager_bilibili {
 
         if (msg == 1000) {
           // 人类获胜
-          let redboss = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId("redboss");
-          let redbossNpc = redboss.GetComponent("NPC");
-          if (!redbossNpc.isDead) {
-            redbossNpc.Dync({ title: "加生命", value: 200 });
-          }
-          redbossNpc.fireOff();
+          // let redboss = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId("redboss");
+          // let redbossNpc = redboss.GetComponent("NPC");
+          // if (!redbossNpc.isDead) {
+          //   redbossNpc.Dync({ title: "加生命", value: 200 });
+          // }
+          // redbossNpc.fireOff();
           // 消耗热度先治疗其他弹幕玩家
           for (let i = DMPlayer.length - 1; i >= 0; i--) {
             const element = DMPlayer[i];
@@ -1479,6 +1515,7 @@ class YJDMManager_bilibili {
         }
 
 
+        _GameRecord.resetKill();
 
         // _Global.DyncManager.ClearFire();
         for (let i = DMPlayer.length - 1; i >= 0; i--) {
@@ -1545,7 +1582,7 @@ class YJDMManager_bilibili {
             }
           }
           // 主角色死亡也重新生成 
-          resetLifeById("redboss");
+          // resetLifeById("redboss");
 
         }, 10000);
 
@@ -1725,23 +1762,24 @@ class YJDMManager_bilibili {
 
       });
 
+
       _Global.addEventListener("战斗开始", () => {
         _Global.createCompleted = false;
 
 
-        let redboss = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId("redboss");
-        let redbossNpc = redboss.GetComponent("NPC");
+        // let redboss = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId("redboss");
+        // let redbossNpc = redboss.GetComponent("NPC");
 
-        redbossNpc.canMove = false;
-        redbossNpc.deadedHidden = false;
-        redbossNpc.canLevelUp = true;
-        for (let i = 0; i < hostileNpcList.length; i++) {
-          const element = hostileNpcList[i].transform;
-          let npc = element.GetComponent("NPC");
-          if (element.GetActive() && !npc.isDead) {
-            npc.SetNpcTarget(redbossNpc, true, true);
-          }
-        }
+        // redbossNpc.canMove = false;
+        // redbossNpc.deadedHidden = false;
+        // redbossNpc.canLevelUp = true;
+        // for (let i = 0; i < hostileNpcList.length; i++) {
+        //   const element = hostileNpcList[i].transform;
+        //   let npc = element.GetComponent("NPC");
+        //   if (element.GetActive() && !npc.isDead) {
+        //     npc.SetNpcTarget(redbossNpc, true, true);
+        //   }
+        // }
 
 
         // setTimeout(() => {
@@ -1853,4 +1891,4 @@ class YJDMManager_bilibili {
   }
 }
 
-export { YJDMManager_bilibili };
+export { YJDMManager_DMrogue };

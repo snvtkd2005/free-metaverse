@@ -3113,6 +3113,17 @@ class YJController {
     function SetWalkWeight(f) {
       animWeight = f;
       _YJPlayer.SetWalkWeight(animWeight);
+    } 
+    
+    this.SetMoveSpeed = function (f) {
+      if(_YJAmmo){
+        _YJAmmo.SetMoveSpeed(f);
+      }
+    }
+    this.addMoveSpeed = function (f) { 
+      if(_YJAmmo){
+        _YJAmmo.addMoveSpeed(f);
+      }
     }
     function LerpMovePlayer() {
       if (b_lerpMovePlayer) {
@@ -3206,24 +3217,12 @@ class YJController {
       moveRight = false;
       _YJAmmo.CancelMoving();
     }
-    var animName = "idle";
-
-
     function Jump() {
       if (!canMoving || jump) { return; }
-
       CancelOnlyRotaView();
-
       jump = true;
       scope.SetPlayerState("跳跃");
       userData.onlySetAnim = false;
-
-      // setTimeout(() => {
-      //   animName = "floating";
-      // }, 1000);
-      // if (playerState != PLAYERSTATE.NORMAL) {
-      //   playerState = PLAYERSTATE.NORMAL;
-      // }
     }
     this.setJumpToFalse = () => {
       if (jump) {
@@ -3539,7 +3538,7 @@ class YJController {
 
     //#region  角色同步数据，为同步传出数据：角色的坐标、旋转、皮肤、动作
 
-
+    var animName = "idle";
     var userData = {
       rotateY: 0,
       animName: 'idle',
@@ -3742,9 +3741,7 @@ class YJController {
     this.SetPlayerAnimName = function (_animName, animNameFullback) {
       animName = _animName;
       // console.error("切换动画 ", animName);
-      _YJPlayer.ChangeAnim(animName, animNameFullback);
-      // _YJPlayer.ChangeAnimDirect(animName, animNameFullback);
-
+      _YJPlayer.ChangeAnim(animName, animNameFullback); 
     }
     this.ChangeAnimDirect = function (_animName) {
       animName = _animName;
@@ -3796,24 +3793,6 @@ class YJController {
       if (playerState == PLAYERSTATE.INTERACTIVE) {
         return;
       }
-
-      // switch (e) { 
-      //   case "normal": 
-      //     animName = "idle"; 
-      //     break; 
-      //   case "跳跃":  
-      //     animName = "jump"; 
-      //     break;
-      //   case "移动":
-      //     animName = "run"; 
-      //     break;
-      //   case "停止移动":
-      //     animName = "idle"; 
-      //     break; 
-      //   default:
-      //     break;
-      // }
-      // _YJPlayer.ChangeAnim(animName);
 
       _YJPlayerFireCtrl.OnPlayerState({
         title: "fire",
@@ -3918,13 +3897,6 @@ class YJController {
             // 插值旋转角色朝向
             lerpRotaPlayer();
 
-            // if (inRun) {
-            //   animName = "run";
-            // } else {
-            //   // animName = "walk";
-            //   animName = "run";
-            // }
-
             inMoving = true;
             scope.SetPlayerState("移动");
             userData.onlySetAnim = false;
@@ -3944,9 +3916,7 @@ class YJController {
             }
             rotaViewDoonce = 0;
           }
-        }
-        // _YJPlayer.ChangeAnim(animName);
-        // console.log("animName = " + animName,inRun,playerState);
+        } 
 
         if (contrlState != CONTRLSTATE.MOUSE && !inKeyboardOrJoystick) {
 

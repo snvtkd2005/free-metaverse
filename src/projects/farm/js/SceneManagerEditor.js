@@ -278,9 +278,8 @@ class SceneManager {
 
       });
 
-
-      if (_Global.setting.inEditor) {
-        
+ 
+      if (_Global.setting.inEditor && _Global.gameType == "Roguelike") {
         let _YJController_roguelike = new YJController_roguelike();
         _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(_YJController_roguelike);
         return;

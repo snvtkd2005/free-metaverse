@@ -67,7 +67,7 @@ export default {
 
     Add(type, value) {
       this.textList.push({ type: type, value: value, pos: { x: 464, y: 50 }, opacity: 1, time: 0 });
-      console.log(" ", this.textList[this.textList.length - 1]);
+      // console.log(" ", this.textList[this.textList.length - 1]);
     },
     SetState(e, v) {
       this.last = performance.now();

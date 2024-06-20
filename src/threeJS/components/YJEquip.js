@@ -7,6 +7,91 @@ import * as THREE from "three";
 class YJEquip {
     constructor(scope) {
 
+
+        //#region 玩家装备
+        this.initWeapon = function(weapon){
+          console.error( " in 玩家装备 ",weapon);
+          let path = _Global.YJ3D.$uploadUrl + weapon.assetId + "/" + "data.txt" + "?time=" + new Date().getTime();
+    
+          _Global.YJ3D._YJSceneManager.LoadAssset(path,(data)=>{
+            console.log(path,data);
+            
+            data.pos = { x: 0, y: 0, z: 0 };
+            data.rotaV3 = { x: 0, y: 0, z: 0 };
+            data.scale = { x: 1, y: 1, z: 1 };
+            
+            let YJController = _Global.YJ3D.YJController;
+            let YJPlayer = _Global.YJ3D.YJPlayer;
+            _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().LoadStaticModel2(data, (transform) => {
+              console.log(transform);
+              let owner = transform;
+              let msg = owner.GetMessage();
+              if (msg.pointType == "weapon") { 
+                let state = YJController.GetUserDataItem("weaponData");
+                console.log(" 碰到武器 ", msg.data, state);
+                // 判断角色是否可以拾取武器
+                if (state != null && state.weaponId != "") {
+                  return;
+                } 
+      
+                let { boneName, weaponType
+                  , position
+                  , rotation } = msg.data;
+                YJController.SetUserDataItem("weaponData", msg.data);
+                YJController.SetUserDataItem("weaponData", "weaponId", owner.GetData().folderBase);
+                YJController.SetUserDataItem("weaponData", "transId", owner.id);
+                YJController.SetUserDataItem("weaponDataData", {});
+                YJController.SetUserDataItem("weaponDataData", owner.GetData());
+                let realyBoneName = boneName;
+                let boneList = YJPlayer.GetavatarData().boneList;
+                if (boneList) {
+                  for (let i = 0; i < boneList.length; i++) {
+                    const item = boneList[i];
+                    if (item.targetBone == boneName) {
+                      realyBoneName = item.boneName;
+                    }
+                  }
+                }
+                let realyPos = [0, 0, 0];
+                let realyRota = [0, 0, 0];
+                let realyScale = [1, 1, 1];
+                let refBoneList = YJPlayer.GetavatarData().equipPosList;
+                if (refBoneList) {
+                  for (let i = 0; i < refBoneList.length; i++) {
+                    const item = refBoneList[i];
+                    if (item.targetBone == boneName && item.weaponType == weaponType) {
+                      realyPos = item.position ? item.position : realyPos;
+                      realyRota = item.rotation ? item.rotation : realyRota;
+                      realyScale = item.scale ? item.scale : realyScale;
+                    }
+                  }
+                }
+      
+                // 碰到武器就拾取
+                YJPlayer.GetBoneVague(realyBoneName, (bone) => {
+                  let weaponModel = owner.GetGroup(); 
+                  bone.add(weaponModel);
+                  YJPlayer.addWeaponModel(weaponModel); 
+      
+                  let pos = realyPos;
+                  let rotaV3 = realyRota;
+                  let scale = realyScale;
+                  weaponModel.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
+                  weaponModel.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
+                  weaponModel.scale.set(100 * scale[0], 100 * scale[1], 100 * scale[2]);
+      
+                  // 绑定到骨骼后，清除trigger
+                  owner.GetComponent("Weapon").DestroyTrigger();
+       
+                });
+              }
+            });
+          });
+        }
+        //#endregion
+
+
+
         this.getWeaponModel = function () {
             return weaponModel;
         }

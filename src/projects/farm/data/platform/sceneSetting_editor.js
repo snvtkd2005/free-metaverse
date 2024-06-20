@@ -6,22 +6,22 @@ export default {
   // 房间名，用房间名来区分多个项目的同步
   roomName: "3dfarm",
   platform: "pcweb",
-  isMobile:false,
-  hasEditored:true,
-  user:{
-    camp:1000,
+  isMobile: false,
+  hasEditored: true,
+  user: {
+    camp: 1000,
   },
   // 界面设置
   setting: {
-    
+
     // 是否始终强制横屏
-    onlyLandscape:true,
-    
+    onlyLandscape: true,
+
     // 是否多人模式
-    multiGame:true,
+    multiGame: true,
 
     // 是否应用辉光效果
-    useBloom:false,
+    useBloom: false,
     // useBloom:true,
     // 资源路径，资源的文件夹包裹。由此来区分不同的项目内容
     localPath: "farm/",
@@ -49,20 +49,23 @@ export default {
     // 键盘Q键 第一人称视角和第三人称视角切换
     keyQ: false,
     // 键盘M键 打开小地图
-    keyM:false,
+    keyM: false,
     // 是否启用鼠标滚轮推进拉远摄像机
     canMouseWheel: true,
     // 键盘G键 是否允许开关重力.
     canEnableGravity: true,
 
     // 是否开启滑动阻尼 
-    canDampingRota:false,
+    canDampingRota: false,
 
 
     // 是否有天空球
     hasEnvmap: false,
     // 天空球全景图路径
     envmapPath: "016.hdr",
+
+    hasSceneHDR: false,
+    envSceneHDRPath: "020.hdr",
 
     // 是否启用摄像机遮挡时拉近摄像机功能
     hasCamRaycast: false,
@@ -81,15 +84,15 @@ export default {
     hasAerialView: false,
 
     //是否开始时锁定到鸟瞰位置
-    isLockStartAerial:false,
+    isLockStartAerial: false,
 
     // 是否第一人称视角
-    firstPerson :false,
-    
+    firstPerson: false,
+
     // 是否有角色
-    hasAvatar:true,
+    hasAvatar: true,
     // 是否有界面
-    hasHUD:true,
+    hasHUD: true,
 
     // 操作方式。 0 键鼠控制/遥感控制，1 鼠标点击地面 
     contrlState: 0,
@@ -101,17 +104,17 @@ export default {
     // cameraOffset: { x: 0, y: 10, z: -14 },
 
     // 配置渲染模式/渲染效果
-    render:{
-      outputEncoding:"sRGBEncoding",
+    render: {
+      outputEncoding: "sRGBEncoding",
     },
 
-    speedData:{
+    speedData: {
       // 刚体初始移动速度
       moveSpeed: 5,
       // 行走速度
-      walkSpeed:5,
+      walkSpeed: 5,
       // 按住左shift加速，奔跑速度
-      runSpeed:8,
+      runSpeed: 8,
       // 刚体移动最大速度
       minSpeed: 1.5,
       // 刚体移动最小速度
@@ -127,22 +130,22 @@ export default {
     targetRota: { x: -1.56, y: 1.3 },
 
 
-    playerPos:{ x: 0, y: 0,z:5 },
-    playerRotaV3: { x: 0, y:3.14, z: 0 },
+    playerPos: { x: 0, y: 0, z: 5 },
+    playerRotaV3: { x: 0, y: 3.14, z: 0 },
     // 玩家刚体高度
     playerHeight: 1.7,
     // 摄像机目标父物体，在刚体中心位置的Y轴偏移量。该值决定摄像机高度
     camOffsetY: 0.0,
     // 摄像机视野
-    cameraFov:60,
+    cameraFov: 60,
 
     //是否有寻路网格
-    hasPathfinding:false,
+    hasPathfinding: false,
 
     // 重力开关
-    enabledGravity:false,
+    enabledGravity: false,
     // 玩家刚体半径
-    playerRadius:0.2,
+    playerRadius: 0.2,
   },
 
   // 辉光数据
@@ -157,10 +160,18 @@ export default {
   },
 
   // 阴影数据
-  shadowData:{
+  shadowData: {
     // 分辨率
-    resource:256,
+    resource: 256,
   },
+
+
+  // 是否有地面碰撞
+  hasFloor: true,
+  // 地面尺寸
+  floorSize: { x: 10, y: 10 },
+  // 所在开放世界坐标
+  metaWorldCoordinate: [],
   // 小地图数据
   minMapData: {
     // 小地图图片路径
@@ -171,37 +182,37 @@ export default {
     minMapOffset: { x: 160, y: 100 },
     minMapScale: { x: 2.56, y: 2.08 },
     // 小地图在界面中的位置
-    minMapPlanePos: { x:-0, y: -0.45, z: -1 },
-    minMapPlaneMobilePos: { x:0, y: -0.43, z: -1 },
+    minMapPlanePos: { x: -0, y: -0.45, z: -1 },
+    minMapPlaneMobilePos: { x: 0, y: -0.43, z: -1 },
   },
 
   // 环境光和方向光参数
   AmbientLightData: {
     //环境光 纯白颜色、强度
-    ambientColor:0x666666,
+    ambientColor: 0x666666,
     // ambientColor:0xffffff,
     AmbientLightIntensity: 1,
-    hasAmbientLight:false,
+    hasAmbientLight: false,
 
 
     // 方向光坐标和强度
-    hasDirectionalLight:false,
+    hasDirectionalLight: false,
     // DirectionalLightPos: { x: 255, y: 30, z: -115 },
     DirectionalLightPos: { x: 0, y: 30, z: 0 },
     DirectionalLightIntensity: 1,
 
-    hasFog:false,
-    fogColor:0xA7D0FF,
-    fogNear: 30, 
-    fogFar:300,
-    backgroundColor:0xA7D0FF,
+    hasFog: false,
+    fogColor: 0xA7D0FF,
+    fogNear: 30,
+    fogFar: 300,
+    backgroundColor: 0xA7D0FF,
 
   },
-  
+
   // 场景txt路径
   // sceneTexPath: "models/Scene/scene.txt",
- 
-  modelPath:'models/Scene/',
+
+  modelPath: 'models/Scene/',
   // 场景txt路径
   sceneTexPath: "scene.txt",
   npcTexPath: "npc.json",

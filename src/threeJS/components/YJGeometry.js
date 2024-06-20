@@ -32,14 +32,14 @@ class YJGeometry {
         transparent: true,
         // opacity: 0.5,
         color: 0xffffff,
-        wireframe:true,
+        wireframe: false,
       });
       switch (data.geometryType) {
         case "box":
           geo = new THREE.BoxGeometry(1, 1, 1); // 生成平面
           break;
         case "plane":
-          geo = new THREE.PlaneGeometry(10, 10, 100,100); // 生成平面
+          geo = new THREE.PlaneGeometry(10, 10, 100, 100); // 生成平面
           break;
         default:
           break;
@@ -88,9 +88,9 @@ class YJGeometry {
       if (!_Global.setting.inEditor) {
         mesh.visible = false;
       }
-      if(data.isMesh){
+      if (data.isMesh) {
         mesh.visible = true;
-        mesh.receiveShadow = true;
+        mesh.receiveShadow = true; 
       }
     }
     this.Reset = function () {

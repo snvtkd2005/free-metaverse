@@ -239,7 +239,7 @@ class YJSceneManager {
     }
     function InitSingleSceneFn() {
       console.log("初始化 单品  ");
-      CreateGrid();
+      CreateGrid(100,10);
 
 
 
@@ -507,6 +507,7 @@ class YJSceneManager {
 
     // 初始化创建地图 和 设置角色位置
     function CreateSingleScene() {
+      CreateGrid(100,20,0.1);
 
 
       console.log(" 初始化创建地图 和 设置角色位置 CreateSingleScene ",setting);
@@ -619,13 +620,14 @@ class YJSceneManager {
     }
 
     let gridHelper = null;
-    function CreateGrid() {
+    function CreateGrid(size,divisions,y) {
       // return;
-      const size = 100;
-      const divisions = 10;
+      // const size = 100;
+      // const divisions = 10;
 
       gridHelper = new THREE.GridHelper(size, divisions);
       scene.add(gridHelper); 
+      gridHelper.position.set(0,y,0);
     }
 
     // 通过模型uuid查找到模型
@@ -726,7 +728,7 @@ class YJSceneManager {
 
         if (sceneData.hasFloor == undefined || sceneData.hasFloor) {
           CreateFloor();
-          CreateGrid();
+          CreateGrid(100,10);
 
         } else {
 
@@ -3373,7 +3375,9 @@ class YJSceneManager {
 
     //实时刷新
     this.update = function () {
-
+      if(_Global.pausegame){
+        return;
+      }
       // return;
       updatelookatList();
       // UpdateProjectionUI();

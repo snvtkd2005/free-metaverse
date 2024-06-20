@@ -5,8 +5,39 @@ import { SaveImgGetFileName, SaveTxtGetFileName, SaveFileOSSAPI, DelFileAPI } fr
 //   return parseInt(Math.random() * (maxNum - minNum + 1) + minNum, 10);
 // }
 
+// 数字转时分秒
+export const toTime = (num) => {
+  let str = "";
+  if (num < 60) {
+    str = "00:" + toTen(num);
+  }
+  if (num >= 60 && num < 3600) {
+    let m = parseInt(num / 60);
+    let s = num % 60;
+    str = toTen(m) + ":" + toTen(s);
+  }
+  if (num > 3600) {
+    let h = parseInt(num / 3600);
+    let hy = num % 3600;
+    let m = parseInt(hy / 60);
+    let s = hy % 60;
+    str = (h) + ":" + toTen(m) + ":" + toTen(s);
+  }
+  return str;
+}
+export const toTen = (num) => {
+  let str = "";
+  if (num < 10) {
+    str = "0" + num;
+  }
+  if (num >= 10 && num < 60) {
+    str = num;
+  }
+  return str;
+}
+
 export const RandomInt = (min, max) => {
-  if(min == max){return min;}
+  if (min == max) { return min; }
   return min + Math.floor(Math.random() * (max - min + 1));
 }
 

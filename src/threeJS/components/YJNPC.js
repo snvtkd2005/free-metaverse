@@ -4,6 +4,7 @@ import { createText } from 'three/examples/jsm/webxr/Text2D.js';
 import { YJPlayerNameTrans } from "../YJPlayerNameTrans";
 import { YJEquip } from "./YJEquip";
 import { YJSkill } from "./YJSkill";
+import { YJPlayerProperty } from './YJPlayerProperty';
 
 import { YJshader_dissolve } from "/@/threeJS/loader/YJshader_dissolve";
 
@@ -51,6 +52,10 @@ class YJNPC {
     // 攻击速度，攻击间隔，判定有效的攻击时机
     let attackStepSpeed = 3; //攻击间隔/攻击速度
 
+		let attackProperty = {}; 
+		this.updateattackProperty = function (_attackProperty) {
+			attackProperty = _attackProperty;
+		}
     const stateType = {
       Normal: 'normal',//正常状态， 待机/巡逻
       Back: 'back',//失去战斗焦点后回到初始状态 
@@ -74,13 +79,14 @@ class YJNPC {
       health: 100, //生命值
       maxHealth: 100, //生命值
       strength: 20, //攻击力
-      armor: 0,
+      armor: 10,
       fireId: -1, //战斗组id  -1表示未在战斗中
     }
 
     let _YJPlayerNameTrans = null;
     let _YJEquip = null;
     let _YJSkill = null;
+		let _YJPlayerProperty = null;
     //#region  固定
     function Init() {
       group = new THREE.Group();
@@ -93,8 +99,6 @@ class YJNPC {
       oldMovePos = playerPosition.clone();
       group.rotation.y += Math.PI;
 
-      _YJEquip = new YJEquip(scope);
-      _YJSkill = new YJSkill(scope);
       // group.add(new THREE.AxesHelper(5)); // 场景添加坐标轴
       // return;
       // update();
@@ -659,6 +663,15 @@ class YJNPC {
       if (data.skillList == undefined) {
         data.skillList = [];
       }
+      
+      
+      _YJEquip = new YJEquip(scope);
+      _YJSkill = new YJSkill(scope);
+      
+			if (_YJPlayerProperty == null) {
+				_YJPlayerProperty = new YJPlayerProperty(scope);
+			}
+
       skillList = data.skillList;
       _YJSkill.SetSkill(skillList, baseData);
       // console.log(scope.GetNickName() + " 技能 ", skillList);
@@ -695,6 +708,7 @@ class YJNPC {
         skillList = [];
         ClearFireLater();
       }
+
     }
 
     this.ChangeEquip = function (type, data) {
@@ -1192,21 +1206,25 @@ class YJNPC {
       // 伤害显示在屏幕上
       let pos = scope.GetWorldPos().clone();
       pos.y += playerHeight * nameScale;
-      let v = 0;
-      if (strength == 0) {
-        return v;
-      }
-      if (baseData.armor >= strength) {
-        baseData.armor -= strength;
-        _Global._SceneManager.UpdateNpcDamageValue(from, scope.npcName,scope.id, scope.GetCamp(), "吸收", pos, "redius");
-        return 0;
-      } else {
-        // 至少会受到1点伤害
-        v = strength - baseData.armor;
-        baseData.armor = 0;
-        scope.applyEvent("技能护甲归零");
-        v = v > 0 ? v : 1;
-      }
+
+
+      let v = _YJPlayerProperty.RealyDamage(strength)
+      // let v = 0;
+      // if (strength == 0) {
+      //   return v;
+      // }
+      // if (baseData.armor >= strength) {
+      //   baseData.armor -= strength;
+      //   _Global._SceneManager.UpdateNpcDamageValue(from, scope.npcName,scope.id, scope.GetCamp(), "吸收", pos, "redius");
+      //   return 0;
+      // } else {
+      //   // 至少会受到1点伤害
+      //   v = strength - baseData.armor;
+      //   baseData.armor = 0;
+      //   scope.applyEvent("技能护甲归零");
+      //   v = v > 0 ? v : 1;
+      // }
+
       _Global._SceneManager.UpdateNpcDamageValue(from, scope.npcName,scope.id, scope.GetCamp(), v, pos, "redius");
 
       return v;

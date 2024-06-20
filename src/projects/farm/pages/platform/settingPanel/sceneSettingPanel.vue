@@ -195,6 +195,7 @@ export default {
         {
           property: "setting-gameType", display: true, title: "游戏类型", type: "drop", value: 'WOW', options: [
             { value: 'Roguelike', label: '肉鸽' },
+            { value: 'DMRoguelike', label: '弹幕肉鸽' },
             { value: 'DMGame', label: '塔防' },
             { value: 'MMD', label: '数字人' }, 
             { value: 'WOW', label: 'MMORPG' }, 

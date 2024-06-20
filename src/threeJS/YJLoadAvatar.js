@@ -622,6 +622,9 @@ class YJLoadAvatar {
             currentAction = element.action;
             currentTime = 0;
             currentDuration = currentAction._clip.duration;
+            oldAnimName = animName;
+            // console.error("切换动画 2 ", animName);
+            oldBlendAnim = "";
           }
         }
       }
@@ -659,8 +662,6 @@ class YJLoadAvatar {
     function ChangeAnimDirectFn(animName) {
       if (!loadCompleted) { return; }
       if (oldAnimName == animName) { return; }
-      oldAnimName = animName;
-      oldBlendAnim = "";
       activateAllActions(animName);
     }
     let walkAction;
@@ -698,6 +699,9 @@ class YJLoadAvatar {
           }
         }
       });
+      if(parentBone == null ){
+        return null;
+      }
       let boneNode = [];
       LoopFindChild2(parentBone, boneNode);
       return boneNode;
@@ -712,8 +716,12 @@ class YJLoadAvatar {
     }
     // 动作混合
     let oldBlendAnim = "";
+    let canBlendAmin  = false; 
     //animName上半身 ， animName0 下半身
     this.layerBlendPerbone = function (animName, animName0, loop, loop0) {
+      if(!canBlendAmin){
+        return false;
+      }
       if (oldBlendAnim == animName + animName0) {
         return;
       }
@@ -740,21 +748,23 @@ class YJLoadAvatar {
           action1 = element.action;
         }
       }
-      if (action0 == null) {
-        scope.ChangeAnim(animName);
+      if (action0 == null) { 
+        scope.ChangeAnim(animName); 
         return null;
       }
-      if (action1 == null) {
-        scope.ChangeAnim(animName0);
+      if (action1 == null) { 
+        scope.ChangeAnim(animName0); 
         return null;
       }
       oldBlendAnim = animName + animName0;
-      oldAnimName = "";
 
       //获取上下半身的骨骼
       // let allBone = scope.transform.GetComponent("MeshRenderer").GetAllBone(); 
       let mixamorigSpine, mixamorigLeftUpLeg, mixamorigRightUpLeg;
       mixamorigSpine = scope.GetAllBoneInParent("mixamorigSpine");
+      if(mixamorigSpine == null){
+        return false;
+      }
       mixamorigLeftUpLeg = scope.GetAllBoneInParent("mixamorigLeftUpLeg");
       mixamorigLeftUpLeg.push("mixamorigHips");
       mixamorigRightUpLeg = scope.GetAllBoneInParent("mixamorigRightUpLeg");
@@ -809,7 +819,8 @@ class YJLoadAvatar {
         , isLoop: loop0
       });
       activateAllActions2(animName + animName0 + "_" + animName, animName + animName0 + "_" + animName0);
-
+      oldAnimName = "";
+      return true;
     }
     let eventList = [];
     // 添加事件监听

@@ -7,7 +7,7 @@ import { YJParabola } from "/@/threeJS/YJParabola.js";
 
 import { YJSkillParticleManager } from "./YJSkillParticleManager.js";
 
-import { YJNPCManager } from "/@/threeJS/YJNPCManager.js";
+import { YJNPCManager } from "/@/threeJS/YJNPCManager.js"; 
 import { YJController_roguelike } from "/@/threeJS/YJController_roguelike.js";
 
 // 场景同步数据
@@ -66,9 +66,10 @@ class YJSceneDyncManagerEditor {
 
 
       new YJNPCManager();
-
-      let _YJController_roguelike = new YJController_roguelike();
-      _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(_YJController_roguelike);
+      if(_Global.gameType == "Roguelike" ){
+        let _YJController_roguelike = new YJController_roguelike();
+        _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(_YJController_roguelike);
+      }
 
       if (_Global.setting.inEditor) {
         _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().AllNpcTransformNav();
@@ -580,6 +581,7 @@ class YJSceneDyncManagerEditor {
       if (!_Global.createCompleted) {
         return false;
       }
+      console.error(" 战斗双方只剩一方 ");
       _Global.applyEvent("战斗结束", camp);
     }
     this.ClearFire = function () {

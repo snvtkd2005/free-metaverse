@@ -2057,7 +2057,7 @@ class YJAmmo {
     let minSpeed = 1.5;
     let maxSpeed = 5;
     var moveSpeed = minSpeed;
-    let walkSpeed = 5;
+    let walkSpeed = 5; 
     var runSpeed = 10;
     let jumpTime = 0;
 
@@ -2073,6 +2073,12 @@ class YJAmmo {
         moveSpeed = f;
       }
     }
+    this.addMoveSpeed = function (f) { 
+      if (enableGravity) {
+        moveSpeed = walkSpeed * f;
+      }
+    }
+    
     this.SetSpeedData = function (speedData) {
       moveSpeed = speedData.moveSpeed;
 

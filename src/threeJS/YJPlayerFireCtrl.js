@@ -273,7 +273,7 @@ class YJPlayerFireCtrl {
 				let fn = () => {
 					_this.YJController.SetPlayerAnimName(animName);
 
-					SendSkill(effect);
+					SendSkill(effect,skillItem);
 					setTimeout(() => {
 						scope.SetPlayerState("normal");
 					}, 500);
@@ -319,7 +319,7 @@ class YJPlayerFireCtrl {
 			return modelData;
 		}
 		// 施放不需要目标的技能 如 增生
-		function SendSkill(effect) {
+		function SendSkill(effect,skillItem) {
 			let { type, skillName, value, time, duration, describe } = effect;
 			//增生
 			// if (type == "hyperplasia") {
@@ -339,7 +339,7 @@ class YJPlayerFireCtrl {
 			// 		}
 			// 	}
 			// }
-			_YJSkill.SendSkill(effect);
+			_YJSkill.SendSkill(effect,skillItem);
 			// 发送战斗记录
 			_Global.DyncManager.SendFireRecode(
 				{

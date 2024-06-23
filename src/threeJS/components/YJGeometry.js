@@ -31,7 +31,8 @@ class YJGeometry {
         alphaTest: true,
         transparent: true,
         // opacity: 0.5,
-        color: 0xffffff,
+        color: 0x666666,
+        // color: 0xffffff,
         wireframe: false,
       });
       switch (data.geometryType) {

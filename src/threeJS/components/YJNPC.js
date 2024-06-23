@@ -1319,7 +1319,7 @@ class YJNPC {
         this.SetNpcTarget(_Global.DyncManager.GetPlayerById(_targetModelId), true, true);
       } else {
       }
-
+      if (targetModel == null){return;}
       fromName = targetModel.GetNickName();
 
       CombatLog("玩家 [" + fromName + "] " + " 攻击 " + GetNickName() + " 造成 " + value + " 点伤害 ");

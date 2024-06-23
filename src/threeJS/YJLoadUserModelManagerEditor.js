@@ -568,6 +568,17 @@ class YJLoadUserModelManager {
     }
 
 
+    this.LoadSkillGroup = function(folderBase,callback){
+      let modelData = {
+        folderBase:folderBase,
+        modelType:"组合",
+        pos:{x:0,y:0,z:0},
+        rotaV3:{x:0,y:0,z:0},
+        scale:{x:1,y:1,z:1}, 
+      }
+      this.LoadStaticModel2(modelData,callback);
+    }
+
     // 场景中加载组合
     async function CreateGroup(tranform, folderBase) {
 

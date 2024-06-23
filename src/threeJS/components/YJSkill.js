@@ -21,7 +21,7 @@ class YJSkill {
             });
 
             owner.addEventListener("技能护甲归零", () => {
-                ReceiveSkill("寒冰护体", "off");
+                RemoveSkill("寒冰护体");
             });
 
             owner.addEventListener("healthChange", () => {
@@ -67,7 +67,7 @@ class YJSkill {
         this.AddSkill = function (_skill) {
             for (let i = 0; i < skillList.length; i++) {
                 const skill = skillList[i];
-                if (skill.skillName == _skill.skillName) { 
+                if (skill.skillName == _skill.skillName) {
                     return;
                 }
             }
@@ -105,18 +105,18 @@ class YJSkill {
         this.ReceiveControl = function (_targetModel, skillName, effect) {
             ReceiveControl(_targetModel, skillName, effect);
         }
-        function ReceiveControl(_targetModel, skillName, effect) {
+        function ReceiveControl(_targetModel, skillName, effect, skillItem) {
             let { type, value, time, duration, describe, icon, fromName } = effect;
             if (type == "control") {
                 //冻结8秒
-                ReceiveSkill("冰霜新星", "on");
+                ReceiveSkill(effect, skillItem);
                 owner.SetPlayerState("停止移动");
 
                 if (controlFnLater != null) {
                     clearTimeout(controlFnLater);
                 }
                 controlFnLater = setTimeout(() => {
-                    ReceiveSkill("冰霜新星", "off");
+                    RemoveSkill(effect.controlId);
 
                     _Global.DyncManager.SendDataToServer("解除技能",
                         { npcId: owner.id, skill: effect });
@@ -127,11 +127,8 @@ class YJSkill {
                 return;
             }
             if (type == "shield") {
-                if (effect.controlId == "寒冰护体") {
-                    baseData.shield = value;
-                    if (ReceiveSkill("寒冰护体", "on")) {
-                    }
-                }
+                baseData.shield = value;
+                ReceiveSkill(effect, skillItem);
                 return;
             }
 
@@ -150,57 +147,66 @@ class YJSkill {
             }
             return false;
         }
-        function ReceiveSkill(skillName, state) {
+        function RemoveSkill(skillName) {
 
             if (skillName == "冰霜新星") {
-                if (state == "on") {
-                    owner.inControl = true;
-                    if (HasControlModel(skillName)) {
-                        return false;
-                    }
-                    _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().CopyModel("冰霜新星模型", (model) => {
-                        model.SetPos(owner.GetWorldPos());
-                        let nameScale = owner.GetScale();
-                        model.AddScale(new THREE.Vector3(nameScale, nameScale, nameScale));
-                        model.SetActive(true);
-                        AddControlModel(skillName, model);
-                    });
+                owner.inControl = false;
+                for (let i = controlModels.length - 1; i >= 0; i--) {
+                    const item = controlModels[i];
+                    item.modelTransform.Destroy();
+                    controlModels.splice(i, 1);
                 }
-
-                if (state == "off") {
-                    owner.inControl = false;
-                    for (let i = controlModels.length - 1; i >= 0; i--) {
-                        const item = controlModels[i];
-                        item.modelTransform.Destroy();
-                        controlModels.splice(i, 1);
-                    }
-                    if (targetModel != null && !targetModel.isDead) {
-                        owner.SetNpcTarget(targetModel);
-                    }
+                if (targetModel != null && !targetModel.isDead) {
+                    owner.SetNpcTarget(targetModel);
                 }
+                return;
             }
             if (skillName == "寒冰护体") {
+                for (let i = controlModels.length - 1; i >= 0; i--) {
+                    const item = controlModels[i];
+                    item.modelTransform.Destroy();
+                    controlModels.splice(i, 1);
+                }
+                return;
+            }
+        }
+        function ReceiveSkill(effect, skillItem) {
+            let skillName = effect.controlId;
+            let type = effect.type;
+            if (skillName == "冰霜新星") {
+                owner.inControl = true;
+                if (HasControlModel(skillName)) {
+                    return false;
+                }
+                _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().CopyModel("冰霜新星模型", (model) => {
+                    model.SetPos(owner.GetWorldPos());
+                    let nameScale = owner.GetScale();
+                    model.AddScale(new THREE.Vector3(nameScale, nameScale, nameScale));
+                    model.SetActive(true);
+                    AddControlModel(skillName, model);
+                });
+            }
+            if (type == "shield") {
+                if (HasControlModel(skillItem.skillFireParticleId)) {
+                    return false;
+                }
+                _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillGroup(skillItem.skillFireParticleId, (model) => {
+                    model.SetPos(owner.GetWorldPos());
+                    let nameScale = owner.GetScale();
+                    model.SetScale(new THREE.Vector3(nameScale, nameScale, nameScale));
+                    owner.GetGroup().attach(model.GetGroup());
+                    model.SetActive(true);
+                    AddControlModel(skillItem.skillFireParticleId, model);
+                });
 
-                if (state == "on") {
-                    if (HasControlModel(skillName)) {
-                        return false;
-                    }
-                    _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().CopyModel("寒冰护体", (model) => {
-                        model.SetPos(owner.GetWorldPos());
-                        let nameScale = owner.GetScale();
-                        model.SetScale(new THREE.Vector3(nameScale, nameScale, nameScale));
-                        owner.GetGroup().attach(model.GetGroup());
-                        model.SetActive(true);
-                        AddControlModel(skillName, model);
-                    });
-                }
-                if (state == "off") {
-                    for (let i = controlModels.length - 1; i >= 0; i--) {
-                        const item = controlModels[i];
-                        item.modelTransform.Destroy();
-                        controlModels.splice(i, 1);
-                    }
-                }
+                // _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().CopyModel("寒冰护体", (model) => {
+                //     model.SetPos(owner.GetWorldPos());
+                //     let nameScale = owner.GetScale();
+                //     model.SetScale(new THREE.Vector3(nameScale, nameScale, nameScale));
+                //     owner.GetGroup().attach(model.GetGroup());
+                //     model.SetActive(true);
+                //     AddControlModel(skillName, model);
+                // });
             }
             return true;
 
@@ -231,7 +237,7 @@ class YJSkill {
             if (msg.title == "解除技能") {
                 let skill = msg.skill;
                 if (skill.type == "control") {
-                    ReceiveSkill("冰霜新星", "off");
+                    RemoveSkill("冰霜新星");
                 }
                 return;
             }
@@ -294,7 +300,7 @@ class YJSkill {
                 return false;
             }
             let effect = skillItem.effect;
-            console.log("施放技能",effect);
+            console.log("施放技能", effect);
             effect.skillName = skillItem.skillName;
 
             readyskillAudioName = skillName;
@@ -466,6 +472,10 @@ class YJSkill {
                     }, attackStepSpeed * 1000);//间隔等于攻击动作时长
 
                 } else if (effect.type == "control") {
+                    if (effect.controlId == "冰霜新星") {
+                        SendSkill(effect,skillItem);
+                        return true;
+                    }
                     if (effect.controlId == "嘲讽") {
                         // console.log( owner.GetNickName() + " 嘲讽 ",vaildAttackDis ,players,skillItem);
                         for (let l = 0; l < players.length; l++) {
@@ -484,13 +494,14 @@ class YJSkill {
                                 toIdelLater = null;
                                 skillEnd();
                                 //有效攻击 && 
-                                SendSkill(effect);
+                                SendSkill(effect,skillItem);
                                 _Global.DyncManager.SendDataToServer("npc技能攻击",
                                     { npcId: owner.id, skill: effect });
                                 vaildAttackLater = null;
                             }, skillItem.castTime * 1000);
-                        }
+                        } 
                     }
+
                 }
 
             }
@@ -571,7 +582,7 @@ class YJSkill {
                             toIdelLater = null;
                             skillEnd();
                             //有效攻击 && 
-                            SendSkill(effect);
+                            SendSkill(effect,skillItem);
                             _Global.DyncManager.SendDataToServer("npc技能攻击",
                                 { npcId: owner.id, skill: effect });
                             vaildAttackLater = null;
@@ -582,7 +593,7 @@ class YJSkill {
                     owner.SetPlayerState("施法", skillItem.animName);
 
                     //有效攻击 && 
-                    if (!SendSkill(effect)) {
+                    if (!SendSkill(effect, skillItem)) {
                         return false;
                     }
                     _Global.DyncManager.SendDataToServer("npc技能攻击",
@@ -668,18 +679,36 @@ class YJSkill {
         let skillList = [];
         let oldSkillList = [];
         let hyperplasiaTimes = 0;
-        this.SendSkill = function (effect) {
-            SendSkill(effect);
+        this.SendSkill = function (effect, skillItem) {
+            SendSkill(effect, skillItem);
         }
         // 施放不需要目标或目标是自身的技能 如 增生
-        function SendSkill(effect) {
+        function SendSkill(effect, skillItem) {
             let { type, skillName, value, time, duration, describe, controlId } = effect;
             // console.log("施放不需要目标或目标是自身的技能 00 ", effect);
             if (type == "shield" || type == "control") {
                 //
                 // console.log("施放不需要目标或目标是自身的技能 ", controlId);
-                if (controlId == "寒冰护体") {
-                    ReceiveControl(null, controlId, effect);
+                if (type == "shield") {
+                    ReceiveControl(null, controlId, effect, skillItem);
+                    return true;
+                }
+                if (type == "control") {
+                    // 冻结20米内的敌人。 冰霜新星冻结特效
+                    let npcs = _Global._YJNPCManager.GetNoSameCampNPCInFireInVailDis(owner.GetWorldPos(), owner.GetCamp(), skillItem.vaildDis);
+                    if (npcs.length == 0) {
+                        return false;
+                    }
+                    effect.value = 0;
+                    for (let i = 0; i < npcs.length; i++) {
+                        const npcComponent = npcs[i];
+                        npcComponent.ReceiveDamageByPlayer(null, controlId, effect);
+                    }
+                    _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillGroup(skillItem.skillFireParticleId, (model) => {
+                        model.SetPos(owner.GetWorldPos());
+                        model.SetActive(true);
+                    });
+                    return true;
                 }
                 //
 
@@ -737,16 +766,16 @@ class YJSkill {
         let inSkill = false;//是否在使用施法技能攻击
         let skillCDlist = [];
 
-        this.SetSkillCDRate = function(rate){
+        this.SetSkillCDRate = function (rate) {
             for (let i = 0; i < skillList.length; i++) {
                 const skillItem = skillList[i];
                 if (skillItem.trigger.type == "perSecond") {
-                    skillItem.trigger.CD *=  rate;
-                    skillItem.CD *=  rate;
+                    skillItem.trigger.CD *= rate;
+                    skillItem.CD *= rate;
                     if (skillItem.cCD > skillItem.CD) {
                         skillItem.cCD = skillItem.CD;
                     }
-                } 
+                }
             }
         }
         // 每次进入战斗，初始化其技能
@@ -777,7 +806,7 @@ class YJSkill {
                     }
                 }
 
-                skillItem.cCD = skillItem.CD; 
+                skillItem.cCD = skillItem.CD;
 
                 fireLater.push({
                     type: "interval", fn:

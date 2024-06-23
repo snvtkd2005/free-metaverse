@@ -178,7 +178,7 @@ export default {
         icon: "",
       }, //describe技能描述，duration持续时间。perDamage、冻结、眩晕等状态效果才需要持续时间
       //技能施放的有效范围 或 范围攻击的游戏范围
-      vaildDis: 30, //  
+      vaildDis: 20, //  
       //施放时间
       castTime: 0, // 施法时间。 秒, 0表示瞬发
       animNameReady: "two hand gun before attack", // 施法准备/读条动作

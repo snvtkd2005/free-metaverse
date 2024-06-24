@@ -3192,16 +3192,9 @@ class YJController {
 
     //是否在地面。跳起后，实时检测是否已碰到地面，碰到地面时，不允许下降
     var _YJPlayer = null;
-    var _YJPlayerFireCtrl = null;
-    this.GetPlayerFireCtrl = function(){
-      return _YJPlayerFireCtrl;
-    }
     this.SetPlayer = (yjplayer) => {
       _YJPlayer = yjplayer;
-      _YJPlayer.owner = scope;
-      if (_YJPlayerFireCtrl == null) {
-        _YJPlayerFireCtrl = new YJPlayerFireCtrl(_this, _YJPlayer);
-      }
+      _YJPlayer.owner = scope; 
     }
     this.GetYJPlayer = () => {
       return _YJPlayer;
@@ -3562,7 +3555,7 @@ class YJController {
         maxHealth: 500, //最大生命值
         strength: 30, //攻击力
         armor: 0, //护甲
-        energy: 0, //能量
+        energy: 0, //能量 
       }
 
     };
@@ -3788,10 +3781,21 @@ class YJController {
       _YJPlayer.resetLife();
     }
 
+    var _YJPlayerFireCtrl = null;
+    this.GetPlayerFireCtrl = function(){
+      return _YJPlayerFireCtrl;
+    }
+    this.InitCompleted = function(){
+      scope.SetPlayerState("停止移动");
+    }
     this.SetPlayerState = function (e, type) {
       // console.log(" in SetPlayerState  ",e,type);
       if (playerState == PLAYERSTATE.INTERACTIVE) {
         return;
+      }
+
+      if (_YJPlayerFireCtrl == null) {
+        _YJPlayerFireCtrl = new YJPlayerFireCtrl(_this, _YJPlayer);
       }
 
       _YJPlayerFireCtrl.OnPlayerState({

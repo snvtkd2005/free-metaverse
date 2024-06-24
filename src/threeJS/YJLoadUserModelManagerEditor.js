@@ -568,7 +568,22 @@ class YJLoadUserModelManager {
     }
 
 
+    let skillGroupList = [];
     this.LoadSkillGroup = function(folderBase,callback){
+      for (let i = 0; i < skillGroupList.length; i++) {
+        const element = skillGroupList[i];
+        if(element.folderBase == folderBase){
+          let modelData = JSON.parse(JSON.stringify(element.transform.modelData));
+          modelData.active = true;
+          let npcId = new Date().getTime();
+          this.DuplicateModelNPC(modelData, (copy) => {
+            if(callback){
+              callback(copy);
+            }
+          }, npcId);
+          return;
+        }
+      }
       let modelData = {
         folderBase:folderBase,
         modelType:"组合",
@@ -576,7 +591,40 @@ class YJLoadUserModelManager {
         rotaV3:{x:0,y:0,z:0},
         scale:{x:1,y:1,z:1}, 
       }
-      this.LoadStaticModel2(modelData,callback);
+      this.LoadStaticModel2(modelData,(model)=>{
+        skillGroupList.push({folderBase:folderBase,transform:model});
+        if(callback){
+          callback(model);
+        } 
+      });
+    }
+    this.LoadSkillByModelType = function(modelType,folderBase,callback){
+      for (let i = 0; i < skillGroupList.length; i++) {
+        const element = skillGroupList[i];
+        if(element.folderBase == folderBase){
+          let modelData = JSON.parse(JSON.stringify(element.transform.modelData));
+          modelData.active = true;
+          let npcId = new Date().getTime();
+          this.DuplicateModelNPC(modelData, (copy) => {
+            if(callback){
+              callback(copy);
+            }
+          }, npcId);
+          return;
+        }
+      }
+      let path = _Global.YJ3D.$uploadUrl + folderBase + "/" + "data.txt" + "?time=" + new Date().getTime();
+      _Global.YJ3D._YJSceneManager.LoadAssset(path,(data)=>{
+        data.pos = { x: 0, y: 0, z: 0 };
+        data.rotaV3 = { x: 0, y: 0, z: 0 };
+        data.scale = { x: 1, y: 1, z: 1 };
+        this.LoadStaticModel2(data,(model)=>{
+          skillGroupList.push({folderBase:folderBase,transform:model});
+          if(callback){
+            callback(model);
+          } 
+        });
+      }); 
     }
 
     // 场景中加载组合
@@ -585,6 +633,7 @@ class YJLoadUserModelManager {
       let res = await _this.$axios.get(
         _this.$uploadGroupUrl + folderBase + "/" + "scene.txt" + "?time=" + new Date().getTime()
       );
+
       let data = res.data;
       let sceneModelsData = [];
       for (let i = 0; i < data.length; i++) {

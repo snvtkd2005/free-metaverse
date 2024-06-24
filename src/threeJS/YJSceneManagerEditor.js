@@ -565,7 +565,7 @@ class YJSceneManager {
       setTimeout(() => {
         // _YJAmmo.SetGravityActive(true);
         _YJAmmo.SetGravityActive(setting.enabledGravity == undefined ? true: setting.enabledGravity ) ;
-
+        _this.YJController.InitCompleted();
       }, 2000);
 
       _this.$nextTick(function () {

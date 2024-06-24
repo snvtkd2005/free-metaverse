@@ -31,15 +31,14 @@
 
         <!-- 存活时间 -->
         <div class="self-center mx-auto text-white text-lg">
-          <div class="  ">{{ timesStr }}</div>
+          <div class="">{{ timesStr }}</div>
         </div>
       </div>
 
       <!-- 动作条 -->
       <div>
-        
-                  <!-- 技能 -->
-                  <!-- <div class="w-full relative h-5 flex ">
+        <!-- 技能 -->
+        <!-- <div class="w-full relative h-5 flex ">
                     <div
                       v-for="(skill, i) in item.skill"
                       :key="i"
@@ -105,22 +104,36 @@
             <!-- 战斗卡牌 -->
             <div class="w-full h-auto flex pointer-events-none">
               <div
-                class="relative w-full px-20 h-auto grid grid-cols-4 gap-10 self-top mx-auto"
+                class="
+                  relative
+                  w-full
+                  px-20
+                  h-auto
+                  grid grid-cols-4
+                  gap-10
+                  self-top
+                  mx-auto
+                "
               >
                 <div
                   v-for="(item, i) in cardList"
                   :key="item"
                   :index="i"
-                  class="w-40 h-32 bg-red-300 text-gray-200 pointer-events-auto cursor-pointer"
+                  class="
+                    w-40
+                    h-32
+                    bg-red-300
+                    text-gray-200
+                    pointer-events-auto
+                    cursor-pointer
+                  "
                   @click="skill(item)"
                 >
                   <!-- class="w-1/3 bg-red-300 h-full text-gray-200 pointer-events-auto cursor-pointer" -->
 
                   <!-- style="width: 220px; height: 298px" -->
                   <div class="flex flex-col h-full relative">
-                    <div
-                      class="relative mx-auto"
-                    >
+                    <div class="relative mx-auto">
                       <img
                         class="w-full h-full"
                         :class="heatValue < item.heat ? ' brightness-50 ' : ''"
@@ -143,8 +156,6 @@
         </div>
       </div>
     </div>
-
-
   </div>
 </template>
 
@@ -175,7 +186,7 @@ export default {
         health: 100,
         maxHealth: 100,
         exp: 0,
-        needExp: 2,
+        needExp: 30,
       },
       cardList: [
         {
@@ -214,19 +225,19 @@ export default {
         this.displayCard = true;
       });
 
-      _Global.addEventListener("杀敌数", (c, n) => {
+      _Global.addEventListener("经验值", (c, n) => {
         this.stats.exp = c;
         this.stats.needExp = n;
       });
 
       _Global.addEventListener("存活时间", (v) => {
-        this.timesStr = v; 
+        this.timesStr = v;
       });
- 
-        _Global.addEventListener('主角生命值',(h,maxH)=>{
-          this.stats.health = h;
-          this.stats.maxHealth = maxH;
-        });
+
+      _Global.addEventListener("主角生命值", (h, maxH) => {
+        this.stats.health = h;
+        this.stats.maxHealth = maxH;
+      });
       // if (_Global.setting.inEditor) {
       //   return;
       // }

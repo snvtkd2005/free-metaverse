@@ -165,7 +165,7 @@ export default {
       skillName: "冰霜新星",
       // 该结构表示：每10秒对当前目标造成10点伤害
       //触发时机 每间隔n秒触发、血量达到n%触发 perSecond  health
-      trigger: { type: "perSecond", value: 3, CD: 3 },
+      trigger: { type: "perSecond", value: 3, CD: 10 },
       //目标
       target: { type: "area", value: 20 },// random随机 target目标 area范围攻击
       //效果 damage直接伤害、perDamage每秒伤害、contDamage持续伤害、冻结、眩晕等状态
@@ -173,10 +173,16 @@ export default {
         type: "control",
         controlId: "冰霜新星", //控制id 1=冰霜新星
         value: 100,
-        duration: 60,
-        describe: "吸收100点伤害",
+        duration: 8,
+        describe: "冻结敌人",
         icon: "",
+        hasReceiveEffect:true, //是否有接收效果（生成模型）
+        receiveEffect:{
+          modelType:"静态模型",
+          particleId:"1709818566951",
+        },
       }, //describe技能描述，duration持续时间。perDamage、冻结、眩晕等状态效果才需要持续时间
+
       //技能施放的有效范围 或 范围攻击的游戏范围
       vaildDis: 20, //  
       //施放时间
@@ -192,7 +198,7 @@ export default {
       //效果增强
       effectEnhance: "none",
       icon: "", //技能图标      
-      describe: "冰霜护盾，吸收伤害", 
+      describe: "冻结20米内的敌人，持续8秒", 
     },
   ],
   

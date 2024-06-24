@@ -9,7 +9,7 @@ class YJEquip {
 
 
         //#region 玩家装备
-        this.initWeapon = function(weapon){
+        this.initWeapon = function(weapon,callback){
           console.error( " in 玩家装备 ",weapon);
           let path = _Global.YJ3D.$uploadUrl + weapon.assetId + "/" + "data.txt" + "?time=" + new Date().getTime();
     
@@ -83,6 +83,9 @@ class YJEquip {
                   // 绑定到骨骼后，清除trigger
                   owner.GetComponent("Weapon").DestroyTrigger();
        
+                  if(callback){
+                    callback();
+                  }
                 });
               }
             });

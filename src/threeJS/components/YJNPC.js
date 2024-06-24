@@ -1398,7 +1398,7 @@ class YJNPC {
     }
     
     let fromName = "";
-    this.ReceiveDamageByPlayer = function (_targetModel, skillName, effect) {
+    this.ReceiveDamageByPlayer = function (_targetModel, skillName, effect,skillItem) {
       if (!_Global.mainUser) {
         console.error("不该进入：非主控");
         return;
@@ -1448,7 +1448,7 @@ class YJNPC {
       // console.log("受到来自 222 的伤害 ", _targetModel);
 
       if (type == "control" || type == "shield") {
-        _YJSkill.ReceiveControl(_targetModel, skillName, effect);
+        _YJSkill.ReceiveControl(_targetModel, skillName, effect,skillItem);
         return;
       }
 

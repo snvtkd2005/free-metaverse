@@ -102,8 +102,8 @@ class YJSkill {
                 skillList = JSON.parse(JSON.stringify(oldSkillList));
             }
         }
-        this.ReceiveControl = function (_targetModel, skillName, effect) {
-            ReceiveControl(_targetModel, skillName, effect);
+        this.ReceiveControl = function (_targetModel, skillName, effect, skillItem) {
+            ReceiveControl(_targetModel, skillName, effect, skillItem);
         }
         function ReceiveControl(_targetModel, skillName, effect, skillItem) {
             let { type, value, time, duration, describe, icon, fromName } = effect;
@@ -178,13 +178,22 @@ class YJSkill {
                 if (HasControlModel(skillName)) {
                     return false;
                 }
-                _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().CopyModel("冰霜新星模型", (model) => {
+                _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillByModelType(effect.receiveEffect.modelType,
+                    effect.receiveEffect.particleId,  (model) => {
                     model.SetPos(owner.GetWorldPos());
                     let nameScale = owner.GetScale();
                     model.AddScale(new THREE.Vector3(nameScale, nameScale, nameScale));
                     model.SetActive(true);
                     AddControlModel(skillName, model);
                 });
+
+                // _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().CopyModel("冰霜新星模型", (model) => {
+                //     model.SetPos(owner.GetWorldPos());
+                //     let nameScale = owner.GetScale();
+                //     model.AddScale(new THREE.Vector3(nameScale, nameScale, nameScale));
+                //     model.SetActive(true);
+                //     AddControlModel(skillName, model);
+                // });
             }
             if (type == "shield") {
                 if (HasControlModel(skillItem.skillFireParticleId)) {
@@ -244,7 +253,7 @@ class YJSkill {
             if (msg.title == "受到技能") {
                 let skill = msg.skill;
                 if (skill.type == "control") {
-                    ReceiveSkill("冰霜新星", "on");
+                    ReceiveSkill(skill, "on");
                     return;
                 }
                 return;
@@ -300,7 +309,7 @@ class YJSkill {
                 return false;
             }
             let effect = skillItem.effect;
-            console.log("施放技能", effect);
+            // console.error("施放技能",skillItem.cCD,skillItem.CD, effect);
             effect.skillName = skillItem.skillName;
 
             readyskillAudioName = skillName;
@@ -428,7 +437,7 @@ class YJSkill {
                     owner, owner.fireId, vaildAttackDis, skillItem.target.value);
                 // 范围内无目标，不施放技能
                 if (players.length == 0) {
-                    return false;
+                    return true;
                 }
                 if (effect.type == "damage") {
                     for (let l = 0; l < players.length; l++) {
@@ -448,7 +457,7 @@ class YJSkill {
                         castSkillList.push(setTimeout(() => {
                             if (baseData.health == 0) {
                                 skillEnd();
-                                return;
+                                return true;
                             }
                             for (let l = 0; l < players.length; l++) {
                                 if (players[l].isDead) {
@@ -694,6 +703,7 @@ class YJSkill {
                     return true;
                 }
                 if (type == "control") {
+                    
                     // 冻结20米内的敌人。 冰霜新星冻结特效
                     let npcs = _Global._YJNPCManager.GetNoSameCampNPCInFireInVailDis(owner.GetWorldPos(), owner.GetCamp(), skillItem.vaildDis);
                     if (npcs.length == 0) {
@@ -702,7 +712,7 @@ class YJSkill {
                     effect.value = 0;
                     for (let i = 0; i < npcs.length; i++) {
                         const npcComponent = npcs[i];
-                        npcComponent.ReceiveDamageByPlayer(null, controlId, effect);
+                        npcComponent.ReceiveDamageByPlayer(null, controlId, effect,skillItem);
                     }
                     _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillGroup(skillItem.skillFireParticleId, (model) => {
                         model.SetPos(owner.GetWorldPos());
@@ -714,24 +724,24 @@ class YJSkill {
 
                 // console.log("施放不需要目标或目标是自身的技能 ", controlId);
 
-                if (controlId == "冰霜新星") {
-                    // 冻结20米内的敌人。 冰霜新星冻结特效
-                    let npcs = _Global._YJNPCManager.GetNoSameCampNPCInFireInVailDis(owner.GetWorldPos(), owner.GetCamp(), 20);
-                    if (npcs.length == 0) {
-                        return false;
-                    }
-                    effect.value = 0;
-                    for (let i = 0; i < npcs.length; i++) {
-                        const npcComponent = npcs[i];
-                        npcComponent.ReceiveDamageByPlayer(null, controlId, effect);
-                    }
+                // if (controlId == "冰霜新星") {
+                //     // 冻结20米内的敌人。 冰霜新星冻结特效
+                //     let npcs = _Global._YJNPCManager.GetNoSameCampNPCInFireInVailDis(owner.GetWorldPos(), owner.GetCamp(), 20);
+                //     if (npcs.length == 0) {
+                //         return false;
+                //     }
+                //     effect.value = 0;
+                //     for (let i = 0; i < npcs.length; i++) {
+                //         const npcComponent = npcs[i];
+                //         npcComponent.ReceiveDamageByPlayer(null, controlId, effect);
+                //     }
 
-                    // 冰霜新星施放特效
-                    _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().CopyModel("冰霜新星", (model) => {
-                        model.SetPos(owner.GetWorldPos());
-                        model.SetActive(true);
-                    });
-                }
+                //     // 冰霜新星施放特效
+                //     _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().CopyModel("冰霜新星", (model) => {
+                //         model.SetPos(owner.GetWorldPos());
+                //         model.SetActive(true);
+                //     });
+                // }
             }
             //
             if (type == "addHealth") {

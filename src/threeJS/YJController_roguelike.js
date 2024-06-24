@@ -50,6 +50,7 @@ class YJController_roguelike {
 
       // 查找最近的敌人
       let npc = _Global._YJNPCManager.GetNoSameCampNPCInFireByNearestDis(fromPos, _Global.user.camp, 30);
+      // console.log(" 查找附件敌人 ",npc,fromPos);
       if (npc == null) {
         return;
       }
@@ -79,6 +80,8 @@ class YJController_roguelike {
             lookAtTarget();
           });
         }
+        
+
         fire();
       }, 500);
     }
@@ -142,10 +145,14 @@ class YJController_roguelike {
         });
         _Global.YJ3D.YJRaycaster.addEventListener('onmousedown', () => {
           inLongPress = true;
+
         });
 
-        _Global.YJ3D.YJController.GetPlayerFireCtrl().GetEquip().initWeapon(roguelikeGameData.weaponList[0]);
+        _Global.YJ3D.YJController.GetPlayerFireCtrl().GetEquip().initWeapon(roguelikeGameData.weaponList[0],()=>{
+          _Global.YJ3D.YJController.GetPlayerFireCtrl().SetPlayerState("normal");
+        });
         _Global.YJ3D.YJController.GetPlayerFireCtrl().SetState('canMoveAttack', true);
+        
         autoFire();
 
         _Global.inGame = true;

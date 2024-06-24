@@ -44,18 +44,10 @@ class YJPlayerFireCtrl {
 					element.fn(v, v2);
 				}
 			}
-		}
+		} 
+
 		this.OnPlayerState = function (state) {
-			if (baseData == null) {
-				baseData = _this.YJController.GetUserData().baseData;
-				if (_YJPlayerProperty == null) {
-					_YJPlayerProperty = new YJPlayerProperty(scope);
-				}
-				
-				if (_YJSkill == null) {
-					_YJSkill = new YJSkill(scope);
-				}
-			}
+
 			switch (state.content) {
 				case "设置玩家状态":
 					scope.SetPlayerState(state.msg);
@@ -777,7 +769,7 @@ class YJPlayerFireCtrl {
 		this.GetTarget = function(){
 			return npcTransform;
 		}
-		function fireGo() {
+		function fireGo() { 
 			// console.log(" 有效攻击目标 "); 
 			var { s, v, a } = GetSkillDataByWeapon(weaponData);
 			//有效攻击
@@ -959,8 +951,7 @@ class YJPlayerFireCtrl {
 		}
 
 		this.SetPlayerState = function (e) {
-			// if (weaponData == null) {
-			// }
+ 
 			weaponData = _this.YJController.GetUserData().weaponData;
 
 			// console.log(" in SetPlayerState  ",e,weaponData,playerState);
@@ -1138,7 +1129,16 @@ class YJPlayerFireCtrl {
 			return _YJSkill;
 		}
 		function Init() {
-			
+			if (baseData == null) {
+				baseData = _this.YJController.GetUserData().baseData;
+				if (_YJPlayerProperty == null) {
+					_YJPlayerProperty = new YJPlayerProperty(scope);
+				}
+				
+				if (_YJSkill == null) {
+					_YJSkill = new YJSkill(scope);
+				}
+			}
 			if (_YJEquip == null) {
 				_YJEquip = new YJEquip(scope);
 			}

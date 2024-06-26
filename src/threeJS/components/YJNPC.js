@@ -83,6 +83,27 @@ class YJNPC {
       fireId: -1, //战斗组id  -1表示未在战斗中
     }
 
+		var SKILLTYPE = {
+			PLAYER: '玩家技能',
+			NPC: 'npc技能', 
+		};
+
+		var SKILLTYPE = {
+			PLAYER: '玩家技能',
+			PLAYERATTACK: '玩家技能攻击',
+			NPC: 'npc技能', 
+			NPCATTACK: 'npc技能攻击', 
+		}; 
+		this.owerType = function(e){
+			if(e=='技能'){
+				return SKILLTYPE.NPC;
+			}
+			if(e=='技能攻击'){
+				return SKILLTYPE.NPCATTACK;
+			}
+		}
+
+
     let _YJPlayerNameTrans = null;
     let _YJEquip = null;
     let _YJSkill = null;

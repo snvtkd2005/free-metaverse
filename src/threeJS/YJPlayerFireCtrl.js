@@ -29,6 +29,20 @@ class YJPlayerFireCtrl {
 			INTERACTIVE: 2,
 			SITTING: 3,
 		};
+		var SKILLTYPE = {
+			PLAYER: '玩家技能',
+			PLAYERATTACK: '玩家技能攻击',
+			NPC: 'npc技能', 
+			NPCATTACK: 'npc技能攻击', 
+		}; 
+		this.owerType = function(e){
+			if(e=='技能'){
+				return SKILLTYPE.PLAYER;
+			}
+			if(e=='技能攻击'){
+				return SKILLTYPE.PLAYERATTACK;
+			}
+		}
 		var playerState = PLAYERSTATE.NORMAL;
 
 		let eventList = [];
@@ -44,7 +58,7 @@ class YJPlayerFireCtrl {
 					element.fn(v, v2);
 				}
 			}
-		} 
+		}
 
 		this.OnPlayerState = function (state) {
 
@@ -123,16 +137,19 @@ class YJPlayerFireCtrl {
 		this.SetNavPathToNone = function () {
 
 		}
+		this.GetNickName = function () {
+			return _YJPlayer.GetNickName();
+		}
 		//#region  玩家使用技能
 		
 		function UseSkill(skillItem) {
+			_YJSkill.UseSkill(skillItem);
+			return;
 			state.inSkill = true;
 
 			console.log("使用技能攻击 ", skillItem);
 			let { animName, animNameReady, skillName, target, effect } = skillItem;
 			effect.skillName = skillName;
-			skillItem.effect.skillName = skillName;
-
 			readyskillAudioName = skillName;
 			scope.playAudio(skillItem.skillReadyAudio, readyskillAudioName);
 
@@ -171,7 +188,7 @@ class YJPlayerFireCtrl {
 							}
 						}, effect.time * k * 1000);
 					}
-					_this.YJController.SetPlayerAnimName(animName);
+                    scope.SetPlayerState("施法", skillItem.animName);
 					return;
 				}
 
@@ -265,7 +282,7 @@ class YJPlayerFireCtrl {
 				let fn = () => {
 					_this.YJController.SetPlayerAnimName(animName);
 
-					SendSkill(effect,skillItem);
+					SendSkill(effect, skillItem);
 					setTimeout(() => {
 						scope.SetPlayerState("normal");
 					}, 500);
@@ -285,7 +302,7 @@ class YJPlayerFireCtrl {
 		let oldSkillList = [];
 		let hyperplasiaTimes = 0;
 		let hyperplasiaTrans = [];
-		this.GetData = function(){
+		this.GetData = function () {
 			let avatarData = _YJPlayer.GetavatarData();
 
 			let modelData = {
@@ -311,7 +328,7 @@ class YJPlayerFireCtrl {
 			return modelData;
 		}
 		// 施放不需要目标的技能 如 增生
-		function SendSkill(effect,skillItem) {
+		function SendSkill(effect, skillItem) {
 			let { type, skillName, value, time, duration, describe } = effect;
 			//增生
 			// if (type == "hyperplasia") {
@@ -331,7 +348,7 @@ class YJPlayerFireCtrl {
 			// 		}
 			// 	}
 			// }
-			_YJSkill.SendSkill(effect,skillItem);
+			_YJSkill.SendSkill(effect, skillItem);
 			// 发送战斗记录
 			_Global.DyncManager.SendFireRecode(
 				{
@@ -412,7 +429,7 @@ class YJPlayerFireCtrl {
 			EventHandler("进入战斗", target);
 			let { type, skillName, value, time, duration } = effect;
 			// console.log("effect ",attackProperty.CriticalHitRate,v,value,effect);
-			effect.value = _YJPlayerProperty.GetDamage(value) ;
+			effect.value = _YJPlayerProperty.GetDamage(value);
 			shootTarget(target.transform, attackStepSpeed * 300, () => {
 				_Global.DyncManager.SendSceneStateAll("玩家对NPC",
 					{
@@ -602,8 +619,8 @@ class YJPlayerFireCtrl {
 		function UpdateData() {
 			_this.YJController.directUpate();
 			if (baseData && baseData.maxHealth) {
-				if(baseData.health>= baseData.maxHealth){
-					baseData.health= baseData.maxHealth;
+				if (baseData.health >= baseData.maxHealth) {
+					baseData.health = baseData.maxHealth;
 				}
 				_YJPlayer.UpdateHealth(baseData.health, baseData.maxHealth);
 				_Global.applyEvent('主角生命值', baseData.health, baseData.maxHealth);
@@ -704,14 +721,14 @@ class YJPlayerFireCtrl {
 			return false;
 		}
 		let state = {
-			canAttack:false,
-			canMoveAttack:false,//是否支持移动中攻击
-			isMoving:false,//是否正在移动
-			inFire:false,//是否正在战斗状态
-			readyAttack:false,
-			inSkill:false,//是否正在施放技能
-		}; 
-		this.SetState = function(e,v){
+			canAttack: false,
+			canMoveAttack: false,//是否支持移动中攻击
+			isMoving: false,//是否正在移动
+			inFire: false,//是否正在战斗状态
+			readyAttack: false,
+			inSkill: false,//是否正在施放技能
+		};
+		this.SetState = function (e, v) {
 			state[e] = v;
 		}
 		let npcComponent = null;
@@ -752,24 +769,24 @@ class YJPlayerFireCtrl {
 			attackProperty = _attackProperty;
 		}
 		this.updateBasicProperty = function (_basicProperty) {
-			if (_basicProperty == "health") { 
+			if (_basicProperty == "health") {
 				UpdateData();
 				return;
 			}
 		}
 		this.updateByCard = function (card) {
-			let { type, title, value,property } = card; 
-			if (type == "skill") { 
+			let { type, title, value, property } = card;
+			if (type == "skill") {
 				_YJSkill.AddSkill(card);
 				return;
 			}
 			_YJPlayerProperty.updateBasedata(card);
 			console.log(attackProperty);
 		}
-		this.GetTarget = function(){
+		this.GetTarget = function () {
 			return npcTransform;
 		}
-		function fireGo() { 
+		function fireGo() {
 			// console.log(" 有效攻击目标 "); 
 			var { s, v, a } = GetSkillDataByWeapon(weaponData);
 			//有效攻击
@@ -950,8 +967,8 @@ class YJPlayerFireCtrl {
 			}
 		}
 
-		this.SetPlayerState = function (e) {
- 
+		this.SetPlayerState = function (e, _animName) {
+
 			weaponData = _this.YJController.GetUserData().weaponData;
 
 			// console.log(" in SetPlayerState  ",e,weaponData,playerState);
@@ -1049,7 +1066,7 @@ class YJPlayerFireCtrl {
 						GetAnimNameByPlayStateAndWeapon("普通攻击", weaponData);
 						// GetAnimNameByPlayStateAndWeapon("准备战斗", weaponData); 
 						// 上半身动作和下半身动作混合
-						if(_Global.YJ3D.YJPlayer.GetAvatar().layerBlendPerbone(animName, "run", false, true)){
+						if (_Global.YJ3D.YJPlayer.GetAvatar().layerBlendPerbone(animName, "run", false, true)) {
 							return;
 						}
 						GetAnimNameByPlayStateAndWeapon(e, weaponData);
@@ -1087,6 +1104,9 @@ class YJPlayerFireCtrl {
 					}
 					break;
 
+				case "施法":
+					animName = _animName;
+					break;
 				case "attack":
 					break;
 				case "interactive":
@@ -1122,10 +1142,10 @@ class YJPlayerFireCtrl {
 		// }
 		let _YJSkill = null;
 		let _YJEquip = null;
-		this.GetEquip = function(){
+		this.GetEquip = function () {
 			return _YJEquip;
 		}
-		this.GetSkill = function(){
+		this.GetSkill = function () {
 			return _YJSkill;
 		}
 		function Init() {
@@ -1134,7 +1154,7 @@ class YJPlayerFireCtrl {
 				if (_YJPlayerProperty == null) {
 					_YJPlayerProperty = new YJPlayerProperty(scope);
 				}
-				
+
 				if (_YJSkill == null) {
 					_YJSkill = new YJSkill(scope);
 				}
@@ -1142,7 +1162,7 @@ class YJPlayerFireCtrl {
 			if (_YJEquip == null) {
 				_YJEquip = new YJEquip(scope);
 			}
-			
+
 			UpdateData();
 		}
 		Init();

@@ -9,7 +9,7 @@ import { YJTrailRenderer } from "/@/threeJS/components/YJTrailRenderer.js";
 import TWEEN from '@tweenjs/tween.js';
 // 技能特效管理器
 class YJSkillParticleManager {
-  constructor(_this, scene, npcPath, npcStoryData, sceneManager) {
+  constructor(_this) {
 
     // _YJSkillParticleManager.shootTargetFn(null,null,"1704443871265");
 
@@ -25,6 +25,7 @@ class YJSkillParticleManager {
           element.time = 0;
           element.callback = callback;
           element.trailRenderer.trail.start();
+          // console.log(" 复用 旧 拖尾效果 ",startPos,target);
 
           let group = element.trailRenderer.group;
           group.position.copy(startPos);
@@ -32,7 +33,7 @@ class YJSkillParticleManager {
           return;
         }
       }
-      // console.log(" 创建旧 拖尾效果 ");
+      console.log(" 创建旧 拖尾效果 ");
 
       let group = new THREE.Group();
       _Global.YJ3D.scene.add(group);
@@ -69,7 +70,7 @@ class YJSkillParticleManager {
           group.lookAt(targetPos);
           item.startPos.add(group.getWorldDirection(new THREE.Vector3()).multiplyScalar(1.5));
           group.position.copy(item.startPos);
-
+          console.log("旧特效效果 ",item.startPos );
           if (item.target.GetPlayerWorldPos) {
           } else {
             //射出射线，如果射线碰到物体，则结束移动

@@ -17,7 +17,7 @@ class YJNPCManager {
     this.GetNPCs = function(){
       return npcModelList;
     }
-    this.GetNpcByPlayerForwardInArea = function (vaildDistance, max, playerPos, ingoreNpcId) {
+    this.GetOtherNoSameCampInArea = function (camp,vaildDistance, max, centerPos, ingoreNpcId) {
       let num = 0;
       let npcs = [];
       
@@ -25,14 +25,14 @@ class YJNPCManager {
       for (let i = 0; i < npcModelList.length; i++) {
         const element = npcModelList[i];
         let npcComponent = element.GetComponent("NPC");
-        if (npcComponent.GetCamp() == _Global.user.camp) {
+        if (npcComponent.GetCamp() == camp) {
           continue;
         }
         if (npcComponent.id == ingoreNpcId) {
           continue;
         }
         // 未判断npc是否在玩家前方
-        let distance = playerPos.distanceTo(element.GetGroup().position);
+        let distance = centerPos.distanceTo(element.GetGroup().position);
         if (distance <= vaildDistance) {
           num++;
           npcs.push(npcComponent);

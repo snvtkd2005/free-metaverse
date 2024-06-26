@@ -259,7 +259,7 @@ class YJSkill {
                 return;
             }
 
-            if (msg.title == "npc技能攻击") {
+            if (msg.title == owner.owerType('技能攻击')) {
                 let skill = msg.skill;
                 //增生
                 if (skill.type == "hyperplasia") {
@@ -303,17 +303,21 @@ class YJSkill {
             _Global.YJAudioManager().stopAudio(readyskillAudioName);
 
         }
+        this.UseSkill = function(skillItem){
+            SkillGo(skillItem);
+        }
         //施放技能
         function SkillGo(skillItem) {
             if (owner.isDead) {
                 return false;
             }
-            let effect = skillItem.effect;
             // console.error("施放技能",skillItem.cCD,skillItem.CD, effect);
-            effect.skillName = skillItem.skillName;
+			let { animName, animNameReady, skillName, target, effect } = skillItem;
 
+            effect.skillName = skillItem.skillName;
             readyskillAudioName = skillName;
 
+            
             vaildAttackDis = skillItem.vaildDis;
             attackStepSpeed = skillItem.castTime;
             owner.SetVaildAttackDis(vaildAttackDis);
@@ -392,7 +396,7 @@ class YJSkill {
                                     }
 
                                     SendDamageToTarget(targetModel, effect);
-                                    _Global.DyncManager.SendDataToServer("npc技能攻击",
+                                    _Global.DyncManager.SendDataToServer(owner.owerType('技能攻击'),
                                         { npcId: owner.id, skill: effect });
                                 }, attackStepSpeed * 100);
                                 if (toIdelLater != null) { clearTimeout(toIdelLater); };
@@ -416,7 +420,7 @@ class YJSkill {
                                 return;
                             }
                             SendDamageToTarget(targetModel, effect);
-                            _Global.DyncManager.SendDataToServer("npc技能攻击",
+                            _Global.DyncManager.SendDataToServer(owner.owerType('技能攻击'),
                                 { npcId: owner.id, skill: effect });
                         }, attackStepSpeed * 100);
                         if (toIdelLater != null) { clearTimeout(toIdelLater); };
@@ -433,8 +437,10 @@ class YJSkill {
 
             // 范围攻击
             if (targetType == "area") {
-                let players = _Global.DyncManager.GetPlayerByNpcForwardInFireId(
-                    owner, owner.fireId, vaildAttackDis, skillItem.target.value);
+                let max = skillItem.target.value;
+                let players =_Global._YJNPCManager.GetOtherNoSameCampInArea(owner.GetCamp(), vaildAttackDis,max, owner.GetWorldPos());
+                // let players = _Global.DyncManager.GetPlayerByNpcForwardInFireId(
+                //     owner, owner.fireId, vaildAttackDis, skillItem.target.value);
                 // 范围内无目标，不施放技能
                 if (players.length == 0) {
                     return true;
@@ -504,7 +510,7 @@ class YJSkill {
                                 skillEnd();
                                 //有效攻击 && 
                                 SendSkill(effect,skillItem);
-                                _Global.DyncManager.SendDataToServer("npc技能攻击",
+                                _Global.DyncManager.SendDataToServer(owner.owerType('技能攻击'),
                                     { npcId: owner.id, skill: effect });
                                 vaildAttackLater = null;
                             }, skillItem.castTime * 1000);
@@ -541,7 +547,7 @@ class YJSkill {
                         //有效攻击 && 
                         SendDamageToTarget(randomSelectModel, skillItem.effect);
 
-                        _Global.DyncManager.SendDataToServer("npc技能攻击",
+                        _Global.DyncManager.SendDataToServer(owner.owerType('技能攻击'),
                             { npcId: owner.id, skill: skillItem.effect });
 
                     }, attackStepSpeed * 100);
@@ -592,7 +598,7 @@ class YJSkill {
                             skillEnd();
                             //有效攻击 && 
                             SendSkill(effect,skillItem);
-                            _Global.DyncManager.SendDataToServer("npc技能攻击",
+                            _Global.DyncManager.SendDataToServer(owner.owerType('技能攻击'),
                                 { npcId: owner.id, skill: effect });
                             vaildAttackLater = null;
                         }, skillItem.castTime * 1000);
@@ -605,7 +611,7 @@ class YJSkill {
                     if (!SendSkill(effect, skillItem)) {
                         return false;
                     }
-                    _Global.DyncManager.SendDataToServer("npc技能攻击",
+                    _Global.DyncManager.SendDataToServer(owner.owerType('技能攻击'),
                         { npcId: owner.id, skill: effect });
                     owner.SetValue("readyAttack_doonce", 0);
 
@@ -656,7 +662,7 @@ class YJSkill {
                             toIdelLater = null;
                             //有效攻击 && 
                             SendDamageToTarget(randomSelectModel, effect);
-                            _Global.DyncManager.SendDataToServer("npc技能攻击",
+                            _Global.DyncManager.SendDataToServer(owner.owerType('技能攻击'),
                                 { npcId: owner.id, skill: effect });
                             vaildAttackLater = null;
                         }, skillItem.castTime * 1000);
@@ -666,7 +672,7 @@ class YJSkill {
                     owner.ChangeAnim(skillItem.animName, "idle");
                     //有效攻击 && 
                     SendDamageToTarget(randomSelectModel, effect);
-                    _Global.DyncManager.SendDataToServer("npc技能攻击",
+                    _Global.DyncManager.SendDataToServer(owner.owerType('技能攻击'),
                         { npcId: owner.id, skill: effect });
                 }
             }
@@ -676,7 +682,7 @@ class YJSkill {
 
             if (skillItem.castTime > 0) {
                 // 需要施法的技能才发送技能同步，瞬发技能无需同步
-                _Global.DyncManager.SendDataToServer("npc技能",
+                _Global.DyncManager.SendDataToServer(owner.owerType('技能'),
                     { npcId: owner.id, skill: skillItem });
                 attackStepSpeed = skillItem.castTime;
                 //取消寻路，让npc站住施法
@@ -992,6 +998,8 @@ class YJSkill {
             // if(owner.npcName.includes("ZH画渣") && targetModel){
             //   console.log(GetNickName() + ' 对目标造成伤害 ',target,effect);
             // }
+              console.log(owner.GetNickName() + ' 对目标造成伤害 ',target,effect);
+
             // 玩家镜像
             if (owner.GetIsPlayer()) {
                 SendDamageToTarget2(target, effect);
@@ -1007,8 +1015,6 @@ class YJSkill {
             // }, attackStepSpeed * 100);
             // 发送技能特效
             shootTarget(target, attackStepSpeed * 300, () => {
-
-
                 // 发送战斗记录
                 _Global.DyncManager.SendFireRecode({ targetId: target.id, npcId: owner.id, npcName: owner.npcName, skillName: skillName, strength: value });
 

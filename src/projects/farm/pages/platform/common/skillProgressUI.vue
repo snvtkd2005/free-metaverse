@@ -13,11 +13,11 @@
             :class="color == 'blue' ? ' bg-blue-500 ' : ' bg-yellow-500 '"
             :style="'width: ' + GetProgress() + '%'"
           ></div>
-          <div
-            v-if="false"
+          <div 
             class="absolute left-0 top-0 w-full text-center text-xs"
           >
-            {{ this.current + "/" + this.length }}
+            {{  this.length }}
+            <!-- {{ this.current + "/" + this.length }} -->
           </div>
         </div>
       </div>
@@ -44,25 +44,43 @@ export default {
   },
   created() {},
   mounted() {
-    // this.SetProgress(0,30);
   },
   methods: {
     SetProgress(e, skillName, reverse) {
       if (e == "中断" || e == "完成") {
         this.display = false;
+        // console.log(this.current +'/'+ this.length+ '  ' + e);
+
         cancelAnimationFrame(this.updateId);
         return;
       }
       this.last = performance.now();
+      if(reverse == undefined){
+        reverse = false;
+      }
       this.reverse = reverse;
       if (reverse) {
         this.current = e;
       } else {
         this.current = 0;
       }
-      this.length = e;
+      this.length = e.toFixed(1);
       this.skillName = skillName;
       this.animate();
+      this.display = true; 
+              // console.error(this.current +'/'+ this.length+ '  ' + e);
+
+      // if(this.interval){
+      //   clearInterval(this.interval);
+      // }
+      // this.interval = setInterval(() => {
+      //   this.current += 0.1;
+      //   console.log(this.current +'/'+ this.length);
+      //   if (this.current >= this.length) {
+      //     this.display = false; 
+      //     clearInterval(this.interval);
+      //   }
+      // }, 100);
       this.display = true;
     },
     GetProgress() {

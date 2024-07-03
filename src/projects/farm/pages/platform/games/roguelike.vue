@@ -1,6 +1,9 @@
 <template>
   <div class="w-full h-full absolute left-0 top-0 pointer-events-none">
-    <div v-show="!displayCard" class="absolute left-0 top-1 w-full flex">
+    <div
+      v-show="!displayCard"
+      class="absolute left-0 top-1 w-full h-full flex flex-col"
+    >
       <div class="px-2 text-white w-full flex flex-col">
         <!-- 生命条 -->
         <div class="w-1/3 mx-auto border relative h-5">
@@ -38,42 +41,36 @@
       <!-- 动作条 -->
       <div>
         <!-- 技能 -->
-        <!-- <div class="w-full relative h-5 flex ">
-                    <div
-                      v-for="(skill, i) in item.skill"
-                      :key="i"
-                      class="flex mr-1"
-                    >
-                      <div class="w-8 h-8 bg-gray-500 relative">
-                        <div
-                          v-if="item.level < skill.unLockLevel"
-                          class="absolute left-0 top-0 bg-black opacity-50 w-full h-full"
-                        ></div>
-                        <div
-                          v-if="item.level >= skill.unLockLevel"
-                          class="absolute left-0 bottom-0 bg-black opacity-90 w-full h-full"
-                          :style="
-                            'height: ' + (1 - skill.cCD / skill.CD) * 100 + '%'
-                          "
-                        ></div>
-                        <div
-                          v-if="
-                            item.level >= skill.unLockLevel && skill.perCD > 0
-                          "
-                          class="absolute left-0 top-0 w-full h-full leading-8 text-xl"
-                        >
-                          {{ skill.perCD }}
-                        </div>
-                        <img class="w-full h-full" :src="skill.icon" alt="" />
-                        <div
-                          v-if="item.level >= skill.unLockLevel"
-                          class="absolute -right-1 -bottom-1 w-4 h-4 rounded-full bg-yellow-700 text-xs leading-4 p-px"
-                        >
-                          {{ skill.level }}
-                        </div>
-                      </div>
-                    </div>
-                  </div> -->
+        <div class="ml-10 w-auto relative h-5 flex">
+          <div v-for="(skill, i) in skillList" :key="i" class="flex mr-1">
+            <div class="w-8 h-8 bg-gray-500 relative">
+              <div
+                class="absolute left-0 bottom-0 bg-black opacity-90 w-full h-full"
+                :style="'height: ' + (1 - skill.cCD / skill.CD) * 100 + '%'"
+              ></div>
+              <div
+                v-if="skill.perCD > 0"
+                class="absolute left-0 top-0 w-full h-full leading-8 text-xl"
+              >
+                {{ skill.perCD }}
+              </div>
+              <img
+                class="w-full h-full"
+                :src="this.$uploadUVAnimUrl + skill.icon"
+                alt=""
+              />
+              <div
+                class="absolute -right-1 -bottom-1 w-4 h-4 rounded-full bg-yellow-700 text-xs leading-4 p-px"
+              >
+                {{ skill.level }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="absolute left-0 top-0 w-full h-full">
+        <combatLogPanelVue ref="combatLogPanelVue"></combatLogPanelVue>
       </div>
     </div>
 
@@ -89,9 +86,16 @@
           <div>{{ property.level }}</div>
         </div>
         <div class="px-10">
-          <div class="flex justify-between">
-            <div>生命值</div>
-            <div>{{ property.health }}/{{ property.maxHealth }}</div>
+          <div
+            v-for="(item, i) in propertyList"
+            :key="item"
+            :index="i"
+            class="w-full h-8  text-gray-200"
+          >
+            <div class="flex justify-between">
+              <div>{{ item.title }}</div>
+              <div>{{ item.value }}</div>
+            </div>
           </div>
         </div>
       </div>
@@ -104,29 +108,13 @@
             <!-- 战斗卡牌 -->
             <div class="w-full h-auto flex pointer-events-none">
               <div
-                class="
-                  relative
-                  w-full
-                  px-20
-                  h-auto
-                  grid grid-cols-4
-                  gap-10
-                  self-top
-                  mx-auto
-                "
+                class="relative w-full px-20 h-auto grid grid-cols-4 gap-10 self-top mx-auto"
               >
                 <div
                   v-for="(item, i) in cardList"
                   :key="item"
                   :index="i"
-                  class="
-                    w-40
-                    h-32
-                    bg-red-300
-                    text-gray-200
-                    pointer-events-auto
-                    cursor-pointer
-                  "
+                  class="w-40 h-32 bg-red-300 text-gray-200 pointer-events-auto cursor-pointer"
                   @click="skill(item)"
                 >
                   <!-- class="w-1/3 bg-red-300 h-full text-gray-200 pointer-events-auto cursor-pointer" -->
@@ -135,16 +123,16 @@
                   <div class="flex flex-col h-full relative">
                     <div class="relative mx-auto">
                       <img
-                        class="w-full h-full"
+                        class="w-20 h-20"
                         :class="heatValue < item.heat ? ' brightness-50 ' : ''"
-                        :src="item.icon"
+                        :src="this.$uploadUVAnimUrl + item.icon"
                         alt=""
                       />
                     </div>
                     <div class="w-full text-xl">
                       {{ item.title }}{{ item.skillName }}
                     </div>
-                    <div class="px-4 text-sm absolute bottom-4 w-full">
+                    <div class="px-4 text-sm w-full">
                       {{ item.describe }}
                     </div>
                   </div>
@@ -163,14 +151,14 @@
 
  
 <script >
-import { YJDMManager_bilibili } from "../../../js/YJDMManager_bilibili.js";
-import { YJCombatLog } from "../../../js/YJCombatLog.js";
-
-import roguelikeGameData from "../../../data/platform/roguelikeGameData";
+import { YJGame_roguelike } from "/@/threeJS/game/YJGame_roguelike.js";
+import combatLogPanelVue from "../common/combatLogPanel.vue";
 
 export default {
   props: [],
-  components: {},
+  components: {
+    combatLogPanelVue,
+  },
   data() {
     return {
       inGame: false,
@@ -188,6 +176,7 @@ export default {
         exp: 0,
         needExp: 30,
       },
+      skillList: [],
       cardList: [
         {
           title: "冰霜新星",
@@ -197,29 +186,54 @@ export default {
             "冲击范围内的所有敌人，对它们造成99-111点冰霜伤害并将其冻结在原地，最多持续8秒。对被冻结的目标造成伤害可能打断这个效果。",
           heat: 10,
         },
-        {
-          title: "雷诺莫格莱尼",
-          dm: "[雷诺莫格莱尼] 或 [m]",
-          icon: "./public/images/雷诺莫格莱尼.png",
-          describe: "召唤雷诺·莫格莱尼",
-          heat: 20,
-        },
-        {
-          title: "复活术",
-          dm: "[复活术] 或 [f]",
-          icon: "https://bkimg.cdn.bcebos.com/pic/203fb80e7bec54e736d13914e86b8c504fc2d5623c24?x-bce-process=image/format,f_auto/watermark,image_d2F0ZXIvYmFpa2UyNzI,g_7,xp_5,yp_5,P_20/resize,m_lfit,limit_1,h_1080",
-          describe: "复活一个在本局对战中死亡的弹幕玩家",
-          heat: 10,
-        },
       ],
       property: {},
+      propertyList: [],
       displayCard: false,
     };
   },
   created() {},
   mounted() {
-    this.property = roguelikeGameData.teamStats.property;
-    setTimeout(() => {
+    
+      // if (_Global.setting.inEditor && _Global.gameType == "Roguelike") {
+      //   let _YJController_roguelike = new YJController_roguelike();
+      //   _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(_YJController_roguelike);
+      //   return;
+      // }
+
+      // if(_Global.gameType == "Roguelike" ){
+      //   let _YJController_roguelike = new YJController_roguelike();
+      //   _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(_YJController_roguelike);
+      // }
+
+      _Global.addEventListener("3d加载完成", () => {
+        let _YJGame_roguelike = new YJGame_roguelike(this);
+        _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(_YJGame_roguelike);
+
+      });
+
+      _Global.addEventListener("属性改变", (basedata) => {
+        this.property = basedata;
+
+        this.propertyList = [];
+        this.propertyList.push({title:'生命值',value:basedata.health+'/'+basedata.maxHealth});
+
+        let basicProperty = basedata.basicProperty;
+        
+        this.propertyList.push({title:'护甲',value:basicProperty.armor});
+
+        let attackProperty = basedata.attackProperty;
+        this.propertyList.push({title:'暴击率',  value:attackProperty.CriticalHitRate});
+        this.propertyList.push({title:'暴击等级',value:attackProperty.CriticalHitLevel});
+        this.propertyList.push({title:'攻击速度',value:attackProperty.attackSpeed});
+        this.propertyList.push({title:'攻击强度',value:attackProperty.attackPower});
+        this.propertyList.push({title:'移动速度',value:attackProperty.moveSpeed});
+        this.propertyList.push({title:'急速等级',value:attackProperty.hasteLevel});
+        this.propertyList.push({title:'急速冷却',value:attackProperty.CDRate});
+
+        // console.log(" 属性改变 ",this.property);
+      });
+
       _Global.addEventListener("显示roguelike卡牌", (cardList) => {
         this.cardList = cardList;
         this.displayCard = true;
@@ -242,10 +256,6 @@ export default {
       //   return;
       // }
 
-      // //弹幕管理器
-      // this._YJDMManager = new YJDMManager_bilibili(this.$parent.$parent, this);
-
-      // new YJCombatLog(this);
 
       // this.last = performance.now();
       // this.deltaTime = 0;
@@ -258,12 +268,33 @@ export default {
         _Global.addEventListener("敌方攻势", (num) => {});
         _Global.addEventListener("战斗开始", () => {});
       }, 5000);
-    }, 2000);
+      
   },
 
   methods: {
     setDMPlayer(_dmplayer) {
       this.dmPlayer = _dmplayer;
+    },
+
+    AddSkill(_skill) {
+      for (let i = 0; i < this.skillList.length; i++) {
+        const skill = this.skillList[i];
+        if (skill.skillName == _skill.skillName) {
+          return;
+        }
+      }
+      _skill.level = 1;
+      this.skillList.push(_skill);
+    },
+    changeMainPlayerSkillCD(skillName, cCD) {
+      for (let i = 0; i < this.skillList.length; i++) {
+        const skill = this.skillList[i];
+        if (skill.skillName == skillName) {
+          skill.cCD = cCD;
+          skill.perCD = (skill.CD - cCD).toFixed(skill.CD > 10 ? 0 : 1);
+          return;
+        }
+      }
     },
     changeDMPlayerSkillCD(npcId, skillIndex, cCD) {
       for (let i = 0; i < this.dmPlayer.length; i++) {
@@ -275,30 +306,6 @@ export default {
           ).toFixed(element.skill[skillIndex].CD > 10 ? 0 : 1);
         }
       }
-    },
-    DMlog(text, type) {
-      if (
-        this.dmLogContent != "" &&
-        this.dmLogType == "弹幕玩家" &&
-        type != "弹幕玩家"
-      ) {
-        // 非弹幕玩家的消息无法打断弹幕玩家的弹窗
-        return;
-      }
-      this.dmLogContent = text;
-      this.dmLogType = type;
-      if (this.laterDMlog) {
-        clearTimeout(this.laterDMlog);
-      }
-      this.laterDMlog = setTimeout(() => {
-        this.dmLogContent = "";
-      }, 3000);
-    },
-    log(content) {
-      this.combatLog.push(content);
-      setTimeout(() => {
-        this.$refs.combatLog.scrollTop = this.$refs.combatLog.scrollHeight;
-      }, 20);
     },
     //#region  聊天
 

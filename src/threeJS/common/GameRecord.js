@@ -61,12 +61,12 @@ class GameRecord {
         level++;
         currentExp = 0;
         needExpByLevel = needExpByLevels[level - 1];
-        console.log("升级",level);
+        // console.log("升级",level);
 
       }
       _Global.applyEvent('经验值', currentExp, needExpByLevel.exp);
       // console.log("已杀", record.kill);
-      console.log("经验值",currentExp, needExpByLevel.exp);
+      // console.log("经验值",currentExp, needExpByLevel.exp);
 
     }
 

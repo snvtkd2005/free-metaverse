@@ -2057,6 +2057,7 @@ class YJAmmo {
     let minSpeed = 1.5;
     let maxSpeed = 5;
     var moveSpeed = minSpeed;
+    let moveSpeedScale = 1; 
     let walkSpeed = 5; 
     var runSpeed = 10;
     let jumpTime = 0;
@@ -2066,6 +2067,7 @@ class YJAmmo {
 
     this.ResetMoveSpeed = function () {
       moveSpeed = minSpeed;
+      moveSpeedScale = 1;
     }
     this.SetMoveSpeed = function (f) {
       walkSpeed = f;
@@ -2073,10 +2075,10 @@ class YJAmmo {
         moveSpeed = f;
       }
     }
-    this.addMoveSpeed = function (f) { 
+    this.SetMoveSpeedScale = function (f) { 
       if (enableGravity) {
-        moveSpeed = walkSpeed * f;
-      }
+        moveSpeedScale = f; 
+      } 
     }
     
     this.SetSpeedData = function (speedData) {
@@ -2132,16 +2134,16 @@ class YJAmmo {
               moveSpeed -= 0.1;
             }
             if (moveSpeed >= maxSpeed) {
-              moveSpeed = maxSpeed;
+              moveSpeed = maxSpeed * moveSpeedScale;
             }
             if (moveSpeed <= minSpeed) {
-              moveSpeed = minSpeed;
+              moveSpeed = minSpeed * moveSpeedScale;
             }
           } else {
             if (inShift) {
-              moveSpeed = runSpeed;
+              moveSpeed = runSpeed * moveSpeedScale;
             } else {
-              moveSpeed = walkSpeed;
+              moveSpeed = walkSpeed * moveSpeedScale;
             }
           }
 

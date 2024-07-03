@@ -7,8 +7,8 @@ import { YJParabola } from "/@/threeJS/YJParabola.js";
 
 import { YJSkillParticleManager } from "./YJSkillParticleManager.js";
 
-import { YJNPCManager } from "/@/threeJS/YJNPCManager.js"; 
-import { YJController_roguelike } from "/@/threeJS/YJController_roguelike.js";
+import { YJFireManager } from "/@/threeJS/YJFireManager.js"; 
+// import { YJController_roguelike } from "/@/threeJS/YJController_roguelike.js";
 
 // 场景同步数据
 
@@ -65,11 +65,7 @@ class YJSceneDyncManagerEditor {
       }
 
 
-      new YJNPCManager();
-      if(_Global.gameType == "Roguelike" ){
-        let _YJController_roguelike = new YJController_roguelike();
-        _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(_YJController_roguelike);
-      }
+      new YJFireManager();
 
       if (_Global.setting.inEditor) {
         _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().AllNpcTransformNav();
@@ -324,42 +320,7 @@ class YJSceneDyncManagerEditor {
       }
     }
 
-    this.GetSameCampByRandom = function (camp) {
-      if (!_Global.YJClient) {
-        if (_Global.hasAvatar) {
-          return {
-            playerId: _Global.YJ3D.YJPlayer.id,
-            player: _Global.YJ3D.YJPlayer,
-          };
-        }
-      }
-      let players = [];
-      let id = "";
-      let player = null;
-      if (_Global.setting.DMGame) {
-        players = _Global._YJNPCManager.GetSameCampNPCInFire(camp);
-        if (players.length > 0) {
-          player = players[radomNum(0, players.length - 1)];
-          id = player.transform.id;
-        }
-      } else {
-        players = _Global.YJClient.GetAllPlayer();
-        id = player.id
-      }
-      return {
-        playerId: id,
-        player: player,
-      }
-    }
-    this.GetSameCamp = function (camp) {
-      let players = [];
-      if (_Global.setting.DMGame) {
-        players = _Global._YJNPCManager.GetSameCampNPCInFire(camp);
-      } else {
-        players = _Global.YJClient.GetAllPlayer();
-      }
-      return players;
-    }
+ 
 
     this.GetPlayerById = function (playerId) {
       let playerMirror = _Global._YJNPCManager.GetNpcTransformById(playerId);
@@ -1156,20 +1117,20 @@ class YJSceneDyncManagerEditor {
       }
 
       if (type == "玩家对NPC") {
-        let { npcId, playerId, skillName, effect } = state;
+        let { fromId,targetId, skillName, effect } = state;
 
         if (_Global.mainUser) {
-          this.GetNpcById(npcId).GetComponent("NPC").ReceiveDamage((playerId), skillName, effect);
+          this.GetNpcById(targetId).GetComponent("NPC").ReceiveDamage((fromId), skillName, effect);
         }
 
-        if (_Global.YJ3D.YJPlayer.id == playerId) {
-          // return;
-          // 对npc的伤害显示在屏幕上
-          let pos = this.GetNpcById(npcId).GetWorldPos().clone();
-          pos.y += this.GetNpcById(npcId).GetComponent("NPC").GetBaseModel().playerHeight;
-          _Global._SceneManager.UpdateNpcDamageValue("self", "normal",playerId, _Global.user.camp, effect.value, pos, "redius");
+        // if (_Global.YJ3D.YJPlayer.id == playerId) {
+        //   // return;
+        //   // 对npc的伤害显示在屏幕上
+        //   let pos = this.GetNpcById(npcId).GetWorldPos().clone();
+        //   pos.y += this.GetNpcById(npcId).GetComponent("NPC").GetBaseModel().playerHeight;
+        //   _Global._SceneManager.UpdateNpcDamageValue("self", "normal",playerId, _Global.user.camp, effect.value, pos, "redius");
+        // }
 
-        }
         return;
       }
       if (type == "NPC对NPC") {
@@ -1178,14 +1139,14 @@ class YJSceneDyncManagerEditor {
         }
         let p = scope.GetPlayerById(state.targetId);
         if (p && p.isPlayer == undefined) {
-          p.ReceiveDamageByPlayer(this.GetNpcById(state.npcId), state.skillName, state.effect);
+          p.ReceiveDamageByPlayer(this.GetNpcById(state.fromId), state.skillName, state.effect);
         }
         return;
       }
       if (type == "NPC对玩家") {
         // console.log(" NPC对玩家镜像 ",state);
         if (state.targetId == _Global.YJ3D.YJPlayer.id) {
-          _this.YJController.ReceiveDamage(this.GetNpcById(state.npcId), state.skillName, state.effect);
+          _this.YJController.ReceiveDamage(this.GetNpcById(state.fromId), state.skillName, state.effect);
           return;
         }
       }
@@ -1459,13 +1420,13 @@ class YJSceneDyncManagerEditor {
     //#endregion
 
     //#region 
-    this.shootTarget = function (startPos, target, time, targetType, firePid, callback) {
+    this.shootTarget = function (startPos, target, speed, targetType, firePid, callback) {
       // console.log(" 同步trail target ", target.id, targetType);
-      scope.UpdateModel("", "同步trail", { startPos: startPos, targetId: target.id, firePid: firePid, targetType: targetType, time: time });
-      shootTargetFn(startPos.clone(), target, time, firePid, callback);
+      scope.UpdateModel("", "同步trail", { startPos: startPos, targetId: target.id, firePid: firePid, targetType: targetType, speed: speed });
+      shootTargetFn(startPos.clone(), target, speed, firePid, callback);
     }
-    function shootTargetFn(startPos, target, time, firePid, callback) {
-      _YJSkillParticleManager.shootTargetFn(startPos.clone(), target, firePid, callback);
+    function shootTargetFn(startPos, target, speed, firePid, callback) {
+      _YJSkillParticleManager.shootTargetFn(startPos.clone(), target, speed, firePid, callback);
 
       // _YJSkillParticleManager.shootTargetFn(startPos.clone(), target, "1704443871265");
     }

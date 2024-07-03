@@ -1,5 +1,4 @@
 <template>
-  <!-- 直播间人数 -->
   <div class="w-full h-full absolute left-0 top-0 pointer-events-none">
     <div class="absolute left-0 top-1 w-full h-auto flex">
       <div class="self-center mx-auto text-white text-2xl">
@@ -76,7 +75,7 @@
 
     <!-- 战斗卡牌 -->
     <div
-      class=" hidden absolute left-0 bottom-0 w-full h-auto flex pointer-events-none"
+      class="hidden absolute left-0 bottom-0 w-full h-auto flex pointer-events-none"
     >
       <div class="relative w-auto h-full flex self-center mx-auto">
         <div
@@ -162,10 +161,12 @@
     </div>
 
     <!-- 玩法介绍 -->
-    <div class="absolute left-0 top-0 dmtip  w-64 h-full">
+    <div class="absolute left-0 top-0 dmtip w-64 h-full">
       <div class="absolute bottom-20 left-0 w-full text-red-100">
-        <div class="w-full px-2 mx-auto flex flex-col justify-between text-left text-xl">
-          <div class=" w-96" style="width: 450px">
+        <div
+          class="w-full px-2 mx-auto flex flex-col justify-between text-left text-xl"
+        >
+          <div class="w-96" style="width: 450px">
             弹幕玩法<br />
             [加入] 随机角色加入游戏<br />
             牧师 11<br />
@@ -179,22 +180,22 @@
             fh 复活 <br />
             fs 分身 <br />
             cf 嘲讽附近敌人 <br />
-            b 冻结20米内所有敌人 <br /> 
-            hj 吸收200点伤害 <br /> 
-            sj 升级多重射击技能 <br /> 
+            b 冻结20米内所有敌人 <br />
+            hj 吸收200点伤害 <br />
+            sj 升级多重射击技能 <br />
           </div>
 
-          <div class=" w-full h-full pt-2">
+          <div class="w-full h-full pt-2">
             <div
               v-for="(item, i) in giftData"
               :key="item"
               :index="i"
               class="w-full mb-3 flex"
             >
-              <div class="px-2 flex ">
-                <img class=" w-10 h-10" :src="item.img_basic" alt="" />
-                <div class=" leading-10">{{ item.describe }}</div>
-                <img v-if="item.img2" class=" w-8 h-8" :src="item.img2" alt="" />
+              <div class="px-2 flex">
+                <img class="w-10 h-10" :src="item.img_basic" alt="" />
+                <div class="leading-10">{{ item.describe }}</div>
+                <img v-if="item.img2" class="w-8 h-8" :src="item.img2" alt="" />
               </div>
             </div>
           </div>
@@ -214,9 +215,7 @@
     </div>
 
     <!-- 弹幕玩家血量、等级、技能状态 -->
-    <div
-      class="absolute top-0 right-0 dmtip h-full w-64 transform origin-left"
-    >
+    <div class="absolute top-0 right-0 dmtip h-full w-64 transform origin-left">
       <div class="w-full h-full pt-2">
         <div
           v-for="(item, i) in dmPlayer"
@@ -281,7 +280,7 @@
                     </div>
                   </div>
                   <!-- 技能 -->
-                  <div class="w-full relative h-5 flex ">
+                  <div class="w-full relative h-5 flex">
                     <div
                       v-for="(skill, i) in item.skill"
                       :key="i"
@@ -307,7 +306,11 @@
                         >
                           {{ skill.perCD }}
                         </div>
-                        <img class="w-full h-full" :src="skill.icon" alt="" />
+                        <img
+                          class="w-full h-full"
+                          :src="this.$uploadUVAnimUrl + skill.icon"
+                          alt=""
+                        />
                         <div
                           v-if="item.level >= skill.unLockLevel"
                           class="absolute -right-1 -bottom-1 w-4 h-4 rounded-full bg-yellow-700 text-xs leading-4 p-px"
@@ -362,7 +365,7 @@
 
  
 <script >
-import { YJDMManager_DMrogue } from "../../../js/YJDMManager_DMrogue.js";
+import { YJDMManager_DMrogue } from "../../../js/games/YJDMManager_DMrogue.js";
 import { YJCombatLog } from "../../../js/YJCombatLog.js";
 
 export default {
@@ -459,7 +462,7 @@ export default {
         //   ],
         // },
       ],
-      giftData: [ 
+      giftData: [
         {
           id: -1000,
           name: "点赞",
@@ -480,7 +483,7 @@ export default {
           describe: "升级多重射击",
           img_basic:
             "https://s1.hdslb.com/bfs/live/91ac8e35dd93a7196325f1e2052356e71d135afb.png",
-          img2:"./public/images/skillIcon/spell_hunter_exoticmunitions_poisoned.png",
+          img2: "./public/images/skillIcon/spell_hunter_exoticmunitions_poisoned.png",
         },
         {
           id: 1,
@@ -517,14 +520,16 @@ export default {
   },
   created() {},
   mounted() {
-    setTimeout(() => {
-
-      if (_Global.setting.inEditor) {
-        return;
-      }
+    if (_Global.setting.inEditor) {
+      return;
+    }
+    _Global.addEventListener("3d加载完成", () => {
       //弹幕管理器
-      this._YJDMManager = new YJDMManager_DMrogue(this.$parent.$parent, this);
+      this._YJDMManager = new YJDMManager_DMrogue(this);
+      // _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(_YJDMManager);
+    });
 
+    setTimeout(() => {
       new YJCombatLog(this);
 
       this.last = performance.now();
@@ -643,7 +648,7 @@ export default {
           element.skill[skillIndex].cCD = cCD;
           element.skill[skillIndex].perCD = (
             element.skill[skillIndex].CD - cCD
-          ).toFixed(element.skill[skillIndex].CD>10?0:1);
+          ).toFixed(element.skill[skillIndex].CD > 10 ? 0 : 1);
         }
       }
     },
@@ -766,8 +771,8 @@ export default {
 
 <style scoped>
 .dmtip {
-    --tw-bg-opacity: 0.51;
-    background-color: rgba(107, 114, 128, var(--tw-bg-opacity));
+  --tw-bg-opacity: 0.51;
+  background-color: rgba(107, 114, 128, var(--tw-bg-opacity));
 }
 .brightness-50 {
   filter: brightness(0.5);

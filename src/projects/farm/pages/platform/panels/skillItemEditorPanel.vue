@@ -43,7 +43,7 @@ export default {
         { label: "随机敌方", value: "randomEnemy" },
         { label: "生命值最少的友方", value: "minHealthFriendly" },
         { label: "当前目标", value: "target" },
-        { label: "区域内", value: "area" },
+        { label: "范围内", value: "area" },
       ],
       // 法术效果类型
       effectType: [
@@ -56,7 +56,10 @@ export default {
         { label: "控制", value: "control" },
         { label: "护盾", value: "shield" },
       ],
-      
+
+      modelType: [
+        { label: "静态模型", value: "静态模型" },  
+      ],
       // 控制id
       controlId: [
         { label: "冰霜新星", value: "冰霜新星" }, 
@@ -72,6 +75,7 @@ export default {
         { label: "左掌心", value: "LeftHand" }, 
       ],
       settingData: {
+        type:"skill",
         skillName: "致命一击",
         // 该结构表示：每10秒对当前目标造成10点伤害
         //触发时机 每间隔n秒触发、血量达到n%触发 perSecond  health
@@ -88,6 +92,11 @@ export default {
           describe: "对目标造成100点伤害",
           icon: "",
         }, //describe技能描述，duration持续时间。perDamage、冻结、眩晕等状态效果才需要持续时间
+        hasReceiveEffect:true, //是否有接收效果（生成模型）
+        receiveEffect:{
+          modelType:"静态模型",
+          particleId:"1709818566951",
+        },
         //技能施放的有效范围 或 范围攻击的游戏范围
         vaildDis: 100, //  
         //施放时间
@@ -115,6 +124,12 @@ export default {
         { property: "target-type", display: true, title: "目标类型", type: "drop", options: [], value: "", callback: this.ChangeValue },
         { property: "target-value", display: true, title: "目标数量", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
 
+        { property: "hasReceiveEffect", display: true, title: "是否有接收效果（生成模型）", type: "toggle", value: false, callback: this.ChangeValue },
+
+        { property: "receiveEffect-modelType", display: false, title: "生成模型类型", type: "drop", options: [], value: "", callback: this.ChangeValue },
+        { property: "receiveEffect-particleId", display: false, title: "生成模型", type: "file", filetype: "particle", value: "", callback: this.ChangeValue },
+
+
         { property: "castTime", display: true, title: "吟唱时间", type: "num", step: 1, value: 0, callback: this.ChangeValue },
         { property: "animNameReady", display: true, title: "吟唱动作", type: "drop", options: [], value: "", callback: this.ChangeValue },
         { property: "skillReadyParticleId", display: true, title: "吟唱特效", type: "file", filetype: "particle", value: "", callback: this.ChangeValue },
@@ -130,7 +145,7 @@ export default {
         { property: "effect-value", display: true, title: "效果值", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
         { property: "effect-time", display: true, title: "间隔", type: "num", step: 0.1, value: 1, callback: this.ChangeValue, },
         { property: "effect-duration", display: true, title: "持续时间", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
-        { property: "effect-describe", display: true, title: "效果描述", type: "text", value: "", callback: this.ChangeValue, },
+        // { property: "effect-describe", display: true, title: "效果描述", type: "text", value: "", callback: this.ChangeValue, },
         { property: "effect-icon", display: true, title: "debuff图标", type: "file", filetype: "image", accept: "", value: "", callback: this.ChangeValue },
         { property: "effect-controlId", display: true, title: "控制id", type: "drop", options: [], value: "", callback: this.ChangeValue },
 
@@ -143,7 +158,7 @@ export default {
   },
   created() { },
   mounted() {
-
+    
   },
   methods: {
     SetVisible(b, _settingData) {
@@ -176,16 +191,24 @@ export default {
       if (!this.settingData.skillFireAudio) {
         this.settingData.skillFireAudio = "";
       }
-
+      if (!this.settingData.type) {
+        this.settingData.type = "skill";
+      } 
+      if (!this.settingData.receiveEffect) {
+        this.settingData.receiveEffect = {modelType:"",particleId:""};
+      }
+      if (this.settingData.hasReceiveEffect == undefined) {
+        this.settingData.hasReceiveEffect = false;
+      }
       // this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "trigger-type", "options", this.triggerType);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "target-type", "options", this.targetType);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-type", "options", this.effectType);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-controlId", "options", this.controlId);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "skillFirePart", "options", this.skillFirePart);
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "receiveEffect-modelType", "options", this.modelType);
       
-      // return;
-      this.avatarName = "女射手";
+      // return; 
       this.animList = _Global.animList;
 
       this.canAnimList = [];
@@ -198,32 +221,12 @@ export default {
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "animName", "options", this.canAnimList);
 
       this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
+
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-value", "value", this.settingData.effect.value);
+
       for (let i = 0; i < this.setting.length; i++) {
         this.ChangeUIState(this.setting[i].property, this.setting[i].value);
-      }
-      return;
-      // console.log(this.animList);
-      //获取当前角色已存在的动作
-      _Global.CreateOrLoadPlayerAnimData().GetAllAnim(this.avatarName, (temp) => {
-        // console.log(this.avatarName, temp);
-        for (let i = 0; i < this.animList.length; i++) {
-          const anim = this.animList[i];
-          anim.has = false;
-          for (let j = 0; j < temp.length; j++) {
-            const element = temp[j];
-            if (element == anim.animName && element != "") {
-              anim.has = true;
-              this.canAnimList.push({ label: anim.content, value: anim.animName });
-            }
-          }
-          this.canAnimList.push({ label: anim.content, value: anim.animName });
-        }
-        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "animNameReady", "options", this.canAnimList);
-        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "animName", "options", this.canAnimList);
-
-      });
-
-      // this.SetSkillList(res.data);
+      } 
     },
     ChangeAnim(animName) {
       this.$parent.$refs.settingPanelCtrl.$refs.settingPanel_player.ChangePlayerAnim(animName);
@@ -233,9 +236,16 @@ export default {
       if (property == "target-type") {
         this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "target-value", "display", e == "area");
       }
+      if (property == "hasReceiveEffect") {
+        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "receiveEffect-modelType", "display", e );
+        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "receiveEffect-particleId", "display", e );
+      }
+      if (property == "receiveEffect-modelType") {
+        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "receiveEffect-particleId", "filetype", e );
+      }
       if (property == "effect-type") {
         if (e == "damage") {
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-time", "value", true);
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-value", "display", true);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-time", "display", false);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "display", false);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-duration", "display", false);
@@ -249,6 +259,7 @@ export default {
         }
 
         if (e == "contDamage") {
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-value", "display", true);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-time", "display", true);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "display", false);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-duration", "display", false);
@@ -256,6 +267,7 @@ export default {
         }
 
         if (e == "perDamage") {
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-value", "display", true);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-time", "display", true);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "display", true);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-duration", "display", true);
@@ -263,6 +275,7 @@ export default {
         }
 
         if (e == "hyperplasia") {
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-value", "display", false);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-time", "display", false);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "display", false);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-duration", "display", false);
@@ -325,6 +338,8 @@ export default {
         this.settingData.describe = this.GetDescribe(this.settingData);
         this.$parent.saveSkill(this.settingData);
         this.inAdd = false;
+
+        console.log(this.settingData);
       }
     },
     GetDescribe(item) {

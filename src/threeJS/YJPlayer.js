@@ -21,6 +21,7 @@ class YJPlayer {
     this.fireId = -1; 
     this.isPlayer = true;
     this.isDead = false;
+    this.id = "YJPlayer";
     // 创建一个时钟对象Clock
     var clock = new THREE.Clock();
 
@@ -807,6 +808,10 @@ class YJPlayer {
     this.GetBaseData = () => { 
       return oldUserData.baseData;
     }
+    
+		this.getPlayerType = function(){
+			return "玩家";
+		}
     function makeButtonMesh(x, y, z, color) {
       const geometry = new THREE.BoxGeometry(x, y, z);
       const material = new THREE.MeshPhongMaterial({ color: color });

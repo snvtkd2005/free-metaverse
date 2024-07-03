@@ -4,9 +4,9 @@
 
 
 import * as THREE from "three";
-import GameItems from "../projects/farm/data/platform/GameItems";
-import roguelikeGameData from "../projects/farm/data/platform/roguelikeGameData";
-import { GameRecord } from "./common/gameRecord";
+import GameItems from "../../projects/farm/data/platform/GameItems";
+import roguelikeGameData from "../../projects/farm/data/platform/roguelikeGameData";
+import { GameRecord } from "../common/gameRecord";
 
 
 /**
@@ -16,8 +16,8 @@ import { GameRecord } from "./common/gameRecord";
  * 3,禁用左右鼠标旋转视角
  * 4，左键长按连续发射
  */
-class YJController_roguelike {
-  constructor() {
+class YJGame_roguelike {
+  constructor(mainPanel) {
     var scope = this;
     // super();
     //#region 
@@ -46,8 +46,12 @@ class YJController_roguelike {
     let _GameRecord = null;
 
     function fire() {
-      let fromPos = _Global.YJ3D.YJController.GetPlayerWorldPos();
 
+      // 判断是否有目标
+      // if(_Global.YJ3D.YJController.GetPlayerFireCtrl().CheckTargetVaild()){
+      //   return;
+      // }
+      let fromPos = _Global.YJ3D.YJController.GetPlayerWorldPos();
       // 查找最近的敌人
       let npc = _Global._YJNPCManager.GetNoSameCampNPCInFireByNearestDis(fromPos, _Global.user.camp, 30);
       // console.log(" 查找附件敌人 ",npc,fromPos);
@@ -65,6 +69,9 @@ class YJController_roguelike {
     function autoFire() {
       setInterval(() => {
         if (_Global.YJ3D.YJController.isInDead()) {
+          return;
+        }
+        if (_Global.pauseGame) {
           return;
         }
         if (mixamorigSpine == null) {
@@ -172,6 +179,11 @@ class YJController_roguelike {
         _Global.addEventListener('游戏继续', () => {
         });
         _Global.addEventListener('选择roguelike卡牌', (card) => {
+          let { type, title, value, property } = card;
+          if (type == "skill") {
+            // 技能添加到界面上用来显示其施放状态和CD
+
+          }
           _Global.YJ3D.YJController.GetPlayerFireCtrl().updateByCard(card);
           playGame();
         });
@@ -179,9 +191,30 @@ class YJController_roguelike {
         _Global.addEventListener('主角生命值', (h, maxH) => {
 
         });
+        _Global.applyEvent('主角姓名', _Global.YJ3D.YJController.GetPlayerFireCtrl().GetNickName());
+        _Global.applyEvent('主角头像', _Global.YJ3D.YJPlayer.GetavatarData());
+        
+        
         _Global.addEventListener('升级', (level) => {
+          _Global.YJ3D.YJController.GetPlayerFireCtrl().GetProperty().changeProperty();
           openCard(level);
         });
+        
+        _Global.YJ3D.YJController.GetPlayerFireCtrl().addEventListener("重生", (skillName, cCD) => {
+          _Global.YJ3D.YJController.GetPlayerFireCtrl().applyEvent("首次进入战斗");
+        });
+
+        _Global.YJ3D.YJController.GetPlayerFireCtrl().addEventListener("技能CD", (skillName, cCD) => {
+          mainPanel.changeMainPlayerSkillCD(skillName, cCD);
+        });
+
+        _Global.YJ3D.YJController.GetPlayerFireCtrl().addEventListener("添加技能", (_skill) => {
+          mainPanel.AddSkill(_skill);
+        });
+        _Global.YJ3D.YJController.GetPlayerFireCtrl().addEventListener("属性改变", (baseData) => {
+          _Global.applyEvent("属性改变",baseData);
+        });
+
       }
 
     }
@@ -200,7 +233,9 @@ class YJController_roguelike {
 
       let needExpByLevel = roguelikeGameData.needExpByLevels[level - 1];
       if (needExpByLevel.rewardType == 'skill') {
-        let skills = roguelikeGameData.skills;
+        
+        let skills = _Global.skillList;
+        // let skills = roguelikeGameData.skills;
         //随机取出3张卡片
         for (let i = 0; i < skills.length; i++) {
           const skill = skills[i];
@@ -209,7 +244,8 @@ class YJController_roguelike {
         }
       }
       if (needExpByLevel.rewardType == 'items') {
-        let items = GameItems.items;
+        let items = _Global.propList;
+        // let items = GameItems.items;
         for (let i = 0; i < items.length; i++) {
           const item = items[i];
           item.describe = templateReplace(item.describe, item);
@@ -284,4 +320,4 @@ class YJController_roguelike {
     init();
   }
 }
-export { YJController_roguelike };
+export { YJGame_roguelike };

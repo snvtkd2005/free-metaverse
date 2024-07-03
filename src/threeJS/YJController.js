@@ -3120,9 +3120,9 @@ class YJController {
         _YJAmmo.SetMoveSpeed(f);
       }
     }
-    this.addMoveSpeed = function (f) { 
+    this.SetMoveSpeedScale = function (f) { 
       if(_YJAmmo){
-        _YJAmmo.addMoveSpeed(f);
+        _YJAmmo.SetMoveSpeedScale(f);
       }
     }
     function LerpMovePlayer() {
@@ -3553,9 +3553,6 @@ class YJController {
         level: 1, //等级
         health: 500, //当前剩余生命值
         maxHealth: 500, //最大生命值
-        strength: 30, //攻击力
-        armor: 0, //护甲
-        energy: 0, //能量 
       }
 
     };
@@ -3629,6 +3626,8 @@ class YJController {
     this.updateBaseData = function (_baseData) {
       userData.baseData = _baseData;
       directUpate = true;
+			console.log(" 设置控制器baseData",  JSON.stringify(_baseData));
+
     }
     this.directUpate = function () {
       directUpate = true;

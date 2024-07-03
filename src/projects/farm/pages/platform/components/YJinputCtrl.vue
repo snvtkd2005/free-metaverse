@@ -173,6 +173,40 @@
           </div>
         </div>
 
+        <!-- 选择模型 -->
+        <div
+          v-if="item.type == 'file' && item.filetype =='静态模型'"
+          class="flex gap-2"
+        >
+          <div
+            @click="SelectItem(item.filetype, item, i)"
+            class="w-10 h-10 cursor-pointer"
+          >
+            <img
+              v-if="item.value"
+              class="w-full h-full"
+              :src="$uploadUrl + item.value+ '/thumb.png'"
+            />
+          </div>
+          <div class="w-auto h-6 rounded-sm flex">
+            <div
+              class="text-xs pl-1 self-center mx-auto w-10 h-6 leading-6 bg-gray-50 rounded-sm text-black cursor-pointer"
+              @click="SelectItem(item.filetype, item, i)"
+            >
+              浏览...
+            </div>
+
+            <div
+              v-if="item.value"
+              class="text-xs ml-2 self-center mx-auto w-10 h-6 leading-6 bg-gray-50 rounded-sm text-black cursor-pointer"
+              @click="SelectItem('移除武器', item, i)"
+            >
+              移除
+            </div>
+          </div>
+        </div>
+
+
         <div
           v-if="item.type == 'file' && item.filetype == 'equip'"
           class="flex gap-2"
@@ -473,6 +507,7 @@
       v-if="
         selectTitle == '选择武器' ||
         selectTitle == '选择装备' ||
+        selectTitle == '静态模型' ||
         selectTitle == '选择avatar'
       "
     >
@@ -574,7 +609,7 @@ export default {
 
     SelectItem(e, item, i) {
       this.settingIndex = i;
-
+      this.selectTitle = e;
       if (e == "选择特效") {
         this.selectTitle = e;
       }
@@ -629,8 +664,11 @@ export default {
         );
       }
 
-      if (e == "选择武器" || e == "选择装备") {
+      if (e == "选择武器" || e == "选择装备" ) {
         this.ClickUVAnim(this.modelList[i]);
+      }
+      if ( e == "静态模型") {
+        this.ClickUVAnim(this.modelList[i].folderBase);
       }
       if (e == "选择avatar") {
         this.ClickUVAnim(this.modelList[i]);
@@ -698,6 +736,8 @@ export default {
             }
           }
         });
+        return;
+
       }
 
       if (type == "选择音效") {
@@ -713,6 +753,8 @@ export default {
             }
           }
         });
+        return;
+
       }
       if (type == "选择通用图片") {
         this.uvAnimList = [];
@@ -725,6 +767,8 @@ export default {
             }
           }
         });
+        return;
+
       }
 
       if (type == "选择特效") {
@@ -738,15 +782,20 @@ export default {
             }
           }
         });
+        return;
       }
 
-      if (type == "选择武器" || type == "选择装备" || type == "选择avatar") {
-        let selectModelTable = "武器模型";
+      if (type == "选择武器" || type == "选择装备" || type == "选择avatar" || true) {
+        let selectModelTable = this.selectTitle;
         if (type == "选择avatar") {
           selectModelTable = "角色模型";
         }
         if (type == "选择装备") {
           selectModelTable = "装备模型";
+        }
+        
+        if (type == "选择武器") {
+          selectModelTable = "武器模型";
         }
         this.modelList = [];
         GetAllModel().then((res) => {

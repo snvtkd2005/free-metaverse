@@ -1,6 +1,45 @@
 
 export default {
- 
+
+
+  constSettingData: {
+    type:"prop",
+    name: "",
+    propType: '', //道具效果类型
+    property: '',// 属性字段
+    displayType:"none",//显示方式
+    value: 0, //效果值
+    icon: "", //图标
+    describe: "", //描述
+  },
+  // 道具类型
+  propType: [
+    { label: "基础属性", value: "basicProperty" },
+    { label: "攻击属性", value: "attackProperty" },
+    // { label: "世界Buff", value: "worldBuff" },
+  ],
+  //攻击属性
+  attackProperty: [
+    { label: "暴击率", value: "CriticalHitRate" }, 
+    { label: "暴击等级", value: "CriticalHitLevel" }, 
+    { label: "攻击速度", value: "attackSpeed" },
+    { label: "攻击强度", value: "attackPower" },
+    { label: "移动速度", value: "moveSpeed" },
+    { label: "急速等级", value: "hasteLevel" },
+    { label: "急速冷却", value: "CDRate" },
+  ],
+  // 基础属性
+  basicProperty: [
+    { label: "生命值", value: "health" },
+    { label: "护甲", value: "armor" },
+    // { label: "最大生命值", value: "addHealth" },
+  ],
+  // 显示方式
+  displayType: [
+    { label: "none", value: "none" },
+    { label: "sprite图片", value: "image" },
+    { label: "3d模型", value: "model" },
+  ],
   /**
    * 
   道具{
@@ -38,71 +77,11 @@ export default {
     // { title: "魔纹绷带", count: 10, value: 15, describe: "在8sec内恢复800点生命值", },
     // { title: "厚丝质绷带", count: 10, value: 15, describe: "在8sec内恢复640点生命值", },
 
-    
-    {
-      id:100007,
-      title: "急速冷却",
-      count: 10,
-      value: -10,
-      type:"attackProperty",
-      property:"CDRate",
-      describe: "技能冷却时间缩短${value}%",
-    },
-    {
-      id:100006,
-      title: "超强治疗药水",
-      count: 10,
-      value: 300,
-      type:"basicProperty",
-      property:"health",
-      describe: "恢复${value}点生命值",
-    },
-    {
-      id:100001,
-      title: "强效防御药剂",
-      count: 10,
-      value: 10,
-      type:"basicProperty",
-      property:"armor",
-      describe: "护甲提高${value}点",
-    },
-
-    {
-      id:100002,
-      title: "暴击率",
-      count: 10,
-      value: 100,
-      type:"attackProperty",
-      property:"CriticalHitRate",
-      describe: "暴击率提高${value}%",
-    },
-    {
-      id:100003,
-      title: "暴击伤害比例",
-      count: 10,
-      value: 10,
-      type:"attackProperty",
-      property:"CriticalHit",
-      describe: "额外伤害提高${value}%",
-    },
-    {
-      id:100004,
-      title: "攻击速度",
-      count: 10,
-      value: 10,
-      type:"attackProperty",
-      property:"speedScale",
-      describe: "攻击速度提高${value}%",
-    },
-    {
-      id:100005,
-      title: "移动速度",
-      count: 10,
-      value: 10,
-      type:"attackProperty",
-      property:"moveSpeedScale",
-      describe: "移动速度提高${value}%",
-    },
+    // 加暴击的道具：
+    // 圆润秋色石 16爆、
+    // 圆润王者琥珀 20爆、
+    // 邪恶紫黄晶 20攻强 10暴击、
+    // 高能紫黄晶 12法强 10暴击
   ],
 }
 

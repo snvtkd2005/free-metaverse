@@ -30,7 +30,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column   label="触发值" width="100">
+      <el-table-column   label="触发值" width="80">
         <template #default="scope">
           <div>
             {{ scope.row && scope.row.trigger && scope.row.trigger.value }}
@@ -46,7 +46,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column   label="目标数量" width="100">
+      <el-table-column   label="目标数量" width="80">
         <template #default="scope">
           <div>
             {{scope.row && scope.row.target &&  scope.row.target.value }}
@@ -54,8 +54,8 @@
         </template>
       </el-table-column>
 
-      <el-table-column prop="vaildDis" class=" truncate " label="攻击范围" width="100" />
-      <el-table-column prop="castTime" label="吟唱时间" width="100" />
+      <el-table-column prop="vaildDis" class=" truncate " label="攻击范围" width="80" />
+      <el-table-column prop="castTime" label="吟唱时间" width="80" />
       <el-table-column prop="animNameReady" label="吟唱动作" width="100" />
       <el-table-column prop="animName" label="施放动作" width="100" />
       <el-table-column   label="效果类型" width="100">
@@ -74,7 +74,7 @@
         </template>
       </el-table-column> 
 
-      <el-table-column label="操作" width="160">
+      <el-table-column label="操作" width="100">
         <template #default="scope">
           <el-button size="small" @click="EditorEvent('编辑', scope.row, scope.$index)">编辑</el-button>
           <!-- <el-button size="small" type="danger" @click="EditorEvent('删除', scope.row,scope.$index)">删除</el-button> -->
@@ -98,7 +98,7 @@ import skillItemEditorPanel from "./skillItemEditorPanel.vue";
 import { UploadPlayerFile } from "../../../js/uploadThreejs.js";
 
 export default {
-  name: "skillSettingPanel",
+  name: "skillPanel",
   components: { 
     skillItemEditorPanel,
   },

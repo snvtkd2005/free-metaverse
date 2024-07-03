@@ -43,7 +43,7 @@ export const dmplayer = [
             {
                 "op": "",
                 "name": "多重射击",
-                "icon": "./public/images/skillIcon/spell_hunter_exoticmunitions_poisoned.png",
+                "icon": "1719817071530/1719818260923.png",
                 "unLockLevel": 3,
                 "level": 2,
                 "cCD": 1.3,
@@ -71,7 +71,7 @@ export const dmplayer = [
             {
                 "op": "",
                 "name": "多重射击",
-                "icon": "./public/images/skillIcon/spell_hunter_exoticmunitions_poisoned.png",
+                "icon": "1719817071530/1719818260923.png",
                 "unLockLevel": 3,
                 "level": 1,
                 "cCD": 3.5000000000000018,
@@ -98,7 +98,7 @@ export const dmplayer = [
             {
                 "op": "",
                 "name": "多重射击",
-                "icon": "./public/images/skillIcon/spell_hunter_exoticmunitions_poisoned.png",
+                "icon": "1719817071530/1719818260923.png",
                 "unLockLevel": 3,
                 "level": 1,
                 "cCD": 1.2,
@@ -126,7 +126,7 @@ export const dmplayer = [
             {
                 "op": "",
                 "name": "多重射击",
-                "icon": "./public/images/skillIcon/spell_hunter_exoticmunitions_poisoned.png",
+                "icon": "1719817071530/1719818260923.png",
                 "unLockLevel": 3,
                 "level": 1,
                 "cCD": 6,
@@ -154,7 +154,7 @@ export const dmplayer = [
             {
                 "op": "",
                 "name": "多重射击",
-                "icon": "./public/images/skillIcon/spell_hunter_exoticmunitions_poisoned.png",
+                "icon": "1719817071530/1719818260923.png",
                 "unLockLevel": 3,
                 "level": 1,
                 "cCD": 6,
@@ -228,7 +228,7 @@ export const dmplayer = [
             {
                 "op": "",
                 "name": "多重射击",
-                "icon": "./public/images/skillIcon/spell_hunter_exoticmunitions_poisoned.png",
+                "icon": "1719817071530/1719818260923.png",
                 "unLockLevel": 3,
                 "level": 1,
                 "cCD": 5.4999999999999964,
@@ -256,7 +256,7 @@ export const dmplayer = [
             {
                 "op": "",
                 "name": "多重射击",
-                "icon": "./public/images/skillIcon/spell_hunter_exoticmunitions_poisoned.png",
+                "icon": "1719817071530/1719818260923.png",
                 "unLockLevel": 3,
                 "level": 1,
                 "cCD": 0.9999999999999999,
@@ -285,7 +285,7 @@ export const dmplayer = [
             {
                 "op": "",
                 "name": "多重射击",
-                "icon": "./public/images/skillIcon/spell_hunter_exoticmunitions_poisoned.png",
+                "icon": "1719817071530/1719818260923.png",
                 "unLockLevel": 3,
                 "level": 1,
                 "cCD": 1.2,
@@ -313,7 +313,7 @@ export const dmplayer = [
             {
                 "op": "",
                 "name": "多重射击",
-                "icon": "./public/images/skillIcon/spell_hunter_exoticmunitions_poisoned.png",
+                "icon": "1719817071530/1719818260923.png",
                 "unLockLevel": 3,
                 "level": 1,
                 "cCD": 4.799999999999999,
@@ -341,7 +341,7 @@ export const dmplayer = [
             {
                 "op": "",
                 "name": "多重射击",
-                "icon": "./public/images/skillIcon/spell_hunter_exoticmunitions_poisoned.png",
+                "icon": "1719817071530/1719818260923.png",
                 "unLockLevel": 3,
                 "level": 1,
                 "cCD": 3.900000000000002,
@@ -369,7 +369,7 @@ export const dmplayer = [
             {
                 "op": "",
                 "name": "多重射击",
-                "icon": "./public/images/skillIcon/spell_hunter_exoticmunitions_poisoned.png",
+                "icon": "1719817071530/1719818260923.png",
                 "unLockLevel": 3,
                 "level": 2,
                 "cCD": 0.2,
@@ -397,7 +397,7 @@ export const dmplayer = [
             {
                 "op": "",
                 "name": "多重射击",
-                "icon": "./public/images/skillIcon/spell_hunter_exoticmunitions_poisoned.png",
+                "icon": "1719817071530/1719818260923.png",
                 "unLockLevel": 3,
                 "level": 1,
                 "cCD": 2.800000000000001,
@@ -470,7 +470,7 @@ export const dmplayer = [
           {
             "op": "",
             "name": "多重射击",
-            "icon": "./public/images/skillIcon/spell_hunter_exoticmunitions_poisoned.png",
+            "icon": "1719817071530/1719818260923.png",
             "unLockLevel": 3,
             "level": 2,
             "cCD": 2.0000000000000004,
@@ -498,7 +498,7 @@ export const dmplayer = [
             {
               "op": "",
               "name": "多重射击",
-              "icon": "./public/images/skillIcon/spell_hunter_exoticmunitions_poisoned.png",
+              "icon": "1719817071530/1719818260923.png",
               "unLockLevel": 3,
               "level": 130,
               "cCD": 1.6000000000000003,

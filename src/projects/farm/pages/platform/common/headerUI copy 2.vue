@@ -74,7 +74,8 @@ export default {
   },
   data() {
     return {
-      display: false,
+      display: true,
+      // display: false,
       //npc头像
       hover: false,
       playerImg: "",

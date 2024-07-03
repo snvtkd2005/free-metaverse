@@ -28,11 +28,11 @@ class Interface {
     _Global.addEventListener = this.addEventListener;
 
     // 执行事件
-    this.applyEvent = function (e,v,v2) {
+    this.applyEvent = function (e,v,v2,v3) {
       for (let i = 0; i < eventList.length; i++) {
         const element = eventList[i];
         if (element.eventName == e) {
-          element.fn(v,v2);
+          element.fn(v,v2,v3);
         }
       }
     }
@@ -175,6 +175,10 @@ class Interface {
       );
       _Global.skillList = res.data;
 
+      res = await _this.$axios.get(
+        _this.$uploadPlayerUrl + "prop_data.txt" + "?time=" + new Date().getTime()
+      );
+      _Global.propList = res.data;
       // console.log("_Global.animList = ", _Global.animList);
       // console.log("_Global.skillList = ", _Global.skillList);
     }
@@ -360,7 +364,7 @@ class Interface {
         return;
       }
       if (type == "设置技能进度条") {
-			  _this.$refs.HUD.$refs.skillProgressUI.SetProgress(msg);
+        _Global.applyEvent("设置技能进度条",msg); 
         return;
       }
       if (type == "角色死亡") {

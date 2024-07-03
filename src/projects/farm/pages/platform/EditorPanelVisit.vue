@@ -24,6 +24,7 @@
         ref="loadingPanel"
       />
  
+      <!-- HUD -->
       <HUD v-if="hasHUD" ref="HUD" />
 
       <!-- 鸟瞰2d点位 -->
@@ -451,7 +452,8 @@ export default {
       this.hasHUD = this.sceneData.setting.hasHUD;
       document.title = this.sceneData.setting.title; 
 
-      _Global.skillList_scene = this.sceneData.skillList;
+      _Global.skillList = this.sceneData.skillList;
+      _Global.propList = this.sceneData.propList;
       _Global.hasAvatar = this.sceneData.setting.hasAvatar;
       this.hasAvatar = this.sceneData.setting.hasAvatar;
       _Global.user.camp =

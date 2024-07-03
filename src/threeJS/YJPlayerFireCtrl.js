@@ -88,10 +88,9 @@ class YJPlayerFireCtrl {
 					break;
 				case "重生":
 					this.SetPlayerState("normal");
-					baseData.health = baseData.maxHealth;
-					baseData.shield = 0;
-					baseData.energy = 0;
-					baseData.debuffList = [];
+					_YJPlayerProperty.EventHandler("重生");
+					scope.applyEvent("重生");
+					UpdateData();
 					break;
 				case "选中npc":
 					SelectNPC(state.msg);
@@ -137,165 +136,22 @@ class YJPlayerFireCtrl {
 		this.SetNavPathToNone = function () {
 
 		}
+		this.GetHealthPerc = function () {
+			return parseInt(baseData.health / baseData.maxHealth * 100);
+		  }
 		this.GetNickName = function () {
 			return _YJPlayer.GetNickName();
 		}
 		//#region  玩家使用技能
-		
+		this.skillProgress = function(skillCastTime,skillName,reverse){
+			_Global.applyEvent("设置技能进度条", skillCastTime,skillName,reverse);
+		}
+		this.LookatTarget = function(targetModel){
+			// _this.YJController.PlayerLookatPos(npcTransform.GetWorldPos());
+		}
 		function UseSkill(skillItem) {
 			_YJSkill.UseSkill(skillItem);
-			return;
-			state.inSkill = true;
-
-			console.log("使用技能攻击 ", skillItem);
-			let { animName, animNameReady, skillName, target, effect } = skillItem;
-			effect.skillName = skillName;
-			readyskillAudioName = skillName;
-			scope.playAudio(skillItem.skillReadyAudio, readyskillAudioName);
-
-			if (skillItem.castTime > 0) {
-				// 需要施法的技能才发送技能同步，瞬发技能无需同步
-				_Global.DyncManager.SendDataToServer("玩家技能",
-					{ playerId: _YJPlayer.id, skill: skillItem });
-				attackStepSpeed = skillItem.castTime;
-				vaildAttackDis = skillItem.vaildDis;
-
-				_Global.ReportTo3D("设置技能进度条", attackStepSpeed);
-
-			}
-
-			if (target.type == "target" || target.type == "random") {
-				// 持续伤害
-				if (effect.type == "contDamage") {
-					let num = 0;
-					let count = parseInt(attackStepSpeed / effect.time);
-
-					for (let k = 0; k < count; k++) {
-						setTimeout(() => {
-							if (baseData.health <= 0) {
-								state.inSkill = false;
-								return;
-							}
-							// 目标攻击
-							if (npcComponent == null || npcComponent.isDead) {
-								state.inSkill = false;
-								return;
-							}
-							SendDamageToTarget(npcComponent, effect);
-							num++;
-							if (num == count) {
-								state.inSkill = false;
-							}
-						}, effect.time * k * 1000);
-					}
-                    scope.SetPlayerState("施法", skillItem.animName);
-					return;
-				}
-
-				let fn = () => {
-
-					fireParticleId = skillItem.skillFireParticleId;
-					_Global.YJAudioManager().stopAudio(readyskillAudioName);
-					//播放音效
-					scope.playAudio(skillItem.skillFireAudio);
-
-					_this.YJController.SetPlayerAnimName(animName);
-					SendDamageToTarget(npcComponent, effect);
-					setTimeout(() => {
-						scope.SetPlayerState("normal");
-					}, 500);
-				}
-				if (attackStepSpeed > 0) {
-					_this.YJController.SetPlayerAnimName(animNameReady);
-					vaildAttackLater = setTimeout(() => {
-						fn();
-					}, attackStepSpeed * 1000);
-				} else {
-					fn();
-				}
-
-				_this.YJController.PlayerLookatPos(npcTransform.GetWorldPos());
-
-			}
-
-			// 范围攻击
-			if (target.type == "area") {
-				let max = target.value;
-				// 范围攻击。 max为1时，表示不使用范围攻击
-				let npcs = _Global.DyncManager.GetNpcByPlayerForwardInArea(vaildAttackDis, max);
-				console.log(" 玩家范围攻击 ", npcs);
-				// 持续伤害
-				if (effect.type == "contDamage") {
-					let num = 0;
-					let count = parseInt(attackStepSpeed / effect.time);
-					for (let k = 0; k < count; k++) {
-						setTimeout(() => {
-							if (baseData.health <= 0) {
-								state.inSkill = false;
-								return;
-							}
-							// 范围攻击
-							for (let i = 0; i < npcs.length; i++) {
-								if (npcs[i] == null || npcs[i].isDead) {
-									continue;
-								}
-								console.log(" 玩家范围攻击 持续攻击 ", npcs[i]);
-								SendDamageToTarget(npcs[i], effect);
-							}
-							num++;
-							if (num == count) {
-								state.inSkill = false;
-								scope.SetPlayerState("normal");
-							}
-						}, effect.time * k * 1000);
-					}
-					_this.YJController.SetPlayerAnimName(animName);
-					return;
-				}
-
-				let fn = () => {
-					_this.YJController.SetPlayerAnimName(animName);
-					for (let i = 0; i < npcs.length; i++) {
-						if (npcs[i] == null || npcs[i].isDead) {
-							continue;
-						}
-						SendDamageToTarget(npcs[i], effect);
-					}
-					setTimeout(() => {
-						scope.SetPlayerState("normal");
-					}, 500);
-				}
-				if (attackStepSpeed > 0) {
-					_this.YJController.SetPlayerAnimName(animNameReady);
-					vaildAttackLater = setTimeout(() => {
-						fn();
-					}, attackStepSpeed * 1000);
-				} else {
-					fn();
-				}
-
-			}
-
-
-			if (target.type == "none") {
-				// 无需目标的法术表示，目标为自身 或 其他生活法术
-				let fn = () => {
-					_this.YJController.SetPlayerAnimName(animName);
-
-					SendSkill(effect, skillItem);
-					setTimeout(() => {
-						scope.SetPlayerState("normal");
-					}, 500);
-				}
-				if (attackStepSpeed > 0) {
-					_this.YJController.SetPlayerAnimName(animNameReady);
-					vaildAttackLater = setTimeout(() => {
-						fn();
-					}, attackStepSpeed * 1000);
-				} else {
-					fn();
-				}
-			}
+			return; 
 		}
 
 		let skillList = [];
@@ -319,7 +175,7 @@ class YJPlayerFireCtrl {
 					pointType: "npc",
 					data: {
 						avatarData: avatarData,
-						baseData: baseData,
+						baseData: _YJPlayerProperty.GetBaseData(),// baseData,
 						weaponData: weaponData != null ? _this.YJController.GetUserDataItem("weaponDataData") : null,
 					}
 				}, //模型热点信息
@@ -421,24 +277,16 @@ class YJPlayerFireCtrl {
 		}
 
 
-
+		this.getPlayerType = function(){
+			return "玩家";
+		}
 		function SendDamageToTarget(target, effect) {
 			if (!state.inFire) {
 				state.inFire = true;
 			}
 			EventHandler("进入战斗", target);
-			let { type, skillName, value, time, duration } = effect;
-			// console.log("effect ",attackProperty.CriticalHitRate,v,value,effect);
-			effect.value = _YJPlayerProperty.GetDamage(value);
-			shootTarget(target.transform, attackStepSpeed * 300, () => {
-				_Global.DyncManager.SendSceneStateAll("玩家对NPC",
-					{
-						playerId: _YJPlayer.id,
-						npcId: target.transform.id,
-						skillName: skillName,
-						effect: effect
-					});
-			});
+ 
+			_YJSkill.SendDamageToTarget(target,effect);
 		}
 		function shootTarget(taget, time, callback) {
 			_Global.DyncManager.shootTarget(GetShootingStartPosFn(), taget, time, "npc", fireParticleId, callback);
@@ -510,6 +358,9 @@ class YJPlayerFireCtrl {
 			if (_YJPlayer.fireId != -1) {
 				return;
 			}
+			if (npcTransform == null) {
+				return;
+			}
 			_Global.DyncManager.PlayerAddFire(npcTransform.GetComponent("NPC"), _YJPlayer);
 		}
 
@@ -528,6 +379,7 @@ class YJPlayerFireCtrl {
 					clearTimeout(vaildAttackLater);
 					vaildAttackLater = null;
 				}
+				scope.applyEvent("死亡或离开战斗");
 				return true;
 			}
 		}
@@ -543,6 +395,8 @@ class YJPlayerFireCtrl {
 				}
 			}
 			fireLater = [];
+            EventHandler("中断技能");
+
 		}
 		function removeDebuffById(id) {
 			for (let i = baseData.debuffList.length - 1; i >= 0; i--) {
@@ -563,10 +417,9 @@ class YJPlayerFireCtrl {
 				ReadyFire(); //被攻击且没有目标时，自动攻击
 
 				PlayerAddFire();
-				//自动显示其头像 
-				_Global._SceneManager.SetTargetModel(npcTransform);
 
 				EventHandler("设置目标", npcComponent);
+				scope.applyEvent("设置目标",npcComponent);
 
 			}
 
@@ -588,9 +441,6 @@ class YJPlayerFireCtrl {
 			if (type == "perDamage") {
 
 				//每秒伤技能是debuff，显示在角色状态上
-				if (baseData.debuffList == undefined) {
-					baseData.debuffList = [];
-				}
 				let id = new Date().getTime();
 				let count = parseInt(duration / time);
 				let num = 0;
@@ -657,6 +507,9 @@ class YJPlayerFireCtrl {
 			npcTransform = _npcTransform;
 			if (npcTransform != null) {
 				npcComponent = npcTransform.GetComponent("NPC");
+				scope.applyEvent("设置目标",npcComponent);
+				//自动显示其头像 
+				_Global._SceneManager.SetTargetModel(npcTransform);
 			}
 		}
 		function ReadyFire() {
@@ -699,6 +552,10 @@ class YJPlayerFireCtrl {
 			_YJPlayer.GetAvatar().SetActionScale(1 + attackProperty.speedScale * 0.3);
 			return attackStepSpeed / attackProperty.speedScale;
 		}
+		this.SetMoveSpeed = function(f){
+			_Global.YJ3D.YJController.SetMoveSpeedScale(f);
+			_Global.YJ3D.YJPlayer.GetAvatar().SetActionScale(1 + f);
+		}
 
 		let toIdelLater = null;
 		let skillName = "";
@@ -726,7 +583,6 @@ class YJPlayerFireCtrl {
 			isMoving: false,//是否正在移动
 			inFire: false,//是否正在战斗状态
 			readyAttack: false,
-			inSkill: false,//是否正在施放技能
 		};
 		this.SetState = function (e, v) {
 			state[e] = v;
@@ -790,15 +646,7 @@ class YJPlayerFireCtrl {
 			// console.log(" 有效攻击目标 "); 
 			var { s, v, a } = GetSkillDataByWeapon(weaponData);
 			//有效攻击
-			SendDamageToTarget(npcComponent, { skillName: s, type: "damage", value: baseData.strength });
-			// 范围攻击
-			if (attackProperty.targetMax > 1) {
-				let npcs = _Global.DyncManager.GetNpcByPlayerForwardInFireId(_YJPlayer.fireId, _YJPlayer.camp, vaildAttackDis, attackProperty.targetMax - 1, npcTransform.id);
-				console.log(attackProperty.targetMax, npcs);
-				for (let i = 0; i < npcs.length; i++) {
-					SendDamageToTarget(npcs[i], { skillName: s, type: "damage", value: baseData.strength });
-				}
-			}
+			_YJSkill.SendDamageToTarget(npcComponent, { skillName: s, type: "damage", value: baseData.basicProperty.strength });
 		}
 		function CheckState() {
 			if (playerState == PLAYERSTATE.ATTACK) {
@@ -907,10 +755,9 @@ class YJPlayerFireCtrl {
 					vaildAttackLater = null;
 					_Global.ReportTo3D("设置技能进度条", "中断");
 				}
-				if (state.inSkill) {
+				if (!_YJSkill.GetinSkill()) {
 					_Global.ReportTo3D("设置技能进度条", "中断");
 					_Global.YJAudioManager().stopAudio(readyskillAudioName);
-					state.inSkill = false;
 				}
 				if (toIdelLater != null) {
 					clearTimeout(toIdelLater);
@@ -952,6 +799,13 @@ class YJPlayerFireCtrl {
 		this.TargetDead = function () {
 
 		}
+		
+		this.CheckTargetVaild = function(){
+			if(npcComponent && !npcComponent.isDead){
+				return true;
+			}
+			return false;
+		}
 		function CheckTargetDead() {
 
 			if (npcComponent && npcComponent.isDead) {
@@ -986,7 +840,6 @@ class YJPlayerFireCtrl {
 						scope.playAudio(_fire.audio);
 					}
 					GetAnimNameByPlayStateAndWeapon(e, weaponData);
-					_Global.ReportTo3D("设置技能进度条", "完成");
 					CheckTargetDead();
 
 					if (state.canMoveAttack && state.isMoving && _Global.YJ3D.YJPlayer.GetAvatar().layerBlendPerbone(animName, "run", false, true)) {
@@ -1007,7 +860,6 @@ class YJPlayerFireCtrl {
 					scope.playAudio(raid);
 					GetAnimNameByPlayStateAndWeapon(e, weaponData);
 
-					_Global.ReportTo3D("设置技能进度条", getAttackSpeed());
 
 					if (vaildAttackLater == null) {
 						// 技能施放时间到时，重新立即攻击
@@ -1093,7 +945,7 @@ class YJPlayerFireCtrl {
 							}
 						}
 					}
-					console.log(e, playerState, state.canAttack);
+					// console.log(e, playerState, state.canAttack);
 					break;
 				case "战斗结束":
 					if (playerState == PLAYERSTATE.NORMAL) {
@@ -1107,7 +959,8 @@ class YJPlayerFireCtrl {
 				case "施法":
 					animName = _animName;
 					break;
-				case "attack":
+				case "吟唱":
+					animName = _animName;
 					break;
 				case "interactive":
 					break;
@@ -1148,12 +1001,18 @@ class YJPlayerFireCtrl {
 		this.GetSkill = function () {
 			return _YJSkill;
 		}
+		this.GetProperty = function () {
+			return _YJPlayerProperty;
+		}
 		function Init() {
 			if (baseData == null) {
+
 				baseData = _this.YJController.GetUserData().baseData;
+				console.log(" 从控制器获取 baseData",  JSON.stringify(baseData));
 				if (_YJPlayerProperty == null) {
 					_YJPlayerProperty = new YJPlayerProperty(scope);
 				}
+				
 
 				if (_YJSkill == null) {
 					_YJSkill = new YJSkill(scope);
@@ -1162,7 +1021,7 @@ class YJPlayerFireCtrl {
 			if (_YJEquip == null) {
 				_YJEquip = new YJEquip(scope);
 			}
-
+			scope.id = _YJPlayer.id;
 			UpdateData();
 		}
 		Init();

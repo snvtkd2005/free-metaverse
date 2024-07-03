@@ -91,6 +91,28 @@
         </div>
       </div>
 
+      <div class=" mt-4  ">
+        <div class=" mb-2 flex">
+          <div class=" text-left ">道具</div>
+          <div class=" ml-2 p-2 h-6  bg-white text-black flex  cursor-pointer " @click="ClickHandler('添加道具')">
+            <div class=" self-center ">+</div>
+          </div>
+        </div>
+        <div class=" flex flex-wrap gap-2">
+          <div v-for="(item, i) in propList" :key="i" class=" w-auto h-auto relative flex ">
+            <div @click="ClickHandler('修改道具', item, i)" class=" w-10 h-10 bg-black cursor-pointer ">
+              <img v-if="item.icon" class=" w-full h-full" :src="$uploadUVAnimUrl + item.icon" />
+            </div>
+            <div class=" ml-2 flex  h-6 p-1 text-sm bg-white text-black  cursor-pointer"
+              @click="ClickHandler('删除道具', item, i)">
+              <div class=" self-center">-</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      
+
       <!-- icon和启动画面 -->
       <div class=" mt-4  ">
         <div class="  ">
@@ -133,6 +155,7 @@
   </div>
 
   <skillItemEditorPanel ref="skillItemEditorPanel" />
+  <propItemEditorPanel ref="propItemEditorPanel" />
 </template>
 
 <script>
@@ -145,6 +168,7 @@ import YJinput_upload from "../components/YJinput_upload.vue";
 import YJinputCtrl from "../components/YJinputCtrl.vue";
 
 import skillItemEditorPanel from "../panels/skillItemEditorPanel.vue";
+import propItemEditorPanel from "../panels/propItemEditorPanel.vue";
 
 import { GetAllHDR, RequestMetaWorld } from "../../../js/uploadThreejs.js";
 
@@ -158,6 +182,7 @@ export default {
     YJinput_upload,
     YJinputCtrl,
     skillItemEditorPanel,
+    propItemEditorPanel,
   },
   data() {
     return {
@@ -224,10 +249,11 @@ export default {
         // }, 
       ],
       sceneData: {
-        
+       
       },
       avatarList: [],
       skillList: [],
+      propList: [],
       thumbUrl: "",
       thumbName:"",
       loadingName:"",
@@ -260,8 +286,14 @@ export default {
       }
       this.avatarList = this.sceneData.avatarList;
       this.skillList = this.sceneData.skillList;
-      _Global.skillList_scene = this.skillList;
+      _Global.skillList = this.skillList;
 
+      if (this.sceneData.propList == undefined) {
+        this.sceneData.propList = [];
+      }
+      this.propList = this.sceneData.propList;
+      _Global.propList = this.propList;
+      
       this.Utils.SetSettingItemByPropertyAll(this.setting, this.sceneData); 
 
       this.ChangeUIState();
@@ -279,6 +311,9 @@ export default {
 
     AddSkill(skill) {
       this.skillList.push(skill);
+    },
+    AddProp(item){
+      this.propList.push(item);
     },
     load(item, modelType) {
       console.log(item, modelType);
@@ -298,6 +333,8 @@ export default {
       if (e == "删除角色") {
         this.avatarList.splice(i, 1);
       }
+
+
       if (e == "添加技能") {
         this.parent.$refs.skillSelectPanel.SetVisible(true);
       }
@@ -307,14 +344,33 @@ export default {
         this.$refs.skillItemEditorPanel.initValue(JSON.parse(JSON.stringify(item)));
         this.$refs.skillItemEditorPanel.displayTriggerType(); 
       }
-      
       if (e == "删除技能") {
         this.skillList.splice(i, 1);
       }
+
+
+      if (e == "添加道具") {
+        this.parent.$refs.propSelectPanel.SetVisible(true);
+      }
+      if (e == "修改道具") {
+        this.propIndex = i;
+        this.$refs.propItemEditorPanel.dialogTitle = "编辑道具";
+        this.$refs.propItemEditorPanel.initValue(JSON.parse(JSON.stringify(item)));
+      }
+      if (e == "删除道具") {
+        this.propList.splice(i, 1);
+      }
+
+
+
     },
     saveSkill(skillData){
       this.skillList[this.skillIndex] = skillData;
     },
+    saveProp(item){
+      this.propList[this.propIndex] = item;
+    },
+
     MetaWorld(e, item, i) {
       if (e == "添加") {
         this.metaWorldCoordinate.push({ x: 0, y: 0, vaild: false });

@@ -34,6 +34,8 @@
     <div class="absolute" :style="panel3dStyle">
       <YJmetaBase ref="YJmetaBase" />
       <div class="absolute left-0 top-0 w-full h-full pointer-events-none">
+        
+        <!-- HUD -->
         <HUD v-if="hasHUD" ref="HUD" />
       </div>
 
@@ -176,6 +178,7 @@
     <modelSelectPanel ref="modelSelectPanel" />
     <!-- 给npc添加技能 -->
     <skillSelectPanel ref="skillSelectPanel" />
+    <propSelectPanel ref="propSelectPanel" />
 
     <!-- 截图区域安全区域 -->
     <PanelCut @cancel="CancelCut" ref="PanelCut" />
@@ -193,6 +196,7 @@ import modelPanel from "./panels/modelPanel.vue";
 
 import modelSelectPanel from "./panels/modelSelectPanel.vue";
 import skillSelectPanel from "./panels/skillSelectPanel.vue";
+import propSelectPanel from "./panels/propSelectPanel.vue";
 
 import settingPanelCtrl from "./settingPanel/settingPanelCtrl.vue";
 
@@ -226,6 +230,7 @@ export default {
     modelPanel,
     modelSelectPanel,
     skillSelectPanel,
+    propSelectPanel,
     PanelCut,
     hierarchy,
     settingPanel,
@@ -1561,7 +1566,6 @@ export default {
         }
       });
 
-      this.Interface.load3dComplete();
       this._SceneManager.LoadMapCompleted();
       this.$refs.YJmetaBase.OpenThreejs();
       if (this.sceneData.setting.hasBGM && this.sceneData.setting.BGMurl) {
@@ -1570,6 +1574,7 @@ export default {
           this.sceneData.setting.BGMurl
         );
       }
+      this.Interface.load3dComplete();
 
       setTimeout(() => {
         this.OpenThreejs();

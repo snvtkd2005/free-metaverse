@@ -35,7 +35,6 @@ class YJSkill {
             });
 
             owner.addEventListener("攻击", (_skillName, particle) => {
-                fireParticleId = particle;
                 skillName = _skillName;
             });
             owner.addEventListener("普通攻击目标", (targetModel, skill) => {
@@ -73,6 +72,8 @@ class YJSkill {
             }
             skillList.push(_skill);
             CheckSkill_Persecond(_skill);
+            owner.applyEvent("添加技能", _skill);
+            console.log(" 添加技能 ", _skill);
         }
         this.EditorSkill = function (_skill) {
             for (let i = 0; i < skillList.length; i++) {
@@ -101,6 +102,7 @@ class YJSkill {
             if (oldSkillList.length != 0) {
                 skillList = JSON.parse(JSON.stringify(oldSkillList));
             }
+            EventHandler("中断技能");
         }
         this.ReceiveControl = function (_targetModel, skillName, effect, skillItem) {
             ReceiveControl(_targetModel, skillName, effect, skillItem);
@@ -127,7 +129,6 @@ class YJSkill {
                 return;
             }
             if (type == "shield") {
-                baseData.shield = value;
                 ReceiveSkill(effect, skillItem);
                 return;
             }
@@ -173,19 +174,20 @@ class YJSkill {
         function ReceiveSkill(effect, skillItem) {
             let skillName = effect.controlId;
             let type = effect.type;
+            let { receiveEffect } = skillItem;
             if (skillName == "冰霜新星") {
                 owner.inControl = true;
                 if (HasControlModel(skillName)) {
                     return false;
                 }
-                _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillByModelType(effect.receiveEffect.modelType,
-                    effect.receiveEffect.particleId,  (model) => {
-                    model.SetPos(owner.GetWorldPos());
-                    let nameScale = owner.GetScale();
-                    model.AddScale(new THREE.Vector3(nameScale, nameScale, nameScale));
-                    model.SetActive(true);
-                    AddControlModel(skillName, model);
-                });
+                _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillByModelType(receiveEffect.modelType,
+                    receiveEffect.particleId, (model) => {
+                        model.SetPos(owner.GetWorldPos());
+                        let nameScale = owner.GetScale();
+                        model.AddScale(new THREE.Vector3(nameScale, nameScale, nameScale));
+                        model.SetActive(true);
+                        AddControlModel(skillName, model);
+                    });
 
                 // _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().CopyModel("冰霜新星模型", (model) => {
                 //     model.SetPos(owner.GetWorldPos());
@@ -199,6 +201,9 @@ class YJSkill {
                 if (HasControlModel(skillItem.skillFireParticleId)) {
                     return false;
                 }
+
+                baseData.buffList.push({ type: 'shield', value: effect.value });
+
                 _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillGroup(skillItem.skillFireParticleId, (model) => {
                     model.SetPos(owner.GetWorldPos());
                     let nameScale = owner.GetScale();
@@ -290,321 +295,272 @@ class YJSkill {
             }
         }
 
-        let firePart = ''; //攻击特效放出施法部位
-        let fireParticleId = ''; //攻击特效id 
         let readyskillAudioName = "";
         let skillName = "";
         let vaildAttackDis = 3; //有效攻击距离
         // 攻击速度，攻击间隔，判定有效的攻击时机
         let attackStepSpeed = 3; //攻击间隔/攻击速度
-        function skillEnd() {
+        function skillEnd(skillItem) {
             inSkill = false;
-
+            if(skillItem){
+                skillItem.cCD = 0;
+            }
             _Global.YJAudioManager().stopAudio(readyskillAudioName);
 
         }
-        this.UseSkill = function(skillItem){
+        this.UseSkill = function (skillItem) {
             SkillGo(skillItem);
         }
+        let skillCastTime = 0;
         //施放技能
         function SkillGo(skillItem) {
             if (owner.isDead) {
                 return false;
             }
-            // console.error("施放技能",skillItem.cCD,skillItem.CD, effect);
-			let { animName, animNameReady, skillName, target, effect } = skillItem;
+
+            // console.error(owner.GetNickName() + "施放技能",skillItem.cCD,skillItem.CD, skillItem);
+            let { animName, animNameReady, skillName, target, effect } = skillItem;
 
             effect.skillName = skillItem.skillName;
             readyskillAudioName = skillName;
 
-            
+
             vaildAttackDis = skillItem.vaildDis;
             attackStepSpeed = skillItem.castTime;
+            skillCastTime = skillItem.castTime * (1 - baseData.attackProperty.hasteLevel);
+            // console.log(" baseData ",baseData);
             owner.SetVaildAttackDis(vaildAttackDis);
 
             let { skillFireAudio, skillFirePart, skillFireParticleId, skillReadyAudio, skillReadyParticleId } = skillItem;
-            if (skillFirePart) {
-                firePart = skillFirePart;
-            }
-            if (skillFireParticleId) {
-                fireParticleId = skillFireParticleId;
-            }
-
-
-            let targetType = skillItem.target.type;
-            if (targetType == "target") {
-
-                if (targetModel == null || (targetModel && targetModel.isDead)) {
-                    skillEnd();
-                    return false;
-                }
-                let { type, skillName, value, time, duration, describe, controlId } = effect;
-
-                if (controlId == "冲锋") {
-                    //移动速度提高，冲向目标
-                    owner.MoveToTargetFast();
-                }
-                // 持续伤害
-                else if (effect.type == "contDamage") {
-                    let num = 0;
-                    let count = parseInt(skillItem.castTime / effect.time);
-
-                    for (let k = 0; k < count; k++) {
-                        castSkillList.push(setTimeout(() => {
-                            if (baseData.health == 0) {
-                                skillEnd();
-                                return;
-                            }
-                            // 目标攻击
-                            if (targetModel == null || targetModel.isDead) {
-                                skillEnd();
-                                return;
-                            }
-                            SendDamageToTarget(targetModel, effect);
-                            num++;
-                            if (num == count) {
-                                skillEnd();
-                            }
-                        }, effect.time * k * 1000));
+            let areaTargets = [];
+            let errorLog = "";
+            let checkCan = () => {
+                let targetType = skillItem.target.type;
+                if (targetType == "target") {
+                    if (targetModel == null) {
+                        errorLog = "无目标"; 
+                        return false;
                     }
-                    owner.SetPlayerState("施法", skillItem.animName);
-                    if (toIdelLater != null) { clearTimeout(toIdelLater); };
-                    toIdelLater = setTimeout(() => {
-                        owner.SetValue("readyAttack_doonce", 0);
-                        toIdelLater = null;
-                        skillEnd();
-                    }, attackStepSpeed * 1000);//间隔等于攻击动作时长 
-                } else {
+                    if ((targetModel && targetModel.isDead)) {
+                        errorLog = "目标已死亡"; 
+                        return false;
+                    }
+                    let distance = owner.GetWorldPos().distanceTo(targetModel.GetWorldPos());
+                    if (distance > vaildAttackDis) { 
+                        errorLog = "与目标距离过远 "+distance + '/' + vaildAttackDis; 
+                        return false;
+                    }
 
-                    if (skillItem.castTime > 0) {
-                        owner.SetPlayerState("施法", skillItem.animNameReady);
+                }
+                // 范围攻击
+                if (targetType == "area") {
+                    let max = skillItem.target.value;
+                    areaTargets = _Global._YJFireManager.GetOtherNoSameCampInArea(owner.GetCamp(), vaildAttackDis, max, owner.GetWorldPos());
+                    // let players = _Global.DyncManager.GetPlayerByNpcForwardInFireId(
+                    //     owner, owner.fireId, vaildAttackDis, skillItem.target.value);
+                    // console.error(owner.GetNickName()+" 范围攻击目标 ",players);
+                    // 范围内无目标，不施放技能
+                    if (areaTargets.length == 0) { 
+                        errorLog = "有效范围内无目标"; 
+                        return false;
+                    }
+                }
 
-                        EventHandler("中断技能", false);
-                        if (vaildAttackLater == null) {
-                            vaildAttackLater = setTimeout(() => {
-                                if (targetModel != null && targetModel.isDead) {
-                                    owner.TargetDead();
+                if (targetType.includes("random")) {
+                    if (targetType.includes("Friendly")) {
+                        // 找友方目标 
+                        let { player, playerId } = _Global._YJNPCManager.GetSameCampByRandom(owner.GetCamp());
+                        randomSelectModel = player;
+                        skillItem.effect.playerId = playerId;
+                    } else {
+                        // 找敌对阵营的目标
+                        let { player, playerId } = _Global.DyncManager.GetNoSameCampByRandom(owner.GetCamp());
+                        randomSelectModel = player;
+                        skillItem.effect.playerId = playerId;
+                    }
+                    // 随机进没目标时，返回false 不施放技能
+                    if (randomSelectModel == null) {
+                        return false;
+                    }
+                    if (randomSelectModel != null && randomSelectModel.isDead) {
+                        owner.TargetDead();
+                        return false;
+                    }
+                }
+
+
+                if (targetType == "none" || targetType == "self" || targetType == "selfPos") {
+                }
+
+                if (targetType.includes("minHealth")) {
+                    if (targetType.includes("Friendly")) {
+                        // 最少生命值的友方,包含自身
+                        let players = _Global._YJNPCManager.GetSameCamp(owner.GetCamp());
+                        let max = 100;
+                        let _player = null;
+                        for (let i = 0; i < players.length; i++) {
+                            const player = players[i];
+                            if (player.isDead) {
+                                continue;
+                            }
+                            if (player.GetHealthPerc() < max) {
+                                max = player.GetHealthPerc();
+                                _player = player;
+                            }
+                        }
+                        if (_player == null) {
+                            return false;
+                        }
+                        randomSelectModel = _player;
+                        skillItem.effect.playerId = _player.id;
+                    } else {
+                    }
+                    if (randomSelectModel == null) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            if (!checkCan()) {
+                console.error(owner.GetNickName() +  skillName +"施放失败: " + errorLog);
+                return false;
+            }
+
+            let fn = () => {
+
+                let targetType = skillItem.target.type;
+                if (targetType == "target") {
+                    let { type, skillName, value, time, duration, describe, controlId } = effect;
+
+                    if (controlId == "冲锋") {
+                        //移动速度提高，冲向目标
+                        owner.MoveToTargetFast();
+                    }
+                    // 持续伤害
+                    else if (effect.type == "contDamage") {
+                        let num = 0;
+                        let count = parseInt(skillItem.castTime / effect.time);
+
+                        for (let k = 0; k < count; k++) {
+                            castSkillList.push(setTimeout(() => {
+                                // 目标攻击
+                                if (targetModel == null || targetModel.isDead) {
+                                    skillEnd();
                                     return;
                                 }
-                                owner.SetPlayerState("施法", skillItem.animName);
-                                owner.playAudio(skillItem.skillFireAudio, readyskillAudioName);
-
-                                vaildAttackLater2 = setTimeout(() => {
-                                    if (targetModel == null || targetModel.isDead) {
-                                        EventHandler("中断技能");
-                                        return;
-                                    }
-
-                                    SendDamageToTarget(targetModel, effect);
-                                    _Global.DyncManager.SendDataToServer(owner.owerType('技能攻击'),
-                                        { npcId: owner.id, skill: effect });
-                                }, attackStepSpeed * 100);
-                                if (toIdelLater != null) { clearTimeout(toIdelLater); };
-                                toIdelLater = setTimeout(() => {
-                                    owner.SetValue("readyAttack_doonce", 0);
-
-                                    toIdelLater = null;
+                                SendDamageToTarget(targetModel, effect, skillItem);
+                                num++;
+                                if (num == count) {
                                     skillEnd();
-                                }, attackStepSpeed * 400);//间隔等于攻击动作时长
-                                vaildAttackLater = null;
-                            }, skillItem.castTime * 1000);
+                                }
+                            }, effect.time * k * 1000));
                         }
-
                     } else {
-                        owner.SetPlayerState("施法", skillItem.animName);
-                        owner.playAudio(skillItem.skillFireAudio, readyskillAudioName);
-
                         vaildAttackLater2 = setTimeout(() => {
                             if (targetModel == null || targetModel.isDead) {
                                 EventHandler("中断技能");
                                 return;
                             }
-                            SendDamageToTarget(targetModel, effect);
+                            SendDamageToTarget(targetModel, effect, skillItem);
                             _Global.DyncManager.SendDataToServer(owner.owerType('技能攻击'),
                                 { npcId: owner.id, skill: effect });
-                        }, attackStepSpeed * 100);
+                        }, skillCastTime * 100);
                         if (toIdelLater != null) { clearTimeout(toIdelLater); };
                         toIdelLater = setTimeout(() => {
                             owner.SetValue("readyAttack_doonce", 0);
-
                             toIdelLater = null;
                             skillEnd();
-                        }, attackStepSpeed * 400);//间隔等于攻击动作时长
+                        }, skillCastTime * 400);//间隔等于攻击动作时长
+
 
                     }
-                }
-            }
-
-            // 范围攻击
-            if (targetType == "area") {
-                let max = skillItem.target.value;
-                let players =_Global._YJNPCManager.GetOtherNoSameCampInArea(owner.GetCamp(), vaildAttackDis,max, owner.GetWorldPos());
-                // let players = _Global.DyncManager.GetPlayerByNpcForwardInFireId(
-                //     owner, owner.fireId, vaildAttackDis, skillItem.target.value);
-                // 范围内无目标，不施放技能
-                if (players.length == 0) {
-                    return true;
-                }
-                if (effect.type == "damage") {
-                    for (let l = 0; l < players.length; l++) {
-                        if (players[l].isDead) {
-                            continue;
-                        }
-                        SendDamageToTarget(players[l], effect);
-                    }
-                    owner.ChangeAnim(skillItem.animName, "idle");
+                    //面向目标
+                    owner.LookatTarget(targetModel);
                 }
 
-                else if (effect.type == "contDamage") {
-                    // 持续伤害
-                    let num = 0;
-                    let count = parseInt(skillItem.castTime / effect.time);
-                    for (let k = 0; k < count; k++) {
-                        castSkillList.push(setTimeout(() => {
-                            if (baseData.health == 0) {
-                                skillEnd();
-                                return true;
-                            }
-                            for (let l = 0; l < players.length; l++) {
-                                if (players[l].isDead) {
-                                    continue;
-                                }
-                                SendDamageToTarget(players[l], effect);
-                            }
-                            num++;
-                            if (num == count) {
-                                skillEnd();
-                            }
-                        }, effect.time * k * 1000));
-                    }
-                    owner.SetPlayerState("施法", skillItem.animName);
-                    if (toIdelLater != null) { clearTimeout(toIdelLater); };
-                    toIdelLater = setTimeout(() => {
-                        owner.SetValue("readyAttack_doonce", 0);
-
-                        toIdelLater = null;
-                        skillEnd();
-                    }, attackStepSpeed * 1000);//间隔等于攻击动作时长
-
-                } else if (effect.type == "control") {
-                    if (effect.controlId == "冰霜新星") {
-                        SendSkill(effect,skillItem);
-                        return true;
-                    }
-                    if (effect.controlId == "嘲讽") {
-                        // console.log( owner.GetNickName() + " 嘲讽 ",vaildAttackDis ,players,skillItem);
-                        for (let l = 0; l < players.length; l++) {
-                            if (players[l].isDead) {
+                // 范围攻击
+                if (targetType == "area") {
+                    if (effect.type == "damage") {
+                        for (let l = 0; l < areaTargets.length; l++) {
+                            if (areaTargets[l].isDead) {
                                 continue;
                             }
-                            players[l].SetNpcTargetToNoneDrict();
-                            players[l].SetNpcTarget(owner, true, false);
+                            SendDamageToTarget(areaTargets[l], effect, skillItem);
                         }
-                        owner.ChangeAnim(skillItem.animNameReady, "idle");
-                        if (vaildAttackLater == null) {
-                            vaildAttackLater = setTimeout(() => {
-                                owner.ChangeAnim(skillItem.animName, "idle");
-                                owner.SetValue("readyAttack_doonce", 0);
+                        owner.ChangeAnim(skillItem.animName, "idle");
+                    }
+                     else if (effect.type == "control") {
+                        if (effect.controlId == "冰霜新星") {
+                            SendSkill(effect, skillItem);
+                            return true;
+                        }
+                        if (effect.controlId == "嘲讽") {
+                            // console.log( owner.GetNickName() + " 嘲讽 ",vaildAttackDis ,players,skillItem);
+                            for (let l = 0; l < areaTargets.length; l++) {
+                                if (areaTargets[l].isDead) {
+                                    continue;
+                                }
+                                areaTargets[l].SetNpcTargetToNoneDrict();
+                                areaTargets[l].SetNpcTarget(owner, true, false);
+                            }
+                            skillEnd();
+                            //有效攻击 && 
+                            SendSkill(effect, skillItem);
+                            _Global.DyncManager.SendDataToServer(owner.owerType('技能攻击'),
+                                { npcId: owner.id, skill: effect });
+                        }
 
-                                toIdelLater = null;
-                                skillEnd();
-                                //有效攻击 && 
-                                SendSkill(effect,skillItem);
-                                _Global.DyncManager.SendDataToServer(owner.owerType('技能攻击'),
-                                    { npcId: owner.id, skill: effect });
-                                vaildAttackLater = null;
-                            }, skillItem.castTime * 1000);
-                        } 
                     }
 
                 }
 
-            }
+                if (targetType.includes("random")) {
 
-            if (targetType.includes("random")) {
-
-                if (targetType.includes("Friendly")) {
-                    // 找友方目标 
-                    let { player, playerId } = _Global.DyncManager.GetSameCampByRandom(owner.GetCamp());
-                    randomSelectModel = player;
-                    skillItem.effect.playerId = playerId;
-                } else {
-                    // 找敌对阵营的目标
-                    let { player, playerId } = _Global.DyncManager.GetNoSameCampByRandom(owner.GetCamp());
-                    randomSelectModel = player;
-                    skillItem.effect.playerId = playerId;
-                }
-                // 随机进没目标时，返回false 不施放技能
-                if (randomSelectModel == null) {
-                    return false;
-                }
-                function fn() {
+                    if (targetType.includes("Friendly")) {
+                        // 找友方目标 
+                        let { player, playerId } = _Global._YJNPCManager.GetSameCampByRandom(owner.GetCamp());
+                        randomSelectModel = player;
+                        skillItem.effect.playerId = playerId;
+                    } else {
+                        // 找敌对阵营的目标
+                        let { player, playerId } = _Global.DyncManager.GetNoSameCampByRandom(owner.GetCamp());
+                        randomSelectModel = player;
+                        skillItem.effect.playerId = playerId;
+                    }
+                    // 随机进没目标时，返回false 不施放技能
+                    if (randomSelectModel == null) {
+                        return false;
+                    }
+                    if (randomSelectModel != null && randomSelectModel.isDead) {
+                        owner.TargetDead();
+                        return false;
+                    }
                     vaildAttackLater2 = setTimeout(() => {
                         if (randomSelectModel.isDead) {
                             EventHandler("中断技能");
                             return;
                         }
                         //有效攻击 && 
-                        SendDamageToTarget(randomSelectModel, skillItem.effect);
+                        SendDamageToTarget(randomSelectModel, skillItem.effect, skillItem);
 
                         _Global.DyncManager.SendDataToServer(owner.owerType('技能攻击'),
                             { npcId: owner.id, skill: skillItem.effect });
 
-                    }, attackStepSpeed * 100);
+                    }, skillCastTime * 100);
                     if (toIdelLater != null) { clearTimeout(toIdelLater); };
 
                     toIdelLater = setTimeout(() => {
                         owner.SetValue("readyAttack_doonce", 0);
-
-
                         toIdelLater = null;
                         skillEnd();
-                    }, attackStepSpeed * 400);//间隔等于攻击动作时长
+                    }, skillCastTime * 400);//间隔等于攻击动作时长
                 }
 
-                if (skillItem.castTime > 0) {
-                    owner.SetPlayerState("施法", skillItem.animNameReady);
-                    EventHandler("中断技能", false);
-                    if (vaildAttackLater == null) {
-                        vaildAttackLater = setTimeout(() => {
-                            if (randomSelectModel != null && randomSelectModel.isDead) {
-                                owner.TargetDead();
-                                return;
-                            }
-                            owner.SetPlayerState("施法", skillItem.animName);
-                            fn();
-                            vaildAttackLater = null;
-                        }, attackStepSpeed * 1000);
-                    }
 
-                } else {
-                    owner.SetPlayerState("施法", skillItem.animName);
-                    fn();
-                }
-            }
+                if (targetType == "none" || targetType == "self" || targetType == "selfPos") {
 
-
-            if (targetType == "none" || targetType == "self" || targetType == "selfPos") {
-                if (skillItem.castTime > 0) {
-                    owner.ChangeAnim(skillItem.animNameReady, "idle");
-
-                    EventHandler("中断技能", false);
-                    if (vaildAttackLater == null) {
-                        vaildAttackLater = setTimeout(() => {
-                            owner.ChangeAnim(skillItem.animName, "idle");
-                            owner.SetValue("readyAttack_doonce", 0);
-
-                            toIdelLater = null;
-                            skillEnd();
-                            //有效攻击 && 
-                            SendSkill(effect,skillItem);
-                            _Global.DyncManager.SendDataToServer(owner.owerType('技能攻击'),
-                                { npcId: owner.id, skill: effect });
-                            vaildAttackLater = null;
-                        }, skillItem.castTime * 1000);
-                    }
-
-                } else {
                     owner.SetPlayerState("施法", skillItem.animName);
 
                     //有效攻击 && 
@@ -616,77 +572,156 @@ class YJSkill {
                     owner.SetValue("readyAttack_doonce", 0);
 
                     skillEnd();
-
-                    vaildAttackLater2 = setTimeout(() => {
-                    }, skillItem.castTime * 100);
-
-                    if (toIdelLater != null) { clearTimeout(toIdelLater); };
-                    toIdelLater = setTimeout(() => {
-                        toIdelLater = null;
-                    }, skillItem.castTime * 400);//间隔等于攻击动作时长
                 }
-            }
 
-            if (targetType.includes("minHealth")) {
-                if (targetType.includes("Friendly")) {
-                    // 找友方目标 
-                    let players = _Global.DyncManager.GetSameCamp(owner.GetCamp());
-
-                    let max = 100;
-                    let _player = null;
-                    for (let i = 0; i < players.length; i++) {
-                        const player = players[i];
-                        if (player.isDead) {
-                            continue;
+                if (targetType.includes("minHealth")) {
+                    if (targetType.includes("Friendly")) {
+                        // 最少生命值的友方,包含自身
+                        let players = _Global._YJNPCManager.GetSameCamp(owner.GetCamp());
+                        let max = 100;
+                        let _player = null;
+                        for (let i = 0; i < players.length; i++) {
+                            const player = players[i];
+                            if (player.isDead) {
+                                continue;
+                            }
+                            if (player.GetHealthPerc() < max) {
+                                max = player.GetHealthPerc();
+                                _player = player;
+                            }
                         }
-                        if (player.GetHealthPerc() <= max) {
-                            max = player.GetHealthPerc();
-                            _player = player;
+                        if (_player == null) {
+                            return false;
                         }
+                        randomSelectModel = _player;
+                        skillItem.effect.playerId = _player.id;
+                    } else {
                     }
-                    randomSelectModel = _player;
-                    skillItem.effect.playerId = _player.id;
-                } else {
-                }
-                if (randomSelectModel == null) {
-                    return false;
-                }
-                if (skillItem.castTime > 0) {
-                    owner.ChangeAnim(skillItem.animNameReady, "idle");
-                    EventHandler("中断技能", false);
-                    if (vaildAttackLater == null) {
-                        vaildAttackLater = setTimeout(() => {
-                            owner.ChangeAnim(skillItem.animName, "idle");
-                            owner.SetValue("readyAttack_doonce", 0);
-
-                            toIdelLater = null;
-                            //有效攻击 && 
-                            SendDamageToTarget(randomSelectModel, effect);
-                            _Global.DyncManager.SendDataToServer(owner.owerType('技能攻击'),
-                                { npcId: owner.id, skill: effect });
-                            vaildAttackLater = null;
-                        }, skillItem.castTime * 1000);
+                    if (randomSelectModel == null) {
+                        return false;
                     }
 
-                } else {
                     owner.ChangeAnim(skillItem.animName, "idle");
                     //有效攻击 && 
-                    SendDamageToTarget(randomSelectModel, effect);
+                    SendDamageToTarget(randomSelectModel, effect, skillItem);
                     _Global.DyncManager.SendDataToServer(owner.owerType('技能攻击'),
                         { npcId: owner.id, skill: effect });
+
+                }
+            }
+            let contDamageFn = () => {
+
+                let targetType = skillItem.target.type;
+                if (targetType == "target") {
+                    let { type, skillName, value, time, duration, describe, controlId } = effect;
+                    let num = 0;
+                    let count = parseInt(skillItem.castTime / effect.time);
+                    for (let k = 0; k < count; k++) {
+                        castSkillList.push(setTimeout(() => {
+                            // 目标攻击
+                            if (targetModel == null || targetModel.isDead) {
+                                skillEnd(skillItem);
+                                return;
+                            }
+                            SendDamageToTarget(targetModel, effect, skillItem);
+                            num++;
+                            if (num == count) {
+                                skillEnd(skillItem);
+                            }
+                        }, effect.time * k * 1000));
+                    }
+                    //面向目标
+                    owner.LookatTarget(targetModel);
+                }
+
+                // 范围攻击
+                if (targetType == "area") {
+                    
+                    // 持续伤害
+                    let num = 0;
+                    let count = parseInt(skillItem.castTime / effect.time);
+                    for (let k = 0; k < count; k++) {
+                        castSkillList.push(setTimeout(() => {
+                            if (baseData.health == 0) {
+                                skillEnd(skillItem);
+                                return true;
+                            }
+                            for (let l = 0; l < areaTargets.length; l++) {
+                                if (areaTargets[l].isDead) {
+                                    continue;
+                                }
+                                SendDamageToTarget(areaTargets[l], effect, skillItem);
+                                console.error(owner.GetNickName() + " 范围攻击目标 持续伤害 ", areaTargets[l], effect, skillItem);
+
+                            }
+                            num++;
+                            if (num == count) {
+                                skillEnd(skillItem);
+                            }
+                        }, effect.time * k * 1000));
+                    }
+
+                }
+
+                if (targetType.includes("random")) {
+                }
+
+
+                if (targetType == "none" || targetType == "self" || targetType == "selfPos") {
+
+                     
+                }
+
+                if (targetType.includes("minHealth")) {
+
                 }
             }
 
             owner.playAudio(skillItem.skillReadyAudio, readyskillAudioName);
             inSkill = true;
 
-            if (skillItem.castTime > 0) {
+            if (skillCastTime > 0) {
+
+
+                owner.SetPlayerState("吟唱", skillItem.animNameReady);
                 // 需要施法的技能才发送技能同步，瞬发技能无需同步
                 _Global.DyncManager.SendDataToServer(owner.owerType('技能'),
                     { npcId: owner.id, skill: skillItem });
-                attackStepSpeed = skillItem.castTime;
                 //取消寻路，让npc站住施法
                 owner.SetNavPathToNone();
+                // console.time('施法成功===');
+
+
+                //contDamage 技能需要边施法边执行，所以要单独判断
+                if ((effect.type == "contDamage")) {
+                    owner.skillProgress(skillCastTime,skillName,true);
+
+                    contDamageFn();
+                } else {
+                    owner.skillProgress(skillCastTime,skillName);
+
+                    vaildAttackLater = setTimeout(() => {
+                        owner.SetPlayerState("施法", skillItem.animName);
+                        owner.playAudio(skillItem.skillFireAudio, readyskillAudioName);
+                        owner.SetValue("readyAttack_doonce", 0);
+                        if (toIdelLater != null) { clearTimeout(toIdelLater); };
+                        toIdelLater = null;
+                        fn();
+                        skillItem.cCD = 0;
+                        inSkill = false;
+                        // console.timeEnd('施法成功===');
+
+                    }, skillCastTime * 1000);
+                }
+
+
+
+            } else {
+                owner.SetPlayerState("施法", skillItem.animName);
+                skillItem.cCD = 0;
+                fn();
+                inSkill = false;
+
             }
             return true;
         }
@@ -700,7 +735,7 @@ class YJSkill {
         // 施放不需要目标或目标是自身的技能 如 增生
         function SendSkill(effect, skillItem) {
             let { type, skillName, value, time, duration, describe, controlId } = effect;
-            // console.log("施放不需要目标或目标是自身的技能 00 ", effect);
+            // console.log("施放不需要目标或目标是自身的技能 00 ", effect, skillItem);
             if (type == "shield" || type == "control") {
                 //
                 // console.log("施放不需要目标或目标是自身的技能 ", controlId);
@@ -709,7 +744,7 @@ class YJSkill {
                     return true;
                 }
                 if (type == "control") {
-                    
+
                     // 冻结20米内的敌人。 冰霜新星冻结特效
                     let npcs = _Global._YJNPCManager.GetNoSameCampNPCInFireInVailDis(owner.GetWorldPos(), owner.GetCamp(), skillItem.vaildDis);
                     if (npcs.length == 0) {
@@ -718,7 +753,7 @@ class YJSkill {
                     effect.value = 0;
                     for (let i = 0; i < npcs.length; i++) {
                         const npcComponent = npcs[i];
-                        npcComponent.ReceiveDamageByPlayer(null, controlId, effect,skillItem);
+                        npcComponent.ReceiveDamageByPlayer(null, controlId, effect, skillItem);
                     }
                     _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillGroup(skillItem.skillFireParticleId, (model) => {
                         model.SetPos(owner.GetWorldPos());
@@ -751,7 +786,7 @@ class YJSkill {
             }
             //
             if (type == "addHealth") {
-                owner.Dync({ title: "加生命", value: value });
+                owner.updateByCard({ type: "basicProperty", property: "health", value: value });
             }
             //增生
             if (type == "hyperplasia") {
@@ -774,20 +809,19 @@ class YJSkill {
                 }
             }
             return true;
-            // 发送战斗记录
-            _Global.DyncManager.SendFireRecode({ npcId: owner.id, npcName: owner.npcName, skillName: skillName, describe: describe });
-
         }
         let fireLater = [];
         let inSkill = false;//是否在使用施法技能攻击
         let skillCDlist = [];
 
         this.SetSkillCDRate = function (rate) {
+            rate = 1 - rate;
+            if (rate <= 0) { rate = 0; }
             for (let i = 0; i < skillList.length; i++) {
                 const skillItem = skillList[i];
                 if (skillItem.trigger.type == "perSecond") {
-                    skillItem.trigger.CD *= rate;
-                    skillItem.CD *= rate;
+                    skillItem.trigger.CD = skillItem.CONSTCD * rate;
+                    skillItem.CD = skillItem.CONSTCD * rate;
                     if (skillItem.cCD > skillItem.CD) {
                         skillItem.cCD = skillItem.CD;
                     }
@@ -812,6 +846,7 @@ class YJSkill {
                     skillItem.CD = skillItem.trigger.value;
                     skillItem.trigger.CD = skillItem.trigger.value;
                 }
+                skillItem.CONSTCD = skillItem.CD;
 
                 if (skillItem.CD == 0) {
                     if (skillItem.castTime > 0) {
@@ -825,23 +860,7 @@ class YJSkill {
                 skillItem.cCD = skillItem.CD;
 
                 fireLater.push({
-                    type: "interval", fn:
-                        // setInterval(() => {
-                        //   if (_Global.mainUser) {
-                        //     // console.log( owner.GetNickName() + " 请求 施放技能 ",skillItem);
-
-                        //     if (inSkill) {
-
-                        //       if (skillItem.effect.type == "control") {
-                        //         EventHandler("中断技能");
-                        //       } else {
-                        //         return;
-                        //       }
-                        //     }
-                        //     console.log(owner.GetNickName() + " 施放技能 ", skillItem);
-                        //     SkillGo(skillItem);
-                        //   }
-                        // }, (skillItem.trigger.value + skillItem.castTime) * 1000)
+                    type: "interval", fn: 
                         setInterval(() => {
                             if (_Global.pauseGame) { return; }
                             if (_Global.mainUser) {
@@ -849,11 +868,11 @@ class YJSkill {
                                     if (inSkill) {
                                         // return;
                                         if (skillItem.effect.type == "control" || skillItem.effect.type == "shield") {
-                                            EventHandler("中断技能");
+                                            EventHandler("中断技能", true);
                                         } else {
                                             // return;
                                         }
-
+                                        return;
                                         // for (let i = 0; i < skillCDlist.length ; i++) {
                                         //   const element = skillCDlist[i];
                                         //   if(element.skillName == skillItem.skillName){
@@ -862,14 +881,10 @@ class YJSkill {
                                         // }
                                         // skillCDlist.push({skillName:skillItem.skillName,skillItem:skillItem});
                                     }
-                                    // if (owner.npcName.includes("老a")) {
-                                    //   console.log(owner.GetNickName() + " 施放技能 ", skillItem);
-                                    // }
                                     if (SkillGo(skillItem)) {
                                         if (_Global.CombatLog) {
-                                            _Global.CombatLog.log(owner.npcName, "", "技能", skillItem.effect.skillName);
+                                            _Global.CombatLog.log(owner.GetNickName(), "", "技能", skillItem.effect.skillName);
                                         }
-                                        skillItem.cCD = 0;
                                     }
                                     return;
                                 }
@@ -964,6 +979,7 @@ class YJSkill {
                         if (inSkill) {
                             _Global.DyncManager.SendDataToServer("npc技能",
                                 { npcId: owner.id, skill: "中断" });
+                            inSkill = false;
                         }
                     }
                     // console.log(" 记录中断的时间 ",cutStartTime);
@@ -976,59 +992,67 @@ class YJSkill {
             }
         }
         // 向玩家发送技能特效
-        function shootTarget(taget, time, callback) {
+        function shootTarget(taget, skillItem, speed, callback) {
             let pos = owner.GetShootingStartPos();
-            if (firePart) {
+            if (skillItem && skillItem.skillFirePart) {
                 //找对应骨骼所在的坐标
-                owner.GetBoneVagueFire(firePart, (pos) => {
-                    _Global.DyncManager.shootTarget(pos, taget, time, "player", fireParticleId, callback);
+                owner.GetBoneVagueFire(skillItem.skillFirePart, (pos) => {
+                    _Global.DyncManager.shootTarget(pos, taget, speed, "player", skillItem.skillFireParticleId, callback);
                 });
                 return;
             }
-            _Global.DyncManager.shootTarget(pos, taget, time, "player", fireParticleId, callback);
-            fireParticleId = "";
-            firePart = "";
-            // _Global.DyncManager.shootTarget(_this.YJController.GetPlayerWorldPos(), taget, time, "npc",fireParticleId,callback);
-
+            _Global.DyncManager.shootTarget(pos, taget, speed, "player", skillItem ? skillItem.skillFireParticleId : "", callback);
         }
 
-
+        this.SendDamageToTarget = function (target, effect, skillItem) {
+            SendDamageToTarget(target, effect, skillItem);
+        }
+        function getSendTitle(target) {
+            let s = owner.getPlayerType();
+            let s2 = target.getPlayerType();
+            // let s2 = "NPC";
+            return s + '对' + s2;
+        }
         // 根据技能数据计算对目标造成伤害
-        function SendDamageToTarget(target, effect) {
-            // if(owner.npcName.includes("ZH画渣") && targetModel){
-            //   console.log(GetNickName() + ' 对目标造成伤害 ',target,effect);
-            // }
-              console.log(owner.GetNickName() + ' 对目标造成伤害 ',target,effect);
+        function SendDamageToTarget(target, effect, skillItem) {
+            // console.log(owner.GetNickName() + ' 对目标造成伤害 ', target, effect);
 
             // 玩家镜像
             if (owner.GetIsPlayer()) {
-                SendDamageToTarget2(target, effect);
+                SendDamageToTarget2(target, effect, skillItem);
                 return;
             }
             if (target == null) {
                 return;
             }
+            effect = JSON.parse(JSON.stringify(effect));
             let { type, skillName, value, time, duration } = effect;
-
-            // setTimeout(() => {
-            //   // 发送战斗记录
-            // }, attackStepSpeed * 100);
+            value = owner.GetProperty().GetDamage(value);
+            effect.value = value;
             // 发送技能特效
-            shootTarget(target, attackStepSpeed * 300, () => {
+            shootTarget(target, skillItem, null, () => {
                 // 发送战斗记录
-                _Global.DyncManager.SendFireRecode({ targetId: target.id, npcId: owner.id, npcName: owner.npcName, skillName: skillName, strength: value });
+                _Global.DyncManager.SendFireRecode({ targetId: target.id, npcId: owner.id, npcName: owner.GetNickName(), skillName: skillName, strength: value });
 
                 if (target != null && target.isDead) {
                     owner.TargetDead();
                     return;
                 }
                 owner.AddExp(20);
-                effect.fromName = owner.npcName;
-                if (target.isYJNPC) {
-                    _Global.DyncManager.SendSceneStateAll("NPC对NPC", { targetId: target.id, npcId: owner.id, npcName: owner.npcName, skillName: skillName, effect: effect });
-                } else {
-                    _Global.DyncManager.SendSceneStateAll("NPC对玩家", { targetId: target.id, npcId: owner.id, npcName: owner.npcName, skillName: skillName, effect: effect });
-                }
+                effect.fromName = owner.GetNickName();
+
+                _Global.DyncManager.SendSceneStateAll(getSendTitle(target),
+                    {
+                        fromId: owner.id,
+                        fromType: owner.getPlayerType(),
+                        fromName: owner.GetNickName(),
+                        targetId: target.id,
+                        targetType: target.getPlayerType(),
+                        targetName: target.GetNickName(),
+                        skillName: skillName,
+                        effect: effect
+                    });
+
 
             });
 
@@ -1038,7 +1062,7 @@ class YJSkill {
 
 
         // 玩家的镜像角色是 YJNPC类
-        function SendDamageToTarget2(target, effect) {
+        function SendDamageToTarget2(target, effect, skillItem) {
             if (target == null) {
                 return;
             }
@@ -1052,9 +1076,9 @@ class YJSkill {
             // 发送战斗记录
             _Global.DyncManager.SendFireRecode({ playerId: owner.id, npcId: target.transform.id, npcName: target.npcName, skillName: skillName, strength: value });
             // 发送技能特效
-            shootTarget(target, attackStepSpeed * 300);
+            shootTarget(target, skillItem, null);
 
-            _Global.DyncManager.SendSceneStateAll("玩家对NPC", { playerId: owner.id, npcId: target.transform.id, npcName: target.npcName, skillName: skillName, effect: effect });
+            _Global.DyncManager.SendSceneStateAll(getSendTitle(target), { playerId: owner.id, npcId: target.transform.id, npcName: target.npcName, skillName: skillName, effect: effect });
         }
 
 
@@ -1063,7 +1087,7 @@ class YJSkill {
             modelData = JSON.parse(JSON.stringify(modelData));
             modelData.scale = { x: 1, y: 1, z: 1 };
             let data = modelData.message.data;
-            data.name = owner.npcName + "的增生" + times + "_" + (num + 1);
+            data.name = owner.GetNickName() + "的增生" + times + "_" + (num + 1);
             let pos = owner.GetWorldPos();
             modelData.pos.x = pos.x + (num + 1);
             modelData.pos.y = pos.y;

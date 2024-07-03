@@ -3,8 +3,8 @@
 
 
 import * as THREE from "three";
-import { GameRecord } from "../../../threeJS/common/gameRecord";
-import { RandomInt } from "../../../utils/utils";
+import { GameRecord } from "/@/threeJS/common/gameRecord";
+import { RandomInt } from "/@/utils/utils";
 
 import { socket_bilibili } from "/@/utils/socket_bilibili.js";
 import * as world_configs from "/@/utils/socket_bilibili/index.js";
@@ -68,7 +68,7 @@ import * as world_configs from "/@/utils/socket_bilibili/index.js";
 
  */
 class YJDMManager_DMrogue {
-  constructor(indexVue, dmVue) {
+  constructor(dmVue) {
     let scope = this;
 
     let waveCount = 1;
@@ -818,7 +818,7 @@ class YJDMManager_DMrogue {
       {
         op: "",//职业
         name: "多重射击",
-        icon: "./public/images/skillIcon/spell_hunter_exoticmunitions_poisoned.png",//技能图标
+        icon: "1719817071530/1719818260923.png",//技能图标
         unLockLevel: 3, //解锁等级
         level: 1, //技能等级
         cCD: 6,//冷却时间
@@ -958,7 +958,7 @@ class YJDMManager_DMrogue {
             cSkill.name = skill.skillName;
             cSkill.unLockLevel = 1;
             cSkill.level = 1;
-            cSkill.icon = indexVue.$uploadUVAnimUrl + skill.icon;
+            cSkill.icon = skill.icon;
             if (skill.trigger.type == "perSecond") {
               cSkill.CD = skill.trigger.value;
               cSkill.cCD = cSkill.CD;

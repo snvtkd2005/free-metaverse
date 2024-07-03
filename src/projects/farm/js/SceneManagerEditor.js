@@ -25,7 +25,7 @@ import { SceneManagerMetaworld } from "./SceneManagerMetaworld.js";
 import { YJAmmoRope } from "../../../threeJS/components/YJAmmoRope.js";
 import { YJAmmoPlayerBody } from "../../../threeJS/components/YJAmmoPlayerBody.js";
 import { SpringManager } from "../../../threeJS/common/SpringManager.js";
-import { YJController_roguelike } from "/@/threeJS/YJController_roguelike.js";
+// import { YJController_roguelike } from "/@/threeJS/YJController_roguelike.js";
 
 class SceneManager {
   constructor(scene, renderer, camera, _this, modelParent, indexVue, callback) {
@@ -238,9 +238,9 @@ class SceneManager {
         }
       });
 
-      _this.YJController.addEvent("视角改变",(e) => {
+      _this.YJController.addEvent("视角改变", (e) => {
         // console.log(e);
-        if(indexVue && indexVue.$refs.HUD){
+        if (indexVue && indexVue.$refs.HUD) {
           indexVue.$refs.HUD.$refs.damageUI.UpdatePos2d();
         }
 
@@ -278,12 +278,7 @@ class SceneManager {
 
       });
 
- 
-      if (_Global.setting.inEditor && _Global.gameType == "Roguelike") {
-        let _YJController_roguelike = new YJController_roguelike();
-        _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(_YJController_roguelike);
-        return;
-      }
+
 
       // posRef_huluobu = CreatePosRef(0.33, -0.953);
       // posRef_nangua = CreatePosRef(0.20, -0.953);
@@ -771,30 +766,38 @@ class SceneManager {
     this.GetDamageStatistics = function () {
       return damageStatistics;
     }
-    this.UpdateNpcDamageValue = function (from, to,tarteId, type, value, pos, addredius) {
+    this.UpdateNpcDamageValue = function (fromId,fromName, to, tarteId, type, value, pos, addredius) {
+      if (fromId && _Global.YJ3D.YJPlayer.id != fromId) {
+        return;
+      }
+
 
       let _pos = _Global.YJ3D._YJSceneManager.WorldPosToScreenPos(pos.clone());
       // console.log("伤害和坐标", from,to,value, _pos);
-      indexVue.$refs.HUD.$refs.damageUI.AddDamage(tarteId, type, value,pos.clone(), _pos, addredius);
+      indexVue.$refs.HUD.$refs.damageUI.AddDamage(tarteId, type, value, pos.clone(), _pos, addredius);
 
 
-      damageStatistics.push({ from, to, value });
+      damageStatistics.push({ fromName, to, value });
     }
 
     //#endregion
 
     //#endregion
     let targetModel = null;
+    this.GetTargetModel  =function(){
+      return targetModel;
+    }
     this.SetTargetSkill = function (npcId, skill) {
-      if (targetModel == null) { return; }
-      if (targetModel.id == npcId) {
-        indexVue.$refs.HUD.$refs.headerUI.SetSkill(skill);
-      }
+      // if (targetModel == null) { return; }
+      // if (targetModel.id == npcId) {
+      //   indexVue.$refs.HUD.$refs.headerUI.SetSkill(skill);
+      // }
       //
     }
     this.SetTargetModel = function (transform) {
       if (targetModel != null) {
         if (targetModel != transform) {
+
           targetModel.RemoveHandle();
         } else {
           return;
@@ -824,7 +827,6 @@ class SceneManager {
       }
       let { group, playerHeight } = npcComponent.GetBaseModel();
       _YJProjector.Active(group, playerHeight, camp);
-
       // console.log(" 设置目标头像 targetModel ", targetModel);
       targetModel.AddHandle((data) => {
         if (data.baseData.health == 0) {
@@ -963,7 +965,7 @@ class SceneManager {
           // 头像
           this.SetTargetModel(transform);
           console.log(" 点击NPC  ", transform.GetComponent("NPC"));
-          EventHandler("点击NPC",transform);
+          EventHandler("点击NPC", transform);
           _this.YJController.SetInteractiveNPC("选中npc", transform);
           if (_Global.LogFireById) {
             _Global.LogFireById(transform.id);
@@ -974,24 +976,24 @@ class SceneManager {
       EventHandler("点击空");
 
     }
-    
+
     let eventHandlers = [];
-    this.addEventListener = function(e,event){
-      eventHandlers.push({eventName:e,event:event});  
+    this.addEventListener = function (e, event) {
+      eventHandlers.push({ eventName: e, event: event });
     }
-    function EventHandler(e,value,value2){
+    function EventHandler(e, value, value2) {
       for (let i = 0; i < eventHandlers.length; i++) {
         const item = eventHandlers[i];
-        if(item.eventName == e){
-          if(item.event){
-            item.event(value,value2);
+        if (item.eventName == e) {
+          if (item.event) {
+            item.event(value, value2);
           }
         }
       }
     }
 
     this.ClickModel = (hitObject) => {
-      console.log("点击模型 ",hitObject);
+      console.log("点击模型 ", hitObject);
       // console.log("点击模型.transform ", hitObject.transform);
       if (hitObject.transform && hitObject.transform.GetActive()) {
         this.ClickModelTransform(hitObject.transform);
@@ -1180,7 +1182,7 @@ class SceneManager {
       });
       console.log("renderer.sortObjects ", renderer.sortObjects);
       let modelData = JSON.parse(localStorage.getItem("modelData"));
-      console.log("modelData ",modelData);
+      console.log("modelData ", modelData);
       if (_Global.isMMD) {
         //给骨骼添加dummy显示
         let _SpringManager = new SpringManager();

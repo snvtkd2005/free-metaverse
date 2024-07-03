@@ -402,8 +402,12 @@
 
         <!-- 技能 -->
         <div v-if="currentTable == '技能'" class="gap-6 w-full mx-auto h-full">
-          <skillSettingPanel></skillSettingPanel>
+          <skillPanel></skillPanel>
         </div>
+        <div v-if="currentTable == '道具/药剂'" class="gap-6 w-full mx-auto h-full">
+          <propPanel></propPanel>
+        </div>
+
       </div>
     </div>
 
@@ -700,7 +704,8 @@
 <script>
 import PlayerAnimData from "../../data/playerAnimSetting.js";
 
-import skillSettingPanel from "./panels/skillSettingPanel.vue";
+import skillPanel from "./panels/skillPanel.vue";
+import propPanel from "./panels/propPanel.vue";
 
 import { Interface } from "../../js/Interface_editor.js";
 import SceneData from "../../data/sceneData.js";
@@ -726,7 +731,8 @@ import {
 export default {
   name: "selfPanel",
   components: {
-    skillSettingPanel,
+    skillPanel,
+    propPanel,
   },
   data() {
     return {

@@ -52,10 +52,27 @@ class YJNPC {
     // 攻击速度，攻击间隔，判定有效的攻击时机
     let attackStepSpeed = 3; //攻击间隔/攻击速度
 
-		let attackProperty = {}; 
-		this.updateattackProperty = function (_attackProperty) {
-			attackProperty = _attackProperty;
-		}
+    let attackProperty = {};
+    this.updateattackProperty = function (_attackProperty) {
+      attackProperty = _attackProperty;
+    }
+
+    this.updateBasicProperty = function (_basicProperty) {
+      if (_basicProperty == "health") {
+        UpdateData();
+        return;
+      }
+    }
+    this.updateByCard = function (card) {
+      let { type, title, value, property } = card;
+      if (type == "skill") {
+        _YJSkill.AddSkill(card);
+        return;
+      }
+      _YJPlayerProperty.updateBasedata(card);
+      console.log(attackProperty);
+    }
+
     const stateType = {
       Normal: 'normal',//正常状态， 待机/巡逻
       Back: 'back',//失去战斗焦点后回到初始状态 
@@ -67,9 +84,7 @@ class YJNPC {
     const CONST_BASEDATA = {
       level: 1, //等级
       health: 100, //生命值
-      maxHealth: 100, //生命值
-      strength: 20, //攻击力
-      armor: 0,
+      maxHealth: 100, //生命值 
     }
     let baseData = {
       state: 'normal', //状态
@@ -77,37 +92,48 @@ class YJNPC {
       speed: 8, //移动速度
       level: 1, //等级
       health: 100, //生命值
-      maxHealth: 100, //生命值
-      strength: 20, //攻击力
-      armor: 10,
+      maxHealth: 100, //生命值 
       fireId: -1, //战斗组id  -1表示未在战斗中
     }
 
-		var SKILLTYPE = {
-			PLAYER: '玩家技能',
-			NPC: 'npc技能', 
-		};
+    var SKILLTYPE = {
+      PLAYER: '玩家技能',
+      NPC: 'npc技能',
+    };
 
-		var SKILLTYPE = {
-			PLAYER: '玩家技能',
-			PLAYERATTACK: '玩家技能攻击',
-			NPC: 'npc技能', 
-			NPCATTACK: 'npc技能攻击', 
-		}; 
-		this.owerType = function(e){
-			if(e=='技能'){
-				return SKILLTYPE.NPC;
-			}
-			if(e=='技能攻击'){
-				return SKILLTYPE.NPCATTACK;
-			}
-		}
+    var SKILLTYPE = {
+      PLAYER: '玩家技能',
+      PLAYERATTACK: '玩家技能攻击',
+      NPC: 'npc技能',
+      NPCATTACK: 'npc技能攻击',
+    };
+    this.owerType = function (e) {
+      if (e == '技能') {
+        return SKILLTYPE.NPC;
+      }
+      if (e == '技能攻击') {
+        return SKILLTYPE.NPCATTACK;
+      }
+    }
 
 
     let _YJPlayerNameTrans = null;
     let _YJEquip = null;
     let _YJSkill = null;
-		let _YJPlayerProperty = null;
+    let _YJPlayerProperty = null;
+
+    this.GetEquip = function () {
+      return _YJEquip;
+    }
+    this.GetSkill = function () {
+      return _YJSkill;
+    }
+    this.GetProperty = function () {
+      return _YJPlayerProperty;
+    }
+    this.LookatTarget = function (targetModel) {
+
+    }
     //#region  固定
     function Init() {
       group = new THREE.Group();
@@ -564,15 +590,15 @@ class YJNPC {
     }
     let randomRedius = 5;
     let oldTargetPos = null;
-    this.MoveToTargetFast = function(){
+    this.MoveToTargetFast = function () {
       scope.canMove = true;
       baseData.speed *= 5;
       lookAtTargetPos();
-      navpath = [ targetModel.GetWorldPos()];
+      navpath = [targetModel.GetWorldPos()];
       // GetNavpath(parent.position.clone(),  targetModel.GetWorldPos(),0);
     }
     // 获取寻路路径
-    function GetNavpath(fromPos, targetPos,_randomRedius) {
+    function GetNavpath(fromPos, targetPos, _randomRedius) {
       if (!scope.canMove) { return; }
       if (oldTargetPos && targetPos.distanceTo(oldTargetPos) < 0.1) {
         // console.log(" 目标点不变 ",oldTargetPos,targetPos);
@@ -584,9 +610,9 @@ class YJNPC {
       // }
 
       oldTargetPos = targetPos.clone();
-      if(_randomRedius != undefined){
+      if (_randomRedius != undefined) {
         randomRedius = _randomRedius;
-      }else{
+      } else {
         randomRedius = vaildAttackDis;
       }
       // console.log("查到寻路路径 ",scope.transform.GetData().mapId);
@@ -634,7 +660,7 @@ class YJNPC {
     this.GetSkillList = function () {
       return skillList;
     }
-    let modelScale = 1; 
+    let modelScale = 1;
     this.SetMessage = function (msg) {
       if (msg == null || msg == undefined || msg == "") { return; }
       // data = JSON.parse(msg);
@@ -645,17 +671,23 @@ class YJNPC {
 
       this.npcName = data.name;
       baseData = data.baseData;
+      // console.log( scope.GetNickName() + "in NPC 00 baseData = ", JSON.stringify(baseData));
 
       if (baseData.camp == "bl") {
         baseData.camp = 1001;
       }
-      if (!baseData.armor) {
-        baseData.armor = 0;
+      if (baseData.basicProperty == undefined) {
+        let basicProperty = {
+          armor: 10,
+          strength: baseData.strength,
+        };
+        baseData.basicProperty = basicProperty;
+        CONST_BASEDATA.strength = baseData.strength;
+
       }
 
       CONST_BASEDATA.armor = baseData.armor;
       CONST_BASEDATA.maxHealth = baseData.maxHealth;
-      CONST_BASEDATA.strength = baseData.strength;
       CONST_BASEDATA.level = baseData.level;
 
       modelScale = data.avatarData.modelScale;
@@ -684,14 +716,14 @@ class YJNPC {
       if (data.skillList == undefined) {
         data.skillList = [];
       }
-      
-      
+
+
       _YJEquip = new YJEquip(scope);
       _YJSkill = new YJSkill(scope);
-      
-			if (_YJPlayerProperty == null) {
-				_YJPlayerProperty = new YJPlayerProperty(scope);
-			}
+
+      if (_YJPlayerProperty == null) {
+        _YJPlayerProperty = new YJPlayerProperty(scope);
+      }
 
       skillList = data.skillList;
       _YJSkill.SetSkill(skillList, baseData);
@@ -700,7 +732,7 @@ class YJNPC {
         scope.canMove = data.canMove;
       }
       if (data.inAreaRandom) {
-        
+
       } else {
         if (data.movePos && data.movePos.length > 1) {
           this.UpdateNavPos("停止巡逻", data.movePos);
@@ -722,13 +754,14 @@ class YJNPC {
           recodeMat();
         }
       }
-      fireBeforePos = scope.GetWorldPos(); 
+      fireBeforePos = scope.GetWorldPos();
       // console.log( scope.GetNickName() + " fireBeforePos  11 = ",fireBeforePos);
 
       if (data.isCopy) {
         skillList = [];
         ClearFireLater();
       }
+      // console.log( scope.GetNickName() + "in NPC msg = ", baseData);
 
     }
 
@@ -760,6 +793,12 @@ class YJNPC {
 
     }
 
+    this.getPlayerType = function () {
+      if (data.isPlayer) {
+        return "玩家";
+      }
+      return "NPC";
+    }
     this.GetShootingStartPos = function () {
       let pos = scope.GetPlayerWorldPos();
       let weaponModel = _YJEquip.getWeaponModel();
@@ -818,22 +857,33 @@ class YJNPC {
     this.GetVaildAttackDis = function () {
       return vaildAttackDis + scope.transform.GetData().scale.x;
     }
-    this.SetVaildAttackDis = function(v){
+    this.skillProgress = function(skillCastTime,skillName,reverse){
+      // console.log("GetTargetModel ",_Global._SceneManager.GetTargetModel());
+      if(scope.transform != _Global._SceneManager.GetTargetModel()){
+        return;
+      } 
+      _Global.applyEvent("设置目标技能进度条",skillCastTime,skillName,reverse);
+
+		}
+		this.SetMoveSpeed = function(f){
+      
+		}
+    this.SetVaildAttackDis = function (v) {
       setVaildAttackDis(v);
     }
     function setVaildAttackDis(v) {
       vaildAttackDis = v;//* modelScale;
     }
 
-		this.GetBaseData = function(){ 
-			return baseData;
-		}
-    this.GetScale = function(){ 
+    this.GetBaseData = function () {
+      return baseData;
+    }
+    this.GetScale = function () {
       return scope.transform.GetScale();
-		}
-    this.GetGroup = function(){  
+    }
+    this.GetGroup = function () {
       return scope.transform.GetGroup();
-		}
+    }
     let readyAttack = false;
     let readyAttack_doonce = 0;
 
@@ -1208,9 +1258,6 @@ class YJNPC {
       // }
       // _Global._YJPlayerNameManager.removeDebuffByPlayerId(scope.id,id );
       scope.applyEvent("移除buff", id);
-
-
-
       UpdateData();
     }
     this.isFullHealth = function () {
@@ -1223,31 +1270,12 @@ class YJNPC {
       }
       UpdateData();
     }
-    function RealyDamage(strength, from) {
+    function RealyDamage(strength, fromId, fromName) {
       // 伤害显示在屏幕上
       let pos = scope.GetWorldPos().clone();
-      pos.y += playerHeight * nameScale;
-
-
-      let v = _YJPlayerProperty.RealyDamage(strength)
-      // let v = 0;
-      // if (strength == 0) {
-      //   return v;
-      // }
-      // if (baseData.armor >= strength) {
-      //   baseData.armor -= strength;
-      //   _Global._SceneManager.UpdateNpcDamageValue(from, scope.npcName,scope.id, scope.GetCamp(), "吸收", pos, "redius");
-      //   return 0;
-      // } else {
-      //   // 至少会受到1点伤害
-      //   v = strength - baseData.armor;
-      //   baseData.armor = 0;
-      //   scope.applyEvent("技能护甲归零");
-      //   v = v > 0 ? v : 1;
-      // }
-
-      _Global._SceneManager.UpdateNpcDamageValue(from, scope.npcName,scope.id, scope.GetCamp(), v, pos, "redius");
-
+      pos.y += playerHeight * nameScale / 2;
+      let v = _YJPlayerProperty.RealyDamage(strength);
+      _Global._SceneManager.UpdateNpcDamageValue(fromId, fromName, scope.npcName, scope.id, scope.GetCamp(), v, pos, "redius");
       return v;
     }
     // 接收的伤害统计
@@ -1332,16 +1360,16 @@ class YJNPC {
       }
       let { type, value, time, duration, describe, icon } = effect;
 
-      value = RealyDamage(value);
-
+      value = RealyDamage(value, _targetModelId);
       // 计算伤害最高的玩家id
       CheckMaxDamage(_targetModelId, value);
       if (targetModel == null) {
         this.SetNpcTarget(_Global.DyncManager.GetPlayerById(_targetModelId), true, true);
       } else {
       }
-      if (targetModel == null){return;}
+      if (targetModel == null) { return; }
       fromName = targetModel.GetNickName();
+
 
       CombatLog("玩家 [" + fromName + "] " + " 攻击 " + GetNickName() + " 造成 " + value + " 点伤害 ");
 
@@ -1417,9 +1445,9 @@ class YJNPC {
         _Global.CombatLog.log(from, to, type, content);
       }
     }
-    
+
     let fromName = "";
-    this.ReceiveDamageByPlayer = function (_targetModel, skillName, effect,skillItem) {
+    this.ReceiveDamageByPlayer = function (_targetModel, skillName, effect, skillItem) {
       if (!_Global.mainUser) {
         console.error("不该进入：非主控");
         return;
@@ -1469,11 +1497,13 @@ class YJNPC {
       // console.log("受到来自 222 的伤害 ", _targetModel);
 
       if (type == "control" || type == "shield") {
-        _YJSkill.ReceiveControl(_targetModel, skillName, effect,skillItem);
+        _YJSkill.ReceiveControl(_targetModel, skillName, effect, skillItem);
         return;
       }
 
-      value = RealyDamage(value, fromName);
+      value = RealyDamage(value, _targetModel ? _targetModel.id : "");
+
+
 
       // console.log(" npc接收技能攻击 ", effect);
       // 直接伤害 或 持续伤害
@@ -1576,7 +1606,7 @@ class YJNPC {
     this.SetLevelToOne = function () {
 
       baseData.maxHealth = CONST_BASEDATA.maxHealth;
-      baseData.strength = CONST_BASEDATA.strength;
+      baseData.basicProperty.strength = CONST_BASEDATA.strength;
       baseData.level = CONST_BASEDATA.level;
       currentExp = 0;
       needExp = 200;
@@ -1584,7 +1614,7 @@ class YJNPC {
     }
     this.SetLevelData = function (data) {
       baseData.maxHealth = data.maxHealth;
-      baseData.strength = data.strength;
+      baseData.basicProperty.strength = data.strength;
       baseData.level = data.level;
       currentExp = data.currentExp;
       needExp = data.needExp;
@@ -1594,13 +1624,13 @@ class YJNPC {
     this.SetLevel = function (level) {
       if (level == 1) {
         baseData.maxHealth = CONST_BASEDATA.maxHealth;
-        baseData.strength = CONST_BASEDATA.strength;
+        baseData.basicProperty.strength = CONST_BASEDATA.strength;
         baseData.level = CONST_BASEDATA.level;
         currentExp = 0;
         needExp = 200;
       }
       baseData.health = baseData.maxHealth;
-      scope.applyEvent("等级提升", baseData.level, baseData.strength);
+      scope.applyEvent("等级提升", baseData.level, baseData.basicProperty.strength);
       scope.applyEvent("经验值变化", currentExp, needExp);
       UpdateData();
 
@@ -1615,13 +1645,13 @@ class YJNPC {
       baseData.level++;
       baseData.maxHealth *= 1.2;
       baseData.maxHealth = Math.floor(baseData.maxHealth);
-      baseData.strength *= 1.2;
-      baseData.strength = Math.floor(baseData.strength);
+      baseData.basicProperty.strength *= 1.2;
+      baseData.basicProperty.strength = Math.floor(baseData.basicProperty.strength);
       baseData.health = baseData.maxHealth;
       currentExp = 0;
       needExp *= 2;
       UpdateData();
-      scope.applyEvent("等级提升", baseData.level, baseData.strength);
+      scope.applyEvent("等级提升", baseData.level, baseData.basicProperty.strength);
       scope.applyEvent("经验值变化", currentExp, needExp);
 
     }
@@ -1746,10 +1776,10 @@ class YJNPC {
         } else {
           relifeTime = 0;
         }
-        if(relifeTime>0){
+        if (relifeTime > 0) {
           setTimeout(() => {
             resetLife();
-          }, relifeTime*1000);
+          }, relifeTime * 1000);
         }
       }
 
@@ -1762,7 +1792,7 @@ class YJNPC {
     // 死亡后重新生成
     function resetLife() {
 
-      scope.transform.ResetPosRota(); 
+      scope.transform.ResetPosRota();
       targetModel = null;
       scope.isDead = false;
       scope.transform.SetActive(true);
@@ -1772,7 +1802,6 @@ class YJNPC {
       });
       // materials = [];
       // 还原血量、还原状态
-      baseData.armor = 0;
       baseData.health = baseData.maxHealth;
       baseData.state = stateType.Normal;
       scope.SetPlayerState("normal");
@@ -1989,6 +2018,9 @@ class YJNPC {
         case "施法":
           animName = _animName;
           break;
+        case "吟唱":
+          animName = _animName;
+          break;
         case "受伤":
           GetAnimNameByPlayStateAndWeapon(e, weaponData);
           break;
@@ -2076,7 +2108,7 @@ class YJNPC {
         // if(scope.npcName.includes("ZH画渣") && targetModel){
         //   console.log(GetNickName() + ' 距离目标 ',dis,vaildAttackDis + scope.transform.GetData().scale.x);
         // }
-        if (dis < vaildAttackDis + scope.transform.GetData().scale.x && CheckCanAttack()) {
+        if (dis < vaildAttackDis && CheckCanAttack()) {
           SetNavPathToNone();
           parent.lookAt(targetPosRef.clone());
           if (readyAttack_doonce == 0) {
@@ -2100,7 +2132,7 @@ class YJNPC {
 
             //有效攻击 && 
             var { s, v, a } = GetSkillDataByWeapon(weaponData);
-            scope.applyEvent("普通攻击目标", targetModel, { skillName: s, type: "damage", value: baseData.strength });
+            scope.applyEvent("普通攻击目标", targetModel, { skillName: s, type: "damage", value: baseData.basicProperty.strength });
 
             vaildAttackLater2 = setTimeout(() => {
               //攻击结束之后，判断下一个目标
@@ -2167,7 +2199,7 @@ class YJNPC {
 
         // 在同一位置停留时间超过1秒，则取消移动
 
-        moveLength = pos.distanceTo(oldMovePos)* 5;
+        moveLength = pos.distanceTo(oldMovePos) * 5;
 
         // console.log(" in tick moveLength = ", moveLength);
 
@@ -2181,8 +2213,8 @@ class YJNPC {
         //     return;
         //   }
         // }
-        scope.SetActionScale(moveLength );
-        scope.transform.UpdateDataByType("actionScale", moveLength );
+        scope.SetActionScale(moveLength);
+        scope.transform.UpdateDataByType("actionScale", moveLength);
         // console.log(pos, oldMovePos);
         if (oldMovePos != pos) {
           oldMovePos = pos.clone();
@@ -2256,7 +2288,7 @@ class YJNPC {
         UpdateData();
         let pos = scope.GetWorldPos().clone();
         pos.y += playerHeight * nameScale;
-        _Global._SceneManager.UpdateNpcDamageValue("热心观众", scope.npcName,scope.id, scope.GetCamp(), msg.value, pos, "add");
+        _Global._SceneManager.UpdateNpcDamageValue("热心观众", scope.npcName, scope.id, scope.GetCamp(), msg.value, pos, "add");
 
         return;
       }

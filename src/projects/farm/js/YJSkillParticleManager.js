@@ -16,13 +16,14 @@ class YJSkillParticleManager {
     let _YJTrailRenderer = [];
 
     let shootTargetList2 = [];
-    function shootTargetFn2(startPos, target, callback) {
+    function shootTargetFn2(startPos, target,speed, callback) {
       for (let i = 0; i < shootTargetList2.length; i++) {
         const element = shootTargetList2[i];
         if (!element.trailRenderer.trail.used) {
           element.startPos = startPos;
           element.target = target;
           element.time = 0;
+          element.speed = speed;
           element.callback = callback;
           element.trailRenderer.trail.start();
           // console.log(" 复用 旧 拖尾效果 ",startPos,target);
@@ -33,7 +34,7 @@ class YJSkillParticleManager {
           return;
         }
       }
-      console.log(" 创建旧 拖尾效果 ");
+      // console.log(" 创建旧 拖尾效果 ");
 
       let group = new THREE.Group();
       _Global.YJ3D.scene.add(group);
@@ -44,7 +45,7 @@ class YJSkillParticleManager {
       _this._YJSceneManager.AddNeedUpdateJS(trailRenderer.trail);
 
       _YJTrailRenderer.push(trailRenderer);
-      shootTargetList2.push({ startPos: startPos, callback: callback, target: target, time: 0, trailRenderer: trailRenderer });
+      shootTargetList2.push({ startPos: startPos,speed:speed, callback: callback, target: target, time: 0, trailRenderer: trailRenderer });
     }
     function UpdateTrailRenderer2() {
       for (let i = shootTargetList2.length - 1; i >= 0; i--) {
@@ -68,9 +69,11 @@ class YJSkillParticleManager {
 
           let group = item.trailRenderer.group;
           group.lookAt(targetPos);
-          item.startPos.add(group.getWorldDirection(new THREE.Vector3()).multiplyScalar(1.5));
+          let speed = item.speed?item.speed:1.5;
+          // console.log(" trailRenderer speed ",speed);
+          item.startPos.add(group.getWorldDirection(new THREE.Vector3()).multiplyScalar(speed));
           group.position.copy(item.startPos);
-          console.log("旧特效效果 ",item.startPos );
+          // console.log("旧特效效果 ",item.startPos );
           if (item.target.GetPlayerWorldPos) {
           } else {
             //射出射线，如果射线碰到物体，则结束移动
@@ -95,9 +98,9 @@ class YJSkillParticleManager {
     let scope = this;
     let particleList = [];
     let shootTargetList = [];
-    this.shootTargetFn = async function (startPos, target, particleId, callback) {
+    this.shootTargetFn = async function (startPos, target, speed, particleId, callback) {
       if (!particleId) {
-        shootTargetFn2(startPos, target, callback);
+        shootTargetFn2(startPos, target, speed, callback);
         return;
       }
       for (let i = 0; i < shootTargetList.length; i++) {
@@ -106,6 +109,7 @@ class YJSkillParticleManager {
           element.startPos = startPos;
           element.target = target;
           element.time = 0;
+          element.speed = speed;
           element.particle.SetPos(startPos);
           element.particle.SetActive(true);
           element.used = true;
@@ -131,7 +135,7 @@ class YJSkillParticleManager {
       _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().DuplicateModelVisit(modelData, (object) => {
         // console.log("加载组合模型", object);
         // particleList.push(object); 
-        shootTargetList.push({ particleId: particleId, callback: callback, startPos: startPos, target: target, time: 0, used: true, particle: object });
+        shootTargetList.push({ particleId: particleId,speed:speed, callback: callback, startPos: startPos, target: target, time: 0, used: true, particle: object });
       });
 
       // console.log(" 加载组合数据 ",modelData);
@@ -185,7 +189,7 @@ class YJSkillParticleManager {
 
           let group = item.particle.GetGroup();
           group.lookAt(targetPos);
-          item.startPos.add(group.getWorldDirection(new THREE.Vector3()).multiplyScalar(0.5));
+          item.startPos.add(group.getWorldDirection(new THREE.Vector3()).multiplyScalar(item.speed?item.speed:0.5));
           // item.startPos.add(group.getWorldDirection(new THREE.Vector3()) .multiplyScalar(1.5));
           group.position.copy(item.startPos);
 

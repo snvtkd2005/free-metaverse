@@ -84,12 +84,12 @@ export default {
 
 
     setTimeout(() => {
-      console.log("_Global.skillList_scene ",_Global.skillList_scene);
-      if (_Global.skillList_scene == undefined || _Global.skillList_scene.length == 0) {
+      console.log("_Global.skillList ",_Global.skillList);
+      if (_Global.skillList == undefined || _Global.skillList.length == 0) {
         this.actionBar = false;
         return;
       }
-      this.skillList = _Global.skillList_scene;
+      this.skillList = _Global.skillList;
       this.skill_first = this.skillList[0];
     }, 3000);
   },

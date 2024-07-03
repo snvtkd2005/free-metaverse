@@ -29,11 +29,10 @@ class YJGeometry {
       let geo = null;
       let material = new THREE.MeshBasicMaterial({
         alphaTest: true,
-        transparent: true,
+        transparent: false,
         // opacity: 0.5,
         color: 0x666666,
-        // color: 0xffffff,
-        wireframe: false,
+        // color: 0xffffff, 
       });
       switch (data.geometryType) {
         case "box":

@@ -42,6 +42,7 @@ export default {
       { content: "通用图片" },
       { content: "通用音效" },
       { content: "技能" },
+      { content: "道具/药剂" },
     ],
     templateList: [
       {

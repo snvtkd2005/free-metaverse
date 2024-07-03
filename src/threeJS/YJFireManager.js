@@ -3,51 +3,37 @@
 
 
 import * as THREE from "three";
-
-class YJNPCManager {
+import { YJNPCManager } from "/@/threeJS/YJNPCManager.js"; 
+import { YJPlayerManager } from "/@/threeJS/YJPlayerManager.js"; 
+// 战斗管理
+class YJFireManager {
   constructor() {
     let scope = this;
-    let npcModelList = [];
+    let playerList = [];
     
+    let _YJNPCManager = null;
+    let _YJPlayerManager = null;
     function Init() {
-      _Global._YJNPCManager = scope;
-      npcModelList = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetAllTransformByModelType("NPC模型");
-
+      _Global._YJFireManager = scope;
+      _YJNPCManager = new YJNPCManager();
+      _YJPlayerManager = new YJPlayerManager();
     }
     this.GetNPCs = function(){
-      return npcModelList;
+      return playerList;
     }
     this.GetOtherNoSameCampInArea = function (camp,vaildDistance, max, centerPos, ingoreNpcId) {
-      let num = 0;
-      let npcs = [];
-      
-      let npcModelList = this.GetAllVaildNPC();
-      for (let i = 0; i < npcModelList.length; i++) {
-        const element = npcModelList[i];
-        let npcComponent = element.GetComponent("NPC");
-        if (npcComponent.GetCamp() == camp) {
-          continue;
-        }
-        if (npcComponent.id == ingoreNpcId) {
-          continue;
-        }
-        // 未判断npc是否在玩家前方
-        let distance = centerPos.distanceTo(element.GetGroup().position);
-        if (distance <= vaildDistance) {
-          num++;
-          npcs.push(npcComponent);
-          if (num >= max) {
-            return npcs;
-          }
-        }
+      let npcs = _YJNPCManager.GetOtherNoSameCampInArea(camp,vaildDistance, max, centerPos, ingoreNpcId);
+      let players = _YJPlayerManager.GetOtherNoSameCampInArea(camp,vaildDistance, max, centerPos, ingoreNpcId);
+      for (let j = 0; j < players.length; j++) {
+        npcs.push(players[j]);
       }
       return npcs;
     }
 
     // 在一场战斗中，获取玩家前方技能有效范围内的npc
     this.CheckNpcInPlayerForward = function (vaildDistance, npcId, playerPos) {
-      for (let i = 0; i < npcModelList.length; i++) {
-        const element = npcModelList[i].transform;
+      for (let i = 0; i < playerList.length; i++) {
+        const element = playerList[i].transform;
         if (element.id == npcId) {
           let npcComponent = element.GetComponent("NPC");
           // 未判断npc是否在玩家前方
@@ -61,8 +47,8 @@ class YJNPCManager {
     }
     //角色离线移除角色时，如果npc以该角色为目标，则让npc查找下一个目标
     this.DelPlayer = function (id) {
-      for (let i = 0; i < npcModelList.length; i++) {
-        const element = npcModelList[i].transform;
+      for (let i = 0; i < playerList.length; i++) {
+        const element = playerList[i].transform;
         let npcComponent = element.GetComponent("NPC");
         if (npcComponent.GetTargetModelId() == id) {
           npcComponent.CheckNextTarget();
@@ -72,14 +58,14 @@ class YJNPCManager {
     // 添加增生的npc
     this.AddNpc = function (npcTransform) {
       // console.log("增加npc ", npcTransform.id);
-      npcModelList.push({ id: npcTransform.id, transform: npcTransform });
+      playerList.push({ id: npcTransform.id, transform: npcTransform });
     }
     this.GetNpcTransformById = function (npcId) {
       let npcTransform = null;
       let has = false;
-      for (let i = npcModelList.length - 1; i >= 0 && !has; i--) {
-        if (npcModelList[i].id == npcId) {
-          npcTransform = npcModelList[i].transform;
+      for (let i = playerList.length - 1; i >= 0 && !has; i--) {
+        if (playerList[i].id == npcId) {
+          npcTransform = playerList[i].transform;
           has = true;
         }
       }
@@ -87,8 +73,8 @@ class YJNPCManager {
     }
     this.GetNpcComponentById = function (npcId) {
       let npcComponent = null;
-      for (let i = 0; i < npcModelList.length; i++) {
-        const element = npcModelList[i].transform;
+      for (let i = 0; i < playerList.length; i++) {
+        const element = playerList[i].transform;
         if (element.id == npcId) {
           npcComponent = element.GetComponent("NPC");
         }
@@ -98,9 +84,9 @@ class YJNPCManager {
     // 设置npc1附近的npc共同攻击npc1的目标
     this.GetNearNPC = function (npcComponent1) {
       let npcs = [];
-      let npcModelList = this.GetAllVaildNPC();
-      for (let i = 0; i < npcModelList.length; i++) {
-        const element = npcModelList[i];
+      let playerList = this.GetAllVaildNPC();
+      for (let i = 0; i < playerList.length; i++) {
+        const element = playerList[i];
         let npcComponent = element.GetComponent("NPC");
         // 相同阵营的返回
         if (npcComponent != npcComponent1 && npcComponent.GetCamp() == npcComponent1.GetCamp()) {
@@ -117,8 +103,8 @@ class YJNPCManager {
     }
     this.GetAllVaildNPC = function () {
       let npcs = [];
-      for (let i = 0; i < npcModelList.length; i++) {
-        const element = npcModelList[i].transform;
+      for (let i = 0; i < playerList.length; i++) {
+        const element = playerList[i].transform;
         let npcComponent = element.GetComponent("NPC");
         if(!npcComponent.isDead && element.GetActive()){
           npcs.push(element); 
@@ -129,9 +115,9 @@ class YJNPCManager {
     this.GetNoSameCampNPC = function (playerPos) {
       let npcs = [];
       
-      let npcModelList = this.GetAllVaildNPC();
-      for (let i = 0; i < npcModelList.length; i++) {
-        const element = npcModelList[i];
+      let playerList = this.GetAllVaildNPC();
+      for (let i = 0; i < playerList.length; i++) {
+        const element = playerList[i];
         let npcComponent = element.GetComponent("NPC");
         // 相同阵营的不计算
         if (npcComponent.GetCamp() == _Global.user.camp) {
@@ -151,10 +137,10 @@ class YJNPCManager {
      
     this.GetSameCampNPCInFire = function (camp) {
       let npcs = [];
-      let npcModelList = this.GetAllVaildNPC();
-      // console.log(" 所有有效npc ",npcModelList);
-      for (let i = 0; i < npcModelList.length; i++) {
-        const element = npcModelList[i];
+      let playerList = this.GetAllVaildNPC();
+      // console.log(" 所有有效npc ",playerList);
+      for (let i = 0; i < playerList.length; i++) {
+        const element = playerList[i];
         let npcComponent = element.GetComponent("NPC");
         // 相同阵营 
         if (npcComponent.GetCamp() == camp) {
@@ -165,10 +151,10 @@ class YJNPCManager {
     }
     this.GetNoSameCampNPCInFire = function (camp) {
       let npcs = [];
-      let npcModelList = this.GetAllVaildNPC();
-      // console.log(" 所有有效npc ",npcModelList);
-      for (let i = 0; i < npcModelList.length; i++) {
-        const element = npcModelList[i];
+      let playerList = this.GetAllVaildNPC();
+      // console.log(" 所有有效npc ",playerList);
+      for (let i = 0; i < playerList.length; i++) {
+        const element = playerList[i];
         let npcComponent = element.GetComponent("NPC");
         // 不相同阵营 
         if (npcComponent.GetCamp() == camp) {
@@ -181,10 +167,10 @@ class YJNPCManager {
     // 有效距离内的所有
     this.GetNoSameCampNPCInFireInVailDis = function (fromPos,camp,dis) {
       let npcs = [];
-      let npcModelList = this.GetAllVaildNPC();
-      // console.log(" 所有有效npc ",npcModelList);
-      for (let i = 0; i < npcModelList.length; i++) {
-        const element = npcModelList[i];
+      let playerList = this.GetAllVaildNPC();
+      // console.log(" 所有有效npc ",playerList);
+      for (let i = 0; i < playerList.length; i++) {
+        const element = playerList[i];
         let npcComponent = element.GetComponent("NPC");
         // 不相同阵营 
         if (npcComponent.GetCamp() == camp) {
@@ -201,14 +187,14 @@ class YJNPCManager {
     //获取最近的单个目标
     this.GetNoSameCampNPCInFireByNearestDis = function (fromPos,camp,vaildDis) {
       let npc = null;
-      let npcModelList = this.GetAllVaildNPC();
+      let playerList = this.GetAllVaildNPC();
       let dis = 10000;
       if(vaildDis){
         dis = vaildDis;
       }
-      // console.log(" 所有有效npc ",npcModelList);
-      for (let i = 0; i < npcModelList.length; i++) {
-        const element = npcModelList[i];
+      // console.log(" 所有有效npc ",playerList);
+      for (let i = 0; i < playerList.length; i++) {
+        const element = playerList[i];
         let npcComponent = element.GetComponent("NPC");
         // 不相同阵营 
         if (npcComponent.GetCamp() == camp) {
@@ -225,9 +211,9 @@ class YJNPCManager {
     }
     this.GetSameCampNPCInFire = function (camp) {
       let npcs = [];
-      let npcModelList = this.GetAllVaildNPC();
-      for (let i = 0; i < npcModelList.length; i++) {
-        const element = npcModelList[i];
+      let playerList = this.GetAllVaildNPC();
+      for (let i = 0; i < playerList.length; i++) {
+        const element = playerList[i];
         let npcComponent = element.GetComponent("NPC");
         // 相同阵营 
         if (npcComponent.GetCamp() == camp) { 
@@ -281,9 +267,9 @@ class YJNPCManager {
     this.GetForwardNoSameCampNPC = function (playerPos) {
       let npcs = [];
       
-      let npcModelList = this.GetAllVaildNPC();
-      for (let i = 0; i < npcModelList.length; i++) {
-        const element = npcModelList[i];
+      let playerList = this.GetAllVaildNPC();
+      for (let i = 0; i < playerList.length; i++) {
+        const element = playerList[i];
         let npcComponent = element.GetComponent("NPC");
         // 相同阵营的不计算
         if (npcComponent.GetCamp() == _Global.user.camp) {
@@ -302,30 +288,30 @@ class YJNPCManager {
 
     this.DestroyNpc = function (id) {
       // console.log("移除npc ", id);
-      for (let i = npcModelList.length - 1; i >= 0; i--) {
-        if (npcModelList[i].id == id) {
-          let transform = npcModelList[i].transform;
+      for (let i = playerList.length - 1; i >= 0; i--) {
+        if (playerList[i].id == id) {
+          let transform = playerList[i].transform;
           let npc = transform.GetComponent("NPC");
           npc.SetNpcTargetToNone(); 
           transform.Destroy();
-          npcModelList.splice(i,1);
+          playerList.splice(i,1);
           return;
         }
       }
     }
     this.RemoveNpcById = function (npcId) { 
-      for (let i = npcModelList.length -1; i >=0; i--) {
-        const element = npcModelList[i].transform;
+      for (let i = playerList.length -1; i >=0; i--) {
+        const element = playerList[i].transform;
         if (element.id == npcId) {
           element.Destroy();
-          npcModelList.splice(i,1);
+          playerList.splice(i,1);
           return;
         }
       } 
     }
     this.HiddenNpcById = function (npcId) { 
-      for (let i = npcModelList.length -1; i >=0; i--) {
-        const element = npcModelList[i].transform;
+      for (let i = playerList.length -1; i >=0; i--) {
+        const element = playerList[i].transform;
         if (element.id == npcId) {
           let npc = element.GetComponent("NPC");
           if(!npc.isDead){
@@ -337,10 +323,10 @@ class YJNPCManager {
       } 
     }
     this.DestoryById = function (npcId) {
-      for (let i = npcModelList.length - 1; i >= 0; i--) {
-        if (npcModelList[i].id == npcId) {
-          npcModelList[i].transform.Destroy();
-          npcModelList.splice(i, 1);
+      for (let i = playerList.length - 1; i >= 0; i--) {
+        if (playerList[i].id == npcId) {
+          playerList[i].transform.Destroy();
+          playerList.splice(i, 1);
           return;
         }
       }
@@ -349,9 +335,9 @@ class YJNPCManager {
       let { type, state } = data;
       if (type == "玩家脱离战斗") {
         let has = false;
-        for (let i = npcModelList.length - 1; i >= 0 && !has; i--) {
-          if (npcModelList[i].id == state) {
-            npcModelList[i].transform.GetComponent("NPC").Dync({ title: "脱离战斗" });
+        for (let i = playerList.length - 1; i >= 0 && !has; i--) {
+          if (playerList[i].id == state) {
+            playerList[i].transform.GetComponent("NPC").Dync({ title: "脱离战斗" });
             has = true;
           }
         }
@@ -401,4 +387,4 @@ class YJNPCManager {
   }
 }
 
-export { YJNPCManager };
+export { YJFireManager };

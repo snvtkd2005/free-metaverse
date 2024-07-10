@@ -187,12 +187,12 @@ class YJPlayerNameManager {
       const context = canvas.getContext('2d');
       let metrics = null;
       const textHeight = 100;
-      context.font = 'normal ' + textHeight + 'px Arial';
+      context.font = 'bold ' + textHeight + 'px Arial';
       metrics = context.measureText(message);
       const textWidth = metrics.width;
       canvas.width = textWidth;
       canvas.height = textHeight;
-      context.font = 'normal ' + textHeight + 'px Arial';
+      context.font = 'bold ' + textHeight + 'px Arial';
       context.textAlign = 'center';
       context.textBaseline = 'middle';
       context.fillStyle = '#ffffff';
@@ -254,15 +254,17 @@ class YJPlayerNameManager {
       namePosTrans.add(resetButton);
       resetButton.name = "ignoreRaycast";
       resetButton.position.set(0, 0, 0);
-      var size = 2;
+      var size = 4;
       resetButton.scale.set(size, size, size);
       namePosTrans.scale.set(nameScale, nameScale, nameScale);
       group.scale.set(modelScale,modelScale,modelScale);
       player.namePosTrans = namePosTrans;
       player.group = group;
       playerList.push({ id,nickName, player });
-      group.visible = npc.transform.GetActive();
-      player.active = npc.transform.GetActive();
+      if(npc.transform){
+        group.visible = npc.transform.GetActive();
+        player.active = npc.transform.GetActive();
+      }
       npc.addEventListener("重置昵称", (nickName) => {
         resetButton.remove(resetButton.children[0]);
         const resetButtonText = createText(nickName, 0.06);
@@ -277,10 +279,10 @@ class YJPlayerNameManager {
         group.position.set(pos.x, pos.y, pos.z);
       });
       npc.addEventListener("创建血条", (color) => {
-        this.CreateHealth(player,namePosTrans, color);
+        // this.CreateHealth(player,namePosTrans, color);
       }); 
       npc.addEventListener("创建头像", (faceUrl) => {
-        this.CreateHeader(namePosTrans, faceUrl);
+        // this.CreateHeader(namePosTrans, faceUrl);
       }); 
       npc.addEventListener("隐藏头像", () => {
         if(namePosTrans.header){
@@ -288,12 +290,12 @@ class YJPlayerNameManager {
           namePosTrans.header = undefined;
         }
       }); 
-      npc.addEventListener("移除buff", (buffId) => {
+      npc.addEventListener("移除debuff", (buffId) => {
         this.removeDebuffById(player, buffId);
       }); 
       
-      npc.addEventListener("添加buff", (buffId,buffIcon) => {
-        this.addDebuff(player,namePosTrans,buffId, buffIcon);
+      npc.addEventListener("添加debuff", (buff) => {
+        this.addDebuff(player,namePosTrans,buff.id,_Global.url.uploadUVAnimUrl + buff.icon);
       }); 
       npc.addEventListener("npc尸体消失", () => {
         group.visible = false;
@@ -313,8 +315,10 @@ class YJPlayerNameManager {
         resetButtonText.visible = false;
       }); 
       npc.addEventListener("重生", () => {
-        group.visible = true; 
-        player.active = true;
+        if(npc.transform){
+          group.visible = true; 
+          player.active = true;
+        }
 
         resetButtonText.visible = true;
         // resetButtonText.material.color.set('#ffffff');

@@ -20,13 +20,19 @@ class Interface {
   // _this 为三维主页面vue
   constructor(_this, inEditor) {
     
+    _Global.panelState = {
+      player: false,
+      skill: false,
+      bag: false,
+      mainmenu: false,
+    };
+
     let eventList = [];
     // 添加事件监听
     this.addEventListener = function (e, fn) {
       eventList.push({ eventName: e, fn: fn });
     }
     _Global.addEventListener = this.addEventListener;
-
     // 执行事件
     this.applyEvent = function (e,v,v2,v3) {
       for (let i = 0; i < eventList.length; i++) {
@@ -37,7 +43,16 @@ class Interface {
       }
     }
     _Global.applyEvent = this.applyEvent;
+
+
+    _Global.addEventListener("主角重生",()=>{
+      _Global.mainPlayerIsDead = false;
+      _Global.YJ3D.YJController.resetLife();
+    });
+
+    
     _Global.hasAvatar = true;
+    _Global.mainPlayerIsDead = false;
 
     
     // npc巡逻点模型
@@ -50,6 +65,10 @@ class Interface {
     }
     _Global.user = {
       camp: 1000
+    }
+    _Global.url = {
+      uploadUrl: _this.$uploadUrl,
+      uploadUVAnimUrl: _this.$uploadUVAnimUrl,
     }
     _Global.inFocus = true; 
 
@@ -368,7 +387,8 @@ class Interface {
         return;
       }
       if (type == "角色死亡") {
-			  _this.$refs.HUD.$refs.fireStateUI.SetState("inDead",true);
+        _Global.applyEvent("角色死亡"); 
+        _Global.mainPlayerIsDead = true;
 				// 放下武器
         _Global._SceneManager.PickDownWeapon();
         return;
@@ -623,7 +643,6 @@ class Interface {
       _Global.notIn3D();
     }
 
-    let _YJAudioManager = null;
     let _YJPathfindingCtrl = null;
     this.GetNavpath = function (ZONE,fromPos, targetPos) {
       if (_YJPathfindingCtrl == null) {
@@ -637,14 +656,9 @@ class Interface {
     this.YJPathfindingCtrl = function () {
       return _YJPathfindingCtrl;
     }
-    this.YJAudioManager = function () {
-      return _YJAudioManager;
-    }
     _Global.GetNavpath = this.GetNavpath;
     _Global.CreateNavMesh = this.CreateNavMesh;
     _Global.GetYJPathfindingCtrl = this.YJPathfindingCtrl;
-    _Global.YJAudioManager = this.YJAudioManager;
-
 
 
     // 如果3d加载好了能点击跳转时候 执行一下
@@ -658,7 +672,7 @@ class Interface {
           // 调用所有npc的寻路
           // _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().AllNpcTransformNav();
         });
-        _YJAudioManager = new YJAudioManager(_this);
+        new YJAudioManager(_this);
         
       }
       _Global.YJDync = this.YJDync();

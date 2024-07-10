@@ -19,6 +19,32 @@ class YJPlayerManager {
       console.log(" 所有玩家 ",playerList);
 
     }
+
+    this.GetAllVaildPlayer = function () {
+      let playerList = [];
+      if (!_Global.YJClient) {
+        playerList.push(_Global.YJ3D.YJPlayer); 
+      }else{
+        playerList = _Global.YJClient.GetAllPlayer();
+      }
+
+      let npcs = [];
+      for (let i = 0; i < playerList.length; i++) {
+        const element = playerList[i]; 
+        if(!element.isDead){
+          npcs.push(element); 
+        }
+      }
+      return npcs;
+    }
+    this.GetPlayerById = function (playerId) {
+      if (!_Global.YJClient) {
+        return _Global.YJ3D.YJPlayer;
+      }
+      return _Global.YJClient.GetPlayerById(playerId)
+    }
+
+
     this.GetNPCs = function(){
       return playerList;
     }
@@ -43,7 +69,7 @@ class YJPlayerManager {
         let distance = centerPos.distanceTo(element.GetWorldPos());
 
         // console.log(" 范围查找玩家 ",distance,element);
-        console.log(" 范围查找玩家 ",distance,vaildDistance);
+        // console.log(" 范围查找玩家 ",distance,vaildDistance);
 
         if (distance <= vaildDistance) {
           num++;
@@ -123,16 +149,6 @@ class YJPlayerManager {
               npcs.push(npcComponent); 
             }
           }
-        }
-      }
-      return npcs;
-    }
-    this.GetAllVaildPlayer = function () {
-      let npcs = [];
-      for (let i = 0; i < playerList.length; i++) {
-        const element = playerList[i]; 
-        if(!element.isDead){
-          npcs.push(element); 
         }
       }
       return npcs;
@@ -252,14 +268,30 @@ class YJPlayerManager {
       return parseInt(Math.random() * (maxNum - minNum + 1) + minNum, 10);
     }
     this.GetSameCamp = function (camp) {
-      let players = [];
-      if (_Global.setting.DMGame) {
-        players = _Global._YJNPCManager.GetSameCampNPCInFire(camp);
-      } else {
-        players = _Global.YJClient.GetAllPlayer();
+      let playerList = this.GetAllVaildPlayer();
+      let players = []; 
+      for (let i = 0; i < playerList.length; i++) {
+        const element = playerList[i];
+        if(element.GetCamp() == camp){
+          players.push(element);
+        }
       }
       return players;
     }
+    
+    this.GetNoSameCamp = function (camp) { 
+      let playerList = this.GetAllVaildPlayer();
+      let players = []; 
+      for (let i = 0; i < playerList.length; i++) {
+        const element = playerList[i];
+        if(element.GetCamp() != camp){
+          players.push(element);
+        }
+      }
+      return players;
+    }
+
+
     this.GetSameCampByRandom = function (camp) {
       if (!_Global.YJClient) {
         if (_Global.hasAvatar) {

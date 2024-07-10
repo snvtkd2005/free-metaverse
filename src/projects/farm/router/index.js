@@ -35,7 +35,9 @@ const router = createRouter({
     {
       path: '/uitest',   // 访问编辑后保存在本地的场景
       name: 'uitest',
-      component: () => import('../pages/platform/common/mainPlayerHeaderUI.vue')
+      component: () => import('../pages/platform/games/wowPanel.vue')
+      // component: () => import('../pages/platform/games/ActionPanel.vue')
+      // component: () => import('../pages/platform/common/PlayerPropertyPanel.vue')
     },
     {
       path: '/visitLocal',   // 访问编辑后保存在本地的场景

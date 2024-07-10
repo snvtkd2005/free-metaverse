@@ -240,15 +240,13 @@ class YJNPCManager {
     function radomNum(minNum, maxNum) {
       return parseInt(Math.random() * (maxNum - minNum + 1) + minNum, 10);
     }
-    this.GetSameCamp = function (camp) {
-      let players = [];
-      if (_Global.setting.DMGame) {
-        players = _Global._YJNPCManager.GetSameCampNPCInFire(camp);
-      } else {
-        players = _Global.YJClient.GetAllPlayer();
-      }
-      return players;
+    this.GetSameCamp = function (camp) { 
+      return _Global._YJNPCManager.GetSameCampNPCInFire(camp);
     }
+    this.GetNoSameCamp = function (camp) { 
+      return _Global._YJNPCManager.GetNoSameCampNPCInFire(camp);
+    }
+
     this.GetSameCampByRandom = function (camp) {
       if (!_Global.YJClient) {
         if (_Global.hasAvatar) {

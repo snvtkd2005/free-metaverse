@@ -2045,6 +2045,11 @@ class YJController {
       pos.y -= playerHeight / 2;
       return pos;
     }
+    this.GetPlayerWorldPos3 = function () {
+      let pos = _YJAmmo.GetPlayerPos();
+      pos.y += playerHeight / 2;
+      return pos;
+    }
     this.GetCamTargetWorldDire = function () {
       return camTargetDirection.getWorldDirection(new THREE.Vector3());
     }
@@ -3548,7 +3553,7 @@ class YJController {
       },
 
       baseData: {
-        camp: "1000", //阵营
+        camp: 1000, //阵营
         speed: 8, //移动速度
         level: 1, //等级
         health: 500, //当前剩余生命值
@@ -3637,7 +3642,7 @@ class YJController {
 
       setTimeout(() => {
         _YJPlayer.isDead = false;
-        this.SetInteractiveNPC("重生");
+        _YJPlayerFireCtrl.SetPlayerEvent("重生");
         this.SetCanMoving(true);
         this.directUpate();
       }, 200);
@@ -3755,38 +3760,11 @@ class YJController {
 
     this.DyncPlayerState = function (state) {
       _YJPlayer.DyncPlayerState(state);
-    }
-    this.ReceiveDamage = function (_targetModel, skillName, effect) {
-      return _YJPlayerFireCtrl.OnPlayerState({
-        title: "fire",
-        content: "受到伤害",
-        msg: { _targetModel: _targetModel, skillName: skillName, effect: effect },
-      });
-    }
-    this.SetInteractiveNPC = function (content, msg) {
-      if (content == "删除镜像" || content == "重生") {
-
-      } else {
-        if (this.isInDead()) {
-          // 角色死亡后不接收道具效果
-          return;
-        }
-      }
-      _YJPlayerFireCtrl.OnPlayerState({
-        title: "fire",
-        content: content,
-        msg: msg,
-      });
-      _YJPlayer.resetLife();
-    }
-
-    var _YJPlayerFireCtrl = null;
-    this.GetPlayerFireCtrl = function(){
-      return _YJPlayerFireCtrl;
-    }
+    }   
     this.InitCompleted = function(){
       scope.SetPlayerState("停止移动");
     }
+    let _YJPlayerFireCtrl = null;
     this.SetPlayerState = function (e, type) {
       // console.log(" in SetPlayerState  ",e,type);
       if (playerState == PLAYERSTATE.INTERACTIVE) {

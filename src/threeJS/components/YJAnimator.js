@@ -5,6 +5,7 @@
 
 
 import * as THREE from "three";
+import TWEEN from '@tweenjs/tween.js';
 
 class YJAnimator {
   constructor(model, animations) {
@@ -26,9 +27,9 @@ class YJAnimator {
     let currentDuration = 100;
     let animNameFullback = "";
     this.GetCurrentTime = function () {
-      return {time:currentTime,duration:currentDuration}; 
+      return { time: currentTime, duration: currentDuration };
     }
-    this.SetCurrentTime = function(e){
+    this.SetCurrentTime = function (e) {
       currentAction.time = e;
     }
     this.GetAnimation = function () {
@@ -40,21 +41,22 @@ class YJAnimator {
       // animationsData = v;
       for (let i = 0; i < actions.length; i++) {
         const element = actions[i];
-        setWeight(element.action,  0, element.timeScale);
+        setWeight(element.action, 0, element.timeScale);
       }
       actions = [];
-      for (let j = 0; j < animations.length; j++) { 
+      for (let j = 0; j < animations.length; j++) {
         mixer.clipAction(animations[j]).setEffectiveWeight(0);
       }
     }
-    
-    this.ChangeAnimDirect = function(animName){
+
+    this.ChangeAnimDirect = function (animName) {
       oldAnimName = "";
       this.ChangeAnim(animName);
     }
-    this.ChangeAnim = function (animName,_animNameFullback) {
+    this.ChangeAnim = function (animName, _animNameFullback) {
+      // _animNameFullback 为回滚动作，当无animName动作，使用回滚动作
       // console.error(" in change anim ", animName,oldAnimName,_animNameFullback); 
-      if (oldAnimName == animName) { return; } 
+      if (oldAnimName == animName) { return; }
       animNameFullback = _animNameFullback;
       oldAnimName = animName;
       if (activateAllActions(animName)) {
@@ -68,18 +70,18 @@ class YJAnimator {
         let messageData = message.data;
         if (messageData.avatarData) {
           _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.avatarData.id, animName, (isLoop, anim) => {
-            if(anim!=null){
+            if (anim != null) {
               scope.ChangeAnimByAnimData(animName, isLoop, anim);
-            }else{ 
+            } else {
               ChangeAnimFn(animNameFullback);
             }
           });
         } else {
           // console.log(" messageData ",messageData);
           _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.id, animName, (isLoop, anim) => {
-            if(anim!=null){
+            if (anim != null) {
               scope.ChangeAnimByAnimData(animName, isLoop, anim);
-            }else{ 
+            } else {
               ChangeAnimFn(animNameFullback);
             }
           });
@@ -88,18 +90,18 @@ class YJAnimator {
       //
       return false;
     }
- 
+
     // 动作混合
-      //animName上半身 ， animName0 下半身
-    this.layerBlendPerbone = function(animName,animName0,boneName){
+    //animName上半身 ， animName0 下半身
+    this.layerBlendPerbone = function (animName, animName0, boneName) {
       for (let i = 0; i < actions.length; i++) {
         const e = actions[i];
-        if(e.animName == (animName+animName0) ){
+        if (e.animName == (animName + animName0)) {
           return e.action;
         }
       }
       // 以boneName为界，提取animName的上半身数据，提取animName0的下半身数据，组合成新的动作数据
-      let action0 = null; 
+      let action0 = null;
       let action1 = null;
       for (let i = 0; i < actions.length; i++) {
         const element = actions[i];
@@ -110,17 +112,17 @@ class YJAnimator {
           action1 = element.action;
         }
       }
-      if(action0 == null){
+      if (action0 == null) {
         scope.ChangeAnim(animName);
         return null;
       }
-      if(action1 == null){
+      if (action1 == null) {
         scope.ChangeAnim(animName0);
         return null;
       }
       //获取上下半身的骨骼
       // let allBone = scope.transform.GetComponent("MeshRenderer").GetAllBone(); 
-      let mixamorigSpine,mixamorigLeftUpLeg,mixamorigRightUpLeg;
+      let mixamorigSpine, mixamorigLeftUpLeg, mixamorigRightUpLeg;
       mixamorigSpine = scope.transform.GetComponent("MeshRenderer").GetAllBoneInParent("mixamorigSpine");
       mixamorigLeftUpLeg = scope.transform.GetComponent("MeshRenderer").GetAllBoneInParent("mixamorigLeftUpLeg");
       mixamorigLeftUpLeg.push("mixamorigHips");
@@ -130,16 +132,16 @@ class YJAnimator {
       }
       // console.log("action0 ",action0);
       // console.log("action1 ",action1);
-      
-      let tracks_spine = cutAction(mixamorigSpine,action0._clip);
-      let tracks_leftleg = cutAction(mixamorigLeftUpLeg,action1._clip);
+
+      let tracks_spine = cutAction(mixamorigSpine, action0._clip);
+      let tracks_leftleg = cutAction(mixamorigLeftUpLeg, action1._clip);
       // let tracks_rightleg = cutAction(mixamorigRightUpLeg,action1._clip);
 
       let tracks = [];
       for (let i = 0; i < tracks_spine.length; i++) {
         tracks.push(tracks_spine[i]);
-      } 
-      let animname = animName+animName0+"_"+animName;
+      }
+      let animname = animName + animName0 + "_" + animName;
       let anim = new THREE.AnimationClip(animname, -1, tracks); anim.optimize();
       let action = mixer.clipAction(anim);
       actions.push({
@@ -151,9 +153,9 @@ class YJAnimator {
       tracks = [];
       for (let i = 0; i < tracks_leftleg.length; i++) {
         tracks.push(tracks_leftleg[i]);
-      }  
-      animname = animName+animName0+"_"+animName0;
-      anim = new THREE.AnimationClip(animname, -1, tracks); anim.optimize(); 
+      }
+      animname = animName + animName0 + "_" + animName0;
+      anim = new THREE.AnimationClip(animname, -1, tracks); anim.optimize();
       action = mixer.clipAction(anim);
       // console.log(action);
       actions.push({
@@ -161,10 +163,10 @@ class YJAnimator {
         targetIndex: animations.length - 1, animName: animname, timeScale: 1, weight: 1
         , isLoop: true
       });
-      activateAllActions2(animName+animName0+"_"+animName,animName+animName0+"_"+animName0);
-       
+      activateAllActions2(animName + animName0 + "_" + animName, animName + animName0 + "_" + animName0);
+
     }
-    function activateAllActions2(animName,animName0) {
+    function activateAllActions2(animName, animName0) {
 
       for (let j = 0; j < animations.length; j++) {
         mixer.clipAction(animations[j]).setEffectiveWeight(0);
@@ -181,14 +183,14 @@ class YJAnimator {
       if (has) {
         for (let i = 0; i < actions.length; i++) {
           const element = actions[i];
-          if (element.animName == animName || element.animName == animName0 ) {
+          if (element.animName == animName || element.animName == animName0) {
             setWeight(element.action, element.weight, element.timeScale);
             if (element.action != undefined) {
               element.action.reset();
               element.action.play();
-            } 
+            }
           }
-        }  
+        }
         return true;
       }
       return false;
@@ -202,7 +204,7 @@ class YJAnimator {
           if ((track0.name) == (mmdBone + ".position")) {
             const trackName = track0.name;
             const times = track0.times;
-            const values = track0.values; 
+            const values = track0.values;
             const track = new THREE.VectorKeyframeTrack(trackName, times, values);
             tracks.push(track);
           }
@@ -233,14 +235,14 @@ class YJAnimator {
         let messageData = message.data;
         if (messageData.avatarData) {
           _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.avatarData.id, animName, (isLoop, anim) => {
-            if(anim!=null){
+            if (anim != null) {
               scope.ChangeAnimByAnimData(animName, isLoop, anim);
             }
           });
         } else {
           // console.log(" messageData ",messageData);
           _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.id, animName, (isLoop, anim) => {
-            if(anim!=null){
+            if (anim != null) {
               scope.ChangeAnimByAnimData(animName, isLoop, anim);
             }
           });
@@ -256,9 +258,9 @@ class YJAnimator {
       if (i >= animations.length) {
         return false;
       }
- 
+
       console.log(i, animations, timeScale);
-      for (let j = 0; j < animations.length; j++) { 
+      for (let j = 0; j < animations.length; j++) {
         mixer.clipAction(animations[j]).setEffectiveWeight(0);
       }
       let action = mixer.clipAction(animations[i]);
@@ -306,7 +308,7 @@ class YJAnimator {
         action.loop = THREE.LoopOnce; //不循环播放
         action.clampWhenFinished = true;//暂停在最后一帧播放的状态
       }
- 
+
       actions.push({
         action: action,
         targetIndex: animations.length - 1, animName: animName, timeScale: 1, weight: 1
@@ -323,7 +325,6 @@ class YJAnimator {
       for (let j = 0; j < animations.length; j++) {
         mixer.clipAction(animations[j]).setEffectiveWeight(0);
       }
-
       let has = false;
       for (let i = 0; i < actions.length; i++) {
         const element = actions[i];
@@ -332,6 +333,29 @@ class YJAnimator {
         }
       }
       if (has) {
+
+        if (currentAction) {
+          for (let i = 0; i < actions.length; i++) {
+            const element = actions[i];
+            if (currentAction != element.action) {
+              element.action.setEffectiveWeight(0);
+              element.action.setEffectiveTimeScale(0);
+            }
+
+            if (element.animName == animName) {
+              let action = element.action; 
+              action.reset();
+              action.play();
+              ClampAnim(currentAction, action, () => {
+                currentAction = action;
+                currentTime = 0;
+                currentDuration = currentAction._clip.duration;
+              })
+            }
+          }
+          return true;
+        }
+
         for (let i = 0; i < actions.length; i++) {
           const element = actions[i];
           setWeight(element.action, element.animName == animName ? element.weight : 0, element.timeScale);
@@ -343,21 +367,56 @@ class YJAnimator {
             // console.log("播放动画 ", animName,element.action._clip.duration);
             currentAction = element.action;
             currentTime = 0;
-            currentDuration = currentAction._clip.duration; 
+            currentDuration = currentAction._clip.duration;
           }
-        }  
+        }
+
         return true;
       }
       return false;
     }
 
+
+    function TweenAlpha(from, _to, duration, update, onComplete) {
+      let current = from.clone();
+      let to = _to.clone();
+      let movingTween = new TWEEN.Tween(current).to(to, duration).easing(TWEEN.Easing.Linear.None)
+      let updateTargetPos = () => {
+        if (update) {
+          update(current.x);
+        }
+      }
+      movingTween.onUpdate(updateTargetPos);
+      movingTween.start() // 启动动画
+      movingTween.onComplete(() => {
+        if (onComplete) {
+          onComplete();
+        }
+      });
+    }
+
+    function ClampAnim(oldAction, newAction, callback) {
+
+      let _from = new THREE.Vector3(1, 1, 1);
+      let _to = new THREE.Vector3(0, 0, 0);
+      TweenAlpha(_from, _to, 0.21 * 1000, (f) => {
+        oldAction.setEffectiveWeight(f);
+        oldAction.setEffectiveTimeScale(f);
+        newAction.setEffectiveWeight(1 - f);
+        newAction.setEffectiveTimeScale(1 - f);
+      }, () => {
+        if (callback) {
+          callback()
+        }
+      });
+    }
     function setWeight(action, weight, scale) {
       if (action == undefined) { return; }
       action.enabled = true;
       oldScale = scale;
       action.setEffectiveTimeScale(scale);
       action.setEffectiveWeight(weight);
-    }  
+    }
     this.Destroy = function () {
       actions = [];
       animations = [];
@@ -365,12 +424,12 @@ class YJAnimator {
       cancelAnimationFrame(updateId);
     }
     let oldScale = 0;
-    this.SetActionScale = function(scale){
-      if(!currentAction){
+    this.SetActionScale = function (scale) {
+      if (!currentAction) {
         return;
       }
       scale = scale.toFixed(2);
-      if(oldScale == scale){
+      if (oldScale == scale) {
         return;
       }
       // console.log(" 动画scale " ,scale);
@@ -393,7 +452,7 @@ class YJAnimator {
       pauseAllActions();
     }
     function pauseAllActions() {
-      console.log(" ======= 动画暂停 ===="); 
+      console.log(" ======= 动画暂停 ====");
       actions.forEach(function (action) {
         if (action.action != undefined) {
           action.action.paused = true;
@@ -401,7 +460,7 @@ class YJAnimator {
       });
     }
 
-    function unPauseAllActions() { 
+    function unPauseAllActions() {
       actions.forEach(function (action) {
         if (action.action != undefined) {
           action.action.paused = false;
@@ -449,12 +508,12 @@ class YJAnimator {
     }
     function Init() {
 
-      if(model==null){
+      if (model == null) {
         return;
       }
 
       mixer = new THREE.AnimationMixer(model);
-      
+
       model.traverse(function (item) {
         if (item instanceof THREE.Mesh) {
           item.frustumCulled = false;  //解决物体在某个角度不显示的问题
@@ -464,7 +523,7 @@ class YJAnimator {
       mixer.addEventListener('finished', function (e) {
         scope.applyEvent("动作结束");
       });
-      
+
       animCount = animations.length;
       try {
         for (let i = 0; i < animCount; i++) {
@@ -571,7 +630,7 @@ class YJAnimator {
     // 动画裁切帧数。 根据模型名判断
     //MOT项目，装置模型需拆分为3段动画。大厅（模型不动就只截第一帧）、出产品过程、出产品后循环
     let animCutData = [
-      { name: "wbds001", cut: [{ start: 0, end: 1 }, { start: 1, end: 299 }, { start: 300, end: 500 }] }, 
+      { name: "wbds001", cut: [{ start: 0, end: 1 }, { start: 1, end: 299 }, { start: 300, end: 500 }] },
     ]
     function CheckNeedCut(name) {
       // console.log("动画模型信息 ",hotPointData );
@@ -594,7 +653,7 @@ class YJAnimator {
       let action3 = mixer.clipAction(THREE.AnimationUtils.subclip(animations, 'C', needCut[2].start, needCut[2].end));
       actions.push({ name: 'one', action: action1, weight: 1, scale: 1 });
       actions.push({ name: 'two', action: action2, weight: 1, scale: 1 });
-      actions.push({ name: 'three', action: action3, weight: 1, scale: 1 }); 
+      actions.push({ name: 'three', action: action3, weight: 1, scale: 1 });
     }
     // 按动画名称播放动画。通过设置动画权重来切换不同动画
     function PlayAnimFn(e) {
@@ -610,7 +669,7 @@ class YJAnimator {
         }
       });
     }
- 
+
     function PlayAnimFn2(e, scale) {
 
       actions.forEach(function (action) {
@@ -638,16 +697,16 @@ class YJAnimator {
           if (hotPointData.animType == "循环播放") {
             // 默认循环 
           }
-  
+
           if (hotPointData.animType == "全部同时播放") {
-            
+
           }
-  
+
           if (hotPointData.animType == "来回播放") {
             currentAction.loop = THREE.LoopPingPong; // 乒乓循环播放 
             // console.log(" 来回播放 ");
           }
-  
+
         } else {
         }
         // console.log("hotPointData " ,hotPointData);
@@ -662,13 +721,13 @@ class YJAnimator {
       }
 
       // msg = JSON.parse(msg); 
-    } 
+    }
 
     let eventList = [];
     // 添加事件监听
     this.addEventListener = function (e, fn) {
       eventList.push({ eventName: e, fn: fn });
-    } 
+    }
     // 执行事件
     this.applyEvent = function (e, v, v2) {
       for (let i = 0; i < eventList.length; i++) {
@@ -679,14 +738,14 @@ class YJAnimator {
       }
     }
 
-    function update() { 
+    function update() {
       updateId = requestAnimationFrame(update);
 
       if (mixer !== null) {
         //clock.getDelta()方法获得两帧的时间间隔
         // 更新混合器相关的时间
         mixer.update(clock.getDelta());
-        if(currentAction ){
+        if (currentAction) {
           currentTime = currentAction.time;
           // console.log("执行模型动画 中 ",currentTime);
         }
@@ -698,5 +757,5 @@ class YJAnimator {
     }
 
   }
-} 
+}
 export { YJAnimator };

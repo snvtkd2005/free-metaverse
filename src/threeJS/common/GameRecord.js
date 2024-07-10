@@ -26,12 +26,25 @@ class GameRecord {
     function init() {
 
       setInterval(() => {
-        if (!_Global.inGame || _Global.pauseGame) {
+        if (!_Global.inGame || _Global.pauseGame || _Global.mainPlayerIsDead) {
           return;
         }
         record.time++;
         _Global.applyEvent("存活时间", toTime(record.time));
       }, 1000);
+
+      _Global.addEventListener("主角重生", () => {
+        record.time = 0;
+        currentExp = 0;
+        level = 1;
+        _Global.applyEvent("存活时间", toTime(record.time));
+        needExpByLevel = needExpByLevels[level - 1];
+        _Global.applyEvent('设置等级', level);
+        _Global.applyEvent('经验值', currentExp, needExpByLevel.exp);
+
+
+      });
+
     }
     function initTeamStats() {
       record = {
@@ -51,22 +64,42 @@ class GameRecord {
       record.kill = 0;
       currentKill = 0;
     }
+
+    // 玩家伤害统计
+    this.DMPlayerDamageStatistics = function (damageStatistics, DMPlayer) {
+      for (let i = damageStatistics.length - 1; i >= 0; i--) {
+        const item = damageStatistics[i];
+        let has = false;
+        for (let j = 0; j < DMPlayer.length && !has; j++) {
+          const item2 = DMPlayer[j];
+          if (item.from == item2.uname) {
+            item.header = item2.uface;
+            item.camp = item2.camp;
+            has = true;
+          }
+        }
+        if (!has) {
+          damageStatistics.splice(i, 1);
+        }
+      }
+      return damageStatistics;
+    }
     function checkKillCount() {
       // _Global.addEventListener('杀敌数',(c,n)=>{ 
       // });
 
 
       if (currentExp >= needExpByLevel.exp) {
-        _Global.applyEvent('升级',level); 
         level++;
         currentExp = 0;
+        if (level >= needExpByLevels.length) {
+          level = needExpByLevels.length;
+        }
         needExpByLevel = needExpByLevels[level - 1];
-        // console.log("升级",level);
+        _Global.applyEvent('升级', level);
 
       }
-      _Global.applyEvent('经验值', currentExp, needExpByLevel.exp);
-      // console.log("已杀", record.kill);
-      // console.log("经验值",currentExp, needExpByLevel.exp);
+      _Global.applyEvent('经验值', currentExp, needExpByLevel.exp); 
 
     }
 

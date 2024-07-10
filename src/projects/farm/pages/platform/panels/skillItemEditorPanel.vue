@@ -20,6 +20,9 @@
 
 import YJinputCtrl from "../components/YJinputCtrl.vue";
 
+import skillItem from "../../../data/platform/skillItem.js";
+
+
 export default {
   name: "skillItemEditorPanel",
   props: ['isOpen'],
@@ -74,53 +77,14 @@ export default {
         { label: "右掌心", value: "RightHand" }, 
         { label: "左掌心", value: "LeftHand" }, 
       ],
-      settingData: {
-        type:"skill",
-        skillName: "致命一击",
-        // 该结构表示：每10秒对当前目标造成10点伤害
-        //触发时机 每间隔n秒触发、血量达到n%触发 perSecond  health
-        trigger: { type: "health", value: 20,CD:0 },
-        //目标
-        target: { type: "target", value: 1 },// random随机 target目标 area范围攻击
-        //效果 damage直接伤害、perDamage每秒伤害、contDamage持续伤害、冻结、眩晕等状态
-        effect: {
-          type: "damage",
-          controlId:1, //控制id 1=冰霜新星
-          value: 100,
-          time: 1,
-          duration: 3,
-          describe: "对目标造成100点伤害",
-          icon: "",
-        }, //describe技能描述，duration持续时间。perDamage、冻结、眩晕等状态效果才需要持续时间
-        hasReceiveEffect:true, //是否有接收效果（生成模型）
-        receiveEffect:{
-          modelType:"静态模型",
-          particleId:"1709818566951",
-        },
-        //技能施放的有效范围 或 范围攻击的游戏范围
-        vaildDis: 100, //  
-        //施放时间
-        castTime: 1, // 施法时间。 秒, 0表示瞬发
-        animNameReady: "two hand gun before attack", // 施法准备/读条动作
-        animName: "two hand gun attack", // 施法施放动作
-
-        skillReadyParticleId: "", //吟唱特效
-        skillReadyAudio: "", //吟唱音效
-        skillFireParticleId: "", //施放特效
-        skillFirePart: "", //施放部位
-        skillFireAudio: "", //施放音效
-        //效果增强
-        effectEnhance: "none",
-        icon: "", //技能图标
-        describe: "", //描述总结
-      },
+      settingData: {},
       setting: [
         { property: "skillName", display: true, title: "技能名", type: "text", value: "", callback: this.ChangeValue },
         { property: "icon", display: true, title: "技能图标", type: "file", filetype: "image", value: "", callback: this.ChangeValue },
 
         { property: "trigger-type", display: true, title: "触发时机", type: "drop", options: [], value: "", callback: this.ChangeValue },
-        { property: "trigger-value", display: true, title: "触发值", type: "num", step: 1, value: 1, callback: this.ChangeValue, },
-        { property: "trigger-CD", display: true, title: "冷却时间", type: "num", step: 1, value: 0, callback: this.ChangeValue },
+        { property: "trigger-value", display: true, title: "自动触发值", type: "num", step: 1, value: 1, callback: this.ChangeValue, },
+        { property: "CD", display: true, title: "冷却时间", type: "num", step: 1, value: 0, callback: this.ChangeValue },
         { property: "target-type", display: true, title: "目标类型", type: "drop", options: [], value: "", callback: this.ChangeValue },
         { property: "target-value", display: true, title: "目标数量", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
 
@@ -145,7 +109,7 @@ export default {
         { property: "effect-value", display: true, title: "效果值", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
         { property: "effect-time", display: true, title: "间隔", type: "num", step: 0.1, value: 1, callback: this.ChangeValue, },
         { property: "effect-duration", display: true, title: "持续时间", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
-        // { property: "effect-describe", display: true, title: "效果描述", type: "text", value: "", callback: this.ChangeValue, },
+        { property: "effect-describe", display: true, title: "效果描述", type: "text", value: "", callback: this.ChangeValue, },
         { property: "effect-icon", display: true, title: "debuff图标", type: "file", filetype: "image", accept: "", value: "", callback: this.ChangeValue },
         { property: "effect-controlId", display: true, title: "控制id", type: "drop", options: [], value: "", callback: this.ChangeValue },
 
@@ -161,6 +125,9 @@ export default {
     
   },
   methods: {
+    createNew(){
+      this.initValue(JSON.parse(JSON.stringify(skillItem.skill)));
+    },
     SetVisible(b, _settingData) {
       this.isOpen = b;
       if (b && _settingData) {
@@ -168,11 +135,11 @@ export default {
       }
     },
     displayTriggerType(){
-      this.inPlayerSkillEditor = true;
-      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "trigger-type", "display", false);
-      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "trigger-value", "display", false);
-      this.settingData.describe = this.GetDescribe(this.settingData);
-      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "describe", "value", this.settingData.describe);
+      // this.inPlayerSkillEditor = true;
+      // this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "trigger-type", "display", false);
+      // this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "trigger-value", "display", false);
+      // this.settingData.describe = this.GetDescribe(this.settingData);
+      // this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "describe", "value", this.settingData.describe);
       
     },
     initValue(_settingData) {
@@ -200,6 +167,15 @@ export default {
       if (this.settingData.hasReceiveEffect == undefined) {
         this.settingData.hasReceiveEffect = false;
       }
+
+      if (this.settingData.CD == undefined) {
+        if(this.settingData.trigger.CD){
+          this.settingData.CD = this.settingData.trigger.CD;
+        }else{
+          this.settingData.CD = 0;
+        }
+      }
+
       // this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "trigger-type", "options", this.triggerType);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "target-type", "options", this.targetType);
@@ -285,18 +261,18 @@ export default {
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-value", "display", false);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-time", "display", false);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-duration", "display", false);
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-duration", "display", true);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-icon", "display", false);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-controlId", "options", this.controlId);
           
         }
         
         if (e == "shield") {
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-value", "display", false);
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-value", "display", true);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-time", "display", false);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-duration", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-icon", "display", false);
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-duration", "display", true);
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-icon", "display", true);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-controlId", "options", this.shieldId);
         }
         this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-controlId", "display", e == "control" || e == "shield"); 
@@ -332,6 +308,8 @@ export default {
       this.ChangeUIState(property, e);
       this.settingData.describe = this.GetDescribe(this.settingData);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "describe", "value", this.settingData.describe);
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "value", this.settingData.effect.describe);
+
     },
     FloatEvent(e) {
       if (e == "保存") {
@@ -346,10 +324,10 @@ export default {
       let describe = "";
 
       if (item.trigger.type == "health") {
-        describe += "当生命达到" + item.trigger.value + "%时，";
+        // describe += "自动攻击时，当生命达到" + item.trigger.value + "%时，";
       }
       if (item.trigger.type == "perSecond") {
-        describe += "每" + item.trigger.value + "秒，";
+        // describe += "自动攻击时，每" + item.trigger.value + "秒，";
       }
 
       if(this.inPlayerSkillEditor){
@@ -373,7 +351,7 @@ export default {
         describe += "对当前目标";
       }
       if (item.target.type == "area") {
-        describe += "对" + item.vaildDis + "范围内最多" + item.target.value + "个目标";
+        describe += "对半径" + item.vaildDis + "米范围内最多" + item.target.value + "个目标";
       }
 
       if (item.target.type == "minHealthFriendly") {
@@ -399,10 +377,19 @@ export default {
       }
       
       if (item.effect.type == "perDamage") {
-        describe += ",每" + item.effect.time + "秒造成" + item.effect.value + "点伤害，持续" + item.effect.duration + "秒";
+        let effectdes =  "每" + item.effect.time + "秒造成" + item.effect.value + "点伤害，持续" + item.effect.duration + "秒";
+        item.effect.describe = effectdes;
+        describe += "," + effectdes;
+        
       }
       if (item.effect.type == "control") {
-        describe += "施放控制效果" + item.effect.controlId   ;
+        describe += "施放控制" + item.effect.controlId   ;
+      }
+      
+      if (item.effect.type == "shield") {
+        let effectdes = "吸收" + item.effect.value + "点伤害";
+        describe += "施放"+ item.effect.controlId+  "。" + effectdes + "，持续" + item.effect.duration + "秒";
+        item.effect.describe = effectdes ;
       }
       return describe;
     },

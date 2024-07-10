@@ -33,7 +33,7 @@
             class="flex mr-1"
           >
             <div class="w-5 h-5 bg-gray-500">
-              <img class="w-full h-full" :src="debuff.icon" alt="" />
+              <img class="w-full h-full" :src="this.$uploadUVAnimUrl + debuff.icon" alt="" />
             </div>
           </div>
         </div>
@@ -156,7 +156,9 @@ export default {
   created() {},
   mounted() {
     _Global.addEventListener("设置目标技能进度条", (msg,skillName,reverse) => {
-      this.$refs.skillProgressUI.SetProgress(msg,skillName,reverse);
+      if(this.$refs.skillProgressUI){
+        this.$refs.skillProgressUI.SetProgress(msg,skillName,reverse);
+      }
     });
   },
   methods: {

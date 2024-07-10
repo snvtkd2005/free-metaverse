@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full h-full absolute left-0 top-0 pointer-events-none">
+  <div class="w-full h-full absolute left-0 top-0 z-50 pointer-events-none">
     <div class="absolute left-0 top-1 w-full h-auto flex">
       <div class="self-center mx-auto text-white text-2xl">
         <div>血色十字军-最后的防线</div>
@@ -103,17 +103,8 @@
       </div>
     </div>
 
-    <!-- 战斗记录 -->
-    <div
-      ref="combatLog"
-      class="absolute right-64 bottom-2 w-auto h-auto max-h-72 transform origin-bottom overflow-hidden overflow-y-hidden"
-    >
-      <div v-for="(item, i) in combatLog" :key="item" :index="i" class="w-full">
-        <div class="py-px text-white text-left">
-          <div class="ml-1 leading-5">{{ item }}</div>
-        </div>
-      </div>
-    </div>
+    <!-- 战斗记录 --> 
+    <CombatPanelVue ref="CombatPanelVue" />
 
     <!-- 弹幕技能弹窗放大显示 -->
     <div
@@ -133,9 +124,6 @@
 
     <!-- 弹幕信息 -->
     <div class="absolute left-0 top-0 z-10 w-64 h-full">
-      <div class="absolute left-16 w-auto top-3 z-10 text-white">
-        直播间热度 {{ heatValue }}
-      </div>
       <div
         ref="roomChateRecode"
         class="mt-10 text-left h-auto max-h-96 overflow-hidden overflow-y-hidden text-white"
@@ -161,41 +149,41 @@
     </div>
 
     <!-- 玩法介绍 -->
-    <div class="absolute left-0 top-0 dmtip w-64 h-full">
-      <div class="absolute bottom-20 left-0 w-full text-red-100">
+    <div class=" hidden absolute left-0 bottom-0 w-full h-full">
+      <div class="absolute bottom-2 left-0 w-full text-red-100">
         <div
           class="w-full px-2 mx-auto flex flex-col justify-between text-left text-xl"
         >
-          <div class="w-96" style="width: 450px">
+          <div class="w-full" >
             弹幕玩法<br />
-            [加入] 随机角色加入游戏<br />
-            牧师 11<br />
-            弓箭手 12/13<br />
-            火枪手 21/23<br />
-            法师 14/24<br />
-            战士 22<br />
-            食尸鬼 31/32 <br />
-            憎恶 33 <br />
+            [加入] 随机角色加入游戏
+            [11] 牧师  
+            [12][13] 弓箭手  
+            [21][23] 火枪手 
+            [14][24] 法师 
+            [22] 战士 
+            [31][32] 食尸鬼   
+            [33] 憎恶 
             <br />技能<br />
-            fh 复活 <br />
-            fs 分身 <br />
-            cf 嘲讽附近敌人 <br />
-            b 冻结20米内所有敌人 <br />
-            hj 吸收200点伤害 <br />
+            fh 复活 
+            fs 分身 
+            cf 嘲讽附近敌人 
+            b 冻结20米内所有敌人  
+            hj 吸收200点伤害  
             sj 升级多重射击技能 <br />
           </div>
 
-          <div class="w-full h-full pt-2">
+          <div class="w-full h-full pt-2 flex">
             <div
               v-for="(item, i) in giftData"
               :key="item"
               :index="i"
-              class="w-full mb-3 flex"
+              class="w-auto mb-3 flex"
             >
               <div class="px-2 flex">
                 <img class="w-10 h-10" :src="item.img_basic" alt="" />
                 <div class="leading-10">{{ item.describe }}</div>
-                <img v-if="item.img2" class="w-8 h-8" :src="item.img2" alt="" />
+                <!-- <img v-if="item.img2" class="w-8 h-8" :src="item.img2" alt="" /> -->
               </div>
             </div>
           </div>
@@ -214,150 +202,10 @@
       </div>
     </div>
 
-    <!-- 弹幕玩家血量、等级、技能状态 -->
-    <div class="absolute top-0 right-0 dmtip h-full w-64 transform origin-left">
-      <div class="w-full h-full pt-2">
-        <div
-          v-for="(item, i) in dmPlayer"
-          :key="item"
-          :index="i"
-          class="w-full mb-3"
-        >
-          <div class="px-2 text-white">
-            <div class="flex relative">
-              <div class="w-10 h-10 relative">
-                <img
-                  class="w-full h-full rounded-full"
-                  :src="item.uface"
-                  alt=""
-                />
-                <div
-                  class="absolute -left-1 -bottom-1 w-5 h-5 rounded-full bg-yellow-700 leading-5 p-px"
-                >
-                  {{ item.level }}
-                </div>
-              </div>
-              <div class="w-11/12 px-1">
-                <div class="flex">
-                  <div class="ml-1 text-left leading-5">{{ item.uname }}</div>
-                  <div class="text-yellow-300 ml-1 text-left leading-5">
-                    {{
-                      item.state == "run"
-                        ? "[" + item.posId + "]"
-                        : "[替补" + item.posId + "]"
-                    }}
-                  </div>
-                </div>
-                <div class="mb-1 w-full h-auto relative">
-                  <!-- 生命条 -->
-                  <div class="w-full border relative h-5">
-                    <div
-                      class="bg-green-500 h-full"
-                      :style="
-                        'width: ' + (item.health / item.maxHealth) * 100 + '%'
-                      "
-                    ></div>
-                    <!-- 生命条文字 -->
-                    <div class="absolute left-0 top-0 w-full flex h-full">
-                      <div class="self-center mx-auto text-xs truncate">
-                        {{ item.health }}/{{ item.maxHealth }}
-                      </div>
-                    </div>
-                  </div>
-                  <!-- 经验条 -->
-                  <div class="w-full border relative h-2">
-                    <div
-                      class="bg-blue-800 h-full"
-                      :style="
-                        'width: ' + (item.currentExp / item.needExp) * 100 + '%'
-                      "
-                    ></div>
-                    <!-- 经验条文字 -->
-                    <div class="absolute left-0 top-0 w-full flex h-full">
-                      <div class="self-center mx-auto text-xs truncate">
-                        exp {{ item.currentExp }}/{{ item.needExp }}
-                      </div>
-                    </div>
-                  </div>
-                  <!-- 技能 -->
-                  <div class="w-full relative h-5 flex">
-                    <div
-                      v-for="(skill, i) in item.skill"
-                      :key="i"
-                      class="flex mr-1"
-                    >
-                      <div class="w-8 h-8 bg-gray-500 relative">
-                        <div
-                          v-if="item.level < skill.unLockLevel"
-                          class="absolute left-0 top-0 bg-black opacity-50 w-full h-full"
-                        ></div>
-                        <div
-                          v-if="item.level >= skill.unLockLevel"
-                          class="absolute left-0 bottom-0 bg-black opacity-90 w-full h-full"
-                          :style="
-                            'height: ' + (1 - skill.cCD / skill.CD) * 100 + '%'
-                          "
-                        ></div>
-                        <div
-                          v-if="
-                            item.level >= skill.unLockLevel && skill.perCD > 0
-                          "
-                          class="absolute left-0 top-0 w-full h-full leading-8 text-xl"
-                        >
-                          {{ skill.perCD }}
-                        </div>
-                        <img
-                          class="w-full h-full"
-                          :src="this.$uploadUVAnimUrl + skill.icon"
-                          alt=""
-                        />
-                        <div
-                          v-if="item.level >= skill.unLockLevel"
-                          class="absolute -right-1 -bottom-1 w-4 h-4 rounded-full bg-yellow-700 text-xs leading-4 p-px"
-                        >
-                          {{ skill.level }}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="flex">
-                    <div v-if="item.armor > 0" class="  ">
-                      护甲+{{ item.armor }}
-                    </div>
-                    <div v-if="item.energy > 0" class="  ">
-                      能量+{{ item.energy }}
-                    </div>
-                  </div>
 
-                  <div
-                    v-if="item.debuffList && item.debuffList.length"
-                    class="flex"
-                  >
-                    <div
-                      v-for="(debuff, i) in item.debuffList"
-                      :key="i"
-                      class="flex mr-1"
-                    >
-                      <div
-                        class="w-5 h-5 bg-gray-500"
-                        @mouseenter="
-                          HoverDebuff(item);
-                          debuffHover = true;
-                          debuffDescribe = debuff.describe;
-                        "
-                        @mouseleave="debuffHover = false"
-                      >
-                        <img class="w-full h-full" :src="debuff.icon" alt="" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- 弹幕玩家 -->
+    <DMPlayerPanelVue ref="DMPlayerPanelVue" />
+
   </div>
 </template>
 
@@ -366,11 +214,15 @@
  
 <script >
 import { YJDMManager_DMrogue } from "../../../js/games/YJDMManager_DMrogue.js";
-import { YJCombatLog } from "../../../js/YJCombatLog.js";
+import CombatPanelVue from '../common/combatLogPanel.vue';
+import DMPlayerPanelVue from './DMPlayerPanel.vue';
 
 export default {
   props: [],
-  components: {},
+  components: {
+    DMPlayerPanelVue,
+    CombatPanelVue,
+  },
   data() {
     return {
       inGame: false,
@@ -441,27 +293,8 @@ export default {
           heat: 10,
         },
       ],
-
-      combatLog: [],
       dmLogContent: "",
       dmLogType: "", //弹幕玩家/敌方npc/我发npc
-      dmPlayer: [
-        // {
-        //   level: 1,
-        //   health: 300,
-        //   maxHealth: 300,
-        //   currentExp: 0,
-        //   needExp: 200,
-        //   skill: [
-        //     {
-        //       name: "",
-        //       icon: "", //技能图标
-        //       level: 1, //技能等级
-        //       CD: 4, //冷却时间
-        //     },
-        //   ],
-        // },
-      ],
       giftData: [
         {
           id: -1000,
@@ -530,7 +363,6 @@ export default {
     });
 
     setTimeout(() => {
-      new YJCombatLog(this);
 
       this.last = performance.now();
       this.deltaTime = 0;
@@ -630,8 +462,7 @@ export default {
         });
         _Global.addEventListener("战斗开始", () => {
           this.waveNum = 1;
-          this.damageStatistics = [];
-          this.combatLog = [];
+          this.damageStatistics = []; 
         });
       }, 5000);
     }, 5000);
@@ -639,18 +470,10 @@ export default {
 
   methods: {
     setDMPlayer(_dmplayer) {
-      this.dmPlayer = _dmplayer;
+      this.$refs.DMPlayerPanelVue.setDMPlayer(_dmplayer); 
     },
     changeDMPlayerSkillCD(npcId, skillIndex, cCD) {
-      for (let i = 0; i < this.dmPlayer.length; i++) {
-        const element = this.dmPlayer[i];
-        if (element.npcId == npcId) {
-          element.skill[skillIndex].cCD = cCD;
-          element.skill[skillIndex].perCD = (
-            element.skill[skillIndex].CD - cCD
-          ).toFixed(element.skill[skillIndex].CD > 10 ? 0 : 1);
-        }
-      }
+      this.$refs.DMPlayerPanelVue.changeDMPlayerSkillCD(npcId, skillIndex, cCD); 
     },
     DMlog(text, type) {
       if (
@@ -669,13 +492,6 @@ export default {
       this.laterDMlog = setTimeout(() => {
         this.dmLogContent = "";
       }, 3000);
-    },
-    log(content) {
-      this.combatLog.push(content);
-
-      setTimeout(() => {
-        this.$refs.combatLog.scrollTop = this.$refs.combatLog.scrollHeight;
-      }, 20);
     },
     //#region  聊天
 

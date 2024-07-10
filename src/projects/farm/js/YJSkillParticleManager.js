@@ -118,7 +118,7 @@ class YJSkillParticleManager {
         }
       }
 
-      console.log(" 加载特效id ", particleId);
+      // console.log(" 加载特效id ", particleId);
       let res = await _this.$axios.get(
         _this.$uploadGroupUrl + particleId + "/" + "data.txt" + "?time=" + new Date().getTime()
       );

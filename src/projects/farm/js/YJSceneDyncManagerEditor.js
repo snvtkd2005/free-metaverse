@@ -94,7 +94,7 @@ class YJSceneDyncManagerEditor {
     }
     this.SendDataToServer = (type, data) => {
 
-      // console.log(" 发送 ", type, data);
+      // console.log(" in SendDataToServer 发送 ", type, data);
       if (type == "玩家离开房间") {
         //删除玩家的镜像角色
         if (_Global.mainUser) {
@@ -104,12 +104,17 @@ class YJSceneDyncManagerEditor {
         return;
       }
 
-      if (type == "npc技能" || type == "npc技能攻击" || type == "受到技能" || type == "解除技能") {
-        let { npcId, skill } = data;
-        if (type == "npc技能") {
-          _SceneManager.SetTargetSkill(npcId, skill);
-        }
+      if (type == "npc技能" 
+      || type == "npc技能攻击" 
+      || type == "受到技能"
+      || type == "玩家技能"
+      || type == "玩家对玩家"
+      || type == "玩家对NPC"
+      || type == "NPC对NPC"
+      || type == "NPC对玩家"
+      || type == "解除技能") {
         if (!_Global.YJClient) {
+          this.Receive({ type:type, state: data });
           return;
         }
         this.SendSceneState("转发", { type: type, state: data });
@@ -184,9 +189,6 @@ class YJSceneDyncManagerEditor {
       }
     }
 
-    this.GetNpcById = function (npcId) {
-      return _Global._YJNPCManager.GetNpcTransformById(npcId);
-    }
 
     // 战斗组，用来做npc的攻击目标，第一目标死亡，攻击第二目标
     let fireGroup = [
@@ -322,15 +324,12 @@ class YJSceneDyncManagerEditor {
 
  
 
-    this.GetPlayerById = function (playerId) {
-      let playerMirror = _Global._YJNPCManager.GetNpcTransformById(playerId);
-      if (playerMirror) {
-        return playerMirror.GetComponent("NPC");
-      }
-      if (!_Global.YJClient) {
-        return _Global.YJ3D.YJPlayer;
-      }
-      return _Global.YJClient.GetPlayerById(playerId)
+    this.GetNpcById = function (npcId) {
+      return _Global._YJNPCManager.GetNpcTransformById(npcId);
+    }
+    
+    this.GetPlayerById = function (playerId) { 
+      return _Global._YJPlayerManager.GetPlayerById(playerId)
     }
 
     function CheckPlayerInNpcForward(npcTransform, vaildDistance, playerId) {
@@ -748,8 +747,12 @@ class YJSceneDyncManagerEditor {
               people.targetId = null;
             }
             if (people.targetId == null) {
+              if( _Global.YJ3D.YJPlayer.id == people.id){
+                continue;
+              }
               // console.log(" 2222 npcId ["+ people.id+ "] 的目标 ["+targetId+"] 已死亡，即将查找下一个目标 " );
               GetFireIdPlayer({ npcId: people.id, camp: people.camp, fireId: element.fireId }, people);
+
             }
           }
         }
@@ -925,13 +928,6 @@ class YJSceneDyncManagerEditor {
         return;
       }
 
-      if (type == "玩家对玩家") {
-        if (!_Global.YJClient) {
-          return;
-        }
-        _Global._YJDyncManager.SendSceneStateAll("玩家对玩家", msg);
-        return;
-      }
 
       if (type == "玩家脱离战斗") {
         if (!_Global.YJClient) {
@@ -949,14 +945,25 @@ class YJSceneDyncManagerEditor {
         _Global._YJDyncManager.SendSceneStateAll("转发", { type: "玩家加入战斗", state: msg });
         return;
       }
+      
+      
+      if (type == "玩家对玩家") {
+        if (!_Global.YJClient) {
+          this.Receive({ type: "玩家对玩家", state: msg });
+          return;
+        }
+        _Global._YJDyncManager.SendSceneStateAll("玩家对玩家", msg);
+        return;
+      }
+
       if (type == "NPC对NPC") {
         if (!_Global.mainUser) {
           return;
         }
         let state = msg;
-        let p = scope.GetPlayerById(state.targetId);
-        if (p && p.isPlayer == undefined) {
-          p.ReceiveDamageByPlayer(this.GetNpcById(state.npcId), state.skillName, state.effect);
+        let p = scope.GetNpcById(state.targetId).GetComponent("NPC");
+        if (p ) {
+          p.ReceiveSkill(this.GetNpcById(state.fromId).GetComponent("NPC"),  state.skillItem.skillName, state.skillItem.effect,state.skillItem);
 
         }
         return;
@@ -1086,7 +1093,7 @@ class YJSceneDyncManagerEditor {
       // console.log(" 接收 ", type, state);
       if (type == "玩家脱离战斗") {
         if (_Global.YJ3D.YJPlayer.id == state) {
-          _this.YJController.SetInteractiveNPC("玩家脱离战斗");
+          _Global._YJPlayerFireCtrl.SetPlayerEvent("玩家脱离战斗");
         }
         if (_Global.mainUser) {
           _Global._YJNPCManager.EventHandler(data);
@@ -1096,7 +1103,7 @@ class YJSceneDyncManagerEditor {
       if (type == "玩家加入战斗") {
         let { playerId, fireId } = state;
         if (_Global.YJ3D.YJPlayer.id == playerId) {
-          _this.YJController.SetInteractiveNPC("玩家加入战斗", fireId);
+          _Global._YJPlayerFireCtrl.SetPlayerEvent("玩家加入战斗", fireId);
         } else {
 
         }
@@ -1116,11 +1123,43 @@ class YJSceneDyncManagerEditor {
         return;
       }
 
+      if (type == "玩家对玩家") {
+
+        if (!_Global.mainUser) {
+          return;
+        }
+        let { fromType,targetType,fromId,targetId, skillItem } = state;
+        let fromModel = null;
+        let targetModel = null;
+        if(fromType == "玩家"){
+          fromModel = scope.GetPlayerById(fromId);
+        }
+        if(fromType == "NPC"){
+          fromModel = scope.GetNpcById(fromId).GetComponent("NPC");
+        }
+
+        if(targetType == "玩家"){
+          targetModel = scope.GetPlayerById(targetId);
+        }
+        if(targetType == "NPC"){
+          targetModel = scope.GetNpcById(targetId).GetComponent("NPC");
+        }
+
+        if(targetModel){
+          if(targetModel.isPlayer){
+            _Global._YJPlayerFireCtrl.ReceiveSkill(fromModel,skillItem.skillName, skillItem.effect,skillItem);
+          }else{
+            targetModel.ReceiveSkill(fromModel,skillItem.skillName, skillItem.effect,skillItem);
+          }
+        }
+        return;
+      }
       if (type == "玩家对NPC") {
         let { fromId,targetId, skillName, effect } = state;
 
         if (_Global.mainUser) {
-          this.GetNpcById(targetId).GetComponent("NPC").ReceiveDamage((fromId), skillName, effect);
+          this.GetNpcById(targetId).GetComponent("NPC").ReceiveSkill(scope.GetPlayerById(fromId), skillName, effect
+          ,state.skillItem);
         }
 
         // if (_Global.YJ3D.YJPlayer.id == playerId) {
@@ -1137,27 +1176,51 @@ class YJSceneDyncManagerEditor {
         if (!_Global.mainUser) {
           return;
         }
-        let p = scope.GetPlayerById(state.targetId);
-        if (p && p.isPlayer == undefined) {
-          p.ReceiveDamageByPlayer(this.GetNpcById(state.fromId), state.skillName, state.effect);
+        let p = this.GetNpcById(state.targetId);
+        if (p ) {
+          p.GetComponent("NPC").ReceiveSkill(this.GetNpcById(state.fromId).GetComponent("NPC"),
+           state.skillName, state.skillItem.effect,state.skillItem);
         }
         return;
       }
       if (type == "NPC对玩家") {
-        // console.log(" NPC对玩家镜像 ",state);
+        // console.log(" NPC对玩家 ",state);
         if (state.targetId == _Global.YJ3D.YJPlayer.id) {
-          _this.YJController.ReceiveDamage(this.GetNpcById(state.fromId), state.skillName, state.effect);
+          _Global._YJPlayerFireCtrl.ReceiveSkill(this.GetNpcById(state.fromId).GetComponent("NPC"), 
+          state.skillName, state.skillItem.effect,state.skillItem);
           return;
         }
       }
 
       if (type == "npc技能" || type == "npc技能攻击" || type == "受到技能" || type == "解除技能") {
-        let { npcId, skill } = state;
-        if (type == "npc技能") {
-          // npc技能施法/吟唱状态
-          _SceneManager.SetTargetSkill(npcId, skill);
+        let { fromType,targetType,fromId,targetId, skillItem } = state;
+        // if (type == "npc技能") {
+        //   // npc技能施法/吟唱状态
+        //   _SceneManager.SetTargetSkill(npcId, skill);
+        // }
+        let fromModel = null;
+        let targetModel = null;
+        if(fromType == "玩家"){
+          fromModel = scope.GetPlayerById(fromId);
         }
-        _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().EditorUserModel({ id: npcId, modelType: "NPC模型", state: { title: type, skill: skill } });
+        if(fromType == "NPC"){
+          fromModel = scope.GetNpcById(fromId).GetComponent("NPC");
+        }
+
+        if(targetType == "玩家"){
+          targetModel = scope.GetPlayerById(targetId);
+        }
+        if(targetType == "NPC"){
+          targetModel = scope.GetNpcById(targetId).GetComponent("NPC");
+        }
+        if(targetModel){
+          if(targetModel.isPlayer){
+            _Global._YJPlayerFireCtrl.ReceiveSkill(fromModel,skillItem.skillName, skillItem.effect,skillItem);
+          }else{
+            targetModel.ReceiveSkill(fromModel,skillItem.skillName, skillItem.effect,skillItem);
+          }
+        }
+        // _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().EditorUserModel({ id: npcId, modelType: "NPC模型", state: { title: type, skill: skill } });
         return;
       }
 
@@ -1301,7 +1364,7 @@ class YJSceneDyncManagerEditor {
             _npcComponent.id = _playerId;
             transform.SetActive(true);
             if (ownerId == _Global.YJ3D.YJPlayer.id) {
-              _this.YJController.SetInteractiveNPC("添加镜像", _playerId);
+              _Global._YJPlayerFireCtrl.SetPlayerEvent("添加镜像", _playerId);
             }
             _npcComponent.setOwnerPlayer(scope.GetPlayerById(ownerId));
 
@@ -1340,7 +1403,7 @@ class YJSceneDyncManagerEditor {
           RemoveModel(model);
           // let { npcId, playerId } = model;
           // if (_Global.YJ3D.YJPlayer.id == playerId) {
-          //   _this.YJController.SetInteractiveNPC("删除镜像", npcId);
+          //   _Global._YJPlayerFireCtrl.SetPlayerEvent("删除镜像", npcId);
           // } 
           return;
         case "更新道具数量":

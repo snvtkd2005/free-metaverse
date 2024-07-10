@@ -9,6 +9,7 @@ class YJKeyboard {
     let inControlLeft = false;
     this.onKeyDown = function (e) {
       // console.log(event.code);
+      _Global.applyEvent("keycode",e.code);
       switch (e.code) {
         case 'KeyT':
           if (inShiftLeft) {

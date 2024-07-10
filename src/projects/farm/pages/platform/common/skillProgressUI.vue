@@ -44,6 +44,9 @@ export default {
   },
   created() {},
   mounted() {
+    _Global.addEventListener('游戏暂停', () => {
+      this.display = false;
+    }); 
   },
   methods: {
     SetProgress(e, skillName, reverse) {
@@ -67,21 +70,7 @@ export default {
       this.length = e.toFixed(1);
       this.skillName = skillName;
       this.animate();
-      this.display = true; 
-              // console.error(this.current +'/'+ this.length+ '  ' + e);
-
-      // if(this.interval){
-      //   clearInterval(this.interval);
-      // }
-      // this.interval = setInterval(() => {
-      //   this.current += 0.1;
-      //   console.log(this.current +'/'+ this.length);
-      //   if (this.current >= this.length) {
-      //     this.display = false; 
-      //     clearInterval(this.interval);
-      //   }
-      // }, 100);
-      this.display = true;
+      this.display = true;   
     },
     GetProgress() {
       return parseInt((this.current / this.length) * 100);

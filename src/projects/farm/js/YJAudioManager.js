@@ -8,7 +8,7 @@ import * as THREE from "three";
 // 技能特效管理器
 class YJAudioManager {
   constructor(_this, scene, npcPath, npcStoryData, sceneManager) {
-
+    let scope = this;
     let audioList = [];
     this.playAudio = async function (fireAudio,id) {
       if(!fireAudio){
@@ -51,7 +51,7 @@ class YJAudioManager {
       } 
     }
     function init() {
-
+      _Global._YJAudioManager = scope;
     }
 
     init();

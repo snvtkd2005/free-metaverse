@@ -2,11 +2,11 @@
   <div class="w-full h-full absolute left-0 top-0 pointer-events-none">
     <div
       v-show="!displayCard"
-      class="absolute left-0 top-1 w-full h-full flex flex-col"
+      class="absolute left-0 top-0 w-full h-full flex flex-col"
     >
-      <div class="px-2 text-white w-full flex flex-col">
+      <div class="px-2 mt-4 text-white w-full flex flex-col">
         <!-- 生命条 -->
-        <div class="w-1/3 mx-auto border relative h-5">
+        <div class="hidden w-1/3 mx-auto border relative h-5">
           <div
             class="bg-red-700 h-full"
             :style="'width: ' + (stats.health / stats.maxHealth) * 100 + '%'"
@@ -18,59 +18,15 @@
             </div>
           </div>
         </div>
-        <!-- 经验条 -->
-        <div class="w-11/12 mx-auto border relative h-5">
-          <div
-            class="bg-yellow-500 h-full"
-            :style="'width: ' + (stats.exp / stats.needExp) * 100 + '%'"
-          ></div>
-          <!-- 经验条文字 -->
-          <div class="absolute left-0 top-0 w-full flex h-full">
-            <div class="pl-2 text-xs truncate">
-              {{ stats.exp }}/{{ stats.needExp }}
-            </div>
-          </div>
-        </div>
-
         <!-- 存活时间 -->
         <div class="self-center mx-auto text-white text-lg">
           <div class="">{{ timesStr }}</div>
         </div>
       </div>
 
-      <!-- 动作条 -->
-      <div>
-        <!-- 技能 -->
-        <div class="ml-10 w-auto relative h-5 flex">
-          <div v-for="(skill, i) in skillList" :key="i" class="flex mr-1">
-            <div class="w-8 h-8 bg-gray-500 relative">
-              <div
-                class="absolute left-0 bottom-0 bg-black opacity-90 w-full h-full"
-                :style="'height: ' + (1 - skill.cCD / skill.CD) * 100 + '%'"
-              ></div>
-              <div
-                v-if="skill.perCD > 0"
-                class="absolute left-0 top-0 w-full h-full leading-8 text-xl"
-              >
-                {{ skill.perCD }}
-              </div>
-              <img
-                class="w-full h-full"
-                :src="this.$uploadUVAnimUrl + skill.icon"
-                alt=""
-              />
-              <div
-                class="absolute -right-1 -bottom-1 w-4 h-4 rounded-full bg-yellow-700 text-xs leading-4 p-px"
-              >
-                {{ skill.level }}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
+      <!-- 魔兽世界界面 -->
       <div class="absolute left-0 top-0 w-full h-full">
-        <combatLogPanelVue ref="combatLogPanelVue"></combatLogPanelVue>
+        <wowPanelVue ref="wowPanelVue"></wowPanelVue>
       </div>
     </div>
 
@@ -90,7 +46,7 @@
             v-for="(item, i) in propertyList"
             :key="item"
             :index="i"
-            class="w-full h-8  text-gray-200"
+            class="w-full h-8 text-gray-200"
           >
             <div class="flex justify-between">
               <div>{{ item.title }}</div>
@@ -101,7 +57,7 @@
       </div>
       <!-- 左 道具选择 -->
       <div class="flex-grow h-full">
-        <div class="w-full h-full relative">
+        <div class="w-full h-full relative bg-black bg-opacity-50">
           <div class="pt-10 text-xl">选择加成</div>
           <div class="pt-10 text-xl">宝箱或升级</div>
           <div class="absolute bottom-24 w-full pt-72 h-full">
@@ -114,7 +70,7 @@
                   v-for="(item, i) in cardList"
                   :key="item"
                   :index="i"
-                  class="w-40 h-32 bg-red-300 text-gray-200 pointer-events-auto cursor-pointer"
+                  class="w-40 h-52 p-4 bg-black bg-opacity-80 text-gray-200 pointer-events-auto cursor-pointer"
                   @click="skill(item)"
                 >
                   <!-- class="w-1/3 bg-red-300 h-full text-gray-200 pointer-events-auto cursor-pointer" -->
@@ -129,10 +85,10 @@
                         alt=""
                       />
                     </div>
-                    <div class="w-full text-xl">
+                    <div class="w-full text-xl mt-1">
                       {{ item.title }}{{ item.skillName }}
                     </div>
-                    <div class="px-4 text-sm w-full">
+                    <div class="mt-2 text-sm w-full">
                       {{ item.describe }}
                     </div>
                   </div>
@@ -152,12 +108,12 @@
  
 <script >
 import { YJGame_roguelike } from "/@/threeJS/game/YJGame_roguelike.js";
-import combatLogPanelVue from "../common/combatLogPanel.vue";
+import wowPanelVue from "./wowPanel.vue";
 
 export default {
   props: [],
   components: {
-    combatLogPanelVue,
+    wowPanelVue,
   },
   data() {
     return {
@@ -194,81 +150,97 @@ export default {
   },
   created() {},
   mounted() {
-    
-      // if (_Global.setting.inEditor && _Global.gameType == "Roguelike") {
-      //   let _YJController_roguelike = new YJController_roguelike();
-      //   _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(_YJController_roguelike);
-      //   return;
-      // }
+    // if (_Global.setting.inEditor && _Global.gameType == "Roguelike") {
+    //   let _YJController_roguelike = new YJController_roguelike();
+    //   _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(_YJController_roguelike);
+    //   return;
+    // }
 
-      // if(_Global.gameType == "Roguelike" ){
-      //   let _YJController_roguelike = new YJController_roguelike();
-      //   _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(_YJController_roguelike);
-      // }
+    // if(_Global.gameType == "Roguelike" ){
+    //   let _YJController_roguelike = new YJController_roguelike();
+    //   _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(_YJController_roguelike);
+    // }
 
-      _Global.addEventListener("3d加载完成", () => {
-        let _YJGame_roguelike = new YJGame_roguelike(this);
-        _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(_YJGame_roguelike);
+    _Global.addEventListener("3d加载完成", () => {
+      let _YJGame_roguelike = new YJGame_roguelike(this);
+      _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(_YJGame_roguelike);
+    });
 
+    _Global.addEventListener("属性改变", (basedata) => {
+      this.property = basedata;
+
+      this.propertyList = [];
+      this.propertyList.push({
+        title: "生命值",
+        value: basedata.health + "/" + basedata.maxHealth,
       });
 
-      _Global.addEventListener("属性改变", (basedata) => {
-        this.property = basedata;
+      let basicProperty = basedata.basicProperty;
 
-        this.propertyList = [];
-        this.propertyList.push({title:'生命值',value:basedata.health+'/'+basedata.maxHealth});
+      this.propertyList.push({ title: "护甲", value: basicProperty.armor });
 
-        let basicProperty = basedata.basicProperty;
-        
-        this.propertyList.push({title:'护甲',value:basicProperty.armor});
-
-        let attackProperty = basedata.attackProperty;
-        this.propertyList.push({title:'暴击率',  value:attackProperty.CriticalHitRate});
-        this.propertyList.push({title:'暴击等级',value:attackProperty.CriticalHitLevel});
-        this.propertyList.push({title:'攻击速度',value:attackProperty.attackSpeed});
-        this.propertyList.push({title:'攻击强度',value:attackProperty.attackPower});
-        this.propertyList.push({title:'移动速度',value:attackProperty.moveSpeed});
-        this.propertyList.push({title:'急速等级',value:attackProperty.hasteLevel});
-        this.propertyList.push({title:'急速冷却',value:attackProperty.CDRate});
-
-        // console.log(" 属性改变 ",this.property);
+      let attackProperty = basedata.attackProperty;
+      this.propertyList.push({
+        title: "暴击率",
+        value: attackProperty.CriticalHitRate,
+      });
+      this.propertyList.push({
+        title: "暴击等级",
+        value: attackProperty.CriticalHitLevel,
+      });
+      this.propertyList.push({
+        title: "攻击速度",
+        value: attackProperty.attackSpeed,
+      });
+      this.propertyList.push({
+        title: "攻击强度",
+        value: attackProperty.attackPower,
+      });
+      this.propertyList.push({
+        title: "移动速度",
+        value: attackProperty.moveSpeed,
+      });
+      this.propertyList.push({
+        title: "急速等级",
+        value: attackProperty.hasteLevel,
+      });
+      this.propertyList.push({
+        title: "急速冷却",
+        value: attackProperty.CDRate,
       });
 
-      _Global.addEventListener("显示roguelike卡牌", (cardList) => {
-        this.cardList = cardList;
-        this.displayCard = true;
-      });
+      // console.log(" 属性改变 ",this.property);
+    });
 
-      _Global.addEventListener("经验值", (c, n) => {
-        this.stats.exp = c;
-        this.stats.needExp = n;
-      });
+    _Global.addEventListener("显示roguelike卡牌", (cardList) => {
+      this.cardList = cardList;
+      this.displayCard = true;
+    });
 
-      _Global.addEventListener("存活时间", (v) => {
-        this.timesStr = v;
-      });
+    _Global.addEventListener("存活时间", (v) => {
+      this.timesStr = v;
+    });
 
-      _Global.addEventListener("主角生命值", (h, maxH) => {
-        this.stats.health = h;
-        this.stats.maxHealth = maxH;
-      });
-      // if (_Global.setting.inEditor) {
-      //   return;
-      // }
+    _Global.addEventListener("主角生命值", (h, maxH) => {
+      this.stats.health = h;
+      this.stats.maxHealth = maxH;
+    });
 
+    // if (_Global.setting.inEditor) {
+    //   return;
+    // }
 
-      // this.last = performance.now();
-      // this.deltaTime = 0;
-      // this.animate();
+    // this.last = performance.now();
+    // this.deltaTime = 0;
+    // this.animate();
 
-      setTimeout(() => {
-        _Global.addEventListener("战斗结束", (msg) => {});
-      }, 5000);
-      setTimeout(() => {
-        _Global.addEventListener("敌方攻势", (num) => {});
-        _Global.addEventListener("战斗开始", () => {});
-      }, 5000);
-      
+    setTimeout(() => {
+      _Global.addEventListener("战斗结束", (msg) => {});
+    }, 5000);
+    setTimeout(() => {
+      _Global.addEventListener("敌方攻势", (num) => {});
+      _Global.addEventListener("战斗开始", () => {});
+    }, 5000);
   },
 
   methods: {
@@ -277,24 +249,10 @@ export default {
     },
 
     AddSkill(_skill) {
-      for (let i = 0; i < this.skillList.length; i++) {
-        const skill = this.skillList[i];
-        if (skill.skillName == _skill.skillName) {
-          return;
-        }
-      }
-      _skill.level = 1;
-      this.skillList.push(_skill);
+      this.$refs.ActionPanelVue.AddSkill(_skill);
     },
     changeMainPlayerSkillCD(skillName, cCD) {
-      for (let i = 0; i < this.skillList.length; i++) {
-        const skill = this.skillList[i];
-        if (skill.skillName == skillName) {
-          skill.cCD = cCD;
-          skill.perCD = (skill.CD - cCD).toFixed(skill.CD > 10 ? 0 : 1);
-          return;
-        }
-      }
+      this.$refs.ActionPanelVue.changeMainPlayerSkillCD(skillName, cCD);
     },
     changeDMPlayerSkillCD(npcId, skillIndex, cCD) {
       for (let i = 0; i < this.dmPlayer.length; i++) {

@@ -715,7 +715,7 @@ class YJNPC {
               _Global.DyncManager.SendDataToServer("npc技能",
                 { npcId: scope.id, skill: "中断" });
 
-              _Global.YJAudioManager().stopAudio(readyskillAudioName);
+              _Global._YJAudioManager.stopAudio(readyskillAudioName);
 
               skillEnd();
             }
@@ -2390,7 +2390,7 @@ class YJNPC {
         }
       }
       // console.log(type,v);
-      _Global.YJAudioManager().playAudio(audioSrc, type);
+      _Global._YJAudioManager.playAudio(audioSrc, type);
     }
     function activeFalse() {
 

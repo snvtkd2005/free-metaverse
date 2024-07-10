@@ -42,6 +42,14 @@ class YJPlayerProperty {
 			spirit: 0,//精神 提高恢复率
 		}
 
+    // 属性
+    // 生命值、生命回复、生命加成、生命吸血几率、生命吸血值、
+    // 护甲、命中后无敌、移动速度
+    // 武器伤害、暴击率、暴击伤害值、武器射速、武器装填时间
+    // 技能伤害、技能冷却
+    // 磁力范围、金钱倍率、经验值倍率、运气、躲避几率
+
+    // 动作相关动画速度可变{移动速度、攻击速度}
 		let attackProperty = {
 			speedScale: 1, //急速等级/攻击速度百分比
 
@@ -82,7 +90,7 @@ class YJPlayerProperty {
 		this.RealyDamage = function (strength) {
 			// let v = 0;
 			// 有护盾，先使用护盾减伤
-			for (let i = 0; i < baseData.buffList.length; i++) {
+			for (let i = baseData.buffList.length-1; i >=0 ; i--) {
 				const element = baseData.buffList[i];
 				if (element.type == "shield") {
 					if (element.value >= strength) {
@@ -90,7 +98,7 @@ class YJPlayerProperty {
 						return 0;
 					} else {
 						strength -= element.value;
-						owner.applyEvent("技能护甲归零");
+						owner.applyEvent("技能护甲归零",element);
 					}
 				}
 			}

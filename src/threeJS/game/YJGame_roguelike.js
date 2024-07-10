@@ -48,7 +48,7 @@ class YJGame_roguelike {
     function fire() {
 
       // 判断是否有目标
-      // if(_Global.YJ3D.YJController.GetPlayerFireCtrl().CheckTargetVaild()){
+      // if(_Global._YJPlayerFireCtrl.CheckTargetVaild()){
       //   return;
       // }
       let fromPos = _Global.YJ3D.YJController.GetPlayerWorldPos();
@@ -60,9 +60,9 @@ class YJGame_roguelike {
       }
       npcTransform = npc.transform;
       if (npcTransform) {
-        _Global.YJ3D.YJController.GetPlayerFireCtrl().SetInteractiveNPC(npcTransform);
+        _Global._YJPlayerFireCtrl.SetInteractiveNPC(npcTransform);
       } else {
-        // _Global.YJ3D.YJController.GetPlayerFireCtrl().shootTargetPos(tagetPos.clone(), "time");
+        // _Global._YJPlayerFireCtrl.shootTargetPos(tagetPos.clone(), "time");
       }
       return;
     }
@@ -147,7 +147,7 @@ class YJGame_roguelike {
 
         _Global.YJ3D.YJRaycaster.addEventListener('onmouseup', () => {
           inLongPress = false;
-          _Global.YJ3D.YJController.GetPlayerFireCtrl().SetPlayerState("normal");
+          _Global._YJPlayerFireCtrl.SetPlayerState("normal");
 
         });
         _Global.YJ3D.YJRaycaster.addEventListener('onmousedown', () => {
@@ -155,10 +155,10 @@ class YJGame_roguelike {
 
         });
 
-        _Global.YJ3D.YJController.GetPlayerFireCtrl().GetEquip().initWeapon(roguelikeGameData.weaponList[0],()=>{
-          _Global.YJ3D.YJController.GetPlayerFireCtrl().SetPlayerState("normal");
+        _Global._YJPlayerFireCtrl.GetEquip().initWeapon(roguelikeGameData.weaponList[0],()=>{
+          _Global._YJPlayerFireCtrl.SetPlayerState("normal");
         });
-        _Global.YJ3D.YJController.GetPlayerFireCtrl().SetState('canMoveAttack', true);
+        _Global._YJPlayerFireCtrl.SetState('canMoveAttack', true);
         
         autoFire();
 
@@ -174,6 +174,9 @@ class YJGame_roguelike {
           npc.addEventListener("重生", () => {
             npc.SetNpcTarget(_Global.YJ3D.YJPlayer);//重生后立即攻击玩家   
           });
+          if(!npcs[i].transform.GetActive()){
+            continue;
+          }
           npc.SetNpcTarget(_Global.YJ3D.YJPlayer);
         }
         _Global.addEventListener('游戏继续', () => {
@@ -184,34 +187,51 @@ class YJGame_roguelike {
             // 技能添加到界面上用来显示其施放状态和CD
 
           }
-          _Global.YJ3D.YJController.GetPlayerFireCtrl().updateByCard(card);
+          _Global._YJPlayerFireCtrl.updateByCard(card);
           playGame();
         });
 
         _Global.addEventListener('主角生命值', (h, maxH) => {
 
         });
-        _Global.applyEvent('主角姓名', _Global.YJ3D.YJController.GetPlayerFireCtrl().GetNickName());
+        
+        _Global.addEventListener('主角重生', () => {
+          //清空技能
+          _Global._YJPlayerFireCtrl.ClearSkill();
+          //还原角色属性
+
+          // 还原战斗记录
+          _Global.applyEvent('战斗开始');
+
+
+          setTimeout(() => {
+            for (let i = 0; i < npcs.length; i++) {
+              const npc = npcs[i].transform.GetComponent("NPC"); 
+              
+              if(!npcs[i].transform.GetActive()){
+                continue;
+              } 
+              npc.SetNpcTarget(_Global.YJ3D.YJPlayer);
+            }
+          }, 2000);
+        });
+
+        _Global.applyEvent('主角姓名', _Global._YJPlayerFireCtrl.GetNickName());
         _Global.applyEvent('主角头像', _Global.YJ3D.YJPlayer.GetavatarData());
         
         
         _Global.addEventListener('升级', (level) => {
-          _Global.YJ3D.YJController.GetPlayerFireCtrl().GetProperty().changeProperty();
-          openCard(level);
+          _Global.applyEvent('设置等级',level); 
+          _Global._YJPlayerFireCtrl.GetProperty().changeProperty();
+          // 弹窗卡牌选择
+          // openCard(level);
         });
         
-        _Global.YJ3D.YJController.GetPlayerFireCtrl().addEventListener("重生", (skillName, cCD) => {
-          _Global.YJ3D.YJController.GetPlayerFireCtrl().applyEvent("首次进入战斗");
+        _Global._YJPlayerFireCtrl.addEventListener("重生", (skillName, cCD) => {
+          _Global._YJPlayerFireCtrl.applyEvent("首次进入战斗");
         });
 
-        _Global.YJ3D.YJController.GetPlayerFireCtrl().addEventListener("技能CD", (skillName, cCD) => {
-          mainPanel.changeMainPlayerSkillCD(skillName, cCD);
-        });
-
-        _Global.YJ3D.YJController.GetPlayerFireCtrl().addEventListener("添加技能", (_skill) => {
-          mainPanel.AddSkill(_skill);
-        });
-        _Global.YJ3D.YJController.GetPlayerFireCtrl().addEventListener("属性改变", (baseData) => {
+        _Global._YJPlayerFireCtrl.addEventListener("属性改变", (baseData) => {
           _Global.applyEvent("属性改变",baseData);
         });
 
@@ -234,18 +254,15 @@ class YJGame_roguelike {
       let needExpByLevel = roguelikeGameData.needExpByLevels[level - 1];
       if (needExpByLevel.rewardType == 'skill') {
         
-        let skills = _Global.skillList;
-        // let skills = roguelikeGameData.skills;
+        let skills = _Global.skillList; 
         //随机取出3张卡片
         for (let i = 0; i < skills.length; i++) {
           const skill = skills[i];
-          skill.describe = templateReplace(skill.describe, skill);
           cards.push(skill);
         }
       }
       if (needExpByLevel.rewardType == 'items') {
         let items = _Global.propList;
-        // let items = GameItems.items;
         for (let i = 0; i < items.length; i++) {
           const item = items[i];
           item.describe = templateReplace(item.describe, item);
@@ -262,6 +279,7 @@ class YJGame_roguelike {
       _Global.pauseGame = true;
       _Global.YJ3D.pauseRender = true;
       _Global.inGame = false;
+      _Global.applyEvent('游戏暂停');
     }
     function playGame() {
       _Global.inGame = true;
@@ -278,7 +296,7 @@ class YJGame_roguelike {
         currentAction.time = 0;
       }
       let quat = headBoneRef.quaternion;
-      let weapon = _Global.YJ3D.YJController.GetPlayerFireCtrl().GetWeaponType();
+      let weapon = _Global._YJPlayerFireCtrl.GetWeaponType();
       if (weapon) {
         let aimRotation = new THREE.Quaternion();
 

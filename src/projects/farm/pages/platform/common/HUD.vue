@@ -17,17 +17,21 @@
     <headerUI ref="headerUI" />
 
 
-    <div class="  absolute w-full left-0 bottom-2">
+    <div class="  absolute w-full left-0 bottom-20">
       <skillProgressUI color="blue" ref="skillProgressUI" />
     </div>
 
     <damageUI ref="damageUI" />
+    
     <fireStateUI ref="fireStateUI" />
 
-    <DMPanel v-if=" gameType == 'DMGame'" ref="DMPanel" />
-    <DMrogue v-if=" gameType == 'DMRoguelike'" ref="DMrogue" />
-    <MMDpanel v-if=" gameType == 'MMD'" ref="MMDpanel" />
-    <roguelike v-if=" gameType == 'Roguelike'" ref="roguelike" />
+    <div class="  absoluteleft-0 top-0  w-full  h-full">
+
+      <DMPanel v-if=" gameType == 'DMGame'" ref="DMPanel" />
+      <DMrogue v-if=" gameType == 'DMRoguelike'" ref="DMrogue" /> 
+      <MMDpanel v-if=" gameType == 'MMD'" ref="MMDpanel" />
+      <roguelike v-if=" gameType == 'Roguelike'" ref="roguelike" />
+    </div>
     
   </div>
 </template>
@@ -39,7 +43,6 @@ import mainPlayerHeaderUI from "./mainPlayerHeaderUI.vue";
 // import headerUI from "./headerUI copy 2.vue";
 import headerUI from "./headerUI.vue";
 import skillPanel from "./skillPanel_wow_mobile.vue";
-// import skillPanel from "./skillPanel_wow_pc.vue";
 import skillProgressUI from "./skillProgressUI.vue";
 import damageUI from "./damageUI.vue";
 import fireStateUI from "./fireStateUI.vue";

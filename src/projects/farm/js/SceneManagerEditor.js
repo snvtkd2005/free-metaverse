@@ -109,6 +109,9 @@ class SceneManager {
       // AddTestMat();
       // window.addEventListener('mousemove', onPointerDown);
 
+      _Global.addEventListener("角色死亡",()=>{
+        ClearTarget();
+      });
 
       new YJKeyboard((event) => {
 
@@ -753,9 +756,7 @@ class SceneManager {
 
     //#region 
     this.FireState = function (e) {
-      // if (e == "太远了") {
-      // }
-      indexVue.$refs.HUD.$refs.fireStateUI.Add("提示", e);
+      _Global.applyEvent("提示",'fire',e);
     }
 
     //#region 对npc的伤害显示在屏幕上
@@ -767,15 +768,17 @@ class SceneManager {
       return damageStatistics;
     }
     this.UpdateNpcDamageValue = function (fromId,fromName, to, tarteId, type, value, pos, addredius) {
-      if (fromId && _Global.YJ3D.YJPlayer.id != fromId) {
-        return;
-      }
+      // if ((fromId && _Global.YJ3D.YJPlayer.id != fromId)
+      // && (tarteId && _Global.YJ3D.YJPlayer.id != tarteId)) {
+      //   return;
+      // }
 
 
       let _pos = _Global.YJ3D._YJSceneManager.WorldPosToScreenPos(pos.clone());
       // console.log("伤害和坐标", from,to,value, _pos);
-      indexVue.$refs.HUD.$refs.damageUI.AddDamage(tarteId, type, value, pos.clone(), _pos, addredius);
-
+      _Global.applyEvent("伤害跳字",{
+        owner:tarteId, type, value,pos3d: pos.clone(),pos: _pos, addredius
+      });
 
       damageStatistics.push({ fromName, to, value });
     }
@@ -842,7 +845,7 @@ class SceneManager {
     function ClearTarget() {
       // 点击空白位置 
       scope.SetTargetModel(null);
-      _this.YJController.SetInteractiveNPC("设置npc", null);
+      _Global._YJPlayerFireCtrl.SetPlayerEvent("设置npc", null);
       ClearProjector();
     }
     // 删除脚下光标
@@ -873,7 +876,7 @@ class SceneManager {
               //敌人  
               //进入战斗状态
               if (message.data.baseData.health > 0) {
-                _this.YJController.SetInteractiveNPC("设置npc", hitObject.transform);
+                _Global._YJPlayerFireCtrl.SetPlayerEvent("设置npc", hitObject.transform);
               }
             }
           }
@@ -966,7 +969,7 @@ class SceneManager {
           this.SetTargetModel(transform);
           console.log(" 点击NPC  ", transform.GetComponent("NPC"));
           EventHandler("点击NPC", transform);
-          _this.YJController.SetInteractiveNPC("选中npc", transform);
+          _Global._YJPlayerFireCtrl.SetPlayerEvent("选中npc", transform);
           if (_Global.LogFireById) {
             _Global.LogFireById(transform.id);
           }

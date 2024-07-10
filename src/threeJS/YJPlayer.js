@@ -120,6 +120,7 @@ class YJPlayer {
     // 飞行坐骑
     let mountAvatar = null;
     let avatarId = 0;
+    let modelScaleDrect = 1;
     function GetAnimData(id) {
       let animationsData = [];
 
@@ -134,6 +135,7 @@ class YJPlayer {
       rotation = avatarData.rotation;
 
       modelScale = avatarData.modelScale;
+      // modelScaleDrect = avatarData.modelScale;
       if (modelPath.indexOf("fbx") > -1) {
         modelScale = modelScale * 0.01;
       }
@@ -551,6 +553,13 @@ class YJPlayer {
       hasName = true;
       CreateNameTransFn();
     }
+    let baseData = null; 
+    this.SetBaseData = function(_baseData){
+      baseData = _baseData;
+    }
+		this.GetHealthPerc = function () {
+			return parseInt( baseData.health / baseData.maxHealth * 100);
+		}
     this.GetNickName = function () {
       return nickName;
     }
@@ -566,80 +575,116 @@ class YJPlayer {
     }
     //创建姓名条参考物体
     function CreateNameTransFn() {
-      if (createdName) {
-        nameScale = 0.5;
-        namePosTrans.position.set(0, (playerHeight + 0.3), 0); //原点位置
-        namePosTrans.scale.set(nameScale, nameScale, nameScale);
+      // if (createdName) {
+      //   nameScale = 0.5;
+      //   namePosTrans.position.set(0, (playerHeight + 0.3), 0); //原点位置
+      //   namePosTrans.scale.set(nameScale, nameScale, nameScale);
 
-        if (inSetDefaltPos && playerDyncData.nameTrans != undefined) {
-          SetNameTrans(playerDyncData.nameTrans);
-        }
-        return;
-      }
-      createdName = true;
+      //   if (inSetDefaltPos && playerDyncData.nameTrans != undefined) {
+      //     SetNameTrans(playerDyncData.nameTrans);
+      //   }
+      //   return;
+      // }
+      // createdName = true;
 
-      // console.log("创建姓名条参考物体 ====== " );
-      // var geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-      // var material = new THREE.MeshBasicMaterial({
-      //   color: 0xff0000,
-      //   opacity: 1,
-      //   transparent: true,
-      // });
-      // namePosTrans = new THREE.Mesh(geometry, material);
+      // // console.log("创建姓名条参考物体 ====== " );
+      // // var geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+      // // var material = new THREE.MeshBasicMaterial({
+      // //   color: 0xff0000,
+      // //   opacity: 1,
+      // //   transparent: true,
+      // // });
+      // // namePosTrans = new THREE.Mesh(geometry, material);
 
-      namePosTrans = new THREE.Group();
-      namePosTrans.name = "player";
-      playerGroup.add(namePosTrans);
-      namePosTrans.position.set(0, (playerHeight + 0.3), 0); //原点位置
+      // namePosTrans = new THREE.Group();
+      // namePosTrans.name = "player";
+      // playerGroup.add(namePosTrans);
+      // namePosTrans.position.set(0, (playerHeight + 0.3), 0); //原点位置
 
 
-      // const resetButton = makeButtonMesh( 0.2, 0.1, 0.01, 0x355c7d );
-      const resetButton = new THREE.Group();
+      // // const resetButton = makeButtonMesh( 0.2, 0.1, 0.01, 0x355c7d );
+      // const resetButton = new THREE.Group();
 
-      // console.log("显示姓名条 "+nickName + " nameScale = " + nameScale);
-      const resetButtonText = createText(nickName, 0.06);
+      // // console.log("显示姓名条 "+nickName + " nameScale = " + nameScale);
+      // const resetButtonText = createText(nickName, 0.06);
  
-      let mat = new THREE.MeshBasicMaterial({
-        transparent: true,
-        color: _Global.user.camp != scope.camp ? '#ee0000' : '#ffffff',
-        depthWrite: false,
-        map: resetButtonText.material.map,
-      }); // 材质
-      resetButtonText.material = mat;
-      resetButtonText.renderOrder = 1;
-      resetButtonText.name = "nameBar";
+      // let mat = new THREE.MeshBasicMaterial({
+      //   transparent: true,
+      //   color: _Global.user.camp != scope.camp ? '#ee0000' : '#ffffff',
+      //   depthWrite: false,
+      //   map: resetButtonText.material.map,
+      // }); // 材质
+      // resetButtonText.material = mat;
+      // resetButtonText.renderOrder = 1;
+      // resetButtonText.name = "nameBar";
 
-      resetButton.add(resetButtonText);
-      resetButtonText.position.set(0, 0, 0.0051);
-      resetButtonText.scale.set(1, 1, 1);
-      namePosTrans.add(resetButton);
-      resetButton.name = "ignoreRaycast";
-      resetButton.position.set(0, 0, 0);
-      var size = 2;
-      resetButton.scale.set(size, size, size);
+      // resetButton.add(resetButtonText);
+      // resetButtonText.position.set(0, 0, 0.0051);
+      // resetButtonText.scale.set(1, 1, 1);
+      // namePosTrans.add(resetButton);
+      // resetButton.name = "ignoreRaycast";
+      // resetButton.position.set(0, 0, 0);
+      // var size = 2;
+      // resetButton.scale.set(size, size, size);
 
 
-      namePosTrans.scale.set(nameScale, nameScale, nameScale);
+      // namePosTrans.scale.set(nameScale, nameScale, nameScale);
 
 
       // CreateVideo();
       if (_YJPlayerChat == null) {
         _YJPlayerChat = new YJPlayerChat(namePosTrans, nameScale);
       }
-      if (_YJPlayerNameTrans == null) {
-        _YJPlayerNameTrans = new YJPlayerNameTrans(namePosTrans);
-        _YJPlayerNameTrans.CreateHealth(_Global.user.camp == scope.camp ? 0x00ff00 : 0xff0000);
-      }
 
+      // if (_YJPlayerNameTrans == null) {
+      //   _YJPlayerNameTrans = new YJPlayerNameTrans(namePosTrans);
+      //   _YJPlayerNameTrans.CreateHealth(_Global.user.camp == scope.camp ? 0x00ff00 : 0xff0000);
+      // }
+
+      if(playerHeight == 0){
+        return;
+      }
+      // console.error("playerHeight " ,playerHeight,modelScaleDrect, nameScale);
+      _Global._YJPlayerNameManager.CreateNameTrans(
+        scope, scope.id, nickName, 
+        playerHeight,modelScaleDrect, 
+        nameScale, 
+        _Global.user.camp != scope.camp ? '#ee0000' : '#bab8ff'
+      );
+ 
       // _YJPlayerChat.CreateChatTrans("测试测测试"); 
       // _YJPlayerChat.CreateChatTrans("1测试测试测试试试测试测试测试测试测试测试1"); 
       // _YJPlayerChat.CreateChatTrans("测试测试测试试测试测试试测试测试试测试测试测试测试测试测试测试"); 
     }
     this.resetLife = function(){
-      if (_YJPlayerNameTrans != null) { 
-        _YJPlayerNameTrans.resetLife();
+      // if (_YJPlayerNameTrans != null) { 
+      //   _YJPlayerNameTrans.resetLife();
+      // }
+
+      scope.applyEvent("重生");
+    }
+    
+    this.GetTargetModelDistance = function () {
+      if(this.isLocal){
+        return _Global._YJPlayerFireCtrl.GetTargetModelDistance();
       }
     }
+
+    let eventList = [];
+    // 添加事件监听
+    this.addEventListener = function (e, fn) {
+      eventList.push({ eventName: e, fn: fn });
+    }
+    // 执行事件
+    this.applyEvent = function (e, v, v2) {
+      for (let i = 0; i < eventList.length; i++) {
+        const element = eventList[i];
+        if (element.eventName == e) {
+          element.fn(v, v2);
+        }
+      }
+    }
+
     //#endregion
 
     //#region 聊天内容框
@@ -1370,6 +1415,10 @@ class YJPlayer {
       if(avatar){
         avatar._update();
       }
+      this.applyEvent("pos", this.GetWorldPos());
+      // this.applyEvent("pos", this.GetPlayerWorldPos());
+      // this.applyEvent("pos", playerGroup.getWorldPosition(new THREE.Vector3()));
+
       if (!local) {
         LerpMovePlayer();
         TWEEN.update();

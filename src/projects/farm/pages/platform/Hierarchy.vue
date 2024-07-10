@@ -41,11 +41,10 @@
             </div>
           </div>
           <div
-            class="w-11/12 flex justify-between hover:bg-gray-500 relative"
+            class="w-11/12 flex justify-between cursor-pointer  relative"
             @click="SelectModel(item)"
             :class="
-              (selectUUID == item.uuid ? ' bg-black ' : '',
-              inDrag ? ' cursor-default' : 'cursor-pointer')
+              (selectUUID == item.uuid ? ' bg-black  hover:bg-black ' : ' hover:bg-gray-500 ')
             "
             @mousedown="clickBegin(item.uuid)"
           >
@@ -262,6 +261,7 @@ export default {
       console.log(" this.modelList ui tree  = " , this.modelList);
     },
     clickBegin(uuid) {
+      this.selectUUID = uuid;
       this.dragFromUUID = uuid;
       this.inDrag = false;
       this.clickTimes = 0;

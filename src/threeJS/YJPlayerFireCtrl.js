@@ -5,6 +5,7 @@ import { RandomInt } from '../utils/utils';
 import { YJEquip } from './components/YJEquip';
 import { YJPlayerProperty } from './components/YJPlayerProperty';
 import { YJSkill } from './components/YJSkill';
+import { YJBuff } from './components/YJBuff';
 
 // 战斗相关控制：
 // 角色属性、战斗行为
@@ -32,22 +33,66 @@ class YJPlayerFireCtrl {
 		var SKILLTYPE = {
 			PLAYER: '玩家技能',
 			PLAYERATTACK: '玩家技能攻击',
-			NPC: 'npc技能', 
-			NPCATTACK: 'npc技能攻击', 
-		}; 
-		this.owerType = function(e){
-			if(e=='技能'){
+			NPC: 'npc技能',
+			NPCATTACK: 'npc技能攻击',
+		};
+
+		this.getPlayerType = function () {
+			return "玩家";
+		}
+		this.owerType = function (e) {
+			if (e == '技能') {
 				return SKILLTYPE.PLAYER;
 			}
-			if(e=='技能攻击'){
+			if (e == '技能攻击') {
 				return SKILLTYPE.PLAYERATTACK;
 			}
 		}
+
+		this.GetHealthPerc = function () {
+			return parseInt(baseData.health / baseData.maxHealth * 100);
+		}
+		this.GetNickName = function () {
+			return _YJPlayer.GetNickName();
+		}
+
+		this.CheckMaxDamage = function (fromId, value) {
+		}
+		this.CombatLog = function (from, to, type, content) {
+			if (_Global.CombatLog) {
+				_Global.CombatLog.log(from, to, type, content);
+			}
+		}
+		this.ReceiveSkill = function (fromModel, skillName, effect, skillItem) {
+
+			// console.log(" 玩家接收技能" ,fromModel, skillName, effect,skillItem);
+			_YJSkill.ReceiveSkill(fromModel, skillName, effect, skillItem);
+
+
+			if (baseData.health <= 0) {
+				return true;
+			}
+			if (npcTransform == null) {
+				SelectNPC(fromModel.transform);
+				ReadyFire(); //被攻击且没有目标时，自动攻击
+				PlayerAddFire();
+				EventHandler("设置目标", npcComponent);
+				scope.applyEvent("设置目标", npcComponent);
+			}
+
+			if (!state.inFire) {
+				state.inFire = true;
+			}
+			EventHandler("进入战斗", fromModel);
+
+		}
+
 		var playerState = PLAYERSTATE.NORMAL;
 
 		let eventList = [];
 		// 添加事件监听
 		this.addEventListener = function (e, fn) {
+			console.log(" 监听 ", e);
 			eventList.push({ eventName: e, fn: fn });
 		}
 		// 执行事件
@@ -59,7 +104,24 @@ class YJPlayerFireCtrl {
 				}
 			}
 		}
+		this.isInDead = function () {
+			return baseData.health == 0;
+		}
+		this.SetPlayerEvent = function (content, msg) {
+			if (content == "删除镜像" || content == "重生") {
 
+			} else {
+				if (this.isInDead()) {
+					// 角色死亡后不接收道具效果
+					return;
+				}
+			}
+			scope.OnPlayerState({
+				content: content,
+				msg: msg,
+			});
+			_YJPlayer.resetLife();
+		}
 		this.OnPlayerState = function (state) {
 
 			switch (state.content) {
@@ -84,6 +146,9 @@ class YJPlayerFireCtrl {
 					console.log(" 玩家加入战斗 ");
 					break;
 				case "设置npc":
+
+
+
 					scope.SetInteractiveNPC(state.msg);
 					break;
 				case "重生":
@@ -94,10 +159,6 @@ class YJPlayerFireCtrl {
 					break;
 				case "选中npc":
 					SelectNPC(state.msg);
-					break;
-				case "受到伤害":
-					let { _targetModel, skillName, effect } = state.msg;
-					return scope.ReceiveDamage(_targetModel, skillName, effect);
 					break;
 				case "设置武器":
 					weaponData = state.msg;
@@ -131,31 +192,26 @@ class YJPlayerFireCtrl {
 		}
 
 		this.playAudio = function (audio, audioName) {
-			_Global.YJAudioManager().playAudio(audio, audioName);
+			_Global._YJAudioManager.playAudio(audio, audioName);
 		}
 		this.SetNavPathToNone = function () {
 
 		}
-		this.GetHealthPerc = function () {
-			return parseInt(baseData.health / baseData.maxHealth * 100);
-		  }
-		this.GetNickName = function () {
-			return _YJPlayer.GetNickName();
+
+		this.skillEnd = function () {
 		}
+
 		//#region  玩家使用技能
-		this.skillProgress = function(skillCastTime,skillName,reverse){
-			_Global.applyEvent("设置技能进度条", skillCastTime,skillName,reverse);
+		this.skillProgress = function (skillCastTime, skillName, reverse) {
+			_Global.applyEvent("设置技能进度条", skillCastTime, skillName, reverse);
 		}
-		this.LookatTarget = function(targetModel){
+		this.LookatTarget = function (targetModel) {
 			// _this.YJController.PlayerLookatPos(npcTransform.GetWorldPos());
 		}
 		function UseSkill(skillItem) {
 			_YJSkill.UseSkill(skillItem);
-			return; 
+			return;
 		}
-
-		let skillList = [];
-		let oldSkillList = [];
 		let hyperplasiaTimes = 0;
 		let hyperplasiaTrans = [];
 		this.GetData = function () {
@@ -277,16 +333,13 @@ class YJPlayerFireCtrl {
 		}
 
 
-		this.getPlayerType = function(){
-			return "玩家";
-		}
 		function SendDamageToTarget(target, effect) {
 			if (!state.inFire) {
 				state.inFire = true;
 			}
 			EventHandler("进入战斗", target);
- 
-			_YJSkill.SendDamageToTarget(target,effect);
+
+			_YJSkill.SendDamageToTarget(target, effect);
 		}
 		function shootTarget(taget, time, callback) {
 			_Global.DyncManager.shootTarget(GetShootingStartPosFn(), taget, time, "npc", fireParticleId, callback);
@@ -305,12 +358,19 @@ class YJPlayerFireCtrl {
 				if (_fire.pos && _fire.pos.length == 3) {
 					weaponModel.parent.add(firePosRef);
 					firePosRef.position.copy(weaponModel.position);
-					let pos1 = firePosRef.position.clone();
-					pos1.x += _fire.pos[0] * 100;
-					pos1.z += _fire.pos[1] * 100;
-					pos1.y += _fire.pos[2] * 100;
-					firePosRef.position.copy(pos1);
+
+					// let pos1 = firePosRef.position.clone();
+					// pos1.x += _fire.pos[0] * 100;
+					// pos1.z += _fire.pos[1] * 100;
+					// pos1.y += _fire.pos[2] * 100;
+					// firePosRef.position.copy(pos1);
+
 					pos = firePosRef.getWorldPosition(new THREE.Vector3());
+
+					
+					// let axse = new THREE.AxesHelper(10);
+					// firePosRef.add(axse);
+					// axse.position.set(0,0,0);
 				}
 			}
 			return pos;
@@ -364,7 +424,7 @@ class YJPlayerFireCtrl {
 			_Global.DyncManager.PlayerAddFire(npcTransform.GetComponent("NPC"), _YJPlayer);
 		}
 
-		function CheckHealth() {
+		this.CheckHealth = function () {
 			if (baseData.health <= 0) {
 				baseData.health = 0;
 			}
@@ -395,75 +455,10 @@ class YJPlayerFireCtrl {
 				}
 			}
 			fireLater = [];
-            EventHandler("中断技能");
+			EventHandler("中断技能");
 
 		}
-		function removeDebuffById(id) {
-			for (let i = baseData.debuffList.length - 1; i >= 0; i--) {
-				const item = baseData.debuffList[i];
-				if (item.id == id) {
-					baseData.debuffList.splice(i, 1);
-				}
-			}
-		}
 
-		this.ReceiveDamage = function (_targetModel, skillName, effect) {
-			if (baseData.health <= 0) {
-				return true;
-			}
-
-			if (npcTransform == null) {
-				SelectNPC(_targetModel);
-				ReadyFire(); //被攻击且没有目标时，自动攻击
-
-				PlayerAddFire();
-
-				EventHandler("设置目标", npcComponent);
-				scope.applyEvent("设置目标",npcComponent);
-
-			}
-
-			if (!state.inFire) {
-				state.inFire = true;
-			}
-			EventHandler("进入战斗", _targetModel.GetComponent("NPC"));
-
-			let { type, value, time, duration, describe, icon } = effect;
-			// console.log(" 主角受到攻击 " ,effect);
-
-			// 直接伤害 或 持续伤害
-			if (type == "damage" || type == "contDamage") {
-				baseData.health -= _YJPlayerProperty.RealyDamage(value);
-			}
-			// console.log(" 主角受到攻击后  baseData " ,baseData);
-
-			// 每n秒伤害，持续m秒
-			if (type == "perDamage") {
-
-				//每秒伤技能是debuff，显示在角色状态上
-				let id = new Date().getTime();
-				let count = parseInt(duration / time);
-				let num = 0;
-				for (let i = 0; i < count; i++) {
-					fireLater.push({
-						type: "timeout", fn:
-							setTimeout(() => {
-								baseData.health -= _YJPlayerProperty.RealyDamage(value);
-								num++;
-								if (num == count) {
-									removeDebuffById(id);
-								}
-								CheckHealth();
-							}, time * 1000 * i)
-					}
-					);
-				}
-				baseData.debuffList.push({ id: id, icon: _this.$uploadUVAnimUrl + icon, describe: describe });
-				return;
-			}
-			// console.log(" 主角受到 " + skillName + " 攻击 剩余 " + baseData.health);
-			return CheckHealth();
-		}
 
 		// 生命值改变时，同步 
 		function UpdateData() {
@@ -507,7 +502,7 @@ class YJPlayerFireCtrl {
 			npcTransform = _npcTransform;
 			if (npcTransform != null) {
 				npcComponent = npcTransform.GetComponent("NPC");
-				scope.applyEvent("设置目标",npcComponent);
+				scope.applyEvent("设置目标", npcComponent);
 				//自动显示其头像 
 				_Global._SceneManager.SetTargetModel(npcTransform);
 			}
@@ -552,7 +547,7 @@ class YJPlayerFireCtrl {
 			_YJPlayer.GetAvatar().SetActionScale(1 + attackProperty.speedScale * 0.3);
 			return attackStepSpeed / attackProperty.speedScale;
 		}
-		this.SetMoveSpeed = function(f){
+		this.SetMoveSpeed = function (f) {
 			_Global.YJ3D.YJController.SetMoveSpeedScale(f);
 			_Global.YJ3D.YJPlayer.GetAvatar().SetActionScale(1 + f);
 		}
@@ -571,6 +566,11 @@ class YJPlayerFireCtrl {
 		this.GetWorldPos = function () {
 			return _this.YJController.GetPlayerWorldPos2();
 		}
+
+		this.GetDamageTextPos = function () {
+			return _this.YJController.GetPlayerWorldPos3();
+		}
+
 		this.GetCamp = function () {
 			return _Global.user.camp;
 		}
@@ -742,6 +742,8 @@ class YJPlayerFireCtrl {
 		function GetSkillDataByWeapon(weaponData) {
 			return _Global.CreateOrLoadPlayerAnimData().GetSkillDataByWeapon(weaponData);
 		}
+		this.EventHandler = function (e, cutSkill) {
+		}
 		function EventHandler(e, msg) {
 			if (e == "中断技能") {
 
@@ -757,7 +759,7 @@ class YJPlayerFireCtrl {
 				}
 				if (!_YJSkill.GetinSkill()) {
 					_Global.ReportTo3D("设置技能进度条", "中断");
-					_Global.YJAudioManager().stopAudio(readyskillAudioName);
+					_Global._YJAudioManager.stopAudio(readyskillAudioName);
 				}
 				if (toIdelLater != null) {
 					clearTimeout(toIdelLater);
@@ -799,9 +801,12 @@ class YJPlayerFireCtrl {
 		this.TargetDead = function () {
 
 		}
-		
-		this.CheckTargetVaild = function(){
-			if(npcComponent && !npcComponent.isDead){
+		this.ClearSkill = function(){
+			_YJSkill.ClearSkill("基础攻击");
+		}
+
+		this.CheckTargetVaild = function () {
+			if (npcComponent && !npcComponent.isDead) {
 				return true;
 			}
 			return false;
@@ -978,6 +983,18 @@ class YJPlayerFireCtrl {
 		this.SetValue = function (v, vb) {
 
 		}
+
+		this.GetTargetModelDistance = function () {
+			if (npcComponent == null) {
+				return 10000;
+			}
+			let targetPos = npcComponent.GetWorldPos();
+			let npcPos = scope.GetWorldPos().clone();
+			let targetPosRef = targetPos.clone();
+			targetPosRef.y = npcPos.y;
+			return targetPosRef.distanceTo(npcPos);
+		}
+
 		var updateId = null;
 		function update() {
 			updateId = requestAnimationFrame(update);
@@ -995,6 +1012,10 @@ class YJPlayerFireCtrl {
 		// }
 		let _YJSkill = null;
 		let _YJEquip = null;
+		let _YJBuff = null;
+		this.GetBuff = function () {
+			return _YJBuff;
+		}
 		this.GetEquip = function () {
 			return _YJEquip;
 		}
@@ -1008,12 +1029,16 @@ class YJPlayerFireCtrl {
 			if (baseData == null) {
 
 				baseData = _this.YJController.GetUserData().baseData;
-				console.log(" 从控制器获取 baseData",  JSON.stringify(baseData));
+				console.log(" 从控制器获取 baseData", JSON.stringify(baseData));
 				if (_YJPlayerProperty == null) {
 					_YJPlayerProperty = new YJPlayerProperty(scope);
 				}
-				
 
+				_YJPlayer.SetBaseData(baseData);
+
+				if (_YJBuff == null) {
+					_YJBuff = new YJBuff(scope);
+				}
 				if (_YJSkill == null) {
 					_YJSkill = new YJSkill(scope);
 				}
@@ -1022,6 +1047,7 @@ class YJPlayerFireCtrl {
 				_YJEquip = new YJEquip(scope);
 			}
 			scope.id = _YJPlayer.id;
+			_Global._YJPlayerFireCtrl = scope;
 			UpdateData();
 		}
 		Init();

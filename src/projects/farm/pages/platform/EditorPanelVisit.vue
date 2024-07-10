@@ -312,7 +312,7 @@ export default {
 
     document.addEventListener("visibilitychange", () => {
       _Global.inFocus = !document.hidden;
-      _Global.pausegame = document.hidden;
+      _Global.pauseGame = document.hidden;
       if (!_Global.inFocus) {
         //暂停背景音乐
       }

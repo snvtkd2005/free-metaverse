@@ -3,7 +3,9 @@
 
 import * as THREE from "three";
 
-class YJSkill {
+// 道具、药剂等可以使用的物品
+
+class YJProp {
     constructor(owner) {
         let scope = this;
         let targetModel = null;
@@ -174,13 +176,13 @@ class YJSkill {
             }
             if (type == "shield") {
 
+                if (HasControlModel(skillItem.skillFireParticleId)) {
+                    return false;
+                }
                 effect.particleId = skillItem.skillFireParticleId;
                 // console.log( effect);
                 owner.GetBuff().addBuff(effect);
 
-                if (HasControlModel(skillItem.skillFireParticleId)) {
-                    return false;
-                }
                 _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillGroup(skillItem.skillFireParticleId, (model) => {
                     model.SetPos(owner.GetWorldPos());
                     let nameScale = owner.GetScale();
@@ -393,18 +395,19 @@ class YJSkill {
             owner.SetValue("readyAttack_doonce", 0);
 
         }
-        this.UseSkill = function (skillItem) {
-            SkillGo(skillItem);
+        this.UseProp = function (skillItem) {
+            PropGo(skillItem);
         }
         let skillCastTime = 0;
         //施放技能
-        function SkillGo(skillItem) {
+        function PropGo(skillItem) {
             if (owner.isDead) {
                 return false;
             }
-            if(inSkill){return;}
+            // if(inSkill){return;}
+            console.log("使用道具 ",skillItem);return;
+            let { propType, effectType, property, bindingType, value } = skillItem;
 
-            let { animName, animNameReady, skillName, target, effect } = skillItem;
 
             effect.skillName = skillItem.skillName;
             readyskillAudioName = skillName;
@@ -1213,4 +1216,4 @@ class YJSkill {
 
     }
 }
-export { YJSkill }
+export { YJProp }

@@ -31,9 +31,7 @@ import { YJChangeManager } from "./YJChangeManager.js";
 import { YJSandboxManager } from "./YJSandboxManager.js";
 import { YJTransformManager } from "./YJTransformManager.js";
 import { YJReflect } from "./YJReflect.js";
-import { GetDateH, deepClone } from "/@/utils/utils.js";
-import { YJKeyboard } from "./YJKeyboard.js";
-
+import { GetDateH, deepClone } from "/@/utils/utils.js"; 
 import { YJVideo } from "./YJVideo";
 import { YJSqeImage } from "./YJSqeImage.js";
 import { YJUVanim } from "./YJUVanim.js";
@@ -2079,7 +2077,7 @@ class YJSceneManager {
     let colliderVisible = false;
     let colliderMat = null;
     function addListenerCombKey() {
-      new YJKeyboard((key) => {
+      _Global.addEventListener("keycodeDown",(key) => {
         // console.log("按下按键 ",key);
         if (key == "ShiftLeft+T") {
           hotPointTriggerVisible = !hotPointTriggerVisible;
@@ -2100,7 +2098,6 @@ class YJSceneManager {
           }
           return;
         }
-        key = key.code;
         // 删除选中的模型
         if (key == "Delete") {
           if (_this.$parent.$parent.DelModel) {
@@ -2126,6 +2123,7 @@ class YJSceneManager {
           }
         }
       });
+
       window.addEventListener('mousedown', function (event) {
         switch (event.button) {
           //鼠标左键

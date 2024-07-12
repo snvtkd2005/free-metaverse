@@ -584,6 +584,9 @@ export default {
     },
 
     RightClick(hitObject, hitPoint) {
+      if (this.$parent.RightClick) {
+        this.$parent.RightClick(hitObject, hitPoint);
+      }
       if (this.$parent.$parent.RightClick) {
         this.$parent.$parent.RightClick(hitObject, hitPoint);
       }

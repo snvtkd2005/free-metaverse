@@ -10,7 +10,7 @@
 
           <div class="h-16 flex">
             <div
-              class=""
+              class="relative"
               style="
                 width: 256px;
                 height: 64px;
@@ -19,46 +19,13 @@
               "
             >
               <!-- 技能动作条 -->
-              <div class="w-64 pl-1 mt-6 h-5 flex">
+              <div class="absolute left-0 top-0 w-auto pl-1 mt-6 h-5 flex">
                 <div
-                  v-for="(item, i) in skillList"
+                  v-for="(item, i) in actionList.actionBar1"
                   :key="i"
                   class="flex w-9 h-9 ml-1 mr-0.5 cursor-pointer pointer-events-auto"
                 >
-                  <div
-                    class="bg-gray-500 relative"
-                    @contextmenu.prevent="onContextMenu($event, item)"
-                    @click="clickSkill($event, item)"
-                    @mouseover="LookActionSkill($event, item)"
-                    @mouseleave="outHover()"
-                  >
-                    <div
-                      class="absolute left-0 bottom-0 bg-black opacity-90 w-full h-full"
-                      :style="'height: ' + (1 - item.cCD / item.CD) * 100 + '%'"
-                    ></div>
-                    <div
-                      v-if="item.perCD > 0"
-                      class="absolute left-0 text-red-500 top-0 w-full h-full leading-8 text-xl"
-                    >
-                      {{ item.perCD }}
-                    </div>
-                    <img
-                      class="w-full h-full pointer-events-none"
-                      :src="this.$uploadUVAnimUrl + item.icon"
-                      alt=""
-                    />
-                    <div
-                      class="hidden absolute -right-1 -bottom-1 w-4 h-4 rounded-full bg-yellow-700 text-xs leading-4 p-px"
-                    >
-                      {{ item.level }}
-                    </div>
-
-                    <div
-                      class="absolute right-px top-px w-4 h-4 rounded-full text-gray-200 text-xs leading-4 p-px"
-                    >
-                      {{ item.actionKeyText }}
-                    </div>
-                  </div>
+                  <iconslotVue :item="item"></iconslotVue>
                 </div>
               </div>
             </div>
@@ -85,11 +52,25 @@
                   <img
                     class="w-8 h-16 pointer-events-auto cursor-pointer"
                     @click="clickMenu('player')"
-                    @mouseover="LookActionSkill($event, 'player')"
-                    @mouseleave="outHover()"
+                    @mouseover="
+                      LookMenu('player');
+                      panelState.hoverplayer = true;
+                    "
+                    @mouseleave="
+                      outHover();
+                      panelState.hoverplayer = false;
+                    "
                     :src="playerHeaderUrl"
                     alt=""
                   />
+
+                  <img
+                    v-if="panelState.hoverplayer"
+                    class="absolute left-0 top-0 w-8 h-16"
+                    :src="btnHilightUrl"
+                    alt=""
+                  />
+
                   <div
                     class="absolute left-1.5 bottom-2 w-5 h-6 overflow-hidden"
                   >
@@ -104,11 +85,19 @@
                   <img
                     class="w-8 h-16 pointer-events-auto cursor-pointer"
                     @click="clickMenu('skill')"
+                    @mouseover="
+                      LookMenu('skill');
+                      panelState.hoverskill = true;
+                    "
+                    @mouseleave="
+                      outHover();
+                      panelState.hoverskill = false;
+                    "
                     :src="panelState.skill ? skillUrl_down : skillUrl_up"
                     alt=""
                   />
                   <img
-                    v-if="newLevel"
+                    v-if="newLevel || panelState.hoverskill"
                     class="absolute left-0 top-0 w-8 h-16"
                     :src="btnHilightUrl"
                     alt=""
@@ -118,9 +107,23 @@
                   <img
                     class="w-8 h-16 pointer-events-auto cursor-pointer"
                     @click="clickMenu('mainmenu')"
+                    @mouseover="
+                      LookMenu('mainmenu');
+                      panelState.hovermainmenu = true;
+                    "
+                    @mouseleave="
+                      outHover();
+                      panelState.hovermainmenu = false;
+                    "
                     :src="
                       panelState.mainmenu ? mainmenuUrl_down : mainmenuUrl_up
                     "
+                    alt=""
+                  />
+                  <img
+                    v-if="panelState.hovermainmenu"
+                    class="absolute left-0 top-0 w-8 h-16"
+                    :src="btnHilightUrl"
                     alt=""
                   />
                 </div>
@@ -140,14 +143,23 @@
                 <div
                   class="flex flex-row-reverse gap-x-1.5 mr-2 w-9 h-9 bg-gray-400"
                 >
-                  <img
-                    class="w-9 h-9 pointer-events-auto cursor-pointer"
-                    @click="clickMenu('bagBase')"
-                    @mouseover="LookSkill($event, 'bag')"
-                    @mouseleave="outHover()"
-                    :src="bagBaseUrl"
-                    alt=""
-                  />
+                  <div class="relative">
+                    <img
+                      class="w-9 h-9 pointer-events-auto cursor-pointer"
+                      @click="clickMenu('bagBase')"
+                      @mouseover="LookSkill($event, 'bag')"
+                      @mouseleave="outHover()"
+                      :src="bagBaseUrl"
+                      alt=""
+                    />
+
+                    <img
+                      v-if="panelState.bag"
+                      class="absolute left-0 top-0 w-9 h-9 pointer-events-none"
+                      :src="bagHilightUrl"
+                      alt=""
+                    />
+                  </div>
 
                   <!-- <img
                     class="w-9 h-9 pointer-events-auto cursor-pointer"
@@ -185,7 +197,6 @@
       </div>
     </div>
 
-
     <!-- 经验条 -->
     <div class="absolute z-0 left-0 bottom-16 flex w-full h-3">
       <div
@@ -211,12 +222,15 @@
 
  
 <script >
+import iconslotVue from "./iconslot.vue";
+
 export default {
   props: [],
-  components: {},
+  components: {
+    iconslotVue,
+  },
   data() {
     return {
-      skillList: [],
       bottomOrderUrl:
         "./public/images/cursorList/mainmenu/ui-mainmenubar-endcap-human.png",
       bottomCenterUrl:
@@ -236,36 +250,89 @@ export default {
         "./public/images/cursorList/mainmenu/ui-microbutton-hilight.png",
 
       bagBaseUrl: "./public/images/cursorList/mainmenu/inv_misc_bag_08.png",
+      bagHilightUrl:
+        "./public/images/cursorList/mainmenu/ui-icon-questborder.png",
       bag2Url:
         "./public/images/cursorList/mainmenu/inv_misc_bag_enchantedmageweave.png",
 
       newLevel: false,
-      keyList: {
+
+      actionList: {
         actionBar1: [
-          { index: 0, key: "Digit1", text: "1" },
-          { index: 1, key: "Digit2", text: "2" },
-          { index: 2, key: "Digit3", text: "3" },
-          { index: 3, key: "Digit4", text: "4" },
-          { index: 4, key: "Digit5", text: "5" },
-          { index: 5, key: "Digit6", text: "6" },
-          { index: 6, key: "Digit7", text: "7" },
-          { index: 7, key: "Digit8", text: "8" },
-          { index: 8, key: "Digit9", text: "9" },
+          { index: 0, skill: null },
+          { index: 1, skill: null },
+          { index: 2, skill: null },
+          { index: 3, skill: null },
+          { index: 4, skill: null },
+          { index: 5, skill: null },
+          { index: 6, skill: null },
+          { index: 7, skill: null },
+          { index: 8, skill: null },
+          { index: 9, skill: null },
+          { index: 10, skill: null },
+          { index: 11, skill: null },
         ],
       },
+
       stats: {
         health: 100,
         maxHealth: 100,
-        exp: 10,
+        exp: 0,
         needExp: 30,
       },
       panelState: {},
       playerImg: "",
+      menuData: [
+        {
+          type: "menu",
+          name: "player",
+          title: "角色信息",
+          describe: "关于你的角色的各种信息，包括装备、战斗属性、技能和声望",
+        },
+        {
+          type: "menu",
+          name: "skill",
+          title: "法术书",
+          describe: "每升一级获得一点技能点，用来学习新技能",
+        },
+        {
+          type: "menu",
+          name: "mainmenu",
+          title: "游戏菜单",
+          describe: "设置游戏画质、快捷键",
+        },
+      ],
+
+      btnHoverHilightUrl:
+        "./public/images/cursorList/mainmenu/ui-chaticon-blinkhilight.png",
+      hoverPart: "",
     };
   },
   created() {},
   mounted() {
     setTimeout(() => {
+      for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
+        const element = this.actionList.actionBar1[i];
+        element.isDeleled = false;
+        element.hoverPart = "actionBar1" + i;
+      }
+      for (let i = 0; i < this.actionList.actionBar1.length; i++) {
+        let key = _Global.GameSetting.keyData.actionBar1[i].key;
+        this.actionList.actionBar1[i].key = key; 
+        this.actionList.actionBar1[i].keytext = key.replace("Key",'').replace("Digit",'');
+      }
+      for (let i = 0; i < this.actionList.actionBar1.length; i++) {
+        for (let j = 0; j < _Global.GameSetting.key2keytext.length; j++) {
+          if (
+            this.actionList.actionBar1[i].key ==
+            _Global.GameSetting.key2keytext[j].key
+          ) {
+            this.actionList.actionBar1[i].keytext =
+              _Global.GameSetting.key2keytext[j].keytext;
+          }
+        }
+      }
+
       this.panelState = _Global.panelState;
 
       _Global.addEventListener("界面开关", (e, b) => {
@@ -277,15 +344,11 @@ export default {
         this.playerImg = this.$uploadUrl + s.id + "/" + s.icon;
       });
 
-      _Global.addEventListener("keycode", (keycode) => {
-        // console.log(" in active panel ", keycode);
-        for (let i = 0; i < this.keyList.actionBar1.length; i++) {
-          const element = this.keyList.actionBar1[i];
-          if (element.key == keycode) {
-            this.SkillGoByActionBar("actionBar1", i);
-          }
-        }
+      _Global.addEventListener("keycodeUp", (keycode) => {
+        // console.log(" in action panel ", keycode);
+        this.SkillGoByActionBar(keycode);
       });
+
       _Global.addEventListener("经验值", (c, n) => {
         this.stats.exp = c;
         this.stats.needExp = n;
@@ -293,6 +356,9 @@ export default {
 
       _Global.addEventListener("升级", (level) => {
         this.newLevel = true;
+        setTimeout(() => {
+          this.newLevel = false;
+        }, 2000);
       });
 
       _Global.addEventListener("角色死亡", () => {
@@ -304,6 +370,50 @@ export default {
       _Global.addEventListener("关闭窗口", (e) => {
         _Global.panelState[e] = false;
       });
+
+      _Global.addEventListener("点击三维页", () => {
+        if (_Global.inDragAction) {
+          _Global.inDragAction = false;
+          //取消拖拽
+          this.$parent.dragEnd();
+        }
+      });
+      _Global.addEventListener("右键点击", () => {
+        if (_Global.inDragAction) {
+          _Global.inDragAction = false;
+          //取消拖拽
+          this.$parent.dragEnd();
+        }
+      });
+
+      _Global.addEventListener("摧毁Prop并在动作条中停用prop", (id) => {
+        for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
+          const element = this.actionList.actionBar1[i];
+          if (
+            element.skill &&
+            element.skill.type == "prop" &&
+            element.skill.id == id
+          ) {
+            element.skill.isDeleled = true;
+            element.isDeleled = true;
+          }
+        }
+      });
+
+      _Global.addEventListener("添加Prop并在动作条中激活prop", (id) => {
+        for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
+          const element = this.actionList.actionBar1[i];
+          if (
+            element.skill &&
+            element.skill.type == "prop" &&
+            element.skill.id == id
+          ) {
+            element.skill.isDeleled = false;
+            element.isDeleled = false;
+          }
+        }
+      });
+
       _Global.addEventListener("3d加载完成", () => {
         _Global._YJPlayerFireCtrl.addEventListener(
           "技能CD",
@@ -317,13 +427,13 @@ export default {
             this.newLevel = false;
           }
           this.AddSkill(_skill);
-          // console.log(" 添加技能 2", this.skillList);
+          // console.log(" 添加技能 2", this.actionList);
         });
         _Global._YJPlayerFireCtrl.addEventListener("移除技能", (_skill) => {
-          for (let i = this.skillList.length - 1; i >= 0; i--) {
-            const skill = this.skillList[i];
-            if (skill.skillName == _skill.skillName) {
-              this.skillList.splice(i, 1);
+          for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
+            const element = this.actionList.actionBar1[i];
+            if (element.skill && element.skill.skillName == _skill.skillName) {
+              element.skill = null;
               return;
             }
           }
@@ -333,28 +443,48 @@ export default {
   },
 
   methods: {
+    drag(item) {
+      if (item.isDeleled) {
+        item.isDeleled = false;
+      }
+      this.$parent.dragStart(item.skill);
+
+      for (let i = 0; i < this.actionList.actionBar1.length; i++) {
+        const element = this.actionList.actionBar1[i];
+        if (element.index == item.index) {
+          element.skill = null;
+          return;
+        }
+      }
+    },
+    MouseMove(ev) {
+      this.$parent.mousePos(ev.clientX, ev.clientY);
+    },
     LookSkill(e, item) {
+      if (item == null) {
+        return;
+      }
+
       if (item == "bag") {
         item = {
-          type: "item",
-          title: "行囊", 
+          type: "prop",
+          title: "行囊",
         };
       }
-      let parent = e.target; 
-      this.$parent.LookSkill(parent, item); 
+      let parent = e.target;
+      this.$parent.LookSkill(parent, item);
     },
-    LookActionSkill(e, item) {
-      if (item == "player") { 
-        item = {
-          type: "menu",
-          title: "角色信息", 
-          describe:
-            "关于你的角色的各种信息，包括装备、战斗属性、技能和声望",
-        };
-      } 
-      this.$parent.LookActionSkill(item);
+    LookMenu(e) {
+      for (let i = 0; i < this.menuData.length; i++) {
+        const element = this.menuData[i];
+        if (element.name == e) {
+          this.$parent.LookActionSkill(element);
+          return;
+        }
+      }
     },
     outHover() {
+      this.hoverPart = "";
       this.$parent.outHover();
     },
 
@@ -375,62 +505,47 @@ export default {
         this.panelState.mainmenu = !this.panelState.mainmenu;
       }
     },
-    SkillGoByActionBar(actionBar, index) {
-      for (let i = 0; i < this.skillList.length; i++) {
-        const skill = this.skillList[i];
-        if (skill.actionKey == actionBar && skill.actionKeyIndex == index) {
-          if (skill.cCD == skill.CD) {
-            _Global._YJPlayerFireCtrl.GetSkill().UseSkill(skill);
-          }
+    SkillGoByActionBar(keycode) {
+      for (let i = 0; i < this.actionList.actionBar1.length; i++) {
+        const element = this.actionList.actionBar1[i];
+        if (element.key == keycode && element.skill) {
+          this.$parent.UseItem(element);
           return;
         }
       }
     },
     AddSkill(_skill) {
-      for (let i = 0; i < this.skillList.length; i++) {
-        const skill = this.skillList[i];
-        if (skill.skillName == _skill.skillName) {
+      for (let i = 0; i < this.actionList.actionBar1.length; i++) {
+        const skill = this.actionList.actionBar1[i].skill;
+        if (skill && skill.skillName == _skill.skillName) {
           return;
         }
       }
+      // 自动添加时，从左到右，第一个没有使用的动作框
+      let index = -1;
+      for (
+        let i = 0;
+        i < this.actionList.actionBar1.length && index == -1;
+        i++
+      ) {
+        const element = this.actionList.actionBar1[i].skill;
+        if (element == null) {
+          index = i;
+        }
+      }
+
       _skill.level = 1;
       _skill.auto = false;
-      let actionKey = this.keyList.actionBar1[this.skillList.length];
-      _skill.actionKey = "actionBar1";
-      _skill.actionKeyIndex = actionKey.index;
-      _skill.actionKeyText = actionKey.text;
-      this.skillList.push(_skill);
+      this.actionList.actionBar1[index].skill = _skill;
+      this.$forceUpdate();
     },
     changeMainPlayerSkillCD(skillName, cCD) {
-      for (let i = 0; i < this.skillList.length; i++) {
-        const skill = this.skillList[i];
-        if (skill.skillName == skillName) {
+      for (let i = 0; i < this.actionList.actionBar1.length; i++) {
+        const skill = this.actionList.actionBar1[i].skill;
+        if (skill && skill.skillName == skillName) {
           skill.cCD = cCD;
           skill.perCD = (skill.CD - cCD).toFixed(skill.CD > 10 ? 0 : 1);
           return;
-        }
-      }
-    },
-    onContextMenu(e, item) {
-      // 阻止默认的上下文菜单显示
-      e.preventDefault();
-      // console.log(e,item);
-
-      if (e.button == 2) {
-        if (item.auto == undefined) {
-          item.auto = true;
-        }
-        item.auto = !item.auto;
-        _Global._YJPlayerFireCtrl
-          .GetSkill()
-          .SetSkillAuto(item.skillName, item.auto);
-      }
-    },
-    clickSkill(e, item) {
-      // console.log(item.skillName, item.cCD, item.CD);
-      if (e.button == 0) {
-        if (item.cCD == item.CD) {
-          _Global._YJPlayerFireCtrl.GetSkill().UseSkill(item);
         }
       }
     },

@@ -7,6 +7,8 @@ import { YJPathfindingCtrl } from "/@/threeJS/pathfinding/YJPathfindingCtrl.js";
 import { YJAudioManager } from "./YJAudioManager.js";
 
 import IconData from "../data/iconData.js";
+import GameSetting from "../data/platform/GameSetting.js";
+
 
 // Threejs 中的事件传出接口
 
@@ -25,8 +27,9 @@ class Interface {
       skill: false,
       bag: false,
       mainmenu: false,
+      setting: false,
     };
-
+    _Global.GameSetting = GameSetting;
     let eventList = [];
     // 添加事件监听
     this.addEventListener = function (e, fn) {
@@ -53,6 +56,8 @@ class Interface {
     
     _Global.hasAvatar = true;
     _Global.mainPlayerIsDead = false;
+    _Global.inDragProp = false;
+    _Global.inDragAction = false;
 
     
     // npc巡逻点模型

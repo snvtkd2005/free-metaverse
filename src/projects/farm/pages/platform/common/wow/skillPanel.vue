@@ -1,7 +1,5 @@
 <template>
-  <div 
-    class="w-full h-full relative pointer-events-none"
-  >
+  <div class="w-full h-full relative pointer-events-none">
     <!-- 动作条 -->
     <div class="absolute left-0 top-52 flex">
       <div class="relative transform scale-125 mx-auto flex">
@@ -62,29 +60,42 @@
             <div
               v-for="(item, i) in skillList"
               :key="i"
-              class="flex  relative cursor-pointer pointer-events-auto"
+              class="flex relative pointer-events-none"
             >
-              <div class=" w-9 h-9 relative " 
-              @click="clickSkill(item)"
-              @mouseover="LookSkill($event, item)"
-              @mouseleave="outHover()"
+              <div
+                class="w-9 h-9 relative"
               >
-                <div>
+                <div >
                   <img
-                    class="w-9 h-9 pointer-events-none"
+                    class="w-9 h-9  cursor-pointer pointer-events-auto"
                     :class="
                       skillPoint > 0 || item.level > 0 ? '  ' : ' skill-img '
                     "
                     :src="this.$uploadUVAnimUrl + item.icon"
                     alt=""
+
+                    @click="clickSkill(item)"
+                    @mouseover="LookSkill($event, item)"
+                    @mouseleave="outHover()"
+                    :draggable="item.level > 0"
+                    @dragstart="drag($event,item)" 
+
                   />
 
                   <img
                     v-if="item.level > 0"
-                    class="absolute left-0 top-0 w-9 h-9"
+                    class="absolute left-0 top-0 w-9 h-9 "
                     :src="btnHilightUrl"
                     alt=""
                   />
+                  
+                  <img
+                    v-if=" hoverPart==item.hoverPart "
+                    class="absolute left-0 top-0 w-9 h-9 opacity-30 transform scale-110 pointer-events-none "
+                    :src="btnHoverHilightUrl"
+                    alt=""
+                  />
+
                 </div>
                 <div
                   v-if="skillPoint > 0 || item.level > 0"
@@ -115,14 +126,12 @@
 
 
  
-<script > 
-
+<script >
 export default {
   props: [],
-  components: { 
-  },
+  components: {},
   data() {
-    return { 
+    return {
       skillList: [
         // {
         //   icon: "https://snvtkd2005.com/socketIoServer/socketIoServer/uploads/1697436993131/thumb.png",
@@ -144,15 +153,15 @@ export default {
         "./public/images/cursorList/paperdollinfoframe/ui-character-skills-barborderhighlight.png",
       btnHilightUrl:
         "./public/images/cursorList/paperdollinfoframe/ui-quickslot-depress.png",
-      playerImg:
-        "./public/images/cursorList/mainmenu/inv_misc_book_09.png",
-        
+      btnHoverHilightUrl:
+        "./public/images/cursorList/mainmenu/ui-chaticon-blinkhilight.png",
+      playerImg: "./public/images/cursorList/mainmenu/inv_misc_book_09.png",
+      hoverPart:"",
     };
   },
   created() {},
   mounted() {
     setTimeout(() => {
-      
       _Global.addEventListener("升级", (level) => {
         this.skillPoint += 1;
       });
@@ -166,7 +175,8 @@ export default {
       //随机取出3张卡片
       for (let i = 0; i < skills.length; i++) {
         const skill = skills[i];
-        skill.level = 0;
+        skill.level = 0; 
+        skill.hoverPart = "skillPanel"+i;
         this.skillList.push(skill);
       }
 
@@ -181,19 +191,24 @@ export default {
     }, 5000);
   },
 
-  methods: {
-    
+  methods: { 
+    drag(ev, item) {
+      this.$parent.dragStart(item);  
+    }, 
+
     LookSkill(e, item) {
       // console.log(e);
+      this.hoverPart=item.hoverPart;
       let parent = e.target;
-      this.$parent.LookSkill(parent,item);
+      this.$parent.LookSkill(parent, item);
     },
-    outHover() { 
+    outHover() {
+      this.hoverPart='';
       this.$parent.outHover();
     },
     clickEvent(e) {
-      if (e == "关闭窗口") { 
-        _Global.applyEvent("界面开关", "skill",false);
+      if (e == "关闭窗口") {
+        _Global.applyEvent("界面开关", "skill", false);
       }
     },
 

@@ -6,6 +6,7 @@ import { YJEquip } from './components/YJEquip';
 import { YJPlayerProperty } from './components/YJPlayerProperty';
 import { YJSkill } from './components/YJSkill';
 import { YJBuff } from './components/YJBuff';
+import { YJProp } from './components/YJProp';
 
 // 战斗相关控制：
 // 角色属性、战斗行为
@@ -211,6 +212,12 @@ class YJPlayerFireCtrl {
 		function UseSkill(skillItem) {
 			_YJSkill.UseSkill(skillItem);
 			return;
+		}
+		this.UseProp = function(skillItem) {
+			UseProp(skillItem); 
+		}
+		function UseProp(skillItem) {
+			_YJProp.UseProp(skillItem); 
 		}
 		let hyperplasiaTimes = 0;
 		let hyperplasiaTrans = [];
@@ -1013,6 +1020,7 @@ class YJPlayerFireCtrl {
 		let _YJSkill = null;
 		let _YJEquip = null;
 		let _YJBuff = null;
+		let _YJProp = null;
 		this.GetBuff = function () {
 			return _YJBuff;
 		}
@@ -1021,6 +1029,9 @@ class YJPlayerFireCtrl {
 		}
 		this.GetSkill = function () {
 			return _YJSkill;
+		}
+		this.GetProp = function () {
+			return _YJProp;
 		}
 		this.GetProperty = function () {
 			return _YJPlayerProperty;
@@ -1041,6 +1052,10 @@ class YJPlayerFireCtrl {
 				}
 				if (_YJSkill == null) {
 					_YJSkill = new YJSkill(scope);
+				}
+				
+				if (_YJProp == null) {
+					_YJProp = new YJProp(scope);
 				}
 			}
 			if (_YJEquip == null) {

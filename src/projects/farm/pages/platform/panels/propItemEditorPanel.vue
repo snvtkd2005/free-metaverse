@@ -2,7 +2,7 @@
 // 技能添加弹窗
 <template>
   <el-dialog
-    title="添加道具/药剂"
+    title="添加道具"
     class="bg-546770 text-white create-card"
     center
     v-model="inAdd"
@@ -40,7 +40,7 @@ export default {
         {
           property: "name",
           display: true,
-          title: "道具/药剂名",
+          title: "道具名",
           type: "text",
           value: "",
           callback: this.ChangeValue,
@@ -64,9 +64,18 @@ export default {
           callback: this.ChangeValue,
         },
         {
+          property: "effectType",
+          display: true,
+          title: "效果类型",
+          type: "drop",
+          options: [],
+          value: "",
+          callback: this.ChangeValue,
+        },
+        {
           property: "property",
           display: true,
-          title: "属性字段",
+          title: "效果属性字段",
           type: "drop",
           options: [],
           value: "",
@@ -74,13 +83,49 @@ export default {
         },
         {
           property: "displayType",
-          display: true,
+          display: false,
           title: "显示方式",
           type: "drop",
           options: [],
           value: "",
           callback: this.ChangeValue,
         },
+        {
+          property: "CD",
+          display: true,
+          title: "冷却时间",
+          type: "num",
+          value: 0,
+          callback: this.ChangeValue,
+        },
+        {
+          property: "qualityType",
+          display: true,
+          title: "品质",
+          type: "drop",
+          options: [],
+          value: "",
+          callback: this.ChangeValue,
+        },
+        {
+          property: "bindingType",
+          display: true,
+          title: "绑定状态",
+          type: "drop",
+          options: [],
+          value: "",
+          callback: this.ChangeValue,
+        },
+        {
+          property: "countType",
+          display: true,
+          title: "数量状态",
+          type: "drop",
+          options: [],
+          value: "",
+          callback: this.ChangeValue,
+        },
+
         {
           property: "value",
           display: true,
@@ -113,6 +158,9 @@ export default {
     initValue(_settingData) {
       this.inAdd = true;
       this.settingData = _settingData;
+      if(this.settingData.effectType == undefined){
+        this.settingData.effectType = "";
+      }
 
       this.Utils.SetSettingItemPropertyValueByProperty(
         this.setting,
@@ -122,9 +170,15 @@ export default {
       );
       this.Utils.SetSettingItemPropertyValueByProperty(
         this.setting,
+        "effectType",
+        "options",
+        GameItems.effectType
+      );
+      this.Utils.SetSettingItemPropertyValueByProperty(
+        this.setting,
         "property",
         "options",
-        GameItems.attackProperty
+        GameItems.playerProperty
       );
       this.Utils.SetSettingItemPropertyValueByProperty(
         this.setting,
@@ -133,6 +187,25 @@ export default {
         GameItems.displayType
       );
 
+      this.Utils.SetSettingItemPropertyValueByProperty(
+        this.setting,
+        "qualityType",
+        "options",
+        GameItems.qualityType
+      );
+      this.Utils.SetSettingItemPropertyValueByProperty(
+        this.setting,
+        "bindingType",
+        "options",
+        GameItems.bindingType
+      );     
+       this.Utils.SetSettingItemPropertyValueByProperty(
+        this.setting,
+        "countType",
+        "options",
+        GameItems.countType
+      );
+      console.log(this.settingData);
       this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
       for (let i = 0; i < this.setting.length; i++) {
         this.ChangeUIState(this.setting[i].property, this.setting[i].value);
@@ -141,13 +214,49 @@ export default {
     ChangeUIState(property, e) {
       // 根据选择判断哪些属性不显示
       if (property == "propType") {
+        // 道具类型选择后，设置类型下的可选项
+        let effectType =
+          e == "potion" ? GameItems.potionType : GameItems.stuffType;
+        this.Utils.SetSettingItemPropertyValueByProperty(
+          this.setting,
+          "effectType",
+          "options",
+          effectType
+        );
+
+
+        let effectTypeV = effectType[0].value;
+        this.Utils.SetSettingItemPropertyValueByProperty(
+          this.setting,
+          "effectType",
+          "value",
+          effectTypeV
+        );
+
+        this.ChangeUIState("effectType", effectTypeV);
+      }
+
+      // 效果类型选择后，设置效果下的可选项
+      if (property == "effectType") {
+        this.settingData.effectType = e;
+
+
+        let propertyType =
+          e == "playerProperty"
+            ? GameItems.playerProperty
+            : GameItems.otherProperty;
+
+        this.Utils.SetSettingItemPropertyValueByProperty(
+          this.setting,
+          "property",
+          "display",
+          propertyType.length != 0
+        );
         this.Utils.SetSettingItemPropertyValueByProperty(
           this.setting,
           "property",
           "options",
-          e == "attackProperty"
-            ? GameItems.attackProperty
-            : GameItems.basicProperty
+          propertyType
         );
       }
     },
@@ -174,6 +283,9 @@ export default {
     },
     ClickEvent(e) {
       if (e == "保存") {
+        if(!this.settingData.id){
+          this.settingData.id = new Date().getTime();
+        }
         this.settingData.describe = this.GetDescribe(this.settingData);
         this.$parent.saveProp(this.settingData);
         this.inAdd = false;
@@ -192,32 +304,34 @@ export default {
       //     describe += element.label;
       //   }
       // }
+      console.log(item);
 
-      let add = "";
-      if (item.propType == "attackProperty") {
-        for (let i = 0; i < GameItems.attackProperty.length; i++) {
-          const element = GameItems.attackProperty[i];
-          if (element.value == item.property) {
-            describe += element.label;
-          }
+      let add = "使用：";
+      if (item.effectType == "transmit") {
+        add += "将你传送到" + item.value+"。与城镇中的旅店老板交谈可以改变你所设定的家的位置。";
+        if(item.CD){
+          add += "("+item.CD+"分钟冷却)";
         }
       }
-      if (item.propType == "basicProperty") {
-        for (let i = 0; i < GameItems.basicProperty.length; i++) {
-          const element = GameItems.basicProperty[i];
+
+      if (item.effectType == "playerProperty") {
+        for (let i = 0; i < GameItems.playerProperty.length; i++) {
+          const element = GameItems.playerProperty[i];
           if (element.value == item.property) {
-            describe += element.label;
+            add += element.label;
           }
         }
-      }
-      add = "提高";
-      if (item.property == "health") {
-        add = "恢复";
-      }
 
+        if (item.property == "health") {
+          add += "恢复";
+        }else{
+          add += "提高";
+        }
+
+        add += item.value;
+      }
       describe += add;
 
-      describe += item.value;
       console.log(" describe  ", describe);
       // describe = this.templateReplace(item.describe, item)
       return describe;

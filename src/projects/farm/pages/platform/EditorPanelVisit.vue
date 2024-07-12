@@ -453,7 +453,7 @@ export default {
       document.title = this.sceneData.setting.title; 
 
       _Global.skillList = this.sceneData.skillList;
-      _Global.propList = this.sceneData.propList;
+      // _Global.propList = this.sceneData.propList;
       _Global.hasAvatar = this.sceneData.setting.hasAvatar;
       this.hasAvatar = this.sceneData.setting.hasAvatar;
       _Global.user.camp =

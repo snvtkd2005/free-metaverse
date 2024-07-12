@@ -7,33 +7,34 @@ class YJKeyboard {
 
     let inShiftLeft = false;
     let inControlLeft = false;
+    let isKeyPressed = false;
     this.onKeyDown = function (e) {
-      // console.log(event.code);
-      _Global.applyEvent("keycode",e.code);
+      if(isKeyPressed){
+        return;
+      }
+      isKeyPressed = true;
+      let keycode = e.code;
+      console.log(keycode);
       switch (e.code) {
         case 'KeyT':
-          if (inShiftLeft) {
-            keyCallback("ShiftLeft+T"); 
-            return;
+          if (inShiftLeft) { 
+            keycode = ("ShiftLeft+T");  
           }
           break;
         case 'KeyC':
           if (inShiftLeft) {
-            keyCallback("ShiftLeft+C"); 
-            return;
+            keycode = ("ShiftLeft+C"); 
           }
           break;
 
         case 'KeyD':
           if (inControlLeft) {
             e.preventDefault();
-            keyCallback("ControlLeft+D");
-            return;
+            keycode = ("ControlLeft+D");
           } 
         case 'KeyZ':
           if (inShiftLeft) {
-            keyCallback("ShiftLeft+Z");
-            return;
+            keycode = ("ShiftLeft+Z");
           }  
           break;
 
@@ -51,12 +52,14 @@ class YJKeyboard {
 
       }
       keyCallback(e);
+      _Global.applyEvent("keycodeDown",keycode);
 
     };
 
-    this.onKeyUp = function (event) {
-
-      switch (event.code) {
+    this.onKeyUp = function (e) {
+      isKeyPressed = false;
+      _Global.applyEvent("keycodeUp",e.code);
+      switch (e.code) {
         case 'ShiftLeft':
           inShiftLeft = false;
           break;
@@ -66,7 +69,7 @@ class YJKeyboard {
           break;
       }
       if (keyUpCallback) {
-        keyUpCallback(event);
+        keyUpCallback(e);
       }
     };
 

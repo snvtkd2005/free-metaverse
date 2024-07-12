@@ -12,7 +12,8 @@
     <el-table :data="propList" style="width: 100%">
       <!-- <el-table-column type="selection" width="40" /> -->
       <el-table-column type="index" label="序号" width="60" />
-      <el-table-column prop="name" label="道具/药剂名" width="140" />
+      <el-table-column prop="id" label="ID" width="130" />
+      <el-table-column prop="name" label="道具名" width="140" />
       <el-table-column label="图标" width="80">
         <template #default="scope">
           <img
@@ -28,6 +29,15 @@
           </div>
         </template>
       </el-table-column>
+
+      <el-table-column label="道具类型" width="100">
+        <template #default="scope">
+          <div>
+            {{ scope.row && getItemsPropType(scope.row.effectType) }}
+          </div>
+        </template>
+      </el-table-column>
+
 
       <el-table-column label="效果类型" width="140">
         <template #default="scope">
@@ -55,7 +65,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="操作" width="160">
+      <el-table-column label="操作" width="100">
         <template #default="scope">
           <el-button
             size="small"
@@ -67,7 +77,7 @@
       </el-table-column>
     </el-table>
 
-    <!-- 道具/药剂添加弹窗 -->
+    <!-- 道具添加弹窗 -->
     <propItemEditorPanel ref="editorPanel"></propItemEditorPanel>
   </div>
 </template>
@@ -149,14 +159,14 @@ export default {
       console.log(e, item, i);
       if (e == "新建") {
         this.editorIndex = -1;
-        this.$refs.editorPanel.dialogTitle = "新建道具/药剂";
+        this.$refs.editorPanel.dialogTitle = "新建道具";
         this.$refs.editorPanel.initValue(
           JSON.parse(JSON.stringify(GameItems.constSettingData))
         );
       }
       if (e == "编辑") {
         this.editorIndex = i;
-        this.$refs.editorPanel.dialogTitle = "编辑道具/药剂";
+        this.$refs.editorPanel.dialogTitle = "编辑道具";
         this.$refs.editorPanel.initValue(JSON.parse(JSON.stringify(item)));
       }
       if (e == "删除") {

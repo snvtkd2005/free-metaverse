@@ -22,6 +22,11 @@
           </div>
         </div>
       </div>
+      <div class="absolute left-0 top-0 flex w-full h-full">
+        <div class="w-96 h-64 mx-auto" v-show="panelState.mainmenu">
+          <menuPanelVue ref="menuPanelVue"></menuPanelVue>
+        </div>
+      </div>
 
       <div v-show="panelState.bag" class="absolute left-0 top-0 w-full h-full">
         <bagPanel ref="bagPanel"></bagPanel>
@@ -36,17 +41,28 @@
       <div class="absolute left-0 top-0 w-full h-full">
         <buffPanel ref="buffPanel"></buffPanel>
       </div>
+      <div v-if="delDialog" class="absolute left-0 top-0 w-full h-full">
+        <delDialogPanelVue ref="delDialogPanelVue"></delDialogPanelVue>
+      </div>
+      
+      <div v-if="panelState.setting" class="absolute left-0 top-0 w-full h-full">
+        <settingPanelVue ref="settingPanelVue"></settingPanelVue>
+      </div>
+      
     </div>
 
-
-
     <!-- 悬浮信息框 -->
-    <!-- -->
     <div
       ref="hoverContent"
       v-show="inHover"
-      class=" absolute z-50 transform origin-bottom-left mt-3 -ml-2 -translate-y-full left-0 top-0 min-wh w-auto h-auto flex  pointer-events-none"
-      :class="hoverRight? inRightOrder?' -translate-x-6':' -translate-x-full ':''"
+      class="absolute z-50 transform origin-bottom-left mt-3 -ml-2 -translate-y-full left-0 top-0 min-wh w-auto h-auto flex pointer-events-none"
+      :class="
+        hoverRight
+          ? inRightOrder
+            ? ' -translate-x-6'
+            : ' -translate-x-full '
+          : ''
+      "
       style="
         border: 10px solid;
         border-image-source: url(./public/images/cursorList/mainmenu/ui-quickslot2.png);
@@ -54,38 +70,47 @@
         border-image-width: 20px 20px 20px 20px;
         border-image-repeat: repeat;
       "
-    > 
+    >
       <div class="absolute left-0 top-0 -z-10 w-full h-full">
-        <div class=" p-1 w-full h-full   ">
-          <div class=" w-full h-full bg-black bg-opacity-90 rounded-sm"></div>
+        <div class="p-1 w-full h-full">
+          <div class="w-full h-full bg-black bg-opacity-90 rounded-sm"></div>
         </div>
       </div>
 
-      <div class="  mx-auto text-left p-4 tracking-widest">
-          <div
-            v-for="(item, i) in hoverData"
-            :key="i"
-            class="flex self-center mx-auto justify-between  "
-            :style=" 'color:'+item.color+';'"
-            :class="i==0?' text-base ':'text-sm '"
-          > 
-          <div> {{ item.text }}</div>
-          <div> {{ item.text2 }}</div>
-           
-          </div>
+      <div class="mx-auto text-left p-4 tracking-widest">
+        <div
+          v-for="(item, i) in hoverData"
+          :key="i"
+          class="flex self-center mx-auto justify-between"
+          :style="'color:' + item.color + ';'"
+          :class="i == 0 ? ' text-base ' : 'text-sm '"
+        >
+          <div>{{ item.text }}</div>
+          <div>{{ item.text2 }}</div>
         </div>
-
-        
-    </div> 
-
-    <div ref="hoverParentRef" class=" absolute left-0 top-0 w-full h-full  ">
-      
+      </div>
     </div>
-    
+
+    <!-- 悬浮信息的父物体 -->
+    <div ref="hoverParentRef" class="absolute left-0 top-0 w-full h-full"></div>
+
+    <!-- 按钮信息在右下角显示的参考位置 -->
     <div
       ref="rightbottomPosRef"
-      class="absolute right-44 bottom-32 w-2 h-2  pointer-events-none"
-    > 
+      class="absolute right-44 bottom-32 w-2 h-2 pointer-events-none"
+    ></div>
+
+    <div
+      v-show="inDraging"
+      ref="dragItemRef"
+      class="absolute z-50 left-0 top-0 w-9 h-9"
+      :style="'left:' + dragPos.x + 'px;' + 'top:' + dragPos.y + 'px;'"
+    >
+      <img
+        class="w-full h-full"
+        :src="this.$uploadUVAnimUrl + dragIcon"
+        alt=""
+      />
     </div>
   </div>
 </template>
@@ -102,7 +127,15 @@ import PlayerPropertyPanelVue from "../common/wow/PlayerPropertyPanel.vue";
 import skillPanel from "../common/wow/skillPanel.vue";
 import bagPanel from "../common/wow/bagPanel.vue";
 
+
 import { Interface } from "../../../js/Interface_editor";
+import menuPanelVue from "../common/wow/menuPanel.vue";
+import GameItems from "../../../data/platform/GameItems";
+import delDialogPanelVue from '../common/wow/delDialogPanel.vue';
+import settingPanelVue from '../common/wow/settingPanel.vue';
+
+
+import GameSetting from "../../../data/platform/GameSetting";
 
 export default {
   props: [],
@@ -113,6 +146,9 @@ export default {
     PlayerPropertyPanelVue,
     skillPanel,
     bagPanel,
+    menuPanelVue,
+    delDialogPanelVue,
+    settingPanelVue,
   },
   data() {
     return {
@@ -155,8 +191,12 @@ export default {
         },
       ],
       inHover: false,
-      hoverRight:false,
-      inRightOrder:false,
+      hoverRight: false,
+      inRightOrder: false,
+      dragPos: { x: 0, y: 0 },
+      inDraging: false,
+      dragIcon: "",
+      delDialog:false,
     };
   },
   created() {},
@@ -181,6 +221,40 @@ export default {
         this.panelState[e] = b;
       });
 
+      _Global.addEventListener("keycodeUp", (keycode) => {
+        // 按键在配置中设置
+        for (let i = 0; i < GameSetting.keyData.panel.length; i++) {
+          const element = GameSetting.keyData.panel[i];
+          if(element.key == keycode){
+            if(element.field == 'mainmenu'){
+              if(_Global.inDragProp){
+                if(this.delDialog){this.delDialog = false;}
+                _Global.applyEvent("取消拖拽Prop");
+                _Global.inDragProp = false;
+                return;
+              }
+              //关闭全部打开的窗口
+              let names = Object.getOwnPropertyNames(this.panelState);
+              let has = false;
+              for (let i = 0; i < names.length; i++) {
+                const element = names[i];
+                if (this.panelState[element]) {
+                  has = true;
+                  _Global.applyEvent("界面开关", element, false);
+                }
+              }
+              if (!has) {
+                setTimeout(() => {
+                  _Global.applyEvent("界面开关", "mainmenu", true);
+                }, 20);
+              }
+            }else{
+              _Global.applyEvent("界面开关",element.field, !this.panelState[element.field]);
+            }
+          }
+        } 
+      });
+
       // if (_Global.setting.inEditor && _Global.gameType == "Roguelike") {
       //   let _YJController_roguelike = new YJController_roguelike();
       //   _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(_YJController_roguelike);
@@ -191,6 +265,12 @@ export default {
       //   let _YJController_roguelike = new YJController_roguelike();
       //   _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(_YJController_roguelike);
       // }
+      _Global.YJ3D.YJRaycaster.addEventListener("mousePos", (x, y) => {
+        this.dragPos.x = (0.5 + x / 2) * window.innerWidth;
+        this.dragPos.y = (0.5 - y / 2) * window.innerHeight;
+        // console.log("mousePos ",this.dragPos.x,this.dragPos.y);
+      });
+
 
       _Global.addEventListener("属性改变", (basedata) => {
         this.property = basedata;
@@ -271,110 +351,160 @@ export default {
   },
 
   methods: {
-    LookActionSkill(item){
-      this.LookSkill(this.$refs.rightbottomPosRef,item);
+    mousePos(x, y) {
+      this.dragPos.x = x;
+      this.dragPos.y = y;
+    },
+    dragStart(item) {
+      this.inDraging = true;
+      this.dragIcon = item.icon;
+      this.dragSkill = item;
+    },
+    dragEnd(item) {
+      this.inDraging = false;
+      this.dragSkill = null;
+      _Global.hoverPart = "";
+    },
+
+    LookActionSkill(item) {
+      this.LookSkill(this.$refs.rightbottomPosRef, item);
+    },
+    getGameItesLabel(type, value) {
+      // console.log(type,value,);
+      let typeValues = GameItems[type];
+      for (let i = 0; i < typeValues.length; i++) {
+        const element = typeValues[i];
+        if (element.value == value) {
+          return element.label;
+        }
+      }
     },
     LookSkill(parent, item) {
-      console.log(parent); 
-
       // console.log(" hover ", item);
       this.hoverData = [];
       let line = {};
-      if (item.type == "menu") { 
+      if (item.type == "menu") {
         line.text = item.title;
         line.color = "#ffffff";
         this.hoverData.push(line);
 
         line = {};
         line.text = item.describe;
-        line.color = "#ffff00"; 
+        line.color = "#ffff00";
       }
 
       if (item.type == "equid") {
-        if(!item.used){
+        if (!item.used) {
           line.color = "#ffff00";
         }
         line.text = item.text;
       }
       if (item.type == "skill") {
-
-
         line.text = item.skillName;
         line.color = "#ffffff";
         this.hoverData.push(line);
 
-
         line = {};
-        line.text = "0-"+ item.vaildDis+"米距离";
+        line.text = "0-" + item.vaildDis + "米距离";
         line.color = "#ffffff";
         this.hoverData.push(line);
 
         line = {};
-        line.text = item.castTime==0?'瞬发法术': item.castTime+'秒施法时间';
-        line.text2 = item.CD+'秒冷却时间';
-        line.color = "#ffffff";
-        this.hoverData.push(line);
-
-        line = {};
-        line.text = item.describe;
-        line.color = "#ffff00"; 
-      }
-      if (item.type == "item") { 
-
-        line.text = item.title;
-        line.color = "#ffffff";
-        this.hoverData.push(line);
-
-        line = {};
-        line.text = item.quality;
-        line.color = "#ffffff";
-        this.hoverData.push(line);
-
-        line = {};
-        line.text = item.bindingType;
-        line.color = "#ffffff";
-        this.hoverData.push(line);
-
-        line = {};
-        line.text = item.countType;
+        line.text =
+          item.castTime == 0 ? "瞬发法术" : item.castTime + "秒施法时间";
+        line.text2 = item.CD + "秒冷却时间";
         line.color = "#ffffff";
         this.hoverData.push(line);
 
         line = {};
         line.text = item.describe;
-        line.color = "#00ff00"; 
-
+        line.color = "#ffff00";
       }
+      if (item.type == "prop") {
+        line.text = item.title || item.name;
+        line.color = "#ffffff";
+        this.hoverData.push(line);
 
+        if (item.qualityType) {
+          line = {};
+          line.text = this.getGameItesLabel("qualityType", item.qualityType);
+          line.color = "#ffffff";
+          this.hoverData.push(line);
+        }
+
+        if (item.bindingType) {
+          line = {};
+          line.text = this.getGameItesLabel("bindingType", item.bindingType);
+          line.color = "#ffffff";
+          this.hoverData.push(line);
+        }
+
+        if (item.countType) {
+          line = {};
+          line.text = this.getGameItesLabel("countType", item.countType);
+          line.color = "#ffffff";
+          this.hoverData.push(line);
+        }
+
+        line = {};
+        line.text = item.describe;
+        line.color = "#00ff00";
+      }
 
       this.hoverData.push(line);
 
-      var rect = parent.getBoundingClientRect();  
-  
-      // console.log("Top: " + rect.top);  
+      var rect = parent.getBoundingClientRect();
+
+      // console.log("Top: " + rect.top);
       // console.log("Left: " + rect.left);
+
+      this.hoverRight = rect.left > window.innerWidth / 2;
+      this.inRightOrder = false;
+      let offsetX = this.hoverRight ? 20 : 40;
+
       
-      this.hoverRight = rect.left>window.innerWidth/2;
-        this.inRightOrder = false;
-      let offsetX = (this.hoverRight?20:40);
-      if( rect.left>(window.innerWidth-300)){
-        offsetX -= 300;
-        this.inRightOrder = true;
-      }
 
       this.newDiv.appendChild(this.$refs.hoverContent);
-      this.newDiv.style.top = parseInt(rect.top)  + 'px';
-      this.newDiv.style.left = (parseInt(rect.left) + offsetX)+ 'px';
-      this.newDiv.style.display = ""; 
+      this.newDiv.style.display = "";
+      this.newDiv.style.opacity = 0;
+
+      this.$nextTick(() => {
+        let rect2 = this.$refs.hoverContent.clientWidth;
+        if (rect.left > window.innerWidth - rect2) {
+          offsetX -= rect2;
+          this.inRightOrder = true;
+        }
+        this.newDiv.style.top = parseInt(rect.top) + "px";
+        this.newDiv.style.left = parseInt(rect.left) + offsetX + "px";
+        this.newDiv.style.opacity = 1;
+      });
 
       this.$refs.hoverParentRef.appendChild(this.newDiv);
       this.inHover = true;
-      
     },
     outHover() {
       if (this.newDiv) {
         this.inHover = false;
         this.newDiv.style.display = "none";
+      }
+    },
+    UseItem(item) {
+      let skill = item.skill;
+      if (skill.type == "skill" && skill.cCD == skill.CD) {
+        _Global._YJPlayerFireCtrl.GetSkill().UseSkill(skill);
+        return;
+      }
+      if (skill.type == "prop") {
+        if (skill.CD > 0) {
+          if (skill.cCD < skill.CD) {
+            return;
+          }
+        } else {
+        }
+        if (item.isDeleled) {
+          return;
+        }
+        _Global._YJPlayerFireCtrl.GetProp().UseProp(skill);
       }
     },
 
@@ -490,7 +620,7 @@ export default {
 
 </style> -->
 <style scoped>
-.min-wh{
+.min-wh {
   min-width: 80px;
   max-width: 330px;
 }

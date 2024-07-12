@@ -113,6 +113,7 @@ class SceneManager {
         ClearTarget();
       });
 
+      // _Global.addEventListener('keycodeDown',)
       new YJKeyboard((event) => {
 
         if (inInputing) {
@@ -858,11 +859,12 @@ class SceneManager {
           ClearTarget();
         }
       }
-    }
+    } 
 
     this.RightClick = (hitObject, hitPoint) => {
+      _Global.applyEvent("右键点击");
 
-      // console.log(" 右键点击 ", hitObject);
+      console.log(" 右键点击 ", hitObject);
       if (hitObject.transform) {
         // 点击NPC
         let message = hitObject.transform.GetData().message;
@@ -997,6 +999,8 @@ class SceneManager {
 
     this.ClickModel = (hitObject) => {
       console.log("点击模型 ", hitObject);
+
+      _Global.applyEvent("点击三维页");
       // console.log("点击模型.transform ", hitObject.transform);
       if (hitObject.transform && hitObject.transform.GetActive()) {
         this.ClickModelTransform(hitObject.transform);

@@ -58,10 +58,17 @@
                 @mouseover="LookSkill($event, item)"
                 @mouseleave="outHover()"
               >
-                <div>
+                <div class=" relative">
                   <img
                     class="w-full h-full pointer-events-none"
                     :src="item.bg"
+                    alt=""
+                  />
+                  
+                  <img
+                    v-if=" hoverPart==item.hoverPart "
+                    class="absolute left-0 top-0 w-9 h-9 opacity-30 transform scale-110 pointer-events-none "
+                    :src="btnHoverHilightUrl"
                     alt=""
                   />
                 </div>
@@ -84,10 +91,17 @@
                 @mouseover="LookSkill($event, item)"
                 @mouseleave="outHover()"
               >
-                <div>
+                <div class=" relative">
                   <img
                     class="w-full h-full pointer-events-none"
                     :src="item.bg"
+                    alt=""
+                  />
+                  
+                  <img
+                    v-if=" hoverPart==item.hoverPart "
+                    class="absolute left-0 top-0 w-9 h-9 opacity-30 transform scale-110 pointer-events-none "
+                    :src="btnHoverHilightUrl"
                     alt=""
                   />
                 </div>
@@ -110,10 +124,16 @@
                 @mouseover="LookSkill($event, item)"
                 @mouseleave="outHover()"
               >
-                <div>
+                <div class=" relative">
                   <img
                     class="w-full h-full pointer-events-none"
                     :src="item.bg"
+                    alt=""
+                  />
+                  <img
+                    v-if=" hoverPart==item.hoverPart "
+                    class="absolute left-0 top-0 w-9 h-9 opacity-30 transform scale-110 pointer-events-none "
+                    :src="btnHoverHilightUrl"
                     alt=""
                   />
                 </div>
@@ -321,14 +341,17 @@ export default {
         "./public/images/cursorList/paperdollinfoframe/ui-character-ammoslot.png",
       btnHilightUrl:
         "./public/images/cursorList/paperdollinfoframe/ui-quickslot-depress.png",
-
+        btnHoverHilightUrl:
+        "./public/images/cursorList/mainmenu/ui-chaticon-blinkhilight.png",
       playerImg:
         "https://snvtkd2005.com/socketIoServer/socketIoServer/uploads/1697436993131/thumb.png",
+        hoverPart:"",
 
     };
   },
   created() {},
   mounted() {
+
     setTimeout(() => {
       _Global.addEventListener("升级", (level) => {});
 
@@ -345,7 +368,18 @@ export default {
       _Global.addEventListener("战斗开始", () => {});
     }, 1000);
 
-    
+    for (let i = 0; i < this.skillList.length; i++) {
+      const element = this.skillList[i];
+      element.hoverPart = "playerPanel"+i;
+    }
+    for (let i = 0; i < this.skillList2.length; i++) {
+      const element = this.skillList2[i];
+      element.hoverPart = "playerPanel2"+i;
+    }
+    for (let i = 0; i < this.skillList3.length; i++) {
+      const element = this.skillList3[i];
+      element.hoverPart = "playerPanel3"+i;
+    }
   },
 
   methods: {
@@ -356,10 +390,12 @@ export default {
     },
     LookSkill(e, item) {
       // console.log(e);
+      this.hoverPart=item.hoverPart;
       let parent = e.target;
       this.$parent.LookSkill(parent,item);
     },
     outHover() { 
+      this.hoverPart='';
       this.$parent.outHover();
     },
     SkillGoByActionBar(actionBar, index) {

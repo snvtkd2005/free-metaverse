@@ -83,6 +83,14 @@ class YJBuff {
 
 
         this.addBuff = function (effect) {
+
+            for (let i = 0; i < baseData.buffList.length; i++) {
+                const element = baseData.buffList[i];
+                if(element.skillName == effect.skillName){
+                    element.duration = effect.duration;
+                    return;
+                }
+            }
             let id = new Date().getTime();
             let { type, value, time, duration, describe, icon } = effect;
 
@@ -99,8 +107,7 @@ class YJBuff {
                         buff.duration -= 1;
                         if (buff.duration <= 0) {
                             buff.duration = 0;
-                            // 取消盾
-
+                            // 取消盾 
                             for (let i = baseData.buffList.length - 1; i >= 0; i--) {
                                 const element = baseData.buffList[i];
                                 if (element.id == id) {

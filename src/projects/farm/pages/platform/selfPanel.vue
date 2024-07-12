@@ -404,7 +404,7 @@
         <div v-if="currentTable == '技能'" class="gap-6 w-full mx-auto h-full">
           <skillPanel></skillPanel>
         </div>
-        <div v-if="currentTable == '道具/药剂'" class="gap-6 w-full mx-auto h-full">
+        <div v-if="currentTable == '道具'" class="gap-6 w-full mx-auto h-full">
           <propPanel></propPanel>
         </div>
 

@@ -3,23 +3,42 @@ export default {
 
 
   constSettingData: {
+    id:'',
     type:"prop",
     name: "",
     propType: '', //道具效果类型
-    property: '',// 属性字段
+    effectType: '', //效果类型
+    property: '',// 角色属性字段
     displayType:"none",//显示方式
+    qualityType: "",
+    bindingType: "",
+    countType: "",
     value: 0, //效果值
     icon: "", //图标
+    CD:0,// 冷却时间
     describe: "", //描述
   },
   // 道具类型
   propType: [
-    { label: "基础属性", value: "basicProperty" },
-    { label: "攻击属性", value: "attackProperty" },
+    { label: "药水", value: "potion" },
+    { label: "物品", value: "stuff" },
+    // { label: "材料", value: "ingredient" },
+  ],
+  effectType:[],
+  // 药水效果类型
+  potionType:[
+    { label: "角色属性", value: "playerProperty" },
+    // { label: "特殊效果", value: "otherProperty" },
     // { label: "世界Buff", value: "worldBuff" },
   ],
+  // 物品效果
+  stuffType:[
+    { label: "传送", value: "transmit" },
+
+  ],
+
   //攻击属性
-  attackProperty: [
+  playerProperty: [
     { label: "暴击率", value: "CriticalHitRate" }, 
     { label: "暴击等级", value: "CriticalHitLevel" }, 
     { label: "攻击速度", value: "attackSpeed" },
@@ -27,18 +46,32 @@ export default {
     { label: "移动速度", value: "moveSpeed" },
     { label: "急速等级", value: "hasteLevel" },
     { label: "急速冷却", value: "CDRate" },
-  ],
-  // 基础属性
-  basicProperty: [
     { label: "生命值", value: "health" },
     { label: "护甲", value: "armor" },
     // { label: "最大生命值", value: "addHealth" },
+  ],
+  // 基础属性
+  otherProperty: [
+
   ],
   // 显示方式
   displayType: [
     { label: "none", value: "none" },
     { label: "sprite图片", value: "image" },
     { label: "3d模型", value: "model" },
+  ],
+  qualityType: [
+    { label: "none", value: "" },
+    { label: "普通", value: "normal" }, 
+  ],
+  bindingType: [
+    { label: "none", value: "" },
+    { label: "已绑定", value: "bindinged" },
+    { label: "装备后绑定", value: "needbindinged" },
+  ],
+  countType: [
+    { label: "none", value: "" },
+    { label: "唯一", value: "onlyone" }, 
   ],
   /**
    * 

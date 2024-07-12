@@ -292,7 +292,7 @@ export default {
         this.sceneData.propList = [];
       }
       this.propList = this.sceneData.propList;
-      _Global.propList = this.propList;
+      // _Global.propList = this.propList;
       
       this.Utils.SetSettingItemByPropertyAll(this.setting, this.sceneData); 
 

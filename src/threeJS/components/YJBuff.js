@@ -112,7 +112,7 @@ class YJBuff {
                                 const element = baseData.buffList[i];
                                 if (element.id == id) {
                                     if (element.type == "shield") {
-                                        owner.applyEvent("技能护甲归零", element);
+                                        owner.applyEvent("解除技能", element);
                                     } 
                                 }
                             }

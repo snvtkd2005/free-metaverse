@@ -2,12 +2,12 @@
   <div
     class="relative w-full h-full"
     @contextmenu.prevent="onContextMenu($event, item)"
-    @mouseup="clickItem($event, item)" 
+    @mouseup="clickItem($event, item)"
     @mouseover="LookSkill($event, item)"
     @mouseleave="outHover()"
     @mousemove="MouseMove($event)"
-    :draggable="item.skill != null "
-    @dragstart="drag($event, item)" 
+    :draggable="item.skill != null"
+    @dragstart="drag($event, item)"
   >
     <div v-if="item.skill != null" class="relative">
       <div
@@ -47,18 +47,18 @@
       </div>
 
       <div
-        v-if="item.count > 0"
-        class="absolute -right-2 -bottom-2 w-4 h-4 text-white rounded-full text-xs leading-4 p-px"
+        v-if="item.skill.countType == 'group' && item.skill.count > 1"
+        class="absolute -right-0 -bottom-0 w-4 h-4 text-white rounded-full text-xs leading-4 p-px"
       >
-        {{ item.count }}
+        {{ item.skill.count }}
       </div>
-      <!-- 快捷键文字 -->
-      <div
-        v-if="item.keytext"
-        class="absolute right-px top-px w-4 h-4 rounded-full text-gray-200 text-xs leading-4 p-px"
-      >
-        {{ item.keytext }}
-      </div>
+    </div>
+    <!-- 快捷键文字 -->
+    <div
+      v-if="item.inDragAction ||  (item.skill != null && item.keytext)  "
+      class="absolute right-px top-px w-4 h-4 rounded-full text-gray-200 text-xs leading-4 p-px"
+    >
+      {{ item.keytext }}
     </div>
   </div>
 </template>
@@ -86,25 +86,25 @@ export default {
 
   methods: {
     drag(ev, item) {
-      if(ev){
+      if (ev) {
         ev.preventDefault();
       }
       // console.log(" in icon slot drag ",item);
       _Global.hoverPart = item.hoverPart;
-      if(item.hoverPart.includes('action') || item.skill.type == "skill"){
+      if (item.hoverPart.includes("action") || item.skill.type == "skill") {
         _Global.inDragAction = true;
         this.$parent.drag(item);
         // console.log(" 拖拽动作条 ");
         return;
       }
-      if(item.skill.type == "prop"){
+      if (item.skill.type == "prop") {
         // console.log(" 拖拽 背包 ");
         item.inDraging = true;
         _Global.inDragProp = true;
       }
       this.parent.dragStart(item.skill);
     },
-    
+
     MouseMove(ev) {
       this.parent.mousePos(ev.clientX, ev.clientY);
     },
@@ -137,41 +137,50 @@ export default {
       // console.log(e,item);
 
       if (ev.button == 2) {
-        if(this.parent.dragSkill){
+        if (this.parent.dragSkill) {
           return;
         }
-        this.clickItem(ev, item);
+        if (item.skill == null) {
+          return;
+        }
+        if (item.isDeleled) {
+          return;
+        }
+        this.UseItem(item);
       }
-
     },
     checkCanDrop(fromSkill, toItem) {
-      if (fromSkill.type == ("skill")) {
+      if (fromSkill.type == "skill") {
         // 动作条技能往背包放
         if (toItem.hoverPart.includes("bag")) {
           return false;
-        } 
+        }
       }
       return true;
-
     },
     clickItem(ev, item) {
-
+      if (ev.button == 2) {
+        return;
+      }
       // console.log(" clickItem ", item, this.parent.dragSkill);
       if (item.skill == null) {
         if (this.parent.dragSkill == null) {
           return;
         }
-        let b = this.checkCanDrop(this.parent.dragSkill,item);
-        if(!b){
+        let b = this.checkCanDrop(this.parent.dragSkill, item);
+        if (!b) {
           return;
         }
 
         // 背包内移动
-        if(this.parent.dragSkill.type == "prop" && item.hoverPart.includes('bag')){
+        if (
+          this.parent.dragSkill.type == "prop" &&
+          item.hoverPart.includes("bag")
+        ) {
           //删掉旧的
           this.$parent.setItem(null);
         }
-        if(this.parent.dragSkill.isDeleled){
+        if (this.parent.dragSkill.isDeleled) {
           item.isDeleled = true;
         }
         item.skill = this.parent.dragSkill;
@@ -186,7 +195,7 @@ export default {
           _Global.applyEvent("从动作条拖拽到动作条");
           _Global.inDragAction = false;
         }
-        
+
         //取消拖拽
         this.parent.dragEnd();
         return;
@@ -195,23 +204,25 @@ export default {
           let currentSkill = item.skill;
           item.skill = this.parent.dragSkill;
 
-
           // 背包物品位置互换
-          if(this.parent.dragSkill.type == "prop" && item.hoverPart.includes('bag') && item.skill.type == "prop"){
+          if (
+            this.parent.dragSkill.type == "prop" &&
+            item.hoverPart.includes("bag") &&
+            item.skill.type == "prop"
+          ) {
             this.$parent.setItem(currentSkill);
             //取消拖拽
             this.parent.dragEnd();
             return;
           }
 
-          if(item.hoverPart.includes('action') ){
-            if(this.parent.dragSkill.isDeleled){
+          if (item.hoverPart.includes("action")) {
+            if (this.parent.dragSkill.isDeleled) {
               item.isDeleled = true;
-            }else{
+            } else {
               item.isDeleled = false;
             }
           }
-
 
           this.parent.dragStart(currentSkill);
           return;
@@ -219,14 +230,48 @@ export default {
       }
 
       // 左键点击背包中的物品，可以拖拽
-      if (item.hoverPart.includes('bag')) {
+      if (item.hoverPart.includes("bag")) {
         this.drag("", item);
         return;
       }
 
-      this.parent.UseItem(item);
+      this.UseItem(item);
     },
-    
+    UseItem(item){
+      let skill = item.skill;
+      if (skill.type == "prop") {
+          let complted = this.parent.UseItem(item);
+          // 消耗品
+          if (skill.useType == "consumables") {
+            console.log(" 使用药水 ", complted, skill);
+            if (complted) {
+              //药水数量减- 或 药水使用完
+              if (skill.countType == "group") {
+                if (skill.count) {
+                  skill.count--;
+                  if (skill.count > 0) {
+                    return;
+                  }
+                } else {
+                }
+              }
+              console.log(" 删除药水 ");
+              _Global.applyEvent("摧毁Prop并在动作条中停用prop", skill.id);
+
+              if (item.hoverPart.includes("bag")) {
+                // 在背包中使用时，直接移除
+                this.$parent.removeItem(item.index);
+              } else {
+                // 在动作条中使用时，通知在背包中删除
+                _Global.applyEvent("在动作条中调用并摧毁Prop", skill.id);
+              }
+            }
+          }
+          return;
+      }
+      this.parent.UseItem(item);
+
+    },
   },
 };
 </script>

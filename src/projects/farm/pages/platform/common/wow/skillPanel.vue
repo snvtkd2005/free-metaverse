@@ -5,7 +5,7 @@
       <div class="relative transform scale-125 mx-auto flex">
         <div class="absolute left-0 top-0 w-full h-full -z-10">
           <div class="absolute left-1 top-1">
-            <img class="w-16 h-16 rounded-full" :src="playerImg" alt="" />
+            <img class="w-16 h-16 rounded-full" :src="leftIcon" alt="" />
           </div>
           <div
             class="absolute right-7 top-2 pointer-events-auto cursor-pointer"
@@ -155,7 +155,7 @@ export default {
         "./public/images/cursorList/paperdollinfoframe/ui-quickslot-depress.png",
       btnHoverHilightUrl:
         "./public/images/cursorList/mainmenu/ui-chaticon-blinkhilight.png",
-      playerImg: "./public/images/cursorList/mainmenu/inv_misc_book_09.png",
+      leftIcon: "./public/images/cursorList/mainmenu/inv_misc_book_09.png",
       hoverPart:"",
     };
   },
@@ -164,15 +164,9 @@ export default {
     setTimeout(() => {
       _Global.addEventListener("升级", (level) => {
         this.skillPoint += 1;
-      });
+      }); 
 
-      // _Global.addEventListener("主角头像", (s) => {
-      //   // console.log("主角头像", s);
-      //   // this.playerImg = this.$uploadUrl + s.id + "/" + s.icon;
-      // });
-
-      let skills = _Global.skillList;
-      //随机取出3张卡片
+      let skills = _Global.skillList; 
       for (let i = 0; i < skills.length; i++) {
         const skill = skills[i];
         skill.level = 0; 
@@ -180,8 +174,9 @@ export default {
         this.skillList.push(skill);
       }
 
-      _Global.addEventListener("角色死亡", () => {});
-      _Global.addEventListener("战斗开始", () => {
+      _Global.addEventListener("主角死亡", () => {});
+
+      _Global.addEventListener("释放灵魂", () => {
         this.skillPoint = 0;
         for (let i = 0; i < this.skillList.length; i++) {
           const element = this.skillList[i];
@@ -192,7 +187,11 @@ export default {
   },
 
   methods: { 
-    drag(ev, item) {
+    drag(ev, item) {          
+      if(ev){
+        ev.preventDefault();
+      }      
+      _Global.inDragAction = true;
       this.$parent.dragStart(item);  
     }, 
 
@@ -211,46 +210,11 @@ export default {
         _Global.applyEvent("界面开关", "skill", false);
       }
     },
-
-    SkillGoByActionBar(actionBar, index) {
-      for (let i = 0; i < this.skillList.length; i++) {
-        const skill = this.skillList[i];
-        if (skill.actionKey == actionBar && skill.actionKeyIndex == index) {
-          if (skill.cCD == skill.CD) {
-            _Global._YJPlayerFireCtrl.GetSkill().UseSkill(skill);
-          }
-          return;
-        }
-      }
-    },
-    changeMainPlayerSkillCD(skillName, cCD) {
-      for (let i = 0; i < this.skillList.length; i++) {
-        const skill = this.skillList[i];
-        if (skill.skillName == skillName) {
-          skill.cCD = cCD;
-          skill.perCD = (skill.CD - cCD).toFixed(skill.CD > 10 ? 0 : 1);
-          return;
-        }
-      }
-    },
-    onContextMenu(e, item) {
-      // 阻止默认的上下文菜单显示
-      e.preventDefault();
-      // console.log(e,item);
-
-      if (e.button == 2) {
-        if (item.auto == undefined) {
-          item.auto = true;
-        }
-        item.auto = !item.auto;
-        _Global._YJPlayerFireCtrl
-          .GetSkill()
-          .SetSkillAuto(item.skillName, item.auto);
-      }
-    },
     clickSkill(item) {
+
+      
       // 学习技能
-      if (this.skillPoint == 0) {
+      if (this.skillPoint == 0 || _Global._YJPlayerFireCtrl.GetIsDead()) {
         return;
       }
       this.skillPoint--;

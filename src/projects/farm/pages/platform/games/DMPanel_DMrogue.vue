@@ -202,6 +202,10 @@
       </div>
     </div>
 
+      <!-- 魔兽世界界面 -->
+      <div class="absolute z-50 left-0 top-0 w-full h-full">
+        <wowPanelVue ref="wowPanelVue"></wowPanelVue>
+      </div>
 
     <!-- 弹幕玩家 -->
     <DMPlayerPanelVue ref="DMPlayerPanelVue" />
@@ -216,12 +220,14 @@
 import { YJDMManager_DMrogue } from "../../../js/games/YJDMManager_DMrogue.js";
 import CombatPanelVue from '../common/combatLogPanel.vue';
 import DMPlayerPanelVue from './DMPlayerPanel.vue';
+import wowPanelVue from "./wowPanel.vue";
 
 export default {
   props: [],
   components: {
     DMPlayerPanelVue,
     CombatPanelVue,
+    wowPanelVue,
   },
   data() {
     return {

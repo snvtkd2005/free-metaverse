@@ -1425,6 +1425,8 @@ class YJDMManager_bilibili {
       // width:${window.innerWidth - 256 - 256}px;
       // height:100%;
       // `
+      console.error(" in bilibili");
+
       _Global.DMManager = scope;
       posRefList = _Global.YJ3D._YJSceneManager.GetPosRefList();
       setInterval(() => {

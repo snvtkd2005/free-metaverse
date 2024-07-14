@@ -93,7 +93,7 @@ class YJPlayerFireCtrl {
 		let eventList = [];
 		// 添加事件监听
 		this.addEventListener = function (e, fn) {
-			console.log(" 监听 ", e);
+			// console.log(" 监听 ", e);
 			eventList.push({ eventName: e, fn: fn });
 		}
 		// 执行事件
@@ -551,8 +551,8 @@ class YJPlayerFireCtrl {
 		let vaildAttackLater2 = null;
 		let attackStepSpeed = 3; //攻击间隔/攻击速度,由武器中的攻击速度控制 
 		function getAttackSpeed() {
-			_YJPlayer.GetAvatar().SetActionScale(1 + attackProperty.speedScale * 0.3);
-			return attackStepSpeed / attackProperty.speedScale;
+			_YJPlayer.GetAvatar().SetActionScale(1 + baseData.basicProperty.speedScale * 0.3);
+			return attackStepSpeed / baseData.basicProperty.speedScale;
 		}
 		this.SetMoveSpeed = function (f) {
 			_Global.YJ3D.YJController.SetMoveSpeedScale(f);
@@ -626,31 +626,12 @@ class YJPlayerFireCtrl {
 			if (!b) { _Global._SceneManager.FireState("太远了"); state.canAttack = false; return false; }
 			return b && !b2;
 		}
-		let attackProperty = {};
-		let _YJPlayerProperty = null;
-		this.updateattackProperty = function (_attackProperty) {
-			attackProperty = _attackProperty;
-		}
-		this.updateBasicProperty = function (_basicProperty) {
-			if (_basicProperty == "health") {
-				UpdateData();
-				return;
-			}
-		}
-		this.updateByCard = function (card) {
-			let { type, title, value, property } = card;
-			if (type == "skill") {
-				_YJSkill.AddSkill(card);
-				return;
-			}
-			_YJPlayerProperty.updateBasedata(card);
-			console.log(attackProperty);
-		}
+		
 		this.GetTarget = function () {
 			return npcTransform;
 		}
 		function fireGo() {
-			// console.log(" 有效攻击目标 "); 
+			// console.log(" 有效攻击目标 ", baseData.basicProperty.strength); 
 			var { s, v, a } = GetSkillDataByWeapon(weaponData);
 			//有效攻击
 			_YJSkill.SendDamageToTarget(npcComponent, { skillName: s, type: "damage", value: baseData.basicProperty.strength });
@@ -812,6 +793,9 @@ class YJPlayerFireCtrl {
 			_YJSkill.ClearSkill("基础攻击");
 		}
 
+		this.GetIsDead = function(){
+			return _YJPlayer.isDead;
+		  }
 		this.CheckTargetVaild = function () {
 			if (npcComponent && !npcComponent.isDead) {
 				return true;
@@ -905,7 +889,7 @@ class YJPlayerFireCtrl {
 					//角色不可控制、显示倒计时
 					_this.YJController.SetCanMoving(false);
 					_this.YJController.CancelMoving();
-					_Global.ReportTo3D("角色死亡");
+					_Global.ReportTo3D("主角死亡");
 					break;
 				case "sitting":
 					playerState = PLAYERSTATE.SITTING;
@@ -1021,6 +1005,7 @@ class YJPlayerFireCtrl {
 		let _YJEquip = null;
 		let _YJBuff = null;
 		let _YJProp = null;
+		let _YJPlayerProperty = null;
 		this.GetBuff = function () {
 			return _YJBuff;
 		}

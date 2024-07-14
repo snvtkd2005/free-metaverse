@@ -364,7 +364,7 @@ export default {
         this.playerName = s;
       });
 
-      _Global.addEventListener("角色死亡", () => {});
+      _Global.addEventListener("主角死亡", () => {});
       _Global.addEventListener("战斗开始", () => {});
     }, 1000);
 
@@ -397,28 +397,7 @@ export default {
     outHover() { 
       this.hoverPart='';
       this.$parent.outHover();
-    },
-    SkillGoByActionBar(actionBar, index) {
-      for (let i = 0; i < this.skillList.length; i++) {
-        const skill = this.skillList[i];
-        if (skill.actionKey == actionBar && skill.actionKeyIndex == index) {
-          if (skill.cCD == skill.CD) {
-            _Global._YJPlayerFireCtrl.GetSkill().UseSkill(skill);
-          }
-          return;
-        }
-      }
-    },
-    changeMainPlayerSkillCD(skillName, cCD) {
-      for (let i = 0; i < this.skillList.length; i++) {
-        const skill = this.skillList[i];
-        if (skill.skillName == skillName) {
-          skill.cCD = cCD;
-          skill.perCD = (skill.CD - cCD).toFixed(skill.CD > 10 ? 0 : 1);
-          return;
-        }
-      }
-    },
+    }, 
     onContextMenu(e, item) {
       // 阻止默认的上下文菜单显示
       e.preventDefault();

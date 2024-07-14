@@ -22,8 +22,7 @@ class YJPlayerProperty {
 
 			buffList: [],//buff列表
 			debuffList: [],//debuff列表
-			basicProperty: {},
-			attackProperty: {},
+			basicProperty: {}, 
 		};
 		this.GetBaseData = function () {
 			return baseData;
@@ -40,17 +39,8 @@ class YJPlayerProperty {
 			strength: 20,//力量 提升武器伤害和基础伤害
 			intelligence: 0,//智力 提高法术伤害
 			spirit: 0,//精神 提高恢复率
-		}
 
-    // 属性
-    // 生命值、生命回复、生命加成、生命吸血几率、生命吸血值、
-    // 护甲、命中后无敌、移动速度
-    // 武器伤害、暴击率、暴击伤害值、武器射速、武器装填时间
-    // 技能伤害、技能冷却
-    // 磁力范围、金钱倍率、经验值倍率、运气、躲避几率
-
-    // 动作相关动画速度可变{移动速度、攻击速度}
-		let attackProperty = {
+			
 			speedScale: 1, //急速等级/攻击速度百分比
 
 			attackSpeed: 1, //攻击速度
@@ -64,6 +54,15 @@ class YJPlayerProperty {
 			CDRate: 0,//技能冷却时长百分比 最大值1
 		}
 
+    // 属性
+    // 生命值、生命回复、生命加成、生命吸血几率、生命吸血值、
+    // 护甲、命中后无敌、移动速度
+    // 武器伤害、暴击率、暴击伤害值、武器射速、武器装填时间
+    // 技能伤害、技能冷却
+    // 磁力范围、金钱倍率、经验值倍率、运气、躲避几率
+
+    // 动作相关动画速度可变{移动速度、攻击速度}
+
 		this.EventHandler = function (e) {
 			if (e == "重生") {
 				baseData.health = baseData.maxHealth;
@@ -75,14 +74,14 @@ class YJPlayerProperty {
 		}
 		// 计算输出的伤害。基础伤害+暴击+额外伤害
 		this.GetDamage = function (value) {
-			value = value * (1 + attackProperty.attackPower);
+			value = value * (1 + basicProperty.attackPower);
 
 			// 判断是否触发暴击
 			let v = RandomInt(1, 100) / 100;
-			let _CriticalHitRate = attackProperty.CriticalHitRate + attackProperty.CriticalHitLevel;
+			let _CriticalHitRate = basicProperty.CriticalHitRate + basicProperty.CriticalHitLevel;
 			// console.log(" 检查是否暴击 ",_CriticalHitRate,v,value);
 			if (_CriticalHitRate > v) {
-				value += parseInt(value * attackProperty.CriticalHit);
+				value += parseInt(value * basicProperty.CriticalHit);
 			}
 			return value;
 		}
@@ -98,16 +97,16 @@ class YJPlayerProperty {
 						return 0;
 					} else {
 						strength -= element.value;
-						owner.applyEvent("技能护甲归零",element);
+						owner.applyEvent("解除技能",element);
 					}
 				}
 			}
 
 
-			attackProperty.armorRate = basicProperty.armor * 0.06 / (1 + 0.06 * basicProperty.armor);
+			basicProperty.armorRate = basicProperty.armor * 0.06 / (1 + 0.06 * basicProperty.armor);
 
 			// 攻击力*物理防御  
-			strength *= (1 - attackProperty.armorRate);
+			strength *= (1 - basicProperty.armorRate);
 			strength = parseInt(strength);
 
 
@@ -123,7 +122,7 @@ class YJPlayerProperty {
 			// 	// 至少会受到1点伤害
 			// 	v = strength - baseData.armor;
 			// 	baseData.armor = 0;
-			// 	scope.applyEvent("技能护甲归零");
+			// 	scope.applyEvent("解除技能");
 			// 	v = v > 0 ? v : 1;
 			// }
 			return strength;
@@ -132,11 +131,7 @@ class YJPlayerProperty {
 		function Init() {
 
 			baseData = owner.GetBaseData();
-			if (baseData.attackProperty == undefined) {
-				baseData.attackProperty = attackProperty;
-			} else {
 
-			}
 			if (baseData.basicProperty == undefined) {
 				baseData.basicProperty = basicProperty;
 			} else {
@@ -153,40 +148,29 @@ class YJPlayerProperty {
 			baseData.buffList = buffList;
 			baseData.debuffList = debuffList;
 			// console.log(owner.GetNickName() + " 的属性 ",baseData);
-			owner.updateattackProperty(attackProperty);
 			owner.applyEvent("属性改变", baseData);
 		}
 		this.changeProperty = function () {
 			owner.applyEvent("属性改变", baseData);
 		}
 		this.updateBasedata = function (card) {
-			let { propType, title, value, property } = card;
+			let {value, property } = card;
 
-			// console.log(" updateBasedatabycard  ", card);
-			if (propType == "attackProperty") {
-				attackProperty[property] += value / 100;
-			}
 
-			if (propType == "basicProperty") {
-				if (baseData[property] != undefined) {
-					baseData[property] += value;
-				} else {
-					basicProperty[property] += value;
-				}
-				owner.updateBasicProperty(property);
-				owner.applyEvent("属性改变", baseData);
-				return;
+			if (baseData[property] != undefined) {
+				baseData[property] += value;
+			} else {
+				basicProperty[property] += value;
 			}
 
 			if (property == "moveSpeed") {
-				owner.SetMoveSpeed(attackProperty.moveSpeed);
+				owner.SetMoveSpeed(basicProperty.moveSpeed);
 			}
 			if (property == "CDRate") {
-				owner.GetSkill().SetSkillCDRate(attackProperty[property]);
-			}
-			owner.updateattackProperty(attackProperty);
+				owner.GetSkill().SetSkillCDRate(basicProperty[property]);
+			} 
+			
 			owner.applyEvent("属性改变", baseData);
-
 		}
 
 		var updateId = null;

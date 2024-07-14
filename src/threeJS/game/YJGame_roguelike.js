@@ -114,10 +114,10 @@ class YJGame_roguelike {
 
           return;
         }
-        if (!_Global.setting.inEditor) {
-          _Global.YJ3D.YJController.enableRotate = false;
-          _Global.YJ3D.YJController.enablePan = false;
-        }
+        // if (!_Global.setting.inEditor) {
+        //   _Global.YJ3D.YJController.enableRotate = false;
+        //   _Global.YJ3D.YJController.enablePan = false;
+        // }
 
         let h = _Global.YJ3D._YJSceneManager.GetWindowSize().h;
         let tagetPos = new THREE.Vector3();
@@ -195,15 +195,23 @@ class YJGame_roguelike {
 
         });
         
-        _Global.addEventListener('主角重生', () => {
+        _Global.addEventListener('释放灵魂', () => {
           //清空技能
           _Global._YJPlayerFireCtrl.ClearSkill();
-          //还原角色属性
+          _Global.applyEvent('战斗开始');
+          _Global.applyEvent('主角重生');
 
+        });
+        _Global.addEventListener('道具复活', () => {
+          _Global.applyEvent('主角重生');
           // 还原战斗记录
+          _Global.applyEvent('激活技能栏');
           _Global.applyEvent('战斗开始');
 
+        });
+         
 
+        _Global.addEventListener('战斗开始', () => {
           setTimeout(() => {
             for (let i = 0; i < npcs.length; i++) {
               const npc = npcs[i].transform.GetComponent("NPC"); 
@@ -215,6 +223,7 @@ class YJGame_roguelike {
             }
           }, 2000);
         });
+
 
         _Global.applyEvent('主角姓名', _Global._YJPlayerFireCtrl.GetNickName());
         _Global.applyEvent('主角头像', _Global.YJ3D.YJPlayer.GetavatarData());

@@ -53,11 +53,7 @@ class YJNPC {
     let targetModel;
     // 攻击速度，攻击间隔，判定有效的攻击时机
     let attackStepSpeed = 3; //攻击间隔/攻击速度
-
-    let attackProperty = {};
-    this.updateattackProperty = function (_attackProperty) {
-      attackProperty = _attackProperty;
-    }
+ 
 
     this.updateBasicProperty = function (_basicProperty) {
       if (_basicProperty == "health") {
@@ -71,8 +67,7 @@ class YJNPC {
         _YJSkill.AddSkill(card);
         return;
       }
-      _YJPlayerProperty.updateBasedata(card);
-      console.log(attackProperty);
+      _YJPlayerProperty.updateBasedata(card); 
     }
 
     const stateType = {
@@ -1082,6 +1077,9 @@ class YJNPC {
       //恢复生命值
       baseData.health = baseData.maxHealth;
     }
+    this.GetIsDead = function(){
+      return scope.isDead;
+    }
     let fireBeforePos = null;
     this.fireOff = function () {
       if (scope.isDead) {
@@ -1243,7 +1241,7 @@ class YJNPC {
         //   _Global.DyncManager.SetNearNPCTarget(scope, targetModel);
         // }
       }
-      if (baseData.state == stateType.Normal) {
+      if (baseData.state == stateType.Normal || baseData.state == stateType.Back) {
         //首次进入战斗时，计算其技能 
         scope.applyEvent("首次进入战斗");
       }

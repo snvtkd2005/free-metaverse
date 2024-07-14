@@ -6,6 +6,7 @@ export default {
     id:'',
     type:"prop",
     name: "",
+    useType: 'consumables', //道具效果类型
     propType: '', //道具效果类型
     effectType: '', //效果类型
     property: '',// 角色属性字段
@@ -13,17 +14,29 @@ export default {
     qualityType: "",
     bindingType: "",
     countType: "",
+    count:1, //当前数量
+    groupCount:20, //可堆叠物体一组最多堆叠数量
     value: 0, //效果值
     icon: "", //图标
     CD:0,// 冷却时间
     describe: "", //描述
   },
+
+  // 使用类型
+  useType: [
+    { label: "消耗品", value: "consumables",describe: "每使用一次减少一个" },
+    { label: "其他物品", value: "model",describe: "道具使用" },
+    // { label: "材料", value: "ingredient" },
+  ],
+
   // 道具类型
   propType: [
     { label: "药水", value: "potion" },
     { label: "物品", value: "stuff" },
     // { label: "材料", value: "ingredient" },
   ],
+
+
   effectType:[],
   // 药水效果类型
   potionType:[
@@ -34,6 +47,7 @@ export default {
   // 物品效果
   stuffType:[
     { label: "传送", value: "transmit" },
+    { label: "复活", value: "relife" },
 
   ],
 
@@ -72,6 +86,7 @@ export default {
   countType: [
     { label: "none", value: "" },
     { label: "唯一", value: "onlyone" }, 
+    { label: "堆叠", value: "group" }, 
   ],
   /**
    * 

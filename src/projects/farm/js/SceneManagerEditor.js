@@ -109,7 +109,7 @@ class SceneManager {
       // AddTestMat();
       // window.addEventListener('mousemove', onPointerDown);
 
-      _Global.addEventListener("角色死亡",()=>{
+      _Global.addEventListener("主角死亡",()=>{
         ClearTarget();
       });
 

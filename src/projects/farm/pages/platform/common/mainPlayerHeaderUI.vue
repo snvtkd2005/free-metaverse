@@ -3,7 +3,7 @@
   <!-- 左上角血条头像 -->
   <div
     v-if="display"
-    class="absolute left-4 top-4 h-20 flex text-white origin-top-left transform scale-50 xl:scale-100"
+    class="absolute left-4 top-4 h-20 pointer-events-auto flex text-white origin-top-left transform scale-50 xl:scale-100"
     @mouseenter="hover = true"
     @mouseleave="hover = false"
   >

@@ -11,6 +11,7 @@ import * as world_configs from "/@/utils/socket_bilibili/index.js";
 import { GenerateEnemyNPC } from "./GenerateEnemyNPC";
 import { GenerateDMNPC } from "./GenerateDMNPC";
 import { ReceiveDMGift } from "./ReceiveDMGift";
+import { YJGame_mainCtrl } from "../../../../threeJS/game/YJGame_mainCtrl";
 
 
 /**
@@ -477,6 +478,7 @@ class YJDMManager_DMrogue {
       }, 500);
 
       _GenerateEnemyNPC = new GenerateEnemyNPC((npcComponent) => {
+
         let targetCom = GetEnemyTarget();
         if (targetCom == null) {
           return;
@@ -488,6 +490,10 @@ class YJDMManager_DMrogue {
         }
         //并指定其目标为指定名称id的npc
         npcComponent.SetNpcTarget(targetCom, true, true);
+      },()=>{
+        if(_GameRecord){
+          _GameRecord.addKill();
+        }
       });
 
       _GenerateDMNPC = new GenerateDMNPC(dmVue);
@@ -501,19 +507,11 @@ class YJDMManager_DMrogue {
         _Global._YJPlayerFireCtrl.SetPlayerState("normal");
       });
       _Global._YJPlayerFireCtrl.SetState('canMoveAttack', true);
-
-      _Global.addEventListener('升级', () => {
-
-      });
-      _Global.addEventListener('经验值', (c, v) => {
-
-      });
-
-      _Global.applyEvent('主角姓名', _Global._YJPlayerFireCtrl.GetNickName());
-      _Global.applyEvent('主角头像', _Global.YJ3D.YJPlayer.GetavatarData());
-
+ 
       autoFire();
       _GameRecord = new GameRecord();
+
+      new YJGame_mainCtrl();
       // _Global.LogFireById(1711340121297)
 
       _Global.addEventListener("战斗结束", (msg) => {
@@ -568,8 +566,9 @@ class YJDMManager_DMrogue {
           // 如果弹幕玩家死亡，则重新生成弹幕玩家
           for (let i = DMPlayer.length - 1; i >= 0; i--) {
             const element = DMPlayer[i];
+            let npcComponent = _Global._YJNPCManager.GetNpcComponentById(element.npcId);
+
             if (element.state == "run") {
-              let npcComponent = _Global._YJNPCManager.GetNpcComponentById(element.npcId);
               npcComponent.fireId = -1;
               if (element.isDead) {
                 resetLifeById(element.npcId);
@@ -587,9 +586,9 @@ class YJDMManager_DMrogue {
                 let { name, CD, cCD, unLockLevel, level } = skill;
                 skill.perCD = 0;
                 cCD = CD;
+                // 还原CD显示
                 dmVue.changeDMPlayerSkillCD(element.npcId, k, cCD);
               }
-
             }
           }
           // 主角色死亡也重新生成 

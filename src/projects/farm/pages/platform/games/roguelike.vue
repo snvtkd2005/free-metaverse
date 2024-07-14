@@ -174,39 +174,38 @@ export default {
         title: "生命值",
         value: basedata.health + "/" + basedata.maxHealth,
       });
-
+ 
       let basicProperty = basedata.basicProperty;
 
       this.propertyList.push({ title: "护甲", value: basicProperty.armor });
 
-      let attackProperty = basedata.attackProperty;
       this.propertyList.push({
         title: "暴击率",
-        value: attackProperty.CriticalHitRate,
+        value: basicProperty.CriticalHitRate,
       });
       this.propertyList.push({
         title: "暴击等级",
-        value: attackProperty.CriticalHitLevel,
+        value: basicProperty.CriticalHitLevel,
       });
       this.propertyList.push({
         title: "攻击速度",
-        value: attackProperty.attackSpeed,
+        value: basicProperty.attackSpeed,
       });
       this.propertyList.push({
         title: "攻击强度",
-        value: attackProperty.attackPower,
+        value: basicProperty.attackPower,
       });
       this.propertyList.push({
         title: "移动速度",
-        value: attackProperty.moveSpeed,
+        value: basicProperty.moveSpeed,
       });
       this.propertyList.push({
         title: "急速等级",
-        value: attackProperty.hasteLevel,
+        value: basicProperty.hasteLevel,
       });
       this.propertyList.push({
         title: "急速冷却",
-        value: attackProperty.CDRate,
+        value: basicProperty.CDRate,
       });
 
       // console.log(" 属性改变 ",this.property);
@@ -243,28 +242,8 @@ export default {
     }, 5000);
   },
 
-  methods: {
-    setDMPlayer(_dmplayer) {
-      this.dmPlayer = _dmplayer;
-    },
-
-    AddSkill(_skill) {
-      this.$refs.ActionPanelVue.AddSkill(_skill);
-    },
-    changeMainPlayerSkillCD(skillName, cCD) {
-      this.$refs.ActionPanelVue.changeMainPlayerSkillCD(skillName, cCD);
-    },
-    changeDMPlayerSkillCD(npcId, skillIndex, cCD) {
-      for (let i = 0; i < this.dmPlayer.length; i++) {
-        const element = this.dmPlayer[i];
-        if (element.npcId == npcId) {
-          element.skill[skillIndex].cCD = cCD;
-          element.skill[skillIndex].perCD = (
-            element.skill[skillIndex].CD - cCD
-          ).toFixed(element.skill[skillIndex].CD > 10 ? 0 : 1);
-        }
-      }
-    },
+  methods: { 
+    
     //#region  聊天
 
     skill(item) {

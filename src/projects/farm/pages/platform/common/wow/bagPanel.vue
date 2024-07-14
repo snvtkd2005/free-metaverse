@@ -112,7 +112,7 @@ export default {
           _Global.inDragProp = false;
           //取消拖拽
           this.$parent.dragEnd();
-          if(this.$parent.delDialog){
+          if (this.$parent.delDialog) {
             this.$parent.delDialog = false;
           }
         }
@@ -144,6 +144,17 @@ export default {
         this.checkDragFromIndex();
         this.itemList[this.dragFromIndex].inDraging = false;
       });
+      _Global.addEventListener("在动作条中调用并摧毁Prop", (id) => {
+        for (let i = 0; i < this.itemList.length; i++) {
+          const item = this.itemList[i];
+          if(item.skill && item.skill.id == id){
+            item.skill = null;
+          }
+        }
+      });
+      
+
+
 
       for (let i = 0; i < this.itemList.length; i++) {
         const item = this.itemList[i];
@@ -151,7 +162,7 @@ export default {
       }
 
       let list = _Global.propList;
-      console.log(list);
+      console.log(" 所有道具物品 ", list);
       //随机取出3张卡片
       for (let i = 0; i < list.length; i++) {
         const item = list[i];
@@ -161,25 +172,18 @@ export default {
         // }
 
         item.canDrag = true;
+        if (item.countType && item.countType == "group") {
+          item.count = 20;
+        }
         this.itemList[i].skill = item;
       }
     }, 5000);
   },
 
   methods: {
-
     clickEvent(e) {
       if (e == "关闭窗口") {
         _Global.applyEvent("界面开关", "bag", false);
-      }
-    },
-    onContextMenu(e, item) {
-      // 阻止默认的上下文菜单显示
-      e.preventDefault();
-      // console.log(e,item);
-
-      if (e.button == 2) {
-        this.UseProp(item.skill);
       }
     },
     checkDragFromIndex() {
@@ -201,62 +205,12 @@ export default {
         _Global.hoverPart = "";
       }
     },
+    removeItem(index) {
+      this.itemList[index].skill = null;
+      this.itemList[index].inDraging = false;
+
+
+    },
   },
 };
-</script>
-
-<style scoped>
-.grayscale-img {
-  -webkit-filter: grayscale(100%);
-  -moz-filter: grayscale(100%);
-  -ms-filter: grayscale(100%);
-  -o-filter: grayscale(100%);
-  filter: grayscale(100%);
-  filter: gray;
-  opacity: 0.99;
-}
-
-.scalex {
-  transform: translateX(-32px) scaleX(-1);
-}
-
-.skill-img {
-  -webkit-filter: grayscale(100%);
-  -moz-filter: grayscale(100%);
-  -ms-filter: grayscale(100%);
-  -o-filter: grayscale(100%);
-  filter: grayscale(100%);
-  filter: gray;
-  opacity: 0.99;
-}
-
-.centerBg {
-  width: 256px;
-  height: 64px;
-  /* background-size: cover;  */
-  /* background-repeat: no-repeat;  */
-  /* background-position: center;   */
-  background-position: 0% 0;
-  /* background-position: 0px 64px; */
-  /* background-image: url(./public/images/cursorList/ui-mainmenubar-human.png); */
-}
-.dmtip {
-  --tw-bg-opacity: 0.51;
-  background-color: rgba(107, 114, 128, var(--tw-bg-opacity));
-}
-.brightness-50 {
-  filter: brightness(0.5);
-}
-.chatContent {
-  /* vue中如何将双击选中文字的默认事件取消 */
-  -moz-user-select: text;
-  /*火狐*/
-  -webkit-user-select: text;
-  /*webkit浏览器*/
-  -ms-user-select: text;
-  /*IE10*/
-  -khtml-user-select: text;
-  /*早期浏览器*/
-  user-select: text;
-}
-</style>
+</script>   

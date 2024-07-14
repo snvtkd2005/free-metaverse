@@ -1,7 +1,7 @@
 <template>
   <div class="w-full h-full absolute left-2 top-0 pointer-events-none">
     <!-- 弹幕玩家血量、等级、技能状态 -->
-    <div class="absolute top-32 left-0 dmtip h-full w-auto transform origin-left">
+    <div class="absolute top-32 left-0  h-full w-auto transform origin-left">
       <div class="w-full h-full pt-2">
         <div
           v-for="(item, i) in dmPlayer"
@@ -105,7 +105,7 @@
                         />
                         <div
                           v-if="item.level >= skill.unLockLevel"
-                          class="absolute -right-1 -bottom-1 w-4 h-4 rounded-full bg-yellow-700 text-xs leading-4 p-px"
+                          class=" hidden absolute -right-1 -bottom-1 w-4 h-4 rounded-full bg-yellow-700 text-xs leading-4 p-px"
                         >
                           {{ skill.level }}
                         </div>
@@ -194,10 +194,12 @@ export default {
       for (let i = 0; i < this.dmPlayer.length; i++) {
         const element = this.dmPlayer[i];
         if (element.npcId == npcId) {
-          element.skill[skillIndex].cCD = cCD;
-          element.skill[skillIndex].perCD = (
-            element.skill[skillIndex].CD - cCD
-          ).toFixed(element.skill[skillIndex].CD > 10 ? 0 : 1);
+          let skill = element.skill[skillIndex];
+          // console.log(" in DMrogue ",npcId, skillIndex, cCD,skill.CD);
+          skill.cCD = cCD;
+          skill.perCD = ( skill.CD - skill.cCD).toFixed(0);
+          // skill.perCD = ( skill.CD - skill.cCD).toFixed(skill.CD > 10 ? 0 : 1);
+
         }
       }
     },  
@@ -206,23 +208,5 @@ export default {
 </script>
 
 <style scoped>
-.dmtip {
-  /* --tw-bg-opacity: 0.51;
-  background-color: rgba(107, 114, 128, var(--tw-bg-opacity)); */
-}
-.brightness-50 {
-  filter: brightness(0.5);
-}
-.chatContent {
-  /* vue中如何将双击选中文字的默认事件取消 */
-  -moz-user-select: text;
-  /*火狐*/
-  -webkit-user-select: text;
-  /*webkit浏览器*/
-  -ms-user-select: text;
-  /*IE10*/
-  -khtml-user-select: text;
-  /*早期浏览器*/
-  user-select: text;
-}
+
 </style>

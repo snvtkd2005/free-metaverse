@@ -54,6 +54,16 @@ export default {
           value: "",
           callback: this.ChangeValue,
         },
+        
+        {
+          property: "useType",
+          display: true,
+          title: "使用类型",
+          type: "drop",
+          options: [],
+          value: "",
+          callback: this.ChangeValue,
+        },
         {
           property: "propType",
           display: true,
@@ -158,16 +168,22 @@ export default {
     initValue(_settingData) {
       this.inAdd = true;
       this.settingData = _settingData;
-      if(this.settingData.effectType == undefined){
+      if (this.settingData.effectType == undefined) {
         this.settingData.effectType = "";
       }
-
+      this.Utils.SetSettingItemPropertyValueByProperty(
+        this.setting,
+        "useType",
+        "options",
+        GameItems.useType
+      );
       this.Utils.SetSettingItemPropertyValueByProperty(
         this.setting,
         "propType",
         "options",
         GameItems.propType
       );
+      
       this.Utils.SetSettingItemPropertyValueByProperty(
         this.setting,
         "effectType",
@@ -198,8 +214,8 @@ export default {
         "bindingType",
         "options",
         GameItems.bindingType
-      );     
-       this.Utils.SetSettingItemPropertyValueByProperty(
+      );
+      this.Utils.SetSettingItemPropertyValueByProperty(
         this.setting,
         "countType",
         "options",
@@ -224,7 +240,6 @@ export default {
           effectType
         );
 
-
         let effectTypeV = effectType[0].value;
         this.Utils.SetSettingItemPropertyValueByProperty(
           this.setting,
@@ -239,7 +254,6 @@ export default {
       // 效果类型选择后，设置效果下的可选项
       if (property == "effectType") {
         this.settingData.effectType = e;
-
 
         let propertyType =
           e == "playerProperty"
@@ -283,7 +297,7 @@ export default {
     },
     ClickEvent(e) {
       if (e == "保存") {
-        if(!this.settingData.id){
+        if (!this.settingData.id) {
           this.settingData.id = new Date().getTime();
         }
         this.settingData.describe = this.GetDescribe(this.settingData);
@@ -308,12 +322,14 @@ export default {
 
       let add = "使用：";
       if (item.effectType == "transmit") {
-        add += "将你传送到" + item.value+"。与城镇中的旅店老板交谈可以改变你所设定的家的位置。";
-        if(item.CD){
-          add += "("+item.CD+"分钟冷却)";
-        }
+        add +=
+          "将你传送到" +
+          item.value +
+          "。与城镇中的旅店老板交谈可以改变你所设定的家的位置。";
       }
-
+      if (item.effectType == "relife") {
+        add += "立即复活";
+      }
       if (item.effectType == "playerProperty") {
         for (let i = 0; i < GameItems.playerProperty.length; i++) {
           const element = GameItems.playerProperty[i];
@@ -324,11 +340,15 @@ export default {
 
         if (item.property == "health") {
           add += "恢复";
-        }else{
+        } else {
           add += "提高";
         }
 
         add += item.value;
+      }
+
+      if (item.CD) {
+        add += "(" + item.CD + "分钟冷却)";
       }
       describe += add;
 

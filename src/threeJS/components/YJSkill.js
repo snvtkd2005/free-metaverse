@@ -22,7 +22,7 @@ class YJSkill {
                 Dync(msg);
             });
 
-            owner.addEventListener("技能护甲归零", (skill) => {
+            owner.addEventListener("解除技能", (skill) => {
                 RemoveSkill(skill);
             });
 
@@ -259,9 +259,9 @@ class YJSkill {
             return false;
         }
         function RemoveSkill(skill) {
+            console.log(" 解除技能 Skill ",skill);
             let particleId = skill.particleId;
 
-            // console.log(" RemoveSkill ",skill);
             if (skill.type == "control") {
                 owner.inControl = false;
             }
@@ -276,11 +276,11 @@ class YJSkill {
                 }
             }
 
-            _Global.DyncManager.SendDataToServer("解除技能",
-                {
-                    fromId: owner.id,
-                    particleId: particleId
-                });
+            // _Global.DyncManager.SendDataToServer("解除技能",
+            //     {
+            //         fromId: owner.id,
+            //         particleId: particleId
+            //     });
         }
         function ReceiveSkill(effect, skillItem) {
             if (effect.controlId == "冰霜新星") {
@@ -394,6 +394,8 @@ class YJSkill {
 
         }
         this.UseSkill = function (skillItem) {
+
+            // console.log(" 手动触发 ",skillItem);
             SkillGo(skillItem);
         }
         let skillCastTime = 0;
@@ -412,7 +414,7 @@ class YJSkill {
 
             vaildAttackDis = skillItem.vaildDis;
             attackStepSpeed = skillItem.castTime;
-            skillCastTime = skillItem.castTime * (1 - baseData.attackProperty.hasteLevel);
+            skillCastTime = skillItem.castTime * (1 - baseData.basicProperty.hasteLevel);
             // console.log(" baseData ",baseData);
             owner.SetVaildAttackDis(vaildAttackDis);
 
@@ -445,7 +447,7 @@ class YJSkill {
                 if (targetType == "area") {
                     let max = skillItem.target.value;
                     areaTargets = _Global._YJFireManager.GetOtherNoSameCampInArea(owner.GetCamp(), vaildAttackDis, max, owner.GetWorldPos());
-                    // console.error(owner.GetNickName()+" 范围攻击目标 ",players);
+                    // console.error(owner.GetNickName()+" 范围攻击目标 ",areaTargets);
                     // 范围内无目标，不施放技能
                     if (areaTargets.length == 0) {
                         errorLog = "有效范围内无目标";
@@ -555,7 +557,7 @@ class YJSkill {
                             return true;
                         }
                         if (effect.controlId == "嘲讽") {
-                            // console.log( owner.GetNickName() + " 嘲讽 ",vaildAttackDis ,players,skillItem);
+                            console.log( owner.GetNickName() + " 嘲讽 ",vaildAttackDis ,areaTargets,skillItem);
                             for (let l = 0; l < areaTargets.length; l++) {
                                 if (areaTargets[l].isDead) {
                                     continue;
@@ -564,16 +566,16 @@ class YJSkill {
                                 areaTargets[l].SetNpcTarget(owner, true, false);
                             }
                             //有效攻击 && 
-                            SendSkill(effect, skillItem);
+                            // SendSkill(effect, skillItem);
                             //瞬发技能直接同步
-                            _Global.DyncManager.SendDataToServer(owner.owerType('技能攻击'),
-                                {
-                                    fromId: owner.id,
-                                    fromType: owner.getPlayerType(),
-                                    targetType: "",
-                                    targetId: '',
-                                    skillItem: skillItem
-                                });
+                            // _Global.DyncManager.SendDataToServer(owner.owerType('技能攻击'),
+                            //     {
+                            //         fromId: owner.id,
+                            //         fromType: owner.getPlayerType(),
+                            //         targetType: "",
+                            //         targetId: '',
+                            //         skillItem: skillItem
+                            //     });
                         }
 
                     }
@@ -893,7 +895,8 @@ class YJSkill {
             if (skillItem.trigger.type == "perSecond") {
 
                 if (skillItem.CD == undefined) {
-                    skillItem.CD = 0;
+                    skillItem.CD = skillItem.trigger.value;
+                    // skillItem.CD = 0;
                 } else {
                 }
 
@@ -950,7 +953,7 @@ class YJSkill {
                                         // skillCDlist.push({skillName:skillItem.skillName,skillItem:skillItem});
                                     }
                                     if (SkillGo(skillItem)) {
-                                        if (_Global.CombatLog) {
+                                        if (_Global.CombatLog && skillItem.effect.skillName != "基础攻击") {
                                             _Global.CombatLog.log(owner.GetNickName(), "", "技能", skillItem.effect.skillName);
                                         }
                                     }
@@ -960,7 +963,10 @@ class YJSkill {
                                 if (skillItem.cCD > skillItem.CD) {
                                     skillItem.cCD = skillItem.CD;
                                 }
-                                owner.applyEvent("技能CD", skillItem.skillName, skillItem.cCD)
+
+                                owner.applyEvent("技能CD", skillItem.skillName, skillItem.cCD);
+                                //   console.log(owner.GetNickName()+" 技能CD ", skillItem.skillName, skillItem.cCD,skillItem.CD);
+                            
                             }
                         }, 100)
                 }

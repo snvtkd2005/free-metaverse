@@ -8,22 +8,20 @@
     <div
       class="absolute left-0 top-0 w-full h-full flex  "
     >
-    <div class=" absolute right-40 top-4  mx-auto   px-2  flex flex-row-reverse gap-2 pointer-events-auto rounded-lg">
+    <div class=" absolute right-40 top-4  mx-auto   px-2  flex flex-row-reverse gap-6 rounded-lg">
       
       <div
         v-for="(item, i) in buffList"
         :key="i"
-        class="p-1 w-12 h-12 text-left"
-        :class="0 == item.id ? ' ' : ' cursor-pointer '"
-        @click="UserModel(item)"
-        @mouseover="
-          LookSkill($event, item);
-          hover = true;
-        "
-        @mouseleave="hover = false"
+        class=" w-9 h-9 transform scale-125 text-left "
       >
         <div class="relative flex flex-col">
-          <div class="self-center mx-auto w-10 h-10 bg-white rounded-xl">
+          <div class="self-center mx-auto w-9 h-9 bg-white rounded-xl cursor-pointer pointer-events-auto"
+          
+        @contextmenu.prevent="onContextMenu($event, item)"
+        @mouseover="LookSkill($event, item);"
+        @mouseleave="outHover()" 
+          >
             <img class="w-full h-full rounded-lg" :src="item.icon" alt="" />
           </div>
           <div class="hidden w-auto self-center truncate justify-between">
@@ -40,22 +38,19 @@
     <div
       class="absolute left-0 top-0 w-full h-full flex "
     >
-    <div class=" absolute right-40 top-40 w-auto flex flex-row-reverse  px-2 mx-auto pointer-events-auto rounded-lg">
+    <div class=" absolute right-40 top-40  gap-2 w-auto flex flex-row-reverse  px-2 mx-auto ">
       <div
         v-for="(item, i) in debuffList"
         :key="i"
-        class="p-1 w-12 h-12 text-left"
-        :class="0 == item.id ? ' ' : ' cursor-pointer '"
-        @click="UserModel(item)"
-        @mouseover="
-          LookSkill($event, item);
-          hover = true;
-        "
-        @mouseleave="hover = false"
+        class=" w-9 h-9 transform scale-125 text-left" 
       >
         <div class="relative flex flex-col">
-          <div class="self-center mx-auto w-10 h-10 bg-white rounded-xl">
-            <img class="w-full h-full rounded-lg" :src="item.icon" alt="" />
+          <div class="self-center mx-auto w-9 h-9 bg-black  rounded-md  pointer-events-auto "
+
+          @mouseover=" LookSkill($event, item); "
+          @mouseleave="outHover()" 
+          >
+            <img class="w-full h-full " :src="item.icon" alt="" />
           </div>
           <div class="hidden w-auto self-center truncate justify-between">
             <text>{{ item.skillName }}</text>
@@ -67,29 +62,7 @@
       </div>
     </div>
     </div>
-
-    <div
-      v-if="hover"
-      class="absolute w-2 h-2 text-white"
-      :style="
-        ' position:absolute; left:' +
-        hoverPanelOffset.x +
-        'px;top:' +
-        hoverPanelOffset.y +
-        'px'
-      "
-    >
-      <div
-        class="p-2 absolute bottom-0 left-0 text-center origin-bottom transform -translate-y-6 -translate-x-10 w-32 h-auto rounded-md bg-black"
-      >
-        <div class="px-px text-yellow-100">
-          {{ describe.title }}
-        </div>
-        <div class="text-xs text-yellow-100">
-          {{ describe.describe }}
-        </div>
-      </div>
-    </div>
+ 
   </div>
 </template>
 
@@ -99,9 +72,6 @@ export default {
   components: {},
   data() {
     return {
-      hover: false,
-      hoverId: "",
-      hoverPanelOffset: { x: 120, y: 0 },
       buffList: [
         // {
         //   id: 'id',
@@ -119,11 +89,7 @@ export default {
         //   describe: 'describe',
         //   skillName: 'effect.skillName',
         // },
-      ],
-      describe: {
-        title: "技能名",
-        describe: "",
-      },
+      ], 
     };
   },
   created() {},
@@ -164,7 +130,7 @@ export default {
           this.buffList.push(buff);
         });
         _Global._YJPlayerFireCtrl.addEventListener("移除buff", (id) => {
-          // console.log("移除buff", (id));
+          console.log("移除buff", (id), this.buffList);
           for (let i = 0; i < this.buffList.length; i++) {
             const element = this.buffList[i];
             if (element.id == id) {
@@ -191,15 +157,15 @@ export default {
     }, 2000);
   },
   methods: {
-    LookSkill(e, item) {
-      this.hoverId = item.id;
-      this.describe.title = item.skillName;
-      this.describe.describe = item.describe;
-      this.hoverPanelOffset.x = e.clientX;
-      // this.hoverPanelOffset.y = 840;
-      this.hoverPanelOffset.y = e.clientY;
-      // console.log("鼠标悬浮在技能上 ", item);
-      // console.log("鼠标悬浮在技能上 2 ", e, this.hoverPanelOffset);
+    LookSkill(ev, item) {
+      item.hoverPart = "buff";
+      this.hoverPart = item.hoverPart;
+      let parent = ev.target;
+      this.$parent.LookSkill(parent, item); 
+    },
+    outHover() {
+      this.hoverPart = "";
+      this.$parent.outHover();
     },
     clickSkill(e) {
       // console.log("点击技能 ", e);
@@ -208,8 +174,18 @@ export default {
         return;
       }
     },
-    //动作栏。 使用技能或物体
-    UserModel(item) {},
+    //buff动作栏。 使用技能或物体
+
+    onContextMenu(ev, item) {
+      // 阻止默认的上下文菜单显示
+      ev.preventDefault();
+      // console.log(e,item);
+
+      if (ev.button == 2) {
+        // 右键取消buff
+        _Global._YJPlayerFireCtrl.applyEvent("解除技能",item);
+      }
+    },
   },
 };
 </script>

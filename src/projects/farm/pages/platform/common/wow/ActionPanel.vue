@@ -318,19 +318,9 @@ export default {
       }
       for (let i = 0; i < this.actionList.actionBar1.length; i++) {
         let key = _Global.GameSetting.keyData.actionBar1[i].key;
-        this.actionList.actionBar1[i].key = key; 
-        this.actionList.actionBar1[i].keytext = key.replace("Key",'').replace("Digit",'');
-      }
-      for (let i = 0; i < this.actionList.actionBar1.length; i++) {
-        for (let j = 0; j < _Global.GameSetting.key2keytext.length; j++) {
-          if (
-            this.actionList.actionBar1[i].key ==
-            _Global.GameSetting.key2keytext[j].key
-          ) {
-            this.actionList.actionBar1[i].keytext =
-              _Global.GameSetting.key2keytext[j].keytext;
-          }
-        }
+        let keytext = _Global.GameSetting.keyData.actionBar1[i].keytext;
+        this.actionList.actionBar1[i].key = key;
+        this.actionList.actionBar1[i].keytext = keytext;
       }
 
       this.panelState = _Global.panelState;
@@ -361,10 +351,35 @@ export default {
         }, 2000);
       });
 
-      _Global.addEventListener("角色死亡", () => {
+      _Global.addEventListener("主角死亡", () => {
         if (this.newLevel) {
           this.newLevel = false;
         }
+        for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
+          const element = this.actionList.actionBar1[i];
+          if (element.skill && element.skill.type == 'skill') {
+            element.isDeleled = true;
+            let skill = element.skill;
+            skill.isDeleled = true;
+            skill.cCD = skill.CD;
+            skill.perCD = 0;
+          }
+        }
+      });
+
+      _Global.addEventListener("激活技能栏", () => {
+        if (this.newLevel) {
+          this.newLevel = false;
+        }
+        for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
+          const element = this.actionList.actionBar1[i];
+          if (element.skill && element.skill.type == 'skill') {
+            element.isDeleled = false;
+            let skill = element.skill;
+            skill.isDeleled = false;
+          }
+        }
+        this.$forceUpdate();
       });
 
       _Global.addEventListener("关闭窗口", (e) => {
@@ -372,20 +387,15 @@ export default {
       });
 
       _Global.addEventListener("点击三维页", () => {
-        if (_Global.inDragAction) {
-          _Global.inDragAction = false;
-          //取消拖拽
-          this.$parent.dragEnd();
-        }
+        this.cancelDragAction();
       });
       _Global.addEventListener("右键点击", () => {
-        if (_Global.inDragAction) {
-          _Global.inDragAction = false;
-          //取消拖拽
-          this.$parent.dragEnd();
-        }
+        this.cancelDragAction();
       });
-
+      _Global.addEventListener("从动作条拖拽到动作条", () => {
+        this.cancelDragAction();
+      });
+      
       _Global.addEventListener("摧毁Prop并在动作条中停用prop", (id) => {
         for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
           const element = this.actionList.actionBar1[i];
@@ -413,7 +423,7 @@ export default {
           }
         }
       });
-
+      
       _Global.addEventListener("3d加载完成", () => {
         _Global._YJPlayerFireCtrl.addEventListener(
           "技能CD",
@@ -433,7 +443,9 @@ export default {
           for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
             const element = this.actionList.actionBar1[i];
             if (element.skill && element.skill.skillName == _skill.skillName) {
-              element.skill = null;
+              // element.skill = null;
+              element.skill.isDeleled = true;
+              element.isDeleled = true;
               return;
             }
           }
@@ -443,6 +455,17 @@ export default {
   },
 
   methods: {
+    cancelDragAction() {
+      if (_Global.inDragAction) {
+        _Global.inDragAction = false;
+        //取消拖拽
+        this.$parent.dragEnd();
+        for (let i = 0; i < this.actionList.actionBar1.length; i++) {
+          const element = this.actionList.actionBar1[i];
+          element.inDragAction = false;
+        }
+      }
+    },
     drag(item) {
       if (item.isDeleled) {
         item.isDeleled = false;
@@ -451,9 +474,10 @@ export default {
 
       for (let i = 0; i < this.actionList.actionBar1.length; i++) {
         const element = this.actionList.actionBar1[i];
+        console.log(" 设置拖拽状态 ", element.inDragAction);
+        element.inDragAction = true;
         if (element.index == item.index) {
-          element.skill = null;
-          return;
+          element.skill = null; 
         }
       }
     },
@@ -518,6 +542,10 @@ export default {
       for (let i = 0; i < this.actionList.actionBar1.length; i++) {
         const skill = this.actionList.actionBar1[i].skill;
         if (skill && skill.skillName == _skill.skillName) {
+          if (skill.isDeleled) {
+            this.actionList.actionBar1[i].isDeleled = false;
+            skill.isDeleled = false;
+          }
           return;
         }
       }

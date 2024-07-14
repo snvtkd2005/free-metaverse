@@ -158,7 +158,7 @@ export default {
       if (!this.settingData.skillFireAudio) {
         this.settingData.skillFireAudio = "";
       }
-      if (!this.settingData.type) {
+      if (this.settingData.type == undefined) {
         this.settingData.type = "skill";
       } 
       if (!this.settingData.receiveEffect) {

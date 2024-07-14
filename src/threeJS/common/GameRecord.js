@@ -33,7 +33,7 @@ class GameRecord {
         _Global.applyEvent("存活时间", toTime(record.time));
       }, 1000);
 
-      _Global.addEventListener("主角重生", () => {
+      _Global.addEventListener("释放灵魂", () => {
         record.time = 0;
         currentExp = 0;
         level = 1;
@@ -44,6 +44,7 @@ class GameRecord {
 
 
       });
+      
 
     }
     function initTeamStats() {

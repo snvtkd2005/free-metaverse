@@ -34,7 +34,7 @@
     </div>
     <div v-if="lifeCount == 0 " class="mt-96 mx-auto text-white text-6xl">
       <div class=" pointer-events-auto cursor-pointer  p-10 rounded-md bg-black bg-opacity-60"
-      @click="relife()"
+      @click="resoul()"
       >重新开始</div>
 
     </div>
@@ -67,14 +67,14 @@ export default {
       speed: 0.03,
       last: 0,
       deltaTime: 0,
-      relifeTime:10,
-      lifeCount: 10,
+      relifeTime:20,
+      lifeCount: 20,
     };
   },
   created() {},
   mounted() {
     setTimeout(() => {
-      _Global.addEventListener("角色死亡", () => {
+      _Global.addEventListener("主角死亡", () => {
         this.SetState("inDead",true);
         this.lifeCount = this.relifeTime;
       });
@@ -93,8 +93,13 @@ export default {
   },
   methods: {
     relife(){
-      _Global.applyEvent("主角重生")
+      _Global.applyEvent("主角重生");
     },
+    resoul(){
+      this.SetState("inDead",false); 
+      _Global.applyEvent("释放灵魂");
+    },
+    
     Add(type, value) {
       this.textList.push({
         type: type,

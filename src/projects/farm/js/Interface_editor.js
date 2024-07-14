@@ -21,7 +21,7 @@ import GameSetting from "../data/platform/GameSetting.js";
 class Interface {
   // _this 为三维主页面vue
   constructor(_this, inEditor) {
-    
+
     _Global.panelState = {
       player: false,
       skill: false,
@@ -30,43 +30,78 @@ class Interface {
       setting: false,
     };
     _Global.GameSetting = GameSetting;
+
+    function LoadLocalGameSetting(){
+      let _gs = localStorage.getItem("GameSetting");
+      if(_gs){
+        try {
+          _Global.GameSetting = JSON.parse(_gs) ;
+        } catch (error) {
+          
+        }
+      }
+    }
+    this.SaveGameSetting = function(){
+      localStorage.setItem("GameSetting", JSON.stringify(_Global.GameSetting) );
+    }
+    LoadLocalGameSetting();
+    _Global.SaveGameSetting = this.SaveGameSetting;
+
+
+
     let eventList = [];
     // 添加事件监听
-    this.addEventListener = function (e, fn) {
-      eventList.push({ eventName: e, fn: fn });
+    this.addEventListener = function (e, fn, id) {
+      eventList.push({ eventName: e, fn: fn, id: id });
     }
+    this.removeEventListener = function (fn) {
+      for (let i = eventList.length - 1; i >= 0; i--) {
+        if (eventList[i].fn == fn) {
+          eventList.splice(i, 1);
+        }
+      }
+    }
+    this.removeEventListenerById = function (id) {
+      for (let i = eventList.length-1; i >=0 ; i--) {
+        if(eventList[i].id == id){
+          eventList.splice(i,1);
+        } 
+      } 
+    }
+    
     _Global.addEventListener = this.addEventListener;
+    _Global.removeEventListener = this.removeEventListener;
     // 执行事件
-    this.applyEvent = function (e,v,v2,v3) {
+    this.applyEvent = function (e, v, v2, v3) {
       for (let i = 0; i < eventList.length; i++) {
         const element = eventList[i];
         if (element.eventName == e) {
-          element.fn(v,v2,v3);
+          element.fn(v, v2, v3);
         }
       }
     }
     _Global.applyEvent = this.applyEvent;
 
 
-    _Global.addEventListener("主角重生",()=>{
+    _Global.addEventListener("主角重生", () => {
       _Global.mainPlayerIsDead = false;
       _Global.YJ3D.YJController.resetLife();
     });
 
-    
+
     _Global.hasAvatar = true;
     _Global.mainPlayerIsDead = false;
     _Global.inDragProp = false;
     _Global.inDragAction = false;
 
-    
+
     // npc巡逻点模型
     let spare = new THREE.SphereGeometry(0.1, 10);
     const material = new THREE.MeshLambertMaterial({ color: 0xff0000 });
     _Global.setting = {
       inEditor: inEditor, //是否编辑模式
       navPointMesh: new THREE.Mesh(spare, material),
-      DMGame:!inEditor,
+      DMGame: !inEditor,
     }
     _Global.user = {
       camp: 1000
@@ -75,7 +110,7 @@ class Interface {
       uploadUrl: _this.$uploadUrl,
       uploadUVAnimUrl: _this.$uploadUVAnimUrl,
     }
-    _Global.inFocus = true; 
+    _Global.inFocus = true;
 
     let cursorUrl = null;
     // 切换光标
@@ -90,7 +125,7 @@ class Interface {
         const element = IconData.cursorList[i];
         // console.log(element.content, content, element.content == content);
         if (element.content == content) {
-          _Global.YJ3D.SetCursor(element.path==''?'':"./public/images/cursorList" + element.path);
+          _Global.YJ3D.SetCursor(element.path == '' ? '' : "./public/images/cursorList" + element.path);
           return;
         }
       }
@@ -172,7 +207,7 @@ class Interface {
             let item = modelsList[i];
             if (item.modelType == "角色模型") {
               // 到角色数据中，模型路径、动画数据
-              if(item.message){
+              if (item.message) {
                 let data = item.message.data;
                 data.modelPath = _this.$uploadUrl + item.modelPath;
                 data.icon = "thumb.png";
@@ -204,13 +239,13 @@ class Interface {
       );
       _Global.propList = res.data;
       // console.log("_Global.animList = ", _Global.animList);
-      // console.log("_Global.skillList = ", _Global.skillList);
+      // console.log("_Global.propList = ", _Global.propList);
     }
 
     // 移除folderBase
     async function RequestRemoveFolderBase(msg) {
       let fromData = new FormData();
-      fromData.append("folderBase",msg.folderBase);
+      fromData.append("folderBase", msg.folderBase);
       fromData.append("type", msg.type);
       RemoveFolderBase(fromData).then((res) => {
         console.log(" 移除成功 ", res);
@@ -232,7 +267,7 @@ class Interface {
     this.DyncManager = function () {
       return _this._SceneManager.GetDyncManager();
     }
-    
+
     this.YJDync = function () {
       return _this.$refs.YJDync;
     }
@@ -241,7 +276,7 @@ class Interface {
     init();
 
     this.YJ3D = function () {
-      if(_this.$refs.YJmetaBase){
+      if (_this.$refs.YJmetaBase) {
         return _this.$refs.YJmetaBase.ThreejsHumanChat;
       }
     }
@@ -251,7 +286,7 @@ class Interface {
     // 向3d页发送
     this.SendMsgTo3D = (type, msg) => {
       console.log("向3d页发送", type, msg);
-      if (type == "删除folderBase") { 
+      if (type == "删除folderBase") {
         // _Global.SendMsgTo3D("删除folderBase",{type:"uploadsAudio/",folderBase:"1704941752535"});
         // _Global.SendMsgTo3D("删除folderBase",{type:"uploads/",folderBase:"1704941752535"});
         // _Global.SendMsgTo3D("删除folderBase",{type:"uploads/",folderBase:"wow_prefabs"});
@@ -388,13 +423,13 @@ class Interface {
         return;
       }
       if (type == "设置技能进度条") {
-        _Global.applyEvent("设置技能进度条",msg); 
+        _Global.applyEvent("设置技能进度条", msg);
         return;
       }
-      if (type == "角色死亡") {
-        _Global.applyEvent("角色死亡"); 
+      if (type == "主角死亡") {
+        _Global.applyEvent("主角死亡");
         _Global.mainPlayerIsDead = true;
-				// 放下武器
+        // 放下武器
         _Global._SceneManager.PickDownWeapon();
         return;
       }
@@ -497,15 +532,15 @@ class Interface {
 
       if (_this.$refs.YJDync) {
         _this.$refs.YJDync._YJClient.DirectSendUserData();
-      } 
+      }
     }
     //设置角色动作
     _Global.SetPlayerAnim = this.SetPlayerAnim;
 
     this.SetPlayerEmote = function (emote) {
-      if(emote == "/dance"){
+      if (emote == "/dance") {
         _Global.SetPlayerAnim("dance");
-      } 
+      }
     }
     _Global.SetPlayerEmote = this.SetPlayerEmote;
 
@@ -649,14 +684,14 @@ class Interface {
     }
 
     let _YJPathfindingCtrl = null;
-    this.GetNavpath = function (ZONE,fromPos, targetPos) {
+    this.GetNavpath = function (ZONE, fromPos, targetPos) {
       if (_YJPathfindingCtrl == null) {
         return null;
       }
-      return _YJPathfindingCtrl.GetNavpath(ZONE,fromPos, targetPos);
+      return _YJPathfindingCtrl.GetNavpath(ZONE, fromPos, targetPos);
     }
-    this.CreateNavMesh = function (ZONE,mapParent) {
-      _YJPathfindingCtrl.CreateNavMesh(ZONE,mapParent);
+    this.CreateNavMesh = function (ZONE, mapParent) {
+      _YJPathfindingCtrl.CreateNavMesh(ZONE, mapParent);
     }
     this.YJPathfindingCtrl = function () {
       return _YJPathfindingCtrl;
@@ -678,16 +713,16 @@ class Interface {
           // _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().AllNpcTransformNav();
         });
         new YJAudioManager(_this);
-        
+
       }
       _Global.YJDync = this.YJDync();
       _Global.DyncManager = this.DyncManager();
       // 场景加载完成后，重新更新相机射线偏移，
       // 窗口大小位置不一样会导致射线偏移,所以需要重新计算
-      if(_this.setPanelSize){
+      if (_this.setPanelSize) {
         _this.setPanelSize();
-      } 
- 
+      }
+
       _Global.applyEvent("3d加载完成");
 
     }
@@ -796,7 +831,7 @@ class Interface {
       const gl = canvas.getContext("webgl2");
       WEBGL_lose_context = gl.getExtension("WEBGL_lose_context");
       canvas.addEventListener("webglcontextlost", (event) => {
-        console.log(" webgl 上下文丢失 ", event); 
+        console.log(" webgl 上下文丢失 ", event);
         setTimeout(() => {
           WEBGL_lose_context.restoreContext();
         }, 20);

@@ -7,7 +7,7 @@ import { RandomInt } from "/@/utils/utils";
 生成怪物NPC
  */
 class GenerateEnemyNPC {
-  constructor(generateSingle) {
+  constructor(generateSingle,onDead) {
     let scope = this;
 
     let createLaterList = [];
@@ -20,7 +20,6 @@ class GenerateEnemyNPC {
     };
     let loadModelPooling = 0; //加载对象池中对象的次数
 
-    let _GameRecord = null;
     function DuplicateModelNPC(modelId, state) { 
 
       let npcId = new Date().getTime();
@@ -97,8 +96,8 @@ class GenerateEnemyNPC {
         }
         let npc = copy.GetComponent("NPC");
         npc.addEventListener("死亡", () => {
-          if(_GameRecord){
-            _GameRecord.addKill();
+          if(onDead){
+            onDead();
           }
         });
         if (state) {

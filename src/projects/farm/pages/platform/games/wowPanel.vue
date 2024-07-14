@@ -44,24 +44,26 @@
       <div v-if="delDialog" class="absolute left-0 top-0 w-full h-full">
         <delDialogPanelVue ref="delDialogPanelVue"></delDialogPanelVue>
       </div>
-      
-      <div v-if="panelState.setting" class="absolute left-0 top-0 w-full h-full">
+
+      <div
+        v-if="panelState.setting"
+        class="absolute left-0 top-0 w-full h-full"
+      >
         <settingPanelVue ref="settingPanelVue"></settingPanelVue>
       </div>
-      
     </div>
 
     <!-- 悬浮信息框 -->
     <div
       ref="hoverContent"
       v-show="inHover"
-      class="absolute z-50 transform origin-bottom-left mt-3 -ml-2 -translate-y-full left-0 top-0 min-wh w-auto h-auto flex pointer-events-none"
+      class="absolute z-50 transform origin-bottom-left mt-3 -ml-2  left-0 top-0 min-wh w-auto h-auto flex pointer-events-none"
       :class="
-        hoverRight
+        [hoverRight
           ? inRightOrder
             ? ' -translate-x-6'
             : ' -translate-x-full '
-          : ''
+          : '',hoverTop?'  ':' -translate-y-full ']
       "
       style="
         border: 10px solid;
@@ -127,13 +129,11 @@ import PlayerPropertyPanelVue from "../common/wow/PlayerPropertyPanel.vue";
 import skillPanel from "../common/wow/skillPanel.vue";
 import bagPanel from "../common/wow/bagPanel.vue";
 
-
 import { Interface } from "../../../js/Interface_editor";
 import menuPanelVue from "../common/wow/menuPanel.vue";
 import GameItems from "../../../data/platform/GameItems";
-import delDialogPanelVue from '../common/wow/delDialogPanel.vue';
-import settingPanelVue from '../common/wow/settingPanel.vue';
-
+import delDialogPanelVue from "../common/wow/delDialogPanel.vue";
+import settingPanelVue from "../common/wow/settingPanel.vue";
 
 import GameSetting from "../../../data/platform/GameSetting";
 
@@ -160,24 +160,13 @@ export default {
       last: 0,
       deltaTime: 0,
       times: 0,
-      timesStr: "0",
       stats: {
         health: 100,
         maxHealth: 100,
         exp: 0,
         needExp: 30,
       },
-      skillList: [],
-      cardList: [
-        {
-          title: "冰霜新星",
-          dm: "[冰霜新星] 或 [b]",
-          icon: "https://bkimg.cdn.bcebos.com/pic/0823dd54564e9258d109a0f4e4d6c658ccbf6c81e0d7?x-bce-process=image/format,f_auto/watermark,image_d2F0ZXIvYmFpa2UyNzI,g_7,xp_5,yp_5,P_20/resize,m_lfit,limit_1,h_1080",
-          describe:
-            "冲击范围内的所有敌人，对它们造成99-111点冰霜伤害并将其冻结在原地，最多持续8秒。对被冻结的目标造成伤害可能打断这个效果。",
-          heat: 10,
-        },
-      ],
+
       property: {},
       propertyList: [],
       displayCard: false,
@@ -193,10 +182,11 @@ export default {
       inHover: false,
       hoverRight: false,
       inRightOrder: false,
+      hoverTop:false,
       dragPos: { x: 0, y: 0 },
       inDraging: false,
       dragIcon: "",
-      delDialog:false,
+      delDialog: false,
     };
   },
   created() {},
@@ -225,10 +215,12 @@ export default {
         // 按键在配置中设置
         for (let i = 0; i < GameSetting.keyData.panel.length; i++) {
           const element = GameSetting.keyData.panel[i];
-          if(element.key == keycode){
-            if(element.field == 'mainmenu'){
-              if(_Global.inDragProp){
-                if(this.delDialog){this.delDialog = false;}
+          if (element.key == keycode) {
+            if (element.field == "mainmenu") {
+              if (_Global.inDragProp) {
+                if (this.delDialog) {
+                  this.delDialog = false;
+                }
                 _Global.applyEvent("取消拖拽Prop");
                 _Global.inDragProp = false;
                 return;
@@ -248,11 +240,15 @@ export default {
                   _Global.applyEvent("界面开关", "mainmenu", true);
                 }, 20);
               }
-            }else{
-              _Global.applyEvent("界面开关",element.field, !this.panelState[element.field]);
+            } else {
+              _Global.applyEvent(
+                "界面开关",
+                element.field,
+                !this.panelState[element.field]
+              );
             }
           }
-        } 
+        }
       });
 
       // if (_Global.setting.inEditor && _Global.gameType == "Roguelike") {
@@ -271,7 +267,6 @@ export default {
         // console.log("mousePos ",this.dragPos.x,this.dragPos.y);
       });
 
-
       _Global.addEventListener("属性改变", (basedata) => {
         this.property = basedata;
 
@@ -285,46 +280,36 @@ export default {
 
         this.propertyList.push({ title: "护甲", value: basicProperty.armor });
 
-        let attackProperty = basedata.attackProperty;
         this.propertyList.push({
           title: "暴击率",
-          value: attackProperty.CriticalHitRate,
+          value: basicProperty.CriticalHitRate,
         });
         this.propertyList.push({
           title: "暴击等级",
-          value: attackProperty.CriticalHitLevel,
+          value: basicProperty.CriticalHitLevel,
         });
         this.propertyList.push({
           title: "攻击速度",
-          value: attackProperty.attackSpeed,
+          value: basicProperty.attackSpeed,
         });
         this.propertyList.push({
           title: "攻击强度",
-          value: attackProperty.attackPower,
+          value: basicProperty.attackPower,
         });
         this.propertyList.push({
           title: "移动速度",
-          value: attackProperty.moveSpeed,
+          value: basicProperty.moveSpeed,
         });
         this.propertyList.push({
           title: "急速等级",
-          value: attackProperty.hasteLevel,
+          value: basicProperty.hasteLevel,
         });
         this.propertyList.push({
           title: "急速冷却",
-          value: attackProperty.CDRate,
+          value: basicProperty.CDRate,
         });
 
         // console.log(" 属性改变 ",this.property);
-      });
-
-      _Global.addEventListener("显示roguelike卡牌", (cardList) => {
-        this.cardList = cardList;
-        this.displayCard = true;
-      });
-
-      _Global.addEventListener("存活时间", (v) => {
-        this.timesStr = v;
       });
 
       _Global.addEventListener("主角生命值", (h, maxH) => {
@@ -439,7 +424,7 @@ export default {
           this.hoverData.push(line);
         }
 
-        if (item.countType) {
+        if (item.countType && item.countType == "onlyone") {
           line = {};
           line.text = this.getGameItesLabel("countType", item.countType);
           line.color = "#ffffff";
@@ -451,18 +436,34 @@ export default {
         line.color = "#00ff00";
       }
 
+      if (item.hoverPart == "buff") {
+        
+        line.text = item.skillName;
+        line.color = "#ffff00";
+        this.hoverData.push(line);
+        
+        line = {};
+        line.text = item.describe;
+        line.color = "#ffffff";
+
+      }
+
       this.hoverData.push(line);
 
       var rect = parent.getBoundingClientRect();
 
       // console.log("Top: " + rect.top);
       // console.log("Left: " + rect.left);
-
-      this.hoverRight = rect.left > window.innerWidth / 2;
+      // 默认悬浮框出现在icon右上
+      // icon在右边时，悬浮框出现在icon左上
+      this.hoverRight = rect.left > (window.innerWidth - 300) ;
+      // icon在右上角时，悬浮框出现在icon左下
+      this.hoverTop = this.hoverRight && rect.top < window.innerHeight / 2;
       this.inRightOrder = false;
       let offsetX = this.hoverRight ? 20 : 40;
+      let offsetY = this.hoverTop ? 20 : 0;
 
-      
+      // console.log(" hoverTop : " + this.hoverTop);
 
       this.newDiv.appendChild(this.$refs.hoverContent);
       this.newDiv.style.display = "";
@@ -474,7 +475,7 @@ export default {
           offsetX -= rect2;
           this.inRightOrder = true;
         }
-        this.newDiv.style.top = parseInt(rect.top) + "px";
+        this.newDiv.style.top = parseInt(rect.top) + offsetY + "px";
         this.newDiv.style.left = parseInt(rect.left) + offsetX + "px";
         this.newDiv.style.opacity = 1;
       });
@@ -489,7 +490,11 @@ export default {
       }
     },
     UseItem(item) {
+      if (item.isDeleled) {
+        return false;
+      }
       let skill = item.skill;
+      // console.log(" 主动施放技能 000",skill);
       if (skill.type == "skill" && skill.cCD == skill.CD) {
         _Global._YJPlayerFireCtrl.GetSkill().UseSkill(skill);
         return;
@@ -501,10 +506,7 @@ export default {
           }
         } else {
         }
-        if (item.isDeleled) {
-          return;
-        }
-        _Global._YJPlayerFireCtrl.GetProp().UseProp(skill);
+        return _Global._YJPlayerFireCtrl.GetProp().UseProp(skill);
       }
     },
 
@@ -514,9 +516,6 @@ export default {
 
     AddSkill(_skill) {
       this.$refs.ActionPanelVue.AddSkill(_skill);
-    },
-    changeMainPlayerSkillCD(skillName, cCD) {
-      this.$refs.ActionPanelVue.changeMainPlayerSkillCD(skillName, cCD);
     },
     changeDMPlayerSkillCD(npcId, skillIndex, cCD) {
       for (let i = 0; i < this.dmPlayer.length; i++) {

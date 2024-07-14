@@ -330,6 +330,7 @@ class GenerateDMNPC {
             cSkill.icon = skill.icon;
             if (skill.trigger.type == "perSecond") {
               cSkill.CD = skill.trigger.value;
+              // cSkill.CD = skill.CD;
               cSkill.cCD = cSkill.CD;
             }
             skills.push(cSkill);

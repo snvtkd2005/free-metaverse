@@ -100,14 +100,17 @@
     <animPanel ref="animPanel" />
     <boneConvertPanel ref="boneConvertPanel" />
 
-    <div class=" absolute left-24 top-10">
       <!-- 左上角血条头像 -->
+    <!-- <div class=" absolute left-24 top-10">
       <headerUI ref="headerUI" />
-    </div>
+    </div> -->
     <loadingPanel class="absolute z-50 left-0 top-0" ref="loadingPanel" />
 
-    <skillProgressUI ref="skillProgressUI" />
+
+
       <!-- 右上角按钮 -->
+    <!-- <skillProgressUI ref="skillProgressUI" /> -->
+
       <div class="absolute right-96 top-12">
         <settingPanel ref="settingPanel" />
       </div>

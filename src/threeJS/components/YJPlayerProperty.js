@@ -166,7 +166,7 @@ class YJPlayerProperty {
 			if (property == "moveSpeed") {
 				owner.SetMoveSpeed(basicProperty.moveSpeed);
 			}
-			if (property == "CDRate") {
+			if (property == "CDRate") { 
 				owner.GetSkill().SetSkillCDRate(basicProperty[property]);
 			} 
 			

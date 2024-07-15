@@ -478,8 +478,8 @@ export default {
     setDMPlayer(_dmplayer) {
       this.$refs.DMPlayerPanelVue.setDMPlayer(_dmplayer); 
     },
-    changeDMPlayerSkillCD(npcId, skillIndex, cCD) {
-      this.$refs.DMPlayerPanelVue.changeDMPlayerSkillCD(npcId, skillIndex, cCD); 
+    changeDMPlayerSkillCD(npcId, skillIndex, cCD,CD) {
+      this.$refs.DMPlayerPanelVue.changeDMPlayerSkillCD(npcId, skillIndex, cCD,CD); 
     },
     DMlog(text, type) {
       if (

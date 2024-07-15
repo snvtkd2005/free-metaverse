@@ -56,6 +56,7 @@ export default {
             { value: 'addArmor', label: '加护甲' },
             { value: 'addHealth', label: '加生命' },
             { value: 'addEnergy', label: '加能量' },
+            { value: 'addGold', label: '加金币' },
           ], callback: this.ChangeValue,
         },
         { property: "type", display: true, title: "道具类型(同一种道具类型保持一致)", type: "text", value: "", callback: this.ChangeValue },

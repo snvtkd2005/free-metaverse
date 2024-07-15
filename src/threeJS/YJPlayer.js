@@ -676,11 +676,11 @@ class YJPlayer {
       eventList.push({ eventName: e, fn: fn });
     }
     // 执行事件
-    this.applyEvent = function (e, v, v2) {
+    this.applyEvent = function (e, v, v2,v3) {
       for (let i = 0; i < eventList.length; i++) {
         const element = eventList[i];
         if (element.eventName == e) {
-          element.fn(v, v2);
+          element.fn(v, v2,v3);
         }
       }
     }

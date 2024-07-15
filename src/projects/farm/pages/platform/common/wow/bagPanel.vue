@@ -40,6 +40,13 @@
               <iconslotVue :item="item"></iconslotVue>
             </div>
           </div>
+
+          <div class="absolute left-0 bottom-3 ml-20 w-40 h-4 ">
+            <div class=" text-white text-xs text-right pr-5">465465465</div>
+            <div class="absolute right-0 top-0">
+              <img :src="goldUrl" alt="" />
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -80,6 +87,7 @@ export default {
       ],
       basebagUrl:
         "./public/images/cursorList/containerframe/ui-backpackbackground.png",
+      goldUrl: "./public/images/cursorList/containerframe/ui-goldicon.png",
       closeUrl:
         "./public/images/cursorList/paperdollinfoframe/ui-panel-minimizebutton-up.png",
       downUrl:
@@ -147,14 +155,11 @@ export default {
       _Global.addEventListener("在动作条中调用并摧毁Prop", (id) => {
         for (let i = 0; i < this.itemList.length; i++) {
           const item = this.itemList[i];
-          if(item.skill && item.skill.id == id){
+          if (item.skill && item.skill.id == id) {
             item.skill = null;
           }
         }
       });
-      
-
-
 
       for (let i = 0; i < this.itemList.length; i++) {
         const item = this.itemList[i];
@@ -208,8 +213,6 @@ export default {
     removeItem(index) {
       this.itemList[index].skill = null;
       this.itemList[index].inDraging = false;
-
-
     },
   },
 };

@@ -70,16 +70,45 @@ class YJSkill {
             baseData = owner.GetBaseData();
         }
 
+        this.SetSkillCDRate = function (rate) {
+
+            rate = 1 - rate;
+            if (rate <= 0) { rate = 0; }
+            for (let i = 0; i < skillList.length; i++) {
+                const skillItem = skillList[i];
+                if (skillItem.trigger.type == "perSecond") {
+                    skillItem.trigger.CD = skillItem.CONSTCD * rate;
+                    skillItem.CD = skillItem.CONSTCD * rate;
+                    if (skillItem.CD <= 0) {
+                        skillItem.CD = 0.5; 
+                    }
+                    if (skillItem.cCD > skillItem.CD) {
+                        skillItem.cCD = skillItem.CD;
+                    }
+                    owner.applyEvent("技能CD", skillItem.skillName, skillItem.cCD, skillItem.CD);
+
+                }
+            }
+        }
+        this.SetSkillAuto = function (skillName, b) {
+            for (let i = 0; i < skillList.length; i++) {
+                const skillItem = skillList[i];
+                if (skillItem.skillName == skillName) {
+                    skillItem.auto = b;
+                }
+            }
+        }
+
         this.ClearSkill = function (ingnorSkillName) {
-            for (let i =  skillList.length-1; i >=0; i--) {
+            for (let i = skillList.length - 1; i >= 0; i--) {
                 const skill = skillList[i];
                 if (skill.skillName == ingnorSkillName) {
                     continue;
                 }
-                skillList.splice(i,1);
+                skillList.splice(i, 1);
                 owner.applyEvent("移除技能", skill);
             }
-            
+
         }
         this.SetSkill = function (_skillList, _baseData) {
             skillList = _skillList;
@@ -259,7 +288,7 @@ class YJSkill {
             return false;
         }
         function RemoveSkill(skill) {
-            console.log(" 解除技能 Skill ",skill);
+            console.log(" 解除技能 Skill ", skill);
             let particleId = skill.particleId;
 
             if (skill.type == "control") {
@@ -404,7 +433,7 @@ class YJSkill {
             if (owner.isDead) {
                 return false;
             }
-            if(inSkill){return;}
+            if (inSkill) { return; }
 
             let { animName, animNameReady, skillName, target, effect } = skillItem;
 
@@ -478,14 +507,14 @@ class YJSkill {
 
                 if (targetType == "none" || targetType == "self" || targetType == "selfPos") {
                     let { type, value, time, duration, describe, controlId } = effect;
-                    
+
                     if (type == "addHealth") {
-                        if(baseData.health == baseData.maxHealth){
+                        if (baseData.health == baseData.maxHealth) {
                             errorLog = "目标生命值已满";
                             return false;
                         }
                     }
-                }   
+                }
 
                 if (targetType.includes("minHealth")) {
                     if (targetType.includes("Friendly")) {
@@ -557,7 +586,7 @@ class YJSkill {
                             return true;
                         }
                         if (effect.controlId == "嘲讽") {
-                            console.log( owner.GetNickName() + " 嘲讽 ",vaildAttackDis ,areaTargets,skillItem);
+                            console.log(owner.GetNickName() + " 嘲讽 ", vaildAttackDis, areaTargets, skillItem);
                             for (let l = 0; l < areaTargets.length; l++) {
                                 if (areaTargets[l].isDead) {
                                     continue;
@@ -860,28 +889,6 @@ class YJSkill {
         let inSkill = false;//是否在使用施法技能攻击
         let skillCDlist = [];
 
-        this.SetSkillCDRate = function (rate) {
-            rate = 1 - rate;
-            if (rate <= 0) { rate = 0; }
-            for (let i = 0; i < skillList.length; i++) {
-                const skillItem = skillList[i];
-                if (skillItem.trigger.type == "perSecond") {
-                    skillItem.trigger.CD = skillItem.CONSTCD * rate;
-                    skillItem.CD = skillItem.CONSTCD * rate;
-                    if (skillItem.cCD > skillItem.CD) {
-                        skillItem.cCD = skillItem.CD;
-                    }
-                }
-            }
-        }
-        this.SetSkillAuto = function (skillName, b) {
-            for (let i = 0; i < skillList.length; i++) {
-                const skillItem = skillList[i];
-                if (skillItem.skillName == skillName) {
-                    skillItem.auto = b;
-                }
-            }
-        }
         // 每次进入战斗，初始化其技能
         function CheckSkill() {
             for (let i = 0; i < skillList.length; i++) {
@@ -900,7 +907,7 @@ class YJSkill {
                 } else {
                 }
 
-                if ( skillItem.CD == 0) {
+                if (skillItem.CD == 0) {
                     skillItem.CD = 0.5;
                     // if (skillItem.castTime > 0) {
                     //     // 冷却时间一定要比施放时间更长
@@ -909,11 +916,17 @@ class YJSkill {
                     //     }
                     // }
                 }
-                
-                skillItem.cCD = skillItem.CD;
+
                 skillItem.CONSTCD = skillItem.CD;
 
-                if(skillItem.trigger.value < skillItem.CD){
+
+                skillItem.CD *=  (1 - baseData.basicProperty.CDRate);
+                if (skillItem.CD <= 0) {
+                    skillItem.CD = 0.5; 
+                }
+                skillItem.cCD = skillItem.CD;
+
+                if (skillItem.trigger.value < skillItem.CD) {
                     skillItem.trigger.value = skillItem.CD;
                 }
 
@@ -930,8 +943,8 @@ class YJSkill {
                                 if (skillItem.cCD == skillItem.CD) {
                                     if (!skillItem.auto) {
                                         return;
-                                    }else{
-                                        if(skillItem.cCD < skillItem.trigger.value){
+                                    } else {
+                                        if (skillItem.cCD < skillItem.trigger.value) {
                                             skillItem.cCD += 0.1;
                                             return;
                                         }
@@ -966,7 +979,7 @@ class YJSkill {
 
                                 owner.applyEvent("技能CD", skillItem.skillName, skillItem.cCD);
                                 //   console.log(owner.GetNickName()+" 技能CD ", skillItem.skillName, skillItem.cCD,skillItem.CD);
-                            
+
                             }
                         }, 100)
                 }

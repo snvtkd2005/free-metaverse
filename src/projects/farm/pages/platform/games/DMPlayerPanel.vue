@@ -190,11 +190,14 @@ export default {
     setDMPlayer(_dmplayer) {
       this.dmPlayer = _dmplayer;
     },
-    changeDMPlayerSkillCD(npcId, skillIndex, cCD) {
+    changeDMPlayerSkillCD(npcId, skillIndex, cCD,CD) {
       for (let i = 0; i < this.dmPlayer.length; i++) {
         const element = this.dmPlayer[i];
         if (element.npcId == npcId) {
           let skill = element.skill[skillIndex];
+          if(CD){
+            skill.CD = CD;
+          }
           // console.log(" in DMrogue ",npcId, skillIndex, cCD,skill.CD);
           skill.cCD = cCD;
           skill.perCD = ( skill.CD - skill.cCD).toFixed(0);

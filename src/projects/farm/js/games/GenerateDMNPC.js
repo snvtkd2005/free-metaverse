@@ -335,11 +335,11 @@ class GenerateDMNPC {
             }
             skills.push(cSkill);
           }
-          npc.addEventListener("技能CD", (skillName, cCD) => {
+          npc.addEventListener("技能CD", (skillName, cCD,CD) => {
             for (let i = 0; i < skills.length; i++) {
               const skill = skills[i];
               if (skill.name == skillName) {
-                dmVue.changeDMPlayerSkillCD(npcId, i, cCD);
+                dmVue.changeDMPlayerSkillCD(npcId, i, cCD,CD);
               }
             }
           });

@@ -87,7 +87,7 @@ class YJGame_roguelike {
             lookAtTarget();
           });
         }
-        
+
 
         fire();
       }, 500);
@@ -155,11 +155,11 @@ class YJGame_roguelike {
 
         });
 
-        _Global._YJPlayerFireCtrl.GetEquip().initWeapon(roguelikeGameData.weaponList[0],()=>{
+        _Global._YJPlayerFireCtrl.GetEquip().initWeapon(roguelikeGameData.weaponList[0], () => {
           _Global._YJPlayerFireCtrl.SetPlayerState("normal");
         });
         _Global._YJPlayerFireCtrl.SetState('canMoveAttack', true);
-        
+
         autoFire();
 
         _Global.inGame = true;
@@ -170,11 +170,12 @@ class YJGame_roguelike {
           const npc = npcs[i].transform.GetComponent("NPC");
           npc.addEventListener("死亡", () => {
             _GameRecord.addKill();
+            createGold(npc.GetWorldPos().clone());
           });
           npc.addEventListener("重生", () => {
             npc.SetNpcTarget(_Global.YJ3D.YJPlayer);//重生后立即攻击玩家   
           });
-          if(!npcs[i].transform.GetActive()){
+          if (!npcs[i].transform.GetActive()) {
             continue;
           }
           npc.SetNpcTarget(_Global.YJ3D.YJPlayer);
@@ -194,7 +195,7 @@ class YJGame_roguelike {
         _Global.addEventListener('主角生命值', (h, maxH) => {
 
         });
-        
+
         _Global.addEventListener('释放灵魂', () => {
           //清空技能
           _Global._YJPlayerFireCtrl.ClearSkill();
@@ -209,16 +210,16 @@ class YJGame_roguelike {
           _Global.applyEvent('战斗开始');
 
         });
-         
+
 
         _Global.addEventListener('战斗开始', () => {
           setTimeout(() => {
             for (let i = 0; i < npcs.length; i++) {
-              const npc = npcs[i].transform.GetComponent("NPC"); 
-              
-              if(!npcs[i].transform.GetActive()){
+              const npc = npcs[i].transform.GetComponent("NPC");
+
+              if (!npcs[i].transform.GetActive()) {
                 continue;
-              } 
+              }
               npc.SetNpcTarget(_Global.YJ3D.YJPlayer);
             }
           }, 2000);
@@ -227,25 +228,33 @@ class YJGame_roguelike {
 
         _Global.applyEvent('主角姓名', _Global._YJPlayerFireCtrl.GetNickName());
         _Global.applyEvent('主角头像', _Global.YJ3D.YJPlayer.GetavatarData());
-        
-        
+
+
         _Global.addEventListener('升级', (level) => {
-          _Global.applyEvent('设置等级',level); 
+          _Global.applyEvent('设置等级', level);
           _Global._YJPlayerFireCtrl.GetProperty().changeProperty();
           // 弹窗卡牌选择
           // openCard(level);
         });
-        
+
         _Global._YJPlayerFireCtrl.addEventListener("重生", (skillName, cCD) => {
           _Global._YJPlayerFireCtrl.applyEvent("首次进入战斗");
         });
 
         _Global._YJPlayerFireCtrl.addEventListener("属性改变", (baseData) => {
-          _Global.applyEvent("属性改变",baseData);
+          _Global.applyEvent("属性改变", baseData);
         });
 
       }
 
+    }
+
+    function createGold(pos) {
+      pos.y += 0.5;
+      _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillGroup("1721002990224", (model) => {
+        model.SetPos(pos); 
+        model.SetActive(true); 
+      });
     }
     // 占位符替换函数
     function templateReplace(template, data) {
@@ -262,8 +271,8 @@ class YJGame_roguelike {
 
       let needExpByLevel = roguelikeGameData.needExpByLevels[level - 1];
       if (needExpByLevel.rewardType == 'skill') {
-        
-        let skills = _Global.skillList; 
+
+        let skills = _Global.skillList;
         //随机取出3张卡片
         for (let i = 0; i < skills.length; i++) {
           const skill = skills[i];

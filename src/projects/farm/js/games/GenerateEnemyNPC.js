@@ -18,8 +18,15 @@ class GenerateEnemyNPC {
       level2: ["boss"],  //二级怪
       level3: ["巴纳扎尔"],  //三级怪
     };
+    let enemyList = ["boss", "魔暴龙", "森林狼"];
     let loadModelPooling = 0; //加载对象池中对象的次数
 
+    this.DuplicateModelNPC = function(modelId, state){
+      if(!modelId){
+        modelId = enemyList[RandomInt(0,enemyList.length-1)];
+      }
+      DuplicateModelNPC(modelId, state);
+    }
     function DuplicateModelNPC(modelId, state) { 
 
       let npcId = new Date().getTime();
@@ -97,7 +104,7 @@ class GenerateEnemyNPC {
         let npc = copy.GetComponent("NPC");
         npc.addEventListener("死亡", () => {
           if(onDead){
-            onDead();
+            onDead(npc);
           }
         });
         if (state) {
@@ -266,7 +273,7 @@ class GenerateEnemyNPC {
 
     function init() {
 
-      console.error(" in Generate NPC");
+      // console.error(" in Generate NPC");
       posRefList = _Global.YJ3D._YJSceneManager.GetPosRefList();
 
       _Global.addEventListener("战斗结束", (msg) => {

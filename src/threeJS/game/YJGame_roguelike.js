@@ -7,6 +7,7 @@ import * as THREE from "three";
 import GameItems from "../../projects/farm/data/platform/GameItems";
 import roguelikeGameData from "../../projects/farm/data/platform/roguelikeGameData";
 import { GameRecord } from "../common/gameRecord";
+import { YJGame_mainCtrl } from "./YJGame_mainCtrl";
 
 
 /**
@@ -164,13 +165,14 @@ class YJGame_roguelike {
 
         _Global.inGame = true;
         _GameRecord = new GameRecord();
+        let _YJGame_mainCtrl = new YJGame_mainCtrl();
         //
         let npcs = _Global._YJNPCManager.GetNPCs();
         for (let i = 0; i < npcs.length; i++) {
           const npc = npcs[i].transform.GetComponent("NPC");
           npc.addEventListener("死亡", () => {
             _GameRecord.addKill();
-            createGold(npc.GetWorldPos().clone());
+            _YJGame_mainCtrl.createGold(npc.GetWorldPos().clone());
           });
           npc.addEventListener("重生", () => {
             npc.SetNpcTarget(_Global.YJ3D.YJPlayer);//重生后立即攻击玩家   
@@ -180,8 +182,7 @@ class YJGame_roguelike {
           }
           npc.SetNpcTarget(_Global.YJ3D.YJPlayer);
         }
-        _Global.addEventListener('游戏继续', () => {
-        });
+        
         _Global.addEventListener('选择roguelike卡牌', (card) => {
           let { type, title, value, property } = card;
           if (type == "skill") {
@@ -192,24 +193,20 @@ class YJGame_roguelike {
           playGame();
         });
 
-        _Global.addEventListener('主角生命值', (h, maxH) => {
+        // _Global.addEventListener('释放灵魂', () => {
+        //   //清空技能
+        //   _Global._YJPlayerFireCtrl.ClearSkill();
+        //   _Global.applyEvent('主角重生');
+        //   _Global.applyEvent('战斗开始');
 
-        });
+        // });
+        // _Global.addEventListener('道具复活', () => {
+        //   _Global.applyEvent('主角重生');
+        //   // 还原战斗记录
+        //   _Global.applyEvent('激活技能栏');
+        //   _Global.applyEvent('战斗开始');
 
-        _Global.addEventListener('释放灵魂', () => {
-          //清空技能
-          _Global._YJPlayerFireCtrl.ClearSkill();
-          _Global.applyEvent('战斗开始');
-          _Global.applyEvent('主角重生');
-
-        });
-        _Global.addEventListener('道具复活', () => {
-          _Global.applyEvent('主角重生');
-          // 还原战斗记录
-          _Global.applyEvent('激活技能栏');
-          _Global.applyEvent('战斗开始');
-
-        });
+        // });
 
 
         _Global.addEventListener('战斗开始', () => {
@@ -225,37 +222,10 @@ class YJGame_roguelike {
           }, 2000);
         });
 
-
-        _Global.applyEvent('主角姓名', _Global._YJPlayerFireCtrl.GetNickName());
-        _Global.applyEvent('主角头像', _Global.YJ3D.YJPlayer.GetavatarData());
-
-
-        _Global.addEventListener('升级', (level) => {
-          _Global.applyEvent('设置等级', level);
-          _Global._YJPlayerFireCtrl.GetProperty().changeProperty();
-          // 弹窗卡牌选择
-          // openCard(level);
-        });
-
-        _Global._YJPlayerFireCtrl.addEventListener("重生", (skillName, cCD) => {
-          _Global._YJPlayerFireCtrl.applyEvent("首次进入战斗");
-        });
-
-        _Global._YJPlayerFireCtrl.addEventListener("属性改变", (baseData) => {
-          _Global.applyEvent("属性改变", baseData);
-        });
-
       }
 
     }
 
-    function createGold(pos) {
-      pos.y += 0.5;
-      _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillGroup("1721002990224", (model) => {
-        model.SetPos(pos); 
-        model.SetActive(true); 
-      });
-    }
     // 占位符替换函数
     function templateReplace(template, data) {
       return template.replace(/\$\{(\w+)\}/g, function (match, key) {

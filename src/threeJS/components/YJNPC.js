@@ -1256,7 +1256,7 @@ class YJNPC {
     function CheckHealth(fromName) {
       if (baseData.health <= 0) {
         baseData.health = 0;
-        scope.CombatLog(fromName + " 杀死了 " + GetNickName());
+        // scope.CombatLog(fromName + " 杀死了 " + GetNickName());
       }
 
       UpdateData();
@@ -1413,6 +1413,7 @@ class YJNPC {
       }
     }
     this.CombatLog = function (from, to, type, content) {
+      return;
       if (_Global.CombatLog) {
         _Global.CombatLog.log(from, to, type, content);
       }
@@ -1430,7 +1431,7 @@ class YJNPC {
         return;
       }
       scope.transform.UpdateData(); // 触发更新数据的回调事件
-      if (baseData.health == 0) {
+      if (baseData.health <= 0) {
         ClearLater("清除巡逻");
         dead();
       }
@@ -1439,13 +1440,13 @@ class YJNPC {
           baseData.health = baseData.maxHealth;
         }
       }
+      scope.applyEvent("healthChange", baseData.health, baseData.maxHealth);
 
       SendModelState({
         health: baseData.health,
         maxHealth: baseData.maxHealth
       }
       );
-      scope.applyEvent("healthChange", baseData.health, baseData.maxHealth);
     }
     this.Dead = function () {
       dead();
@@ -1881,10 +1882,6 @@ class YJNPC {
 
       if (baseData.state == stateType.Fire) {
 
-        if (_YJSkill.GetinSkill()) {
-          // console.log("in skill true ");
-          return;
-        }
         // console.log("in skill false ");
 
         if (targetModel == null) {
@@ -1896,6 +1893,10 @@ class YJNPC {
           return;
         }
 
+        if (_YJSkill.GetinSkill()) {
+          // console.log("in skill true ");
+          return;
+        }
 
         // 逻辑见note/npc策划.md 战斗策略
         let dis = scope.GetTargetModelDistance();
@@ -2106,6 +2107,7 @@ class YJNPC {
         }
         baseData.health = msg.health;
         if (baseData.health == 0) {
+
           scope.isDead = true;
           // 清除技能触发
           ClearFireLater();

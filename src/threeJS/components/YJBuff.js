@@ -42,8 +42,8 @@ class YJBuff {
                 let buff = JSON.parse(JSON.stringify(effect)) ;
                 buff.id = id;
                 baseData.debuffList.push(buff);
-                owner.applyEvent("添加debuff", buff);
-                // console.error(" add Debuff ",id,buff);
+                // console.error(" add Debuff ",id,JSON.parse(JSON.stringify(buff)));
+                owner.applyEvent("添加debuff",buff);
 
                 fireLater.push({
                     id: id,

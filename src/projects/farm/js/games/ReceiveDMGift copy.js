@@ -309,11 +309,11 @@ class ReceiveDMGift {
     } 
     //召唤友方NPC
     function DuplicateSelfNPC(assetId) {
-      ctrl.DMevent("加入友方角色",{assetId, state}); 
+      ctrl.DMevent("加入友方角色",assetId); 
     }
     // 召唤敌方npc
-    function DuplicateModelNPC(assetId, state) {
-      ctrl.DMevent("加入敌方角色",{assetId, state}); 
+    function DuplicateModelNPC(assetId) {
+      ctrl.DMevent("加入敌方角色",assetId); 
     }
     
 
@@ -336,7 +336,12 @@ class ReceiveDMGift {
     function eventHander(t, state) {
 
       if (t == "点赞") {
-        ctrl.DMevent("加入敌方角色",{state}); 
+        let npcs = _Global._YJNPCManager.GetSameCampNPCInFire(1000);
+        for (let i = 0; i < npcs.length; i++) {
+          const npcComponent = npcs[i];
+          npcComponent.Dync({ title: "加生命", value: 200 });
+        }
+        _Global.CombatLog.DMlog(GetNameStr(state.uname) + " 点赞 " + GetNameStr("全员") + GetPropertyStr("生命", 200));
         return;
       }
 

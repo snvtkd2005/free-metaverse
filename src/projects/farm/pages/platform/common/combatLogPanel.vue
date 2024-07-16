@@ -47,6 +47,8 @@ export default {
       setTimeout(() => {
         this.$refs.combatLog.scrollTop = this.$refs.combatLog.scrollHeight;
       }, 20);
+    }, 
+    DMlog(text, type) { 
     },
   },
 };

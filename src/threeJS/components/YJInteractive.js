@@ -27,7 +27,7 @@ class YJInteractive {
 
       scope.transform.isIgnoreRaycast = true;
       if(meshTrigger == null){
-        meshTrigger = new YJTrigger(_this, parent, transform, "interactive"); 
+        meshTrigger = new YJTrigger(_this, parent, transform, "interactive",data.volume); 
       }
       if(sprite != null){
         group.remove(sprite);

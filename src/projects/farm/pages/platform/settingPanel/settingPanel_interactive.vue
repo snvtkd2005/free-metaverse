@@ -37,6 +37,8 @@ export default {
         describe: "",//道具描述
         name: "",//道具名
         color: "#ffffff",
+        // volume:{ x: 1, y: 1, z: 1},
+        volume:[1, 1, 1],
         row: 14,
         col: 1,
         speed: 1,
@@ -51,6 +53,8 @@ export default {
         // {property: "col", title: "UV Y", type: "num", value: 1, callback: this.ChangeY },
         // {property: "speed", title: "播放速度", type: "slider", value: 1, min: 0.5, max: 5, step: 0.5, callback: this.SliderSpeed },
         // {property: "isBlack", title: "是否黑底", type: "toggle", value: false, callback: this.ChangeValue },
+        { property: "volume", display: true, title: "范围", type: "vector3", value: [1, 1, 1], step: 0.1, callback: this.ChangeValue },
+        
         {
           property: "buff", display: true, title: "触发效果", type: "drop", value: "加护甲", options: [
             { value: 'addArmor', label: '加护甲' },
@@ -94,6 +98,8 @@ export default {
     },
     Init(data) {
       this.settingData = data;
+
+      console.log(" this.settingData ", this.settingData );
       // Utils.SetSettingItemByProperty(this.setting,"name",  this.settingData.name);
       // Utils.SetSettingItemByProperty(this.setting,"imgPath",  this.settingData.imgPath);
       // Utils.SetSettingItemByProperty(this.setting,"buff",  this.settingData.buff);
@@ -102,6 +108,8 @@ export default {
       // Utils.SetSettingItemByProperty(this.setting,"relifeTime",  this.settingData.relifeTime);
       // Utils.SetSettingItemByProperty(this.setting,"describe",  this.settingData.describe);
       this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
+
+      this.Utils.SetSettingItemByProperty(this.setting, "volume", this.settingData.volume);
 
     },
     ChangeValue(i, e) {

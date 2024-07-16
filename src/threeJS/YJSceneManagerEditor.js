@@ -3373,6 +3373,7 @@ class YJSceneManager {
 
     //实时刷新
     this.update = function () {
+
       if(_Global.pauseGame){
         return;
       }

@@ -50,7 +50,7 @@
                       "
                     ></div>
                     <!-- 生命条文字 -->
-                    <div class="absolute hidden left-0 top-0 w-full flex h-full">
+                    <div class="absolute left-0 top-0 w-full flex h-full">
                       <div class="self-center mx-auto text-xs truncate">
                         {{ item.health }}/{{ item.maxHealth }}
                       </div>
@@ -189,6 +189,9 @@ export default {
   methods: {
     setDMPlayer(_dmplayer) {
       this.dmPlayer = _dmplayer;
+    },
+    forceUpdate(){
+      this.$forceUpdate();
     },
     changeDMPlayerSkillCD(npcId, skillIndex, cCD,CD) {
       for (let i = 0; i < this.dmPlayer.length; i++) {

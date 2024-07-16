@@ -109,6 +109,17 @@ class YJLoadUserModelManager {
       }
       return null;
     }
+
+    this.GetAllTransformByNameType = function (nameType) {
+      let a = [];
+      for (let i = 0; i < allTransform.length; i++) {
+        if (allTransform[i].transform.nameType == nameType && allTransform[i].transform.GetActive()) {
+          a.push(allTransform[i].transform);
+        }
+      }
+      return a;
+    }
+
     //#region 使用物理模拟判断是否与其他模型重叠，重叠时无法放置模型
     let Ammo = null;
     let _YJAmmo = null;
@@ -598,7 +609,7 @@ class YJLoadUserModelManager {
         } 
       });
     }
-    this.LoadSkillByModelType = function(modelType,folderBase,callback){
+    this.LoadSkillByFolderBase= function(folderBase,callback){
       for (let i = 0; i < skillGroupList.length; i++) {
         const element = skillGroupList[i];
         if(element.folderBase == folderBase){

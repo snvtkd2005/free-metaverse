@@ -19,7 +19,7 @@ class YJPlayerProperty {
 			state: 'normal', //状态
 			speed: 8, //移动速度
 			fireId: -1, //战斗组id  -1表示未在战斗中
-
+			gold:0, //金钱
 			buffList: [],//buff列表
 			debuffList: [],//debuff列表
 			basicProperty: {}, 
@@ -144,7 +144,9 @@ class YJPlayerProperty {
 				}
 			}
 
-
+			if(baseData.gold == undefined){
+				baseData.gold = 0;
+			}
 			baseData.buffList = buffList;
 			baseData.debuffList = debuffList;
 			// console.log(owner.GetNickName() + " 的属性 ",baseData);

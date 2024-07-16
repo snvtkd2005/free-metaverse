@@ -5,12 +5,15 @@ import * as THREE from "three";
 
 // 
 class YJTrigger {
-  constructor(_this, parent, owner, triggerId) {
+  constructor(_this, parent, owner, triggerId,volume) {
     let scope = this;
 
     var model = null;
     let size = null;
-    let volume = { x: 1, y: 1, z: 1 };
+    if(volume == undefined){
+      // volume = { x: 1, y: 1, z: 1 };
+      volume = [1,1,1];
+    }
     let createLater = null;
     function Init() { 
       createLater = setTimeout(() => {
@@ -27,12 +30,14 @@ class YJTrigger {
     this.CreateTrigger = function () {
       this.Destroy();
       // return;
-      let planeGeometry = new THREE.BoxGeometry(volume.x, volume.y, volume.z); // 生成平面
+      let planeGeometry = new THREE.BoxGeometry(volume[0],volume[1],volume[2]); // 生成平面
+      // let planeGeometry = new THREE.BoxGeometry(volume.x, volume.y, volume.z); // 生成平面
       let planeMaterial = new THREE.MeshBasicMaterial({
-        alphaTest: true,
+        alphaTest: !_Global.setting.inEditor,
         transparent: true,
         opacity: 0.5,
         color: 0x0000ff,
+        wireframe:_Global.setting.inEditor,
       });
       let plane = new THREE.Mesh(planeGeometry, planeMaterial);
       plane.name = "trigger";

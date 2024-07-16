@@ -29,6 +29,10 @@
       <!-- <div>{{ item.id }}</div> -->
     </div>
   </div>
+  <div v-if="hasStats" class=" absolute top-3 right-3 text-white">
+    <div>drawcall: {{statsText.drawcall}}</div>
+    <div>triangles: {{statsText.triangles}}</div>
+  </div>
 </template>
 
 
@@ -67,9 +71,13 @@ export default {
       cursorLeft: 0,
       cursorTop: 0,
       cursorUrl: "",
-      // hasStats: true,
-      hasStats: false,
+      hasStats: true,
+      // hasStats: false,
       videoList: [],
+      statsText:{
+        drawcall:0,
+        triangles:0,
+      },
     };
   },
   mounted() {
@@ -709,7 +717,7 @@ export default {
         stats.domElement.style.position = "absolute";
         stats.domElement.style.width = "80px";
         stats.domElement.style.height = "48px";
-        stats.domElement.style.right = "10px";
+        stats.domElement.style.left =( window.innerWidth -80)+ "px";
         stats.domElement.style.top = "100px";
         stats.domElement.style.zIndex = "9999";
         this.$refs.container.appendChild(stats.domElement);
@@ -978,7 +986,9 @@ export default {
         // console.error( 'THREE.WebGLState: 222222222', _Global.texImage2DError );
         // console.log( ' info ', this.renderer.info );
         // console.log( ' draw call ', this.renderer.info.render.calls  );
-        // console.error( ' Scene polycount : ', this.renderer.info.render.triangles  );
+        // console.log( ' Scene polycount : ', this.renderer.info.render.triangles  );
+        this.statsText.drawcall = this.renderer.info.render.calls;
+        this.statsText.triangles = this.renderer.info.render.triangles;
       }
     },
     renderSceneOneTimes() {

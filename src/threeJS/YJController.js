@@ -2040,11 +2040,13 @@ class YJController {
       return getWorldPosition(_YJAmmoPlayer);
     }
 
+    // 脚位置
     this.GetPlayerWorldPos2 = function () {
       let pos = _YJAmmo.GetPlayerPos();
       pos.y -= playerHeight / 2;
       return pos;
     }
+    // 头位置
     this.GetPlayerWorldPos3 = function () {
       let pos = _YJAmmo.GetPlayerPos();
       pos.y += playerHeight / 2;

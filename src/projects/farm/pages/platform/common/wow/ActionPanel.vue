@@ -311,6 +311,7 @@ export default {
   created() {},
   mounted() {
     setTimeout(() => {
+
       for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
         const element = this.actionList.actionBar1[i];
         element.isDeleled = false;
@@ -321,6 +322,26 @@ export default {
         let keytext = _Global.GameSetting.keyData.actionBar1[i].keytext;
         this.actionList.actionBar1[i].key = key;
         this.actionList.actionBar1[i].keytext = keytext;
+      }
+
+      if(_Global.ActionList){
+
+        for (let i = 0; i < _Global.ActionList.actionBar1.length; i++) {
+          let actionBarRecode = _Global.ActionList.actionBar1[i];
+          for (let j = 0; j < _Global.skillList.length; j++) {
+            const skill = _Global.skillList[j];
+            if(skill.skillName == actionBarRecode.skillName){
+              skill.auto = false;
+              skill.isDeleled = true;
+              skill.level = 1;
+              skill.cCD = skill.CD;
+              skill.perCD = 0;
+              this.actionList.actionBar1[actionBarRecode.index].isDeleled = true;
+              this.actionList.actionBar1[actionBarRecode.index].skill = skill;
+              
+            }
+          }
+        }
       }
 
       this.panelState = _Global.panelState;
@@ -374,9 +395,8 @@ export default {
         for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
           const element = this.actionList.actionBar1[i];
           if (element.skill && element.skill.type == 'skill') {
-            element.isDeleled = false;
-            let skill = element.skill;
-            skill.isDeleled = false;
+            element.isDeleled = false; 
+            element.skill.isDeleled = false;
           }
         }
         this.$forceUpdate();
@@ -428,6 +448,7 @@ export default {
         _Global._YJPlayerFireCtrl.addEventListener(
           "技能CD",
           (skillName, cCD) => {
+            // console.log(" 技能CD ",skillName, cCD);
             this.changeMainPlayerSkillCD(skillName, cCD);
           }
         );
@@ -455,6 +476,9 @@ export default {
   },
 
   methods: {
+    saveActionList(){
+      _Global.SaveActionList(this.actionList);
+    },
     cancelDragAction() {
       if (_Global.inDragAction) {
         _Global.inDragAction = false;
@@ -539,13 +563,17 @@ export default {
       }
     },
     AddSkill(_skill) {
+      
+
       for (let i = 0; i < this.actionList.actionBar1.length; i++) {
         const skill = this.actionList.actionBar1[i].skill;
         if (skill && skill.skillName == _skill.skillName) {
           if (skill.isDeleled) {
             this.actionList.actionBar1[i].isDeleled = false;
             skill.isDeleled = false;
-          }
+          } 
+          skill.level = 1;
+          skill.auto = false;
           return;
         }
       }
@@ -565,6 +593,7 @@ export default {
       _skill.level = 1;
       _skill.auto = false;
       this.actionList.actionBar1[index].skill = _skill;
+      this.saveActionList();
       this.$forceUpdate();
     },
     changeMainPlayerSkillCD(skillName, cCD) {

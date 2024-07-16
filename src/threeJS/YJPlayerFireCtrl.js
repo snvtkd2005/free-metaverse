@@ -573,7 +573,9 @@ class YJPlayerFireCtrl {
 		this.GetWorldPos = function () {
 			return _this.YJController.GetPlayerWorldPos2();
 		}
-
+		this.GetWorldPosHalfHeight = function () {
+			return _this.YJController.GetPlayerWorldPos();
+		}
 		this.GetDamageTextPos = function () {
 			return _this.YJController.GetPlayerWorldPos3();
 		}

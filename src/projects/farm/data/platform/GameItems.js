@@ -48,6 +48,7 @@ export default {
   stuffType:[
     { label: "传送", value: "transmit" },
     { label: "复活", value: "relife" },
+    { label: "收集金币", value: "collectGold" },
 
   ],
 

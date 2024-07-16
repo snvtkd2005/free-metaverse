@@ -8,7 +8,7 @@
     <div
       class="absolute left-0 top-0 w-full h-full flex  "
     >
-    <div class=" absolute right-40 top-4  mx-auto   px-2  flex flex-row-reverse gap-6 rounded-lg">
+    <div class=" absolute right-40 top-4 gap-4    mx-auto   px-2  flex flex-row-reverse  rounded-lg">
       
       <div
         v-for="(item, i) in buffList"
@@ -38,7 +38,7 @@
     <div
       class="absolute left-0 top-0 w-full h-full flex "
     >
-    <div class=" absolute right-40 top-40  gap-2 w-auto flex flex-row-reverse  px-2 mx-auto ">
+    <div class=" absolute right-40 top-40  gap-4 w-auto flex flex-row-reverse  px-2 mx-auto ">
       <div
         v-for="(item, i) in debuffList"
         :key="i"
@@ -167,20 +167,9 @@ export default {
       this.hoverPart = "";
       this.$parent.outHover();
     },
-    clickSkill(e) {
-      // console.log("点击技能 ", e);
-      if (e == "攻击") {
-        _Global.YJ3D.YJController.SetInteractiveNPC("点击技能", "普通攻击");
-        return;
-      }
-    },
-    //buff动作栏。 使用技能或物体
-
-    onContextMenu(ev, item) {
-      // 阻止默认的上下文菜单显示
-      ev.preventDefault();
-      // console.log(e,item);
-
+    //buff动作栏。 右键取消增益buff 
+    onContextMenu(ev, item) { 
+      ev.preventDefault(); 
       if (ev.button == 2) {
         // 右键取消buff
         _Global._YJPlayerFireCtrl.applyEvent("解除技能",item);

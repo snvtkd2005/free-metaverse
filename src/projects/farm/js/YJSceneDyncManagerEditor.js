@@ -526,6 +526,7 @@ class YJSceneDyncManagerEditor {
 
     // 判断战斗中的角色是否同阵营
     function CheckSameCamp(peopleList) {
+      // console.log("判断战斗中的角色是否同阵营 ",peopleList);
       let camp = peopleList[0].camp
       for (let j = peopleList.length - 1; j >= 1; j--) {
         if (camp != peopleList[j].camp) {
@@ -698,7 +699,7 @@ class YJSceneDyncManagerEditor {
     }
     this.NPCTargetToNone = function (state) {
       let { npcId, camp, fireId, ignorePlayerId, vaildDis } = state;
-      // console.log(npcComponent.npcName + "npc 死亡或其他 请求离开战斗" + npcComponent.fireId);
+      // console.log(npcId + " 的目标为空 ");
       for (let i = fireGroup.length - 1; i >= 0; i--) {
         const element = fireGroup[i];
         if (element.fireId == fireId) {
@@ -778,9 +779,12 @@ class YJSceneDyncManagerEditor {
       } else {
         vaildDis = undefined;
       }
-      // if(npcComponent.npcName.includes("阳光万里")){
+
+      // if(npcComponent.GetNickName().includes("阳光万里")){
       //   console.log(vaildDis," ["+ npcComponent.npcName+ "] ");
       // }
+
+      // console.log(npcComponent.GetNickName()+" 查找下一个目标 ");
 
       const player = _Global._YJNPCManager.GetNoSameCampNPCInFireByNearestDis(npcComponent.GetWorldPos(), camp, vaildDis);
       // if (npcComponent.npcName.includes("老a")) {

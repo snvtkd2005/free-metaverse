@@ -42,7 +42,7 @@
           </div>
 
           <div class="absolute left-0 bottom-3 ml-20 w-40 h-4 ">
-            <div class=" text-white text-xs text-right pr-5">465465465</div>
+            <div class=" text-white text-xs text-right pr-5">{{goldValue}}</div>
             <div class="absolute right-0 top-0">
               <img :src="goldUrl" alt="" />
             </div>
@@ -101,12 +101,16 @@ export default {
         "./public/images/cursorList/mainmenu/ui-chaticon-blinkhilight.png",
       hoverPart: "",
       dragFromIndex: -1,
+      goldValue:0,
     };
   },
   created() {},
   mounted() {
     setTimeout(() => {
-      _Global.addEventListener("升级", (level) => {});
+      _Global.addEventListener("属性改变", (v) => {
+        // console.log("属性改变 " ,v);
+        this.goldValue = v.gold;
+      });
       _Global.addEventListener("点击三维页", () => {
         if (_Global.inDragProp) {
           // 扔丢道具，打开扔道具确认框

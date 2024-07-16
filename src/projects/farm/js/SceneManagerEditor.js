@@ -293,7 +293,7 @@ class SceneManager {
     let boneAttachList = [];
 
     this.SetTriggerOverlap = (b, id, owner) => {
-      console.log(" in Overlap ", b, id, owner);
+      console.log(" in Overlap ", b, id, owner.modelData);
       if (owner.isYJTransform) {
         let msg = owner.GetMessage();
         if (msg.pointType == "weapon") {
@@ -666,6 +666,10 @@ class SceneManager {
         // console.log(" 新能量值为 ", v);
 
         _this.YJController.SetUserDataItem("baseData", "energy", v);
+      }
+
+      if (model.buff == "addGold") {
+        _Global._YJPlayerFireCtrl.GetProperty().updateBasedata({value:1,property:"gold"});
       }
     }
 

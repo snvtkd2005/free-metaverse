@@ -3,13 +3,9 @@
 
 
 import * as THREE from "three";
-import { GameRecord } from "/@/threeJS/common/gameRecord";
-import { RandomInt } from "/@/utils/utils";
 
-import { socket_bilibili } from "/@/utils/socket_bilibili.js";
-import * as world_configs from "/@/utils/socket_bilibili/index.js";
-import { GenerateEnemyNPC } from "./GenerateEnemyNPC";
 
+import * as world_configs from "/@/utils/socket_bilibili/index.js"; 
  
 /**
  * 
@@ -117,15 +113,6 @@ class GenerateDMNPC {
       // if (npc.isDead) {
       //   npc.Dync({ title: "重新生成" });
       // }
-    }
-
-    function CheckNpcTarget(npcComponent) {
-      if (_Global.inGame) {
-        let npcs = _Global._YJNPCManager.GetNoSameCampNPCInFire(npcComponent.GetCamp());
-        if (npcs.length > 0) {
-          npcComponent.SetNpcTarget(npcs[0], true, true);
-        }
-      }
     }
     this.GanerateNPC = function(assetId, camp, state) {
       let { uface, uname, msg } = state;
@@ -259,7 +246,7 @@ class GenerateDMNPC {
       }
       if (camp == "蓝方") {
         target = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId("redboss");
-        target.GetComponent("NPC").canMove = false;
+        // target.GetComponent("NPC").canMove = false;
       }
 
       if (_Global.YJDync) {
@@ -276,7 +263,7 @@ class GenerateDMNPC {
         // 测试显示指定名称id的NPC
         copy.SetActive(true);
         let npc = copy.GetComponent("NPC");
-        npc.canMove = false;
+        // npc.canMove = false;
         npc.deadedHidden = false;
         npc.canLevelUp = true;
 
@@ -287,9 +274,11 @@ class GenerateDMNPC {
 
 
         npc.addEventListener("死亡", () => {
-          scope.ChangeDMNPCDead(npcId);
+          scope.ChangeDMNPCDead(npcId); 
+          dmVue.forceUpdate();
         });
         npc.addEventListener("healthChange", (health, maxHealth) => {
+          // console.log(" in healthChange ",health, maxHealth);
           dmPlayer.health = health;
           dmPlayer.maxHealth = maxHealth;
         });
@@ -405,150 +394,15 @@ class GenerateDMNPC {
         }
       });
     }
-
-
-    // 每0.5秒检测一次。巡视NPC是否能发现玩家。每个玩家独立计算，计算后再做npc目标同步
-    function CheckNpcLookat() {
-      if (_Global.pauseGame) {return;}
-      if (!_Global.inGame) {
-        return;
-      }
-
-      let npcs = _Global._YJNPCManager.GetNoSameCampNPCInFire(1000);
-      if (npcs.length > 0) {
-
-        // _Global.DyncManager.LoopCheckFire();
-        // console.log(" 场上DM玩家数量 ：" + dmNpcList.length );
-
-        for (let i = 0; i < dmNpcList.length; i++) {
-          const npcComponent = dmNpcList[i].npc;
-
-          // console.log("[" + npcComponent.npcName + "] .fireId = ", npcComponent.fireId,npcComponent.isDead,npcComponent.GetTargetModelId()," npcs[0].fireId = "+npcs[0].fireId);
-          if (!npcComponent.isDead && npcComponent.fireId == -1 && npcs[0].fireId != -1) {
-            _Global.DyncManager.NPCAddFireGroup(npcComponent, null);
-            //并指定其目标为指定名称id的npc            
-            npcComponent.SetNpcTarget(npcs[0], true, true);
-          }
-        }
-
-        for (let i = 0; i < selfNpcList.length; i++) {
-          const npcComponent = selfNpcList[i].npc;
-          // console.log("[" + npcComponent.npcName + "] .fireId = ", npcComponent.fireId,npcComponent.GetTargetModelId()
-          // ," npcs[0].fireId = "+npcs[0].fireId);
-          if (!npcComponent.isDead && npcComponent.fireId == -1 && npcs[0].fireId != -1) {
-            let b = _Global.DyncManager.NPCAddFireGroup(npcComponent, null);
-            if (b) {
-              //并指定其目标为指定名称id的npc            
-              npcComponent.SetNpcTarget(npcs[0], true, true);
-            }
-          }
-        }
-
-        // let redboss = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId("redboss");
-        // let npcComponent = redboss.GetComponent("NPC");
-        // // console.log(" redboss.fireId = ",targetCom.fireId);
-        // if (!npcComponent.isDead && npcComponent.fireId == -1 && npcs[0].fireId != -1) {
-        //   if (_Global.DyncManager.NPCAddFireGroup(npcComponent, null)) {
-        //     //并指定其目标为指定名称id的npc            
-        //     npcComponent.SetNpcTarget(npcs[0], true, true);
-        //   }
-        // }
-
-        // let gjs = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId("弓箭手1");
-        // // let gjs = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId("战士");
-        // let gjsCom = (gjs.GetComponent("NPC"));
-        // gjsCom.canMove = false;
-        // if (!gjsCom.isDead && gjsCom.fireId == -1 && npcs[0].fireId != -1) {
-        //   if (_Global.DyncManager.NPCAddFireGroup(gjsCom, npcs[0].id)) {
-        //     //并指定其目标为指定名称id的npc            
-        //     gjsCom.SetNpcTarget(npcs[0], true, true);
-        //   } 
-        // }
-
-      }
-
-      // for (let i = 0; i < dmNpcList.length; i++) {
-      //   const npcComponent = dmNpcList[i].npc;
-      //   npcComponent.CheckNextTarget();
-      // }
-      // for (let i = 0; i < selfNpcList.length; i++) {
-      //   const npcComponent = selfNpcList[i].npc;
-      //   npcComponent.CheckNextTarget();
-      // }
-    }
-    let _GameRecord = null;
     function init() {
  
 
-      console.error(" in Generate DM NPC"); 
+      // console.error(" in Generate DM NPC"); 
       posRefList = _Global.YJ3D._YJSceneManager.GetPosRefList();
-  
-      _GameRecord = new GameRecord();
+   
       // _Global.LogFireById(1711340121297)
 
       _Global.addEventListener("战斗结束", (msg) => {
- 
-
-        // if (msg == 1000) {
-        //   // 人类获胜
-        //   // let redboss = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId("redboss");
-        //   // let redbossNpc = redboss.GetComponent("NPC");
-        //   // if (!redbossNpc.isDead) {
-        //   //   redbossNpc.Dync({ title: "加生命", value: 200 });
-        //   // }
-        //   // redbossNpc.fireOff();
-        //   // 消耗热度先治疗其他弹幕玩家
-        //   for (let i = DMPlayer.length - 1; i >= 0; i--) {
-        //     const element = DMPlayer[i];
-        //     if (element.state == "run") {
-        //       let npcComponent = _Global._YJNPCManager.GetNpcComponentById(element.npcId);
-        //       if (!element.isDead) {
-        //         npcComponent.Dync({ title: "加生命", value: 200 }); 
-        //       }
-        //     }
-        //   }
-        // }  
-        // for (let i = DMPlayer.length - 1; i >= 0; i--) {
-        //   const element = DMPlayer[i];
-        //   if (element.state == "run") {
-        //     let npcComponent = _Global._YJNPCManager.GetNpcComponentById(element.npcId);
-        //     npcComponent.fireOff();
-        //   }
-        // }  
-
-        // setTimeout(() => {
-        //   // 如果弹幕玩家死亡，则重新生成弹幕玩家
-        //   for (let i = DMPlayer.length - 1; i >= 0; i--) {
-        //     const element = DMPlayer[i];
-        //     if (element.state == "run") {
-        //       let npcComponent = _Global._YJNPCManager.GetNpcComponentById(element.npcId);
-        //       npcComponent.fireId = -1;
-        //       if (element.isDead) {
-        //         resetLifeById(element.npcId);
-        //       }
-        //     }
-        //     if (element.isDead) {
-        //       element.health = element.maxHealth;
-        //       element.isDead = false;
-        //     }
-
-        //     let skills = element.skill;
-        //     if (skills) {
-        //       for (let k = 0; k < skills.length; k++) {
-        //         const skill = skills[k];
-        //         let { name, CD, cCD, unLockLevel, level } = skill;
-        //         skill.perCD = 0;
-        //         cCD = CD;
-        //         dmVue.changeDMPlayerSkillCD(element.npcId, k, cCD);
-        //       }
-
-        //     }
-        //   }
-        //   // 主角色死亡也重新生成 
-        //   // resetLifeById("redboss");
-
-        // }, 10000);
-
         // 清除玩家技能施放
         for (let i = intervalList.length - 1; i >= 0; i--) {
           const element = intervalList[i];
@@ -669,6 +523,7 @@ class GenerateDMNPC {
             dmplayer.needExp = 200;
             dmplayer.strength = 20;
           }
+
           // dmplayer.level = 1;
           // dmplayer.health = 300;
           // dmplayer.maxHealth = 300;
@@ -708,12 +563,6 @@ class GenerateDMNPC {
         dmVue.setDMPlayer(DMPlayer);
 
       });
-
-
-      _Global.addEventListener("战斗开始", () => {
-        
-      });
-
 
     }
 

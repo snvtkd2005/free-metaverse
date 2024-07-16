@@ -135,7 +135,9 @@ class YJSkillParticleManager {
       _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().DuplicateModelVisit(modelData, (object) => {
         // console.log("加载组合模型", object);
         // particleList.push(object); 
-        shootTargetList.push({ particleId: particleId,speed:speed, callback: callback, startPos: startPos, target: target, time: 0, used: true, particle: object });
+        shootTargetList.push({ particleId: particleId,
+          speed:speed, callback: callback, startPos: startPos, 
+          target: target, time: 0, used: true, particle: object });
       });
 
       // console.log(" 加载组合数据 ",modelData);

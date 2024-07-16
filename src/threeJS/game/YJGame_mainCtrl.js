@@ -19,6 +19,7 @@ class YJGame_mainCtrl {
     function init() {
       // console.error(" in YJGame_mainCtrl "); 
 
+      _Global._YJGame_mainCtrl = scope;
       _Global.addEventListener('游戏继续', () => {
       });
 
@@ -63,6 +64,40 @@ class YJGame_mainCtrl {
 
 
     }
+
+
+    let modelPool = []; //金币对象池
+    this.createGold = function(pos) {
+      // return;
+      let folderBase = "1721002990224";
+      let transform = this.GetModelInPool(folderBase);
+      if(transform != null){
+        transform.SetPos(pos); 
+        transform.SetActive(true); 
+        return;
+      }
+      pos.y += 0.5;
+      _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillGroup(folderBase, (model) => {
+        model.SetPos(pos); 
+        model.SetActive(true); 
+        model.nameType = "gold";
+        modelPool.push({folderBase:folderBase,transform:model});
+        // console.log(" 生成金币 ",model);
+      });
+    }
+    this.GetModelInPool = function(folderBase){
+      for (let i = 0; i < modelPool.length; i++) {
+        const element = modelPool[i];
+        if(element.folderBase == folderBase && !element.transform.GetActive()){
+          return element.transform;
+        }
+      }
+      return null;
+    }
+    this.AttachToPool = function(folderBase,model){
+      modelPool.push({folderBase:folderBase,transform:model});
+    }
+
     init();
   }
 }

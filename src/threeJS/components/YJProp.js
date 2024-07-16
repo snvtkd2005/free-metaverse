@@ -3,6 +3,9 @@
 
 import * as THREE from "three";
 
+import {YJTween} from "./YJTween.js";
+
+
 // 道具、药剂等可以使用的物品
 
 class YJProp {
@@ -10,6 +13,7 @@ class YJProp {
         let scope = this;
         let targetModel = null;
         let baseData = null;
+        let _YJTween = null;
         function init() {
             baseData = owner.GetBaseData();
         } 
@@ -47,7 +51,27 @@ class YJProp {
                 if(effectType == "transmit"){
                     
                 }
+                if(effectType == "collectGold"){
+                    //收取所有金币
+                    // 获取所有金币、把基本移动到主角位置、金币数量增加
+                   let allGold = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetAllTransformByNameType("gold");
+                   if(_YJTween == null){
+                    _YJTween = new YJTween();
+                    _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(_YJTween);
+                  } 
 
+                   for (let i = 0; i < allGold.length; i++) {
+                    const element = allGold[i];
+                    // .GetWorldPosHalfHeight()
+                    _YJTween.TweenPos2(element.GetWorldPos(),element,owner,1.0,
+                    ()=>{
+                        element.SetActive(false); 
+                        _Global._YJPlayerFireCtrl.GetProperty().updateBasedata({value:1,property:"gold"});
+                    });
+                   }
+  
+
+                }
                 if(effectType == "relife"){ 
                     return false;
                 }

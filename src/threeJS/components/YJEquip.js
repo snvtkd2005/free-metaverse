@@ -10,7 +10,7 @@ class YJEquip {
 
         //#region 玩家装备
         this.initWeapon = function(weapon,callback){
-          console.error( " in 玩家装备 ",weapon);
+        //   console.error( " in 玩家装备 ",weapon);
           let path = _Global.YJ3D.$uploadUrl + weapon.assetId + "/" + "data.txt" + "?time=" + new Date().getTime();
     
           _Global.YJ3D._YJSceneManager.LoadAssset(path,(data)=>{
@@ -23,12 +23,12 @@ class YJEquip {
             let YJController = _Global.YJ3D.YJController;
             let YJPlayer = _Global.YJ3D.YJPlayer;
             _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().LoadStaticModel2(data, (transform) => {
-              console.log(transform);
+            //   console.log(transform);
               let owner = transform;
               let msg = owner.GetMessage();
               if (msg.pointType == "weapon") { 
                 let state = YJController.GetUserDataItem("weaponData");
-                console.log(" 碰到武器 ", msg.data, state);
+                // console.log(" 碰到武器 ", msg.data, state);
                 // 判断角色是否可以拾取武器
                 if (state != null && state.weaponId != "") {
                   return;

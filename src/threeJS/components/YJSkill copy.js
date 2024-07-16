@@ -418,35 +418,21 @@ class YJSkill {
         // 攻击速度，攻击间隔，判定有效的攻击时机
         let attackStepSpeed = 3; //攻击间隔/攻击速度
         function skillEnd(skillItem, e) {
+            inSkill = false;
             clearCastSkill();
             if (skillItem) {
-                if (skillItem.cCD == skillItem.CD) {
+                if(skillItem.cCD == skillItem.CD){
                     skillItem.cCD = 0;
                 }
                 // console.log(skillItem.skillName + e);
                 _Global._YJAudioManager.stopAudio(readyskillAudioName);
                 owner.skillEnd();
             } else {
-
+                // if (e) {
+                //     console.log(e);
+                // }
             }
-            if (e == "结束") {
-                if (_Global.CombatLog && skillItem.effect.skillName != "基础攻击"
-                    && owner.GetNickName().includes('落地水')
-                ) {
-                    _Global.CombatLog.log(owner.GetNickName() + " 11 ", "", "技能", skillItem.effect.skillName);
-
-                }
-            }
-            // if (e.includes( "中断")) {
-            //     if (_Global.CombatLog 
-            //         && owner.GetNickName().includes('落地水')
-            //     ) {
-            //         console.log(owner.GetNickName() + " 11  "+ e);
-            //     }
-            // }
-
             owner.SetValue("readyAttack_doonce", 0);
-            inSkill = false;
 
         }
         this.UseSkill = function (skillItem) {
@@ -460,9 +446,8 @@ class YJSkill {
             if (owner.isDead) {
                 return false;
             }
-            if (inSkill) { return false; }
-            
-            EventHandler("中断延迟施法"); 
+            if (inSkill) { return; }
+
             inSkill = true;
             let { animName, animNameReady, skillName, target, effect } = skillItem;
 
@@ -565,9 +550,9 @@ class YJSkill {
             }
 
             if (!checkCan()) {
-                // if (skillName != "基础攻击" && owner.GetNickName().includes('落地水')) {
-                //     console.error(owner.GetNickName() + skillName + "施放失败: " + errorLog, targetModel);
-                // }
+                if (skillName != "基础攻击" && owner.GetNickName().includes('居民')) {
+                    console.error(owner.GetNickName() + skillName + "施放失败: " + errorLog, targetModel);
+                }
                 inSkill = false;
                 return false;
             }
@@ -642,13 +627,33 @@ class YJSkill {
                 }
 
                 if (targetType.includes("random")) {
+
+                    if (targetType.includes("Friendly")) {
+                        // 找友方目标 
+                        searchModel = _Global._YJFireManager.GetSameCampByRandom(owner.GetCamp());
+                    } else {
+                        // 找敌对阵营的目标
+                        searchModel = _Global._YJFireManager.GetNoSameCampByRandom(owner.GetCamp());
+                    }
+                    // 随机进没目标时，返回false 不施放技能
+                    if (searchModel == null) {
+                        return false;
+                    }
+                    if (searchModel != null && searchModel.isDead) {
+                        owner.TargetDead();
+                        return false;
+                    }
                     vaildAttackLater2 = setTimeout(() => {
-                        if (searchModel == null || (searchModel != null && searchModel.isDead)) {
+                        if (searchModel == null) {
+                            return;
+                        }
+                        if (searchModel != null && searchModel.isDead) {
                             EventHandler("中断技能");
                             return;
                         }
                         //有效攻击 && 
                         SendDamageToTarget(searchModel, skillItem.effect, skillItem);
+                        
                     }, skillCastTime * 100);
                 }
 
@@ -804,10 +809,8 @@ class YJSkill {
                 owner.playAudio(skillItem.skillFireAudio, readyskillAudioName);
                 fn();
                 skillEnd(skillItem, "结束");
-
             }
-
-            return true;
+            return true; 
 
         }
 
@@ -985,7 +988,13 @@ class YJSkill {
                                         // }
                                         // skillCDlist.push({skillName:skillItem.skillName,skillItem:skillItem});
                                     }
-                                    SkillGo(skillItem);
+                                    if (SkillGo(skillItem)) {
+                                        if (_Global.CombatLog && skillItem.effect.skillName != "基础攻击"
+                                        && owner.GetNickName().includes('落地水') 
+                                        ) {
+                                            _Global.CombatLog.log(owner.GetNickName() + " 11 ", "", "技能", skillItem.effect.skillName);
+                                        }
+                                    }
                                     return;
                                 }
                                 skillItem.cCD += 0.1;
@@ -1058,6 +1067,7 @@ class YJSkill {
 
         let vaildAttackLater = null;
         let vaildAttackLater2 = null;
+        let toIdelLater = null;
         let _offsetTime = 0;
         let cutStartTime = 0;
 
@@ -1065,21 +1075,14 @@ class YJSkill {
         let castSkillList = [];
 
         function EventHandler(e, cutSkill = true) {
-            if(e=="中断延迟施法"){
-                if (vaildAttackLater != null || vaildAttackLater2 != null ) {
-                    clearTimeout(vaildAttackLater);
-                    clearTimeout(vaildAttackLater2); 
-                    vaildAttackLater = null;
-                    vaildAttackLater2 = null; 
-                }
-                return;
-            }
             if (e == "中断技能") {
-                if (vaildAttackLater != null || vaildAttackLater2 != null ) {
+                if (vaildAttackLater != null || vaildAttackLater2 != null || toIdelLater != null) {
                     clearTimeout(vaildAttackLater);
-                    clearTimeout(vaildAttackLater2); 
+                    clearTimeout(vaildAttackLater2);
+                    clearTimeout(toIdelLater);
                     vaildAttackLater = null;
                     vaildAttackLater2 = null;
+                    toIdelLater = null;
                     //记录当前时间
                     _offsetTime = new Date().getTime() - cutStartTime;
                     cutStartTime = new Date().getTime();
@@ -1099,7 +1102,8 @@ class YJSkill {
             }
             if (e == "中断施法") {
                 clearCastSkill();
-                skillEnd(null, "中断施法"); 
+                skillEnd(null, "中断施法");
+
             }
 
             owner.EventHandler(e, cutSkill);

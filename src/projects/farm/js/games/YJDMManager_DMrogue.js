@@ -43,8 +43,7 @@ class YJDMManager_DMrogue {
     let dmNpcList = []; //弹幕npc
     let selfNpcList = []; //自身召唤npc
     let posRefList = []; //敌方npc生成位置 
-
-    let camps = ["血色十字军", "亡灵"];
+ 
 
     let mainName = "[大检察官怀特迈恩]";
     this.addProp = function (element) {
@@ -179,10 +178,13 @@ class YJDMManager_DMrogue {
     //#endregion
 
 
-    this.GanerateNPC = function (assetId, camp, state) {
-      _GenerateDMNPC.GanerateNPC(assetId, camp, state);
-    }
 
+    this.GetEnemyNPCManager  = function(){
+      return _GenerateEnemyNPC;
+    }
+    this.GetDMNPCManager  = function(){
+      return _GenerateDMNPC;
+    }
     //召唤友方NPC
     this.DuplicateSelfNPC = function (assetId) {
       _GenerateDMNPC.DuplicateSelfNPC(assetId);
@@ -191,6 +193,64 @@ class YJDMManager_DMrogue {
       _GenerateEnemyNPC.DuplicateModelNPC(modelId, state);
     }
 
+    let assetIdList = ["战士4", "弓箭手4", "战士3", "弓箭手3", "战士2", "弓箭手2", "战士1", "弓箭手1"];
+    let posIdList = ["24", "14", "23", "13", "22", "12", "21", "11"];
+    let camps = ["血色十字军", "亡灵"];
+    this.DMevent = function(e,msg){
+
+      if(e=="加入"){
+        let dm = msg;
+        let random = RandomInt(0, 1);
+        let camp = "血色十字军";
+        // let camp = random ? "血色十字军" : "亡灵";
+        random = RandomInt(0, 1);
+        let assetId = "";
+        // if (DMPlayer.length >= 8) {
+        //   camp = "亡灵";
+        // }
+        // console.log(state.uname + "加入 ", camp);
+        _Global.CombatLog.DMlog(GetNameStr(dm.uname) + " 加入 " + camp);
+
+        if (camp == "亡灵") {
+          _GenerateEnemyNPC.DuplicateModelNPC("", dm); 
+          return;
+        } else {
+          assetId = assetIdList[RandomInt(0, assetIdList.length - 1)];
+          for (let j = 0; j < assetIdList.length; j++) {
+            const _assetId = assetIdList[j];
+            let has = scope.hasAssetId(_assetId);
+            if (!has) {
+              assetId = _assetId;
+            }
+          }
+        }
+        _GenerateDMNPC.GanerateNPC(assetId, camp, dm); 
+        return;
+      }
+
+      if(e=="加入敌方角色"){
+        let {assetId, state} = msg;
+        _GenerateEnemyNPC.DuplicateModelNPC(assetId, state);
+        return;
+      }
+      if(e=="加入友方角色"){
+        let {assetId, state} = msg;
+        _GenerateDMNPC.DuplicateSelfNPC(assetId, state);
+        return;
+      }
+      
+      if(e=="加入小队角色"){
+        let {assetId, camp, state} = msg;
+        _GenerateDMNPC.GanerateNPC(assetId, camp, state);
+        return;
+      }
+    }
+
+
+
+    this.GanerateNPC = function (assetId, camp, state) {
+      _GenerateDMNPC.GanerateNPC(assetId, camp, state);
+    }
 
     function GetNameStr(name) {
       return "[" + name + "]";
@@ -286,6 +346,7 @@ class YJDMManager_DMrogue {
       resetLifeById(modelId);
     }
     function resetLifeById(modelId) {
+      // console.log(" 如果弹幕玩家死亡，则重新生成弹幕玩家 11 ",modelId);
 
       if (_Global.YJDync) {
         _Global._YJDyncManager.SendSceneStateAll("转发", { type: "重新生成", state: { modelId: modelId } });
@@ -293,6 +354,8 @@ class YJDMManager_DMrogue {
 
       let npcComponent = _Global._YJNPCManager.GetNpcComponentById(modelId);
       if (npcComponent) {
+      // console.log(" 如果弹幕玩家死亡，则重新生成弹幕玩家 22 ",modelId);
+
         if (npcComponent.isDead) {
           npcComponent.Dync({ title: "重新生成" });
         }
@@ -351,10 +414,7 @@ class YJDMManager_DMrogue {
 
     // 每0.5秒检测一次。巡视NPC是否能发现玩家。每个玩家独立计算，计算后再做npc目标同步
     function CheckNpcLookat() {
-      if (_Global.pauseGame) { return; }
-      if (!_Global.inGame) {
-        return;
-      }
+
 
       let npcs = _Global._YJNPCManager.GetNoSameCampNPCInFire(1000);
       if (npcs.length > 0) {
@@ -415,6 +475,10 @@ class YJDMManager_DMrogue {
 
       }
 
+      if(_Global.createCompleted){
+        enemyNpcTarget = GetEnemyTarget();
+      }
+
       // for (let i = 0; i < dmNpcList.length; i++) {
       //   const npcComponent = dmNpcList[i].npc;
       //   npcComponent.CheckNextTarget();
@@ -464,9 +528,40 @@ class YJDMManager_DMrogue {
     this.DMPlayerDamageStatistics = function (damageStatistics) {
       return _GameRecord.DMPlayerDamageStatistics(damageStatistics, DMPlayer);
     }
+    this.hasPlayer = function(uname){
+      if (DMPlayer.length == 0) {
+        DMPlayer = _GenerateDMNPC.GetDMPlayer();
+      }
+      for (let i = 0; i < DMPlayer.length; i++) {
+        const element = DMPlayer[i];
+        if (element.uname == uname) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    this.hasAssetId = function(assetId){
+      if (DMPlayer.length == 0) {
+        DMPlayer = _GenerateDMNPC.GetDMPlayer();
+      }
+      for (let i = 0; i < DMPlayer.length; i++) {
+        const element = DMPlayer[i];
+        if (element.assetId == assetId) {
+          return true;
+        }
+      }
+      return false;
+    }
+    
+
+
     let _GameRecord = null;
     let gameLevel = 1;
 
+
+    // 敌人的目标。从友方角色中随机选择一个角色作为敌方的目标
+    let enemyNpcTarget = null;
     function init() {
 
 
@@ -474,25 +569,41 @@ class YJDMManager_DMrogue {
       _Global.DMManager = scope;
       posRefList = _Global.YJ3D._YJSceneManager.GetPosRefList();
       setInterval(() => {
+        if (_Global.pauseGame) { return; }
+        if (!_Global.inGame) {
+          return;
+        }
+
         CheckNpcLookat();
       }, 500);
+      setInterval(() => {
+        if (_Global.pauseGame) { return; }
+        if (!_Global.inGame) {
+          return;
+        }
+        GetEnemyTarget();
+      }, 2000);
+      let _YJGame_mainCtrl = new YJGame_mainCtrl();
+
 
       _GenerateEnemyNPC = new GenerateEnemyNPC((npcComponent) => {
 
-        let targetCom = GetEnemyTarget();
-        if (targetCom == null) {
+        let enemyNpcTarget = GetEnemyTarget();
+
+        if (enemyNpcTarget == null) {
           return;
         }
         if (_Global.DyncManager.CheckHasFire()) {
-          _Global.DyncManager.NPCAddFireGroup(npcComponent, targetCom.id);
+          _Global.DyncManager.NPCAddFireGroup(npcComponent, enemyNpcTarget.id);
         } else {
-          _Global.DyncManager.NPCAddFire(npcComponent, targetCom);
+          _Global.DyncManager.NPCAddFire(npcComponent, enemyNpcTarget);
         }
         //并指定其目标为指定名称id的npc
-        npcComponent.SetNpcTarget(targetCom, true, true);
-      },()=>{
+        npcComponent.SetNpcTarget(enemyNpcTarget, true, true);
+      },(npc)=>{
         if(_GameRecord){
           _GameRecord.addKill();
+          _YJGame_mainCtrl.createGold(npc.GetWorldPos().clone());
         }
       });
 
@@ -511,7 +622,6 @@ class YJDMManager_DMrogue {
       autoFire();
       _GameRecord = new GameRecord();
 
-      new YJGame_mainCtrl();
       // _Global.LogFireById(1711340121297)
 
       _Global.addEventListener("战斗结束", (msg) => {
@@ -526,7 +636,10 @@ class YJDMManager_DMrogue {
             gameLevel++;
           }
         }
-
+        _Global.inGame = false;
+        if (DMPlayer.length == 0) {
+          DMPlayer = _GenerateDMNPC.GetDMPlayer();
+        }
         if (msg == 1000) {
           // 人类获胜
           // let redboss = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId("redboss");
@@ -535,9 +648,7 @@ class YJDMManager_DMrogue {
           //   redbossNpc.Dync({ title: "加生命", value: 200 });
           // }
           // redbossNpc.fireOff();
-          if (DMPlayer.length == 0) {
-            DMPlayer = _GenerateDMNPC.GetDMPlayer();
-          }
+
           // 消耗热度先治疗其他弹幕玩家
           for (let i = DMPlayer.length - 1; i >= 0; i--) {
             const element = DMPlayer[i];
@@ -550,6 +661,7 @@ class YJDMManager_DMrogue {
           }
         }
 
+        console.log(" 战斗结束000 ");
 
         _GameRecord.resetKill();
 
@@ -563,18 +675,15 @@ class YJDMManager_DMrogue {
         }
 
         setTimeout(() => {
+          // console.log(" 如果弹幕玩家死亡，则重新生成弹幕玩家 ",DMPlayer);
+
           // 如果弹幕玩家死亡，则重新生成弹幕玩家
           for (let i = DMPlayer.length - 1; i >= 0; i--) {
             const element = DMPlayer[i];
             let npcComponent = _Global._YJNPCManager.GetNpcComponentById(element.npcId);
-
-            if (element.state == "run") {
-              npcComponent.fireId = -1;
-              if (element.isDead) {
-                resetLifeById(element.npcId);
-              }
-            }
+            npcComponent.fireId = -1; 
             if (element.isDead) {
+              resetLifeById(element.npcId);
               element.health = element.maxHealth;
               element.isDead = false;
             }
@@ -616,6 +725,7 @@ class YJDMManager_DMrogue {
 
       _Global.addEventListener("战斗开始", () => {
         _Global.createCompleted = false;
+        _Global.inGame = true;
         _GenerateEnemyNPC.gameLevelFire(gameLevel);
       });
     }

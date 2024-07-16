@@ -149,31 +149,26 @@
     </div>
 
     <!-- 玩法介绍 -->
-    <div class=" hidden absolute left-0 bottom-0 w-full h-full">
-      <div class="absolute bottom-2 left-0 w-full text-red-100">
+    <div class=" absolute left-0 bottom-0 w-full h-40 flex">
+      <div class="   mx-auto w-1/2 text-red-100">
         <div
           class="w-full px-2 mx-auto flex flex-col justify-between text-left text-xl"
         >
           <div class="w-full" >
-            弹幕玩法<br />
-            [加入] 随机角色加入游戏
+            弹幕玩法:<br />
+            [加入] 随机角色 
             [11] 牧师  
             [12][13] 弓箭手  
             [21][23] 火枪手 
             [14][24] 法师 
             [22] 战士 
-            [31][32] 食尸鬼   
-            [33] 憎恶 
-            <br />技能<br />
-            fh 复活 
-            fs 分身 
-            cf 嘲讽附近敌人 
-            b 冻结20米内所有敌人  
-            hj 吸收200点伤害  
-            sj 升级多重射击技能 <br />
           </div>
 
-          <div class="w-full h-full pt-2 flex">
+          <!-- <br />技能:<br />
+            fh 复活 
+            fs 分身    
+             <br /> -->
+          <div class="w-full h-full  flex text-sm">
             <div
               v-for="(item, i) in giftData"
               :key="item"
@@ -305,32 +300,32 @@ export default {
         {
           id: -1000,
           name: "点赞",
-          describe: "全员生命 +200",
+          describe: "点赞加入亡灵",
           img_basic:
             "https://i0.hdslb.com/bfs/live/fe8e848118e8f18eccbd11cad62b29105c51a797.png",
         },
-        {
-          id: 31036,
-          name: "小花花",
-          describe: "吸收200点伤害",
-          img_basic:
-            "https://s1.hdslb.com/bfs/live/8b40d0470890e7d573995383af8a8ae074d485d9.png",
-        },
-        {
-          id: 31039,
-          name: "牛哇牛哇",
-          describe: "升级多重射击",
-          img_basic:
-            "https://s1.hdslb.com/bfs/live/91ac8e35dd93a7196325f1e2052356e71d135afb.png",
-          img2: "./public/images/skillIcon/spell_hunter_exoticmunitions_poisoned.png",
-        },
-        {
-          id: 1,
-          name: "辣条",
-          describe: "全员吸收500点伤害",
-          img_basic:
-            "https://s1.hdslb.com/bfs/live/d57afb7c5596359970eb430655c6aef501a268ab.png",
-        },
+        // {
+        //   id: 31036,
+        //   name: "小花花",
+        //   describe: "吸收200点伤害",
+        //   img_basic:
+        //     "https://s1.hdslb.com/bfs/live/8b40d0470890e7d573995383af8a8ae074d485d9.png",
+        // },
+        // {
+        //   id: 31039,
+        //   name: "牛哇牛哇",
+        //   describe: "升级多重射击",
+        //   img_basic:
+        //     "https://s1.hdslb.com/bfs/live/91ac8e35dd93a7196325f1e2052356e71d135afb.png",
+        //   img2: "./public/images/skillIcon/spell_hunter_exoticmunitions_poisoned.png",
+        // },
+        // {
+        //   id: 1,
+        //   name: "辣条",
+        //   describe: "全员吸收500点伤害",
+        //   img_basic:
+        //     "https://s1.hdslb.com/bfs/live/d57afb7c5596359970eb430655c6aef501a268ab.png",
+        // },
       ],
       gameLevel: 1,
       gameLevelData: [
@@ -475,6 +470,10 @@ export default {
   },
 
   methods: {
+    
+    forceUpdate(){
+      this.$refs.DMPlayerPanelVue.$forceUpdate();
+    },
     setDMPlayer(_dmplayer) {
       this.$refs.DMPlayerPanelVue.setDMPlayer(_dmplayer); 
     },

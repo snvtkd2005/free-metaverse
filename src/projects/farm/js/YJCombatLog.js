@@ -25,7 +25,7 @@ class YJCombatLog {
         return;
       }
       ui.log(from);
-
+      
     }
     // 弹幕玩家施放技能
     this.DMlog = function (content,type) {

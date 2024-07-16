@@ -66,7 +66,7 @@ class YJWeapon {
       if (msg == null || msg == undefined || msg == "") { return; }
       // data = JSON.parse(msg);
       data = (msg);
-      console.log("in weapon msg = ", data);
+      // console.log("in weapon msg = ", data);
       scope.transform.isIgnoreRaycast = true;
       meshTrigger = new YJTrigger(_this,parent, transform, "weapon");
       if(data.fire && data.fire.pos && data.fire.pos.length == 3){

@@ -18,7 +18,6 @@ class YJNPCManager {
       return npcModelList;
     }
     this.GetOtherNoSameCampInArea = function (camp,vaildDistance, max, centerPos, ingoreNpcId) {
-      let num = 0;
       let npcs = [];
       
       let npcModelList = this.GetAllVaildNPC();
@@ -34,14 +33,20 @@ class YJNPCManager {
         // 未判断npc是否在玩家前方
         let distance = centerPos.distanceTo(element.GetGroup().position);
         if (distance <= vaildDistance) {
-          num++;
-          npcs.push(npcComponent);
-          if (num >= max) {
-            return npcs;
-          }
+          npcs.push({distance:distance,npc:npcComponent});
         }
       }
-      return npcs;
+      if(npcs.length<=max){
+        max = npcs.length;
+      }else{
+        npcs.sort((a, b) => a.distance - b.distance);
+      }
+      //取距离最近的 
+      let nnpcs = [];
+      for (let i = 0; i < max; i++) {
+        nnpcs.push(npcs[i].npc);
+      } 
+      return nnpcs;
     }
 
     // 在一场战斗中，获取玩家前方技能有效范围内的npc

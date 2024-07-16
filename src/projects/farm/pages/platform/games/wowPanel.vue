@@ -349,6 +349,7 @@ export default {
       this.inDraging = false;
       this.dragSkill = null;
       _Global.hoverPart = "";
+      this.$refs.ActionPanelVue.saveActionList();
     },
 
     LookActionSkill(item) {
@@ -494,7 +495,7 @@ export default {
         return false;
       }
       let skill = item.skill;
-      // console.log(" 主动施放技能 000",skill);
+      console.log(" 主动施放技能 000",skill);
       if (skill.type == "skill" && skill.cCD == skill.CD) {
         _Global._YJPlayerFireCtrl.GetSkill().UseSkill(skill);
         return;

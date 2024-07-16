@@ -87,6 +87,67 @@ class YJTween {
           break;
       }
     }
+
+    this.TweenPos = function(from, _to, duration, update, callback){
+      TweenPos2(from, _to, duration, update, callback);
+    }
+    function TweenPos2(from, _to, duration, update, callback) {
+      let current = from.clone();
+      let to = _to.clone();
+
+      let movingTween = new TWEEN.Tween(current).to(to, duration).easing(TWEEN.Easing.Linear.None)
+      // let movingTween = new TWEEN.Tween(current).to(to, duration).easing(TWEEN.Easing.Cubic.InOut)
+      let updateTargetPos = () => {
+        if (update) {
+          update(current);
+        }
+      }
+      movingTween.onUpdate(updateTargetPos);
+      movingTween.start() // 启动动画
+      movingTween.onComplete(() => {
+        if (callback) {
+          callback();
+        }
+      });
+    }
+
+    let shootTargetList = [];
+
+    this.TweenPos2 = function(startPos,fromModel, target, speed, callback){
+      shootTargetList.push({speed:speed, callback: callback, 
+        fromModel:fromModel,   startPos: startPos, target: target, time: 0, used: true,
+        });
+    }
+    function UpdateTrailRenderer() {
+      for (let i = shootTargetList.length - 1; i >= 0; i--) {
+        const item = shootTargetList[i];
+        if (item.used) {
+          let targetPos = (new THREE.Vector3());
+          if (item.target.GetWorldPosHalfHeight) {
+            targetPos = item.target.GetWorldPosHalfHeight();
+          } else {
+            targetPos = item.target;
+          }
+
+          if (item.startPos.distanceTo(targetPos) < 1) {
+            item.used = false; 
+            if (item.callback) {
+              item.callback();
+            }
+            return;
+          }
+
+          let group = item.fromModel.GetGroup();
+          group.lookAt(targetPos);
+          item.startPos.add(group.getWorldDirection(new THREE.Vector3()).multiplyScalar(item.speed?item.speed:0.5));
+          // item.startPos.add(group.getWorldDirection(new THREE.Vector3()) .multiplyScalar(1.5));
+          group.position.copy(item.startPos);
+
+        }
+      }
+    }
+
+
     function TweenPos(from, _to, duration, playStyle, callback, update) {
       let current = from.clone();
       let to = _to.clone();
@@ -201,8 +262,10 @@ class YJTween {
       // TWEEN.update();
       // controls.update();
       // cssRenderer.render(cssScene,_Global.YJ3D.camera);
+      UpdateTrailRenderer();
     }
     Init();
+
   }
 }
 

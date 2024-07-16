@@ -29,8 +29,11 @@ class Interface {
       mainmenu: false,
       setting: false,
     };
-    _Global.GameSetting = GameSetting;
 
+    //#region 游戏设置记录与还原、动作条记录与还原
+
+    // 游戏设置记录与还原
+    _Global.GameSetting = GameSetting;
     function LoadLocalGameSetting(){
       let _gs = localStorage.getItem("GameSetting");
       if(_gs){
@@ -47,6 +50,35 @@ class Interface {
     LoadLocalGameSetting();
     _Global.SaveGameSetting = this.SaveGameSetting;
 
+
+    function LoadLocalActionList(){
+      let _gs = localStorage.getItem("ActionList");
+      if(_gs){
+        try {
+          _Global.ActionList = JSON.parse(_gs) ;
+        } catch (error) {
+          
+        }
+      }  
+    }
+
+    this.SaveActionList = function(_actionList){
+      let actionList = {};
+      actionList.actionBar1 = [];
+      for (let i = 0; i < _actionList.actionBar1.length; i++) {
+        const element = _actionList.actionBar1[i];
+        if(element.skill){
+          actionList.actionBar1.push({index:element.index, skillName:element.skill.skillName});
+        }
+      }
+      localStorage.setItem("ActionList", JSON.stringify(actionList) );
+    }
+    LoadLocalActionList();
+    _Global.SaveActionList = this.SaveActionList;
+
+
+
+    //#endregion
 
 
     let eventList = [];

@@ -274,6 +274,9 @@ class YJPlayerNameManager {
         resetButtonText.name = "nameBar";
         resetButtonText.material.color.set(color);
       });
+      npc.addEventListener("显示隐藏姓名条", (b) => {
+        resetButton.visible = b;
+      });
 
       npc.addEventListener("pos", (pos) => {
         group.position.set(pos.x, pos.y, pos.z);

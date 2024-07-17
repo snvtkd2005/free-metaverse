@@ -110,6 +110,7 @@ export default {
     },
     LookSkill(e, item) {
       this.hoverPart = item.hoverPart;
+      _Global.hoverPart = item.hoverPart;
 
       if (item.skill == null) {
         return;
@@ -124,6 +125,7 @@ export default {
     },
     outHover() {
       this.hoverPart = "";
+      _Global.hoverPart = "";
       this.parent.outHover();
     },
     clickEvent(e) {

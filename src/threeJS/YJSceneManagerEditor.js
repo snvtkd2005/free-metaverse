@@ -3234,7 +3234,8 @@ class YJSceneManager {
       // this.scene.add(axes); // 场景添加坐标轴
 
       let planeGeometry = new THREE.PlaneGeometry(100, 100, 10, 10); // 生成平面
-      let planeMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff }); // 材质
+      let planeMaterial = new THREE.MeshLambertMaterial({ color: 0x5c5c5c }); // 材质
+      // let planeMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff }); // 材质
       let plane = new THREE.Mesh(planeGeometry, planeMaterial);
       plane.rotation.x = -0.5 * Math.PI;
       plane.position.x = 0;

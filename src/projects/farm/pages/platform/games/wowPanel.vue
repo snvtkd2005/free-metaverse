@@ -57,14 +57,15 @@
     <div
       ref="hoverContent"
       v-show="inHover"
-      class="absolute z-50 transform origin-bottom-left mt-3 -ml-2  left-0 top-0 min-wh w-auto h-auto flex pointer-events-none"
-      :class="
-        [hoverRight
+      class="absolute z-50 transform origin-bottom-left mt-3 -ml-2 left-0 top-0 min-wh w-auto h-auto flex pointer-events-none"
+      :class="[
+        hoverRight
           ? inRightOrder
             ? ' -translate-x-6'
             : ' -translate-x-full '
-          : '',hoverTop?'  ':' -translate-y-full ']
-      "
+          : '',
+        hoverTop ? '  ' : ' -translate-y-full ',
+      ]"
       style="
         border: 10px solid;
         border-image-source: url(./public/images/cursorList/mainmenu/ui-quickslot2.png);
@@ -88,7 +89,7 @@
           :class="i == 0 ? ' text-base ' : 'text-sm '"
         >
           <div>{{ item.text }}</div>
-          <div>{{ item.text2 }}</div>
+          <div :style="'color:' + (item.color2?item.color2:item.color) + ';'" >{{ item.text2 }}</div>
         </div>
       </div>
     </div>
@@ -365,6 +366,86 @@ export default {
         }
       }
     },
+    
+    GetDescribe(item,level) {
+      let describe = "";
+
+      if (item.trigger.type == "health") {
+        // describe += "自动攻击时，当生命达到" + item.trigger.value + "%时，";
+      }
+      if (item.trigger.type == "perSecond") {
+        // describe += "自动攻击时，每" + item.trigger.value + "秒，";
+      }
+
+      if(this.inPlayerSkillEditor){
+        // 玩家技能都是点击技能图标触发的
+        describe = "";
+      }
+      let targetCamp = "友方"
+      if (item.effect.type.toLowerCase().includes("damage") ) {
+        targetCamp = "敌方";
+      }
+
+      let targetValue = item.target.value;
+      if(item.hasTargetLv && item.targetLv && item.targetLv.length>1){
+          targetValue = item.targetLv[level]; 
+        }
+
+
+      if (item.target.type == "none" || item.target.type == "self") {
+        describe += "自身";
+      }
+      if (item.target.type == "random") {
+        describe += "对随机最多" + targetValue + "个"+targetCamp +"目标";
+      }
+
+      if (item.target.type == "target") {
+        describe += "对当前目标";
+      }
+      if (item.target.type == "area") {
+        describe += "对半径" + item.vaildDis + "米范围内最多" + targetValue + "个目标";
+      }
+
+      if (item.target.type == "minHealthFriendly") {
+        describe += "对生命值最少的友方";
+      }
+
+      if (item.effect.type == "evolution") {
+        describe += ",所有技能造成的伤害提高" + item.effect.value + "%";
+      }
+      if (item.effect.type == "hyperplasia") {
+        describe += ",生成" + item.effect.value + "个镜像";
+      }
+
+      if (item.effect.type == "contDamage") {
+        describe += ",每" + item.effect.time + "秒造成" + item.effect.value + "点伤害，持续" + (item.castTime) + "秒";
+      }
+
+      if (item.effect.type == "damage") {
+        describe += ",造成" + item.effect.value + "点伤害";
+      }
+      if (item.effect.type == "addHealth") {
+        describe += ",恢复" + item.effect.value + "点生命值";
+      }
+      
+      if (item.effect.type == "perDamage") {
+        let effectdes =  "每" + item.effect.time + "秒造成" + item.effect.value + "点伤害，持续" + item.effect.duration + "秒";
+        item.effect.describe = effectdes;
+        describe += "," + effectdes;
+        
+      }
+      if (item.effect.type == "control") {
+        describe += "施放控制" + item.effect.controlId   ;
+      }
+      
+      if (item.effect.type == "shield") {
+        let effectdes = "吸收" + item.effect.value + "点伤害";
+        describe += "施放"+ item.effect.controlId+  "。" + effectdes + "，持续" + item.effect.duration + "秒";
+        item.effect.describe = effectdes ;
+      }
+      return describe;
+    },
+
     LookSkill(parent, item) {
       // console.log(" hover ", item);
       this.hoverData = [];
@@ -386,7 +467,16 @@ export default {
         line.text = item.text;
       }
       if (item.type == "skill") {
+
+        // 是可升级的技能
+        let isUpSkill = (item.hasTargetLv && item.targetLv && item.targetLv.length>1);
+        let hoverskill = _Global.hoverPart.includes("skill");
+        let hoveraction = _Global.hoverPart.includes("action");
         line.text = item.skillName;
+        if(isUpSkill && hoveraction){
+          line.text2 = "等级" + item.level;
+          line.color2 = "#666666";
+        }
         line.color = "#ffffff";
         this.hoverData.push(line);
 
@@ -402,9 +492,27 @@ export default {
         line.color = "#ffffff";
         this.hoverData.push(line);
 
+
         line = {};
-        line.text = item.describe;
+        line.text = item.level <= 1 ? item.describe:this.GetDescribe(item,item.level-1);
         line.color = "#ffff00";
+
+        if(hoverskill && item.level >= 1 && item.hasTargetLv && item.targetLv && item.targetLv.length>1 && item.level<item.targetLv.length){
+          
+          this.hoverData.push(line);
+
+          line = {};
+          line.text = "下一级：";
+          line.color = "#ffffff";
+          this.hoverData.push(line);
+
+          
+          line = {};
+          line.text = this.GetDescribe(item,item.level);
+          line.color = "#ffff00"; 
+
+        }
+
       }
       if (item.type == "prop") {
         line.text = item.title || item.name;

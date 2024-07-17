@@ -199,14 +199,42 @@ class YJTransform {
         tween.SetMessage(msg.data);
       }
     }
+    this.SetDisplay = function(b){
+      group.visible = b;
+      let message = data.message;
+      if(message == null){ 
+        return;
+      }
+      if (message.pointType == "interactive") {
+        let com = this.GetComponent("Interactive");
+        com.Reset();
+        com.SetDisplay(b);
+      }
+      if (this.GetComponent("Trail")) {
+        this.GetComponent("Trail").start();
+      }
+    }
     this.GetActive  = function(){
       return data.active;
     }
-    this.SetActive = function (b) {
-      // console.error( " in SetActive ",b);
-      if(group.visible == b){
+    this.DirectStopComponent = function(){
+      let message = data.message;
+      if(message == null){ 
         return;
       }
+      if (message.pointType == "interactive") {
+        let com = this.GetComponent("Interactive");
+        com.DestroyTrigger();
+      }
+      if (this.GetComponent("Trail")) {
+        this.GetComponent("Trail").stop();
+      }
+    }
+    this.SetActive = function (b) {
+      // console.error( " in SetActive ",b);
+      // if(group.visible == b){
+      //   return;
+      // }
       
       group.visible = b;
       data.active = b;

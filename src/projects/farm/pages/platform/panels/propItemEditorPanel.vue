@@ -54,7 +54,7 @@ export default {
           value: "",
           callback: this.ChangeValue,
         },
-        
+
         {
           property: "useType",
           display: true,
@@ -145,6 +145,14 @@ export default {
           callback: this.ChangeValue,
         },
         {
+          property: "autoDescribe",
+          display: true,
+          title: "自动生成描述",
+          type: "toggle",
+          value: false,
+          callback: this.ChangeValue,
+        },
+        {
           property: "describe",
           display: true,
           title: "效果描述",
@@ -183,7 +191,7 @@ export default {
         "options",
         GameItems.propType
       );
-      
+
       this.Utils.SetSettingItemPropertyValueByProperty(
         this.setting,
         "effectType",
@@ -239,8 +247,10 @@ export default {
           "options",
           effectType
         );
-
         let effectTypeV = effectType[0].value;
+        if(this.settingData.effectType){
+          effectTypeV = this.settingData.effectType;
+        } 
         this.Utils.SetSettingItemPropertyValueByProperty(
           this.setting,
           "effectType",
@@ -273,6 +283,20 @@ export default {
           propertyType
         );
       }
+
+      if(property == "autoDescribe"){ 
+        if(e){
+          this.settingData.describe = this.GetDescribe(this.settingData);
+          this.Utils.SetSettingItemPropertyValueByProperty(
+            this.setting,
+            "describe",
+            "value",
+            this.settingData.describe
+          );
+        }
+
+      }
+
     },
     ChangeValue(i, e) {
       this.setting[i].value = e;
@@ -300,7 +324,6 @@ export default {
         if (!this.settingData.id) {
           this.settingData.id = new Date().getTime();
         }
-        this.settingData.describe = this.GetDescribe(this.settingData);
         this.$parent.saveProp(this.settingData);
         this.inAdd = false;
       }
@@ -311,6 +334,9 @@ export default {
       });
     },
     GetDescribe(item) {
+      if (!item.autoDescribe) {
+        return  this.settingData.describe;
+      }
       let describe = "";
       // for (let i = 0; i < GameItems.propType.length; i++) {
       //   const element = GameItems.propType[i];

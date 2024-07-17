@@ -1198,9 +1198,17 @@ export default {
         if (item.title == e) {
           this.dialogTitle = "创建" + e;
 
+          // 
           this.createTemplate = item.template;
-          this.createForm.template = this.createTemplate[0].name;
-          this.createForm.content = this.createTemplate[0].content;
+          // this.createForm.template = this.createTemplate[0].name;
+          // this.createForm.content = this.createTemplate[0].content;
+          this.createForm.template = this.selectModelTable;
+          for (let i = 0; i <  this.createTemplate.length; i++) {
+            const element =  this.createTemplate [i];
+            if(element.name == this.selectModelTable){
+              this.createForm.content = element.content;
+            }
+          }
         }
       }
     },

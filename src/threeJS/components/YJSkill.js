@@ -118,7 +118,10 @@ class YJSkill {
             for (let i = 0; i < skillList.length; i++) {
                 const skill = skillList[i];
                 if (skill.skillName == _skill.skillName) {
-
+                    skill.level = _skill.level;
+                    if(skill.hasTargetLv && skill.targetLv && skill.targetLv.length>1){
+                        skill.target.value = skill.targetLv[ skill.level-1]; 
+                    }
                     return;
                 }
             }
@@ -505,7 +508,9 @@ class YJSkill {
                 if (targetType == "area") {
                     let max = skillItem.target.value;
                     areaTargets = _Global._YJFireManager.GetOtherNoSameCampInArea(owner.GetCamp(), vaildAttackDis, max, owner.GetWorldPos());
-                    // console.error(owner.GetNickName()+" 范围攻击目标 ",areaTargets);
+                    if(owner.GetNickName().includes("居民")){
+                        console.error(owner.GetNickName()+" 范围攻击目标 ",max,areaTargets);
+                    }
                     // 范围内无目标，不施放技能
                     if (areaTargets.length == 0) {
                         errorLog = "有效范围内无目标";

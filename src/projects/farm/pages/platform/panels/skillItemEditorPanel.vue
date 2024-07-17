@@ -87,6 +87,8 @@ export default {
         { property: "CD", display: true, title: "冷却时间", type: "num", step: 1, value: 0, callback: this.ChangeValue },
         { property: "target-type", display: true, title: "目标类型", type: "drop", options: [], value: "", callback: this.ChangeValue },
         { property: "target-value", display: true, title: "目标数量", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
+        { property: "hasTargetLv", display: true, title: "目标数量是否升级", type: "toggle", value: false, callback: this.ChangeValue },
+        { property: "targetLv", display: false, title: "目标数量", type: "intArrayVariable", step: 1, value: [], callback: this.ChangeValue, },
 
         { property: "hasReceiveEffect", display: true, title: "是否有接收效果（生成模型）", type: "toggle", value: false, callback: this.ChangeValue },
 
@@ -167,7 +169,9 @@ export default {
       if (this.settingData.hasReceiveEffect == undefined) {
         this.settingData.hasReceiveEffect = false;
       }
-
+      if (this.settingData.hasTargetLv == undefined) {
+        this.settingData.hasTargetLv = false;
+      }
       if (this.settingData.CD == undefined) {
         if(this.settingData.trigger.CD){
           this.settingData.CD = this.settingData.trigger.CD;
@@ -219,6 +223,20 @@ export default {
       if (property == "receiveEffect-modelType") {
         this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "receiveEffect-particleId", "filetype", e );
       }
+      if (property == "hasTargetLv") {
+        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "targetLv", "display", e );
+        if(e){
+          let a = [];
+          if(this.settingData.targetLv && this.settingData.targetLv.length>1){
+            a=this.settingData.targetLv;
+          }else{
+            a.push(this.settingData.target.value);
+            this.settingData.targetLv = a;
+          }
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "targetLv", "value", a );
+        }
+      }
+      
       if (property == "effect-type") {
         if (e == "damage") {
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-value", "display", true);
@@ -311,6 +329,7 @@ export default {
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "value", this.settingData.effect.describe);
 
     },
+
     FloatEvent(e) {
       if (e == "保存") {
         this.settingData.describe = this.GetDescribe(this.settingData);

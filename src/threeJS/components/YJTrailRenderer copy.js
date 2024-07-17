@@ -17,7 +17,7 @@ class YJTrailRenderer {
                 color: 0xffffff,
                 // depthWrite: false, // 透明物体之间不相互遮挡
                 transparent: true,
-                side: THREE.DoubleSide,
+                // side: THREE.DoubleSide,
                 // blending: THREE.AdditiveBlending,
                 // map: map,
                 wireframe: true,
@@ -80,7 +80,7 @@ class YJTrailRenderer {
         let _ShaderMaterial = new THREE.MeshStandardMaterial({
             color: 0xffffff,
             depthWrite: false, // 透明物体之间不相互遮挡
-            side: THREE.DoubleSide, //双面材质占2个drawcall
+            // side: THREE.DoubleSide, //双面材质占2个drawcall
             transparent: true,
             // wireframe:true,
 
@@ -96,7 +96,6 @@ class YJTrailRenderer {
                     `
                     #include <common>  
                     varying vec2 vUv;
-                    // varying vec3 vNormal;  
                     `
                 );
                 shader.vertexShader = shader.vertexShader.replace(
@@ -113,7 +112,6 @@ class YJTrailRenderer {
                     `
                     #include <common>  
                     varying vec2 vUv;
-                    // varying vec3 vNormal;  
                     `
                 );
             }
@@ -122,28 +120,9 @@ class YJTrailRenderer {
                 '#include <worldpos_vertex>',
                 `
                 #include <worldpos_vertex>  
-                // gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                // // gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
                 // gl_Position = modelViewMatrix * vec4(vViewPosition, 1.0); 
-
-                // vNormal = normalize(modelViewMatrix * vec4(normal, 0.0)).xyz;  
-  
-                // // 将顶点位置设置为与相机位置相同的Z值，但保留X和Y值  
-                // vec3 position = position.xyz;  
-                // vec3 cameraPosition = (inverse(viewMatrix) * vec4(0.0, 0.0, 0.0, 1.0)).xyz;  
-                // vec3 direction = cameraPosition - position;  
-                // float distance = length(direction);  
-                // direction = normalize(direction);  
-              
-                // // 假设camera的up向量是(0, 1, 0)  
-                // vec3 right = normalize(cross(vec3(0.0, 1.0, 0.0), direction));  
-                // vec3 up = cross(direction, right);  
-              
-                // // 假设网格在XZ平面上，这里使用顶点的X和Z坐标  
-                // vec2 offset = position.xy;  
-                // vec3 newPosition = cameraPosition - distance * direction + offset.x * right + offset.y * up;  
-              
-                // gl_Position = projectionMatrix * vec4(newPosition, 1.0);
-
+                
                 `
             );
 
@@ -201,14 +180,13 @@ class YJTrailRenderer {
         let sprite = null;
         function Init() {
 
-            if(_Global.setting.inEditor){
-                let planeGeometry = new THREE.PlaneGeometry(1, 1, 10, 10); // 生成平面
-                let plane = new THREE.Mesh(planeGeometry, _ShaderMaterial);
-                plane.position.x = 0;
-                plane.position.y = 1;
-                plane.position.z = 0;
-                scene.add(plane); // 向该场景中添加物体
-            }
+
+            let planeGeometry = new THREE.PlaneGeometry(1, 1, 10, 10); // 生成平面
+            let plane = new THREE.Mesh(planeGeometry, _ShaderMaterial);
+            plane.position.x = 0;
+            plane.position.y = 1;
+            plane.position.z = 0;
+            scene.add(plane); // 向该场景中添加物体
 
             // // 起始位置光球
             // let map = new THREE.TextureLoader().load(_this.$publicUrl + "images/cirle001.png");

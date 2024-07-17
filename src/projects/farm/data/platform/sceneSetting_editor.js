@@ -202,10 +202,10 @@ export default {
     DirectionalLightIntensity: 1,
 
     hasFog: false,
-    fogColor: 0xA7D0FF,
+    fogColor: 0x5c5c5c,
     fogNear: 30,
     fogFar: 300,
-    backgroundColor: 0xA7D0FF,
+    backgroundColor: 0x5c5c5c,
 
   },
 

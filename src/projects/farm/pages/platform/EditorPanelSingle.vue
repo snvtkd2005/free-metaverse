@@ -606,6 +606,8 @@ export default {
         // _Global.ChangeFirstThird(true); 
         _Global.YJ3D.YJPlayer.DisplayAvatar(false);
         _Global.YJ3D._YJSceneManager.SetDisplayFloorCollider(false);
+        //隐藏姓名条
+        
         return;
       }
       // 是否显示碰撞体

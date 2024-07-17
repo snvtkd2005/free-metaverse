@@ -3,6 +3,7 @@ export default {
 
   skill: {
     type:"skill",
+    level:1,
     skillName: "基础攻击",
     // 该结构表示：每10秒对当前目标造成10点伤害
     //触发时机 每间隔n秒触发、血量达到n%触发 perSecond  health
@@ -10,6 +11,8 @@ export default {
     CD:3 ,//技能冷却时间
     //目标
     target: { type: "target", value: 1 },// random随机 target目标 area范围攻击
+    hasTargetLv:false,
+    targetLv:[],
     //效果 damage直接伤害、perDamage每秒伤害、contDamage持续伤害、冻结、眩晕等状态
     effect: {
       type: "damage",
@@ -27,6 +30,9 @@ export default {
     },
     //技能施放的有效范围 或 范围攻击的游戏范围
     vaildDis: 3, //  
+    hasVaildDisLv:false, //施放范围等级
+    vaildDisLv:[],
+
     //施放时间
     castTime: 0.5, // 施法时间。 秒, 0表示瞬发
     animNameReady: "fight idle", // 施法准备/读条动作

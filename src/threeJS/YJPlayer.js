@@ -973,7 +973,9 @@ class YJPlayer {
         playerObj.scale.set(0, 0, 0);
       }
       display_avatar = b;
-      namePosTrans.visible = b;
+      // namePosTrans.visible = b;
+      scope.applyEvent("显示隐藏姓名条",b);
+
       console.log("设置角色avatar 缩放 ", display_avatar);
     }
 

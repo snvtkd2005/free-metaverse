@@ -263,7 +263,7 @@ class GenerateDMNPC {
         // 测试显示指定名称id的NPC
         copy.SetActive(true);
         let npc = copy.GetComponent("NPC");
-        // npc.canMove = false;
+        npc.canMove = false;
         npc.deadedHidden = false;
         npc.canLevelUp = true;
 

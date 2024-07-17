@@ -11,9 +11,12 @@ class YJInteractive {
     let group = null;
 
     function Init() {
-      group = new THREE.Group();
+      group = new THREE.Group(); 
       parent.add(group); 
       // group.add(new THREE.AxesHelper(5)); // 场景添加坐标轴 
+    }
+    this.SetDisplay = function(b){
+      group.visible = b;
     }
 
     let data = null;
@@ -29,6 +32,7 @@ class YJInteractive {
       if(meshTrigger == null){
         meshTrigger = new YJTrigger(_this, parent, transform, "interactive",data.volume); 
       }
+
       if(sprite != null){
         group.remove(sprite);
       }

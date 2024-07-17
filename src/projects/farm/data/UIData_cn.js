@@ -49,7 +49,7 @@ export default {
         title: "单品",
         template: [
           { id: 1, templateType: "Model", name: "静态模型", panel: "", content: "无动画的模型" },
-          { id: 2, templateType: "Model", name: "动画模型", panel: "", content: "含动画的模型" },
+          { id: 2, templateType: "Model", name: "动画模型", panel: "modelAnim", content: "含动画的模型" },
           { id: 3, templateType: "Model", name: "uv模型", panel: "uvAnim", content: "轮播序列。如热点动效、特效动画" },
           { id: 4, templateType: "Model", name: "汽车模型", panel: "car", content: "使用静态模型组合成汽车" },
           { id: 5, templateType: "Model", name: "武器模型", panel: "weapon", content: "可拾取模型 。如武器" },

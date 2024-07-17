@@ -40,6 +40,7 @@ class YJTrigger {
         wireframe:_Global.setting.inEditor,
       });
       let plane = new THREE.Mesh(planeGeometry, planeMaterial);
+      plane.visible = false;
       plane.name = "trigger";
       plane.modelType = "trigger";
       parent.add(plane);

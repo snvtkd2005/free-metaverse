@@ -409,7 +409,7 @@ class SceneManager {
             //收集道具
             // 碰到就隐藏、发送其事件
             owner.SetActive(false);
-
+            _Global.applyEvent("overlapinteractive",owner.GetData().message.data.buff,owner.GetWorldPos());
             if (_Global.YJDync) {
               _SceneDyncManager.SendModel({ id: owner.GetData().id, modelType: "交互模型", state: { display: false } });
               _SceneDyncManager.SendModel({ id: data.type, modelType: "交互模型", state: { type: "add", value: data.buffValue } });

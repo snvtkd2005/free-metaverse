@@ -1,3 +1,5 @@
+import { YJMeshMerged } from "../YJMeshMerged";
+import { YJSpriteMerged } from "../YJSpriteMerged";
 
 
 
@@ -66,24 +68,59 @@ class YJGame_mainCtrl {
     }
 
 
+    let YJMeshMerged_gold = null;
     let modelPool = []; //金币对象池
     this.createGold = function(pos) {
       // return;
-      let folderBase = "1721002990224";
+      // let folderBase = "1721002990224";
+      let folderBase = "1721002547553";
+      
+      pos.y += 0.5;
+      
+      if(YJMeshMerged_gold){
+        YJMeshMerged_gold.addPoint(pos);
+      } 
       let transform = this.GetModelInPool(folderBase);
       if(transform != null){
         transform.SetPos(pos); 
-        transform.SetActive(true); 
+        transform.SetActive(false); 
+        transform.SetDisplay(false);  
         return;
       }
-      pos.y += 0.5;
-      _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillGroup(folderBase, (model) => {
+      // LoadSkillGroup
+      _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillByFolderBase(folderBase, (model) => {
         model.SetPos(pos); 
-        model.SetActive(true); 
+        model.SetActive(false); 
+        model.SetDisplay(false); 
         model.nameType = "gold";
         modelPool.push({folderBase:folderBase,transform:model});
+        if(YJMeshMerged_gold == null){
+          YJMeshMerged_gold = new YJSpriteMerged(model.modelData.message.data.imgPath);
+          let posList = [];
+          posList.push(pos);
+          YJMeshMerged_gold.ReMerged(posList);
+          _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(YJMeshMerged_gold);
+          _Global.addEventListener("overlapinteractive",(buff,pos)=>{
+            if(buff == "addGold"){
+              YJMeshMerged_gold.RemovePos(pos);
+            }
+          });
+        }
+
         // console.log(" 生成金币 ",model);
       });
+    }
+    this.CollectGold = function(callback){
+      if(YJMeshMerged_gold){
+        YJMeshMerged_gold.CollectGold(callback);
+        //让所有金币的trigger关闭
+        let allGold = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetAllTransformByNameType("gold");
+        for (let i = 0; i < allGold.length; i++) {
+         const element = allGold[i];
+         element.SetActive(false); 
+        //  element.DirectStopComponent();  //直接关闭组件，喊组件内trigger
+        }
+      } 
     }
     this.GetModelInPool = function(folderBase){
       for (let i = 0; i < modelPool.length; i++) {

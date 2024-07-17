@@ -245,6 +245,28 @@
           </div>
         </div>
 
+
+        <div v-if="item.type == 'intArrayVariable'" class=" gap-2 text-black">
+          <div
+            v-for="(item2, j) in item.value"
+            :key="j"
+            class="self-center w-auto h-auto relative gap-x-3 flex "
+          >
+            <div class=" w-20 ">等级{{j+1}}:</div>
+
+            <YJinput_number
+              :value="item2"
+              type="int"
+              :step="item.step"
+              :index="j"
+              :callback="(j,e)=>{item.value[j]=e;item.callback(i,item.value);}"
+            />
+            <div class=" border w-8 cursor-pointer text-center " @click="item.value.push(item2)">+</div>
+            <div class=" border w-8 cursor-pointer text-center " @click="item.value.splice(j,1)">-</div>
+          </div>
+
+        </div>
+
         <div v-if="item.type == 'int'" class="flex gap-2 text-black">
           <YJinput_number
             :value="item.value"

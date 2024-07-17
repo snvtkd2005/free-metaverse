@@ -83,9 +83,13 @@
     <div v-if="panelState.equip" :class="isTransform?'mt-0':'mt-10'" class="  w-full border-t max-w-md">
       <settingPanel_equip ref="settingPanel_equip" />
     </div>
+        <!-- 装备 -->
+    <div v-if="panelState.modelAnim" :class="isTransform?'mt-0':'mt-10'" class="  w-full border-t max-w-md">
+      <settingPanel_modelAnim ref="settingPanel_modelAnim" />
+    </div>
     
-    <div class=" mt-2 w-full h-10 text-white cursor-pointer " @click="addComponent()">
-      <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">添加组件</div>
+    <div class=" mt-2 w-full h-10 text-white  " >
+      <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 cursor-pointer " @click="addComponent()">添加组件</div>
 
       <div class="  text-black mt-2 overflow-y-scroll h-auto flex flex-wrap  " v-if="selectTitle == '添加组件' ">
       <div v-for="(item, i) in componentList" :key="i" class=" bg-white self-center w-auto h-auto relative flex">
@@ -117,6 +121,7 @@ import settingPanel_trail from "./settingPanel_trail.vue";
 import settingPanel_shader from "./settingPanel_shader.vue";
 import settingPanel_geometry from "./settingPanel_geometry.vue";
 import settingPanel_equip from "./settingPanel_equip.vue";
+import settingPanel_modelAnim from "./settingPanel_modelAnim.vue";
 
 import settingPanel_transform from "./settingPanel_transform.vue";
 import settingPanel_tween from "./settingPanel_tween.vue";
@@ -142,6 +147,7 @@ export default {
     settingPanel_geometry,
     settingPanel_equip,
     settingPanel_tween,
+    settingPanel_modelAnim,
   },
   data() {
     return {
@@ -162,6 +168,8 @@ export default {
         shader:false,
         geometry:false,
         equip:false,
+        modelAnim:false,
+        
       },
       components:[],
       componentList:['tween'],

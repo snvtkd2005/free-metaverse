@@ -255,20 +255,42 @@ class YJAnimator {
 
 
     this.ChangeAnimByIndex = function (i, timeScale) {
-      if (i >= animations.length) {
+
+      if (i >= actions.length) {
+        let message = scope.transform.GetMessage();
+        if (message == null) {
+          return false;
+        }
+        console.error(" in 加载扩展动作 ",message); 
+
+        let messageData = message.data;
+        if (messageData.animationsExtendData) {
+          let animName = messageData.animationsExtendData[i].animName;
+          _Global.CreateOrLoadPlayerAnimData().PlayExtendAnim(messageData, animName, (isLoop, anim) => {
+            if (anim != null) {
+              scope.ChangeAnimByAnimData(animName, isLoop, anim);
+            }
+          });
+        } 
+
         return false;
       }
 
-      console.log(i, animations, timeScale);
-      for (let j = 0; j < animations.length; j++) {
-        mixer.clipAction(animations[j]).setEffectiveWeight(0);
+      for (let j = 0; j < actions.length; j++) {
+        actions[j].action.setEffectiveWeight(0);
       }
-      let action = mixer.clipAction(animations[i]);
-      action.timeScale = parseInt(timeScale);
+
+      let action = (actions[i].action);
+      action.timeScale = timeScale? parseInt(timeScale):1;
       action.setEffectiveWeight(1);
+      action.setEffectiveTimeScale(1);
+
       action.reset();
       action.play();//播放动画 
-      // console.log("切换动画",animations[i]);
+      currentAction = action;
+      currentTime = 0;
+      currentDuration = currentAction._clip.duration;
+      console.log("切换动画",action);
       return true;
     }
 
@@ -298,7 +320,7 @@ class YJAnimator {
       for (let i = 0; i < actions.length; i++) {
         const element = actions[i];
         if (element.animName == animName) {
-          // console.log("添加扩展动画 重复 ", animName, animations, actions);
+          // console.error("添加扩展动画 重复 ", animName, animations, actions);
           return;
         }
       }
@@ -364,7 +386,7 @@ class YJAnimator {
               element.action.reset();
               element.action.play();
             }
-            // console.log("播放动画 ", animName,element.action._clip.duration);
+            // console.log("播放动画 00 ", animName,element.action._clip.duration);
             currentAction = element.action;
             currentTime = 0;
             currentDuration = currentAction._clip.duration;

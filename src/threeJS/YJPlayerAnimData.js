@@ -86,6 +86,38 @@ class YJPlayerAnimData {
       }
       FindBoneRefAnimationData(avatarData);
     }
+    this.PlayExtendAnim = function(data,animName,callback){
+      if (data.animationsExtendData != undefined) {
+        for (let i = 0; i < data.animationsExtendData.length; i++) {
+          const element = data.animationsExtendData[i];
+          if (element.animName == animName) {
+
+            let path = (_this.$uploadUrl + data.id + "/" + element.path);
+            // console.log("加载扩展动作 ",path);
+            if (path.includes("json")) {
+              this.LoadAssset(path, (data) => {
+                // console.log(" 读取扩展动作 ", path, data);
+                if (callback) {
+                  callback(element.isLoop, createAnimationClip(animName, data));
+                }
+              });
+            } else {
+              //fbx动作直接加载模型，提前里面的动画
+              if (_YJLoadAnimation == null) {
+                _YJLoadAnimation = new YJLoadAnimation();
+              }
+              _YJLoadAnimation.load(path, (anim) => {
+
+                if (callback) {
+                  callback(element.isLoop, anim);
+                }
+              });
+            }
+            return;
+          }
+        }
+      }
+    }
     // 获取扩展动作。动作从unity转的json文本中解析得到
     this.GetExtendAnim = function (id, animName, callback) {
       let has = false;

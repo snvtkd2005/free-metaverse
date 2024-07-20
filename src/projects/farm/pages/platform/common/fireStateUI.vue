@@ -26,14 +26,14 @@
     v-if="fireState.inDead"
     class="absolute w-full h-full flex left-0 top-0 pointer-events-none"
   >
-    <div v-if="lifeCount > 0 " class="mt-96 mx-auto text-white text-6xl">
+    <div v-if="lifeCount > 0 " class=" self-center mx-auto text-white text-6xl">
       <div>投币倒计时</div>
       <div class="text-9xl">
         {{ lifeCount }}
       </div> 
     </div>
-    <div v-if="lifeCount == 0 " class="mt-96 mx-auto text-white text-6xl">
-      <div class=" pointer-events-auto cursor-pointer  p-10 rounded-md bg-black bg-opacity-60"
+    <div v-if="lifeCount == 0 " class=" self-center mx-auto text-white text-xl md:text-6xl">
+      <div class=" pointer-events-auto cursor-pointer p-3  md:p-10 rounded-md bg-black bg-opacity-60"
       @click="resoul()"
       >重新开始</div>
 

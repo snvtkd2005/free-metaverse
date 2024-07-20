@@ -403,9 +403,15 @@ class YJDMManager_DMrogue {
         }
       }
       if (targetCom == null || targetCom.isDead) {
+
+        if(!_Global.YJ3D.YJController.isInDead()){
+          targetCom = _Global.YJ3D.YJPlayer;
+          return targetCom;
+        }
         //全部死亡
         console.error(" 检测到所有友方死亡 ");
         _Global.applyEvent("战斗结束", 10000);
+        _Global.DyncManager.ClearFire();
         return null;
       }
       return targetCom;
@@ -474,9 +480,11 @@ class YJDMManager_DMrogue {
         // }
 
       }
-
+ 
       if(_Global.createCompleted){
         enemyNpcTarget = GetEnemyTarget();
+        _Global.DyncManager.LoopCheckFire();
+
       }
 
       // for (let i = 0; i < dmNpcList.length; i++) {
@@ -489,6 +497,20 @@ class YJDMManager_DMrogue {
       // }
     }
 
+    this.DMsocketState = function(b){
+      if(b){
+        //
+        dmVue.inDMGame = true;
+        _GenerateDMNPC.hiddenProjectionUI(true);
+      }else{
+        //隐藏加入dm的按钮
+        hiddenDM();
+      }
+    }
+    function hiddenDM(){
+      dmVue.inDMGame = false;
+      _GenerateDMNPC.hiddenProjectionUI(false);
+    }
 
 
     function fire() {
@@ -562,6 +584,7 @@ class YJDMManager_DMrogue {
 
     // 敌人的目标。从友方角色中随机选择一个角色作为敌方的目标
     let enemyNpcTarget = null;
+    let enemyCount = 0;
     function init() {
 
 
@@ -600,14 +623,25 @@ class YJDMManager_DMrogue {
         }
         //并指定其目标为指定名称id的npc
         npcComponent.SetNpcTarget(enemyNpcTarget, true, true);
-      },(npc)=>{
+        enemyCount++;
+        // console.log(" 敌人数量 "+ enemyCount);
+      },(npc,id,fireId)=>{
         if(_GameRecord){
           _GameRecord.addKill();
           _YJGame_mainCtrl.createGold(npc.GetWorldPos().clone());
-        }
+        } 
+        // 从一场战斗中移除npc
+        _Global.DyncManager.RemoveNPCFireId(id,fireId);
+        enemyCount--;
+        // console.log(" 敌人数量 "+enemyCount);
       });
 
       _GenerateDMNPC = new GenerateDMNPC(dmVue);
+
+      setTimeout(() => {
+        hiddenDM();
+      }, 1000);
+
       new ReceiveDMGift(scope);
       _Global.LogFireById = ((npcId) => {
         _Global._YJNPCManager.GetNpcComponentById(npcId).LogFire();
@@ -724,6 +758,7 @@ class YJDMManager_DMrogue {
 
 
       _Global.addEventListener("战斗开始", () => {
+        enemyCount = 0;
         _Global.createCompleted = false;
         _Global.inGame = true;
         _GenerateEnemyNPC.gameLevelFire(gameLevel);

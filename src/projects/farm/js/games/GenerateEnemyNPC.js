@@ -46,8 +46,7 @@ class GenerateEnemyNPC {
       for (let i = 0; i < hostileNpcList.length && !has; i++) {
         const element = hostileNpcList[i];
         if (!element.transform.GetActive() && element.modelId == modelId) {
-          element.transform.ResetPosRota();
-
+          element.transform.ResetPosRota(); 
           if (posRefList.length > 0) {
             let pos = posRefList[RandomInt(0, posRefList.length - 1)].pos;
             element.transform.SetPos(pos);
@@ -66,13 +65,6 @@ class GenerateEnemyNPC {
           }
 
           if (_Global.inGame) {
-            // if (_Global.DyncManager.CheckHasFire()) {
-            //   _Global.DyncManager.NPCAddFireGroup(npcComponent, targetCom.id);
-            // } else {
-            //   _Global.DyncManager.NPCAddFire(npcComponent, targetCom);
-            // }
-            // //并指定其目标为指定名称id的npc
-            // npcComponent.SetNpcTarget(targetCom, true, true);
             if(generateSingle){
               generateSingle(npcComponent);
             }
@@ -102,9 +94,11 @@ class GenerateEnemyNPC {
           copy.SetPos(pos);
         }
         let npc = copy.GetComponent("NPC");
-        npc.addEventListener("死亡", () => {
+        npc.addEventListener("死亡", (id,fireid) => {
+
+          // console.error(" id不符 ",id,npcId,id==npcId,id===npcId);
           if(onDead){
-            onDead(npc);
+            onDead(npc,id,fireid);
           }
         });
         if (state) {
@@ -118,17 +112,8 @@ class GenerateEnemyNPC {
             _Global._YJDyncManager.SendSceneState("删除", { id: npcId, modelType: "NPC模型" });
           }
         });
-
-        // console.log(" 战斗状态 ", _Global.inGame);
         if (_Global.inGame) {
           let npcComponent = copy.GetComponent("NPC");
-          // if (_Global.DyncManager.CheckHasFire()) {
-          //   _Global.DyncManager.NPCAddFireGroup(npcComponent, targetCom.id);
-          // } else {
-          //   _Global.DyncManager.NPCAddFire(npcComponent, targetCom);
-          // }
-          // //并指定其目标为指定名称id的npc
-          // npcComponent.SetNpcTarget(targetCom, true, true);
           if(generateSingle){
             generateSingle(npcComponent);
           }
@@ -173,22 +158,20 @@ class GenerateEnemyNPC {
     this.gameLevelFire = function(lv) {
       if (lv == 1) {
         _Global.applyEvent("敌方攻势", 1);
-        GenerateHot(npcList.level1, 1, 0.5, 1, () => {
-
+        GenerateHot(npcList.level1, 1, 0.5, 5, () => {
+          
           _Global.applyEvent("敌方攻势", 2);
-          GenerateHot(npcList.level1, 5, 1, 3, () => {
+          GenerateHot(npcList.level1, 3, 1, 10, () => {
 
             _Global.applyEvent("敌方攻势", 3);
-            GenerateHot(npcList.level1, 10, 1, 5, () => {
+            GenerateHot(npcList.level1, 5, 1, 20, () => {
 
               _Global.applyEvent("敌方攻势", 4);
-              GenerateHot(npcList.level1, 10, 0.5, 10, () => {
+              GenerateHot(npcList.level1, 6, 0.5, 20, () => {
 
                 _Global.applyEvent("敌方攻势", 5);
-                GenerateHot(npcList.level1, 10, 0.5, 10, () => {
-
+                GenerateHot(npcList.level1, 6, 0.5, 10, () => {
                   _Global.applyEvent("敌方攻势", 6);
-                  GenerateHot(npcList.level1, 20, 0.5);
                   GenerateHot(npcList.level2, 1, 1);
                   _Global.createCompleted = true;
                 });

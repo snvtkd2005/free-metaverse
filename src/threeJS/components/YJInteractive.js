@@ -33,6 +33,7 @@ class YJInteractive {
         meshTrigger = new YJTrigger(_this, parent, transform, "interactive",data.volume); 
       }
 
+      return;
       if(sprite != null){
         group.remove(sprite);
       }
@@ -44,13 +45,16 @@ class YJInteractive {
         sprite.scale.set(1, 1, 1);
         group.add(sprite);
         sprite.transform = transform;
-      }, 1000);
+      }, 100);
     }
 
     //#endregion 
 
 
     this.Reset = function () {
+      if(meshTrigger==null){
+        return;
+      }
       setTimeout(() => {
         meshTrigger.CreateTrigger();
       }, 500);
@@ -61,6 +65,9 @@ class YJInteractive {
       parent.remove(group);
     }
     this.DestroyTrigger = function () {
+      if(meshTrigger==null){
+        return;
+      }
       meshTrigger.Destroy();
     } 
     // 接收同步

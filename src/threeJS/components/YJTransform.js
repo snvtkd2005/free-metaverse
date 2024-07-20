@@ -73,9 +73,6 @@ class YJTransform {
       group.name = data.modelType + name;
       // console.log(" group.name =  ",group.name ,data.active);
 
-      for (let i = 0; i < data.components.length; i++) {
-        this.UpdateComponents(i,data.components[i]);
-      }
 
     }
     let de2reg = 57.29578;
@@ -139,7 +136,7 @@ class YJTransform {
       }
       if (message.pointType == "interactive") {
         let com = this.GetComponent("Interactive");
-        com.SetMessage(message.data);
+        com.SetMessage(message.data,data.active);
       }
       if (message.pointType == "particle") {
         let com = this.GetComponent("Particle");
@@ -153,12 +150,16 @@ class YJTransform {
         let com = this.GetComponent("Geometry");
         com.SetMessage(message.data);
       }
+
+      for (let i = 0; i < data.components.length; i++) {
+        this.UpdateComponents(i,data.components[i]);
+      }
       
+      this.SetActive(data.active);
 
-
-      setTimeout(() => {
-        this.SetActive(data.active);
-      }, 200);
+    //   setTimeout(() => {
+    //   this.SetActive(data.active);
+    // }, 200);
     }
     let handlerList = [];
     this.AddHandle = function (handler) {
@@ -207,8 +208,7 @@ class YJTransform {
       }
       if (message.pointType == "interactive") {
         let com = this.GetComponent("Interactive");
-        com.Reset();
-        com.SetDisplay(b);
+        com.DestroyTrigger();
       }
       if (this.GetComponent("Trail")) {
         this.GetComponent("Trail").start();

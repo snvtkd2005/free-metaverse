@@ -24,6 +24,7 @@ class Interface {
 
     _Global.panelState = {
       player: false,
+      // skill: true,
       skill: false,
       bag: false,
       mainmenu: false,
@@ -47,8 +48,8 @@ class Interface {
     this.SaveGameSetting = function(){
       localStorage.setItem("GameSetting", JSON.stringify(_Global.GameSetting) );
     }
-    LoadLocalGameSetting();
     _Global.SaveGameSetting = this.SaveGameSetting;
+    LoadLocalGameSetting();
 
 
     function LoadLocalActionList(){

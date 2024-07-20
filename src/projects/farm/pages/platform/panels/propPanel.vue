@@ -30,30 +30,13 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="道具类型" width="100">
-        <template #default="scope">
-          <div>
-            {{ scope.row && getItemsPropType(scope.row.effectType) }}
-          </div>
-        </template>
-      </el-table-column>
-
-
-      <el-table-column label="效果类型" width="140">
-        <template #default="scope">
-          <div>
-            {{ scope.row && getItemsLabel(scope.row.property) }}
-          </div>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="显示方式" width="100">
+      <!-- <el-table-column label="显示方式" width="100">
         <template #default="scope">
           <div>
             {{ scope.row && getItemsDisplayLabel(scope.row.displayType) }}
           </div>
         </template>
-      </el-table-column>
+      </el-table-column> -->
 
       <el-table-column prop="value" label="效果值" width="100" />
 

@@ -1,8 +1,8 @@
 <template>
   <div class="w-full h-full relative pointer-events-none">
     <!-- 动作条 -->
-    <div class="absolute left-0 top-52 flex">
-      <div class="relative transform scale-125 mx-auto flex">
+    <div class="absolute left-0 top-20 md:top-20 flex">
+      <div class="relative transform md:scale-100 mx-auto flex">
         <div class="absolute left-0 top-0 w-full h-full -z-10">
           <div class="absolute left-1 top-1">
             <img class="w-16 h-16 rounded-full" :src="leftIcon" alt="" />
@@ -71,7 +71,7 @@
                     ]"
                     :src="this.$uploadUVAnimUrl + item.icon"
                     alt=""
-                    @click="clickSkill(item)"
+                    @click="clickSkill($event,item)"
                     @mouseover="LookSkill($event, item)"
                     @mouseleave="outHover()"
                     :draggable="item.level > 0"
@@ -209,16 +209,15 @@ export default {
       }
       return true;
     },
-    LookSkill(e, item) {
+    LookSkill(ev, item) {
       // console.log(e);
       this.hoverPart = item.hoverPart;
       _Global.hoverPart = item.hoverPart;
-      let parent = e.target;
+      let parent = ev.target;
       this.$parent.LookSkill(parent, item);
     },
     outHover() {
-      this.hoverPart = "";
-      _Global.hoverPart = "";
+      this.hoverPart = ""; 
       this.$parent.outHover();
     },
     clickEvent(e) {
@@ -226,7 +225,7 @@ export default {
         _Global.applyEvent("界面开关", "skill", false);
       }
     },
-    clickSkill(item) {
+    clickSkill(ev,item) {
       // 学习技能
       if (this.skillPoint == 0 || _Global._YJPlayerFireCtrl.GetIsDead()) {
         return;
@@ -238,6 +237,10 @@ export default {
       item.level++;
       //学习新技能
       _Global._YJPlayerFireCtrl.GetSkill().AddSkill(item);
+
+      let parent = ev.target;
+      this.$parent.LookSkill(parent, item);
+
     },
   },
 };

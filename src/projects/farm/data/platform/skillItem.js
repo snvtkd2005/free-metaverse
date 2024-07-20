@@ -3,7 +3,7 @@ export default {
 
   skill: {
     type:"skill",
-    level:1,
+    level:0,
     skillName: "基础攻击",
     // 该结构表示：每10秒对当前目标造成10点伤害
     //触发时机 每间隔n秒触发、血量达到n%触发 perSecond  health

@@ -30,12 +30,8 @@ class YJMeshMerged {
 
 
     model.traverse((item) => {
-      console.log(" in mesh merged item ", item);
-
-      item.traverse((item2) => {
-        console.log(" in mesh merged item2 ", item2);
-
-      });
+      // console.log(" in mesh merged item ", item);
+ 
       if (item.isMesh && !item.name.includes("collider")) {
         meshes.push(item);
       }
@@ -58,13 +54,13 @@ class YJMeshMerged {
       allMesh.push({ geometry: item.geometry, material: item.material, pos: item.position, scale: item.scale });
     }
 
-    // model.parent.remove(model);
-    console.log(" in mesh merged model ", model);
-    console.log(" in mesh merged model ", model.children[1]);
-    console.log(" in mesh merged meshes ", meshes);
-    console.log(" in mesh merged allMesh ", allMesh);
+    model.parent.remove(model);
+    // console.log(" in mesh merged model ", model); 
+    // console.log(" in mesh merged meshes ", meshes);
+    // console.log(" in mesh merged allMesh ", allMesh);
 
     let count = 1;
+    let idList = [];
     let posList = [];
     let rotaList = [];
     let scaleList = [];
@@ -96,7 +92,7 @@ class YJMeshMerged {
 
     }();
 
-    function transformToMatrix4(pos, rota, size) {
+    function transformToMatrix4(pos, size, rota) {
 
       const position = new THREE.Vector3(pos.x, pos.y, pos.z);
 
@@ -114,19 +110,18 @@ class YJMeshMerged {
       const mesh = new THREE.InstancedMesh(geometry, material, count);
       for (let i = 0; i < count; i++) {
 
-
         let pos1 = posList[i];
         pos1.x += pos.x;
         pos1.y += pos.y;
         pos1.z += pos.z;
 
-        // let scale1 = scaleList[i];
-        // scale1.x *= scale.x;
-        // scale1.y *= scale.y;
-        // scale1.z *= scale.z;
-
-        transformToMatrix4(posList[i]);
-        // transformToMatrix4(posList[i], rotaList[i], scaleList[i]);
+        let scale1 = scaleList[i].clone();
+        scale1.x *= scale.x;
+        scale1.y *= scale.y;
+        scale1.z *= scale.z;
+ 
+        transformToMatrix4(pos1, scale1);
+        // transformToMatrix4(posList[i], scaleList[i], rotaList[i]);
         mesh.setMatrixAt(i, matrix);
       }
       _Global.YJ3D.scene.add(mesh);
@@ -141,7 +136,7 @@ class YJMeshMerged {
 
       for (let i = 0; i < count; i++) {
 
-        transformToMatrix4(posList[i], rotaList[i], scaleList[i]);
+        transformToMatrix4(posList[i], scaleList[i], rotaList[i]);
 
         for (let ii = 0; ii < colliderGeo.length; ii++) {
           const instanceGeometry = colliderGeo[ii].clone();
@@ -160,25 +155,49 @@ class YJMeshMerged {
       _Global.YJ3D.scene.add(colliderMergedMesh);
     }
 
-    this.addPoint = function (pos) {
+    this.removePoint = function (id) {
+      let has = false;
+      for (let i = idList.length -1; i >= 0 && !has ; i--) {
+        const element = idList[i];
+        if(element==id){
+          idList.splice(i,1);
+          posList.splice(i,1);
+          scaleList.splice(i,1);
+          has = true;
+        } 
+      } 
+      this.ReMerged(idList,posList,scaleList);
+    }
+
+    this.addPoint = function (id,pos,scale) {
       // return;
+      
+      idList.push(id);
       posList.push(pos);
+      scaleList.push(scale?scale:{x:1,y:1,z:1});
+
+      // if (colliderMergedMesh != null) {
+      //   _Global.YJ3D._YJSceneManager.clearObject(colliderMergedMesh);
+      // }
+
+      this.ReMerged(idList,posList,scaleList);
+    }
+    // 数量改变时，重新计算
+    this.ReMerged = (_idList,_posList, _scaleList, _rotaList) => {
+      
       for (let i = 0; i < allInstancedMesh.length; i++) {
         const element = allInstancedMesh[i];
         _Global.YJ3D.scene.remove(element);
       }
-
-      if (colliderMergedMesh != null) {
-        _Global.YJ3D._YJSceneManager.clearObject(colliderMergedMesh);
+      if(_posList.length==0){
+        return;
       }
-      this.ReMerged(posList);
-    }
-    // 数量改变时，重新计算
-    this.ReMerged = (_posList, _rotaList, _scaleList) => {
+
       // return;
+      idList = _idList;
       posList = _posList;
       // rotaList = _rotaList;
-      // scaleList = _scaleList;
+      scaleList = _scaleList;
       count = posList.length;
       for (let i = 0; i < allMesh.length; i++) {
         const element = allMesh[i];
@@ -217,6 +236,14 @@ class YJMeshMerged {
       modelData.pos = currentPos;
       return modelData;
     }
+
+    // this.addPoint({x:1,y:0,z:1});
+    // this.addPoint({x:1,y:0,z:2});
+    // this.addPoint({x:1,y:0,z:3});
+    // this.addPoint({x:1,y:0,z:4});
+    // this.addPoint({x:1,y:0,z:5});
+    // this.addPoint({x:1,y:0,z:6});
+    // this.addPoint({x:1,y:0,z:7});
 
     // function Init() {
     //   count = 1;

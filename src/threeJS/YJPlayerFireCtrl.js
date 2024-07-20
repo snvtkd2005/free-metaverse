@@ -989,10 +989,14 @@ class YJPlayerFireCtrl {
 		}
 
 		var updateId = null;
-		function update() {
-			updateId = requestAnimationFrame(update);
+		this._update = function() {
+			// function update() {
+			// updateId = requestAnimationFrame(update);
 			if (_Global.pauseGame) {
 				return;
+			}
+			if(_YJSkill){
+				_YJSkill._update();
 			}
 			// 检测状态 战斗逻辑 
 			CheckState();
@@ -1050,10 +1054,12 @@ class YJPlayerFireCtrl {
 			}
 			scope.id = _YJPlayer.id;
 			_Global._YJPlayerFireCtrl = scope;
+       		_Global.YJ3D._YJSceneManager.AddNeedUpdateJS(scope);
+
 			UpdateData();
 		}
 		Init();
-		update();
+		// update();
 
 	}
 }

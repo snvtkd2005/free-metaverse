@@ -3,6 +3,7 @@
 
 import * as THREE from "three";
 import { createText } from 'three/examples/jsm/webxr/Text2D.js';
+import { YJNameTransMerged } from "./YJNameTransMerged";
 
 // 所有玩家、npc的姓名条、血条、头像统一显示
 class YJPlayerNameManager {
@@ -28,7 +29,7 @@ class YJPlayerNameManager {
       headerPlane.position.set(0, 0.8, 0);
       headerPlane.name = "header";
       namePosTrans.add(headerPlane); // 向该场景中添加物体
-      namePosTrans.header = headerPlane 
+      namePosTrans.header = headerPlane
 
       // if (headerPlane == null) {
 
@@ -36,7 +37,7 @@ class YJPlayerNameManager {
       //   headerPlane.material.map = new THREE.TextureLoader().load(video);
       // }
     }
- 
+
     let healthMat = new THREE.MeshBasicMaterial({
       color: 0xffffff,
     });
@@ -94,16 +95,16 @@ class YJPlayerNameManager {
     let debuffList = [];
     let debuffGroup = null;
 
-    this.addDebuffByPlayerId = function (id,buffId, icon) {
+    this.addDebuffByPlayerId = function (id, buffId, icon) {
       for (let i = 0; i < playerList.length; i++) {
         if (playerList[i].id == id) {
           const player = playerList[i].player;
-          this.addDebuff(player,player.namePosTrans,buffId, icon);
+          this.addDebuff(player, player.namePosTrans, buffId, icon);
           return;
         }
       }
     }
-    this.addDebuff = function (player,namePosTrans,id, icon) {
+    this.addDebuff = function (player, namePosTrans, id, icon) {
       let w = 0.2;
       let h = 0.2;
       let planeGeometry = new THREE.PlaneGeometry(w, h, 1, 1); // 生成平面
@@ -113,7 +114,7 @@ class YJPlayerNameManager {
         debuffGroup.position.set(-0.61, 0.2, 0);
         player.debuffGroup = debuffGroup;
       }
-      if(player.debuffList == undefined){
+      if (player.debuffList == undefined) {
         player.debuffList = [];
       }
 
@@ -131,20 +132,20 @@ class YJPlayerNameManager {
       player.debuffList.push({ id, plane });
       // console.log("添加 debuff ",id,icon);
     }
-    this.removeDebuffByPlayerId = function (id,buffId) {
+    this.removeDebuffByPlayerId = function (id, buffId) {
       for (let i = 0; i < playerList.length; i++) {
         if (playerList[i].id == id) {
           const player = playerList[i].player;
-          this.removeDebuffById(player,buffId);
+          this.removeDebuffById(player, buffId);
           return;
         }
       }
     }
 
-    this.removeDebuffById = function (player,id) {
+    this.removeDebuffById = function (player, id) {
       // console.log("移除 debuff ",id,debuffList);
 
-      if(player.debuffList){
+      if (player.debuffList) {
         for (let i = player.debuffList.length - 1; i >= 0; i--) {
           const item = player.debuffList[i];
           if (item.id == id) {
@@ -166,7 +167,7 @@ class YJPlayerNameManager {
         if (playerList[i].id == id) {
           const player = playerList[i].player;
           player.color = color;
-          this.CreateHealth(player,player.namePosTrans, color);
+          this.CreateHealth(player, player.namePosTrans, color);
           return;
         }
       }
@@ -216,8 +217,16 @@ class YJPlayerNameManager {
 
     }
 
+    //#region  字体合并
+
+    //#endregion
+    let inMergeName = true;
+    let nickNameMerged = [];
+    let loadQueue = [];
+
+
     let nameTransBase = null;
-    this.CreateNameTrans = function (npc, id, nickName, playerHeight,modelScale, nameScale, color, callback) {
+    this.CreateNameTrans = function (npc, id, nickName, playerHeight, modelScale, nameScale, color, callback) {
       // return;
       if (nameTransBase == null) {
         nameTransBase = new THREE.Group();
@@ -231,19 +240,96 @@ class YJPlayerNameManager {
       //     return;
       //   }  
       // }
-
       let player = {};
+
+      let group = new THREE.Group();
+      // group.add(new THREE.AxesHelper(10));
+      nameTransBase.add(group);
+      player.group = group;
+      playerList.push({ id, nickName, player });
+
+      if (npc.transform) {
+        group.visible = npc.transform.GetActive();
+        player.active = npc.transform.GetActive();
+      }
+      if (npc.isPlayer) {
+        group.visible = true;
+        player.active = true;
+      }
+      // console.log(nickName + "player.active ",player.active);
+
+      let scale = nameScale*modelScale*4;
+      let pos = npc.GetWorldPos();
+      let height = (playerHeight + 0.3);
+      pos.y += height;
+      group.position.copy(pos); 
+
+
+      npc.addEventListener("pos", (pos) => {
+        pos.y += (playerHeight + 0.3);
+        group.position.set(pos.x, pos.y, pos.z); 
+      });
+      
+      npc.addEventListener("npc尸体消失", () => {
+        group.visible = false;
+        player.active = false;
+        for (let i = 0; i < nickNameMerged.length; i++) {
+          const element = nickNameMerged[i];
+          if(element.nickName == nickName){
+            element.mergedJS.removePoint(id);
+          }
+        }
+      });
+
+      if(inMergeName){
+
+
+        npc.addEventListener("重生", () => {
+          if (npc.transform) {
+            
+            setTimeout(() => {
+              
+              for (let i = 0; i < nickNameMerged.length; i++) {
+                const element = nickNameMerged[i];
+                if(element.nickName == nickName){
+                  element.mergedJS.addPoint(id,group,pos,new THREE.Vector3(scale,scale,scale));
+                }
+              }
+            }, 200);
+            group.visible = true;
+            player.active = true;
+          }
+        });
+
+        for (let i = 0; i < nickNameMerged.length; i++) {
+          const element = nickNameMerged[i];
+          if (element.nickName == nickName) {
+            element.mergedJS.addPoint(id,group,pos,
+            new THREE.Vector3(scale,scale,scale));
+            return;
+          }
+        }
+        for (let i = 0; i < loadQueue.length; i++) {
+          const element = loadQueue[i];
+          if (element.nickName == nickName) { 
+            element.callback.push({id:id,group:group,pos:pos,
+              scale: new THREE.Vector3(scale,scale,scale) });
+            return;
+          }
+        } 
+        loadQueue.push({ id, nickName, callback: [] });
+
+      }
+
+
+
       let namePosTrans = new THREE.Group();
       namePosTrans.name = "npcname";
-      let group = new THREE.Group();
       group.add(namePosTrans);
-      nameTransBase.add(group);
-
-
-      namePosTrans.position.set(0, (playerHeight + 0.3), 0); //原点位置
+      namePosTrans.position.set(0, 0, 0); //原点位置
+      // namePosTrans.position.set(0, (playerHeight + 0.3), 0); //原点位置
 
       const resetButton = new THREE.Group();
-
       const resetButtonText = createText(nickName, 0.06);
       resetButton.add(resetButtonText);
       resetButtonText.position.set(0, 0, 0.0051);
@@ -251,20 +337,55 @@ class YJPlayerNameManager {
       resetButtonText.name = "nameBar";
       resetButtonText.material.color.set(color);
 
+
+
+
       namePosTrans.add(resetButton);
       resetButton.name = "ignoreRaycast";
       resetButton.position.set(0, 0, 0);
       var size = 4;
       resetButton.scale.set(size, size, size);
       namePosTrans.scale.set(nameScale, nameScale, nameScale);
-      group.scale.set(modelScale,modelScale,modelScale);
-      player.namePosTrans = namePosTrans;
-      player.group = group;
-      playerList.push({ id,nickName, player });
-      if(npc.transform){
-        group.visible = npc.transform.GetActive();
-        player.active = npc.transform.GetActive();
+
+      group.scale.set(modelScale, modelScale, modelScale);
+
+      if(inMergeName && player.active){
+
+        let _YJMeshMerged = new YJNameTransMerged(resetButton);
+        nickNameMerged.push({ id, nickName, mergedJS: _YJMeshMerged });
+  
+        resetButtonText.visible = false;
+  
+        let groupList = [];
+        let idList = [];
+        let posList = [];
+        let scaleList = []; 
+  
+        if(player.active){
+          groupList.push(group);
+          idList.push(id);
+          posList.push(pos);
+          scaleList.push(new THREE.Vector3(scale,scale,scale));
+        }
+  
+        for (let i = loadQueue.length-1; i >=0; i--) {
+          const element = loadQueue[i];
+          if (element.nickName == nickName) {
+            for (let j = 0; j < element.callback.length; j++) {
+              const msg = element.callback[j];
+              groupList.push(msg.group);
+              idList.push(msg.id);
+              posList.push(msg.pos);
+              scaleList.push(msg.scale);
+            }
+          }
+          loadQueue.splice(i,1);
+        } 
+        _YJMeshMerged.ReMerged(idList,groupList, posList, scaleList);
       }
+
+
+      player.namePosTrans = namePosTrans;
       npc.addEventListener("重置昵称", (nickName) => {
         resetButton.remove(resetButton.children[0]);
         const resetButtonText = createText(nickName, 0.06);
@@ -278,48 +399,41 @@ class YJPlayerNameManager {
         resetButton.visible = b;
       });
 
-      npc.addEventListener("pos", (pos) => {
-        group.position.set(pos.x, pos.y, pos.z);
-      });
       npc.addEventListener("创建血条", (color) => {
         // this.CreateHealth(player,namePosTrans, color);
-      }); 
+      });
       npc.addEventListener("创建头像", (faceUrl) => {
         // this.CreateHeader(namePosTrans, faceUrl);
-      }); 
+      });
       npc.addEventListener("隐藏头像", () => {
-        if(namePosTrans.header){
+        if (namePosTrans.header) {
           namePosTrans.remove(namePosTrans.header);
           namePosTrans.header = undefined;
         }
-      }); 
+      });
       npc.addEventListener("移除debuff", (buffId) => {
         this.removeDebuffById(player, buffId);
-      }); 
-      
+      });
+
       npc.addEventListener("添加debuff", (buff) => {
-        this.addDebuff(player,namePosTrans,buff.id,_Global.url.uploadUVAnimUrl + buff.icon);
-      }); 
-      npc.addEventListener("npc尸体消失", () => {
-        group.visible = false;
-        player.active = false;
-      }); 
+        this.addDebuff(player, namePosTrans, buff.id, _Global.url.uploadUVAnimUrl + buff.icon);
+      });
       npc.addEventListener("Destroy", () => {
-        for (let i =  playerList.length-1; i >=0; i--) {
-          if(playerList[i].id == id){
+        for (let i = playerList.length - 1; i >= 0; i--) {
+          if (playerList[i].id == id) {
             nameTransBase.remove(group);
-            playerList.splice(i,1);
+            playerList.splice(i, 1);
             return;
-          }  
+          }
         }
-      }); 
+      });
       npc.addEventListener("死亡", () => {
         // resetButtonText.material.color.set('#666666'); //姓名条变灰
         resetButtonText.visible = false;
-      }); 
+      });
       npc.addEventListener("重生", () => {
-        if(npc.transform){
-          group.visible = true; 
+        if (npc.transform) {
+          group.visible = true;
           player.active = true;
         }
 
@@ -331,15 +445,16 @@ class YJPlayerNameManager {
           player.namePosTrans.add(player.healthPlaneAnchor); // 向该场景中添加物体
           player.healthPlaneAnchor.position.set(-0.5, 0.2, 0);
         }
-      }); 
-      npc.addEventListener("healthChange", (health,maxHealth) => {
-        if(player.healthPlaneAnchor){
+      });
+
+      npc.addEventListener("healthChange", (health, maxHealth) => {
+        if (player.healthPlaneAnchor) {
           player.healthPlaneAnchor.scale.set(health / maxHealth, 1, 1);
         }
-      });  
+      });
       // namePosTrans.remove(namePosTrans.children[0]);
 
-      
+
     }
 
 
@@ -361,13 +476,13 @@ class YJPlayerNameManager {
         player.group.getWorldPosition(nameWorlPos);
         let dis = camWorlPos.distanceTo(nameWorlPos);
         // console.log(player.active,dis);
-        if(player.active){
-          if(dis>55){
-            if(player.group.visible){
+        if (player.active) {
+          if (dis > 55) {
+            if (player.group.visible) {
               player.group.visible = false;
             }
-          }else{
-            if(!player.group.visible){
+          } else {
+            if (!player.group.visible) {
               player.group.visible = true;
             }
           }
@@ -375,9 +490,11 @@ class YJPlayerNameManager {
         // lookatPos.y = nameWorlPos.y ;
         lookatPos.y = Math.max(nameWorlPos.y, camWorlPos.y);
         player.group.lookAt(lookatPos);
-        // player._YJPlayerNameTrans.UpdateHealth(baseData.health, baseData.maxHealth);
       }
-      // console.log(" in name manager ",playerList);
+      for (let i = 0; i < nickNameMerged.length; i++) {
+        const element = nickNameMerged[i].mergedJS;
+        element._update();
+      } 
     }
     function init() {
       _Global._YJPlayerNameManager = scope;

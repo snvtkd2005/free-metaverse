@@ -65,7 +65,7 @@
 
       <!-- 操作提示 -->
       <div
-        class="hidden md:flex absolute left-0 bottom-2 w-auto pointer-events-none"
+        class="hidden absolute left-0 bottom-2 w-auto pointer-events-none"
       >
         <div class="flex w-auto text-white text-md rounded-lg h-auto">
           <div class="px-4 text-left mx-auto self-center">
@@ -83,7 +83,7 @@
         <canvas id="nowcanvas" class="bg-white"> </canvas>
       </div>
       <!-- 右上角按钮 -->
-      <div class="absolute right-2 top-2">
+      <div class="absolute right-20 top-2">
         <settingPanel ref="settingPanel" />
       </div>
 

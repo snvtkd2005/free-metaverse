@@ -60,16 +60,7 @@ class YJNPC {
         UpdateData();
         return;
       }
-    }
-    this.updateByCard = function (card) {
-      let { type, title, value, property } = card;
-      if (type == "skill") {
-        _YJSkill.AddSkill(card);
-        return;
-      }
-      _YJPlayerProperty.updateBasedata(card); 
-    }
-
+    }  
     const stateType = {
       Normal: 'normal',//正常状态， 待机/巡逻
       Back: 'back',//失去战斗焦点后回到初始状态 
@@ -445,7 +436,9 @@ class YJNPC {
         } else {
           if (movePos.length > 1) {
             let navPosIndex = radomNum(0, movePos.length - 1);
-            GetNavpath(parent.position.clone(), movePos[navPosIndex]);
+            // console.log(" 巡逻点 ",movePos[navPosIndex]);
+            let pos =  movePos[navPosIndex];
+            GetNavpath(parent.position.clone(),new THREE.Vector3(pos.x,pos.y,pos.z));
             _Global.DyncManager.UpdateModel(scope.id, "navPosIndex",
               { navPosIndex: navPosIndex });
           }
@@ -491,6 +484,9 @@ class YJNPC {
           const mesh = movePosMeshList[i];
           parent.attach(mesh);
         }
+        setTimeout(() => {
+          this.UpdateNavPos("开始巡逻",pos,i);
+        }, 1000);
         return;
       }
       if (e == "开始巡逻") {
@@ -590,10 +586,10 @@ class YJNPC {
       navpath = [];
       doonce = 0;
       isMoving = false;
-      oldTargetPos = null;
+      oldTargetPos.set(0,0,0) ;
     }
     let randomRedius = 3;
-    let oldTargetPos = null;
+    let oldTargetPos = new THREE.Vector3();
     this.MoveToTargetFast = function () {
       scope.canMove = true;
       baseData.speed *= 5;
@@ -609,7 +605,7 @@ class YJNPC {
         return;
       } else {
       }
-      oldTargetPos = targetPos.clone();
+      oldTargetPos.set(targetPos.x,targetPos.y,targetPos.z);
       if (_randomRedius != undefined) {
         randomRedius = _randomRedius;
       } else {
@@ -961,7 +957,7 @@ class YJNPC {
       inRequestNext = false;
       scope.applyEvent("施法中断");
 
-      oldTargetPos = null;
+      oldTargetPos.set(0,0,0) ;
       oldState = "";
       readyAttack_doonce = 0;
     }
@@ -1549,8 +1545,10 @@ class YJNPC {
       // CombatLog(GetNickName() + " 死亡");
       // 设为死亡状态
       baseData.state = stateType.Dead;
+      
+      scope.applyEvent("死亡",scope.transform.id, scope.fireId);
       // 从一场战斗中移除npc
-      _Global.DyncManager.RemoveNPCFireId(scope.transform.id, scope.fireId);
+      // _Global.DyncManager.RemoveNPCFireId(scope.transform.id, scope.fireId);
       scope.fireId = -1;
       // 清除技能触发
       ClearFireLater();
@@ -1562,7 +1560,6 @@ class YJNPC {
       if (!data.isCopy && data.deadAudio) {
         playAudio(data.deadAudio, "dead");
       }
-      scope.applyEvent("死亡");
     }
     this.playAudio = function (audioSrc, type) {
       playAudio(audioSrc, type);
@@ -1699,7 +1696,6 @@ class YJNPC {
       if (e == "准备巡逻") {
         scope.SetPlayerState("normal");
         ClearLater("清除巡逻");
-        return;
         laterNav = setTimeout(() => {
           //在正常模式到达目标点，表示在巡逻过程中。再次到下一个巡逻点
           //随机执行其他idle动作、随机等待时长，让npc行为更自然
@@ -1766,19 +1762,18 @@ class YJNPC {
       }
     }
 
-    setInterval(() => {
-      CheckState();
-
-    }, 100);
     this._update = function () {
-      // nameTransLookatCamera();
+      // return;
       if (_Global.mainUser) {
-        // CheckState();
+        CheckState();
         if (this.canMove && !scope.inControl) {
           tick(clock.getDelta());
         }
 
-        this.applyEvent("pos", playerPosition);
+        if(_YJSkill && baseData.state == stateType.Fire){
+          _YJSkill._update(clock.getDelta());
+        } 
+        this.applyEvent("pos", playerPosition.clone());
 
         // 主控实时发送坐标来同步。
         let oldTransData = scope.transform.CheckSamePos();

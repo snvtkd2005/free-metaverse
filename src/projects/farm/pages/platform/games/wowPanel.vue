@@ -348,8 +348,7 @@ export default {
     },
     dragEnd(item) {
       this.inDraging = false;
-      this.dragSkill = null;
-      _Global.hoverPart = "";
+      this.dragSkill = null; 
       this.$refs.ActionPanelVue.saveActionList();
     },
 

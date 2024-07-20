@@ -9,12 +9,13 @@ class YJKeyboard {
     let inControlLeft = false;
     let isKeyPressed = false;
     this.onKeyDown = function (e) {
-      if(isKeyPressed){
+      if(isKeyPressed && !inShiftLeft && !inControlLeft){
         return;
       }
       isKeyPressed = true;
       let keycode = e.code;
       console.log(keycode);
+ 
       switch (e.code) {
         case 'KeyT':
           if (inShiftLeft) { 
@@ -46,6 +47,8 @@ class YJKeyboard {
           break;
 
         case 'ControlLeft':
+          e.preventDefault(); // 阻止浏览器的默认保存行为  
+
           inControlLeft = true;
           _Global.YJ3D.YJController.SetCanMoving(false);
           break;

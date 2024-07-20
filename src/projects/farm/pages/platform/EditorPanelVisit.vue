@@ -15,9 +15,10 @@
       <!-- 当在键鼠/遥感控制模式 并且在移动端时，显示左右遥感 -->
       <div v-if="isMobile && hasAvatar && contrlState == 0">
         <JoystickLeftPanel class="" ref="JoystickLeftPanel" />
-        <!-- <JoystickRightPanel class=" " ref="JoystickRightPanel" /> -->
       </div>
+      <!-- <JoystickLeftPanel class="" ref="JoystickLeftPanel" /> -->
 
+      <!-- <JoystickRightPanel class=" " ref="JoystickRightPanel" /> -->
       <loadingPanel
         :loadingUrl="loadingUrl"
         class="absolute z-50 left-0 top-0 w-full h-full pointer-events-none"
@@ -460,7 +461,7 @@ export default {
         (this.sceneData.user && this.sceneData.user.camp) ?? 1000;
 
       this.$refs.YJmetaBase.Reload();
-
+      this.$forceUpdate();
       this.Enter();
     },
     async RequestGetAllSceneModelData() {

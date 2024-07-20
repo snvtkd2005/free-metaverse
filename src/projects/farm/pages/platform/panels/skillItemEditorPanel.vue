@@ -46,7 +46,7 @@ export default {
         { label: "随机敌方", value: "randomEnemy" },
         { label: "生命值最少的友方", value: "minHealthFriendly" },
         { label: "当前目标", value: "target" },
-        { label: "范围内", value: "area" },
+        { label: "半径范围内", value: "area" },
       ],
       // 法术效果类型
       effectType: [
@@ -86,6 +86,7 @@ export default {
         { property: "trigger-value", display: true, title: "自动触发值", type: "num", step: 1, value: 1, callback: this.ChangeValue, },
         { property: "CD", display: true, title: "冷却时间", type: "num", step: 1, value: 0, callback: this.ChangeValue },
         { property: "target-type", display: true, title: "目标类型", type: "drop", options: [], value: "", callback: this.ChangeValue },
+        { property: "vaildDis", display: true, title: "技能施放的有效范围", type: "num", step: 1, value: 0, callback: this.ChangeValue },
         { property: "target-value", display: true, title: "目标数量", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
         { property: "hasTargetLv", display: true, title: "目标数量是否升级", type: "toggle", value: false, callback: this.ChangeValue },
         { property: "targetLv", display: false, title: "目标数量", type: "intArrayVariable", step: 1, value: [], callback: this.ChangeValue, },
@@ -105,7 +106,6 @@ export default {
         { property: "skillFireParticleId", display: true, title: "施放特效", type: "file", filetype: "particle", value: "", callback: this.ChangeValue },
         { property: "skillFireAudio", display: true, title: "施放音效", type: "file", filetype: "audio", value: "", callback: this.ChangeValue },
 
-        { property: "vaildDis", display: true, title: "技能施放的有效范围", type: "num", step: 1, value: 0, callback: this.ChangeValue },
 
         { property: "effect-type", display: true, title: "技能效果", type: "drop", options: [], value: "", callback: this.ChangeValue },
         { property: "effect-value", display: true, title: "效果值", type: "int", step: 1, value: 1, callback: this.ChangeValue, },

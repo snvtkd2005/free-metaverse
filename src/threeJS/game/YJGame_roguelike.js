@@ -187,9 +187,10 @@ class YJGame_roguelike {
           let { type, title, value, property } = card;
           if (type == "skill") {
             // 技能添加到界面上用来显示其施放状态和CD
-
+            _Global._YJPlayerFireCtrl.GetSkill().AddSkill(card);
+          }else{
+            _Global._YJPlayerFireCtrl.GetProperty().updateBasedata(card); 
           }
-          _Global._YJPlayerFireCtrl.updateByCard(card);
           playGame();
         });
 

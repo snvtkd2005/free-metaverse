@@ -199,8 +199,13 @@ export default {
     },
     // 判断是否在移动端
     CheckInMobile() {
+      
       var UserClient = navigator.userAgent.toLowerCase();
       console.log(" 判断是否移动端 ", UserClient);
+      // setTimeout(() => {
+      //   _Global.CombatLog.log(UserClient);
+      // }, 10000);
+      var IsHWIPad = UserClient.indexOf("huawei") > -1 || UserClient.indexOf("honor") > -1;
       var IsIPad = UserClient.indexOf("ipad") > -1;
       var IsIphoneOs = UserClient.indexOf("iphone") > -1;
       var IsMidp = UserClient.indexOf("midp") > -1;
@@ -212,6 +217,7 @@ export default {
       var IsM = UserClient.indexOf("mobile") > -1;
       // console.log(IsIPad,IsIphoneOs,IsMidp,IsUc7,IsUc,IsAndroid,IsCE,IsWM,IsM,);
       if (
+        IsHWIPad ||
         IsIPad ||
         IsIphoneOs ||
         IsMidp ||

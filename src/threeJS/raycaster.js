@@ -104,11 +104,19 @@ class YJRaycaster extends YJEvent {
 
       // 悬浮热点 
       raycaster.setFromCamera(pos, camera);
-      //只检测pointsParent物体的子物体
-      var intersects = raycaster.intersectObjects(
-        _this._YJSceneManager.GetHoverCollider(),
-        true
-      );
+      let intersects = null;
+      try {
+        
+        //只检测pointsParent物体的子物体
+        intersects = raycaster.intersectObjects(
+          _this._YJSceneManager.GetHoverCollider(),
+          true
+        );
+      } catch (error) {
+        console.log(error);
+        return;
+      }
+      if(intersects==null){return;}
       if (intersects.length > 0) {
  
         hoverObj = GetAcitveObjectFromIntersects(intersects);
@@ -149,12 +157,22 @@ class YJRaycaster extends YJEvent {
 
       raycaster = new THREE.Raycaster();
       raycaster.setFromCamera(pos, camera);
-      //只检测pointsParent物体的子物体
-      var intersects = raycaster.intersectObjects(
-        scene.children,
-        // scene.getObjectByName("pointsParent").children,
-        true
-      );
+
+
+      let intersects = null;
+      try {
+        
+        //只检测pointsParent物体的子物体
+        intersects = raycaster.intersectObjects(
+          scene.children,
+          true
+        );
+      } catch (error) {
+        console.log(error);
+        return;
+      }
+      if(intersects==null){return;}
+
       // console.log("intersects ",intersects);
       //var intersects = raycaster.intersectObject( scene.getObjectByName('pointsParent'));
       if (intersects.length > 0) {
@@ -251,12 +269,23 @@ class YJRaycaster extends YJEvent {
 
       raycaster.setFromCamera(pos, camera);
       // console.log("可点击模型列表为 " ,  _this.canHitModelList);
-      //只检测pointsParent物体的子物体
-      var intersects = raycaster.intersectObjects(
-        // scene.getObjectByName("hotPointsParent").children,
-        _this.canHitModelList,
-        true
-      );
+      let intersects = null;
+      try {
+        
+        //只检测pointsParent物体的子物体
+        intersects = raycaster.intersectObjects(
+          _this.canHitModelList,
+          true
+        );
+      } catch (error) {
+        console.log(error);
+        return;
+      }
+      if(intersects==null){return;}
+
+
+
+
       if (intersects.length > 0) {
         hit = intersects[0].object;
 

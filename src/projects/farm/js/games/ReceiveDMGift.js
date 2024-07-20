@@ -564,7 +564,11 @@ class ReceiveDMGift {
 
       });
 
-      new socket_bilibili((_data) => {
+      new socket_bilibili(()=>{
+        ctrl.DMsocketState(true);
+      },()=>{
+        ctrl.DMsocketState(false);
+      },(_data) => {
         let { cmd, msg, uname, uid, uface, data } = _data;
         switch (cmd) {
           case world_configs.LIVE_OPEN_PLATFORM_DM:

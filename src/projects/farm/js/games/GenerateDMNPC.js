@@ -226,6 +226,21 @@ class GenerateDMNPC {
     function saveDMPlayer() {
       localStorage.setItem("DMPlayer", JSON.stringify(DMPlayer));
     }
+    this.hiddenProjectionUI = function(b){
+      for (let j = 0; j < assetIdList.length; j++) {
+        let has = false;
+        for (let i = 0; i < DMPlayer.length && !has; i++) {
+          const dmPlayer = DMPlayer[i];
+          if (dmPlayer.assetId == assetIdList[j]) {
+            has = true;
+          }
+        }
+        if(!has){
+          let posId = posIdList[j];
+          _Global.YJ3D._YJSceneManager.DisplayProjectionUI(posId,b);
+        }
+      }
+    }
     // 生成弹幕玩家
     function GanerateNPCFn(dmPlayer) {
       for (let j = 0; j < assetIdList.length; j++) {
@@ -449,7 +464,7 @@ class GenerateDMNPC {
         }
 
 
-        for (let i = 12; i >= 0; i--) {
+        for (let i = 16; i >= 0; i--) {
           DMPlayer.splice(DMPlayer.length - i, 1);
         }
 

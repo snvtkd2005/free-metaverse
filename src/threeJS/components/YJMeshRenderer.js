@@ -260,6 +260,39 @@ class YJMeshRenderer {
 
           model.scale.set(1 * meshScale, 1 * meshScale, 1 * meshScale);
 
+ 
+
+          model.traverse(function (item) {
+            if (item instanceof THREE.Mesh) {
+              if(item.material.length>0 && item.material.length<4){
+                // let mats = [];
+                // for (let i = item.material.length-1; i >=1 ; i--) {
+                //   let has = false;
+                //   for (let j = 0; j < mats.length && !has; j++) {
+                //     const element = mats[j];
+                //     if(element.mapName == item.material[i].map.name){
+                //       has = true;
+                //       item.material[i] = element.mat;
+                //       // item.material.splice(i,1);
+                //       continue;
+                //     }
+                //   }
+                //   if(!has){
+                //     mats.push({mapName:item.material[i].map.name,mat:item.material[i].clone()});
+                //   }
+                // }
+
+                let cloneMat = item.material[0].clone();
+                for (let i = item.material.length-1; i >=1 ; i--) {
+                  item.material.splice(i,1);
+                }
+                item.material = cloneMat;
+              }else{ 
+              }
+            }
+          });
+
+
           scene.add(model);
           // console.log(" 加载模型完成 11 ", model);
           _this._YJSceneManager.addLoadMesh(modelPath, model);

@@ -31,6 +31,7 @@
       <DMrogue v-if=" gameType == 'DMRoguelike'" ref="DMrogue" /> 
       <MMDpanel v-if=" gameType == 'MMD'" ref="MMDpanel" />
       <roguelike v-if=" gameType == 'Roguelike'" ref="roguelike" />
+      <GamePanel_Base v-if=" gameType == 'WOW'" ref="GamePanel_Base" />
     </div>
     
   </div>
@@ -50,6 +51,7 @@ import skillPanel_virus from "./skillPanel_virus.vue";
 
 import DMPanel from "./DMPanel_bilibili.vue";
 import DMrogue from "../games/DMPanel_DMrogue.vue";
+import GamePanel_Base from "../games/GamePanel_Base.vue";
 
 import MMDpanel from "./MMDpanel.vue";
 import roguelike from "../games/roguelike.vue";
@@ -68,6 +70,7 @@ export default {
     MMDpanel,
     roguelike,
     DMrogue,
+    GamePanel_Base,
   },
   data() {
     return { 

@@ -89,7 +89,7 @@ export default {
       if (ev) {
         ev.preventDefault();
       }
-      // console.log(" in icon slot drag ",item);
+      console.log(" in icon slot drag ",item);
       _Global.hoverPart = item.hoverPart;
       if (item.hoverPart.includes("action") || item.skill.type == "skill") {
         _Global.inDragAction = true;
@@ -110,7 +110,6 @@ export default {
     },
     LookSkill(e, item) {
       this.hoverPart = item.hoverPart;
-      _Global.hoverPart = item.hoverPart;
 
       if (item.skill == null) {
         return;
@@ -124,8 +123,7 @@ export default {
       this.parent.LookSkill(parent, item.skill);
     },
     outHover() {
-      this.hoverPart = "";
-      _Global.hoverPart = "";
+      this.hoverPart = ""; 
       this.parent.outHover();
     },
     clickEvent(e) {
@@ -215,6 +213,7 @@ export default {
             this.$parent.setItem(currentSkill);
             //取消拖拽
             this.parent.dragEnd();
+            // console.log(" in 背包物品位置互换 ");
             return;
           }
 

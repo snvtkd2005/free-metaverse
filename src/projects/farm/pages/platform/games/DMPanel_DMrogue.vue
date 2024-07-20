@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full h-full absolute left-0 top-0 z-50 pointer-events-none">
+  <div class="w-full h-full absolute left-0 top-0 z-0 pointer-events-none">
     <div class="absolute left-0 top-1 w-full h-auto flex">
       <div class="self-center mx-auto text-white text-2xl">
         <div>血色十字军-最后的防线</div>
@@ -149,7 +149,7 @@
     </div>
 
     <!-- 玩法介绍 -->
-    <div class=" absolute left-0 bottom-0 w-full h-40 flex">
+    <div v-if="inDMGame" class=" absolute left-0 bottom-0 w-full h-40 flex">
       <div class="   mx-auto w-1/2 text-red-100">
         <div
           class="w-full px-2 mx-auto flex flex-col justify-between text-left text-xl"
@@ -227,6 +227,7 @@ export default {
   data() {
     return {
       inGame: false,
+      inDMGame:false,
       timeCount: 15,
       waveNum: 1,
       waveCount: 6,
@@ -361,13 +362,14 @@ export default {
       //弹幕管理器
       this._YJDMManager = new YJDMManager_DMrogue(this);
       // _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(_YJDMManager);
+      
+      this.last = performance.now();
+      this.deltaTime = 0;
+      this.animate();
     });
 
     setTimeout(() => {
 
-      this.last = performance.now();
-      this.deltaTime = 0;
-      this.animate();
 
       setTimeout(() => {
         _Global.addEventListener("战斗结束", (msg) => {

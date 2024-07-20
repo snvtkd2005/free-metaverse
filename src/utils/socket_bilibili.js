@@ -13,7 +13,7 @@ import {
 import * as world_configs from './socket_bilibili/index';
 
 class socket_bilibili {
-	constructor(callback) {
+	constructor(open, close, callback) {
 		let scope = this;
 
 		// 替换你的主播身份码
@@ -108,14 +108,22 @@ class socket_bilibili {
 							heartBeatThisFn(game_info.game_id)
 						}, 20000);
 						scope.handleCreateSocket();
-					} else { 
+						if (open) {
+							open();
+						}
+					} else {
 						console.log("-----游戏开始失败-----，原因：", data)
 						if (data.code == 7002 || 7001) {
 							scope.gameEnd();
 							setTimeout(() => {
 								gameStartFn();
 							}, 5000);
+							
+							if (close) {
+								close();
+							}
 						}
+
 					}
 				})
 					.catch((err) => {
@@ -124,6 +132,7 @@ class socket_bilibili {
 					})
 		}
 		this.gameEnd = () => {
+			
 			let fromData = new FormData();
 			fromData.game_id = gameId,
 				fromData.app_id = appId,
@@ -197,10 +206,10 @@ class socket_bilibili {
 			console.log(message);
 			let data = message.data;
 			let cmd = message.cmd;
-			let { msg, uname, uid,uface } = data;
+			let { msg, uname, uid, uface } = data;
 
 			let callbackData = {
-				cmd, msg, uname, uid,uface,data
+				cmd, msg, uname, uid, uface, data
 			};
 			if (callback) {
 				callback(callbackData);

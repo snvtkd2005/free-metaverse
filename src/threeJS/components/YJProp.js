@@ -70,9 +70,7 @@ class YJProp {
                 //     });
                 //    }
   
-                _Global._YJGame_mainCtrl.CollectGold(()=>{
-                    _Global._YJPlayerFireCtrl.GetProperty().updateBasedata({value:1,property:"gold"});
-                });
+                _Global._YJGame_mainCtrl.CollectGold();
 
                 }
                 if(effectType == "relife"){ 

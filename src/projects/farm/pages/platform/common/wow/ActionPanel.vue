@@ -1,10 +1,10 @@
 <template>
   <div class="w-full h-full absolute left-0 top-0 pointer-events-none">
     <!-- 主动作条 -->
-    <div class="flex absolute z-10 w-full h-16 left-0 bottom-2">
-      <div class="w-5/6 mx-auto flex">
-        <div class="mx-auto transform scale-125 flex">
-          <div class="transform translate-x-8 -mt-16 flex">
+    <div class="flex absolute z-10 w-full h-16 left-0 bottom-0">
+      <div class="w-full mx-auto flex">
+        <div class=" relative mx-auto transform origin-bottom md:scale-100 flex">
+          <div class=" hidden md:flex transform translate-x-8 -mt-16">
             <img class="   " :src="bottomOrderUrl" alt="" />
           </div>
 
@@ -29,6 +29,7 @@
                 </div>
               </div>
             </div>
+
             <div
               class=" "
               style="
@@ -38,6 +39,7 @@
                 background-image: url(./public/images/cursorList/mainmenu/ui-mainmenubar-human.png);
               "
             ></div>
+
             <div
               class=" "
               style="
@@ -190,31 +192,34 @@
             </div>
           </div>
 
-          <div class="transform scalex -mt-16 flex">
+          <div class="  hidden md:flex transform scalex -mt-16">
             <img :src="bottomOrderUrl" alt="" />
           </div>
+
+
+          <!-- 经验条 -->
+          <div class="absolute -z-10 left-0 bottom-10 flex w-full h-3 ">
+            <div
+              class=" w-5/6 transform   mx-auto relative h-full"
+              style="width: 1024px"
+            >
+              <div
+                class="bg-red-800 h-full border"
+                :style="'width: ' + (stats.exp / stats.needExp) * 100 + '%'"
+              ></div>
+              <!-- 经验条文字 -->
+              <div class="absolute left-0 top-0 w-full flex h-full">
+                <div class="pl-2 text-xs mx-auto truncate">
+                  {{ stats.exp }}/{{ stats.needExp }}
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
 
-    <!-- 经验条 -->
-    <div class="absolute z-0 left-0 bottom-16 flex w-full h-3">
-      <div
-        class="mt-3 transform scale-125 mx-auto relative h-full"
-        style="width: 1024px"
-      >
-        <div
-          class="bg-red-800 h-full border"
-          :style="'width: ' + (stats.exp / stats.needExp) * 100 + '%'"
-        ></div>
-        <!-- 经验条文字 -->
-        <div class="absolute left-0 top-0 w-full flex h-full">
-          <div class="pl-2 text-xs mx-auto truncate">
-            {{ stats.exp }}/{{ stats.needExp }}
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -311,7 +316,6 @@ export default {
   created() {},
   mounted() {
     setTimeout(() => {
-
       for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
         const element = this.actionList.actionBar1[i];
         element.isDeleled = false;
@@ -319,26 +323,35 @@ export default {
       }
       for (let i = 0; i < this.actionList.actionBar1.length; i++) {
         let key = _Global.GameSetting.keyData.actionBar1[i].key;
-        let keytext = _Global.GameSetting.keyData.actionBar1[i].keytext;
         this.actionList.actionBar1[i].key = key;
+        let keytext = _Global.GameSetting.keyData.actionBar1[i].keytext;
+        if (keytext) {
+        } else {
+          keytext = key
+            .replace("Key", "")
+            .replace("Digit", "")
+            .replace("Minus", "-")
+            .replace("Equal", "=")
+            .replace("Space", "空格键");
+        }
         this.actionList.actionBar1[i].keytext = keytext;
       }
 
-      if(_Global.ActionList){
-
+      if (_Global.ActionList) {
         for (let i = 0; i < _Global.ActionList.actionBar1.length; i++) {
           let actionBarRecode = _Global.ActionList.actionBar1[i];
           for (let j = 0; j < _Global.skillList.length; j++) {
             const skill = _Global.skillList[j];
-            if(skill.skillName == actionBarRecode.skillName){
+            if (skill.skillName == actionBarRecode.skillName) {
               skill.auto = false;
               skill.isDeleled = true;
               skill.level = 1;
               skill.cCD = skill.CD;
               skill.perCD = 0;
-              this.actionList.actionBar1[actionBarRecode.index].isDeleled = true;
+              this.actionList.actionBar1[
+                actionBarRecode.index
+              ].isDeleled = true;
               this.actionList.actionBar1[actionBarRecode.index].skill = skill;
-              
             }
           }
         }
@@ -348,6 +361,24 @@ export default {
 
       _Global.addEventListener("界面开关", (e, b) => {
         this.panelState[e] = b;
+      });
+
+      _Global.addEventListener("快捷键改变", () => {
+        for (let i = 0; i < this.actionList.actionBar1.length; i++) {
+          let key = _Global.GameSetting.keyData.actionBar1[i].key;
+          this.actionList.actionBar1[i].key = key;
+          let keytext = _Global.GameSetting.keyData.actionBar1[i].keytext;
+          if (keytext) {
+          } else {
+            keytext = key
+              .replace("Key", "")
+              .replace("Digit", "")
+              .replace("Minus", "-")
+              .replace("Equal", "=")
+              .replace("Space", "空格键");
+          }
+          this.actionList.actionBar1[i].keytext = keytext;
+        }
       });
 
       _Global.addEventListener("主角头像", (s) => {
@@ -378,7 +409,7 @@ export default {
         }
         for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
           const element = this.actionList.actionBar1[i];
-          if (element.skill && element.skill.type == 'skill') {
+          if (element.skill && element.skill.type == "skill") {
             element.isDeleled = true;
             let skill = element.skill;
             skill.isDeleled = true;
@@ -394,8 +425,12 @@ export default {
         }
         for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
           const element = this.actionList.actionBar1[i];
-          if (element.skill && element.skill.type == 'skill') {
-            element.isDeleled = false; 
+          if (
+            element.skill &&
+            element.skill.type == "skill" &&
+            element.skill.level > 0
+          ) {
+            element.isDeleled = false;
             element.skill.isDeleled = false;
           }
         }
@@ -415,7 +450,7 @@ export default {
       _Global.addEventListener("从动作条拖拽到动作条", () => {
         this.cancelDragAction();
       });
-      
+
       _Global.addEventListener("摧毁Prop并在动作条中停用prop", (id) => {
         for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
           const element = this.actionList.actionBar1[i];
@@ -443,7 +478,7 @@ export default {
           }
         }
       });
-      
+
       _Global.addEventListener("3d加载完成", () => {
         _Global._YJPlayerFireCtrl.addEventListener(
           "技能CD",
@@ -476,7 +511,7 @@ export default {
   },
 
   methods: {
-    saveActionList(){
+    saveActionList() {
       _Global.SaveActionList(this.actionList);
     },
     cancelDragAction() {
@@ -501,7 +536,7 @@ export default {
         console.log(" 设置拖拽状态 ", element.inDragAction);
         element.inDragAction = true;
         if (element.index == item.index) {
-          element.skill = null; 
+          element.skill = null;
         }
       }
     },
@@ -563,15 +598,13 @@ export default {
       }
     },
     AddSkill(_skill) {
-      
-
       for (let i = 0; i < this.actionList.actionBar1.length; i++) {
         const skill = this.actionList.actionBar1[i].skill;
         if (skill && skill.skillName == _skill.skillName) {
           if (skill.isDeleled) {
             this.actionList.actionBar1[i].isDeleled = false;
             skill.isDeleled = false;
-          } 
+          }
           skill.level = 1;
           skill.auto = false;
           return;

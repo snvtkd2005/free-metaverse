@@ -71,8 +71,8 @@ export default {
       cursorLeft: 0,
       cursorTop: 0,
       cursorUrl: "",
-      // hasStats: true,
-      hasStats: false,
+      hasStats: true,
+      // hasStats: false,
       videoList: [],
       statsText:{
         drawcall:0,
@@ -374,6 +374,12 @@ export default {
         this.camera.bottom = -frustumSize / 2;
         this.camera.updateProjectionMatrix();
       }
+
+      
+      // if (this.hasStats && stats) {   
+      //   stats.domElement.style.left =( this.windowWidth -80)+ "px"; 
+      // }
+
     },
     SetCameraFov(f) {
       if (this.camera == null) {
@@ -712,12 +718,12 @@ export default {
 
       // this.scene.add(this.camera);
 
-      if (this.hasStats) {
+      if (this.hasStats) { 
         stats = new Stats();
         stats.domElement.style.position = "absolute";
         stats.domElement.style.width = "80px";
         stats.domElement.style.height = "48px";
-        stats.domElement.style.left =( window.innerWidth -80)+ "px";
+        stats.domElement.style.left =( this.windowWidth -80)+ "px";
         stats.domElement.style.top = "100px";
         stats.domElement.style.zIndex = "9999";
         this.$refs.container.appendChild(stats.domElement);

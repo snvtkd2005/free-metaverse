@@ -1,4 +1,3 @@
-import { YJMeshMerged } from "../YJMeshMerged";
 import { YJSpriteMerged } from "../YJSpriteMerged";
 
 
@@ -68,51 +67,56 @@ class YJGame_mainCtrl {
     }
 
 
-    let YJMeshMerged_gold = null;
+    let autoCollecting = true;
+    let YJSpriteMerged_gold = null;
     let modelPool = []; //金币对象池
     this.createGold = function(pos) {
       // return;
-      // let folderBase = "1721002990224";
-      let folderBase = "1721002547553";
+      let folderBase = "1721002547553"; //金币
       
       pos.y += 0.5;
       
-      if(YJMeshMerged_gold){
-        YJMeshMerged_gold.addPoint(pos);
+      if(YJSpriteMerged_gold){
+        YJSpriteMerged_gold.addPoint(pos);
       } 
       let transform = this.GetModelInPool(folderBase);
       if(transform != null){
-        transform.SetPos(pos); 
-        transform.SetActive(false); 
-        transform.SetDisplay(false);  
+        transform.SetPos(pos);  
+        setTimeout(() => {
+          transform.SetDisplay(false); 
+        }, 1000); 
         return;
       }
       // LoadSkillGroup
       _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillByFolderBase(folderBase, (model) => {
-        model.SetPos(pos); 
-        model.SetActive(false); 
-        model.SetDisplay(false); 
+        model.SetPos(pos);  
+        setTimeout(() => {
+          model.SetDisplay(false); 
+        }, 1000);
         model.nameType = "gold";
         modelPool.push({folderBase:folderBase,transform:model});
-        if(YJMeshMerged_gold == null){
-          YJMeshMerged_gold = new YJSpriteMerged(model.modelData.message.data.imgPath);
-          let posList = [];
-          posList.push(pos);
-          YJMeshMerged_gold.ReMerged(posList);
-          _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(YJMeshMerged_gold);
+        if(YJSpriteMerged_gold == null){
+          YJSpriteMerged_gold = new YJSpriteMerged(model.modelData.message.data.imgPath);
+          YJSpriteMerged_gold.SetAutoCollect(autoCollecting);
+          YJSpriteMerged_gold.addPoint(pos);
+          _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(YJSpriteMerged_gold);
           _Global.addEventListener("overlapinteractive",(buff,pos)=>{
             if(buff == "addGold"){
-              YJMeshMerged_gold.RemovePos(pos);
+              YJSpriteMerged_gold.RemovePos(pos);
             }
+          });
+
+          YJSpriteMerged_gold.addEventListener("收集1个",()=>{
+            _Global._YJPlayerFireCtrl.GetProperty().updateBasedata({value:1,property:"gold"});
           });
         }
 
         // console.log(" 生成金币 ",model);
       });
     }
-    this.CollectGold = function(callback){
-      if(YJMeshMerged_gold){
-        YJMeshMerged_gold.CollectGold(callback);
+    this.CollectGold = function(){
+      if(YJSpriteMerged_gold){
+        YJSpriteMerged_gold.CollectGold();
         //让所有金币的trigger关闭
         let allGold = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetAllTransformByNameType("gold");
         for (let i = 0; i < allGold.length; i++) {
@@ -122,6 +126,7 @@ class YJGame_mainCtrl {
         }
       } 
     }
+
     this.GetModelInPool = function(folderBase){
       for (let i = 0; i < modelPool.length; i++) {
         const element = modelPool[i];

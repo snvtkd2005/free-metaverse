@@ -1,8 +1,8 @@
 <template>
   <div class="w-full h-full relative pointer-events-none">
     <!-- 角色信息 -->
-    <div class="absolute left-0 top-52 flex">
-      <div class="relative transform scale-125 mx-auto flex">
+    <div class="absolute left-0 top-20 flex">
+      <div class="relative transform scale-100 mx-auto flex">
         <div class="absolute left-0 top-0 w-full h-full -z-10">
           <div class="absolute left-1 top-1">
             <img class="w-16 h-16 rounded-full" :src="playerImg" alt="" />

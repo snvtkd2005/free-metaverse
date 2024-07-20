@@ -10,7 +10,7 @@ class YJSkill {
         let baseData = null;
         function init() {
             owner.addEventListener("首次进入战斗", () => {
-                CheckSkill();
+                // CheckSkill();
             });
             owner.addEventListener("施法中断", () => {
                 if (inSkill) {
@@ -113,20 +113,65 @@ class YJSkill {
         this.SetSkill = function (_skillList, _baseData) {
             skillList = _skillList;
             baseData = _baseData;
+
+            for (let i = 0; i < skillList.length; i++) {
+                const skillItem = skillList[i];
+                if (skillItem.trigger.type == "perSecond") {
+                    initSkill(skillItem);
+                    
+                }
+            }
         }
+        function initSkill(skillItem){
+            if (skillItem.CD == undefined) {
+                skillItem.CD = skillItem.trigger.value;
+                // skillItem.CD = 0;
+            } else {
+            }
+
+            if (skillItem.CD == 0) {
+                skillItem.CD = 0.5;
+                // if (skillItem.castTime > 0) {
+                //     // 冷却时间一定要比施放时间更长
+                //     if (skillItem.castTime >= skillItem.CD) {
+                //         skillItem.CD = skillItem.castTime + 0.5;
+                //     }
+                // }
+            }
+
+            skillItem.CONSTCD = skillItem.CD;
+
+
+            skillItem.CD *= (1 - baseData.basicProperty.CDRate);
+            if (skillItem.CD <= 0) {
+                skillItem.CD = 0.5;
+            }
+            skillItem.cCD = skillItem.CD;
+
+            if (skillItem.trigger.value < skillItem.CD) {
+                skillItem.trigger.value = skillItem.CD;
+            }
+
+
+            if (skillItem.auto == undefined) {
+                skillItem.auto = true;
+            }
+        }
+
         this.AddSkill = function (_skill) {
             for (let i = 0; i < skillList.length; i++) {
                 const skill = skillList[i];
                 if (skill.skillName == _skill.skillName) {
                     skill.level = _skill.level;
-                    if(skill.hasTargetLv && skill.targetLv && skill.targetLv.length>1){
-                        skill.target.value = skill.targetLv[ skill.level-1]; 
+                    if (skill.hasTargetLv && skill.targetLv && skill.targetLv.length > 1) {
+                        skill.target.value = skill.targetLv[skill.level - 1];
                     }
                     return;
                 }
             }
+            initSkill(_skill); 
             skillList.push(_skill);
-            CheckSkill_Persecond(_skill);
+            // CheckSkill_Persecond(_skill);
             owner.applyEvent("添加技能", _skill);
             // console.log(" 添加技能 ", _skill);
         }
@@ -182,24 +227,39 @@ class YJSkill {
                         return false;
                     }
 
+                    let nameScale = owner.GetScale() * 3;
 
-                    let fn = (model) => {
-                        model.SetPos(owner.GetWorldPos());
-                        let nameScale = owner.GetScale();
-                        model.AddScale(new THREE.Vector3(nameScale, nameScale, nameScale));
-                        model.SetActive(true);
-                        AddControlModel(receiveEffect.particleId, model);
-                        _Global._YJGame_mainCtrl.AttachToPool(receiveEffect.particleId, model);
+                    let msg = {
+                        title: "生成静态模型",
+                        folderBase: receiveEffect.particleId,
+                        id: owner.id,
+                        pos: owner.GetWorldPos(),
+                        scale: new THREE.Vector3(nameScale, nameScale, nameScale),
                     }
-                    let transform = _Global._YJGame_mainCtrl.GetModelInPool(receiveEffect.particleId);
-                    if (transform != null) {
-                        fn(transform);
-                    } else {
-                        _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillByFolderBase(
-                            receiveEffect.particleId, (model) => {
-                                fn(model);
-                            });
-                    }
+                    // let fn = (model) => {
+                    //     model.SetPos(owner.GetWorldPos());
+                    //     let nameScale = owner.GetScale();
+                    //     model.AddScale(new THREE.Vector3(nameScale, nameScale, nameScale));
+                    //     model.SetActive(true);
+                    //     AddControlModel(receiveEffect.particleId, model);
+                    //     _Global._YJGame_mainCtrl.AttachToPool(receiveEffect.particleId, model);
+                    // }
+
+                    AddControlModel(receiveEffect.particleId, 'merged');
+
+                    // 静态物体使用合批的方法做法
+                    _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillFolderBaseByMSG(
+                        receiveEffect.particleId, msg);
+
+                    // let transform = _Global._YJGame_mainCtrl.GetModelInPool(receiveEffect.particleId);
+                    // if (transform != null) {
+                    //     fn(transform);
+                    // } else {
+                    //     _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillByFolderBase(
+                    //         receiveEffect.particleId, (model) => {
+                    //             fn(model);
+                    //         });
+                    // }
 
                 }
 
@@ -209,7 +269,6 @@ class YJSkill {
                     clearTimeout(controlFnLater);
                 }
                 controlFnLater = setTimeout(() => {
-
                     RemoveSkill({ type: "control", particleId: receiveEffect.particleId });
                 }, duration * 1000);
 
@@ -307,6 +366,8 @@ class YJSkill {
 
             if (skill.type == "control") {
                 owner.inControl = false;
+
+
             }
             if (skill.type == "shield") {
                 owner.GetBuff().removeBuffById(skill.id);
@@ -314,6 +375,17 @@ class YJSkill {
             for (let i = controlModels.length - 1; i >= 0; i--) {
                 const item = controlModels[i];
                 if (item.type == particleId) {
+                    if (item.modelTransform == "merged") {
+                        let msg = {
+                            title: "移除静态模型",
+                            folderBase: particleId,
+                            id: owner.id,
+                        }
+                        _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().RemoveSkillByFolderBase(
+                            particleId, msg);
+                        controlModels.splice(i, 1);
+                        continue;
+                    }
                     item.modelTransform.Destroy();
                     controlModels.splice(i, 1);
                 }
@@ -325,36 +397,23 @@ class YJSkill {
             //         particleId: particleId
             //     });
         }
-        function ReceiveSkill(effect, skillItem) {
-            if (effect.controlId == "冰霜新星") {
-                // _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().CopyModel("冰霜新星模型", (model) => {
-                //     model.SetPos(owner.GetWorldPos());
-                //     let nameScale = owner.GetScale();
-                //     model.AddScale(new THREE.Vector3(nameScale, nameScale, nameScale));
-                //     model.SetActive(true);
-                //     AddControlModel(skillName, model);
-                // });
-            }
-            if (type == "shield") {
-
-                // _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().CopyModel("寒冰护体", (model) => {
-                //     model.SetPos(owner.GetWorldPos());
-                //     let nameScale = owner.GetScale();
-                //     model.SetScale(new THREE.Vector3(nameScale, nameScale, nameScale));
-                //     owner.GetGroup().attach(model.GetGroup());
-                //     model.SetActive(true);
-                //     AddControlModel(skillName, model);
-                // });
-            }
-            return true;
-
-
-        }
         function ClearControlModel() {
 
             if (controlModels.length > 0) {
                 for (let i = controlModels.length - 1; i >= 0; i--) {
                     const item = controlModels[i];
+
+                    if (item.modelTransform == "merged") {
+                        let msg = {
+                            title: "移除静态模型",
+                            folderBase: item.type,
+                            id: owner.id,
+                        }
+                        _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().RemoveSkillByFolderBase(
+                            item.type, msg);
+                        controlModels.splice(i, 1);
+                        continue;
+                    }
                     item.modelTransform.Destroy();
                     controlModels.splice(i, 1);
                 }
@@ -464,8 +523,8 @@ class YJSkill {
                 return false;
             }
             if (inSkill) { return false; }
-            
-            EventHandler("中断延迟施法"); 
+
+            EventHandler("中断延迟施法");
             inSkill = true;
             let { animName, animNameReady, skillName, target, effect } = skillItem;
 
@@ -508,8 +567,8 @@ class YJSkill {
                 if (targetType == "area") {
                     let max = skillItem.target.value;
                     areaTargets = _Global._YJFireManager.GetOtherNoSameCampInArea(owner.GetCamp(), vaildAttackDis, max, owner.GetWorldPos());
-                    if(owner.GetNickName().includes("居民")){
-                        console.error(owner.GetNickName()+" 范围攻击目标 ",max,areaTargets);
+                    if (owner.GetNickName().includes("居民")) {
+                        console.error(owner.GetNickName() + " 范围攻击目标 ", max, areaTargets);
                     }
                     // 范围内无目标，不施放技能
                     if (areaTargets.length == 0) {
@@ -845,6 +904,7 @@ class YJSkill {
                         const npcComponent = npcs[i];
                         npcComponent.ReceiveSkill(owner, skillName, effect, skillItem);
                     }
+                    // 冰环特效
                     _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillGroup(skillItem.skillFireParticleId, (model) => {
                         model.SetPos(owner.GetWorldPos());
                         model.SetActive(true);
@@ -876,7 +936,7 @@ class YJSkill {
             }
             //
             if (type == "addHealth") {
-                owner.updateByCard({ type: "basicProperty", property: "health", value: value });
+                owner.GetProperty().updateBasedata({ type: "basicProperty", property: "health", value: value });
             }
             //增生
             if (type == "hyperplasia") {
@@ -909,59 +969,60 @@ class YJSkill {
             for (let i = 0; i < skillList.length; i++) {
                 const skillItem = skillList[i];
                 // 触发方式 每间隔n秒触发。在进入战斗时调用
+                initSkill(skillItem);
                 CheckSkill_Persecond(skillItem);
+            } 
+        } 
+        this._update = function (dt) {
+            if (_Global.pauseGame) { return; }
+            for (let i = 0; i < skillList.length; i++) {
+                const skillItem = skillList[i];
+                if (skillItem.trigger.type == "perSecond") {
+                    if (skillItem.cCD == skillItem.CD) {
+                        if (!skillItem.auto) {
+                            continue;
+                        } else {
+                            if (skillItem.cCD < skillItem.trigger.value) {
+                                skillItem.cCD += 0.1;
+                                continue;
+                            }
+                        }
+                        if (inSkill) {
+                            // return;
+                            if (skillItem.effect.type == "control" || skillItem.effect.type == "shield") {
+                                // EventHandler("中断技能", true);
+                            } else {
+                                // return;
+                            }
+                            continue;
+                            // for (let i = 0; i < skillCDlist.length ; i++) {
+                            //   const element = skillCDlist[i];
+                            //   if(element.skillName == skillItem.skillName){
+                            //     return; 
+                            //   }
+                            // }
+                            // skillCDlist.push({skillName:skillItem.skillName,skillItem:skillItem});
+                        }
+                        SkillGo(skillItem);
+                        continue;
+                    }
+                    // skillItem.cCD += dt;
+                    skillItem.cCD += 0.033;
+                    if (skillItem.cCD > skillItem.CD) {
+                        skillItem.cCD = skillItem.CD;
+                    }
+
+                    owner.applyEvent("技能CD", skillItem.skillName, skillItem.cCD);
+                    // console.log(owner.GetNickName()+" 技能CD ", skillItem.skillName, skillItem.cCD,skillItem.CD);
+                    // console.log(" detatime " ,dt);
+                }
+
             }
-            CheckSkill_Health();
-        }
-
-        function settimeoutInterval(skillItem) {
-            // setTimeout(() => {
-            //     settimeoutInterval(skillItem);
-            // }, 100);
-
-
-
         }
         function CheckSkill_Persecond(skillItem) {
             if (skillItem.trigger.type == "perSecond") {
-
-                if (skillItem.CD == undefined) {
-                    skillItem.CD = skillItem.trigger.value;
-                    // skillItem.CD = 0;
-                } else {
-                }
-
-                if (skillItem.CD == 0) {
-                    skillItem.CD = 0.5;
-                    // if (skillItem.castTime > 0) {
-                    //     // 冷却时间一定要比施放时间更长
-                    //     if (skillItem.castTime >= skillItem.CD) {
-                    //         skillItem.CD = skillItem.castTime + 0.5;
-                    //     }
-                    // }
-                }
-
-                skillItem.CONSTCD = skillItem.CD;
-
-
-                skillItem.CD *= (1 - baseData.basicProperty.CDRate);
-                if (skillItem.CD <= 0) {
-                    skillItem.CD = 0.5;
-                }
-                skillItem.cCD = skillItem.CD;
-
-                if (skillItem.trigger.value < skillItem.CD) {
-                    skillItem.trigger.value = skillItem.CD;
-                }
-
-
-                if (skillItem.auto == undefined) {
-                    skillItem.auto = true;
-                }
-
                 fireLater.push({
                     type: "interval", fn:
-                        // settimeoutInterval(skillItem)
                         setInterval(() => {
                             if (_Global.pauseGame) { return; }
                             if (_Global.mainUser) {
@@ -1070,19 +1131,19 @@ class YJSkill {
         let castSkillList = [];
 
         function EventHandler(e, cutSkill = true) {
-            if(e=="中断延迟施法"){
-                if (vaildAttackLater != null || vaildAttackLater2 != null ) {
+            if (e == "中断延迟施法") {
+                if (vaildAttackLater != null || vaildAttackLater2 != null) {
                     clearTimeout(vaildAttackLater);
-                    clearTimeout(vaildAttackLater2); 
+                    clearTimeout(vaildAttackLater2);
                     vaildAttackLater = null;
-                    vaildAttackLater2 = null; 
+                    vaildAttackLater2 = null;
                 }
                 return;
             }
             if (e == "中断技能") {
-                if (vaildAttackLater != null || vaildAttackLater2 != null ) {
+                if (vaildAttackLater != null || vaildAttackLater2 != null) {
                     clearTimeout(vaildAttackLater);
-                    clearTimeout(vaildAttackLater2); 
+                    clearTimeout(vaildAttackLater2);
                     vaildAttackLater = null;
                     vaildAttackLater2 = null;
                     //记录当前时间
@@ -1104,7 +1165,7 @@ class YJSkill {
             }
             if (e == "中断施法") {
                 clearCastSkill();
-                skillEnd(null, "中断施法"); 
+                skillEnd(null, "中断施法");
             }
 
             owner.EventHandler(e, cutSkill);

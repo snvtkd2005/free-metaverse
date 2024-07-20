@@ -225,12 +225,16 @@ class YJTween {
 
       let movingTween = new TWEEN.Tween(current).to(to, duration).easing(TWEEN.Easing.Linear.None)
       // let movingTween = new TWEEN.Tween(current).to(to, duration).easing(TWEEN.Easing.Cubic.InOut)
+      let meshes = [];
+      model.traverse(function (item) {
+        if (item.isMesh) {
+          meshes.push(item);
+        }
+      }); 
       let updateTargetPos = () => {
-        model.traverse(function (item) {
-          if (item instanceof THREE.Mesh) {
-            item.material.opacity = current.x;
-          }
-        });
+        for (let i = 0; i < meshes.length; i++) {
+          meshes[i].material.opacity = current.x;
+        } 
         if (update) {
           update();
         }
@@ -259,10 +263,7 @@ class YJTween {
       }
     }
     this._update = function () {
-      // TWEEN.update();
-      // controls.update();
-      // cssRenderer.render(cssScene,_Global.YJ3D.camera);
-      UpdateTrailRenderer();
+      // UpdateTrailRenderer();
     }
     Init();
 

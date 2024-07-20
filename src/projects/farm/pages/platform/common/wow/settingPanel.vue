@@ -251,7 +251,7 @@ export default {
           this.keyEvent = (keycode) => {
             // 按键在配置中设置
             if(this.selectKey){
-              console.log(" in setting panel ", keycode);
+              // console.log(" in setting panel ", keycode);
               this.selectKey.key = keycode;
               this.selectKey.keytext = keycode
                 .replace("Key", "")
@@ -263,6 +263,8 @@ export default {
               this.childTitle2 = "";
 
               _Global.SaveGameSetting();
+              _Global.applyEvent("快捷键改变");
+              
             }
           };
 

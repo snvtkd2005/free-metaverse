@@ -230,7 +230,7 @@ class YJSceneDyncManagerEditor {
           if (npcComponent.fireId == -1) {
             npcComponent.fireId = element.fireId;
           }
-          checkAddPeople(element.peopleList,{ id: npcComponent.transform.id, camp: npcComponent.GetCamp(), targetId: targetModel.id });
+          element.peopleList.push({ id: npcComponent.transform.id, camp: npcComponent.GetCamp(), targetId: targetModel.id });
           console.log(npcComponent.npcName + " npc 加入正在进行中的战斗 ", element);
         }
 
@@ -238,7 +238,7 @@ class YJSceneDyncManagerEditor {
           if (targetModel.fireId == -1) {
             targetModel.fireId = element.fireId;
           }
-          checkAddPeople(element.peopleList,{ id: targetModel.id, camp: targetModel.camp, targetId: npcComponent.transform.id });
+          element.peopleList.push({ id: targetModel.id, camp: targetModel.camp, targetId: npcComponent.transform.id });
           console.log(targetModel.GetNickName() + " 玩家 加入正在进行中的战斗 ", element);
         } else {
 
@@ -278,18 +278,6 @@ class YJSceneDyncManagerEditor {
       //   LoopCheckFireFn();
       // }, 500);
     }
-    function checkAddPeople(peopleList,people){
-      let has = false;
-      for (let i = 0; i < peopleList.length && !has; i++) {
-        const element = peopleList[i];
-        if(element.id == people.id){
-          has = true;
-        }
-      }
-      if(!has){
-        peopleList.push(people);
-      }
-    }
     this.NPCAddFireGroup = function (npcComponent, targetId) {
       if (fireGroup.length == 0) {
         return false;
@@ -299,8 +287,8 @@ class YJSceneDyncManagerEditor {
       }
       const element = fireGroup[0];
       npcComponent.fireId = element.fireId;
-      checkAddPeople(element.peopleList,{ id: npcComponent.transform.id, camp: npcComponent.GetCamp(), targetId: targetId });
-      // console.log(npcComponent.GetNickName() + " " + npcComponent.transform.id +" 加入战斗 ");
+      element.peopleList.push({ id: npcComponent.transform.id, camp: npcComponent.GetCamp(), targetId: targetId });
+      // console.log(npcComponent.GetNickName()+"加入战斗 ",element);
       return true;
     }
 
@@ -480,7 +468,7 @@ class YJSceneDyncManagerEditor {
       for (let i = 0; i < npcs.length; i++) {
         const npcComponent = npcs[i].GetComponent("NPC");
         npcComponent.fireId = fireId;
-        checkAddPeople(element.peopleList,{ id: npcComponent.transform.id, camp: npcComponent.GetCamp(), targetId: null });
+        element.peopleList.push({ id: npcComponent.transform.id, camp: npcComponent.GetCamp(), targetId: null });
       }
       for (let k = element.peopleList.length - 1; k >= 0; k--) {
         const people = element.peopleList[k];
@@ -608,7 +596,7 @@ class YJSceneDyncManagerEditor {
               return;
             }
           }
-          checkAddPeople(element.peopleList,{ id: id, camp: camp, targetId: targetId });
+          element.peopleList.push({ id: id, camp: camp, targetId: targetId });
           console.log(" 加入战斗组 ", element);
         }
       }
@@ -631,12 +619,12 @@ class YJSceneDyncManagerEditor {
         if (hasNpc || hasPlayer) {
           if (!hasNpc) {
             npcComponent.fireId = element.fireId;
-            checkAddPeople(element.peopleList,{ id: npcComponent.transform.id, camp: npcComponent.GetCamp(), targetId: targetModel.id });
+            element.peopleList.push({ id: npcComponent.transform.id, camp: npcComponent.GetCamp(), targetId: targetModel.id });
             console.log(" 玩家加入战斗触发 npc加入战斗");
           }
           if (!hasPlayer) {
             targetModel.fireId = element.fireId;
-            checkAddPeople(element.peopleList,{ id: targetModel.id, camp: targetModel.camp, targetId: npcComponent.transform.id });
+            element.peopleList.push({ id: targetModel.id, camp: targetModel.camp, targetId: npcComponent.transform.id });
             console.log(" 玩家加入战斗触发 玩家加入战斗");
           }
           return;
@@ -662,7 +650,7 @@ class YJSceneDyncManagerEditor {
             }
           }
           npcComponent.fireId = fireId;
-          checkAddPeople(element.peopleList,{ id: npcComponent.transform.id, camp: npcComponent.GetCamp(), targetId: targetId });
+          element.peopleList.push({ id: npcComponent.transform.id, camp: npcComponent.GetCamp(), targetId: targetId });
           // console.log("npc [" + npcComponent.npcName + "] 加入 附近的战斗 ", element);
         }
       }
@@ -675,7 +663,7 @@ class YJSceneDyncManagerEditor {
       for (let i = 0; i < fireGroup.length; i++) {
         const element = fireGroup[i];
         if (element.fireId == fireId) {
-          checkAddPeople(element.peopleList,{ id: player.id, camp: player.camp });
+          element.peopleList.push({ id: player.id, camp: player.camp });
           console.log(" 玩家 加入战斗 22 ", element);
         }
       }
@@ -704,7 +692,6 @@ class YJSceneDyncManagerEditor {
               people.targetId = null;
             }
           }
-          // console.log(" 参与者数量 ",element.peopleList.length);
           if (element.peopleList.length == 0) {
             fireGroup.splice(i, 1);
             FireOff();
@@ -713,8 +700,7 @@ class YJSceneDyncManagerEditor {
         }
       }
       if(!has){
-        console.error(" 出错：id " +id + "  死亡或离开战斗, 但该id未在战斗中",
-        fireId, fireGroup);
+        console.error(" 出错：id " +id + "  死亡或离开战斗, 但该id未在战斗中" );
       }
       LoopCheckFireFn();
 
@@ -741,9 +727,9 @@ class YJSceneDyncManagerEditor {
       LoopCheckFireFn();
     }
     function LoopCheckFireFn() {
-      // if(_Global.createCompleted){
-      //   console.log(fireGroup);
-      // }
+      if(_Global.createCompleted){
+        console.log(fireGroup);
+      }
       if(fireGroup.length == 0){
         FireOff(sameCamp);
         return;

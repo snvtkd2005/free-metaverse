@@ -46,7 +46,10 @@ class YJSpriteMerged {
         transparent: true
       });
     }
-    let autoCollecting = true;
+    let autoCollecting = false;
+    this.SetAutoCollect = function(b){
+      autoCollecting = b;
+    }
     let posList = [];
     let posList2 = [];
     this.GetPosCount = function () {
@@ -56,6 +59,7 @@ class YJSpriteMerged {
       if (autoCollecting) {
         posList2.push(pos);
         ReMergedCollecting(posList2);
+        inCollecting = true;
         return;
       }
       posList.push(pos);
@@ -108,13 +112,27 @@ class YJSpriteMerged {
       this.ReMerged(posList);
 
     }
-    let inCollecting = false;
-    let collectCallback = null;
-    this.CollectGold = function (callback) {
-      inCollecting = true;
-      if (collectCallback == null) {
-        collectCallback = callback;
-      }
+
+
+    let inCollecting = false; 
+    let eventList = [];
+		// 添加事件监听
+		this.addEventListener = function (e, fn) {
+			// console.log(" 监听 ", e);
+			eventList.push({ eventName: e, fn: fn });
+		}
+		// 执行事件
+		this.applyEvent = function (e, v, v2,v3) {
+			for (let i = 0; i < eventList.length; i++) {
+				const element = eventList[i];
+				if (element.eventName == e) {
+					element.fn(v, v2,v3);
+				}
+			}
+		}
+
+    this.CollectGold = function () {
+      inCollecting = true; 
       if (posList.length == 0) {
         return;
       }
@@ -150,9 +168,9 @@ class YJSpriteMerged {
 
     }
     this._update = function () {
-      // if(!inCollecting){
-      //   return;
-      // }
+      if(!inCollecting){
+        return;
+      }
       if (!particles_collecting) {
         return;
       }
@@ -170,11 +188,9 @@ class YJSpriteMerged {
         let targetPos = _Global._YJPlayerFireCtrl.GetWorldPosHalfHeight();
 
         if (dummyPos.distanceTo(targetPos) < 1) {
-          if (collectCallback) {
-            collectCallback();
-          }
           posList2.splice(i, 1);
           ReMergedCollecting(posList2);
+          this.applyEvent("收集1个");
           if (posList2.length == 0) {
             inCollecting = false;
             return;

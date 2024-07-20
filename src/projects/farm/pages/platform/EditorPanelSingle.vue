@@ -4,88 +4,105 @@
   <div class="absolute left-0 top-0 z-999 w-full h-full flex flex-col">
     <button ref="opacityBtn" class="opacity-0"></button>
     <!-- 顶部工具栏 -->
-    <div class="
-        absolute
-        z-20
-        left-0
-        top-0
-        h-10
-        w-full
-        flex
-        bg-445760
-        text-gray-200
-      "> 
+    <div
+      class="absolute z-20 left-0 top-0 h-10 w-full flex bg-445760 text-gray-200"
+    >
       <div class="flex">
-        <el-upload v-if="hasImport" class="bg-transparent" action="" multiple :before-upload="handleBeforeUpload"
-          :accept="accept" :show-file-list="false"> 
+        <el-upload
+          v-if="hasImport"
+          class="bg-transparent"
+          action=""
+          multiple
+          :before-upload="handleBeforeUpload"
+          :accept="accept"
+          :show-file-list="false"
+        >
           <div class="p-2 w-20 cursor-pointer hover:bg-546770">导入</div>
         </el-upload>
 
         <div class="hidden relative w-40 cursor-pointer">
-          <label class="absolute left-0 cursor-pointer mt-2 ml-2">导入文件夹</label>
-          <input class="absolute left-0 w-full opacity-0 h-full cursor-pointer" title="" ref="fileRef" type="file"
-            name="file" webkitdirectory @change.stop="change" />
+          <label class="absolute left-0 cursor-pointer mt-2 ml-2"
+            >导入文件夹</label
+          >
+          <input
+            class="absolute left-0 w-full opacity-0 h-full cursor-pointer"
+            title=""
+            ref="fileRef"
+            type="file"
+            name="file"
+            webkitdirectory
+            @change.stop="change"
+          />
         </div>
 
-        <div v-for="(item, i) in tableList" :key="i" :index="item.id" class="px-12 flex h-10 text-center hover:bg-546770">
-          <div v-if="item.display" class="self-center" :class="0 == item.id ? ' ' : ' cursor-pointer '"
-            @click="ChangeTable(item)">
+        <div
+          v-for="(item, i) in tableList"
+          :key="i"
+          :index="item.id"
+          class="px-12 flex h-10 text-center hover:bg-546770"
+        >
+          <div
+            v-if="item.display"
+            class="self-center"
+            :class="0 == item.id ? ' ' : ' cursor-pointer '"
+            @click="ChangeTable(item)"
+          >
             {{ item.content }}
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 中部 -->
+    <!-- 中间3d画面 -->
+    <div class="absolute" :style="panel3dStyle">
+      <YJmetaBase :avatarData="avatarData" ref="YJmetaBase" />
+      <div class="hidden absolute top-0 left-0 cutimg overflow-hidden">
+        <canvas id="nowcanvas" class="bg-white"> </canvas>
+      </div>
 
-    
-    <!-- 摆放模型 -->
-    <YJmetaBase :avatarData="avatarData" ref="YJmetaBase" />
-    <div class="hidden absolute top-0 left-0 cutimg overflow-hidden">
-      <canvas id="nowcanvas" class="bg-white"> </canvas>
-    </div>
+      <!-- 修改名称 -->
+      <div class="absolute left-2 top-2 flex text-white">
+        <div class="w-auto h-6 mt-1">单品名:</div>
+        <input
+          class="bg-transparent placeholder-gray-400 p-1"
+          type="text"
+          v-model="modelData.name"
+          :placeholder="modelData.name"
+          @focus="removeThreeJSfocus"
+          @blur="addThreeJSfocus"
+        />
+      </div>
 
-    <!-- 修改名称 -->
-    <div class="absolute left-2 top-12 flex text-white">
-      <div class="w-auto h-6 mt-1">单品名:</div>
-      <input class="bg-transparent placeholder-gray-400 p-1" type="text" v-model="modelData.name"
-        :placeholder="modelData.name" @focus="removeThreeJSfocus" @blur="addThreeJSfocus" />
-    </div>
-
-    <!-- 与后台交互的操作提示 -->
-    <div v-if="tipData.opening" class="absolute left-0 top-10 w-full flex">
-      <div class="
-          mx-auto
-          flex
-          w-auto
-          bg-blue-400
-          text-white text-xl
-          rounded-lg
-          h-10
-        ">
-        <div class="px-4 mx-auto self-center">
-          {{ tipData.tipContent }} --- {{ tipData.uploadProgress }}
+      <!-- 与后台交互的操作提示 -->
+      <div v-if="tipData.opening" class="absolute left-0 top-10 w-full flex">
+        <div
+          class="mx-auto flex w-auto bg-blue-400 text-white text-xl rounded-lg h-10"
+        >
+          <div class="px-4 mx-auto self-center">
+            {{ tipData.tipContent }} --- {{ tipData.uploadProgress }}
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="
-        hidden
-        md:flex
-        absolute
-        left-0
-        bottom-10
-        w-auto
-        pointer-events-none
-      ">
-      <div class="flex w-auto text-white text-md rounded-lg h-10">
-        <div class="px-4 text-left mx-auto self-center">
-          键盘操作：<br />
-          G:重力开关<br />
-          F:上下车<br />
-          T:扔掉武器<br />
+      <div
+        class="hidden md:flex absolute left-0 bottom-10 w-auto pointer-events-none"
+      >
+        <div class="flex w-auto text-white text-md rounded-lg h-10">
+          <div class="px-4 text-left mx-auto self-center">
+            键盘操作：<br />
+            G:重力开关<br />
+            F:上下车<br />
+            T:扔掉武器<br />
+          </div>
         </div>
       </div>
+      <!-- 右上角按钮 -->
+      <div class="absolute right-20 top-2">
+        <settingPanel ref="settingPanel" />
+      </div>
+      
+      <!-- 截图区域安全区域 -->
+      <PanelCut @cancel="CancelCut" ref="PanelCut" />
     </div>
 
     <!-- 右侧检视面板 -->
@@ -93,28 +110,16 @@
       <settingPanelCtrl ref="settingPanelCtrl" />
     </div>
 
-    <!-- 截图区域安全区域 -->
-    <PanelCut @cancel="CancelCut" ref="PanelCut" />
 
     <modelSelectPanel ref="modelSelectPanel" />
     <animPanel ref="animPanel" />
     <boneConvertPanel ref="boneConvertPanel" />
 
-      <!-- 左上角血条头像 -->
+    <!-- 左上角血条头像 -->
     <!-- <div class=" absolute left-24 top-10">
       <headerUI ref="headerUI" />
     </div> -->
     <loadingPanel class="absolute z-50 left-0 top-0" ref="loadingPanel" />
-
-
-
-      <!-- 右上角按钮 -->
-    <!-- <skillProgressUI ref="skillProgressUI" /> -->
-
-      <div class="absolute right-96 top-12">
-        <settingPanel ref="settingPanel" />
-      </div>
-
   </div>
 </template>
 
@@ -167,7 +172,7 @@ export default {
     return {
       inAddComponent: false,
       hasUI: true,
-      
+
       panelState: {
         // setting: false,
         setting: false,
@@ -181,8 +186,16 @@ export default {
         npc: false,
         interactive: false,
         trail: false,
-        
       },
+      panelData: {
+        panel3dStyle: {
+          left: 0,
+          top: 0,
+          width: 500,
+          height: 500,
+        },
+      },
+      panel3dStyle: "",
       hover: false,
       infloating: false,
 
@@ -190,11 +203,26 @@ export default {
       hasImport: true,
       tableList: [
         { id: "single_cut", display: true, content: "截图（制作缩略图）" },
-        { id: "single_collider", display: true, content: "隐藏碰撞体", value: true },
-        { id: "single_usercollider", display: true, content: "激活碰撞体", value: true },
+        {
+          id: "single_collider",
+          display: true,
+          content: "隐藏碰撞体",
+          value: true,
+        },
+        {
+          id: "single_usercollider",
+          display: true,
+          content: "激活碰撞体",
+          value: true,
+        },
         // { id: "single_first", content: "第一人称视角" },
         // { id: "single_third", content: "第三人称视角" },
-        { id: "single_planeState", display: true, content: "隐藏地面", value: true },
+        {
+          id: "single_planeState",
+          display: true,
+          content: "隐藏地面",
+          value: true,
+        },
         // { id: 10000, content: "保存", },
         // { id: 10000, content: "发布", },
       ],
@@ -221,7 +249,7 @@ export default {
       initCompleted: false,
 
       avatarId: "",
- 
+
       Interface: null,
       modelList: [],
 
@@ -234,7 +262,8 @@ export default {
       fileList: [],
       fileSize: 5,
       // accept: ".jpg,.jpeg,.bmp,.png,.bin,.gltf,.glb,.fbx,.FBX,.mtl,.obj",
-      accept: ".jpg,.jpeg,.bmp,.png,.bin,.gltf,.glb,.fbx,.FBX,.mtl,.obj,.vmd,.pmx",
+      accept:
+        ".jpg,.jpeg,.bmp,.png,.bin,.gltf,.glb,.fbx,.FBX,.mtl,.obj,.vmd,.pmx",
       loadTip: "加载中，请稍候。。。",
 
       folderPath: "models/staticModels/",
@@ -256,7 +285,7 @@ export default {
       currentSettingPanel: null,
     };
   },
-  created() { 
+  created() {
     this.sceneData = SceneData;
 
     this.publicUrl = this.$publicUrl + this.sceneData.setting.localPath;
@@ -276,7 +305,7 @@ export default {
     if (localStorage.getItem("avatarId")) {
       avatarId = localStorage.getItem("avatarId");
     }
-    
+
     this.userName = "aa";
     if (localStorage.getItem("userName")) {
       this.userName = localStorage.getItem("userName");
@@ -312,18 +341,28 @@ export default {
 
     document.addEventListener("visibilitychange", () => {
       _Global.inFocus = !document.hidden;
-      if(_Global.inFocus){
+      if (_Global.inFocus) {
         //如果角色被改变，切换角色
-        if(localStorage.getItem("avatarId") != this.avatarId){
+        if (localStorage.getItem("avatarId") != this.avatarId) {
           this.avatarId = localStorage.getItem("avatarId");
           _Global.YJ3D.YJPlayer.LoadPlayer(this.avatarId);
         }
       }
     });
 
+    this.panelData.panel3dStyle.width = window.innerWidth - 320;
+    this.panelData.panel3dStyle.height = window.innerHeight - 40;
+    this.panelData.panel3dStyle.left = 0;
+    this.panelData.panel3dStyle.top = 40;
+
+    this.panel3dStyle = `
+      position: absolute; 
+      left: ${this.panelData.panel3dStyle.left}px;
+      top: ${this.panelData.panel3dStyle.top}px;
+      width: ${this.panelData.panel3dStyle.width}px;
+      height: ${this.panelData.panel3dStyle.height}px;`;
   },
   methods: {
-
     setSettingDisplayById(id, display) {
       for (let i = 0; i < this.tableList.length; i++) {
         const element = this.tableList[i];
@@ -336,8 +375,9 @@ export default {
     ChangePanel(e) {
       this.$refs.settingPanelCtrl.ChangePanel(e);
       setTimeout(() => {
-        this.currentSettingPanel = this.$refs.settingPanelCtrl.$refs["settingPanel_" + e];
-      }, 200); 
+        this.currentSettingPanel =
+          this.$refs.settingPanelCtrl.$refs["settingPanel_" + e];
+      }, 200);
     },
     Load() {
       this.hasUI = false;
@@ -376,11 +416,16 @@ export default {
                   const element = temp[j];
                   if (element == anim.animName && element != "") {
                     anim.has = true;
-                    canAnimList.push({ label: anim.content, value: anim.animName });
+                    canAnimList.push({
+                      label: anim.content,
+                      value: anim.animName,
+                    });
                   }
                 }
               }
-              this.$refs.settingPanelCtrl.$refs.settingPanel_equip.SetAnimList(canAnimList);
+              this.$refs.settingPanelCtrl.$refs.settingPanel_equip.SetAnimList(
+                canAnimList
+              );
             });
         }, 1000);
       }
@@ -398,15 +443,23 @@ export default {
                   const element = temp[j];
                   if (element == anim.animName && element != "") {
                     anim.has = true;
-                    canAnimList.push({ label: anim.content, value: anim.animName });
+                    canAnimList.push({
+                      label: anim.content,
+                      value: anim.animName,
+                    });
                   }
                 }
               }
-              this.$refs.settingPanelCtrl.$refs.settingPanel_weapon.SetAnimList(canAnimList);
+              this.$refs.settingPanelCtrl.$refs.settingPanel_weapon.SetAnimList(
+                canAnimList
+              );
             });
         }, 1000);
       }
-      if (this.modelData.modelType == "角色" ||this.modelData.modelType == "拖尾模型"  ) {
+      if (
+        this.modelData.modelType == "角色" ||
+        this.modelData.modelType == "拖尾模型"
+      ) {
         this.hasImport = false;
       }
 
@@ -417,7 +470,6 @@ export default {
           );
         }, 3000);
       }
-
 
       let modelTemplate = this.UIData.customPanel.templateList[0].template;
       for (let i = 0; i < modelTemplate.length; i++) {
@@ -523,7 +575,9 @@ export default {
         if (this.oldFileName != this.modelData.name) {
           this.oldFileName = this.modelData.name;
           if (this.modelData.modelType == "角色模型") {
-            this.$refs.settingPanelCtrl.$refs.settingPanel_player.updateName(this.oldFileName);
+            this.$refs.settingPanelCtrl.$refs.settingPanel_player.updateName(
+              this.oldFileName
+            );
           }
           this.updateModelTxtData();
         }
@@ -538,20 +592,17 @@ export default {
 
       if (this.modelData.message == undefined) {
         if (this.modelData.modelType == "角色模型") {
-          this.modelData.message = this.$refs.settingPanelCtrl.$refs.settingPanel_player.getMessage();
+          this.modelData.message =
+            this.$refs.settingPanelCtrl.$refs.settingPanel_player.getMessage();
         }
       }
-
 
       this.modelData.icon = "thumb.png";
 
       let s = JSON.stringify(this.modelData);
       let fromData = new FormData();
       //服务器中的本地地址
-      fromData.append(
-        "fileToUpload",
-        this.$stringtoBlob(s,   "data.txt")
-      );
+      fromData.append("fileToUpload", this.$stringtoBlob(s, "data.txt"));
       fromData.append("folderBase", this.folderBase);
       this.$uploadFile(fromData).then((res) => {
         //先记录旧照片
@@ -560,7 +611,7 @@ export default {
           this.SetTip("保存成功");
         }
       });
-      
+
       localStorage.setItem("modelData", JSON.stringify(this.modelData));
     },
 
@@ -572,23 +623,23 @@ export default {
       //服务器中的本地地址
       fromData.append(
         "fileToUpload",
-        this.$dataURLtoBlob(dataurl,  "thumb.png")
+        this.$dataURLtoBlob(dataurl, "thumb.png")
       );
       fromData.append("folderBase", this.folderBase);
       this.$uploadFile(fromData).then((res) => {
         //先记录旧照片
         if (res.data == "SUCCESS") {
           console.log(" 上传模型缩略图 ");
-          this.SetTip("缩略图制作成功！"); 
+          this.SetTip("缩略图制作成功！");
         }
       });
 
       _Global.YJ3D._YJSceneManager.ResetBackgroundColor();
     },
-    CancelCut() { 
+    CancelCut() {
       _Global.YJ3D.YJPlayer.DisplayAvatar(true);
       // _Global.ChangeFirstThird(false);
-      _Global.SetEnableGravity(true); 
+      _Global.SetEnableGravity(true);
       _Global.YJ3D._YJSceneManager.SetDisplayFloor(true);
       _Global.YJ3D._YJSceneManager.SetDisplayFloorCollider(true);
     },
@@ -600,14 +651,14 @@ export default {
         this.$refs.PanelCut.safeOrder = true;
         //关闭重力、隐藏角色、隐藏地面、隐藏碰撞体、视角放到物体几何中心
 
-        _Global.SetEnableGravity(false); 
+        _Global.SetEnableGravity(false);
         _Global.YJ3D._YJSceneManager.SetDisplayFloor(false);
 
-        // _Global.ChangeFirstThird(true); 
+        // _Global.ChangeFirstThird(true);
         _Global.YJ3D.YJPlayer.DisplayAvatar(false);
         _Global.YJ3D._YJSceneManager.SetDisplayFloorCollider(false);
         //隐藏姓名条
-        
+
         return;
       }
       // 是否显示碰撞体
@@ -643,7 +694,7 @@ export default {
       // 隐藏地面
       if (item.id == "single_planeState") {
         item.value = !item.value;
-        item.content = item.value ? "隐藏地面" : "显示地面"; 
+        item.content = item.value ? "隐藏地面" : "显示地面";
         _Global.YJ3D._YJSceneManager.SetDisplayFloor(item.value);
 
         // if (!item.value) {
@@ -873,16 +924,15 @@ export default {
             //加载模型
             _Global.YJ3D._YJSceneManager.CreateSingleModel(
               "https://snvtkd2005.com/socketIoServer/socketIoServer/uploads/" +
-              this.folderBase +
-              "/" +
-              this.modelName,
+                this.folderBase +
+                "/" +
+                this.modelName,
               () => {
                 console.log("加载模型完成 33 ");
                 this.tipData.tipContent = "加载模型完成";
                 setTimeout(() => {
                   this.tipData.opening = false;
                   if (this.modelData.modelType == "角色模型") {
-
                     this.$refs.settingPanelCtrl.$refs.settingPanel_player.SetAvatar(
                       _Global.YJ3D._YJSceneManager.GetSingleModelTransform()
                     );
@@ -915,9 +965,7 @@ export default {
     },
 
     SelectModel(item) {
-      _Global.YJ3D._YJSceneManager.SelectModel(
-        item.uuid
-      );
+      _Global.YJ3D._YJSceneManager.SelectModel(item.uuid);
     },
     SelectScene(e) {
       this.selectSceneName = e;
@@ -932,9 +980,7 @@ export default {
     },
 
     viewFarFn(e) {
-      _Global.YJ3D.YJController.SetCameraWheelPos(
-        -this.viewFar
-      );
+      _Global.YJ3D.YJController.SetCameraWheelPos(-this.viewFar);
       // 取消焦点
       this.$refs.viewFarCtrl.blur();
     },
@@ -1051,9 +1097,9 @@ export default {
     Photo(callback) {
       return this._SceneManager.Photo(callback);
     },
-    SetNpcMusicUrl(npcName) { },
+    SetNpcMusicUrl(npcName) {},
 
-    ClickChangeScene(sceneSetting) { },
+    ClickChangeScene(sceneSetting) {},
     //切换场景
     ChangeScene(sceneSetting) {
       this.sceneData = sceneSetting;
@@ -1108,7 +1154,7 @@ export default {
         this._SceneManager.SetTriggerOverlap(b, id, owner);
       }
       this.Interface.SetTriggerOverlap(b, id, name);
-    }, 
+    },
     LoadingProcess(f) {
       // 3d加载进度   0-1
       // console.log(" 加载场景进度 " ,f);
@@ -1194,7 +1240,7 @@ export default {
       // console.log(" 3转2 ",_projectionList);
     },
 
-    SetViewState(e) { },
+    SetViewState(e) {},
 
     // 点击角色NPC，显示NPC下方的光圈
     ClickPlayer(owner) {
@@ -1218,12 +1264,12 @@ export default {
 
       this.Interface.LoadData(modelData.id);
     },
-    ClickHotPointOwner(hitObject) { },
+    ClickHotPointOwner(hitObject) {},
 
     // 把视角切换到指定id的热点视角位置
-    ChangeViewById(id) { },
+    ChangeViewById(id) {},
 
-    ChangeViewFar() { },
+    ChangeViewFar() {},
 
     GetPublicUrl() {
       return this.publicUrl;

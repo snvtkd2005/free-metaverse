@@ -16,14 +16,12 @@ class YJTrigger {
     }
     let createLater = null;
     function Init() { 
-      createLater = setTimeout(() => {
-        scope.CreateTrigger();
-      }, 2000); 
+      scope.CreateTrigger();
+
     }
     this.Reset = function () {
-      createLater = setTimeout(() => {
-        scope.CreateTrigger();
-      }, 2000);
+      this.Destroy();
+      scope.CreateTrigger();
     }
 
     let triggleObj = null;
@@ -43,6 +41,7 @@ class YJTrigger {
       plane.visible = false;
       plane.name = "trigger";
       plane.modelType = "trigger";
+      plane.visible = false;
       parent.add(plane);
       _this._YJSceneManager.CreateTriangeMeshTrigger(plane, size,
         triggerId, "triggerArea", owner); 

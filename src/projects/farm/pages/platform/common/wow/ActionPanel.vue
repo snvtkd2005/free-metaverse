@@ -3,8 +3,8 @@
     <!-- 主动作条 -->
     <div class="flex absolute z-10 w-full h-16 left-0 bottom-0">
       <div class="w-full mx-auto flex">
-        <div class=" relative mx-auto transform origin-bottom md:scale-100 flex">
-          <div class=" hidden md:flex transform translate-x-8 -mt-16">
+        <div class="relative mx-auto transform origin-bottom md:scale-100 flex">
+          <div class="hidden md:flex transform translate-x-8 -mt-16">
             <img class="   " :src="bottomOrderUrl" alt="" />
           </div>
 
@@ -192,15 +192,14 @@
             </div>
           </div>
 
-          <div class="  hidden md:flex transform scalex -mt-16">
+          <div class="hidden md:flex transform scalex -mt-16">
             <img :src="bottomOrderUrl" alt="" />
           </div>
 
-
           <!-- 经验条 -->
-          <div class="absolute -z-10 left-0 bottom-10 flex w-full h-3 ">
+          <div class="absolute -z-10 left-0 bottom-10 flex w-full h-3">
             <div
-              class=" w-5/6 transform   mx-auto relative h-full"
+              class="w-5/6 transform mx-auto relative h-full"
               style="width: 1024px"
             >
               <div
@@ -215,11 +214,9 @@
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -264,7 +261,11 @@ export default {
 
       actionList: {
         actionBar1: [
-          { index: 0, skill: null },
+          {
+            index: 0,
+            skill: null,
+            lockAction:true,//锁定动作栏
+          },
           { index: 1, skill: null },
           { index: 2, skill: null },
           { index: 3, skill: null },
@@ -488,6 +489,14 @@ export default {
           }
         );
 
+        _Global._YJPlayerFireCtrl.addEventListener(
+          "技能状态",
+          (skillName, msg) => { 
+            this.changeMainPlayerSkillState(skillName, msg);
+          }
+        );
+
+
         _Global._YJPlayerFireCtrl.addEventListener("添加技能", (_skill) => {
           if (this.newLevel) {
             this.newLevel = false;
@@ -625,6 +634,10 @@ export default {
 
       _skill.level = 1;
       _skill.auto = false;
+      if (_skill.target.type == 'target'){
+        this.actionList.actionBar1[index].hasTarget = false;
+        this.actionList.actionBar1[index].outVaildDis = true;
+      }
       this.actionList.actionBar1[index].skill = _skill;
       this.saveActionList();
       this.$forceUpdate();
@@ -639,6 +652,33 @@ export default {
         }
       }
     },
+    changeMainPlayerSkillState(skillName, msg){
+      for (let i = 0; i < this.actionList.actionBar1.length; i++) {
+        const skill = this.actionList.actionBar1[i].skill;
+        if (skill && skill.skillName == skillName) {
+          switch (msg.title) {
+            case '设置是否有目标':
+              skill.hasTarget = msg.state;
+              // console.log(" 技能状态 ",skillName, msg);
+              this.actionList.actionBar1[i].hasTarget = msg.state; 
+
+              break;
+            case '设置是否距离太远':
+              this.$nextTick(()=>{ 
+                this.actionList.actionBar1[i].outVaildDis = msg.state; 
+                // console.log(" 技能状态 "+msg.title,skillName, msg);
+              });
+
+              break;
+          
+            default:
+              break;
+          }
+          this.$forceUpdate();
+          return;
+        }
+      }
+    }
   },
 };
 </script>

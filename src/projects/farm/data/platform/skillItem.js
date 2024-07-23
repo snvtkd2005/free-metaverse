@@ -5,6 +5,8 @@ export default {
     type:"skill",
     level:0,
     skillName: "基础攻击",
+    // auto: true, //自动攻击
+
     // 该结构表示：每10秒对当前目标造成10点伤害
     //触发时机 每间隔n秒触发、血量达到n%触发 perSecond  health
     trigger: { type: "perSecond", value: 3},
@@ -32,6 +34,8 @@ export default {
     vaildDis: 3, //  
     hasVaildDisLv:false, //施放范围等级
     vaildDisLv:[],
+    inVaildDis: false, //  有效距离
+    hasTarget:false, // 有目标
 
     //施放时间
     castTime: 0.5, // 施法时间。 秒, 0表示瞬发
@@ -45,8 +49,8 @@ export default {
     skillFireAudio: "", //施放音效
     //效果增强
     effectEnhance: "none",
-    icon: "", //技能图标
-    describe: "", //描述总结
+    icon: "1711535565741/ability_warrior_charge.png", //技能图标
+    describe: "对目标造成基础伤害或武器伤害", //描述总结
   }
 }
 

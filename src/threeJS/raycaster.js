@@ -103,7 +103,7 @@ class YJRaycaster extends YJEvent {
       }
 
       // 悬浮热点 
-      raycaster.setFromCamera(pos, camera);
+      raycaster.setFromCamera(pos, camera); 
       let intersects = null;
       try {
         
@@ -116,7 +116,8 @@ class YJRaycaster extends YJEvent {
         console.log(error);
         return;
       }
-      if(intersects==null){return;}
+      if(intersects==null){return;} 
+
       if (intersects.length > 0) {
  
         hoverObj = GetAcitveObjectFromIntersects(intersects);
@@ -435,6 +436,7 @@ class YJRaycaster extends YJEvent {
 
       event.preventDefault();
       UpdateMousePos(event); 
+      raycasterHover(mouse);
 
       // if (mouseDown) {
       //   raycasterHover(mouse);
@@ -452,9 +454,9 @@ class YJRaycaster extends YJEvent {
 
     };
 
-    setInterval(() => {
-      raycasterHover(mouse);
-    }, 100);
+    // setInterval(() => {
+    //   raycasterHover(mouse);
+    // }, 100);
 
     this.onMouseUp = function (event) {
       // console.log(" 抬起鼠标，点击热点 111 ");

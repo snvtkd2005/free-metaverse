@@ -3,9 +3,9 @@
 
 
 import * as THREE from "three";
-import { RandomInt } from "../utils/utils";
-import { YJNPCManager } from "/@/threeJS/YJNPCManager.js";
-import { YJPlayerManager } from "/@/threeJS/YJPlayerManager.js";
+import { RandomInt } from "../../../utils/utils";
+import { YJNPCManager } from "./YJNPCManager.js";
+import { YJPlayerManager } from "./YJPlayerManager.js";
 // 战斗管理
 class YJFireManager {
   constructor() {

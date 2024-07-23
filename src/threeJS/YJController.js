@@ -3738,9 +3738,11 @@ class YJController {
 
 
     this.SetPlayerAnimName = function (_animName, animNameFullback) {
-      animName = _animName;
       // console.error("切换动画 ", animName);
-      _YJPlayer.ChangeAnim(animName, animNameFullback); 
+
+      _YJPlayer.ChangeAnim(_animName, animNameFullback,(realAnim)=>{
+        animName = realAnim;
+      }); 
     }
     this.ChangeAnimDirect = function (_animName) {
       animName = _animName;

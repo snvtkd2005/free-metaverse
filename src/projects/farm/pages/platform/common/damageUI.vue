@@ -58,9 +58,11 @@ export default {
   created() {},
   mounted() {
     this.animate();
-    _Global.addEventListener("伤害跳字", (msg) => {
-      this.AddDamage(msg);
-    });
+    setTimeout(() => {
+      _Global.addEventListener("伤害跳字", (msg) => {
+        this.AddDamage(msg);
+      });
+    }, 5000);
   },
   methods: {
     UpdatePos2d() {

@@ -96,7 +96,9 @@ class GenerateEnemyNPC {
         let npc = copy.GetComponent("NPC");
         npc.addEventListener("死亡", (id,fireid) => {
 
-          // console.error(" id不符 ",id,npcId,id==npcId,id===npcId);
+          if(id!=npcId){
+            console.error(" id不符 ",id,npcId);
+          }
           if(onDead){
             onDead(npc,id,fireid);
           }
@@ -273,6 +275,7 @@ class GenerateEnemyNPC {
           for (let i = 0; i < hostileNpcList.length; i++) {
             const element = hostileNpcList[i].transform;
             let npc = element.GetComponent("NPC");
+
             npc.SetNpcTargetToNone();
             npc.SetActive(false);
             element.SetActive(false);

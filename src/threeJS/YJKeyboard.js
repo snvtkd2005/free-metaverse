@@ -9,14 +9,21 @@ class YJKeyboard {
     let inControlLeft = false;
     let isKeyPressed = false;
     this.onKeyDown = function (e) {
+      console.log(e.code);
+
+      switch (e.code) {
+        case 'Tab':
+          e.preventDefault();
+          break; 
+      }
+
       if(isKeyPressed && !inShiftLeft && !inControlLeft){
         return;
       }
       isKeyPressed = true;
       let keycode = e.code;
-      console.log(keycode);
  
-      switch (e.code) {
+      switch (e.code) { 
         case 'KeyT':
           if (inShiftLeft) { 
             keycode = ("ShiftLeft+T");  
@@ -37,11 +44,7 @@ class YJKeyboard {
           if (inShiftLeft) {
             keycode = ("ShiftLeft+Z");
           }  
-          break;
-
-        case 'Tab':
-          e.preventDefault(); 
-          break;
+          break; 
         case 'ShiftLeft':
           inShiftLeft = true;
           break;

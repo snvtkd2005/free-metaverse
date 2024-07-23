@@ -1,12 +1,11 @@
 
 <template>
-  <div class=" absolute left-0 top-0 w-full h-full pointer-events-none   ">
-
-    <div class=" absolute bottom-20  w-full   ">
+  <div class="absolute left-0 top-0 w-full h-full pointer-events-none">
+    <div class="absolute bottom-20 w-full">
       <skillPanel_virus ref="skillPanel_virus" />
     </div>
 
-<!-- 
+    <!-- 
     <div class=" absolute bottom-0  w-full   ">
       <skillPanel ref="skillPanel" />
     </div> -->
@@ -16,30 +15,25 @@
 
     <headerUI ref="headerUI" />
 
-
-    <div class="  absolute w-full left-0 bottom-20">
+    <div class="absolute w-full left-0 bottom-20">
       <skillProgressUI color="blue" ref="skillProgressUI" />
     </div>
 
     <damageUI ref="damageUI" />
-    
+
     <fireStateUI ref="fireStateUI" />
 
-    <div class="  absoluteleft-0 top-0  w-full  h-full">
-
-      <DMPanel v-if=" gameType == 'DMGame'" ref="DMPanel" />
-      <DMrogue v-if=" gameType == 'DMRoguelike'" ref="DMrogue" /> 
-      <MMDpanel v-if=" gameType == 'MMD'" ref="MMDpanel" />
-      <roguelike v-if=" gameType == 'Roguelike'" ref="roguelike" />
-      <GamePanel_Base v-if=" gameType == 'WOW'" ref="GamePanel_Base" />
+    <div class="absoluteleft-0 top-0 w-full h-full">
+      <DMPanel v-if="gameType == 'DMGame'" ref="DMPanel" />
+      <DMrogue v-if="gameType == 'DMRoguelike'" ref="DMrogue" />
+      <MMDpanel v-if="gameType == 'MMD'" ref="MMDpanel" />
+      <roguelike v-if="gameType == 'Roguelike'" ref="roguelike" />
+      <GamePanel_Base v-if="gameType == 'WOW'" ref="GamePanel_Base" />
     </div>
-    
   </div>
 </template>
 
 <script>
-
-
 import mainPlayerHeaderUI from "./mainPlayerHeaderUI.vue";
 // import headerUI from "./headerUI copy 2.vue";
 import headerUI from "./headerUI.vue";
@@ -73,25 +67,25 @@ export default {
     GamePanel_Base,
   },
   data() {
-    return { 
-      gameType:"", //DMGame、MMD、Roguelike
+    return {
+      gameType: "", //DMGame、MMD、Roguelike
     };
   },
-  created() {
-
-  },
+  created() {},
   mounted() {
-    
-    _Global.addEventListener("设置技能进度条", (castTime,skillName,reverse) => {
-      this.$refs.skillProgressUI.SetProgress(castTime,skillName,reverse);
-    });
+    setTimeout(() => {
+      _Global.addEventListener(
+        "设置技能进度条",
+        (castTime, skillName, reverse) => {
+          this.$refs.skillProgressUI.SetProgress(castTime, skillName, reverse);
+        }
+      );
+    }, 5000);
 
-    console.log(" ========== in HUD ",_Global.gameType);
-    this.gameType = _Global.gameType; 
+    console.log(" ========== in HUD ", _Global.gameType);
+    this.gameType = _Global.gameType;
   },
-  methods: {
-
-  },
+  methods: {},
 };
 </script>
   

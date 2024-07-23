@@ -6,7 +6,7 @@
     @mouseover="LookSkill($event, item)"
     @mouseleave="outHover()"
     @mousemove="MouseMove($event)"
-    :draggable="item.skill != null"
+    :draggable="item.skill != null && !item.lockAction"
     @dragstart="drag($event, item)"
   >
     <div v-if="item.skill != null" class="relative">
@@ -29,9 +29,10 @@
         alt=""
       />
       <div
-        v-if="item.isDeleled"
+        v-if="item.isDeleled || ((item.skill.target && item.skill.target.type == 'target') && !item.skill.hasTarget)"
         class="absolute left-0 top-0 w-full h-full bg-black bg-opacity-60"
       ></div>
+      <!-- :class="item.hasTarget?'  ':' bg-black '" -->
 
       <img
         v-if="hoverPart == item.hoverPart"
@@ -56,8 +57,9 @@
     <!-- 快捷键文字 -->
     <div
       v-if="item.inDragAction ||  (item.skill != null && item.keytext)  "
-      class="absolute right-px top-px w-4 h-4 rounded-full text-gray-200 text-xs leading-4 p-px"
-    >
+      class="absolute right-px top-px w-4 h-4 rounded-full  text-xs leading-4 p-px"
+      :class="( item.outVaildDis)?' text-red-600':' text-gray-200 '"
+      >
       {{ item.keytext }}
     </div>
   </div>
@@ -286,49 +288,5 @@ export default {
   filter: grayscale(100%);
   filter: gray;
   opacity: 0.99;
-}
-
-.scalex {
-  transform: translateX(-32px) scaleX(-1);
-}
-
-.skill-img {
-  -webkit-filter: grayscale(100%);
-  -moz-filter: grayscale(100%);
-  -ms-filter: grayscale(100%);
-  -o-filter: grayscale(100%);
-  filter: grayscale(100%);
-  filter: gray;
-  opacity: 0.99;
-}
-
-.centerBg {
-  width: 256px;
-  height: 64px;
-  /* background-size: cover;  */
-  /* background-repeat: no-repeat;  */
-  /* background-position: center;   */
-  background-position: 0% 0;
-  /* background-position: 0px 64px; */
-  /* background-image: url(./public/images/cursorList/ui-mainmenubar-human.png); */
-}
-.dmtip {
-  --tw-bg-opacity: 0.51;
-  background-color: rgba(107, 114, 128, var(--tw-bg-opacity));
-}
-.brightness-50 {
-  filter: brightness(0.5);
-}
-.chatContent {
-  /* vue中如何将双击选中文字的默认事件取消 */
-  -moz-user-select: text;
-  /*火狐*/
-  -webkit-user-select: text;
-  /*webkit浏览器*/
-  -ms-user-select: text;
-  /*IE10*/
-  -khtml-user-select: text;
-  /*早期浏览器*/
-  user-select: text;
-}
+}  
 </style>

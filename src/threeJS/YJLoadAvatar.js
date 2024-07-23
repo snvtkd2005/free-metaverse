@@ -587,20 +587,64 @@ class YJLoadAvatar {
         console.error(" 找不到动作 ", animName);
         return;
       }
+
+      for (let i = 0; i < actions.length; i++) {
+        const element = actions[i];
+        if (element.animName == animName) {
+          console.error(" 重复添加动作 ", animName);
+          return;
+        }
+      }
+
       let action = mixer.clipAction(anim);
       actions.push({
-        action: action, animName: animName,
+        action: action, 
+        animName: animName,
         timeScale: 1, weight: 1
       });
       if (isLoop != undefined && !isLoop) {
         action.loop = THREE.LoopOnce; //不循环播放
         action.clampWhenFinished = true;//暂停在最后一帧播放的状态
       }
+
+      // console.error(" 添加扩展动作 ", animName);
+
       // action.reset();
       // action.play();
-      activateAllActions(animName);
-    }
+      // activateAllActions(animName);
+      for (let i = 0; i < actions.length; i++) {
+        const element = actions[i];
+        setWeight(element.action, element.animName == animName ? element.weight : 0, element.timeScale);
+        if (element.animName == animName) {
+          if (element.action != undefined) {
+            element.action.reset();
+            element.action.play();
+          }
+          currentAction = element.action;
+          currentTime = 0;
+          currentDuration = currentAction._clip.duration;
+          oldAnimName = animName; 
+          oldBlendAnim = "";
+        }
+      }
 
+    }
+ 
+    let extendAnimData = [];
+    this.LoadExtendAnim = function(avatarData, animName,animNameFullback){
+      _this._YJSceneManager.CreateOrLoadPlayerAnimData().PlayExtendAnim(avatarData, animName, (isLoop, anim) => {
+        
+        // console.log(" 扩展动作返回 ",animName,anim);
+        
+        if(anim != null){
+          extendAnimData.push({animName,hasExtend:true});
+          this.ChangeAnimByAnimData(animName, isLoop, anim);
+        }else{
+          extendAnimData.push({animName,hasExtend:false,animNameFullback});
+           this.ChangeAnim(animNameFullback);
+        }
+      });
+    }
     function activateAllActions(animName) {
       // console.log(animName,actions);
       let has = false;
@@ -646,23 +690,62 @@ class YJLoadAvatar {
 
     //----------PC 端 同步角色动作 开始-----------------
 
+
     var oldAnimName = "";
     //切换动画
-    this.ChangeAnim = function (animName) {
-      // console.error(" 直接设置玩家角色动作 22 " + animName);
-      ChangeAnimDirectFn(animName);
+    this.ChangeAnim = function (animName,animNameFullback,callback) {
+      // console.error(" 直接设置玩家角色动作 11 " + animName);
+      if (oldAnimName == animName) { return; }
+ 
       if (mmdCtrl) {
         mmdCtrl.ChangeAnim(animName);
       }
+      ChangeAnimDirectFn(animName,animNameFullback,callback);
+
     }
-    this.ChangeAnimDirect = function (animName) {
+    this.ChangeAnimDirect = function (animName,animNameFullback,callback) {
+      // console.error(" 直接设置玩家角色动作 22 " + animName);
       oldAnimName = "";
-      ChangeAnimDirectFn(animName);
+      ChangeAnimDirectFn(animName,animNameFullback,callback);
     }
-    function ChangeAnimDirectFn(animName) {
+    function ChangeAnimDirectFn(animName,animNameFullback,callback) {
       if (!loadCompleted) { return; }
       if (oldAnimName == animName) { return; }
+      // console.error(" 设置玩家角色动作 00 " + animName + " backanim: "+ animNameFullback);
+      
+      let has2 = false;
+      for (let i = 0; i < extendAnimData.length && !has2; i++) {
+        const element = extendAnimData[i];
+        if(element.animName == animName && !element.hasExtend){
+          has2 = true;
+          animName = element.animNameFullback;
+        }
+      }
+      if (oldAnimName == animName) { return; }
+
+      let has = false;
+      for (let i = 0; i < actions.length; i++) {
+        const element = actions[i];
+        if (element.animName == animName) {
+          has = true;
+        }
+      } 
+      if(!has){
+        if(!has2){
+          // console.error(" 设置玩家角色动作 准备添加扩展动作 " , animName,animNameFullback);
+          scope.LoadExtendAnim(owner.GetavatarData(),animName,animNameFullback);
+        }
+      }else{
+
+      }
+
+      oldAnimName = animName;
       activateAllActions(animName);
+      if(callback){
+        callback(animName);
+      }
+      // console.error(" 设置玩家角色动作 11 " + animName);
+      return animName;
     }
     let walkAction;
     this.SetWalkWeight = function (f) {

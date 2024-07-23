@@ -236,6 +236,11 @@ export default {
                   _Global.applyEvent("界面开关", element, false);
                 }
               }
+              // 如果有选中的目标，返回
+              if(_Global.hasTarget){
+                _Global._SceneManager.ClearTarget();
+                return;
+              }
               if (!has) {
                 setTimeout(() => {
                   _Global.applyEvent("界面开关", "mainmenu", true);
@@ -602,7 +607,7 @@ export default {
         return false;
       }
       let skill = item.skill;
-      console.log(" 主动施放技能 000",skill);
+      // console.log(" 主动施放技能 000",skill);
       if (skill.type == "skill" && skill.cCD == skill.CD) {
         _Global._YJPlayerFireCtrl.GetSkill().UseSkill(skill);
         return;

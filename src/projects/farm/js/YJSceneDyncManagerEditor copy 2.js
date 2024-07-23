@@ -962,15 +962,45 @@ class YJSceneDyncManagerEditor {
       }
       
       
-      if (type == "玩家对玩家" || type == "NPC对NPC" ||type == "NPC对玩家" ||type == "玩家对NPC") {
+      if (type == "玩家对玩家") {
+        if (!_Global.YJClient) {
+          this.Receive({ type: "玩家对玩家", state: msg });
+          return;
+        }
+        _Global._YJDyncManager.SendSceneStateAll("玩家对玩家", msg);
+        return;
+      }
+
+      if (type == "NPC对NPC") {
+        if (!_Global.mainUser) {
+          return;
+        }
+        let state = msg;
+        let p = scope.GetNpcById(state.targetId).GetComponent("NPC");
+        if (p ) {
+          p.ReceiveSkill(this.GetNpcById(state.fromId).GetComponent("NPC"),  state.skillItem.skillName, state.skillItem.effect,state.skillItem);
+
+        }
+        return;
+      }
+      if (type == "NPC对玩家") {
         if (!_Global.YJClient) {
           this.Receive({ type: type, state: msg });
           return;
         }
-        // _Global._YJDyncManager.SendSceneStateAll(type, msg);
-        _Global._YJDyncManager.SendSceneStateAll("转发", { type:type, state: msg });
+        _Global._YJDyncManager.SendSceneStateAll("转发", { type: type, state: msg });
         return;
-      } 
+      }
+
+      if (type == "玩家对NPC") {
+
+        if (!_Global.YJClient) {
+          this.Receive({ type: "玩家对NPC", state: msg });
+          return;
+        }
+        _Global._YJDyncManager.SendSceneStateAll("转发", { type: "玩家对NPC", state: msg });
+        return;
+      }
 
     }
 
@@ -1108,7 +1138,7 @@ class YJSceneDyncManagerEditor {
         return;
       }
 
-      if (type == "玩家对玩家" || type == "玩家对NPC" || type == "NPC对NPC" || type == "NPC对玩家" ) {
+      if (type == "玩家对玩家") {
 
         if (!_Global.mainUser) {
           return;
@@ -1139,6 +1169,44 @@ class YJSceneDyncManagerEditor {
         }
         return;
       }
+      if (type == "玩家对NPC") {
+        let { fromId,targetId, skillName, effect } = state;
+
+        if (_Global.mainUser) {
+          this.GetNpcById(targetId).GetComponent("NPC").ReceiveSkill(scope.GetPlayerById(fromId), skillName, effect
+          ,state.skillItem);
+        }
+
+        // if (_Global.YJ3D.YJPlayer.id == playerId) {
+        //   // return;
+        //   // 对npc的伤害显示在屏幕上
+        //   let pos = this.GetNpcById(npcId).GetWorldPos().clone();
+        //   pos.y += this.GetNpcById(npcId).GetComponent("NPC").GetBaseModel().playerHeight;
+        //   _Global._SceneManager.UpdateNpcDamageValue("self", "normal",playerId, _Global.user.camp, effect.value, pos, "redius");
+        // }
+
+        return;
+      }
+      if (type == "NPC对NPC") {
+        if (!_Global.mainUser) {
+          return;
+        }
+        let p = this.GetNpcById(state.targetId);
+        if (p ) {
+          p.GetComponent("NPC").ReceiveSkill(this.GetNpcById(state.fromId).GetComponent("NPC"),
+           state.skillName, state.skillItem.effect,state.skillItem);
+        }
+        return;
+      }
+      if (type == "NPC对玩家") {
+        // console.log(" NPC对玩家 ",state);
+        if (state.targetId == _Global.YJ3D.YJPlayer.id) {
+          _Global._YJPlayerFireCtrl.ReceiveSkill(this.GetNpcById(state.fromId).GetComponent("NPC"), 
+          state.skillName, state.skillItem.effect,state.skillItem);
+          return;
+        }
+      }
+      
 
       if (type == "npc技能" || type == "npc技能攻击" || type == "受到技能" || type == "解除技能") {
         let { fromType,targetType,fromId,targetId, skillItem } = state;

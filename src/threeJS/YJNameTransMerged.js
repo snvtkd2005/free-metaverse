@@ -92,6 +92,7 @@ class YJNameTransMerged {
         }
       }
       if(!has){
+        // console.error(" 移除姓名id缺不存在",id,idList);
         return;
       }
       this.ReMerged(idList, groupList, posList, scaleList);
@@ -99,6 +100,14 @@ class YJNameTransMerged {
 
     this.addPoint = function (id, group, pos, scale) {
       // return;
+      let has = false;
+      for (let i = idList.length - 1; i >= 0 && !has; i--) {
+        const element = idList[i];
+        if (element == id) {
+          // groupList[i] = group;
+          return;
+        }
+      }
 
       idList.push(id); 
       groupList.push(group);
@@ -106,12 +115,16 @@ class YJNameTransMerged {
       scaleList.push(scale ? scale : { x: 1, y: 1, z: 1 });
       this.ReMerged(idList, groupList, posList, scaleList);
     }
+    this.Destroy = function(){
+      _Global.YJ3D.scene.remove(_InstancedMesh);
+    }
     // 数量改变时，重新计算
     this.ReMerged = (_idList, _groupList, _posList, _scaleList, _rotaList) => {
 
       _Global.YJ3D.scene.remove(_InstancedMesh);
 
       if (_posList.length == 0) {
+        console.log( "姓名条数量为0");
         return;
       }
 

@@ -123,54 +123,13 @@ class SceneManager {
         inJoystick = false;
         if (_YJCar != null) {
           _YJCar.SetKeyboard(key);
-        }
-
-        if (key == "Escape") {
-          ClearTarget();
-
-          if (oldTarget != null) {
-            _YJProjector.SetActive(false);
-            oldTarget = null;
-            ChangeTarget();
-          }
-          return;
-        }
-
+        } 
 
         if (key == "Tab") {
           // tab切换目标
-          _SceneDyncManager.TabChangeTarget();
+          TabChangeTarget();
           return;
-        }
-        let skillIndex = -1;
-        if (key == "Digit1") {
-          skillIndex = 0;
-        }
-        if (key == "Digit2") {
-          skillIndex = 1;
-        }
-        if (key == "Digit3") {
-          skillIndex = 2;
-        }
-        if (key == "Digit4") {
-          skillIndex = 3;
-        }
-        if (key == "Digit5") {
-          skillIndex = 4;
-        }
-        if (key == "Digit6") {
-          skillIndex = 5;
-        }
-        if (key == "Digit7") {
-          skillIndex = 6;
-        }
-        if (key == "Digit8") {
-          skillIndex = 7;
-        }
-        if (skillIndex > -1 && indexVue.$refs.HUD) {
-          indexVue.$refs.HUD.$refs.skillPanel_virus.ClickSkillIndex(skillIndex);
-        }
-
+        } 
 
         if (key == "KeyM") {
           //   //  开关地图
@@ -288,6 +247,28 @@ class SceneManager {
       // posRef_nangua = CreatePosRef(0.20, -0.953);
       // posRef_nangua = CreatePosRef(-0.33, -0.93);
       // posRef_huluobu = CreatePosRef(-0.20, -0.93);
+    }
+
+    let tabSelectIndex = 0;
+    // tab键切换选择玩家前方的敌人
+    function TabChangeTarget() {
+      if (_Global.YJ3D.YJController.isInDead()) {
+        return;
+      }
+      let playerPos = _Global.YJ3D.YJController.GetPlayerWorldPos();
+
+      let canSelectNpc = _Global._YJNPCManager.GetForwardNoSameCampNPC(playerPos);
+
+      console.log("tab 切换目标 ",canSelectNpc);
+      if(canSelectNpc.length==0){
+        return;
+      }
+      if (tabSelectIndex >= canSelectNpc.length) {
+        tabSelectIndex = 0;
+      }
+      scope.ClickModelTransform(canSelectNpc[tabSelectIndex]);
+      tabSelectIndex++;
+      canSelectNpc = [];
     }
 
     let boneAttachList = [];
@@ -803,6 +784,7 @@ class SceneManager {
       //
     }
     this.SetTargetModel = function (transform) {
+      _Global.hasTarget = transform != null;
       if (targetModel != null) {
         if (targetModel != transform) {
 
@@ -847,11 +829,20 @@ class SceneManager {
       indexVue.$refs.HUD.$refs.headerUI.SetTarget(message.data);
     }
 
+    this.ClearTarget = function(){
+      ClearTarget();
+    }
     function ClearTarget() {
       // 点击空白位置 
       scope.SetTargetModel(null);
       _Global._YJPlayerFireCtrl.SetPlayerEvent("设置npc", null);
       ClearProjector();
+      
+      if (oldTarget != null) {
+        _YJProjector.SetActive(false);
+        oldTarget = null;
+        ChangeTarget();
+      }
     }
     // 删除脚下光标
     function ClearProjector() {
@@ -869,6 +860,9 @@ class SceneManager {
       _Global.applyEvent("右键点击");
 
       console.log(" 右键点击 ", hitObject);
+      if(hitObject == null){
+        return;
+      }
       if (hitObject.transform) {
         // 点击NPC
         let message = hitObject.transform.GetData().message;

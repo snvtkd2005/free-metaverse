@@ -156,11 +156,7 @@ class YJNPC {
     this.npcName = "";
     this.SetName = function (v) {
       this.npcName = v;
-      // CreateNameTrans(this.npcName);
-      // console.log(" 重置昵称 ",v);
-
       scope.applyEvent("重置昵称", this.npcName);
-
     }
     this.ResetName = function () {
       this.npcName = data.name;
@@ -168,7 +164,13 @@ class YJNPC {
     }
     //创建姓名条参考物体
     let namePosTrans = null;
+    let createnametimes = 0;
     function CreateNameTrans(content) {
+      if(createnametimes>0){
+        console.error("重复设置姓名条，请使用 scope.applyEvent(\"重置昵称\", this.npcName)");
+        return;
+      }
+      createnametimes++;
       // console.log(" 设置姓名条 ",content);
       _Global._YJPlayerNameManager.CreateNameTrans(
         scope, scope.id, content, playerHeight, parent.scale.x, nameScale, _Global.user.camp != baseData.camp ? '#ee0000' : '#ffffff'
@@ -331,7 +333,7 @@ class YJNPC {
 
     // 不在战斗且未死亡，且不在miss中，才可以设置
     this.isCanSetTarget = function () {
-      return baseData.state != stateType.Back && baseData.state != stateType.Fire && baseData.state != stateType.Dead;
+      return baseData.state != stateType.Back && baseData.state != stateType.Dead;
     }
     this.GetState = function () {
       return baseData.state;
@@ -417,31 +419,35 @@ class YJNPC {
     // 随机寻路点
     this.RadomNavPos = function () {
 
-      if (_Global.mainUser) {
-        if (data.inAreaRandom) {
-          let startPos = parent.position.clone();
-          let targetPos = fireBeforePos.clone();
-          // if (data.areaRadius == undefined) {
-          //   data.areaRadius = 1;
-          // }
-          // targetPos.x += radomNum(-data.areaRadius, data.areaRadius);
-          // targetPos.z += radomNum(-data.areaRadius, data.areaRadius);
-          // targetPos.y += 5;
-          // let p = targetPos.clone();
-          // p.y -= 10;
-          // let point = CheckTrainPos(targetPos, p);
-          GetNavpath(startPos, targetPos);
-          // GetNavpath(startPos, point ? point : targetPos);
-          // console.log(GetNickName() + "  巡逻随机范围 ", targetPos);
-        } else {
-          if (movePos.length > 1) {
-            let navPosIndex = radomNum(0, movePos.length - 1);
-            // console.log(" 巡逻点 ",movePos[navPosIndex]);
-            let pos =  movePos[navPosIndex];
-            GetNavpath(parent.position.clone(),new THREE.Vector3(pos.x,pos.y,pos.z));
-            _Global.DyncManager.UpdateModel(scope.id, "navPosIndex",
-              { navPosIndex: navPosIndex });
-          }
+
+      // console.log(GetNickName()+ " 巡逻点 00 ",data.inAreaRandom,movePos);
+      if (data.inAreaRandom) {
+        let startPos = parent.position.clone();
+        let targetPos = fireBeforePos.clone();
+        if (data.areaRadius == undefined) {
+          data.areaRadius = 5;
+        }
+        targetPos.x += radomNum(-data.areaRadius, data.areaRadius);
+        targetPos.z += radomNum(-data.areaRadius, data.areaRadius);
+        // targetPos.y += 5;
+        // let p = targetPos.clone();
+        // p.y -= 10;
+        // let point = CheckTrainPos(targetPos, p);
+        GetNavpath(startPos, targetPos);
+        // GetNavpath(startPos, point ? point : targetPos);
+        // console.log(GetNickName() + "  巡逻随机范围 ", targetPos);
+      } else {
+
+        if (movePos.length > 1) { 
+          let navPosIndex = radomNum(0, movePos.length - 1);
+          // console.log(" 巡逻点 ",movePos[navPosIndex]);
+          let pos =  movePos[navPosIndex];
+          GetNavpath(parent.position.clone(),new THREE.Vector3(pos.x,pos.y,pos.z));
+
+
+          // _Global.DyncManager.UpdateModel(scope.id, "navPosIndex",
+          //   { navPosIndex: navPosIndex });
+
         }
       }
       // console.log("navpath ", navpath);
@@ -463,6 +469,8 @@ class YJNPC {
     this.PathfindingCompleted = function () {
       if (data.movePos && data.movePos.length > 1) {
         this.UpdateNavPos("停止巡逻", data.movePos);
+      }else{
+        scope.RadomNavPos();
       }
     }
 
@@ -484,8 +492,8 @@ class YJNPC {
           const mesh = movePosMeshList[i];
           parent.attach(mesh);
         }
-        setTimeout(() => {
-          this.UpdateNavPos("开始巡逻",pos,i);
+        laterNav = setTimeout(() => {
+          scope.UpdateNavPos("开始巡逻",pos);
         }, 1000);
         return;
       }
@@ -602,6 +610,11 @@ class YJNPC {
       if (!scope.canMove) { return; }
       if (oldTargetPos && targetPos.distanceTo(oldTargetPos) < 0.01) {
         // console.log(" 目标点不变 ",oldTargetPos,targetPos);
+        if(baseData.state == stateType.Normal){
+          setTimeout(() => {
+            scope.RadomNavPos();
+          }, 2000);
+        }
         return;
       } else {
       }
@@ -632,12 +645,16 @@ class YJNPC {
           }
         } else {
           //无法寻路 且 没有目标的情况下，表示npc处于无法返回的地形下，3秒后直接设置到其的巡逻点
-          setTimeout(() => {
-            // 直接回到起始点
-            parent.position.copy(fireBeforePos);
-            getnavPathTime = 0;
-            getnavpathTimes = 0;
-          }, 3000);
+          navpath.push(targetPos);
+          lookAtTargetPos();
+          getnavPathTime = 0;
+          getnavpathTimes = 0;
+          // setTimeout(() => {
+          //   // 直接回到起始点
+          //   parent.position.copy(fireBeforePos);
+          //   getnavPathTime = 0;
+          //   getnavpathTimes = 0;
+          // }, 3000);
         }
 
       } else {
@@ -647,14 +664,17 @@ class YJNPC {
         getnavPathTime = 0;
         getnavpathTimes = 0;
       }
-      // console.log("查到寻路路径 ", navpath);
+      // console.error( GetNickName() + "查到寻路路径 ", navpath);
     }
     //#endregion
 
 
     //#region  SetMessage
-    let skillList = [];
-    let baseSkillItem = {};
+    
+		this.MyFireState = function(e){
+      
+		}
+    let skillList = []; 
     this.GetSkillList = function () {
       let s = [];
       for (let i = 0; i < skillList.length; i++) {
@@ -724,6 +744,7 @@ class YJNPC {
         _YJPlayerProperty = new YJPlayerProperty(scope);
       }
       _YJBuff = new YJBuff(scope);
+      fireBeforePos = scope.GetWorldPos();
 
       // console.log(scope.GetNickName() + " 技能 ", skillList);
       if (data.canMove != undefined) {
@@ -747,7 +768,8 @@ class YJNPC {
       skillList = data.skillList;
 
       if(!_Global.setting.inEditor){
-        baseSkillItem = JSON.parse(JSON.stringify(skillItem.skill));
+        let baseSkillItem = JSON.parse(JSON.stringify(skillItem.skill));
+        baseSkillItem.level = 1;
         //从武器中获取动作
         var { s, v, a, _ready, _fire } = GetSkillDataByWeapon(weaponData);
         setVaildAttackDis(v);
@@ -784,7 +806,6 @@ class YJNPC {
           recodeMat();
         }
       }
-      fireBeforePos = scope.GetWorldPos();
       // console.log( scope.GetNickName() + " fireBeforePos  11 = ",fireBeforePos);
 
       if (data.isCopy) {
@@ -923,7 +944,7 @@ class YJNPC {
     function CheckVaildArea() {
       // console.log(" npc追击距离 ",targetPos.distanceTo(fireBeforePos));
       // 超出追击距离后，请求下一个目标。 没有下一个目标时，返回巡逻点
-      if (targetPos.distanceTo(fireBeforePos) >= 100) {
+      if (targetPos && targetPos.distanceTo(fireBeforePos) >= 100) {
         return false;
       }
       return true;
@@ -1150,6 +1171,7 @@ class YJNPC {
 
 
     this.LogFire = function () {
+      return;
       console.log("fireid = ", scope.fireId);
       console.log("inskill = ", _YJSkill.GetinSkill());
       console.log("targetmodel = ", targetModel);
@@ -1162,8 +1184,10 @@ class YJNPC {
       console.log("navpath.length = ", navpath.length);
       // console.log(" npc追击距离 ",playerPosition.distanceTo(fireBeforePos));
       console.log(" state ", baseData.state);
-      console.log(" 目标距离 ", targetPos.distanceTo(scope.GetWorldPos()));
-      if (oldTargetPos) {
+      if(targetPos){
+        console.log(" 目标距离 ", targetPos.distanceTo(scope.GetWorldPos()));
+      }
+      if (oldTargetPos && targetPos) {
         console.log(" 上个距离目标 ", targetPos.distanceTo(oldTargetPos));
       }
       console.log(" 是否在有效距离 ", CheckVaildArea());
@@ -1233,9 +1257,9 @@ class YJNPC {
           maxHealth: baseData.maxHealth
         }
         );
-        // if (checkNear) {
-        //   _Global.DyncManager.SetNearNPCTarget(scope, targetModel);
-        // }
+        if (checkNear) {
+          _Global.DyncManager.SetNearNPCTarget(scope, targetModel);
+        }
       }
       if (baseData.state == stateType.Normal || baseData.state == stateType.Back) {
         //首次进入战斗时，计算其技能 
@@ -1370,7 +1394,7 @@ class YJNPC {
         }
       }
       if (setT && fromModel.GetCamp() != scope.GetCamp()) {
-        this.SetNpcTarget(fromModel, true, false);
+        this.SetNpcTarget(fromModel, true, true);
       }
       if (targetModel == null) { return; }
 
@@ -1944,7 +1968,9 @@ class YJNPC {
     //寻路
     function tick(dt) {
       if (!(navpath || []).length) return;
-
+      if (_YJSkill.GetinSkill()) { 
+        return;
+      }
       let targetPosition = navpath[0];
       const velocity = targetPosition.clone().sub(playerPosition);
 

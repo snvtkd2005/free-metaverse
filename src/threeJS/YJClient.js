@@ -299,13 +299,18 @@ class YJClient {
           ThreejsHumanChat.YJPlayer.camp = _Global.user.camp;
           ThreejsHumanChat.YJController.SetUserDataItem("baseData","camp", _Global.user.camp);
         }
-
+        ThreejsHumanChat.YJPlayer.id = id;
+        allPlayer.push({
+          player: ThreejsHumanChat.YJPlayer,
+          id: id,
+          skin: false,
+        }); 
+			  _Global._YJPlayerFireCtrl.id = id; 
         // console.log("生成本地角色 " + id);
         return;
       }
 
       if (platform == "pcweb") {
-        // console.log("生成 其他角色镜像 角色 " + id);
 
         let _YJPlayer = new YJPlayer(ThreejsHumanChat, ThreejsHumanChat.scene,
           false, nickName, null, (scope) => {
@@ -326,6 +331,7 @@ class YJClient {
           id: id,
           skin: false,
         });
+        // console.log("生成 其他角色镜像 角色 " + id,allPlayer);
 
       }
 

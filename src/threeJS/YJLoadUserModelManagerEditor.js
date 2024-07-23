@@ -838,6 +838,7 @@ class YJLoadUserModelManager {
             let transform = elment.transform;
             transform.SetPos(pos, rotaV3);
             transform.GetComponent("NPC").SetActionScale(actionScale);
+            transform.GetComponent("NPC").applyEvent("pos",pos);
           }
           // npc巡逻点索引
           if (title == "navPosIndex") {

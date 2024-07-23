@@ -45,6 +45,7 @@ class YJGeometry {
           break;
       }
       mesh = new THREE.Mesh(geo, material);
+      mesh.visible = false;
       parent.add(mesh);
       mesh.transform = owner;
       size = owner.GetData().scale;
@@ -90,7 +91,7 @@ class YJGeometry {
       }
       if (data.isMesh) {
         mesh.visible = true;
-        mesh.receiveShadow = true; 
+        mesh.receiveShadow = true;
       }
     }
     this.Reset = function () {

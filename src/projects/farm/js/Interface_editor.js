@@ -30,7 +30,7 @@ class Interface {
       mainmenu: false,
       setting: false,
     };
-
+    _Global.hoverPart = "";
     //#region 游戏设置记录与还原、动作条记录与还原
 
     // 游戏设置记录与还原
@@ -743,7 +743,7 @@ class Interface {
         _YJPathfindingCtrl = new YJPathfindingCtrl(_Global.YJ3D.scene, () => {
           console.log("初始化寻路完成");
           // 调用所有npc的寻路
-          // _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().AllNpcTransformNav();
+          _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().AllNpcTransformNav();
         });
         new YJAudioManager(_this);
 

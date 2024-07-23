@@ -7,6 +7,7 @@ import { YJPlayerProperty } from './components/YJPlayerProperty';
 import { YJSkill } from './components/YJSkill';
 import { YJBuff } from './components/YJBuff';
 import { YJProp } from './components/YJProp';
+import skillItem from "/@/projects/farm/data/platform/skillItem";
 
 // 战斗相关控制：
 // 角色属性、战斗行为
@@ -74,8 +75,13 @@ class YJPlayerFireCtrl {
 				return true;
 			}
 			if (npcTransform == null) {
+				//被攻击且没有目标时，自动选中来源为目标
+				//且不是自身时，
+				if(fromModel == scope || fromModel == _YJPlayer){
+					return;
+				}
 				SelectNPC(fromModel.transform);
-				ReadyFire(); //被攻击且没有目标时，自动攻击
+				ReadyFire(); 
 				PlayerAddFire();
 				EventHandler("设置目标", npcComponent);
 				scope.applyEvent("设置目标", npcComponent);
@@ -97,11 +103,11 @@ class YJPlayerFireCtrl {
 			eventList.push({ eventName: e, fn: fn });
 		}
 		// 执行事件
-		this.applyEvent = function (e, v, v2,v3) {
+		this.applyEvent = function (e, v, v2, v3) {
 			for (let i = 0; i < eventList.length; i++) {
 				const element = eventList[i];
 				if (element.eventName == e) {
-					element.fn(v, v2,v3);
+					element.fn(v, v2, v3);
 				}
 			}
 		}
@@ -147,9 +153,6 @@ class YJPlayerFireCtrl {
 					console.log(" 玩家加入战斗 ");
 					break;
 				case "设置npc":
-
-
-
 					scope.SetInteractiveNPC(state.msg);
 					break;
 				case "重生":
@@ -172,7 +175,7 @@ class YJPlayerFireCtrl {
 
 					if (skillItem == undefined || skillItem == "普通攻击") {
 						if (npcTransform == null) {
-							_Global._SceneManager.FireState("我没有目标");
+							scope.MyFireState("我没有目标");
 							return;
 						}
 						// 判断目标是否可攻击
@@ -200,24 +203,24 @@ class YJPlayerFireCtrl {
 		}
 
 		this.skillEnd = function () {
-		}
-
+		} 
 		//#region  玩家使用技能
 		this.skillProgress = function (skillCastTime, skillName, reverse) {
 			_Global.applyEvent("设置技能进度条", skillCastTime, skillName, reverse);
 		}
 		this.LookatTarget = function (targetModel) {
-			// _this.YJController.PlayerLookatPos(npcTransform.GetWorldPos());
+			_this.YJController.PlayerLookatPos(targetModel.GetWorldPos());
 		}
 		function UseSkill(skillItem) {
+			playerState = PLAYERSTATE.ATTACK;
 			_YJSkill.UseSkill(skillItem);
 			return;
 		}
-		this.UseProp = function(skillItem) {
-			UseProp(skillItem); 
+		this.UseProp = function (skillItem) {
+			UseProp(skillItem);
 		}
 		function UseProp(skillItem) {
-			_YJProp.UseProp(skillItem); 
+			_YJProp.UseProp(skillItem);
 		}
 		let hyperplasiaTimes = 0;
 		let hyperplasiaTrans = [];
@@ -339,19 +342,6 @@ class YJPlayerFireCtrl {
 			}, playId);
 		}
 
-
-		function SendDamageToTarget(target, effect) {
-			if (!state.inFire) {
-				state.inFire = true;
-			}
-			EventHandler("进入战斗", target);
-
-			_YJSkill.SendDamageToTarget(target, effect);
-		}
-		function shootTarget(taget, time, callback) {
-			_Global.DyncManager.shootTarget(GetShootingStartPosFn(), taget, time, "npc", fireParticleId, callback);
-		}
-
 		let firePosRef = new THREE.Group();
 		this.GetShootingStartPos = function () {
 			return GetShootingStartPosFn();
@@ -374,7 +364,7 @@ class YJPlayerFireCtrl {
 
 					pos = firePosRef.getWorldPosition(new THREE.Vector3());
 
-					
+
 					// let axse = new THREE.AxesHelper(10);
 					// firePosRef.add(axse);
 					// axse.position.set(0,0,0);
@@ -383,6 +373,7 @@ class YJPlayerFireCtrl {
 			return pos;
 		}
 
+		// 放出系技能，直接向某个位置发出技能，由碰到的物体承受 
 		this.shootTargetPos = function (tagetPos, time, callback) {
 			scope.SetPlayerState("普通攻击");
 			console.log(" in shootTargetPos ");
@@ -421,6 +412,7 @@ class YJPlayerFireCtrl {
 
 		let npcTransform = null;
 		let npcPos = null;
+		// 玩家加入战斗
 		function PlayerAddFire() {
 			if (_YJPlayer.fireId != -1) {
 				return;
@@ -512,7 +504,10 @@ class YJPlayerFireCtrl {
 				scope.applyEvent("设置目标", npcComponent);
 				//自动显示其头像 
 				_Global._SceneManager.SetTargetModel(npcTransform);
+				return;
 			}
+			scope.applyEvent("设置目标", null);
+
 		}
 		function ReadyFire() {
 
@@ -523,7 +518,13 @@ class YJPlayerFireCtrl {
 			//距离目标超过技能有效距离时，回到默认动作
 			if (!CheckCanAttack()) {
 				setTimeout(() => {
-					playerState = PLAYERSTATE.NORMAL;
+					if (playerState == PLAYERSTATE.NORMAL) {
+						if (npcTransform == null) {
+							return;
+						}
+						ReadyFire();
+					}
+					// playerState = PLAYERSTATE.NORMAL;
 				}, 500);
 			} else {
 				if (npcTransform == null) {
@@ -606,13 +607,13 @@ class YJPlayerFireCtrl {
 		}
 		function CheckCanAttack() {
 			if (!npcTransform) {
-				_Global._SceneManager.FireState("我没有目标");
+				scope.MyFireState("我没有目标");
 				return false;
 			}
 			//如果目标阵营不可攻击
 			let b0 = CheckCamp();
 			if (!b0) {
-				_Global._SceneManager.FireState("不能攻击这个目标");
+				scope.MyFireState("不能攻击这个目标");
 				state.canAttack = false;
 				return false;
 			}
@@ -622,13 +623,17 @@ class YJPlayerFireCtrl {
 			npcPos.y += 1;
 			// 与目标之间有遮挡
 			let b2 = CheckColliderBetween(npcPos, playerPos);
-			if (b2) { _Global._SceneManager.FireState("无法攻击目标"); state.canAttack = false; return false; }
+			if (b2) { scope.MyFireState("无法攻击目标"); state.canAttack = false; return false; }
 			// 不在攻击范围内
 			let b = inVaildArea(playerPos.distanceTo(npcPos));
-			if (!b) { _Global._SceneManager.FireState("太远了"); state.canAttack = false; return false; }
+			if (!b) { scope.MyFireState("太远了"); state.canAttack = false; return false; }
 			return b && !b2;
 		}
-		
+		this.MyFireState = function(e){
+			console.error(e);
+			_Global._SceneManager.FireState(e);
+		}
+
 		this.GetTarget = function () {
 			return npcTransform;
 		}
@@ -642,16 +647,18 @@ class YJPlayerFireCtrl {
 			if (playerState == PLAYERSTATE.ATTACK) {
 
 			}
+			// console.log(" 状态 ", playerState);
+
 			if (playerState == PLAYERSTATE.ATTACK || playerState == PLAYERSTATE.ATTACKING) {
 				if (npcTransform == null) {
 					return;
 				}
-
 				if (_YJPlayer.isDead) {
 					return;
 				}
-				// console.log("距离目标", dis);
+
 				if (state.canAttack && CheckCanAttack()) {
+					return;
 					// 如果准备好攻击，则立即攻击
 					if (state.readyAttack) {
 						state.readyAttack = false;
@@ -789,15 +796,19 @@ class YJPlayerFireCtrl {
 
 		}
 		this.TargetDead = function () {
-
+			playerState = PLAYERSTATE.NORMAL;
+			npcTransform = null;
+			npcComponent = null;
+			this.SetPlayerState("normal");
+			scope.applyEvent("设置目标", null);
 		}
-		this.ClearSkill = function(){
+		this.ClearSkill = function () {
 			_YJSkill.ClearSkill("基础攻击");
 		}
 
-		this.GetIsDead = function(){
+		this.GetIsDead = function () {
 			return _YJPlayer.isDead;
-		  }
+		}
 		this.CheckTargetVaild = function () {
 			if (npcComponent && !npcComponent.isDead) {
 				return true;
@@ -989,13 +1000,13 @@ class YJPlayerFireCtrl {
 		}
 
 		var updateId = null;
-		this._update = function() {
+		this._update = function () {
 			// function update() {
 			// updateId = requestAnimationFrame(update);
 			if (_Global.pauseGame) {
 				return;
 			}
-			if(_YJSkill){
+			if (_YJSkill) {
 				_YJSkill._update();
 			}
 			// 检测状态 战斗逻辑 
@@ -1044,7 +1055,7 @@ class YJPlayerFireCtrl {
 				if (_YJSkill == null) {
 					_YJSkill = new YJSkill(scope);
 				}
-				
+
 				if (_YJProp == null) {
 					_YJProp = new YJProp(scope);
 				}
@@ -1054,8 +1065,51 @@ class YJPlayerFireCtrl {
 			}
 			scope.id = _YJPlayer.id;
 			_Global._YJPlayerFireCtrl = scope;
-       		_Global.YJ3D._YJSceneManager.AddNeedUpdateJS(scope);
+			_Global.YJ3D._YJSceneManager.AddNeedUpdateJS(scope);
+			_YJPlayer.addEventListener("pos",(pos)=>{
+				//玩家位置变动时，判断技能是否超出有效距离
+				if (_YJSkill) {
+					_YJSkill.CheckSkillInVaildDis(pos);
+				}
+			});
+			setTimeout(() => {
+				let skillList = [];
 
+				if (!_Global.setting.inEditor) {
+					let baseSkillItem = JSON.parse(JSON.stringify(skillItem.skill));
+					baseSkillItem.level = 1;
+					//从武器中获取动作
+					var { s, v, a, _ready, _fire } = GetSkillDataByWeapon(weaponData);
+					setVaildAttackDis(v);
+					if (_ready) {
+						baseSkillItem.skillReadyAudio = _ready.audio;
+						baseSkillItem.skillReadyParticleId = _ready.particle;
+					}
+					if (_fire) {
+						baseSkillItem.skillFireAudio = _fire.audio;
+						baseSkillItem.skillFireParticleId = _fire.particle;
+					}
+					let ready = _Global.CreateOrLoadPlayerAnimData().GetAnimNameByPlayStateAndWeapon("准备战斗", weaponData);
+					let fire = _Global.CreateOrLoadPlayerAnimData().GetAnimNameByPlayStateAndWeapon("普通攻击", weaponData);
+
+					baseSkillItem.animNameReady = ready.animName;
+					baseSkillItem.animName = fire.animName;
+					baseSkillItem.vaildDis = v;
+					baseSkillItem.trigger.value = a;
+					baseSkillItem.cCD = baseSkillItem.trigger.value;
+					baseSkillItem.CD = baseSkillItem.trigger.value;
+					baseSkillItem.canUse = false;
+					baseSkillItem.auto = false;
+					baseSkillItem.hasTarget = false;
+					baseSkillItem.outVaildDis = true;
+					skillList.push(baseSkillItem);
+					_YJSkill.AddSkill(baseSkillItem);
+				// _YJSkill.SetSkill(skillList);
+
+				}
+
+
+			}, 1000);
 			UpdateData();
 		}
 		Init();

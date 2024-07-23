@@ -13,10 +13,8 @@
             :class="color == 'blue' ? ' bg-blue-500 ' : ' bg-yellow-500 '"
             :style="'width: ' + GetProgress() + '%'"
           ></div>
-          <div 
-            class="absolute left-0 top-0 w-full text-center text-xs"
-          >
-            {{  this.length }}
+          <div class="absolute left-0 top-0 w-full text-center text-xs">
+            {{ this.length }}
             <!-- {{ this.current + "/" + this.length }} -->
           </div>
         </div>
@@ -44,9 +42,11 @@ export default {
   },
   created() {},
   mounted() {
-    _Global.addEventListener('游戏暂停', () => {
-      this.display = false;
-    }); 
+    setTimeout(() => {
+      _Global.addEventListener("游戏暂停", () => {
+        this.display = false;
+      });
+    }, 5000);
   },
   methods: {
     SetProgress(e, skillName, reverse) {
@@ -58,7 +58,7 @@ export default {
         return;
       }
       this.last = performance.now();
-      if(reverse == undefined){
+      if (reverse == undefined) {
         reverse = false;
       }
       this.reverse = reverse;
@@ -70,7 +70,7 @@ export default {
       this.length = e.toFixed(1);
       this.skillName = skillName;
       this.animate();
-      this.display = true;   
+      this.display = true;
     },
     GetProgress() {
       return parseInt((this.current / this.length) * 100);

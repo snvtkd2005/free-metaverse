@@ -17,11 +17,7 @@
 
     <!-- 整个背景ui -->
     <div class="   ">
-      <img
-        class="absolute left-0 bottom-0 w-8 h-8"
-        :src="levelBGUrl"
-        alt=""
-      />
+      <img class="absolute left-0 bottom-0 w-8 h-8" :src="levelBGUrl" alt="" />
     </div>
     <!-- style="width:189px;height:66px;" -->
     <div class="absolute left-0 bottom-0 w-8 h-8 flex">
@@ -96,25 +92,27 @@ export default {
   },
   created() {},
   mounted() {
-    _Global.addEventListener("主角生命值", (h, maxH) => {
-      this.baseData.health = h;
-      this.baseData.maxHealth = maxH;
-    }); 
-    _Global.addEventListener("设置等级", (level) => {
-      this.baseData.level = level;
-    });
+    setTimeout(() => {
+      _Global.addEventListener("主角生命值", (h, maxH) => {
+        this.baseData.health = h;
+        this.baseData.maxHealth = maxH;
+      });
+      _Global.addEventListener("设置等级", (level) => {
+        this.baseData.level = level;
+      });
 
-    _Global.addEventListener("主角姓名", (s) => {
-      this.baseData.name = s;
-    });
-    _Global.addEventListener("主角头像", (s) => {
-      // console.log("主角头像", s);
-      this.baseData.playerImg = this.$uploadUrl + s.id + "/" + s.icon;
-    });
+      _Global.addEventListener("主角姓名", (s) => {
+        this.baseData.name = s;
+      });
+      _Global.addEventListener("主角头像", (s) => {
+        // console.log("主角头像", s);
+        this.baseData.playerImg = this.$uploadUrl + s.id + "/" + s.icon;
+      });
 
-    _Global.addEventListener("设置技能进度条", (msg) => {
-      // this.$refs.skillProgressUI.SetProgress(msg);
-    });
+      _Global.addEventListener("设置技能进度条", (msg) => {
+        // this.$refs.skillProgressUI.SetProgress(msg);
+      });
+    }, 5000);
   },
   methods: {
     GetHealth() {

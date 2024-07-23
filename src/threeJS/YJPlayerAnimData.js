@@ -1,5 +1,5 @@
 
-import { createAnimationClip,createAnimationClip_mmd2mixamo, createAnimationClip2, createAnimationClipScale } from "/@/utils/utils_threejs.js";
+import { createAnimationClip, createAnimationClip_mmd2mixamo, createAnimationClip2, createAnimationClipScale } from "/@/utils/utils_threejs.js";
 import { YJLoadAnimation } from "/@/threeJS/loader/YJLoadAnimation.js";
 
 // 读取模型的动作数据
@@ -86,13 +86,15 @@ class YJPlayerAnimData {
       }
       FindBoneRefAnimationData(avatarData);
     }
-    this.PlayExtendAnim = function(data,animName,callback){
-      if (data.animationsExtendData != undefined) {
-        for (let i = 0; i < data.animationsExtendData.length; i++) {
-          const element = data.animationsExtendData[i];
+    this.PlayExtendAnim = function (avatarData, animName, callback) {
+      // console.log(avatarData);
+      
+      if (avatarData.animationsExtendData != undefined) {
+        for (let i = 0; i < avatarData.animationsExtendData.length; i++) {
+          const element = avatarData.animationsExtendData[i];
           if (element.animName == animName) {
 
-            let path = (_this.$uploadUrl + data.id + "/" + element.path);
+            let path = (_this.$uploadUrl + avatarData.id + "/" + element.path);
             // console.log("加载扩展动作 ",path);
             if (path.includes("json")) {
               this.LoadAssset(path, (data) => {
@@ -116,6 +118,47 @@ class YJPlayerAnimData {
             return;
           }
         }
+      }
+      if (avatarData.boneRefPlayer != undefined && avatarData.boneRefPlayer != ''
+        && avatarData.boneRefPlayerAnimationData != undefined
+        && avatarData.boneRefPlayerAnimationData.length > 0
+      ) {
+
+        for (let i = 0; i < avatarData.boneRefPlayerAnimationData.length; i++) {
+          const element = avatarData.boneRefPlayerAnimationData[i];
+          if (element.animName == animName) {
+
+            let path = (_this.$uploadUrl + avatarData.boneRefPlayer + "/" + element.path);
+            if (path.includes("json")) {
+              this.LoadAssset(path, (data) => {
+                console.log(" 读取扩展动作 ", path, data);
+                if (callback) {
+                  callback(element.isLoop, createAnimationClip(animName, data));
+                }
+              });
+            } else {
+              //fbx动作直接加载模型，提前里面的动画
+              if (_YJLoadAnimation == null) {
+                _YJLoadAnimation = new YJLoadAnimation();
+              }
+              _YJLoadAnimation.load(path, (anim) => {
+                if (callback) {
+                  if (Math.abs(avatarData.boneOffsetY) > 0.1) {
+                    // 骨骼高度相差太多时，缩小映射动作的骨骼Y轴偏移
+                    callback(element.isLoop, createAnimationClipScale(animName, avatarData.boneOffsetY, anim));
+                  } else {
+                    callback(element.isLoop, anim);
+                  }
+                }
+              });
+            }
+            return;
+          }
+        }
+      }
+      
+      if (callback) {
+        callback("", null);
       }
     }
     // 获取扩展动作。动作从unity转的json文本中解析得到
@@ -221,7 +264,7 @@ class YJPlayerAnimData {
     this.LoadAssset = function (path, callback) {
       loadAssset(path, callback);
     }
-    this.loadByAnimFile = function (path,animName, callback) {
+    this.loadByAnimFile = function (path, animName, callback) {
       this.LoadAssset(path, (data) => {
         // console.log(" 读取扩展动作 ", path, data);
         if (callback) {
@@ -557,7 +600,7 @@ class YJPlayerAnimData {
           animNameFullback = "idle";
           if (weaponData) {
             // let _animName = GetAnimName(e, weaponData);
-            let _animName = weaponData.animNameReady; 
+            let _animName = weaponData.animNameReady;
             if (_animName != undefined && _animName != "") {
               animName = _animName;
             }
@@ -616,7 +659,7 @@ class YJPlayerAnimData {
           animNameFullback = "idle";
           if (weaponData) {
             // let _animName = GetAnimName(e, weaponData);
-            let _animName = weaponData.animNameIdle; 
+            let _animName = weaponData.animNameIdle;
             if (_animName != undefined && _animName != "") {
               animName = _animName;
             }

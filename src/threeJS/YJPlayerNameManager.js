@@ -258,41 +258,40 @@ class YJPlayerNameManager {
       }
       // console.log(nickName + "player.active ",player.active);
 
-      let scale = nameScale*modelScale*4;
+      let scale = nameScale * modelScale * 4;
       let pos = npc.GetWorldPos();
       let height = (playerHeight + 0.3);
       pos.y += height;
-      group.position.copy(pos); 
+      group.position.copy(pos);
 
 
       npc.addEventListener("pos", (pos) => {
         pos.y += (playerHeight + 0.3);
-        group.position.set(pos.x, pos.y, pos.z); 
+        group.position.set(pos.x, pos.y, pos.z);
       });
-      
+
       npc.addEventListener("npc尸体消失", () => {
         group.visible = false;
         player.active = false;
         for (let i = 0; i < nickNameMerged.length; i++) {
           const element = nickNameMerged[i];
-          if(element.nickName == nickName){
+          if (element.nickName == nickName) {
             element.mergedJS.removePoint(id);
           }
         }
       });
 
-      if(inMergeName){
+      let hasCurrentMerged = false;
+      if (inMergeName) {
 
 
         npc.addEventListener("重生", () => {
           if (npc.transform) {
-            
             setTimeout(() => {
-              
               for (let i = 0; i < nickNameMerged.length; i++) {
                 const element = nickNameMerged[i];
-                if(element.nickName == nickName){
-                  element.mergedJS.addPoint(id,group,pos,new THREE.Vector3(scale,scale,scale));
+                if (element.nickName == nickName) {
+                  element.mergedJS.addPoint(id, group, pos, new THREE.Vector3(scale, scale, scale));
                 }
               }
             }, 200);
@@ -304,71 +303,70 @@ class YJPlayerNameManager {
         for (let i = 0; i < nickNameMerged.length; i++) {
           const element = nickNameMerged[i];
           if (element.nickName == nickName) {
-            element.mergedJS.addPoint(id,group,pos,
-            new THREE.Vector3(scale,scale,scale));
-            return;
+            element.mergedJS.addPoint(id, group, pos,
+              new THREE.Vector3(scale, scale, scale));
+            hasCurrentMerged = true;
           }
         }
         for (let i = 0; i < loadQueue.length; i++) {
           const element = loadQueue[i];
-          if (element.nickName == nickName) { 
-            element.callback.push({id:id,group:group,pos:pos,
-              scale: new THREE.Vector3(scale,scale,scale) });
-            return;
+          if (element.nickName == nickName) {
+            element.callback.push({
+              id: id, group: group, pos: pos,
+              scale: new THREE.Vector3(scale, scale, scale)
+            });
+            hasCurrentMerged = true;
           }
-        } 
+        }
         loadQueue.push({ id, nickName, callback: [] });
 
       }
-
-
-
-      let namePosTrans = new THREE.Group();
-      namePosTrans.name = "npcname";
-      group.add(namePosTrans);
-      namePosTrans.position.set(0, 0, 0); //原点位置
-      // namePosTrans.position.set(0, (playerHeight + 0.3), 0); //原点位置
-
-      const resetButton = new THREE.Group();
-      const resetButtonText = createText(nickName, 0.06);
-      resetButton.add(resetButtonText);
-      resetButtonText.position.set(0, 0, 0.0051);
-      resetButtonText.scale.set(1, 1, 1);
-      resetButtonText.name = "nameBar";
-      resetButtonText.material.color.set(color);
-
-
-
-
-      namePosTrans.add(resetButton);
-      resetButton.name = "ignoreRaycast";
-      resetButton.position.set(0, 0, 0);
-      var size = 4;
-      resetButton.scale.set(size, size, size);
-      namePosTrans.scale.set(nameScale, nameScale, nameScale);
-
       group.scale.set(modelScale, modelScale, modelScale);
 
-      if(inMergeName && player.active){
+
+      if (inMergeName && player.active && !hasCurrentMerged) {
+
+
+        let namePosTrans = new THREE.Group();
+        namePosTrans.name = "npcname";
+        group.add(namePosTrans);
+        namePosTrans.position.set(0, 0, 0); //原点位置
+        // namePosTrans.position.set(0, (playerHeight + 0.3), 0); //原点位置
+
+        const resetButton = new THREE.Group();
+        const resetButtonText = createText(nickName, 0.06);
+        resetButton.add(resetButtonText);
+        resetButtonText.position.set(0, 0, 0.0051);
+        resetButtonText.scale.set(1, 1, 1);
+        resetButtonText.name = "nameBar";
+        resetButtonText.material.color.set(color);
+
+        namePosTrans.add(resetButton);
+        resetButton.name = "ignoreRaycast";
+        resetButton.position.set(0, 0, 0);
+        var size = 4;
+        resetButton.scale.set(size, size, size);
+        namePosTrans.scale.set(nameScale, nameScale, nameScale);
+        player.namePosTrans = namePosTrans; 
 
         let _YJMeshMerged = new YJNameTransMerged(resetButton);
         nickNameMerged.push({ id, nickName, mergedJS: _YJMeshMerged });
-  
+
         resetButtonText.visible = false;
-  
+
         let groupList = [];
         let idList = [];
         let posList = [];
-        let scaleList = []; 
-  
-        if(player.active){
+        let scaleList = [];
+
+        if (player.active) {
           groupList.push(group);
           idList.push(id);
           posList.push(pos);
-          scaleList.push(new THREE.Vector3(scale,scale,scale));
+          scaleList.push(new THREE.Vector3(scale, scale, scale));
         }
-  
-        for (let i = loadQueue.length-1; i >=0; i--) {
+
+        for (let i = loadQueue.length - 1; i >= 0; i--) {
           const element = loadQueue[i];
           if (element.nickName == nickName) {
             for (let j = 0; j < element.callback.length; j++) {
@@ -379,24 +377,56 @@ class YJPlayerNameManager {
               scaleList.push(msg.scale);
             }
           }
-          loadQueue.splice(i,1);
-        } 
-        _YJMeshMerged.ReMerged(idList,groupList, posList, scaleList);
+          loadQueue.splice(i, 1);
+        }
+        _YJMeshMerged.ReMerged(idList, groupList, posList, scaleList);
       }
 
 
-      player.namePosTrans = namePosTrans;
-      npc.addEventListener("重置昵称", (nickName) => {
-        resetButton.remove(resetButton.children[0]);
-        const resetButtonText = createText(nickName, 0.06);
-        resetButton.add(resetButtonText);
-        resetButtonText.position.set(0, 0, 0.0051);
-        resetButtonText.scale.set(1, 1, 1);
-        resetButtonText.name = "nameBar";
-        resetButtonText.material.color.set(color);
+      npc.addEventListener("重置昵称", (_nickName) => {
+
+        // if (resetButton) {
+        //   resetButton.remove(resetButton.children[0]);
+        //   const resetButtonText = createText(nickName, 0.06);
+        //   resetButton.add(resetButtonText);
+        //   resetButtonText.position.set(0, 0, 0.0051);
+        //   resetButtonText.scale.set(1, 1, 1);
+        //   resetButtonText.name = "nameBar";
+        //   resetButtonText.material.color.set(color);
+        // }
+
+        for (let i = nickNameMerged.length - 1; i >= 0; i--) {
+          if (nickNameMerged[i].nickName == nickName) {
+            nickNameMerged[i].mergedJS.removePoint(id);
+            continue;
+          }
+        } 
+
+        nickName = _nickName;
+
+        for (let i = nickNameMerged.length - 1; i >= 0; i--) {
+          if (nickNameMerged[i].nickName == nickName) {
+            nickNameMerged[i].mergedJS.addPoint(id, group, pos, new THREE.Vector3(scale, scale, scale));
+            continue;
+          }
+        } 
+
       });
       npc.addEventListener("显示隐藏姓名条", (b) => {
-        resetButton.visible = b;
+        // if (resetButton) {
+        //   resetButton.visible = b;
+        // }
+        for (let i = nickNameMerged.length - 1; i >= 0; i--) {
+          if (nickNameMerged[i].nickName == nickName) {
+            if(b){
+              nickNameMerged[i].mergedJS.addPoint(id, group, pos, new THREE.Vector3(scale, scale, scale));
+            }else{
+              nickNameMerged[i].mergedJS.removePoint(id);
+            }
+            continue;
+          }
+        } 
+
       });
 
       npc.addEventListener("创建血条", (color) => {
@@ -406,10 +436,11 @@ class YJPlayerNameManager {
         // this.CreateHeader(namePosTrans, faceUrl);
       });
       npc.addEventListener("隐藏头像", () => {
-        if (namePosTrans.header) {
-          namePosTrans.remove(namePosTrans.header);
-          namePosTrans.header = undefined;
-        }
+        // if (namePosTrans.header) {
+        //   namePosTrans.remove(namePosTrans.header);
+        //   namePosTrans.header = undefined;
+        // }
+
       });
       npc.addEventListener("移除debuff", (buffId) => {
         this.removeDebuffById(player, buffId);
@@ -419,6 +450,14 @@ class YJPlayerNameManager {
         this.addDebuff(player, namePosTrans, buff.id, _Global.url.uploadUVAnimUrl + buff.icon);
       });
       npc.addEventListener("Destroy", () => {
+
+        for (let i = nickNameMerged.length - 1; i >= 0; i--) {
+          if (nickNameMerged[i].nickName == nickName) {
+            nickNameMerged[i].mergedJS.removePoint(id);
+            continue;
+          }
+        }
+
         for (let i = playerList.length - 1; i >= 0; i--) {
           if (playerList[i].id == id) {
             nameTransBase.remove(group);
@@ -429,15 +468,31 @@ class YJPlayerNameManager {
       });
       npc.addEventListener("死亡", () => {
         // resetButtonText.material.color.set('#666666'); //姓名条变灰
-        resetButtonText.visible = false;
+        for (let i = nickNameMerged.length - 1; i >= 0; i--) {
+          if (nickNameMerged[i].nickName == nickName) {
+            nickNameMerged[i].mergedJS.removePoint(id);
+            continue;
+          }
+        }
+
+        // if (resetButtonText) {
+        //   resetButtonText.visible = false;
+        // }
       });
       npc.addEventListener("重生", () => {
         if (npc.transform) {
           group.visible = true;
           player.active = true;
         }
-
-        resetButtonText.visible = true;
+        for (let i = nickNameMerged.length - 1; i >= 0; i--) {
+          if (nickNameMerged[i].nickName == nickName) {
+            nickNameMerged[i].mergedJS.addPoint(id, group, pos, new THREE.Vector3(scale, scale, scale));
+            continue;
+          }
+        }
+        // if (resetButtonText) {
+        //   resetButtonText.visible = true;
+        // }
         // resetButtonText.material.color.set('#ffffff');
 
         if (player.healthPlaneAnchor) {
@@ -494,7 +549,7 @@ class YJPlayerNameManager {
       for (let i = 0; i < nickNameMerged.length; i++) {
         const element = nickNameMerged[i].mergedJS;
         element._update();
-      } 
+      }
     }
     function init() {
       _Global._YJPlayerNameManager = scope;

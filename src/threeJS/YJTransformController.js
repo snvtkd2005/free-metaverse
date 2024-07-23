@@ -36,10 +36,10 @@ class YJTransformController {
     function InitTransformController() {
       if (_this.YJRaycaster) {
         _this.YJRaycaster.addEventListener('hover', (hoverObj, point) => {
+          // console.log(hoverObj,point);
           if (!userRaycast || !selectMesh || !point) {
             return;
           }
-          console.log(point);
           selectMesh.position.copy(point);
         });
       }

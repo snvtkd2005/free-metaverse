@@ -14,7 +14,7 @@ class YJEquip {
           let path = _Global.YJ3D.$uploadUrl + weapon.assetId + "/" + "data.txt" + "?time=" + new Date().getTime();
     
           _Global.YJ3D._YJSceneManager.LoadAssset(path,(data)=>{
-            console.log(path,data);
+            // console.log(path,data);
             
             data.pos = { x: 0, y: 0, z: 0 };
             data.rotaV3 = { x: 0, y: 0, z: 0 };

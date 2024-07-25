@@ -974,10 +974,10 @@ class YJLoadUserModelManager {
       modelData.id = id;
       CreateTransform(null, modelData, (object) => {
         modelDataList.push(object.GetData());
+        _Global.applyEvent("modelList", scope.GetModelList());
         if (callback) {
           callback(object);
         }
-        _Global.applyEvent("modelList", scope.GetModelList());
 
       }, id);
     }

@@ -80,16 +80,22 @@
         </div>
       </div>
 
-      <div class="mx-auto text-left p-4 tracking-widest">
+      <div class="mx-auto text-left p-4 w-auto tracking-widest">
         <div
           v-for="(item, i) in hoverData"
           :key="i"
-          class="flex self-center mx-auto justify-between"
+          class="flex self-center mx-auto w-auto gap-x-10 justify-between"
           :style="'color:' + item.color + ';'"
-          :class="i == 0 ? ' text-base ' : 'text-sm '"
+          :class="i == 0 ? ' text-base font-bold' : 'text-sm font-medium '"
         >
           <div>{{ item.text }}</div>
-          <div :style="'color:' + (item.color2?item.color2:item.color) + ';'" >{{ item.text2 }}</div>
+          <div
+            v-if="item.text2"
+            class="  "
+            :style="'color:' + (item.color2 ? item.color2 : item.color) + ';'"
+          >
+            {{ item.text2 }}
+          </div>
         </div>
       </div>
     </div>
@@ -111,7 +117,11 @@
     >
       <img
         class="w-full h-full"
-        :src="this.$uploadUVAnimUrl + dragIcon"
+        :src="
+          dragIcon.includes('http')
+            ? dragIcon
+            : this.$uploadUVAnimUrl + dragIcon
+        "
         alt=""
       />
     </div>
@@ -137,6 +147,7 @@ import delDialogPanelVue from "../common/wow/delDialogPanel.vue";
 import settingPanelVue from "../common/wow/settingPanel.vue";
 
 import GameSetting from "../../../data/platform/GameSetting";
+import equipItems from "../../../data/platform/EquipItems";
 
 export default {
   props: [],
@@ -183,7 +194,7 @@ export default {
       inHover: false,
       hoverRight: false,
       inRightOrder: false,
-      hoverTop:false,
+      hoverTop: false,
       dragPos: { x: 0, y: 0 },
       inDraging: false,
       dragIcon: "",
@@ -237,7 +248,7 @@ export default {
                 }
               }
               // 如果有选中的目标，返回
-              if(_Global.hasTarget){
+              if (_Global.hasTarget) {
                 _Global._SceneManager.ClearTarget();
                 return;
               }
@@ -322,6 +333,34 @@ export default {
         this.stats.health = h;
         this.stats.maxHealth = maxH;
       });
+
+      _Global.addEventListener("点击三维页", () => {
+        this.cancelDrag("左键点击三维页");
+      });
+      _Global.addEventListener("右键点击", () => {
+        this.cancelDrag("右键点击");
+      });
+      _Global.addEventListener("从动作条拖拽到动作条", () => {
+        this.cancelDrag("从动作条拖拽到动作条");
+      });
+      _Global.addEventListener("从角色面板拖拽到动作条", () => {
+        this.cancelDrag("从角色面板拖拽到动作条");
+      });
+      _Global.addEventListener("从角色面板拖拽到背包", () => {
+        this.cancelDrag("从角色面板拖拽到背包");
+      });
+      
+      _Global.addEventListener("从背包拖拽到动作条", () => {        
+        this.cancelDrag("从背包拖拽到动作条");
+      });
+      _Global.addEventListener("取消拖拽Prop", () => { 
+        this.cancelDrag("取消拖拽Prop");
+      });
+
+      _Global.addEventListener("摧毁拖拽Prop", () => {
+        this.cancelDrag("摧毁拖拽Prop");
+      });
+
     }, 2000);
 
     // if (_Global.setting.inEditor) {
@@ -342,6 +381,43 @@ export default {
   },
 
   methods: {
+    cancelDrag(e) {
+      console.log(e);
+      if (_Global.inDragAction) {
+        this.$refs.ActionPanelVue.cancelDrag(e);
+      }
+      if (_Global.inDragProp) {
+        this.$refs.bagPanel.cancelDrag(e);
+      }
+      if (_Global.inDragEquip) {
+        this.$refs.PlayerPropertyPanelVue.cancelDrag(e);
+      }
+
+      if (e == "左键点击三维页") {
+        // 扔丢道具，打开扔道具确认框
+        if (_Global.inDragProp || _Global.inDragEquip) {
+          this.delDialog = true;
+          return;
+        } 
+      }
+      if (e == "右键点击") {
+        if (this.delDialog) {
+          this.delDialog = false;
+        }
+      }
+      if (e == "从动作条拖拽到动作条") {
+      }
+      if (e == "从角色面板拖拽到动作条") {
+      }
+
+      if (_Global.inDragAction || _Global.inDragEquip || _Global.inDragProp) {
+        _Global.inDragAction = false;
+        _Global.inDragEquip = false;
+        _Global.inDragProp = false;
+        //取消拖拽
+        this.dragEnd();
+      }
+    },
     mousePos(x, y) {
       this.dragPos.x = x;
       this.dragPos.y = y;
@@ -353,14 +429,15 @@ export default {
     },
     dragEnd(item) {
       this.inDraging = false;
-      this.dragSkill = null; 
+      this.dragSkill = null;
+      _Global.dragPart = "";
       this.$refs.ActionPanelVue.saveActionList();
     },
 
     LookActionSkill(item) {
       this.LookSkill(this.$refs.rightbottomPosRef, item);
     },
-    getGameItesLabel(type, value) {
+    getGameItemsLabel(type, value) {
       // console.log(type,value,);
       let typeValues = GameItems[type];
       for (let i = 0; i < typeValues.length; i++) {
@@ -370,8 +447,18 @@ export default {
         }
       }
     },
-    
-    GetDescribe(item,level) {
+    getequipItemsLabel(type, value) {
+      // console.log(type,value,);
+      let typeValues = equipItems[type];
+      for (let i = 0; i < typeValues.length; i++) {
+        const element = typeValues[i];
+        if (element.value == value) {
+          return element.label;
+        }
+      }
+    },
+
+    GetDescribe(item, level) {
       let describe = "";
 
       if (item.trigger.type == "health") {
@@ -381,33 +468,33 @@ export default {
         // describe += "自动攻击时，每" + item.trigger.value + "秒，";
       }
 
-      if(this.inPlayerSkillEditor){
+      if (this.inPlayerSkillEditor) {
         // 玩家技能都是点击技能图标触发的
         describe = "";
       }
-      let targetCamp = "友方"
-      if (item.effect.type.toLowerCase().includes("damage") ) {
+      let targetCamp = "友方";
+      if (item.effect.type.toLowerCase().includes("damage")) {
         targetCamp = "敌方";
       }
 
       let targetValue = item.target.value;
-      if(item.hasTargetLv && item.targetLv && item.targetLv.length>1){
-          targetValue = item.targetLv[level]; 
-        }
-
+      if (item.hasTargetLv && item.targetLv && item.targetLv.length > 1) {
+        targetValue = item.targetLv[level];
+      }
 
       if (item.target.type == "none" || item.target.type == "self") {
         describe += "自身";
       }
       if (item.target.type == "random") {
-        describe += "对随机最多" + targetValue + "个"+targetCamp +"目标";
+        describe += "对随机最多" + targetValue + "个" + targetCamp + "目标";
       }
 
       if (item.target.type == "target") {
         describe += "对当前目标";
       }
       if (item.target.type == "area") {
-        describe += "对半径" + item.vaildDis + "米范围内最多" + targetValue + "个目标";
+        describe +=
+          "对半径" + item.vaildDis + "米范围内最多" + targetValue + "个目标";
       }
 
       if (item.target.type == "minHealthFriendly") {
@@ -422,7 +509,14 @@ export default {
       }
 
       if (item.effect.type == "contDamage") {
-        describe += ",每" + item.effect.time + "秒造成" + item.effect.value + "点伤害，持续" + (item.castTime) + "秒";
+        describe +=
+          ",每" +
+          item.effect.time +
+          "秒造成" +
+          item.effect.value +
+          "点伤害，持续" +
+          item.castTime +
+          "秒";
       }
 
       if (item.effect.type == "damage") {
@@ -431,25 +525,68 @@ export default {
       if (item.effect.type == "addHealth") {
         describe += ",恢复" + item.effect.value + "点生命值";
       }
-      
+
       if (item.effect.type == "perDamage") {
-        let effectdes =  "每" + item.effect.time + "秒造成" + item.effect.value + "点伤害，持续" + item.effect.duration + "秒";
+        let effectdes =
+          "每" +
+          item.effect.time +
+          "秒造成" +
+          item.effect.value +
+          "点伤害，持续" +
+          item.effect.duration +
+          "秒";
         item.effect.describe = effectdes;
         describe += "," + effectdes;
-        
       }
       if (item.effect.type == "control") {
-        describe += "施放控制" + item.effect.controlId   ;
+        describe += "施放控制" + item.effect.controlId;
       }
-      
+
       if (item.effect.type == "shield") {
         let effectdes = "吸收" + item.effect.value + "点伤害";
-        describe += "施放"+ item.effect.controlId+  "。" + effectdes + "，持续" + item.effect.duration + "秒";
-        item.effect.describe = effectdes ;
+        describe +=
+          "施放" +
+          item.effect.controlId +
+          "。" +
+          effectdes +
+          "，持续" +
+          item.effect.duration +
+          "秒";
+        item.effect.describe = effectdes;
       }
       return describe;
     },
 
+    GetColor(qualityType) {
+      switch (qualityType) {
+        case "none":
+          return "#666666";
+
+          break;
+        case "normal":
+          return "#ffffff";
+          break;
+        case "unnormal":
+          return "#1eff00";
+
+          break;
+        case "rare":
+          return "#0070dd";
+
+          break;
+        case "epic":
+          return "#a335ee";
+
+          break;
+        case "legendary":
+          return "#a335ee";
+
+          break;
+
+        default:
+          break;
+      }
+    },
     LookSkill(parent, item) {
       // console.log(" hover ", item);
       this.hoverData = [];
@@ -464,20 +601,93 @@ export default {
         line.color = "#ffff00";
       }
 
-      if (item.type == "equid") {
-        if (!item.used) {
-          line.color = "#ffff00";
+      if (item.type == "equip") {
+        if (item.name) {
+          let {
+            name,
+            qualityType,
+            weaponType,
+            part,
+            pickType,
+            pointType,
+            strength,
+            speed,
+            propertyList,
+          } = item;
+          // console.log(" hover equip ", item);
+          line.text = name;
+          line.color = this.GetColor(qualityType);
+          this.hoverData.push(line);
+
+          if (pointType == "weapon") {
+            // 武器
+            line = {};
+            line.text = this.getequipItemsLabel("pickType", part);
+            line.text2 = this.getequipItemsLabel("weaponType", weaponType);
+            line.color = "#ffffff";
+            this.hoverData.push(line);
+
+            line = {};
+            line.text = strength + " 伤害";
+            line.text2 = "速度" + speed.toFixed(1);
+            line.color = "#ffffff";
+            this.hoverData.push(line);
+          } else {
+            // 装备
+            line = {};
+            line.text = this.getequipItemsLabel("partType", part);
+            line.color = "#ffffff";
+            this.hoverData.push(line);
+          }
+
+          if (propertyList && propertyList.length > 0) {
+            for (let i = 0; i < propertyList.length; i++) {
+              const element = propertyList[i];
+              if (element.property == "armor") {
+                line = {};
+                line.text =
+                  element.value +
+                  "点" +
+                  this.getequipItemsLabel("propertyType", element.property);
+                line.color = "#ffffff";
+                this.hoverData.push(line);
+              } else {
+                line = {};
+                line.text =
+                  "+" +
+                  element.value +
+                  " " +
+                  this.getequipItemsLabel("propertyType", element.property);
+                line.color = "#ffffff";
+                this.hoverData.push(line);
+              }
+            }
+          }
+
+          line = {};
+          line.text = "耐久度 50/50";
+          line.color = "#ffffff";
+          this.hoverData.push(line);
+
+          line = {};
+          line.text = "需要等级 1";
+          line.color = "#ffffff";
+          // this.hoverData.push(line);
+        } else {
+          if (!item.used) {
+            line.color = "#ffd100";
+          }
+          line.text = item.text;
         }
-        line.text = item.text;
       }
       if (item.type == "skill") {
-
         // 是可升级的技能
-        let isUpSkill = (item.hasTargetLv && item.targetLv && item.targetLv.length>1);
+        let isUpSkill =
+          item.hasTargetLv && item.targetLv && item.targetLv.length > 1;
         let hoverskill = _Global.hoverPart.includes("skill");
         let hoveraction = _Global.hoverPart.includes("action");
         line.text = item.skillName;
-        if(isUpSkill && hoveraction){
+        if (isUpSkill && hoveraction) {
           line.text2 = "等级" + item.level;
           line.color2 = "#666666";
         }
@@ -496,13 +706,21 @@ export default {
         line.color = "#ffffff";
         this.hoverData.push(line);
 
-
         line = {};
-        line.text = item.level <= 1 ? item.describe:this.GetDescribe(item,item.level-1);
+        line.text =
+          item.level <= 1
+            ? item.describe
+            : this.GetDescribe(item, item.level - 1);
         line.color = "#ffff00";
 
-        if(hoverskill && item.level >= 1 && item.hasTargetLv && item.targetLv && item.targetLv.length>1 && item.level<item.targetLv.length){
-          
+        if (
+          hoverskill &&
+          item.level >= 1 &&
+          item.hasTargetLv &&
+          item.targetLv &&
+          item.targetLv.length > 1 &&
+          item.level < item.targetLv.length
+        ) {
           this.hoverData.push(line);
 
           line = {};
@@ -510,13 +728,10 @@ export default {
           line.color = "#ffffff";
           this.hoverData.push(line);
 
-          
           line = {};
-          line.text = this.GetDescribe(item,item.level);
-          line.color = "#ffff00"; 
-
+          line.text = this.GetDescribe(item, item.level);
+          line.color = "#ffff00";
         }
-
       }
       if (item.type == "prop") {
         line.text = item.title || item.name;
@@ -525,21 +740,21 @@ export default {
 
         if (item.qualityType) {
           line = {};
-          line.text = this.getGameItesLabel("qualityType", item.qualityType);
+          line.text = this.getGameItemsLabel("qualityType", item.qualityType);
           line.color = "#ffffff";
           this.hoverData.push(line);
         }
 
         if (item.bindingType) {
           line = {};
-          line.text = this.getGameItesLabel("bindingType", item.bindingType);
+          line.text = this.getGameItemsLabel("bindingType", item.bindingType);
           line.color = "#ffffff";
           this.hoverData.push(line);
         }
 
         if (item.countType && item.countType == "onlyone") {
           line = {};
-          line.text = this.getGameItesLabel("countType", item.countType);
+          line.text = this.getGameItemsLabel("countType", item.countType);
           line.color = "#ffffff";
           this.hoverData.push(line);
         }
@@ -550,26 +765,26 @@ export default {
       }
 
       if (item.hoverPart == "buff") {
-        
         line.text = item.skillName;
         line.color = "#ffff00";
         this.hoverData.push(line);
-        
+
         line = {};
         line.text = item.describe;
         line.color = "#ffffff";
-
       }
 
       this.hoverData.push(line);
-
+      if(parent == null){
+        return;
+      }
       var rect = parent.getBoundingClientRect();
 
       // console.log("Top: " + rect.top);
       // console.log("Left: " + rect.left);
       // 默认悬浮框出现在icon右上
       // icon在右边时，悬浮框出现在icon左上
-      this.hoverRight = rect.left > (window.innerWidth - 300) ;
+      this.hoverRight = rect.left > window.innerWidth - 300;
       // icon在右上角时，悬浮框出现在icon左下
       this.hoverTop = this.hoverRight && rect.top < window.innerHeight / 2;
       this.inRightOrder = false;
@@ -596,6 +811,7 @@ export default {
       this.$refs.hoverParentRef.appendChild(this.newDiv);
       this.inHover = true;
     },
+    rightClick() {},
     outHover() {
       if (this.newDiv) {
         this.inHover = false;
@@ -620,6 +836,10 @@ export default {
         } else {
         }
         return _Global._YJPlayerFireCtrl.GetProp().UseProp(skill);
+      }
+
+      if (skill.type == "equip") {
+        return _Global._YJPlayerFireCtrl.GetEquip().WearEquip(skill);
       }
     },
 

@@ -77,11 +77,11 @@ class YJPlayerFireCtrl {
 			if (npcTransform == null) {
 				//被攻击且没有目标时，自动选中来源为目标
 				//且不是自身时，
-				if(fromModel == scope || fromModel == _YJPlayer){
+				if (fromModel == scope || fromModel == _YJPlayer) {
 					return;
 				}
 				SelectNPC(fromModel.transform);
-				ReadyFire(); 
+				ReadyFire();
 				PlayerAddFire();
 				EventHandler("设置目标", npcComponent);
 				scope.applyEvent("设置目标", npcComponent);
@@ -203,7 +203,7 @@ class YJPlayerFireCtrl {
 		}
 
 		this.skillEnd = function () {
-		} 
+		}
 		//#region  玩家使用技能
 		this.skillProgress = function (skillCastTime, skillName, reverse) {
 			_Global.applyEvent("设置技能进度条", skillCastTime, skillName, reverse);
@@ -224,8 +224,16 @@ class YJPlayerFireCtrl {
 		}
 		let hyperplasiaTimes = 0;
 		let hyperplasiaTrans = [];
+
+		this.GetBoneVague = function (boneName, callback) {
+			_YJPlayer.GetBoneVague(boneName, callback);
+		}
 		this.GetData = function () {
 			let avatarData = _YJPlayer.GetavatarData();
+
+			return {
+				avatarData: avatarData,
+			};
 
 			let modelData = {
 				id: "", //资源id
@@ -629,7 +637,7 @@ class YJPlayerFireCtrl {
 			if (!b) { scope.MyFireState("太远了"); state.canAttack = false; return false; }
 			return b && !b2;
 		}
-		this.MyFireState = function(e){
+		this.MyFireState = function (e) {
 			console.error(e);
 			_Global._SceneManager.FireState(e);
 		}
@@ -1066,7 +1074,7 @@ class YJPlayerFireCtrl {
 			scope.id = _YJPlayer.id;
 			_Global._YJPlayerFireCtrl = scope;
 			_Global.YJ3D._YJSceneManager.AddNeedUpdateJS(scope);
-			_YJPlayer.addEventListener("pos",(pos)=>{
+			_YJPlayer.addEventListener("pos", (pos) => {
 				//玩家位置变动时，判断技能是否超出有效距离
 				if (_YJSkill) {
 					_YJSkill.CheckSkillInVaildDis(pos);
@@ -1104,7 +1112,7 @@ class YJPlayerFireCtrl {
 					baseSkillItem.outVaildDis = true;
 					skillList.push(baseSkillItem);
 					_YJSkill.AddSkill(baseSkillItem);
-				// _YJSkill.SetSkill(skillList);
+					// _YJSkill.SetSkill(skillList);
 
 				}
 

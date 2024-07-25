@@ -35,44 +35,44 @@ class Interface {
 
     // 游戏设置记录与还原
     _Global.GameSetting = GameSetting;
-    function LoadLocalGameSetting(){
+    function LoadLocalGameSetting() {
       let _gs = localStorage.getItem("GameSetting");
-      if(_gs){
+      if (_gs) {
         try {
-          _Global.GameSetting = JSON.parse(_gs) ;
+          _Global.GameSetting = JSON.parse(_gs);
         } catch (error) {
-          
+
         }
       }
     }
-    this.SaveGameSetting = function(){
-      localStorage.setItem("GameSetting", JSON.stringify(_Global.GameSetting) );
+    this.SaveGameSetting = function () {
+      localStorage.setItem("GameSetting", JSON.stringify(_Global.GameSetting));
     }
     _Global.SaveGameSetting = this.SaveGameSetting;
     LoadLocalGameSetting();
 
 
-    function LoadLocalActionList(){
+    function LoadLocalActionList() {
       let _gs = localStorage.getItem("ActionList");
-      if(_gs){
+      if (_gs) {
         try {
-          _Global.ActionList = JSON.parse(_gs) ;
+          _Global.ActionList = JSON.parse(_gs);
         } catch (error) {
-          
+
         }
-      }  
+      }
     }
 
-    this.SaveActionList = function(_actionList){
+    this.SaveActionList = function (_actionList) {
       let actionList = {};
       actionList.actionBar1 = [];
       for (let i = 0; i < _actionList.actionBar1.length; i++) {
         const element = _actionList.actionBar1[i];
-        if(element.skill){
-          actionList.actionBar1.push({index:element.index, skillName:element.skill.skillName});
+        if (element.skill) {
+          actionList.actionBar1.push({ index: element.index, skillName: element.skill.skillName });
         }
       }
-      localStorage.setItem("ActionList", JSON.stringify(actionList) );
+      localStorage.setItem("ActionList", JSON.stringify(actionList));
     }
     LoadLocalActionList();
     _Global.SaveActionList = this.SaveActionList;
@@ -95,13 +95,13 @@ class Interface {
       }
     }
     this.removeEventListenerById = function (id) {
-      for (let i = eventList.length-1; i >=0 ; i--) {
-        if(eventList[i].id == id){
-          eventList.splice(i,1);
-        } 
-      } 
+      for (let i = eventList.length - 1; i >= 0; i--) {
+        if (eventList[i].id == id) {
+          eventList.splice(i, 1);
+        }
+      }
     }
-    
+
     _Global.addEventListener = this.addEventListener;
     _Global.removeEventListener = this.removeEventListener;
     // 执行事件
@@ -211,6 +211,35 @@ class Interface {
       }
     }
     _Global.PickWeapon = this.PickWeapon;
+
+    this.LoadEquipById = function (assetId, callback) {
+      let path = _Global.YJ3D.$uploadUrl + assetId + "/" + "data.txt" + "?time=" + new Date().getTime();
+      _Global.YJ3D._YJSceneManager.LoadAssset(path, (data) => {
+        let equipData = {
+          type:"equip",
+          // 唯一id
+          folderBase: data.folderBase,
+          icon: _Global.url.uploadUrl + data.folderBase + "/" + data.icon,
+          // 装备名称
+          name: data.name,
+          // 品质
+          qualityType: data.message.data.qualityType,
+          // 部位，唯一
+          part: data.message.data.partType,
+          // 武器或装备
+          pointType: data.message.pointType,
+          // 附加属性
+          propertyList: data.message.data.propertyList,
+        }
+        if (callback) {
+          callback(equipData);
+        }
+      });
+    }
+    _Global.LoadEquipById = this.LoadEquipById;
+
+
+
 
 
     async function RequestGetAllModel() {

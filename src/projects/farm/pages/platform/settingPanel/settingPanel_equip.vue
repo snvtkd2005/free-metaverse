@@ -52,6 +52,7 @@
 
 <script>
 import YJinputCtrl from "../components/YJinputCtrl.vue";
+import equipItem from "../../../data/platform/EquipItems.js";
 
 export default {
   name: "settingpanel_equip",
@@ -66,11 +67,20 @@ export default {
         equipId: "",
         name: "equip001",
         //身体部位
-        partType: "",  
+        partType: "",
         // position: [0, 0, 0],
         // rotation: [0, 0, 0],
         // 依附的骨骼名称
-        boneName: "", 
+        boneName: "",
+        qualityType:"normal",
+        hasPropertyList: false,
+        // 装备属性
+        propertyList: [
+          // {
+          //   armor: 20, //护甲
+          //   intelligence: 10, //
+          // },
+        ],
       },
 
       setting: [
@@ -81,17 +91,38 @@ export default {
           type: "drop",
           value: "head",
           options: [
-            { value: "head", label: "头部" },
-            { value: "leftshoulder", label: "左肩" },
-            { value: "rightshoulder", label: "右肩" },
+            // { value: "head", label: "头部" },
+            // { value: "leftshoulder", label: "左肩" },
+            // { value: "rightshoulder", label: "右肩" },
           ],
           callback: this.ChangeValue,
-        },  
+        },
+        { property: "qualityType", display: true,title: "品质", type: "drop", value: "none", options: [], callback: this.ChangeValue },
+
+        {
+          property: "hasPropertyList",
+          display: true,
+          title: "是否增加属性",
+          type: "toggle",
+          value: false,
+          callback: this.ChangeValue,
+        },
+        {
+          property: "propertyList",
+          display: false,
+          title: "属性",
+          type: "dropArrayVariable",
+          step: 1,
+          options: [],
+          value: [],
+          callback: this.ChangeValue,
+        },
+
         // { property: "animName", title: "交互动作", type: "drop", value: "none", options: [], callback: this.ChangeValue },
         // { property: "position", display: true, title: "拾取后偏移", type: "vector3", value: [0, 0, 0], step: 0.01, callback: this.ChangeValue },
         // { property: "rotation", display: true, title: "拾取后旋转", type: "vector3", value: [0, 0, 0], step: 0.01, callback: this.ChangeValue },
       ],
- 
+
       // character/human/female/humanfemale_hd_bone_89 左手腕
       // character/human/female/humanfemale_hd_bone_49 右手腕
 
@@ -109,7 +140,6 @@ export default {
     this.initValue();
   },
   mounted() {
-    
     let modelData = JSON.parse(localStorage.getItem("modelData"));
 
     if (modelData.message == undefined) {
@@ -117,7 +147,7 @@ export default {
     }
 
     this.settingData = modelData.message.data;
- 
+
     this.initValue();
   },
   methods: {
@@ -134,35 +164,93 @@ export default {
 
     SetAnimList(_animList) {
       console.log("设置动作drop list ", _animList);
-       
     },
- 
+
     initValue() {
       this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
+
+      this.Utils.SetSettingItemPropertyValueByProperty(
+        this.setting,
+        "partType",
+        "options",
+        equipItem.partType
+      );
+
+      this.Utils.SetSettingItemPropertyValueByProperty(
+        this.setting,
+        "propertyList",
+        "options",
+        equipItem.propertyType
+      );
+      this.Utils.SetSettingItemPropertyValueByProperty(
+        this.setting,
+        "qualityType",
+        "options",
+        equipItem.qualityType
+      );
+      
+
+
+      this.ChangeUIState("hasPropertyList", this.settingData.hasPropertyList);
     },
-    GetAnimList(avatarId) { 
-    },
+    GetAnimList(avatarId) {},
     ClickHandler(e, item, i) {
-       
       if (e == "保存") {
         this.save();
-      } 
-    }, 
+      }
+    },
     Init(_data) {
       this.settingData = _data;
-       
+
       console.log("选中物体", this.settingData);
       this.initValue();
+    },
+
+    ChangeUIState(property, e) {
+      if (property == "hasPropertyList") {
+        this.Utils.SetSettingItemPropertyValueByProperty(
+          this.setting,
+          "propertyList",
+          "display",
+          e
+        );
+        if (e) {
+          let a = [];
+          if (
+            this.settingData.propertyList &&
+            this.settingData.propertyList.length > 1
+          ) {
+            a = this.settingData.propertyList;
+          } else {
+            a.push({ property: "armor", value: 10 });
+            this.settingData.propertyList = a;
+          }
+          this.Utils.SetSettingItemPropertyValueByProperty(
+            this.setting,
+            "propertyList",
+            "value",
+            a
+          );
+        }
+      }
     },
     ChangeValue(i, e) {
       // return;
 
       this.setting[i].value = e;
 
-      this.settingData[this.setting[i].property] = e;
+      let property = this.setting[i].property;
 
-      console.log(i + " " + this.setting[i].value);
-       
+      console.log(i, property, e);
+
+      let sp = property.split("-");
+      if (sp.length == 1) {
+        this.settingData[sp[0]] = e;
+      } else {
+        this.settingData[sp[0]][sp[1]] = e;
+      }
+      this.ChangeUIState(property, e);
+
       // this.Update();
     },
 
@@ -189,9 +277,7 @@ export default {
     save() {
       this.saveFn();
     },
-    saveTrans() {
-       
-    },
+    saveTrans() {},
 
     saveFn() {
       // 单品中才有 updateModelTxtData

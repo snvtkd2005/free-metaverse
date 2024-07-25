@@ -52,6 +52,8 @@
 
 <script>
 import YJinputCtrl from "../components/YJinputCtrl.vue";
+import equipItem from "../../../data/platform/EquipItems.js";
+
 
 export default {
   name: "settingpanel_weapon",
@@ -103,7 +105,15 @@ export default {
         attackSpeed: 1,
         // 有效距离
         vaildDis: 1, 
-
+        qualityType:"normal",
+        hasPropertyList: false,
+        // 装备属性
+        propertyList: [
+          // {
+          //   armor: 20, //护甲
+          //   intelligence: 10, //
+          // },
+        ],
       },
 
       setting: [
@@ -113,11 +123,7 @@ export default {
           title: "手持类型",
           type: "drop",
           value: "twoHand",
-          options: [
-            { value: "twoHand", label: "双手" },
-            { value: "mainHand", label: "主手" },
-            { value: "oneHand", label: "单手" },
-          ],
+          options: [],
           callback: this.ChangeValue,
         },
         {
@@ -126,17 +132,7 @@ export default {
           title: "武器类型",
           type: "drop",
           value: "sword",
-          options: [
-            { value: "gun", label: "枪" },
-            { value: "sword", label: "剑" },
-            { value: "axe", label: "斧" },
-            { value: "arch", label: "弓" },
-            { value: "crossbow", label: "弩" },
-            { value: "dagger", label: "匕首" },
-            { value: "staff", label: "法杖" },
-            { value: "Wand", label: "魔棒" },
-            // { value: "oneHand",label: "拳套" },
-          ],
+          options: [],
           callback: this.ChangeValue,
         },
         {
@@ -146,24 +142,6 @@ export default {
           type: "drop",
           value: "none",
           options: [],
-          callback: this.ChangeValue,
-        },
-        {
-          property: "vaildDis",
-          display: true,
-          title: "有效距离",
-          type: "int",
-          step: 1,
-          value: 1,
-          callback: this.ChangeValue,
-        },
-        {
-          property: "attackSpeed",
-          display: true,
-          title: "攻击速度",
-          type: "num",
-          step: 1,
-          value: 1,
           callback: this.ChangeValue,
         },
 
@@ -260,6 +238,53 @@ export default {
           callback: this.ChangeValue,
         },
 
+        {
+          property: "vaildDis",
+          display: true,
+          title: "有效距离",
+          type: "int",
+          step: 1,
+          value: 1,
+          callback: this.ChangeValue,
+        },
+        {
+          property: "attackSpeed",
+          display: true,
+          title: "攻击速度",
+          type: "num",
+          step: 1,
+          value: 1,
+          callback: this.ChangeValue,
+        },
+        {
+          property: "strength",
+          display: true,
+          title: "伤害",
+          type: "num",
+          step: 1,
+          value: 1,
+          callback: this.ChangeValue,
+        },
+        { property: "qualityType", display: true,title: "品质", type: "drop", value: "none", options: [], callback: this.ChangeValue },
+
+        {
+          property: "hasPropertyList",
+          display: true,
+          title: "是否增加属性",
+          type: "toggle",
+          value: false,
+          callback: this.ChangeValue,
+        },
+        {
+          property: "propertyList",
+          display: false,
+          title: "属性",
+          type: "dropArrayVariable",
+          step: 1,
+          options: [],
+          value: [],
+          callback: this.ChangeValue,
+        },
         // { property: "animName", title: "交互动作", type: "drop", value: "none", options: [], callback: this.ChangeValue },
         // { property: "position", display: true, title: "拾取后偏移", type: "vector3", value: [0, 0, 0], step: 0.01, callback: this.ChangeValue },
         // { property: "rotation", display: true, title: "拾取后旋转", type: "vector3", value: [0, 0, 0], step: 0.01, callback: this.ChangeValue },
@@ -278,21 +303,6 @@ export default {
       ],
       // character/human/female/humanfemale_hd_bone_89 左手腕
       // character/human/female/humanfemale_hd_bone_49 右手腕
-      // 持有类型
-      pickType: [
-        { value: "twoHand", label: "双手" },
-        { value: "mainHand", label: "主手" },
-        { value: "oneHand", label: "单手" },
-      ],
-      // 武器类型
-      weaponType: [
-        { value: "sword", label: "剑" },
-        { value: "axe", label: "斧" },
-        { value: "arch", label: "弓" },
-        { value: "crossbow", label: "弩" },
-        { value: "dagger", label: "匕首" },
-        // { value: "oneHand",label: "拳套" },
-      ],
 
       animList: [{ value: "none", label: "none" }],
 
@@ -432,13 +442,39 @@ export default {
       this.settingData.vaildDis = this.settingData.vaildDis
         ? this.settingData.vaildDis
         : 1;
+
+        this.settingData.strength = this.settingData.strength
+        ? this.settingData.strength
+        : 20;
+        
+        
+ 
+
       this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
 
+      this.Utils.SetSettingItemPropertyValueByProperty(
+        this.setting,
+        "propertyList",
+        "options",
+        equipItem.propertyType
+      );
+
+      this.Utils.SetSettingItemPropertyValueByProperty(
+        this.setting,
+        "qualityType",
+        "options",
+        equipItem.qualityType
+      );
+      
       // this.Utils.SetSettingItemByProperty(this.setting, "boneName", this.settingData.boneName);
-      // this.Utils.SetSettingItemByProperty(this.setting, "pickType", this.settingData.pickType);
-      // this.Utils.SetSettingItemByProperty(this.setting, "weaponType", this.settingData.weaponType);
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "pickType","options", equipItem.pickType);
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "weaponType","options", equipItem.weaponType);
       // this.Utils.SetSettingItemByProperty(this.setting, "position", this.settingData.position);
       // this.Utils.SetSettingItemByProperty(this.setting, "rotation", this.settingData.rotation);
+
+      
+      this.ChangeUIState("hasPropertyList",this.settingData.hasPropertyList);
+
       this.settingData.position = undefined;
       this.settingData.rotation = undefined;
       if (!this.settingData.fire) {
@@ -512,6 +548,35 @@ export default {
       console.log("选中物体", this.settingData);
       this.initValue();
     },
+    
+    ChangeUIState(property, e) {
+      if (property == "hasPropertyList") {
+        this.Utils.SetSettingItemPropertyValueByProperty(
+          this.setting,
+          "propertyList",
+          "display",
+          e
+        );
+        if (e) {
+          let a = [];
+          if (
+            this.settingData.propertyList &&
+            this.settingData.propertyList.length > 1
+          ) {
+            a = this.settingData.propertyList;
+          } else {
+            a.push({ property: "armor", value: 10 });
+            this.settingData.propertyList = a;
+          }
+          this.Utils.SetSettingItemPropertyValueByProperty(
+            this.setting,
+            "propertyList",
+            "value",
+            a
+          );
+        }
+      }
+    },
     ChangeValue(i, e) {
       // return;
 
@@ -525,6 +590,7 @@ export default {
       }
       console.log(i + " ",this.setting[i].property,  this.setting[i].value);
 
+      this.ChangeUIState(property, e);
       // console.log(i + " " + this.setting[i].value + " " + e);
       if (this.setting[i].property.includes("animName")) {
         _Global.SendMsgTo3D("切换角色动作", e);

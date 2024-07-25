@@ -25,7 +25,7 @@ export default {
   },
   methods: {
     onChange(e){
-      if(this.index != undefined){
+      if(this.index != undefined){ 
         this.callback(this.index,this.value);
       }else{
         this.callback(this.value);

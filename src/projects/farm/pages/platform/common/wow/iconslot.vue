@@ -9,7 +9,7 @@
     :draggable="item.skill != null && !item.lockAction"
     @dragstart="drag($event, item)"
   >
-    <div v-if="item.skill != null" class="relative">
+    <div v-if="item.skill != null" class="w-full h-full relative">
       <div
         v-if="item.skill.type == 'skill' && item.skill.CD > 0"
         class="absolute left-0 bottom-0 bg-black opacity-90 w-full h-full"
@@ -23,13 +23,23 @@
       </div>
 
       <img
-        class="w-full h-full pointer-events-none"
+        v-if="item.skill.icon"
+        class="w-full h-full rounded-md pointer-events-none"
         :class="item.inDraging ? ' grayscale-img ' : ''"
-        :src="this.$uploadUVAnimUrl + item.skill.icon"
+        :src="
+          item.skill.icon.includes('http')
+            ? item.skill.icon
+            : this.$uploadUVAnimUrl + item.skill.icon
+        "
         alt=""
       />
       <div
-        v-if="item.isDeleled || ((item.skill.target && item.skill.target.type == 'target') && !item.skill.hasTarget)"
+        v-if="
+          item.isDeleled ||
+          (item.skill.target &&
+            item.skill.target.type == 'target' &&
+            !item.skill.hasTarget)
+        "
         class="absolute left-0 top-0 w-full h-full bg-black bg-opacity-60"
       ></div>
       <!-- :class="item.hasTarget?'  ':' bg-black '" -->
@@ -56,10 +66,10 @@
     </div>
     <!-- 快捷键文字 -->
     <div
-      v-if="item.inDragAction ||  (item.skill != null && item.keytext)  "
-      class="absolute right-px top-px w-4 h-4 rounded-full  text-xs leading-4 p-px"
-      :class="( item.outVaildDis)?' text-red-600':' text-gray-200 '"
-      >
+      v-if="item.inDragAction || (item.skill != null && item.keytext)"
+      class="absolute right-px top-px w-4 h-4 rounded-full text-xs leading-4 p-px"
+      :class="item.outVaildDis ? ' text-red-600' : ' text-gray-200 '"
+    >
       {{ item.keytext }}
     </div>
   </div>
@@ -82,7 +92,6 @@ export default {
   },
   created() {},
   mounted() {
-    setTimeout(() => {}, 5000);
     this.parent = this.$parent.$parent;
   },
 
@@ -91,15 +100,22 @@ export default {
       if (ev) {
         ev.preventDefault();
       }
-      console.log(" in icon slot drag ",item);
+      // console.log(" in icon slot drag ", item);
       _Global.hoverPart = item.hoverPart;
+      _Global.dragPart = item.hoverPart;
       if (item.hoverPart.includes("action") || item.skill.type == "skill") {
         _Global.inDragAction = true;
         this.$parent.drag(item);
         // console.log(" 拖拽动作条 ");
         return;
       }
-      if (item.skill.type == "prop") {
+
+      if (item.hoverPart.includes("player") && item.skill.type == "equip") {
+        item.inDraging = true;
+        _Global.inDragEquip = true;
+      }
+
+      if (item.hoverPart.includes("bag")) {
         // console.log(" 拖拽 背包 ");
         item.inDraging = true;
         _Global.inDragProp = true;
@@ -112,20 +128,23 @@ export default {
     },
     LookSkill(e, item) {
       this.hoverPart = item.hoverPart;
+      // console.log(" in LookSkill ", item);
+      let parent = e.target;
 
       if (item.skill == null) {
+        if (item.type == "equip") {
+          this.parent.LookSkill(parent, item);
+        }
         return;
       }
       if (item.skill.type == "skill") {
         this.parent.LookActionSkill(item.skill);
         return;
       }
-      // console.log(e);
-      let parent = e.target;
       this.parent.LookSkill(parent, item.skill);
     },
     outHover() {
-      this.hoverPart = ""; 
+      this.hoverPart = "";
       this.parent.outHover();
     },
     clickEvent(e) {
@@ -174,29 +193,45 @@ export default {
           return;
         }
 
+        let toPart = "";
+        if (item.hoverPart.includes("bag")) {
+          toPart = "背包";
+        }
+        if (item.hoverPart.includes("action")) {
+          toPart = "动作条";
+        }
+        if (item.hoverPart.includes("player")) {
+          toPart = "角色面板";
+        }
+
         // 背包内移动
         if (
-          this.parent.dragSkill.type == "prop" &&
-          item.hoverPart.includes("bag")
+          (this.parent.dragSkill.type == "prop" && toPart == "背包") ||
+          (this.parent.dragSkill.type == "equip" && toPart == "背包")
         ) {
           //删掉旧的
+          console.log("背包内移动");
           this.$parent.setItem(null);
         }
+
         if (this.parent.dragSkill.isDeleled) {
           item.isDeleled = true;
         }
         item.skill = this.parent.dragSkill;
 
+        let fromPart = "";
         if (_Global.inDragProp) {
-          // console.log("从背包拖拽到动作条");
-          _Global.applyEvent("从背包拖拽到动作条");
-          _Global.inDragProp = false;
+          fromPart = "背包";
         }
         if (_Global.inDragAction) {
-          // console.log("从动作条拖拽到动作条");
-          _Global.applyEvent("从动作条拖拽到动作条");
-          _Global.inDragAction = false;
+          fromPart = "动作条";
         }
+        if (_Global.inDragEquip) {
+          fromPart = "角色面板";
+        }
+
+        console.log("从" + fromPart + "拖拽到" + toPart);
+        _Global.applyEvent("从" + fromPart + "拖拽到" + toPart);
 
         //取消拖拽
         this.parent.dragEnd();
@@ -206,18 +241,41 @@ export default {
           let currentSkill = item.skill;
           item.skill = this.parent.dragSkill;
 
+
+          
+          let toPart = "";
+          if (item.hoverPart.includes("bag")) {
+            toPart = "背包";
+          }
+          if (item.hoverPart.includes("action")) {
+            toPart = "动作条";
+          }
+          if (item.hoverPart.includes("player")) {
+            toPart = "角色面板";
+          }
           // 背包物品位置互换
           if (
-            this.parent.dragSkill.type == "prop" &&
-            item.hoverPart.includes("bag") &&
-            item.skill.type == "prop"
+            (this.parent.dragSkill.type == "prop" && toPart == "背包") ||
+            (this.parent.dragSkill.type == "equip" && toPart == "背包")
           ) {
+            console.log(" in 背包物品位置互换 ");
             this.$parent.setItem(currentSkill);
             //取消拖拽
             this.parent.dragEnd();
-            // console.log(" in 背包物品位置互换 ");
             return;
           }
+
+          // if (
+          //   this.parent.dragSkill.type == "prop" &&
+          //   item.hoverPart.includes("bag") &&
+          //   item.skill.type == "prop"
+          // ) {
+          //   console.log(" in 背包物品位置互换 ");
+          //   this.$parent.setItem(currentSkill);
+          //   //取消拖拽
+          //   this.parent.dragEnd();
+          //   return;
+          // }
 
           if (item.hoverPart.includes("action")) {
             if (this.parent.dragSkill.isDeleled) {
@@ -237,43 +295,72 @@ export default {
         this.drag("", item);
         return;
       }
+      if (item.hoverPart.includes("playerPanel")) {
+        this.drag("", item);
+        return;
+      }
 
       this.UseItem(item);
     },
-    UseItem(item){
+    UseItem(item) {
       let skill = item.skill;
       if (skill.type == "prop") {
-          let complted = this.parent.UseItem(item);
-          // 消耗品
-          if (skill.useType == "consumables") {
-            console.log(" 使用药水 ", complted, skill);
-            if (complted) {
-              //药水数量减- 或 药水使用完
-              if (skill.countType == "group") {
-                if (skill.count) {
-                  skill.count--;
-                  if (skill.count > 0) {
-                    return;
-                  }
-                } else {
+        let complted = this.parent.UseItem(item);
+        // 消耗品
+        if (skill.useType == "consumables") {
+          console.log(" 使用药水 ", complted, skill);
+          if (complted) {
+            //药水数量减- 或 药水使用完
+            if (skill.countType == "group") {
+              if (skill.count) {
+                skill.count--;
+                if (skill.count > 0) {
+                  return;
                 }
-              }
-              console.log(" 删除药水 ");
-              _Global.applyEvent("摧毁Prop并在动作条中停用prop", skill.id);
-
-              if (item.hoverPart.includes("bag")) {
-                // 在背包中使用时，直接移除
-                this.$parent.removeItem(item.index);
               } else {
-                // 在动作条中使用时，通知在背包中删除
-                _Global.applyEvent("在动作条中调用并摧毁Prop", skill.id);
               }
             }
+            console.log(" 删除药水 ");
+            _Global.applyEvent("摧毁Prop并在动作条中停用prop", skill.id);
+
+            if (item.hoverPart.includes("bag")) {
+              // 在背包中使用时，直接移除
+              this.$parent.removeItem(item.index);
+            } else {
+              // 在动作条中使用时，通知在背包中删除
+              _Global.applyEvent("在动作条中调用并摧毁Prop", skill.id);
+            }
           }
-          return;
+        }
+        return;
+      }
+      if (skill.type == "equip") {
+        // 判断装备是否能正常装备到角色
+        // 如果角色相同部位已有装备，则替换模型和icon
+        // 如果角色相同部位没有装备，则删除icon
+        let equipList = _Global._YJPlayerFireCtrl.GetEquip().GetEquipList();
+        let has = false;
+        let oldSkill = null;
+        for (let i = 0; i < equipList.length && !has; i++) {
+          const element = equipList[i];
+          if(element.part == skill.part){
+            oldSkill = element;
+            has = true;
+          }
+        }
+        if(has){
+          setTimeout(() => {
+            item.skill = oldSkill;
+            this.parent.LookSkill(null, item.skill);
+          }, 100); 
+        }else{ 
+          setTimeout(() => {
+            item.skill = null;
+          }, 100);
+        }
+
       }
       this.parent.UseItem(item);
-
     },
   },
 };
@@ -288,5 +375,5 @@ export default {
   filter: grayscale(100%);
   filter: gray;
   opacity: 0.99;
-}  
+}
 </style>

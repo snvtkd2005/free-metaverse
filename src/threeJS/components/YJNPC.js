@@ -687,6 +687,9 @@ class YJNPC {
       return skillList;
     }
     let modelScale = 1;
+    this.GetData = function(){
+      return data;
+    }
     this.SetMessage = function (msg) {
       if (msg == null || msg == undefined || msg == "") { return; }
       // data = JSON.parse(msg);
@@ -796,8 +799,6 @@ class YJNPC {
       }
 
       _YJSkill.SetSkill(skillList, baseData);
-
-      _YJEquip.SetMessage(data);
       if (weaponData == null) {
         scope.SetPlayerState("normal");
         this.PathfindingCompleted();

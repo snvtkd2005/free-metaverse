@@ -4,11 +4,16 @@
 
   <!-- 单品名:{{ folderBase }} 总模型数量： {{modelList.length}} -->
   <div
-    class="w-full h-full pb-10 overflow-y-auto overscroll-auto bg-gray-600 text-gray-100"
+    class="relative w-full h-full pb-10 overflow-y-auto overscroll-auto bg-gray-600 text-gray-100"
   >
+    <div
+      class="absolute left-0 top-0 w-full h-full"
+      @click="clickEvent('关闭复制粘贴')"
+      @contextmenu.prevent="onContextMenu($event)"
+    ></div>
     <div class="font-bold">{{ title }}</div>
     <div class="relative">
-      <div 
+      <div
         v-for="(item, i) in modelList"
         :key="i"
         class="w-full pl-4 text-left text-xs px-1"
@@ -28,25 +33,28 @@
               : ''
           "
         >
-          <div class="w-4 h-4 self-center flex"
-          :style=" 'margin-left:'+ item.paddingLeft+'px;'"
+          <div
+            class="w-4 h-4 self-center flex"
+            :style="'margin-left:' + item.paddingLeft + 'px;'"
           >
             <div
               v-if="item.children.length"
               class="w-full h-full bg-black leading-4 mx-auto text-center text-xl"
               @click="onoffFolder(item)"
-
             >
               {{ item.folder ? "-" : "+" }}
             </div>
           </div>
           <div
-            class="w-11/12 flex justify-between cursor-pointer  relative"
+            class="w-11/12 flex justify-between cursor-pointer relative"
             @click="SelectModel(item)"
             :class="
-              (selectUUID == item.uuid ? ' bg-black  hover:bg-black ' : ' hover:bg-gray-500 ')
+              selectUUID == item.uuid
+                ? ' bg-black  hover:bg-black '
+                : ' hover:bg-gray-500 '
             "
             @mousedown="clickBegin(item.uuid)"
+            @contextmenu.prevent="onContextMenu($event, item)"
           >
             <div
               v-if="inDrag"
@@ -66,10 +74,11 @@
               class="absolute left-0 top-1 w-full h-3"
             ></div>
 
-            <div class="w-2/3 self-center truncate"
-            :style=" 'padding-left:'+ item.paddingLeft+'px;'"
+            <div
+              class="w-2/3 self-center truncate"
+              :style="'padding-left:' + item.paddingLeft + 'px;'"
             >
-              {{ item.name + '-' +  item.modelId  }}
+              {{ item.name + "-" + item.modelId }}
               {{ item.modelType == "NPC模型" ? item.npcName : "" }}
             </div>
             <div class="self-center text-left truncate w-12">
@@ -80,6 +89,34 @@
           <div>锁定</div>
         </div> -->
         </div>
+      </div>
+    </div>
+
+    <!-- 悬浮信息的父物体 -->
+    <div
+      ref="hoverParentRef"
+      class="absolute left-0 top-0 w-full h-full pointer-events-none"
+    ></div>
+    <div
+      ref="hoverContent"
+      v-show="inRightClick"
+      class="absolute transform origin-bottom-left left-0 top-0 bg-white text-black border pointer-events-auto"
+    >
+      <div
+        v-show="canCopy"
+        class="hover:bg-gray-400 px-4 cursor-pointer"
+        @click="clickEvent('复制')"
+      >
+        复制
+      </div>
+      <div
+        class="hover:bg-gray-400 px-4"
+        :class="
+          canPaste ? ' cursor-pointer  ' : ' pointer-events-none text-gray-300'
+        "
+        @click="clickEvent('粘贴')"
+      >
+        粘贴
       </div>
     </div>
   </div>
@@ -101,6 +138,10 @@ export default {
       selectUUID: "",
       clickTimes: 0,
       modelList: [],
+      inRightClick: false,
+      rightClickItem: null,
+      canPaste: false,
+      canCopy: false,
     };
   },
   created() {},
@@ -112,8 +153,95 @@ export default {
       this.inDrag = false;
       cancelAnimationFrame(this.updateId);
     });
+
+    window.addEventListener("mousemove", (event) => { 
+      _Global.mouseX = event.clientX ;
+      _Global.mouseY = event.clientY ;
+      // console.log( _Global.mouseX,_Global.mouseY);
+    });
+
+    if (this.newDiv == null) {
+      this.newDiv = document.createElement("div");
+    }
+    this.newDiv.style = `
+      position:absolute;
+      right:-4px;
+      top:-4px; 
+      // width:4px; 
+      // height:4px;
+      background-color:#9ca3af
+      `;
   },
   methods: {
+    onContextMenu(ev, item) {
+      // 阻止默认的上下文菜单显示
+      ev.preventDefault();
+      // 右键复制
+      // 弹窗右键菜单
+      if (ev.button == 2) {
+        this.canCopy = item && true;
+        let top = 0;
+        let left = 0;
+        
+        this.newDiv.appendChild(this.$refs.hoverContent);
+          this.newDiv.style.display = "";
+          this.newDiv.style.opacity = 0;
+
+        if (this.canCopy) {
+          var rect = ev.target.getBoundingClientRect();
+
+          let offsetX = 100;
+          let offsetY = -20;
+          this.$nextTick(() => {
+            let rect2 = this.$refs.hoverContent.clientWidth;
+            if (rect.left > window.innerWidth - rect2) {
+              offsetX -= rect2;
+              this.inRightOrder = true;
+            }
+          });
+
+          this.rightClickItem = this.$parent.SetSelectTransformByUUID(item.uuid).GetData();
+
+          top = parseInt(rect.top) + offsetY;
+          left = parseInt(rect.left) + offsetX;
+        } else {
+          left = 100 ;
+          top = _Global.mouseY-20;
+
+          let modelData = JSON.parse(localStorage.getItem("copy"));
+          if(modelData){
+            this.canPaste = true;
+          }
+        }
+
+        this.$nextTick(() => {
+          this.$nextTick(() => {
+            this.newDiv.style.top = top + "px";
+            this.newDiv.style.left = left + "px";
+            this.newDiv.style.opacity = 1;
+          });
+        });
+        this.$refs.hoverParentRef.appendChild(this.newDiv);
+
+        this.inRightClick = true;
+      }
+    },
+    clickEvent(e) {
+      if (e == "复制") {
+        localStorage.setItem("copy", JSON.stringify(this.rightClickItem)); 
+        this.inRightClick = false;
+      }
+      if (e == "粘贴") {
+        let modelData = JSON.parse(localStorage.getItem("copy"));
+        this.$parent.Paste(modelData);
+        this.inRightClick = false; 
+      }
+      if (e == "关闭复制粘贴") { 
+        this.inRightClick = false; 
+      }
+      
+    },
+
     chengeSiblingIndex() {
       //判断是否要移动到的地方是否有效
       // 无效的情况有：移动后的父物体与移动前的父物体一致、移动后的父物体是以前的子物体、自身
@@ -132,15 +260,19 @@ export default {
           toIndex = i;
         }
       }
-      
+
       let childId = this.modelList[fromIndex].id;
       //如果是其他物体的子物体，则从其他物体那移除
-      _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().RemoveChildFromAny(childId);
+      _Global.YJ3D._YJSceneManager
+        .GetLoadUserModelManager()
+        .RemoveChildFromAny(childId);
 
       if (this.dragOnCenter) {
         let parentId = this.modelList[toIndex].id;
         this.modelList[fromIndex].parent = parentId;
-        _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().SetParent(this.dragFromUUID,parentId);
+        _Global.YJ3D._YJSceneManager
+          .GetLoadUserModelManager()
+          .SetParent(this.dragFromUUID, parentId);
         let has = false;
         for (
           let i = 0;
@@ -153,23 +285,26 @@ export default {
           }
         }
         if (!has) {
-
           let children = this.modelList[toIndex].children;
           children.push(childId);
-          _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().SetChildren(this.dragToUUID,children);
-
+          _Global.YJ3D._YJSceneManager
+            .GetLoadUserModelManager()
+            .SetChildren(this.dragToUUID, children);
         }
       }
 
       if (this.dragOnTop) {
         //判断是否
         let parentId = this.modelList[toIndex].parent;
-        _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().SetParent(this.dragFromUUID,parentId);
-
+        _Global.YJ3D._YJSceneManager
+          .GetLoadUserModelManager()
+          .SetParent(this.dragFromUUID, parentId);
       }
       if (this.dragOnDown) {
         let parentId = this.modelList[toIndex].parent;
-        _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().SetParent(this.dragFromUUID,parentId);
+        _Global.YJ3D._YJSceneManager
+          .GetLoadUserModelManager()
+          .SetParent(this.dragFromUUID, parentId);
       }
       _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().UpdateModelList();
       console.log(this.modelList);
@@ -187,7 +322,7 @@ export default {
       for (let i = 0; i < this.modelList.length; i++) {
         const model = this.modelList[i];
         if (model.parent == item.id) {
-          if (item.folder) { 
+          if (item.folder) {
             model.active = true;
           } else {
             model.active = false;
@@ -195,7 +330,7 @@ export default {
         }
       }
     },
-    addChildren(modelList,children, pad) {
+    addChildren(modelList, children, pad) {
       for (let i = 0; i < children.length; i++) {
         const childId = children[i];
         for (let j = 0; j < modelList.length; j++) {
@@ -210,19 +345,18 @@ export default {
               npcName: e.npcName,
               parent: e.parent,
               children: e.children,
-              active:false,
-              paddingLeft:12*pad,
+              active: false,
+              paddingLeft: 12 * pad,
             });
             if (model.children > 0) {
-              this.addChildren(modelList,model.children,pad+1);
+              this.addChildren(modelList, model.children, pad + 1);
             }
           }
         }
       }
     },
     resetPanel(modelList) {
-
-      console.log(" modelList data  = " , modelList);
+      console.log(" modelList data  = ", modelList);
 
       this.modelList = [];
 
@@ -230,22 +364,21 @@ export default {
         const e = modelList[i];
 
         if (e.parent == "") {
-
           this.modelList.push({
-              id: e.id,
+            id: e.id,
             uuid: e.uuid,
             modelType: e.modelType,
-            modelId: e.modelId??"",
+            modelId: e.modelId ?? "",
             name: e.name,
             npcName: e.npcName,
             parent: e.parent,
             children: e.children,
-            active:true,
-            paddingLeft:0,
+            active: true,
+            paddingLeft: 0,
           });
 
           if (e.children.length > 0) {
-            this.addChildren(modelList,e.children,1);
+            this.addChildren(modelList, e.children, 1);
           }
         }
       }
@@ -258,7 +391,7 @@ export default {
       //   } else {
       //   }
       // }
-      console.log(" this.modelList ui tree  = " , this.modelList);
+      console.log(" this.modelList ui tree  = ", this.modelList);
     },
     clickBegin(uuid) {
       this.selectUUID = uuid;

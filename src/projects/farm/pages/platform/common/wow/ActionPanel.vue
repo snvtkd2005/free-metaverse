@@ -264,7 +264,7 @@ export default {
           {
             index: 0,
             skill: null,
-            lockAction:true,//锁定动作栏
+            lockAction: true, //锁定动作栏
           },
           { index: 1, skill: null },
           { index: 2, skill: null },
@@ -442,16 +442,6 @@ export default {
         _Global.panelState[e] = false;
       });
 
-      _Global.addEventListener("点击三维页", () => {
-        this.cancelDragAction();
-      });
-      _Global.addEventListener("右键点击", () => {
-        this.cancelDragAction();
-      });
-      _Global.addEventListener("从动作条拖拽到动作条", () => {
-        this.cancelDragAction();
-      });
-
       _Global.addEventListener("摧毁Prop并在动作条中停用prop", (id) => {
         for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
           const element = this.actionList.actionBar1[i];
@@ -491,11 +481,10 @@ export default {
 
         _Global._YJPlayerFireCtrl.addEventListener(
           "技能状态",
-          (skillName, msg) => { 
+          (skillName, msg) => {
             this.changeMainPlayerSkillState(skillName, msg);
           }
         );
-
 
         _Global._YJPlayerFireCtrl.addEventListener("添加技能", (_skill) => {
           if (this.newLevel) {
@@ -523,15 +512,10 @@ export default {
     saveActionList() {
       _Global.SaveActionList(this.actionList);
     },
-    cancelDragAction() {
-      if (_Global.inDragAction) {
-        _Global.inDragAction = false;
-        //取消拖拽
-        this.$parent.dragEnd();
-        for (let i = 0; i < this.actionList.actionBar1.length; i++) {
-          const element = this.actionList.actionBar1[i];
-          element.inDragAction = false;
-        }
+    cancelDrag() {
+      for (let i = 0; i < this.actionList.actionBar1.length; i++) {
+        const element = this.actionList.actionBar1[i];
+        element.inDragAction = false;
       }
     },
     drag(item) {
@@ -634,7 +618,7 @@ export default {
 
       _skill.level = 1;
       _skill.auto = false;
-      if (_skill.target.type == 'target'){
+      if (_skill.target.type == "target") {
         this.actionList.actionBar1[index].hasTarget = false;
         this.actionList.actionBar1[index].outVaildDis = true;
       }
@@ -652,25 +636,25 @@ export default {
         }
       }
     },
-    changeMainPlayerSkillState(skillName, msg){
+    changeMainPlayerSkillState(skillName, msg) {
       for (let i = 0; i < this.actionList.actionBar1.length; i++) {
         const skill = this.actionList.actionBar1[i].skill;
         if (skill && skill.skillName == skillName) {
           switch (msg.title) {
-            case '设置是否有目标':
+            case "设置是否有目标":
               skill.hasTarget = msg.state;
               // console.log(" 技能状态 ",skillName, msg);
-              this.actionList.actionBar1[i].hasTarget = msg.state; 
+              this.actionList.actionBar1[i].hasTarget = msg.state;
 
               break;
-            case '设置是否距离太远':
-              this.$nextTick(()=>{ 
-                this.actionList.actionBar1[i].outVaildDis = msg.state; 
+            case "设置是否距离太远":
+              this.$nextTick(() => {
+                this.actionList.actionBar1[i].outVaildDis = msg.state;
                 // console.log(" 技能状态 "+msg.title,skillName, msg);
               });
 
               break;
-          
+
             default:
               break;
           }
@@ -678,7 +662,7 @@ export default {
           return;
         }
       }
-    }
+    },
   },
 };
 </script>

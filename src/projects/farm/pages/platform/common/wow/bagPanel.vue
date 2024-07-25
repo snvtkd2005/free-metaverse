@@ -41,8 +41,10 @@
             </div>
           </div>
 
-          <div class="absolute left-0 bottom-3 ml-20 w-40 h-4 ">
-            <div class=" text-white text-xs text-right pr-5">{{goldValue}}</div>
+          <div class="absolute left-0 bottom-3 ml-20 w-40 h-4">
+            <div class="text-white text-xs text-right pr-5">
+              {{ goldValue }}
+            </div>
             <div class="absolute right-0 top-0">
               <img :src="goldUrl" alt="" />
             </div>
@@ -101,7 +103,7 @@ export default {
         "./public/images/cursorList/mainmenu/ui-chaticon-blinkhilight.png",
       hoverPart: "",
       dragFromIndex: -1,
-      goldValue:0,
+      goldValue: 0,
     };
   },
   created() {},
@@ -111,51 +113,7 @@ export default {
         // console.log("属性改变 " ,v);
         this.goldValue = v.gold;
       });
-      _Global.addEventListener("点击三维页", () => {
-        if (_Global.inDragProp) {
-          // 扔丢道具，打开扔道具确认框
-          this.$parent.delDialog = true;
-        }
-      });
-      _Global.addEventListener("右键点击", () => {
-        if (_Global.inDragProp) {
-          this.checkDragFromIndex();
-          this.itemList[this.dragFromIndex].inDraging = false;
-          _Global.inDragProp = false;
-          //取消拖拽
-          this.$parent.dragEnd();
-          if (this.$parent.delDialog) {
-            this.$parent.delDialog = false;
-          }
-        }
-      });
 
-      _Global.addEventListener("摧毁拖拽Prop", () => {
-        if (_Global.inDragProp) {
-          this.checkDragFromIndex();
-          _Global.applyEvent(
-            "摧毁Prop并在动作条中停用prop",
-            this.itemList[this.dragFromIndex].skill.id
-          );
-          this.itemList[this.dragFromIndex].skill = null;
-          this.itemList[this.dragFromIndex].inDraging = false;
-          _Global.inDragProp = false;
-          this.$parent.dragEnd();
-        }
-      });
-      _Global.addEventListener("取消拖拽Prop", () => {
-        if (_Global.inDragProp) {
-          this.checkDragFromIndex();
-          this.itemList[this.dragFromIndex].inDraging = false;
-          _Global.inDragProp = false;
-          this.$parent.dragEnd();
-        }
-      });
-
-      _Global.addEventListener("从背包拖拽到动作条", () => {
-        this.checkDragFromIndex();
-        this.itemList[this.dragFromIndex].inDraging = false;
-      });
       _Global.addEventListener("在动作条中调用并摧毁Prop", (id) => {
         for (let i = 0; i < this.itemList.length; i++) {
           const item = this.itemList[i];
@@ -171,6 +129,8 @@ export default {
       }
 
       let list = _Global.propList;
+
+
       console.log(" 所有道具物品 ", list);
       //随机取出3张卡片
       for (let i = 0; i < list.length; i++) {
@@ -186,10 +146,52 @@ export default {
         }
         this.itemList[i].skill = item;
       }
+
+      for (let i = 0; i < this.itemList.length; i++) {
+        const element = this.itemList[i];
+        if(element.skill==null){
+          _Global.LoadEquipById("1709603486019",(equip)=>{
+            element.skill = equip;
+          });
+          return;
+        }
+      }
+
+
     }, 5000);
   },
 
   methods: {
+    cancelDrag(e) {
+      if (e == "右键点击") {
+        this.checkDragFromIndex();
+        this.itemList[this.dragFromIndex].inDraging = false;
+      }
+      if (e == "从动作条拖拽到动作条") {
+      }
+      if (e == "从背包拖拽到动作条") {
+        this.checkDragFromIndex();
+        this.itemList[this.dragFromIndex].inDraging = false;
+      } 
+
+      if (e == "取消拖拽Prop") {
+          this.checkDragFromIndex();
+          this.itemList[this.dragFromIndex].inDraging = false;
+      } 
+      
+      if (e == "摧毁拖拽Prop") {
+          this.checkDragFromIndex();
+          _Global.applyEvent(
+            "摧毁Prop并在动作条中停用prop",
+            this.itemList[this.dragFromIndex].skill.id
+          );
+          this.itemList[this.dragFromIndex].skill = null;
+          this.itemList[this.dragFromIndex].inDraging = false;
+      } 
+      
+
+    },
+
     clickEvent(e) {
       if (e == "关闭窗口") {
         _Global.applyEvent("界面开关", "bag", false);
@@ -205,10 +207,14 @@ export default {
       }
     },
     setItem(skill) {
+      if (!_Global.hoverPart.includes("bag")) {
+        return;
+      }
       if (_Global.hoverPart) {
         this.dragFromIndex = parseInt(
           _Global.hoverPart.replace("bagbase_", "")
         );
+
         this.itemList[this.dragFromIndex].skill = skill;
         this.itemList[this.dragFromIndex].inDraging = false;
         _Global.hoverPart = "";

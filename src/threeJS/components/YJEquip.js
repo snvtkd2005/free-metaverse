@@ -5,91 +5,130 @@ import * as THREE from "three";
 
 // 角色装备
 class YJEquip {
-    constructor(scope) {
+    constructor(owner) {
+        let scope = this;
+        let equipList = [];
+        this.GetEquipList = function () {
+            return equipList;
+        }
+        let equipModelList = [];
 
+        let weaponModel = null;
+        let weaponData = null;
 
+        let data = null;
+
+        function init() {
+            data = owner.GetData();
+            // console.log(" in equip 角色数据 ", data);
+            scope.RemoveWeapon();
+
+            if (data.weaponData && data.weaponData.message) {
+                scope.ChangeEquip("武器", data.weaponData);
+            }
+
+            if (data.equipList && data.equipList.length > 0) {
+                equipList = data.equipList;
+                for (let i = 0; i < data.equipList.length; i++) {
+                    const element = data.equipList[i];
+                    addEquip(element.part, element.modelPath);
+                }
+            }
+        }
         //#region 玩家装备
-        this.initWeapon = function(weapon,callback){
-        //   console.error( " in 玩家装备 ",weapon);
-          let path = _Global.YJ3D.$uploadUrl + weapon.assetId + "/" + "data.txt" + "?time=" + new Date().getTime();
-    
-          _Global.YJ3D._YJSceneManager.LoadAssset(path,(data)=>{
-            // console.log(path,data);
-            
-            data.pos = { x: 0, y: 0, z: 0 };
-            data.rotaV3 = { x: 0, y: 0, z: 0 };
-            data.scale = { x: 1, y: 1, z: 1 };
-            
-            let YJController = _Global.YJ3D.YJController;
-            let YJPlayer = _Global.YJ3D.YJPlayer;
-            _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().LoadStaticModel2(data, (transform) => {
-            //   console.log(transform);
-              let owner = transform;
-              let msg = owner.GetMessage();
-              if (msg.pointType == "weapon") { 
-                let state = YJController.GetUserDataItem("weaponData");
-                // console.log(" 碰到武器 ", msg.data, state);
-                // 判断角色是否可以拾取武器
-                if (state != null && state.weaponId != "") {
-                  return;
-                } 
-      
-                let { boneName, weaponType
-                  , position
-                  , rotation } = msg.data;
-                YJController.SetUserDataItem("weaponData", msg.data);
-                YJController.SetUserDataItem("weaponData", "weaponId", owner.GetData().folderBase);
-                YJController.SetUserDataItem("weaponData", "transId", owner.id);
-                YJController.SetUserDataItem("weaponDataData", {});
-                YJController.SetUserDataItem("weaponDataData", owner.GetData());
-                let realyBoneName = boneName;
-                let boneList = YJPlayer.GetavatarData().boneList;
-                if (boneList) {
-                  for (let i = 0; i < boneList.length; i++) {
-                    const item = boneList[i];
-                    if (item.targetBone == boneName) {
-                      realyBoneName = item.boneName;
-                    }
-                  }
-                }
-                let realyPos = [0, 0, 0];
-                let realyRota = [0, 0, 0];
-                let realyScale = [1, 1, 1];
-                let refBoneList = YJPlayer.GetavatarData().equipPosList;
-                if (refBoneList) {
-                  for (let i = 0; i < refBoneList.length; i++) {
-                    const item = refBoneList[i];
-                    if (item.targetBone == boneName && item.weaponType == weaponType) {
-                      realyPos = item.position ? item.position : realyPos;
-                      realyRota = item.rotation ? item.rotation : realyRota;
-                      realyScale = item.scale ? item.scale : realyScale;
-                    }
-                  }
-                }
-      
-                // 碰到武器就拾取
-                YJPlayer.GetBoneVague(realyBoneName, (bone) => {
-                  let weaponModel = owner.GetGroup(); 
-                  bone.add(weaponModel);
-                  YJPlayer.addWeaponModel(weaponModel); 
-      
-                  let pos = realyPos;
-                  let rotaV3 = realyRota;
-                  let scale = realyScale;
-                  weaponModel.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
-                  weaponModel.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
-                  weaponModel.scale.set(100 * scale[0], 100 * scale[1], 100 * scale[2]);
-      
-                  // 绑定到骨骼后，清除trigger
-                  owner.GetComponent("Weapon").DestroyTrigger();
-       
-                  if(callback){
-                    callback();
-                  }
+        this.initWeapon = function (weapon, callback) {
+            //   console.error( " in 玩家装备 ",weapon);
+            let path = _Global.YJ3D.$uploadUrl + weapon.assetId + "/" + "data.txt" + "?time=" + new Date().getTime();
+
+            _Global.YJ3D._YJSceneManager.LoadAssset(path, (data) => {
+                console.log(path, data);
+                weaponData = data;
+                let { pickType, weaponType } = data.message.data;
+
+                equipList.push({
+                    type: "equip",
+                    folderBase: weapon.assetId,
+                    icon: _Global.url.uploadUrl + data.folderBase + "/" + data.icon,
+                    // 武器名称
+                    name: data.name,
+                    // 武器类型：弓、剑、斧等
+                    weaponType,
+                    part: pickType,
+                    qualityType: data.message.data.qualityType,
+                    pointType: data.message.pointType,
+                    // 攻击速度
+                    speed: data.message.data.attackSpeed,
+                    // 武器伤害
+                    strength: data.message.data.strength ? data.message.data.strength : 20,
+                    propertyList: data.message.data.propertyList,
                 });
-              }
+                owner.applyEvent('更新装备', equipList);
+
+                data.pos = { x: 0, y: 0, z: 0 };
+                data.rotaV3 = { x: 0, y: 0, z: 0 };
+                data.scale = { x: 1, y: 1, z: 1 };
+
+                let YJPlayer = _Global.YJ3D.YJPlayer;
+                _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().LoadStaticModel2(data, (transform) => {
+                    //   console.log(transform);
+                    let owner = transform;
+                    let msg = owner.GetMessage();
+                    if (msg.pointType == "weapon") {
+
+                        let { boneName, weaponType
+                            , position
+                            , rotation } = msg.data;
+                        let realyBoneName = boneName;
+                        let boneList = YJPlayer.GetavatarData().boneList;
+                        if (boneList) {
+                            for (let i = 0; i < boneList.length; i++) {
+                                const item = boneList[i];
+                                if (item.targetBone == boneName) {
+                                    realyBoneName = item.boneName;
+                                }
+                            }
+                        }
+                        let realyPos = [0, 0, 0];
+                        let realyRota = [0, 0, 0];
+                        let realyScale = [1, 1, 1];
+                        let refBoneList = YJPlayer.GetavatarData().equipPosList;
+                        if (refBoneList) {
+                            for (let i = 0; i < refBoneList.length; i++) {
+                                const item = refBoneList[i];
+                                if (item.targetBone == boneName && item.weaponType == weaponType) {
+                                    realyPos = item.position ? item.position : realyPos;
+                                    realyRota = item.rotation ? item.rotation : realyRota;
+                                    realyScale = item.scale ? item.scale : realyScale;
+                                }
+                            }
+                        }
+
+                        // 碰到武器就拾取
+                        YJPlayer.GetBoneVague(realyBoneName, (bone) => {
+                            let weaponModel = owner.GetGroup();
+                            bone.add(weaponModel);
+                            YJPlayer.addWeaponModel(weaponModel);
+
+                            let pos = realyPos;
+                            let rotaV3 = realyRota;
+                            let scale = realyScale;
+                            weaponModel.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
+                            weaponModel.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
+                            weaponModel.scale.set(100 * scale[0], 100 * scale[1], 100 * scale[2]);
+
+                            // 绑定到骨骼后，清除trigger
+                            owner.GetComponent("Weapon").DestroyTrigger();
+
+                            equipModelList.push({ part: pickType, bone: bone, model: weaponModel });
+
+
+                            if (callback) {
+                                callback();
+                            }
+                        });
+                    }
+                });
             });
-          });
         }
         //#endregion
 
@@ -110,7 +149,7 @@ class YJEquip {
                 }
             }
             if (boneName == "") {
-                console.error(scope.GetNickName() + " 未指定真实骨骼 ");
+                console.error(owner.GetNickName() + " 未指定真实骨骼 ");
                 boneName = _boneName;
             }
             return boneName;
@@ -134,10 +173,10 @@ class YJEquip {
             return { pos, rotaV3, scale };
         }
 
-        let weaponModel = null;
         // 移除武器
         this.RemoveWeapon = function () {
             // console.log("移除武器 ",weaponData);
+
             if (weaponData != null) {
                 let boneName = GetRealyBoneName(weaponData.boneName);
                 if (boneName == "") {
@@ -145,33 +184,36 @@ class YJEquip {
                 }
 
                 //移除旧武器
-                scope.GetBoneVague(boneName, (bone) => {
+                owner.GetBoneVague(boneName, (bone) => {
                     if (bone.weaponModel) {
                         bone.remove(bone.weaponModel);
                     }
                 });
                 weaponData = null;
+            } else {
+                return;
             }
-            scope.ChangeAnimDirect("idle");
+            owner.ChangeAnimDirect("idle");
 
         }
-        let weaponData = null;
-
-        let data = null;
-        this.SetMessage = function (_data) {
-            data = _data;
-            this.RemoveWeapon();
-
-            if (data.weaponData && data.weaponData.message) {
-                this.ChangeEquip("武器", data.weaponData);
+        this.addEquip = function (equip) {
+            let path = _Global.YJ3D.$uploadUrl + equip.assetId + "/" + "data.txt" + "?time=" + new Date().getTime();
+            _Global.YJ3D._YJSceneManager.LoadAssset(path, (data) => {
+                this.ChangeEquip("装备", data);
+            });
+        }
+        this.UnWearEquip = function (part) {
+            // console.log(" 取下装备  ", part); 
+            this.RemoveEquip(part);
+        }
+        this.WearEquip = function (item) {
+            // console.log(" 右键穿戴装备 ", item, equipList);
+            this.UnWearEquip(item.part); 
+            if (item.pointType == "weapon") {
+                this.initWeapon({ assetId: item.folderBase });
+                return;
             }
-
-            if (data.equipList && data.equipList.length > 0) {
-                for (let i = 0; i < data.equipList.length; i++) {
-                    const element = data.equipList[i];
-                    addEquip(element.part, element.modelPath);
-                }
-            }
+            this.addEquip({ assetId: item.folderBase });
         }
         this.ChangeEquip = function (type, data) {
             if (type == "武器") {
@@ -181,7 +223,7 @@ class YJEquip {
                 //加载武器
                 _Global.YJ3D._YJSceneManager.DirectLoadMesh(_Global.YJ3D.$uploadUrl + data.modelPath, (meshAndMats) => {
 
-                    scope.GetBoneVague(boneName, (bone) => {
+                    owner.GetBoneVague(boneName, (bone) => {
 
                         // let model = (meshAndMats.mesh).scene;
                         // let _weaponModel = (meshAndMats.mesh).scene.clone();
@@ -204,7 +246,7 @@ class YJEquip {
 
                         model.traverse(function (item) {
                             if (item instanceof THREE.Mesh) {
-                                item.transform = scope;
+                                item.transform = owner;
                                 item.tag = "weapon";
                             }
                         });
@@ -217,42 +259,85 @@ class YJEquip {
                         model.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
                         model.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
                         model.scale.set(100 * scale[0], 100 * scale[1], 100 * scale[2]);
-                        scope.SetPlayerState("normal");
-                        scope.PathfindingCompleted();
+                        owner.SetPlayerState("normal");
+                        owner.PathfindingCompleted();
                         // 记录材质
                         // if (materials.length == 0) {
-                        //     scope.recodeMat();
+                        //     owner.recodeMat();
                         // }
                     });
                 });
             }
             if (type == "装备") {
-                addEquip(data.part, data.modelPath);
+                equipList.push({
+                    type: "equip",
+                    // 唯一id
+                    folderBase: data.folderBase,
+                    icon: _Global.url.uploadUrl + data.folderBase + "/" + data.icon,
+                    // 装备名称
+                    name: data.name,
+                    // 品质
+                    qualityType: data.message.data.qualityType,
+                    // 部位，唯一
+                    part: data.message.data.partType,
+                    // 武器或装备
+                    pointType: data.message.pointType,
+                    // 附加属性
+                    propertyList: data.message.data.propertyList,
+                });
+                owner.applyEvent('更新装备', equipList);
+                addEquip(data.message.data.partType, data.modelPath);
             }
             if (type == "移除装备") {
                 this.RemoveEquip(data.part);
             }
         }
         this.RemoveEquip = function (part) {
-            let boneName = GetRealyBoneName(part);
-            scope.GetBoneVague(boneName, (bone) => {
-                if (bone.equip) { 
-                    bone.remove(bone.equip);
-                    if (part == "rightshoulder") {
-                        this.RemoveEquip("leftshoulder");
-                    }
+            // let boneName = GetRealyBoneName(part);
+            // owner.GetBoneVague(boneName, (bone) => {
+            //     if (bone.equip) {
+            //         bone.remove(bone.equip);
+            //         if (part == "rightshoulder") {
+            //             this.RemoveEquip("leftshoulder");
+            //         }
+            //     }
+            // });
+
+            for (let i = equipList.length - 1; i >= 0; i--) {
+                const element = equipList[i];
+                if (part == element.part) {
+                    equipList.splice(i, 1);
                 }
-            });
+            }
+            for (let i = equipModelList.length - 1; i >= 0; i--) {
+                const element = equipModelList[i];
+                if (part == "shoulder") {
+                    if ("rightshoulder" == element.part || "leftshoulder" == element.part) {
+                        element.bone.remove(element.model);
+                        equipModelList.splice(i, 1);
+                    }
+                } else {
+
+                    if (part == element.part) {
+                        element.bone.remove(element.model);
+                        equipModelList.splice(i, 1);
+                    }
+
+                }
+            }
         }
 
         function addEquip(part, modelPath, mirror) {
 
-
+            if (part == 'shoulder') {
+                part = 'rightshoulder';
+            }
             let boneName = GetRealyBoneName(part);
-            //加载装备
+            //加载模型
             _Global.YJ3D._YJSceneManager.DirectLoadMesh(_Global.YJ3D.$uploadUrl + modelPath, (meshAndMats) => {
+                // console.log(" 添加装备 ", boneName, modelPath);
 
-                scope.GetBoneVague(boneName, (bone) => {
+                owner.GetBoneVague(boneName, (bone) => {
 
                     if (bone.equip) {
                         bone.remove(bone.equip);
@@ -261,7 +346,7 @@ class YJEquip {
                     let model = (meshAndMats.mesh).scene.clone();
                     model.traverse(function (item) {
                         if (item instanceof THREE.Mesh) {
-                            item.transform = scope;
+                            item.transform = owner;
                             item.tag = part;
                         }
                     });
@@ -297,6 +382,8 @@ class YJEquip {
                     // model.add(new THREE.AxesHelper(100));
 
 
+                    equipModelList.push({ part: part, bone: bone, model: model });
+
                     if (part == "rightshoulder") {
                         part = "leftshoulder"
                         addEquip(part, modelPath, "mirror");
@@ -315,7 +402,7 @@ class YJEquip {
                         clearTimeout(laterChangeWeaponPos);
                     }
                     let boneName = GetRealyBoneName("Back1");
-                    scope.GetBoneVague(boneName, (bone) => {
+                    owner.GetBoneVague(boneName, (bone) => {
                         bone.add(weaponModel);
                         weaponModel.position.set(0, 0, 0);
                         weaponModel.rotation.set(0, Math.PI, 0);
@@ -330,7 +417,7 @@ class YJEquip {
                     laterChangeWeaponPos = setTimeout(() => {
                         let { pos, rotaV3, scale } = GetEquipPos(weaponData.boneName, weaponData.weaponType);
                         let boneName = GetRealyBoneName(weaponData.boneName);
-                        scope.GetBoneVague(boneName, (bone) => {
+                        owner.GetBoneVague(boneName, (bone) => {
                             bone.add(weaponModel);
                             weaponModel.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
                             weaponModel.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
@@ -338,10 +425,11 @@ class YJEquip {
                     }, 20);
                 }
             }
-            // if (scope.npcName.includes("一叶")) {
-            //   console.error(scope.GetNickName() + " 切换动作 ", v);
+            // if (owner.npcName.includes("一叶")) {
+            //   console.error(owner.GetNickName() + " 切换动作 ", v);
             // } 
         }
+        init();
 
     }
 }

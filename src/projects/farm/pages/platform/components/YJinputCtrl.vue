@@ -267,6 +267,32 @@
 
         </div>
 
+        <div v-if="item.type == 'dropArrayVariable'" class=" gap-2 text-black">
+          <div
+            v-for="(item2, j) in item.value"
+            :key="j"
+            class="self-center w-auto h-auto relative gap-x-3 flex "
+          > 
+            <YJinput_drop
+              class="w-full h-full"
+              :value="item2.property"
+              :options="item.options"
+              :index="j"
+              :callback="(j,e)=>{item.value[j].property=e;item.callback(i,item.value);}"
+            />
+            <YJinput_number
+              :value="item2.value"
+              type="int"
+              :step="item.step"
+              :index="j"
+              :callback="(j,e)=>{item.value[j].value=e;item.callback(i,item.value);}"
+            />
+            <div class=" border text-white w-8 h-full self-center cursor-pointer text-center " @click="item.value.push({property:item2.property,value:item2.value})">+</div>
+            <div class=" border text-white w-8 h-full self-center cursor-pointer text-center " @click="item.value.splice(j,1)">-</div>
+          </div>
+
+        </div>
+
         <div v-if="item.type == 'int'" class="flex gap-2 text-black">
           <YJinput_number
             :value="item.value"

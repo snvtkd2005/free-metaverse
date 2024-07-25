@@ -100,7 +100,7 @@
       <div class="absolute right-20 top-2">
         <settingPanel ref="settingPanel" />
       </div>
-      
+
       <!-- 截图区域安全区域 -->
       <PanelCut @cancel="CancelCut" ref="PanelCut" />
     </div>
@@ -109,7 +109,6 @@
     <div class="absolute right-0 top-0 w-80 h-full bg-546770">
       <settingPanelCtrl ref="settingPanelCtrl" />
     </div>
-
 
     <modelSelectPanel ref="modelSelectPanel" />
     <animPanel ref="animPanel" />
@@ -295,6 +294,7 @@ export default {
       window.location.reload();
       _Global.reloadTimes = 0;
     }
+
     this.Interface = new Interface(this, true);
 
     if (this.$route.path.toLowerCase().includes("editorsingle")) {
@@ -349,20 +349,25 @@ export default {
         }
       }
     });
+    this.resizePanel();
+  },
+  methods: { 
+    setPanelSize(){
+      this.resizePanel();
+    },
+    resizePanel() {
+      this.panelData.panel3dStyle.width = window.innerWidth - 320;
+      this.panelData.panel3dStyle.height = window.innerHeight - 40;
+      this.panelData.panel3dStyle.left = 0;
+      this.panelData.panel3dStyle.top = 40;
 
-    this.panelData.panel3dStyle.width = window.innerWidth - 320;
-    this.panelData.panel3dStyle.height = window.innerHeight - 40;
-    this.panelData.panel3dStyle.left = 0;
-    this.panelData.panel3dStyle.top = 40;
-
-    this.panel3dStyle = `
+      this.panel3dStyle = `
       position: absolute; 
       left: ${this.panelData.panel3dStyle.left}px;
       top: ${this.panelData.panel3dStyle.top}px;
       width: ${this.panelData.panel3dStyle.width}px;
       height: ${this.panelData.panel3dStyle.height}px;`;
-  },
-  methods: {
+    },
     setSettingDisplayById(id, display) {
       for (let i = 0; i < this.tableList.length; i++) {
         const element = this.tableList[i];

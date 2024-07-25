@@ -999,6 +999,9 @@ class SceneManager {
       console.log("点击模型 ", hitObject);
 
       _Global.applyEvent("点击三维页");
+      if(hitObject == null){
+        return;
+      }
       // console.log("点击模型.transform ", hitObject.transform);
       if (hitObject.transform && hitObject.transform.GetActive()) {
         this.ClickModelTransform(hitObject.transform);

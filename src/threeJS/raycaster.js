@@ -428,6 +428,7 @@ class YJRaycaster extends YJEvent {
       mouse.x = ((event.clientX-offset.left) / containerWidth) * 2 - 1;
       mouse.y = -((event.clientY-offset.top) / containerHeight) * 2 + 1;
 
+
       EventHandler("mousePos",mouse.x,mouse.y);
     }
     this.onMouseMove = function (event) {

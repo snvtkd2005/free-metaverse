@@ -15,7 +15,9 @@ class YJEquip {
 
         let weaponModel = null;
         let weaponData = null;
-
+        this.GetWeaponData = function(){
+            return weaponData;
+        }
         let data = null;
 
         function init() {
@@ -42,7 +44,9 @@ class YJEquip {
 
             _Global.YJ3D._YJSceneManager.LoadAssset(path, (data) => {
                 console.log(path, data);
-                weaponData = data;
+                weaponData = data.message.data;
+                owner.GetSkill().ChangeBaseSkillByWeapon(weaponData);
+
                 let { pickType, weaponType } = data.message.data;
 
                 equipList.push({
@@ -205,6 +209,7 @@ class YJEquip {
         this.UnWearEquip = function (part) {
             // console.log(" 取下装备  ", part); 
             this.RemoveEquip(part);
+
         }
         this.WearEquip = function (item) {
             // console.log(" 右键穿戴装备 ", item, equipList);
@@ -219,6 +224,8 @@ class YJEquip {
             if (type == "武器") {
                 this.RemoveWeapon();
                 weaponData = data.message.data;
+                owner.GetSkill().ChangeBaseSkillByWeapon(weaponData);
+
                 let boneName = GetRealyBoneName(weaponData.boneName);
                 //加载武器
                 _Global.YJ3D._YJSceneManager.DirectLoadMesh(_Global.YJ3D.$uploadUrl + data.modelPath, (meshAndMats) => {
@@ -309,6 +316,8 @@ class YJEquip {
                     equipList.splice(i, 1);
                 }
             }
+            owner.applyEvent('更新装备', equipList);
+
             for (let i = equipModelList.length - 1; i >= 0; i--) {
                 const element = equipModelList[i];
                 if (part == "shoulder") {
@@ -325,6 +334,16 @@ class YJEquip {
 
                 }
             }
+            if(part == "twoHand"
+            || part == "mainHand"
+            || part == "oneHand"
+            || part == "ranged"
+            ){
+                weaponData = null;
+                owner.GetSkill().ChangeBaseSkillByWeapon(weaponData);
+                owner.ChangeAnimDirect("idle");
+
+            } 
         }
 
         function addEquip(part, modelPath, mirror) {

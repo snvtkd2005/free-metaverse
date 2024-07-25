@@ -113,8 +113,8 @@
                     <div class="w-64 h-7 relative text-left">
                       <div class="w-full leading-7">{{ item2.title }}</div>
                     </div>
-
-                    <div
+ 
+                    <div v-if="currentData.field == 'keyData'"
                       class="w-auto cursor-pointer"
                       @click="clickTitle2(item2)"
                       :class="
@@ -130,6 +130,19 @@
                       >
                         {{ item2.keytext }}
                       </div>
+                    </div>
+                    
+                    <div v-if="currentData.field == 'control'"
+                      class="w-auto cursor-pointer" 
+                    >
+                      <div v-if="item2.type=='drop'"  class="w-40 h-10  rounded-md text-white" >
+                        <YJinput_drop
+                          class="w-full h-full"
+                          :value="item2.value"
+                          :options="GameSettingData[item2.field]"
+                          :callback="(e)=>{item2.value=e;ChangeValue(item2.field,e);}"
+                        />
+                      </div> 
                     </div>
                   </div>
                 </div>
@@ -158,17 +171,22 @@
 
  
 <script >
-import npcStoryData from "../../../../data/npcStoryData";
+ 
+import YJinput_drop from '../../components/YJinput_drop.vue';
+import GameSettingData from "../../../../data/platform/GameSettingData";
+
 export default {
   props: [],
-  components: {},
+  components: {
+    YJinput_drop,
+  },
   data() {
     return {
       lefMenuList: [
         {
           title: "游戏功能",
           children: [
-            // { field: "control", title: "控制" },
+            { field: "control", title: "控制" },
             // { field: "panel", title: "界面" },
             // { field: "actionBar", title: "动作条" },
             // { field: "comba", title: "战斗" },
@@ -208,11 +226,14 @@ export default {
         "./public/images/cursorList/mainmenu/ui-chaticon-blinkhilight.png",
       playerImg: "./public/images/cursorList/mainmenu/inv_misc_book_09.png",
       hoverPart: "",
+      GameSettingData:{},
     };
   },
   created() {},
   mounted() {
-    console.log(" in setting panel ");
+    this.GameSettingData = GameSettingData;
+    console.log(" in setting panel ",this.GameSettingData['ctrlType']);
+
     setTimeout(() => {
       this.clickTitle(this.lefMenuList[0].children[0]);
     }, 20);
@@ -234,6 +255,7 @@ export default {
       let field = item.field;
       if (_Global.GameSetting[field]) {
         this.currentData = _Global.GameSetting[field];
+        this.currentData.field = field;
         if (field == "keyData") {
           for (let i = 0; i < this.currentData.children.length; i++) {
             let secField = this.currentData.children[i].field;
@@ -269,13 +291,23 @@ export default {
           };
 
           _Global.addEventListener("keycodeUp", this.keyEvent);
-        } else {
+        } 
+        else 
+        {
           if (this.keyEvent) {
             _Global.removeEventListener(this.keyEvent);
             this.keyEvent = null;
           }
         }
       }
+    },
+    ChangeValue(field,v) {
+      if(field=='ctrlType'){
+        if(v=='wow'){}
+        if(v=='overlook'){}
+      }
+      _Global.SaveGameSetting();
+
     },
     clickTitle2(item) {
       if(item.type == "key"){

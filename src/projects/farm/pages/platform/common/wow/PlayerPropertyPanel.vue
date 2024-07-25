@@ -69,7 +69,7 @@
               :key="i"
               class="flex w-9 h-9 mb-1 mt-px -ml-0.5 relative cursor-pointer pointer-events-auto"
             >
-            <img
+              <img
                 v-if="!(item.skill && true)"
                 class="absolute left-0 top-0 w-full h-full pointer-events-none"
                 :src="item.bg"
@@ -87,7 +87,7 @@
               :key="i"
               class="flex w-9 h-9 mr-1.5 relative cursor-pointer pointer-events-auto"
             >
-            <img
+              <img
                 v-if="!(item.skill && true)"
                 class="absolute left-0 top-0 w-full h-full pointer-events-none"
                 :src="item.bg"
@@ -97,7 +97,8 @@
             </div>
           </div>
 
-          <div class="absolute right-7 -bottom-16 flex">
+          <!-- 箭矢 -->
+          <div class="hidden absolute right-7 -bottom-16">
             <div
               class="ml-4"
               style="
@@ -117,6 +118,33 @@
                 background-image: url(./public/images/cursorList/paperdollinfoframe/ui-character-ammoslot.png);
               "
             ></div>
+          </div>
+
+          <div class="absolute left-10 bottom-0 text-left text-xs tracking-widest   text-white w-full h-28 px-8">
+            <div class="w-full h-auto flex ">
+              <div class="w-1/2 h-auto  border ">
+                <div class="  pl-2 border ">基础属性</div>
+                <div
+                  v-for="(item, i) in baseProperty"
+                  :key="i"
+                  class="flex px-1 w-auto h-auto leading-3.5 justify-between"
+                >
+                  <div class="text-yellow-wow ">{{ item.title }}:</div>
+                  <div>{{ item.value }}</div>
+                </div>
+              </div> 
+              <div class="w-1/2 h-auto  border ">
+                <div class="  pl-2 border ">法术</div>
+                <div
+                  v-for="(item, i) in spellProperty"
+                  :key="i"
+                  class="flex px-1 w-auto h-auto leading-3.5 justify-between"
+                >
+                  <div class="text-yellow-wow ">{{ item.title }}:</div>
+                  <div>{{ item.value }}</div>
+                </div>
+              </div> 
+            </div>
           </div>
         </div>
       </div>
@@ -256,6 +284,13 @@ export default {
       skillList3: [
         {
           type: "equip",
+          part: "twohand",
+          text: "双手",
+          bg: "./public/images/cursorList/paperdoll/ui-paperdoll-slot-mainhand.png",
+          used: false,
+        },
+        {
+          type: "equip",
           part: "mainhand",
           text: "主手",
           bg: "./public/images/cursorList/paperdoll/ui-paperdoll-slot-mainhand.png",
@@ -276,13 +311,13 @@ export default {
           bg: "./public/images/cursorList/paperdoll/ui-paperdoll-slot-ranged.png",
           used: false,
         },
-        {
-          type: "equip",
-          part: "",
-          text: "箭",
-          bg: "./public/images/cursorList/paperdoll/ui-paperdoll-slot-ammo.png",
-          used: false,
-        },
+        // {
+        //   type: "equip",
+        //   part: "",
+        //   text: "箭",
+        //   bg: "./public/images/cursorList/paperdoll/ui-paperdoll-slot-ammo.png",
+        //   used: false,
+        // },
       ],
       skillPoint: 0, //可使用技能点
       topleftUrl:
@@ -305,6 +340,24 @@ export default {
       playerImg:
         "https://snvtkd2005.com/socketIoServer/socketIoServer/uploads/1697436993131/thumb.png",
       hoverPart: "",
+      property: {},
+      propertyList: [],
+      baseProperty: [
+        { title: "力量", value: 0 },
+        { title: "敏捷", value: 0 },
+        { title: "耐力", value: 0 },
+        { title: "智力", value: 0 },
+        { title: "精神", value: 0 },
+        { title: "护甲", value: 0 },
+      ],
+      spellProperty: [
+        { title: "伤害加成", value: 0 },
+        { title: "治疗加成", value: 0 },
+        { title: "命中等级", value: 0 },
+        { title: "暴击率", value: 0 },
+        { title: "急速等级", value: 0 },
+        { title: "法力回复", value: 0 },
+      ],
     };
   },
   created() {},
@@ -317,11 +370,8 @@ export default {
             // element.skill = {type:"equip",text:element.text};
             for (let j = 0; j < equipList.length; j++) {
               const equip = equipList[j];
-              if (
-                equip.part &&
-                equip.part.toLowerCase() == element.part
-              ) {
-                element.icon = equip.icon; 
+              if (equip.part && equip.part.toLowerCase() == element.part) {
+                element.icon = equip.icon;
                 element.skill = equip;
               }
             }
@@ -331,11 +381,8 @@ export default {
             // element.skill = {type:"equip",text:element.text};
             for (let j = 0; j < equipList.length; j++) {
               const equip = equipList[j];
-              if (
-                equip.part &&
-                equip.part.toLowerCase() == element.part
-              ) {
-                element.icon = equip.icon; 
+              if (equip.part && equip.part.toLowerCase() == element.part) {
+                element.icon = equip.icon;
                 element.skill = equip;
               }
             }
@@ -345,16 +392,78 @@ export default {
             // element.skill = {type:"equip",text:element.text};
             for (let j = 0; j < equipList.length; j++) {
               const equip = equipList[j];
-              if (
-                equip.part &&
-                equip.part.toLowerCase() == element.part
-              ) {
-                element.icon = equip.icon; 
+              if (equip.part && equip.part.toLowerCase() == element.part) {
+                element.icon = equip.icon;
                 element.skill = equip;
               }
             }
           }
         });
+      });
+      _Global.addEventListener("属性改变", (basedata) => {
+        this.property = basedata;
+
+        this.propertyList = [];
+        this.propertyList.push({
+          title: "生命值",
+          value: basedata.health + "/" + basedata.maxHealth,
+        });
+
+        let basicProperty = basedata.basicProperty;
+
+        this.propertyList.push({ title: "力量", value:  basicProperty.strength  });
+        this.propertyList.push({ title: "敏捷", value:  basicProperty.agile  });
+        this.propertyList.push({ title: "耐力", value:  basicProperty.endurance });
+        this.propertyList.push({ title: "智力", value:  basicProperty.intelligence });
+        this.propertyList.push({ title: "精神", value:  basicProperty.spirit  });
+
+        this.propertyList.push({ title: "护甲", value: basicProperty.armor });
+
+        this.propertyList.push({
+          title: "暴击率",
+          value: basicProperty.CriticalHitRate,
+        });
+        this.propertyList.push({
+          title: "暴击等级",
+          value: basicProperty.CriticalHitLevel,
+        });
+        this.propertyList.push({
+          title: "攻击速度",
+          value: basicProperty.attackSpeed,
+        });
+        this.propertyList.push({
+          title: "攻击强度",
+          value: basicProperty.attackPower,
+        });
+        this.propertyList.push({
+          title: "移动速度",
+          value: basicProperty.moveSpeed,
+        });
+        this.propertyList.push({
+          title: "急速等级",
+          value: basicProperty.hasteLevel,
+        });
+        this.propertyList.push({
+          title: "急速冷却",
+          value: basicProperty.CDRate,
+        });
+
+        this.baseProperty = [];
+        for (let i = 0; i < this.propertyList.length; i++) {
+          const element = this.propertyList[i];
+          if (
+            element.title == "力量" ||
+            element.title == "敏捷" ||
+            element.title == "耐力" ||
+            element.title == "智力" ||
+            element.title == "精神" ||
+            element.title == "护甲"
+          ) {
+            this.baseProperty.push(element);
+          }
+        }
+
+        // console.log(" 属性改变 ",this.property);
       });
 
       _Global.addEventListener("升级", (level) => {});

@@ -840,7 +840,8 @@ class YJPlayerFireCtrl {
 
 		this.SetPlayerState = function (e, _animName) {
 
-			weaponData = _this.YJController.GetUserData().weaponData;
+			// weaponData = _this.YJController.GetUserData().weaponData;
+			weaponData = scope.GetEquip().GetWeaponData();
 
 			// console.log(" in SetPlayerState  ",e,weaponData,playerState);
 
@@ -992,6 +993,11 @@ class YJPlayerFireCtrl {
 		this.ChangeAnim = function (v, vb) {
 			_this.YJController.SetPlayerAnimName(v, vb);
 		}
+		
+		this.ChangeAnimDirect = function (animName) {
+			_this.YJController.ChangeAnimDirect(animName,"idle");
+		  }
+	  
 		this.SetValue = function (v, vb) {
 
 		}
@@ -1067,9 +1073,9 @@ class YJPlayerFireCtrl {
 				if (_YJProp == null) {
 					_YJProp = new YJProp(scope);
 				}
-			}
-			if (_YJEquip == null) {
-				_YJEquip = new YJEquip(scope);
+				if (_YJEquip == null) {
+					_YJEquip = new YJEquip(scope);
+				}
 			}
 			scope.id = _YJPlayer.id;
 			_Global._YJPlayerFireCtrl = scope;
@@ -1087,7 +1093,16 @@ class YJPlayerFireCtrl {
 					let baseSkillItem = JSON.parse(JSON.stringify(skillItem.skill));
 					baseSkillItem.level = 1;
 					//从武器中获取动作
+					weaponData = scope.GetEquip().GetWeaponData();
+					let strength = 10;
+					let castTime = 2;
+	
+					if(weaponData){
+						castTime = weaponData.attackSpeed;
+						strength = weaponData.strength;
+					}
 					var { s, v, a, _ready, _fire } = GetSkillDataByWeapon(weaponData);
+                	baseSkillItem.castTime = a;
 					setVaildAttackDis(v);
 					if (_ready) {
 						baseSkillItem.skillReadyAudio = _ready.audio;
@@ -1103,6 +1118,7 @@ class YJPlayerFireCtrl {
 					baseSkillItem.animNameReady = ready.animName;
 					baseSkillItem.animName = fire.animName;
 					baseSkillItem.vaildDis = v;
+					baseSkillItem.effect.value = strength;
 					baseSkillItem.trigger.value = a;
 					baseSkillItem.cCD = baseSkillItem.trigger.value;
 					baseSkillItem.CD = baseSkillItem.trigger.value;

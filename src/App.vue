@@ -31,6 +31,13 @@ export default {
   color: #2c3e50;
 }
 
+.text-yellow-wow{
+  color:#ffd100 ;
+}
+.leading-3\.5{
+  line-height: 14px;
+  /* line-height: 1.25rem 20px; */
+}
 .hover\:bg-546770:hover{
   background-color: #546770;
 }

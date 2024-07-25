@@ -739,9 +739,9 @@ class YJNPC {
         data.skillList = [];
       }
 
+      _YJSkill = new YJSkill(scope);
 
       _YJEquip = new YJEquip(scope);
-      _YJSkill = new YJSkill(scope);
 
       if (_YJPlayerProperty == null) {
         _YJPlayerProperty = new YJPlayerProperty(scope);

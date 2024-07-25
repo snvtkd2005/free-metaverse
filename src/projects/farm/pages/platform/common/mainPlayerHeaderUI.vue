@@ -42,18 +42,27 @@
             class="h-full bg-green-500"
             :style="'width: ' + GetHealth() + '%'"
           ></div>
-          <div
-            v-if="hover"
-            class="absolute left-0 top-0 w-full text-center text-xs"
-          >
-            {{ this.baseData.health + "/" + this.baseData.maxHealth }}
-          </div>
         </div>
         <div class="h-4 relative">
           <div
             class="h-full bg-blue-500"
             :style="'width: ' + GetEnergy() + '%'"
           ></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="absolute z-10 left-20 top-0 w-36 h-12 mt-8">
+      <div class="relative">
+        <div class="h-4 relative">
+          <div
+            v-if="hover"
+            class="absolute left-0 top-0 z-20 w-full text-center text-xs"
+          >
+            {{ this.baseData.health + "/" + this.baseData.maxHealth }}
+          </div>
+        </div>
+        <div class="h-4 relative">
           <div
             v-if="hover"
             class="absolute left-0 top-0 w-full text-center text-xs"
@@ -74,7 +83,7 @@ export default {
     return {
       display: true,
       // display: false,
-      hover: false,
+      hover: true,
       energy: 100, //能量值
       maxEnergy: 100, //最大能量值
       baseData: {
@@ -93,6 +102,13 @@ export default {
   created() {},
   mounted() {
     setTimeout(() => {
+      _Global.addEventListener("属性改变", (basedata) => {
+        // console.log(" in main header ui ",basedata);
+        this.baseData.health = basedata.health;
+        this.baseData.maxHealth = basedata.maxHealth;
+        this.baseData.level = basedata.level;
+
+      });
       _Global.addEventListener("主角生命值", (h, maxH) => {
         this.baseData.health = h;
         this.baseData.maxHealth = maxH;
@@ -103,6 +119,7 @@ export default {
 
       _Global.addEventListener("主角姓名", (s) => {
         this.baseData.name = s;
+        _Global.playerName = s;
       });
       _Global.addEventListener("主角头像", (s) => {
         // console.log("主角头像", s);
@@ -112,7 +129,7 @@ export default {
       _Global.addEventListener("设置技能进度条", (msg) => {
         // this.$refs.skillProgressUI.SetProgress(msg);
       });
-    }, 5000);
+    }, 2000);
   },
   methods: {
     GetHealth() {

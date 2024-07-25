@@ -14,7 +14,8 @@ class YJPlayerProperty {
 			level: 1,//等级
 			camp: '1000',//阵营
 			health: 0, //当前生命值
-			maxHealth: 0, //当前生命最大值
+			baseHealth: 0, //基础生命值
+			maxHealth: 0, //当前生命最大值。基础生命值+额外生命值
 			addHealth: 0, //额外提升生命最大值
 			state: 'normal', //状态
 			speed: 8, //移动速度
@@ -26,20 +27,26 @@ class YJPlayerProperty {
 		};
 		this.GetBaseData = function () {
 			return baseData;
-		}
-		let equip = {
-
-		}
+		} 
 		let buffList = [];
 		let debuffList = [];
+		function resetBasicProperty(){
+			basicProperty.armor = 0;
+			basicProperty.intelligence = 0;
+			basicProperty.endurance = 0;
+			basicProperty.agile = 6;
+			basicProperty.strength = 7;
+			basicProperty.spirit = 10;
+		}
 		let basicProperty = {
 			armor: 0, //护甲
-			energy: 0, //能量
+			intelligence: 0,//智力 提高法术伤害
+			endurance: 0,//耐力 提高最大生命值
 			agile: 10, //敏捷 提升攻击速度和闪避
 			strength: 20,//力量 提升武器伤害和基础伤害
-			intelligence: 0,//智力 提高法术伤害
 			spirit: 0,//精神 提高恢复率
 
+			energy: 0, //能量
 			
 			speedScale: 1, //急速等级/攻击速度百分比
 
@@ -149,8 +156,29 @@ class YJPlayerProperty {
 			}
 			baseData.buffList = buffList;
 			baseData.debuffList = debuffList;
+			baseData.baseHealth = baseData.maxHealth;
 			// console.log(owner.GetNickName() + " 的属性 ",baseData);
 			owner.applyEvent("属性改变", baseData);
+			owner.addEventListener("更新装备",  (equipList) => {
+				resetBasicProperty();
+				for (let i = 0; i < equipList.length; i++) {
+					const element = equipList[i];
+					if(element.propertyList && element.propertyList.length>0){
+						for (let j = 0; j < element.propertyList.length; j++) {
+							const property = element.propertyList[j]; 
+							basicProperty[property.property] += property.value;
+						}
+					}
+				}
+				//
+				baseData.maxHealth = baseData.baseHealth+basicProperty.endurance*10;
+				if(baseData.health>baseData.maxHealth){
+					baseData.health=baseData.maxHealth;
+				}
+				console.log(" 装备更新属性 ",equipList,baseData);
+				owner.applyEvent("属性改变", baseData);
+			});
+ 
 		}
 		this.changeProperty = function () {
 			owner.applyEvent("属性改变", baseData);

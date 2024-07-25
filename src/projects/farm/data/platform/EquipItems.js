@@ -15,6 +15,9 @@ export default {
     { value: "armor", label: "护甲" },
     { value: "intelligence", label: "智力" }, 
     { value: "endurance", label: "耐力" }, 
+    { value: "agile", label: "敏捷" }, 
+    { value: "strength", label: "力量" }, 
+    { value: "spirit", label: "精神" }, 
   ],
 
   // 装备部位

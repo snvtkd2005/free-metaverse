@@ -15,11 +15,19 @@
           <div class="w-96 h-64" v-show="panelState.skill">
             <skillPanel ref="skillPanel"></skillPanel>
           </div>
+
+          <div class="w-96 h-64" v-show="panelState.receiveTask">
+            <taskPanel
+              ref="taskPanel"
+            ></taskPanel>
+          </div>
+
           <div class="w-96 h-64" v-show="panelState.player">
             <PlayerPropertyPanelVue
               ref="PlayerPropertyPanelVue"
             ></PlayerPropertyPanelVue>
           </div>
+
         </div>
       </div>
       <div class="absolute left-0 top-0 flex w-full h-full">
@@ -31,6 +39,7 @@
       <div v-show="panelState.bag" class="absolute left-0 top-0 w-full h-full">
         <bagPanel ref="bagPanel"></bagPanel>
       </div>
+      
 
       <!-- 战斗记录 -->
       <div class="absolute left-0 top-0 w-full h-full">
@@ -139,6 +148,7 @@ import ActionPanelVue from "../common/wow/ActionPanel.vue";
 import PlayerPropertyPanelVue from "../common/wow/PlayerPropertyPanel.vue";
 import skillPanel from "../common/wow/skillPanel.vue";
 import bagPanel from "../common/wow/bagPanel.vue";
+import taskPanel from "../common/wow/taskPanel.vue";
 
 import { Interface } from "../../../js/Interface_editor";
 import menuPanelVue from "../common/wow/menuPanel.vue";
@@ -158,6 +168,7 @@ export default {
     PlayerPropertyPanelVue,
     skillPanel,
     bagPanel,
+    taskPanel,
     menuPanelVue,
     delDialogPanelVue,
     settingPanelVue,
@@ -179,8 +190,6 @@ export default {
         needExp: 30,
       },
 
-      property: {},
-      propertyList: [],
       displayCard: false,
       panelState: {},
 
@@ -284,51 +293,7 @@ export default {
         // console.log("mousePos ",this.dragPos.x,this.dragPos.y);
       });
 
-      _Global.addEventListener("属性改变", (basedata) => {
-        this.property = basedata;
-
-        this.propertyList = [];
-        this.propertyList.push({
-          title: "生命值",
-          value: basedata.health + "/" + basedata.maxHealth,
-        });
-
-        let basicProperty = basedata.basicProperty;
-
-        this.propertyList.push({ title: "护甲", value: basicProperty.armor });
-
-        this.propertyList.push({
-          title: "暴击率",
-          value: basicProperty.CriticalHitRate,
-        });
-        this.propertyList.push({
-          title: "暴击等级",
-          value: basicProperty.CriticalHitLevel,
-        });
-        this.propertyList.push({
-          title: "攻击速度",
-          value: basicProperty.attackSpeed,
-        });
-        this.propertyList.push({
-          title: "攻击强度",
-          value: basicProperty.attackPower,
-        });
-        this.propertyList.push({
-          title: "移动速度",
-          value: basicProperty.moveSpeed,
-        });
-        this.propertyList.push({
-          title: "急速等级",
-          value: basicProperty.hasteLevel,
-        });
-        this.propertyList.push({
-          title: "急速冷却",
-          value: basicProperty.CDRate,
-        });
-
-        // console.log(" 属性改变 ",this.property);
-      });
-
+  
       _Global.addEventListener("主角生命值", (h, maxH) => {
         this.stats.health = h;
         this.stats.maxHealth = maxH;
@@ -361,6 +326,7 @@ export default {
         this.cancelDrag("摧毁拖拽Prop");
       });
 
+      _Global.panelState.receiveTask = true;
     }, 2000);
 
     // if (_Global.setting.inEditor) {

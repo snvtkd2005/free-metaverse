@@ -23,12 +23,12 @@ class Interface {
   constructor(_this, inEditor) {
 
     _Global.panelState = {
-      player: false,
-      // skill: true,
+      player: false, 
       skill: false,
       bag: false,
       mainmenu: false,
       setting: false,
+      receiveTask:false,//接收任务对话框
     };
     _Global.hoverPart = "";
     //#region 游戏设置记录与还原、动作条记录与还原
@@ -40,6 +40,7 @@ class Interface {
       if (_gs) {
         try {
           _Global.GameSetting = JSON.parse(_gs);
+
         } catch (error) {
 
         }
@@ -303,6 +304,17 @@ class Interface {
       // console.log("_Global.animList = ", _Global.animList);
       // console.log("_Global.propList = ", _Global.propList);
     }
+
+    this.GetPropById = function(id){
+      console.log(_Global.propList);
+      for (let i = 0; i < _Global.propList.length; i++) {
+        const element = _Global.propList[i];
+        if(element.id == id){
+          return element;
+        }
+      }
+    }
+    _Global.GetPropById = this.GetPropById;
 
     // 移除folderBase
     async function RequestRemoveFolderBase(msg) {

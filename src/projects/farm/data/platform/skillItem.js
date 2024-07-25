@@ -19,7 +19,7 @@ export default {
     effect: {
       type: "damage",
       controlId:-1, //控制id 1=冰霜新星
-      value: 30,
+      value: 10,
       time: 1,
       duration: 3,
       describe: "对目标造成100点伤害",

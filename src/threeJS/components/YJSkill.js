@@ -202,7 +202,36 @@ class YJSkill {
                 }
             }
         }
+        this.ChangeBaseSkillByWeapon = function(weaponData){
+            
+            if(baseSkillItem){
+                let strength = 10;
+                let castTime = 2;
 
+                if(weaponData){
+                    castTime = weaponData.attackSpeed;
+                    strength = weaponData.strength;
+                }
+			    var { s, v, a, _ready, _fire } = _Global.CreateOrLoadPlayerAnimData().GetSkillDataByWeapon(weaponData);
+                baseSkillItem.vaildDis = v;
+                baseSkillItem.castTime = a;
+                if (_ready) {
+                    baseSkillItem.skillReadyAudio = _ready.audio;
+                    baseSkillItem.skillReadyParticleId = _ready.particle;
+                }
+                if (_fire) {
+                    baseSkillItem.skillFireAudio = _fire.audio;
+                    baseSkillItem.skillFireParticleId = _fire.particle;
+                }
+                let ready = _Global.CreateOrLoadPlayerAnimData().GetAnimNameByPlayStateAndWeapon("准备战斗", weaponData);
+                let fire = _Global.CreateOrLoadPlayerAnimData().GetAnimNameByPlayStateAndWeapon("普通攻击", weaponData);
+
+                baseSkillItem.animNameReady = ready.animName;
+                baseSkillItem.animName = fire.animName;
+                baseSkillItem.effect.value = strength;
+                
+            }
+        }
         this.CheckSkillInVaildDis = function (pos) {
             if (targetModel == null) {
                 return;
@@ -369,6 +398,10 @@ class YJSkill {
                 owner.CombatLog(fromModel.GetNickName() + " 攻击 " + owner.GetNickName() + " 造成 " + value + " 点伤害 ");
                 owner.CheckMaxDamage(fromModel.id, value);
 
+                if(baseSkillItem){
+                    // 被攻击时，自动反击
+                    baseSkillItem.auto = true;
+                }
             }
 
             owner.CheckHealth(fromModel.GetNickName());
@@ -583,6 +616,7 @@ class YJSkill {
 
             effect.skillName = skillItem.skillName;
             readyskillAudioName = skillName;
+
 
 
             vaildAttackDis = skillItem.vaildDis;

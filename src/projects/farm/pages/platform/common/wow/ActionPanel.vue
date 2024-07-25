@@ -565,6 +565,9 @@ export default {
     },
 
     clickMenu(e) {
+      if(this.panelState.mainmenu){
+        return;
+      }
       if (e == "player") {
         this.panelState.player = !this.panelState.player;
       }

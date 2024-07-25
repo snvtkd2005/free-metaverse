@@ -7,6 +7,15 @@ export default {
     { key: "Minus", keytext: "-" },
     { key: "Equal", keytext: "=" },
   ],
+  // 控制
+  control:{
+    children:[
+      {field:'playerCtrl',title:"控制方式",}, 
+    ],
+    playerCtrl:[
+      {field:'ctrlType',title:"视角控制方式",type:'drop',value:"魔兽世界"},
+    ],
+  },
   // 快捷键
   keyData: {
     children:[

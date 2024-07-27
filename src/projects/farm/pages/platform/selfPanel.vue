@@ -17,7 +17,7 @@
               :class="
                 currentTable == item.content ? ' bg-gray-300' : ' bg-gray-100'
               "
-              @click="currentTable = item.content"
+              @click="clickEvent('切换table',item.content)"
             >
               <div class="self-center mx-auto">{{ item.content }}</div>
             </div>
@@ -407,6 +407,9 @@
         <div v-if="currentTable == '道具'" class="gap-6 w-full mx-auto h-full">
           <propPanel></propPanel>
         </div>
+        <div v-if="currentTable == '任务'" class="gap-6 w-full mx-auto h-full">
+          <taskPanel></taskPanel>
+        </div>
 
       </div>
     </div>
@@ -706,6 +709,7 @@ import PlayerAnimData from "../../data/playerAnimSetting.js";
 
 import skillPanel from "./panels/skillPanel.vue";
 import propPanel from "./panels/propPanel.vue";
+import taskPanel from "./panels/taskPanel.vue";
 
 import { Interface } from "../../js/Interface_editor.js";
 import SceneData from "../../data/sceneData.js";
@@ -733,6 +737,7 @@ export default {
   components: {
     skillPanel,
     propPanel,
+    taskPanel,
   },
   data() {
     return {
@@ -794,12 +799,20 @@ export default {
     this.avatarData = PlayerAnimData;
     this.tableList = this.UIData.customPanel.tableList;
     this.templateList = this.UIData.customPanel.templateList;
-    this.currentTable = this.UIData.customPanel.currentTable;
+
+    let cu = localStorage.getItem("currentTable");
+    if(cu){
+      this.currentTable = cu;
+    }else{
+      this.currentTable =  this.UIData.customPanel.currentTable;
+    }
+
     this.title = this.UIData.customPanel.title;
     this.customPanel = this.UIData.customPanel;
     this.base = this.UIData.base;
 
     this.modelTable = this.UIData.customPanel.allModelType;
+
 
     // this.modelsList = ModelListData.modelsList;
   },
@@ -817,6 +830,12 @@ export default {
     this.RequestGetAllUVAnim();
   },
   methods: {
+    clickEvent(e,v){
+      if(e=='切换table'){
+        this.currentTable = v;
+        localStorage.setItem("currentTable", this.currentTable );
+      }
+    },
     onblurInputTag() {
       console.log(this.addTagStr);
       if (this.addTagStr != "") {

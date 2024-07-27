@@ -101,9 +101,7 @@ export default {
       this.baseData.health = h;
       this.baseData.maxHealth = maxH;
     });
-    _Global.addEventListener("升级", (level) => {
-      this.baseData.level = level;
-    });
+    
     _Global.addEventListener("主角姓名", (s) => {
       this.baseData.name = s;
     });

@@ -420,6 +420,7 @@ class YJNPC {
     this.RadomNavPos = function () {
 
 
+      if (_Global.setting.inEditor){return;}
       // console.log(GetNickName()+ " 巡逻点 00 ",data.inAreaRandom,movePos);
       if (data.inAreaRandom) {
         let startPos = parent.position.clone();
@@ -467,6 +468,9 @@ class YJNPC {
     }
     // 寻路网格准备完成调用 或 直接调用开始巡逻
     this.PathfindingCompleted = function () {
+      
+      if (_Global.setting.inEditor){return;}
+
       if (data.movePos && data.movePos.length > 1) {
         this.UpdateNavPos("停止巡逻", data.movePos);
       }else{

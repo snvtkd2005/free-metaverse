@@ -6,7 +6,7 @@
     <div class=" cursor-pointer " @click="refesh()">
       刷新
     </div>
-    <!-- 技能面板 -->
+    <!-- 道具面板 -->
     <div class="mt-2 overflow-y-scroll h-96 flex flex-wrap  ">
       <div v-for="(item, i) in propList" :key="i" class=" w-20 h-24  text-base  cursor-pointer  "  @click="ClickUVAnim(item)">
         <div class=" w-12 h-12 self-center mx-auto">

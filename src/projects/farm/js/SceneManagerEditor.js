@@ -400,6 +400,23 @@ class SceneManager {
 
           }
         }
+        if (msg.pointType == "geometry") {
+          if (!b) { return; }
+          let data = msg.data;
+          if(data.isTrigger){
+            let {title,content } = data.event;
+            if(title =="openTask"){
+              //碰到任务触发器
+              _Global.applyEvent("openTask",content);
+              owner.SetActive(false);
+            }
+            if(title =="jump"){
+              //
+            }
+          }
+
+
+        }
         // console.log(" in overlap yjtransform ", msg);
 
       }

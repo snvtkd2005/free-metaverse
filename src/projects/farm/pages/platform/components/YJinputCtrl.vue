@@ -289,8 +289,102 @@
             />
             <div class=" border text-white w-8 h-full self-center cursor-pointer text-center " @click="item.value.push({property:item2.property,value:item2.value})">+</div>
             <div class=" border text-white w-8 h-full self-center cursor-pointer text-center " @click="item.value.splice(j,1)">-</div>
-          </div>
+          </div> 
+        </div>
 
+        <!-- 任务目标 -->
+        <div v-if="item.type == 'taskArrayVariable'" class=" gap-2 text-black">
+          <div
+            v-for="(item2, j) in item.value"
+            :key="j"
+            class="self-center w-auto h-auto relative gap-x-3 flex "
+          > 
+            <YJinput_drop
+              class="w-full h-full"
+              :value="item2.type"
+              :options="item.options"
+              :index="j"
+              :callback="(j,e)=>{item.value[j].type=e;item.callback(i,item.value);}"
+            />
+              <YJinput_text
+              class="w-20 h-4"
+              :value="item2.name"
+              :index="j"
+              :callback="(j,e)=>{item.value[j].name=e;item.callback(i,item.value);}"
+            />
+            <div class=" w-32">
+              <YJinput_number
+                :value="item2.need"
+                type="int"
+                :step="item.step"
+                :index="j"
+                :callback="(j,e)=>{item.value[j].need=e;item.callback(i,item.value);}"
+              />
+            </div>
+            <div class=" border text-black w-8 h-full self-center cursor-pointer text-center " @click="item.value.push({type:item2.type,need:item2.need})">+</div>
+            <div class=" border text-black w-8 h-full self-center cursor-pointer text-center " @click="item.value.splice(j,1)">-</div>
+          </div> 
+        </div>
+        
+        <!-- 道具奖励 -->
+        <div v-if="item.type == 'rewardArrayVariable'" class=" gap-2 text-black">
+          <div
+            v-for="(item2, j) in item.value"
+            :key="j"
+            class="self-center w-auto h-auto relative gap-x-3 flex "
+          > 
+            <YJinput_drop
+              class="w-full h-full"
+              :value="item2.type"
+              :options="item.options"
+              :index="j"
+              :callback="(j,e)=>{item.value[j].type=e;item.callback(i,item.value);}"
+            />
+            
+            <div class="w-auto h-6 rounded-sm flex">
+              <div
+                class="text-xs pl-1 self-center mx-auto w-10 h-6 leading-6 bg-gray-50 rounded-sm text-black cursor-pointer"
+                @click="SelectItem2('选择装备或道具',item2.type,j)"
+              >
+                浏览...
+              </div>
+            </div>
+            <div v-if="item2.skill"
+                  class="w-full h-full relative flex">
+              <div>
+                    <img
+                      v-if="item2.skill.icon"
+                      class="w-9 h-9 rounded-md"
+                      :src="
+                        item2.skill.icon.includes('http') ||
+                        item2.skill.icon.includes('./public')
+                          ? item2.skill.icon
+                          : this.$uploadUVAnimUrl + item2.skill.icon
+                      "
+                      alt=""
+                    />
+                  </div>
+
+                  <div
+                    class="h-9 w-24 text-sm border text-left flex rounded-md p-1 leading-3 overflow-hidden"
+                  >
+                    <div class="self-center">
+                      {{ item2.skill.name }}
+                    </div>
+                  </div>
+            </div> 
+            <div v-if="item2.type=='prop'" class=" w-32">
+              <YJinput_number
+                :value="item2.count"
+                type="int"
+                :step="item.step"
+                :index="j"
+                :callback="(j,e)=>{item.value[j].count=e;item.callback(i,item.value);}"
+              />
+            </div>
+            <div class=" border text-black w-8 h-full self-center cursor-pointer text-center " @click="item.value.push({type:item2.type,need:item2.need})">+</div>
+            <div class=" border text-black w-8 h-full self-center cursor-pointer text-center " @click="item.value.splice(j,1)">-</div>
+          </div> 
         </div>
 
         <div v-if="item.type == 'int'" class="flex gap-2 text-black">
@@ -550,12 +644,37 @@
       </div>
     </div>
 
+
+    <div
+      class="mt-2 overflow-y-scroll h-96 flex flex-wrap"
+      v-if="selectTitle == '选择道具'"
+    >
+      <div
+        v-for="(item, i) in propList"
+        :key="i"
+        class="v self-center w-40 h-auto relative"
+      >
+        <div
+          class="w-16 h-16 self-center mx-auto mt-2 cursor-pointer"
+          @click="ClickItem(selectTitle, i)"
+        >
+          <img
+            class="w-full h-full object-fill hover:opacity-70"
+            :src="$uploadUVAnimUrl + item.icon"
+          />
+          <div>{{ item.name }}</div>
+        </div>
+      </div>
+    </div>
+    
+
     <div
       class="mt-2 overflow-y-scroll h-96 flex flex-wrap"
       v-if="
         selectTitle == '选择武器' ||
         selectTitle == '选择装备' ||
         selectTitle == '静态模型' ||
+        selectTitle == '选择equip' ||
         selectTitle == '选择avatar'
       "
     >
@@ -627,6 +746,7 @@ export default {
       settingIndex: -1,
       audioList: [],
       modelList: [],
+      propList:[],
       selectTitle: "",
       isOpen: false,
     };
@@ -690,7 +810,20 @@ export default {
         this.ClickUVAnim("");
         return;
       }
-
+      this.RequestGetAllHDR(this.selectTitle);
+      
+      this.isOpen = true;
+    },
+    SelectItem2(e,type,j){
+      this.selectSecondIndex = j;
+      if (e == "选择装备或道具") {
+        if(type=='equip'){
+          this.selectTitle = "选择equip";
+        }
+        if(type=='prop'){
+          this.selectTitle = "选择道具";
+        } 
+      }
       this.RequestGetAllHDR(this.selectTitle);
       this.isOpen = true;
     },
@@ -726,6 +859,14 @@ export default {
         return;
       }
 
+      if (e == "选择道具") {
+        this.$parent.$parent.$parent.$parent.selectEquip('prop',this.propList[i],this.selectSecondIndex); 
+      }
+      if (e == "选择equip") {
+        this.$parent.$parent.$parent.$parent.selectEquip('equip',this.modelList[i],this.selectSecondIndex); 
+      }
+      
+      this.selectSecondIndex = -1;
       this.settingIndex = -1;
       this.isOpen = false;
     },
@@ -833,8 +974,9 @@ export default {
         return;
       }
 
-      if (type == "选择武器" || type == "选择装备" || type == "选择avatar" || true) {
+      if (type == "选择武器" || type == "选择装备" || type == "选择avatar" || type == "选择equip" || true) {
         let selectModelTable = this.selectTitle;
+        let selectModelTable2 = "";
         if (type == "选择avatar") {
           selectModelTable = "角色模型";
         }
@@ -845,9 +987,14 @@ export default {
         if (type == "选择武器") {
           selectModelTable = "武器模型";
         }
+
+        if (type == "选择equip") {
+          selectModelTable = "装备模型";
+          selectModelTable2 = "武器模型";
+        }
+        // console.log(" 浏览筛选 ", selectModelTable,selectModelTable2);
         this.modelList = [];
         GetAllModel().then((res) => {
-          console.log("获取所有单品模型 ", res);
           //先记录旧照片
           if (res.data.txtDataList) {
             let txtDataList = res.data.txtDataList;
@@ -862,16 +1009,22 @@ export default {
                 modelsList.push(JSON.parse(element));
               }
             }
+            // console.log("获取所有单品模型 ", modelsList);
 
             for (let i = 0; i < modelsList.length; i++) {
               let item = modelsList[i];
-              if (item.modelType == selectModelTable) {
+              if (item.modelType == selectModelTable || (selectModelTable2!="" && item.modelType == selectModelTable2)) {
                 item.icon = item.folderBase + "/" + "thumb.png";
                 this.modelList.push(item);
               }
             }
           }
         });
+      }
+      
+      if (type == "选择道具") {
+        this.propList = _Global.propList;
+        return;
       }
     },
     focus() {

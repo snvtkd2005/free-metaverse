@@ -41,12 +41,14 @@ export default {
     rewardIds:[],//奖励id
    */
   needExpByLevels:[
-    // {level:1,exp:90,rewardType:"skill",},
-    // {level:2,exp:180,rewardType:"skill",},
-    // {level:3,exp:260,rewardType:"skill",},
     {level:1,exp:30,rewardType:"skill",},
     {level:2,exp:30,rewardType:"skill",},
     {level:3,exp:30,rewardType:"skill",},
+
+    // {level:1,exp:100,rewardType:"skill",},
+    // {level:2,exp:130,rewardType:"skill",},
+    // {level:3,exp:140,rewardType:"skill",},
+
     // {level:1,exp:100,rewardType:"items",},
     // {level:2,exp:150,rewardType:"items",},
     // {level:3,exp:200,rewardType:"skill",},

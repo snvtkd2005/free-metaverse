@@ -317,10 +317,9 @@ class YJDMManager_GameBase {
         }
         GetEnemyTarget();
       }, 2000);
+      _GameRecord = new GameRecord();
       let _YJGame_mainCtrl = new YJGame_mainCtrl();
 
-
-      
       let npcs = _Global._YJNPCManager.GetNoSameCampNPCInFire(1000);
       for (let i = 0; i < npcs.length; i++) {
         const npc = npcs[i];
@@ -332,6 +331,8 @@ class YJDMManager_GameBase {
           } 
           // 从一场战斗中移除npc
           _Global.DyncManager.RemoveNPCFireId(id,fireId);
+          _Global.applyEvent("杀死npc",npc.GetNickName());
+
         });
       }
       _GenerateEnemyNPC = new GenerateEnemyNPC((npcComponent) => {
@@ -353,6 +354,7 @@ class YJDMManager_GameBase {
         // 从一场战斗中移除npc
         _Global.DyncManager.RemoveNPCFireId(id,fireId);
         enemyCount--;
+        _Global.applyEvent("杀死npc",npc.GetNickName());
         // console.log(" 敌人数量 "+enemyCount);
       });
 
@@ -368,12 +370,11 @@ class YJDMManager_GameBase {
       _Global._YJPlayerFireCtrl.GetEquip().initWeapon({ assetId: 1692787200597 }, () => {
         _Global._YJPlayerFireCtrl.SetPlayerState("normal");
         //增加射击技能，触发攻击
-        _Global._YJPlayerFireCtrl.GetEquip().addEquip({ assetId: 1709558796473 });
-        _Global._YJPlayerFireCtrl.GetEquip().addEquip({ assetId: 1709594878614 });
+        // _Global._YJPlayerFireCtrl.GetEquip().addEquip({ assetId: 1709558796473 });
+        // _Global._YJPlayerFireCtrl.GetEquip().addEquip({ assetId: 1709594878614 });
       });
       _Global._YJPlayerFireCtrl.SetState('canMoveAttack', true);
   
-      _GameRecord = new GameRecord();
 
       // _Global.LogFireById(1711340121297)
 

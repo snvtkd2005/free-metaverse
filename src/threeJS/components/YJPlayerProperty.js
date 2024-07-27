@@ -175,7 +175,7 @@ class YJPlayerProperty {
 				if(baseData.health>baseData.maxHealth){
 					baseData.health=baseData.maxHealth;
 				}
-				console.log(" 装备更新属性 ",equipList,baseData);
+				// console.log(" 装备更新属性 ",equipList,baseData);
 				owner.applyEvent("属性改变", baseData);
 			});
  
@@ -199,6 +199,9 @@ class YJPlayerProperty {
 			if (property == "CDRate") { 
 				owner.GetSkill().SetSkillCDRate(basicProperty[property]);
 			} 
+			if(baseData.health>baseData.maxHealth){
+				baseData.health=baseData.maxHealth;
+			}
 			
 			owner.applyEvent("属性改变", baseData);
 		}

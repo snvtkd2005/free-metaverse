@@ -126,7 +126,10 @@ export default {
           title: "事件类型",
           type: "drop",
           value: "none",
-          options: [{ value: "jump", label: "跳转新链接" }],
+          options: [
+            { value: "jump", label: "跳转新链接" },
+            { value: "openTask", label: "触发任务" },
+          ],
           callback: this.ChangeValue,
         },
         {
@@ -190,6 +193,26 @@ export default {
         "display",
         isTrigger || isProjection
       );
+
+      let eventTitle = this.Utils.GetSettingItemValueByProperty(
+        this.setting,
+        "event-title"
+      );
+      
+      this.Utils.SetSettingItemPropertyValueByProperty(
+        this.setting,
+        "event-content",
+        "display",
+        eventTitle != 'none'
+      );
+
+      if(eventTitle == 'jump'){
+        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "event-content","title", "网址");
+      }
+      if(eventTitle == 'openTask'){
+        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "event-content","title", "任务id");
+      }
+
     },
     ChangeValue(i, e) {
       this.setting[i].value = e;

@@ -44,6 +44,8 @@ class YJGeometry {
         default:
           break;
       }
+
+
       mesh = new THREE.Mesh(geo, material);
       mesh.visible = false;
       parent.add(mesh);
@@ -64,6 +66,14 @@ class YJGeometry {
       if (data.isTrigger) {
         // mesh.name = "trigger";
         // mesh.modelType = "trigger";
+        if(_Global.setting.inEditor){
+          mesh.material = new THREE.MeshBasicMaterial({
+            alphaTest: false,
+            transparent: true,
+            opacity: 0.5,
+            color: 0x0000ff, 
+          });
+        }
         _this._YJSceneManager.CreateTriangeMeshTrigger(mesh, size,
           data.tiggerTag, "triggerArea", owner);
       }
@@ -86,8 +96,8 @@ class YJGeometry {
             pos: owner.GetWorldPos()
           });
       }
-      if (!_Global.setting.inEditor) {
-        mesh.visible = false;
+      if (_Global.setting.inEditor) {
+        mesh.visible = true;
       }
       if (data.isMesh) {
         mesh.visible = true;
@@ -104,7 +114,11 @@ class YJGeometry {
       // return;
 
     }
-
+    
+    this.DestroyTrigger = function () {
+      this.Destroy(); 
+    }
+    
     //删除模型
     this.Destroy = function () {
       if (createLater != null) {

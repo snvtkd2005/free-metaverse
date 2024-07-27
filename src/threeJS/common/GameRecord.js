@@ -45,7 +45,11 @@ class GameRecord {
 
       });
       
-
+      _Global.addEventListener("加经验", (v) => {
+        currentExp += v;
+        checkKillCount();
+        _Global.applyEvent("获取道具记录","经验值",v);
+      });
     }
     function initTeamStats() {
       record = {
@@ -61,6 +65,7 @@ class GameRecord {
       currentExp += 30;
       checkKillCount();
     }
+    
     this.resetKill = function () {
       record.kill = 0;
       currentKill = 0;
@@ -92,15 +97,20 @@ class GameRecord {
 
       if (currentExp >= needExpByLevel.exp) {
         level++;
-        currentExp = 0;
+        currentExp = currentExp-needExpByLevel.exp;
         if (level >= needExpByLevels.length) {
           level = needExpByLevels.length;
         }
         needExpByLevel = needExpByLevels[level - 1];
+        _Global._YJPlayerFireCtrl.GetProperty().updateBasedata({value:1,property:"level"});
+        checkKillCount();
         _Global.applyEvent('升级', level);
+        _Global._YJAudioManager.playAudio('1710913742348/levelup.ogg');
 
+        return;
       }
       _Global.applyEvent('经验值', currentExp, needExpByLevel.exp); 
+
 
     }
 

@@ -130,34 +130,46 @@ export default {
 
       let list = _Global.propList;
 
-
       console.log(" 所有道具物品 ", list);
       //随机取出3张卡片
       for (let i = 0; i < list.length; i++) {
         const item = list[i];
-        // if (item.id == "1720684572588") {
-        //   item.canDrag = true;
-        //   this.itemList[0].skill = item;
-        // }
-
         item.canDrag = true;
         if (item.countType && item.countType == "group") {
           item.count = 20;
         }
         this.itemList[i].skill = item;
       }
-
-      for (let i = 0; i < this.itemList.length; i++) {
-        const element = this.itemList[i];
-        if(element.skill==null){
-          _Global.LoadEquipById("1709603486019",(equip)=>{
+      _Global.LoadEquipById("1709603486019", (equip) => {
+        for (let i = 0; i < this.itemList.length; i++) {
+          const element = this.itemList[i];
+          if (element.skill == null) {
             element.skill = equip;
-          });
-          return;
+            return;
+          }
         }
-      }
+      });
 
+      _Global.addEventListener("加金币", (v) => {
+        _Global._YJPlayerFireCtrl.GetProperty().updateBasedata({ value: v, property: "gold" });
+        _Global.applyEvent("获取道具记录","金币",v);
+      });
 
+      _Global.addEventListener("加道具", (rewardItems) => {
+        for (let i = 0; i < rewardItems.length; i++) {
+          const skill = rewardItems[i].skill;
+          let has = false;
+          for (let j = 0; j < this.itemList.length && !has; j++) {
+            const element = this.itemList[j];
+            if (element.skill == null) {
+              element.skill = skill;
+              has = true; 
+            }
+          }
+          _Global.applyEvent("获取道具记录","道具",skill.name);
+
+        }
+      });
     }, 5000);
   },
 
@@ -172,24 +184,22 @@ export default {
       if (e == "从背包拖拽到动作条") {
         this.checkDragFromIndex();
         this.itemList[this.dragFromIndex].inDraging = false;
-      } 
+      }
 
       if (e == "取消拖拽Prop") {
-          this.checkDragFromIndex();
-          this.itemList[this.dragFromIndex].inDraging = false;
-      } 
-      
-      if (e == "摧毁拖拽Prop") {
-          this.checkDragFromIndex();
-          _Global.applyEvent(
-            "摧毁Prop并在动作条中停用prop",
-            this.itemList[this.dragFromIndex].skill.id
-          );
-          this.itemList[this.dragFromIndex].skill = null;
-          this.itemList[this.dragFromIndex].inDraging = false;
-      } 
-      
+        this.checkDragFromIndex();
+        this.itemList[this.dragFromIndex].inDraging = false;
+      }
 
+      if (e == "摧毁拖拽Prop") {
+        this.checkDragFromIndex();
+        _Global.applyEvent(
+          "摧毁Prop并在动作条中停用prop",
+          this.itemList[this.dragFromIndex].skill.id
+        );
+        this.itemList[this.dragFromIndex].skill = null;
+        this.itemList[this.dragFromIndex].inDraging = false;
+      }
     },
 
     clickEvent(e) {

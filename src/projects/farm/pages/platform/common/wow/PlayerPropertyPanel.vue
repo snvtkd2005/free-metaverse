@@ -465,8 +465,7 @@ export default {
 
         // console.log(" 属性改变 ",this.property);
       });
-
-      _Global.addEventListener("升级", (level) => {});
+ 
 
       _Global.addEventListener("主角头像", (s) => {
         // console.log("主角头像", s);

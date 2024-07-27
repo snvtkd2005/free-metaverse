@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full h-full relative pointer-events-none">
+  <div class="w-full h-full relative pointer-events-auto">
     <div class="absolute left-0 top-20 md:top-20 flex">
       <div class="relative transform md:scale-100 mx-auto flex">
         <div class="absolute left-0 top-0 w-full h-full -z-10">
@@ -14,9 +14,11 @@
           </div>
         </div>
 
-        <div class="absolute left-0 top-0 w-full h-full z-10">
+        <div
+          class="absolute left-0 top-0 w-full h-full z-10 pointer-events-none"
+        >
           <div
-            class="absolute left-0 bottom-16 w-full px-5 flex justify-between text-yellow-wow"
+            class="absolute left-0 bottom-16 w-full px-5 flex justify-between text-yellow-wow pointer-events-auto"
           >
             <div class="relative ml-1 w-20 h-8">
               <img class="w-full h-full" :src="redBtnUrl" alt="" />
@@ -38,7 +40,7 @@
             </div>
           </div>
         </div>
-        <div class="mx-auto flex">
+        <div class="mx-auto flex pointer-events-none">
           <div class="flex flex-col">
             <div class="flex">
               <div
@@ -86,42 +88,57 @@
             </div>
             <div class="text-sm mb-2">{{ taskData.describe }}</div>
             <div class="font-bold text-black">任务目标</div>
-            <div class="text-sm mb-2">{{ taskData.target }}</div>
+            <div class="text-sm mb-2">{{ taskData.targetDescribe }}</div>
             <div class="font-bold text-black">奖励</div>
 
             <div
-              v-if="taskData.rewardItem && taskData.rewardItem.length > 0"
+              v-if="taskData.rewardItems && taskData.rewardItems.length > 0"
               class="text-sm"
             >
               你将得到：
             </div>
             <div class="mb-1 grid gap-y-1 grid-cols-2">
               <div
-                v-for="(item, i) in taskData.rewardItem"
+                v-for="(item, i) in taskData.rewardItems"
                 :key="i"
-                class="flex"
+                class="pointer-events-auto"
+                @mouseover="LookSkill($event, item)"
+                @mouseleave="outHover()"
               >
-                <div>
-                  <img
-                    v-if="item.icon"
-                    class="w-9 h-9 rounded-md pointer-events-none"
-                    :src="
-                      item.icon.includes('http') ||
-                      item.icon.includes('./public')
-                        ? item.icon
-                        : this.$uploadUVAnimUrl + item.icon
-                    "
-                    alt=""
-                  />
-                </div>
-
                 <div
-                  class="h-9 w-24 text-sm border text-left flex rounded-md  p-1  leading-3 overflow-hidden"
-                > 
-                <div class=" self-center ">
-                  {{ item.name }}
+                  v-if="item.skill != null"
+                  class="w-full h-full relative flex"
+                >
+                  <div class=" relative">
+                    <img
+                      v-if="item.skill.icon"
+                      class="w-9 h-9 rounded-md"
+                      :src="
+                        item.skill.icon.includes('http') ||
+                        item.skill.icon.includes('./public')
+                          ? item.skill.icon
+                          : this.$uploadUVAnimUrl + item.skill.icon
+                      "
+                      alt=""
+                    />
 
-                </div>
+                    <div
+                    v-if="item.count"
+                    class="absolute -right-0 -bottom-0 w-4 h-4 text-white rounded-full text-xs leading-4 p-px"
+                  >
+                    {{ item.count }}
+                  </div>
+
+                  </div>
+
+                  <div
+                    class="h-9 w-24 text-sm border text-left flex rounded-md p-1 leading-3 overflow-hidden"
+                  >
+                    <div class="self-center">
+                      {{ item.skill.name }}
+                    </div>
+                  </div>
+
                 </div>
               </div>
             </div>
@@ -149,35 +166,7 @@ export default {
   components: {},
   data() {
     return {
-      taskData: {
-        from: "神秘人",
-        taskTitle: "净化",
-        describe: "危机四伏，小心点，${name}。燃烧军团的爪牙无穷无尽，请增援我们",
-        target: "消灭10个食尸鬼和10个憎恶",
-        rewardItem: [
-          {
-            type: "equip",
-            id: "1709558796473",
-            icon: "./public/images/cursorList/paperdoll/ui-paperdoll-slot-rfinger.png",
-            name: "戒指",
-          },
-          {
-            type: "equip",
-            id: "1709594878614",
-            icon: "./public/images/cursorList/paperdoll/ui-paperdoll-slot-rfinger.png",
-            name: "戒指",
-          },
-          {
-            type: "prop",
-            id: "1720702607945",
-            icon: "./public/images/cursorList/paperdoll/ui-paperdoll-slot-rfinger.png",
-            name: "药水",
-            count: 5,
-          },
-        ],
-        rewardGold: 10,
-        rewardExp: 100,
-      },
+      taskData: {},
       goldUrl: "./public/images/cursorList/containerframe/ui-goldicon.png",
 
       closeUrl:
@@ -186,26 +175,61 @@ export default {
         "./public/images/cursorList/mainmenu/ui-dialogbox-button-up.png",
       leftIcon: "./public/images/cursorList/ui-targetingframe-skull.png",
       hoverPart: "",
+
     };
   },
   created() {},
   mounted() {
-
     // return;
+
     setTimeout(() => {
-      this.resetTaskData(this.taskData);
-    }, 5000);
+      // _Global.addEventListener(
+      // "主角姓名",
+      // () => {
+      //   setTimeout(() => {
+      //     this.resetTaskData(this.taskData);
+      //   }, 100);
+      // });
+
+      _Global.addEventListener("openTask",(id) => {
+         for (let i = 0; i < _Global.taskList.length; i++) {
+           const element = _Global.taskList[i];
+           if(element.id == id){
+             this.resetTaskData(element);
+           }
+         }
+      });
+
+    }, 1000);
   },
 
   methods: {
+
     resetTaskData(taskData) {
+
+      console.log("触发任务 ",taskData);
+      this.taskData = taskData;
       taskData.describe = taskData.describe.replace(
         "${name}",
         _Global.playerName ? _Global.playerName : "哈哈"
       );
-      if (taskData.rewardItem && taskData.rewardItem.length > 0) {
-        for (let i = 0; i < taskData.rewardItem.length; i++) {
-          const element = taskData.rewardItem[i];
+      if (taskData.targetList && taskData.targetList.length > 0) {
+      
+      for (let j = 0; j < taskData.targetList.length; j++) {
+            const target = taskData.targetList[j];
+            target.completed = false;
+            if(target.type=='kill'){
+              target.num = 0;
+            }
+        }
+      }
+      if (taskData.rewardItems && taskData.rewardItems.length > 0) {
+        
+        for (let i = 0; i < taskData.rewardItems.length; i++) {
+          const element = taskData.rewardItems[i];
+
+
+
           if (element.type == "equip") {
             let path =
               _Global.YJ3D.$uploadUrl +
@@ -215,26 +239,46 @@ export default {
               "?time=" +
               new Date().getTime();
             _Global.YJ3D._YJSceneManager.LoadAssset(path, (data) => {
-              element.name = data.name;
-              element.icon =
-                _Global.YJ3D.$uploadUrl + data.folderBase + "/" + data.icon;
+              let equip = {
+                type: "equip",
+                // 唯一id
+                folderBase: data.folderBase,
+                icon: _Global.url.uploadUrl + data.folderBase + "/" + data.icon,
+                // 装备名称
+                name: data.name,
+                // 品质
+                qualityType: data.message.data.qualityType,
+                // 部位，唯一
+                part: data.message.data.partType,
+                // 武器或装备
+                pointType: data.message.pointType,
+                // 附加属性
+                propertyList: data.message.data.propertyList,
+              };
+              element.skill = equip;
+              // console.log(" in task panel 加载装备  ", equip, element);
             });
           }
           if (element.type == "prop") {
+
             let data = _Global.GetPropById(element.id);
-            console.log("获取道具 ", data);
-            element.name = data.name;
-            element.icon = _Global.url.uploadUVAnimUrl + data.icon;
+              // console.log(" in task panel 加载 道具  ", data);
+            element.skill = data;
+            element.skill.count = element.count;
           }
         }
       }
+
+      this.$nextTick(()=>{
+        _Global.applyEvent("界面开关", "receiveTask", true);
+      });
+
     },
     LookSkill(ev, item) {
       // console.log(e);
-      this.hoverPart = item.hoverPart;
-      _Global.hoverPart = item.hoverPart;
+      this.hoverPart = item.hoverPart; 
       let parent = ev.target;
-      this.$parent.LookSkill(parent, item);
+      this.$parent.LookSkill(parent, item.skill);
     },
     outHover() {
       this.hoverPart = "";
@@ -242,56 +286,18 @@ export default {
     },
     clickEvent(e) {
       if (e == "关闭窗口") {
+        // _Global.applyEvent("界面开关", "receiveTask", false);
+      }
+      if (e == "接受") {
+        //接受任务
         _Global.applyEvent("界面开关", "receiveTask", false);
+        this.$parent.$refs.taskListPanel.addTask(this.taskData);
+        _Global._YJAudioManager.playAudio('1722064234835/iquestactivate.ogg');
+       
+
       }
     },
-    clickSkill(ev, item) {},
   },
 };
 </script>
-
-<style scoped>
-.scalex {
-  transform: translateX(-32px) scaleX(-1);
-}
-
-.skill-img {
-  -webkit-filter: grayscale(100%);
-  -moz-filter: grayscale(100%);
-  -ms-filter: grayscale(100%);
-  -o-filter: grayscale(100%);
-  filter: grayscale(100%);
-  filter: gray;
-  opacity: 0.99;
-}
-
-.centerBg {
-  width: 256px;
-  height: 64px;
-  /* background-size: cover;  */
-  /* background-repeat: no-repeat;  */
-  /* background-position: center;   */
-  background-position: 0% 0;
-  /* background-position: 0px 64px; */
-  /* background-image: url(./public/images/cursorList/ui-mainmenubar-human.png); */
-}
-.dmtip {
-  --tw-bg-opacity: 0.51;
-  background-color: rgba(107, 114, 128, var(--tw-bg-opacity));
-}
-.brightness-50 {
-  filter: brightness(0.5);
-}
-.chatContent {
-  /* vue中如何将双击选中文字的默认事件取消 */
-  -moz-user-select: text;
-  /*火狐*/
-  -webkit-user-select: text;
-  /*webkit浏览器*/
-  -ms-user-select: text;
-  /*IE10*/
-  -khtml-user-select: text;
-  /*早期浏览器*/
-  user-select: text;
-}
-</style>
+ 

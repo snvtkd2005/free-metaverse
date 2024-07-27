@@ -38,7 +38,7 @@
     <div
       class="absolute left-0 top-0 w-full h-full flex "
     >
-    <div class=" absolute right-40 top-40  gap-4 w-auto flex flex-row-reverse  px-2 mx-auto ">
+    <div class=" absolute right-48 top-40  gap-4 w-auto flex flex-row-reverse  px-2 mx-auto ">
       <div
         v-for="(item, i) in debuffList"
         :key="i"

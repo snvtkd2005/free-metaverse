@@ -43,6 +43,7 @@ export default {
       { content: "通用音效" },
       { content: "技能" },
       { content: "道具" },
+      { content: "任务" },
     ],
     templateList: [
       {

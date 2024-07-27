@@ -24,6 +24,8 @@ export default {
   data() {
     return {
       combatLog: [],
+      contentList: [],
+      later: null,
     };
   },
   created() {},
@@ -37,19 +39,46 @@ export default {
         _Global.addEventListener("战斗开始", () => {
           this.combatLog = [];
         });
+
+        _Global.addEventListener("获取道具记录", (type, v) => {
+          let content = "";
+
+          if (type == "金币") {
+            content = "你获得了 " + v + " 金币";
+          }
+          if (type == "道具") {
+            content = "你获得了 " + v + " ";
+          }
+          if (type == "经验值") {
+            content = "你获得了 " + v + " 经验值 ";
+          }
+          if (type == "技能点") {
+            content = "你获得了 " + 1 + "点 技能点 ";
+          }
+          this.log(content);
+        });
       }, 5000);
     }, 3000);
+
+    setInterval(() => {
+      if (this.combatLog.length > 10) {
+        this.combatLog.splice(0, 1);
+      }
+    }, 100);
   },
   methods: {
     log(content) {
       this.combatLog.push(content);
 
-      setTimeout(() => {
+      if (this.later != null) {
+        clearTimeout(this.later);
+        this.later = null;
+      }
+      this.later = setTimeout(() => {
         this.$refs.combatLog.scrollTop = this.$refs.combatLog.scrollHeight;
-      }, 20);
-    }, 
-    DMlog(text, type) { 
+      }, 100);
     },
+    DMlog(text, type) {},
   },
 };
 </script>

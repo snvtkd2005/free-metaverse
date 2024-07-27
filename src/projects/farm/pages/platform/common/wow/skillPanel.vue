@@ -162,6 +162,7 @@ export default {
     setTimeout(() => {
       _Global.addEventListener("升级", (level) => {
         this.skillPoint += 1;
+        _Global.applyEvent("获取道具记录","技能点");
       });
 
       let skills = _Global.skillList;
@@ -190,6 +191,7 @@ export default {
         ev.preventDefault();
       }
       _Global.inDragAction = true;
+      item.isDeleled = false;
       this.$parent.dragStart(item);
     },
     canUpSkill(item) {

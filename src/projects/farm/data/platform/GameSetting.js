@@ -35,7 +35,8 @@ export default {
     panel:[
       {field:'player',title:"打开/关闭角色界面",key:"KeyC"},
       {field:'skill',title:"打开/关闭法术书界面",key:"KeyN"},
-      {field:'bag',title:"打开/关闭行囊",key:"KeyB"},
+      {field:'taskList',title:"打开/关闭任务日志",key:"KeyL"},
+      {field:'bagBase',title:"打开/关闭行囊",key:"KeyB"},
       {field:'mainmenu',title:"打开/关闭游戏菜单",key:"Escape"},
     ],
     // 动作条1 的索引位置对应的键值

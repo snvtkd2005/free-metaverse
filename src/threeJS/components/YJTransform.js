@@ -210,6 +210,10 @@ class YJTransform {
         let com = this.GetComponent("Interactive");
         com.DestroyTrigger();
       }
+      if (message.pointType == "geometry") {
+        let com = this.GetComponent("Geometry");
+        com.DestroyTrigger();
+      }
       if (this.GetComponent("Trail")) {
         this.GetComponent("Trail").start();
       }
@@ -224,6 +228,10 @@ class YJTransform {
       }
       if (message.pointType == "interactive") {
         let com = this.GetComponent("Interactive");
+        com.DestroyTrigger();
+      }
+      if (message.pointType == "geometry") {
+        let com = this.GetComponent("Geometry");
         com.DestroyTrigger();
       }
       if (this.GetComponent("Trail")) {
@@ -264,6 +272,10 @@ class YJTransform {
           let com = this.GetComponent("Interactive");
           com.Reset();
         }
+        if (message.pointType == "geometry") {
+          let com = this.GetComponent("Geometry");
+          com.Reset();
+        }
         if (this.GetComponent("Trail")) {
           this.GetComponent("Trail").start();
         }
@@ -271,6 +283,10 @@ class YJTransform {
       } else {
         if (message.pointType == "interactive") {
           let com = this.GetComponent("Interactive");
+          com.DestroyTrigger();
+        }
+        if (message.pointType == "geometry") {
+          let com = this.GetComponent("Geometry");
           com.DestroyTrigger();
         }
         if (this.GetComponent("Trail")) {

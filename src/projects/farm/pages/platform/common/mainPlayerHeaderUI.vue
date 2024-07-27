@@ -109,6 +109,7 @@ export default {
         this.baseData.level = basedata.level;
 
       });
+      
       _Global.addEventListener("主角生命值", (h, maxH) => {
         this.baseData.health = h;
         this.baseData.maxHealth = maxH;

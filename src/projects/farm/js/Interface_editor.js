@@ -25,10 +25,11 @@ class Interface {
     _Global.panelState = {
       player: false, 
       skill: false,
-      bag: false,
+      bagBase: false,
       mainmenu: false,
       setting: false,
       receiveTask:false,//接收任务对话框
+      taskList:false, //任务日志
     };
     _Global.hoverPart = "";
     //#region 游戏设置记录与还原、动作条记录与还原
@@ -70,7 +71,12 @@ class Interface {
       for (let i = 0; i < _actionList.actionBar1.length; i++) {
         const element = _actionList.actionBar1[i];
         if (element.skill) {
-          actionList.actionBar1.push({ index: element.index, skillName: element.skill.skillName });
+          actionList.actionBar1.push(
+            { 
+              index: element.index,
+              type:element.skill.type,
+              id:element.skill.id, 
+              skillName: element.skill.skillName });
         }
       }
       localStorage.setItem("ActionList", JSON.stringify(actionList));
@@ -301,12 +307,19 @@ class Interface {
         _this.$uploadPlayerUrl + "prop_data.txt" + "?time=" + new Date().getTime()
       );
       _Global.propList = res.data;
+
+      
+      res = await _this.$axios.get(
+        _this.$uploadPlayerUrl + "task_data.txt" + "?time=" + new Date().getTime()
+      );
+      _Global.taskList = res.data;
+
       // console.log("_Global.animList = ", _Global.animList);
       // console.log("_Global.propList = ", _Global.propList);
     }
 
     this.GetPropById = function(id){
-      console.log(_Global.propList);
+      // console.log(_Global.propList);
       for (let i = 0; i < _Global.propList.length; i++) {
         const element = _Global.propList[i];
         if(element.id == id){

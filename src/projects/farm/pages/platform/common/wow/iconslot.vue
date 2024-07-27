@@ -217,7 +217,7 @@ export default {
         if (this.parent.dragSkill.isDeleled) {
           item.isDeleled = true;
         }
-        item.skill = this.parent.dragSkill;
+        item.skill = this.parent.dragSkill; 
 
         let fromPart = "";
         if (_Global.inDragProp) {

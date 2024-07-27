@@ -946,7 +946,9 @@ class YJSkill {
                 //取消寻路，让npc站住施法
                 owner.SetNavPathToNone();
                 // console.time('施法成功===');
-
+                // if(owner.getPlayerType().includes('玩家')){
+                //     console.log(" 吟唱 音效 ",skillItem.skillReadyAudio);
+                // }
 
                 //contDamage 技能需要边施法边执行，所以要单独判断
                 if ((effect.type == "contDamage")) {
@@ -965,6 +967,10 @@ class YJSkill {
 
                         owner.SetPlayerState("施法", skillItem.animName);
                         owner.playAudio(skillItem.skillFireAudio, readyskillAudioName);
+
+                        // if(owner.getPlayerType().includes('玩家')){
+                        //     console.log(" 施放 音效 ",skillItem.skillFireAudio);
+                        // }
                         let e = fn();
                         if (e == "later") {
                             vaildAttackLater = setTimeout(() => {

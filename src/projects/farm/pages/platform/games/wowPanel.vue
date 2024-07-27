@@ -17,9 +17,7 @@
           </div>
 
           <div class="w-96 h-64" v-show="panelState.receiveTask">
-            <taskPanel
-              ref="taskPanel"
-            ></taskPanel>
+            <taskPanel ref="taskPanel"></taskPanel>
           </div>
 
           <div class="w-96 h-64" v-show="panelState.player">
@@ -27,7 +25,6 @@
               ref="PlayerPropertyPanelVue"
             ></PlayerPropertyPanelVue>
           </div>
-
         </div>
       </div>
       <div class="absolute left-0 top-0 flex w-full h-full">
@@ -36,15 +33,22 @@
         </div>
       </div>
 
-      <div v-show="panelState.bag" class="absolute left-0 top-0 w-full h-full">
+      <div class="absolute left-0 top-0 flex w-full h-full">
+        <!-- v-show="panelState.taskList" -->
+        <taskListPanel
+          ref="taskListPanel"
+          :showPanel="panelState.taskList"
+        ></taskListPanel>
+      </div>
+
+      <div v-show="panelState.bagBase" class="absolute left-0 top-0 w-full h-full">
         <bagPanel ref="bagPanel"></bagPanel>
       </div>
-      
 
       <!-- 战斗记录 -->
-      <div class="absolute left-0 top-0 w-full h-full">
+      <!-- <div class="absolute left-0 top-0 w-full h-full">
         <combatLogPanel ref="combatLogPanel"></combatLogPanel>
-      </div>
+      </div> -->
 
       <!-- buff 和 debuff -->
       <div class="absolute left-0 top-0 w-full h-full">
@@ -149,6 +153,7 @@ import PlayerPropertyPanelVue from "../common/wow/PlayerPropertyPanel.vue";
 import skillPanel from "../common/wow/skillPanel.vue";
 import bagPanel from "../common/wow/bagPanel.vue";
 import taskPanel from "../common/wow/taskPanel.vue";
+import taskListPanel from "../common/wow/taskListPanel.vue";
 
 import { Interface } from "../../../js/Interface_editor";
 import menuPanelVue from "../common/wow/menuPanel.vue";
@@ -167,6 +172,7 @@ export default {
     ActionPanelVue,
     PlayerPropertyPanelVue,
     skillPanel,
+    taskListPanel,
     bagPanel,
     taskPanel,
     menuPanelVue,
@@ -267,11 +273,12 @@ export default {
                 }, 20);
               }
             } else {
-              _Global.applyEvent(
-                "界面开关",
-                element.field,
-                !this.panelState[element.field]
-              );
+              this.$refs.ActionPanelVue.clickMenu(element.field);
+              // _Global.applyEvent(
+              //   "界面开关",
+              //   element.field,
+              //   !this.panelState[element.field]
+              // );
             }
           }
         }
@@ -293,7 +300,6 @@ export default {
         // console.log("mousePos ",this.dragPos.x,this.dragPos.y);
       });
 
-  
       _Global.addEventListener("主角生命值", (h, maxH) => {
         this.stats.health = h;
         this.stats.maxHealth = maxH;
@@ -307,26 +313,31 @@ export default {
       });
       _Global.addEventListener("从动作条拖拽到动作条", () => {
         this.cancelDrag("从动作条拖拽到动作条");
+          
+        this.$refs.ActionPanelVue.saveActionList();
       });
       _Global.addEventListener("从角色面板拖拽到动作条", () => {
         this.cancelDrag("从角色面板拖拽到动作条");
+        this.$refs.ActionPanelVue.saveActionList();
       });
       _Global.addEventListener("从角色面板拖拽到背包", () => {
         this.cancelDrag("从角色面板拖拽到背包");
       });
-      
-      _Global.addEventListener("从背包拖拽到动作条", () => {        
+
+      _Global.addEventListener("从背包拖拽到动作条", () => {
         this.cancelDrag("从背包拖拽到动作条");
+        this.$refs.ActionPanelVue.saveActionList();
       });
-      _Global.addEventListener("取消拖拽Prop", () => { 
+      _Global.addEventListener("取消拖拽Prop", () => {
         this.cancelDrag("取消拖拽Prop");
       });
 
       _Global.addEventListener("摧毁拖拽Prop", () => {
         this.cancelDrag("摧毁拖拽Prop");
+        this.$refs.ActionPanelVue.saveActionList();
       });
 
-      _Global.panelState.receiveTask = true;
+      // _Global.panelState.receiveTask = true;
     }, 2000);
 
     // if (_Global.setting.inEditor) {
@@ -364,7 +375,7 @@ export default {
         if (_Global.inDragProp || _Global.inDragEquip) {
           this.delDialog = true;
           return;
-        } 
+        }
       }
       if (e == "右键点击") {
         if (this.delDialog) {
@@ -741,7 +752,7 @@ export default {
       }
 
       this.hoverData.push(line);
-      if(parent == null){
+      if (parent == null) {
         return;
       }
       var rect = parent.getBoundingClientRect();

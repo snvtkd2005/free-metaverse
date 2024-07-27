@@ -83,6 +83,7 @@
                     />
                   </div>
                 </div>
+                <!-- 技能 -->
                 <div class="relative">
                   <img
                     class="w-8 h-16 pointer-events-auto cursor-pointer"
@@ -105,6 +106,31 @@
                     alt=""
                   />
                 </div>
+
+                <!-- 任务 -->
+                <div class="relative">
+                  <img
+                    class="w-8 h-16 pointer-events-auto cursor-pointer"
+                    @click="clickMenu('taskList')"
+                    @mouseover="
+                      LookMenu('taskList');
+                      panelState.hovertask = true;
+                    "
+                    @mouseleave="
+                      outHover();
+                      panelState.hovertask = false;
+                    "
+                    :src="panelState.task ? taskUrl_down : taskUrl_up"
+                    alt=""
+                  />
+                  <img
+                    v-if="panelState.hovertask"
+                    class="absolute left-0 top-0 w-8 h-16"
+                    :src="btnHilightUrl"
+                    alt=""
+                  />
+                </div>
+
                 <div class="relative">
                   <img
                     class="w-8 h-16 pointer-events-auto cursor-pointer"
@@ -156,7 +182,7 @@
                     />
 
                     <img
-                      v-if="panelState.bag"
+                      v-if="panelState.bagBase"
                       class="absolute left-0 top-0 w-9 h-9 pointer-events-none"
                       :src="bagHilightUrl"
                       alt=""
@@ -243,6 +269,12 @@ export default {
         "./public/images/cursorList/mainmenu/ui-microbutton-talents-up.png",
       skillUrl_down:
         "./public/images/cursorList/mainmenu/ui-microbutton-talents-down.png",
+
+      taskUrl_up:
+        "./public/images/cursorList/mainmenu/ui-microbutton-quest-up.png",
+      taskUrl_down:
+        "./public/images/cursorList/mainmenu/ui-microbutton-quest-down.png",
+
       mainmenuUrl_up:
         "./public/images/cursorList/mainmenu/ui-microbutton-mainmenu-up.png",
       mainmenuUrl_down:
@@ -303,6 +335,12 @@ export default {
         },
         {
           type: "menu",
+          name: "taskList",
+          title: "任务日志",
+          describe: "当前接受的任务记录",
+        },
+        {
+          type: "menu",
           name: "mainmenu",
           title: "游戏菜单",
           describe: "设置游戏画质、快捷键",
@@ -355,6 +393,11 @@ export default {
               this.actionList.actionBar1[actionBarRecode.index].skill = skill;
             }
           }
+          if(actionBarRecode.type && actionBarRecode.type =="prop"){
+            //通过id获取道具信息
+            // this.actionList.actionBar1[actionBarRecode.index].skill = skill;
+          }
+          // console.log(" actionBarRecode ",actionBarRecode);
         }
       }
 
@@ -436,6 +479,7 @@ export default {
           }
         }
         this.$forceUpdate();
+
       });
 
       _Global.addEventListener("关闭窗口", (e) => {
@@ -511,6 +555,7 @@ export default {
   methods: {
     saveActionList() {
       _Global.SaveActionList(this.actionList);
+      console.log("SaveActionList  ",this.actionList);
     },
     cancelDrag() {
       for (let i = 0; i < this.actionList.actionBar1.length; i++) {
@@ -565,46 +610,100 @@ export default {
     },
 
     clickMenu(e) {
-      if(this.panelState.mainmenu){
+      if (this.panelState.mainmenu) {
         return;
       }
       if (e == "player") {
+        this.panelState.taskList = false;
         this.panelState.player = !this.panelState.player;
+        return;
       }
       if (e == "bagBase") {
-        this.panelState.bag = !this.panelState.bag;
+        this.panelState.bagBase = !this.panelState.bagBase;
+        return;
       }
       if (e == "skill") {
         this.newLevel = false;
+        this.panelState.taskList = false;
         this.panelState.skill = !this.panelState.skill;
+
+        return;
       }
       if (e == "mainmenu") {
         this.panelState.player = false;
         this.panelState.skill = false;
+        this.panelState.taskList = false;
         this.panelState.mainmenu = !this.panelState.mainmenu;
+        return;
+      }
+      if(e == "taskList"){
+        this.panelState.player = false;
+        this.panelState.skill = false;
+        this.panelState[e] = !this.panelState[e];
+
+        _Global._YJAudioManager.playAudio(
+          this.panelState.taskList?'1722064300006/iquestlogopena.ogg'
+          :'1722064316964/iquestlogclosea.ogg');
+
       }
     },
     SkillGoByActionBar(keycode) {
       for (let i = 0; i < this.actionList.actionBar1.length; i++) {
         const element = this.actionList.actionBar1[i];
         if (element.key == keycode && element.skill) {
-          this.$parent.UseItem(element);
+
+          this.UseItem(element);
+          // this.$parent.UseItem(element);
           return;
         }
       }
     },
+    
+    UseItem(item) {
+      let skill = item.skill;
+      if (skill.type == "prop") {
+        let complted = this.$parent.UseItem(item);
+        // 消耗品
+        if (skill.useType == "consumables") {
+          console.log(" 使用药水 ", complted, skill);
+          if (complted) {
+            //药水数量减- 或 药水使用完
+            if (skill.countType == "group") {
+              if (skill.count) {
+                skill.count--;
+                if (skill.count > 0) {
+                  return;
+                }
+              } else {
+              }
+            }
+            console.log(" 删除药水 ");
+            _Global.applyEvent("摧毁Prop并在动作条中停用prop", skill.id);
+            // 在动作条中使用时，通知在背包中删除
+            _Global.applyEvent("在动作条中调用并摧毁Prop", skill.id);
+          }
+        }
+        return;
+      } 
+      // this.parent.UseItem(item);
+      this.$parent.UseItem(item);
+
+    },
+
     AddSkill(_skill) {
+      let has = false;
       for (let i = 0; i < this.actionList.actionBar1.length; i++) {
         const skill = this.actionList.actionBar1[i].skill;
         if (skill && skill.skillName == _skill.skillName) {
-          if (skill.isDeleled) {
-            this.actionList.actionBar1[i].isDeleled = false;
-            skill.isDeleled = false;
-          }
+          this.actionList.actionBar1[i].isDeleled = false;
+          skill.isDeleled = false;
           skill.level = 1;
           skill.auto = false;
-          return;
+          has = true;
         }
+      }
+      if(has){
+        return;
       }
       // 自动添加时，从左到右，第一个没有使用的动作框
       let index = -1;

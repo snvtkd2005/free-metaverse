@@ -13,6 +13,7 @@ var request = axios.create({
 	
     // baseURL:baseUrl, //后台接口
     baseURL:"", //后台接口
+    // baseURL:"http://snvtkd2005.com:3336", //后台接口
 	crossDomain:true,
     withCredentials: true,
 	headers: {

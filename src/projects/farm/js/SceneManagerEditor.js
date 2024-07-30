@@ -841,9 +841,9 @@ class SceneManager {
           ClearProjector();
           return;
         }
-        indexVue.$refs.HUD.$refs.headerUI.SetTarget(data);
+        indexVue.$refs.HUD.$refs.headerUI.SetTarget(data,npcComponent.GetNickName());
       });
-      indexVue.$refs.HUD.$refs.headerUI.SetTarget(message.data);
+      indexVue.$refs.HUD.$refs.headerUI.SetTarget(message.data,npcComponent.GetNickName());
     }
 
     this.ClearTarget = function(){

@@ -9,7 +9,7 @@ class YJKeyboard {
     let inControlLeft = false;
     let isKeyPressed = false;
     this.onKeyDown = function (e) {
-      console.log(e.code);
+      // console.log(e.code);
 
       switch (e.code) {
         case 'Tab':

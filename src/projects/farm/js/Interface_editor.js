@@ -32,6 +32,7 @@ class Interface {
       taskList:false, //任务日志
     };
     _Global.hoverPart = "";
+    _Global.dragPart = "";
     //#region 游戏设置记录与还原、动作条记录与还原
 
     // 游戏设置记录与还原
@@ -323,7 +324,7 @@ class Interface {
       for (let i = 0; i < _Global.propList.length; i++) {
         const element = _Global.propList[i];
         if(element.id == id){
-          return element;
+          return JSON.parse(JSON.stringify(element))  ;
         }
       }
     }
@@ -346,6 +347,8 @@ class Interface {
         return _YJPlayerAnimData;
       }
       _YJPlayerAnimData = new YJPlayerAnimData(_this);
+      _Global._YJPlayerAnimData = _YJPlayerAnimData;
+
       return _YJPlayerAnimData;
     }
     _Global.CreateOrLoadPlayerAnimData = this.CreateOrLoadPlayerAnimData;

@@ -27,7 +27,6 @@ class YJPlayerFireCtrl {
 		var PLAYERSTATE = {
 			NORMAL: -1,
 			DEAD: 0,
-			ATTACK: 1000, //已选中攻击目标，且正在施法，且未对目标造成伤害
 			ATTACKING: 1001, //对目标造成伤害后，进入战斗状态
 			INTERACTIVE: 2,
 			SITTING: 3,
@@ -80,6 +79,9 @@ class YJPlayerFireCtrl {
 				if (fromModel == scope || fromModel == _YJPlayer) {
 					return;
 				}
+				if (fromModel.GetCamp() == scope.GetCamp()) {
+					return;
+				}
 				SelectNPC(fromModel.transform);
 				ReadyFire();
 				PlayerAddFire();
@@ -93,6 +95,7 @@ class YJPlayerFireCtrl {
 			EventHandler("进入战斗", fromModel);
 
 		}
+
 
 		var playerState = PLAYERSTATE.NORMAL;
 
@@ -146,6 +149,7 @@ class YJPlayerFireCtrl {
 					playerState = PLAYERSTATE.NORMAL;
 					state.inFire = false;
 					console.log(" 玩家脱离战斗 ");
+					scope.applyEvent("脱离战斗");
 					break;
 				case "玩家加入战斗":
 					state.inFire = true;
@@ -212,7 +216,7 @@ class YJPlayerFireCtrl {
 			_this.YJController.PlayerLookatPos(targetModel.GetWorldPos());
 		}
 		function UseSkill(skillItem) {
-			playerState = PLAYERSTATE.ATTACK;
+			playerState = PLAYERSTATE.ATTACKING;
 			_YJSkill.UseSkill(skillItem);
 			return;
 		}
@@ -525,7 +529,7 @@ class YJPlayerFireCtrl {
 			attackStepSpeed = a;
 			//距离目标超过技能有效距离时，回到默认动作
 			if (!CheckCanAttack()) {
-				setTimeout(() => {
+				vaildAttackLater = setTimeout(() => {
 					if (playerState == PLAYERSTATE.NORMAL) {
 						if (npcTransform == null) {
 							return;
@@ -533,7 +537,7 @@ class YJPlayerFireCtrl {
 						ReadyFire();
 					}
 					// playerState = PLAYERSTATE.NORMAL;
-				}, 500);
+				}, 2000);
 			} else {
 				if (npcTransform == null) {
 					return;
@@ -551,9 +555,12 @@ class YJPlayerFireCtrl {
 				}
 				// console.log(" 右键点击npc 准备战斗 ",state.canAttack);
 				_this.YJController.PlayerLookatPos(npcTransform.GetWorldPos());
-				playerState = PLAYERSTATE.ATTACK;
+				playerState = PLAYERSTATE.ATTACKING;
 				state.canAttack = true;
 				state.readyAttack = false;
+				if(_YJSkill){
+					_YJSkill.UseBaseSkill();
+				}
 			}
 		}
 		let vaildAttackLater = null;
@@ -621,7 +628,7 @@ class YJPlayerFireCtrl {
 			//如果目标阵营不可攻击
 			let b0 = CheckCamp();
 			if (!b0) {
-				scope.MyFireState("不能攻击这个目标");
+				// scope.MyFireState("不能攻击这个目标");
 				state.canAttack = false;
 				return false;
 			}
@@ -652,6 +659,7 @@ class YJPlayerFireCtrl {
 			_YJSkill.SendDamageToTarget(npcComponent, { skillName: s, type: "damage", value: baseData.basicProperty.strength });
 		}
 		function CheckState() {
+			return;
 			if (playerState == PLAYERSTATE.ATTACK) {
 
 			}
@@ -675,7 +683,7 @@ class YJPlayerFireCtrl {
 							EventHandler("进入战斗");
 						}
 						state.inFire = true;
-						playerState = PLAYERSTATE.ATTACK;
+						playerState = PLAYERSTATE.ATTACKING;
 
 						// 动作时长的前3/10段时，表示动作执行完成，切换成准备动作
 						if (toIdelLater == null) {
@@ -781,7 +789,9 @@ class YJPlayerFireCtrl {
 						hyperplasiaTrans[i].SetNpcTarget(msg ? msg : npcComponent);
 					}
 				}
-			}
+				scope.applyEvent("进入战斗", _YJPlayer.camp,_YJPlayer.fireId,npcComponent);
+			} 
+			
 			if (e == "添加镜像") {
 				let mirrorId = msg;
 				let npcTransform = _Global.DyncManager.GetNpcById(mirrorId);
@@ -813,7 +823,9 @@ class YJPlayerFireCtrl {
 		this.ClearSkill = function () {
 			_YJSkill.ClearSkill("基础攻击");
 		}
-
+		this.InFire = function(){
+			return playerState == PLAYERSTATE.ATTACKING;
+		  }
 		this.GetIsDead = function () {
 			return _YJPlayer.isDead;
 		}
@@ -847,7 +859,7 @@ class YJPlayerFireCtrl {
 
 			switch (e) {
 				case "普通攻击":
-					playerState = PLAYERSTATE.ATTACK;
+					playerState = PLAYERSTATE.ATTACKING;
 					var { s, v, a, _fire } = GetSkillDataByWeapon(weaponData);
 					skillName = s;
 					vaildAttackDis = v;
@@ -865,11 +877,11 @@ class YJPlayerFireCtrl {
 					}
 					break;
 				case "赤手攻击":
-					playerState = PLAYERSTATE.ATTACK;
+					playerState = PLAYERSTATE.ATTACKING;
 					GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					break;
 				case "准备战斗":
-					playerState = PLAYERSTATE.ATTACK;
+					playerState = PLAYERSTATE.ATTACKING;
 					var { s, v, a, rpid, raid } = GetSkillDataByWeapon(weaponData);
 					skillName = s;
 					vaildAttackDis = v;
@@ -893,7 +905,7 @@ class YJPlayerFireCtrl {
 					}
 					break;
 				case "受伤":
-					playerState = PLAYERSTATE.ATTACK;
+					playerState = PLAYERSTATE.ATTACKING;
 					GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					break;
 				case "death":
@@ -952,7 +964,7 @@ class YJPlayerFireCtrl {
 					if (playerState == PLAYERSTATE.NORMAL) {
 						GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					}
-					if (playerState == PLAYERSTATE.ATTACK) {
+					if (playerState == PLAYERSTATE.ATTACKING) {
 						if (state.canMoveAttack) {
 							GetAnimNameByPlayStateAndWeapon("准备战斗", weaponData);
 						}
@@ -1085,6 +1097,7 @@ class YJPlayerFireCtrl {
 				if (_YJSkill) {
 					_YJSkill.CheckSkillInVaildDis(pos);
 				}
+				scope.applyEvent("pos",pos);
 			});
 			setTimeout(() => {
 				let skillList = [];

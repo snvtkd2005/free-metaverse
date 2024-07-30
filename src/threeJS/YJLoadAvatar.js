@@ -580,18 +580,18 @@ class YJLoadAvatar {
     }
     this.ChangeAnimByAnimData = function (animName, isLoop, anim) {
       if (animName == "") {
-        console.error(" 找不到动作 ");
+        // console.error(" 找不到动作 ");
         return;
       }
       if (anim == null) {
-        console.error(" 找不到动作 ", animName);
+        // console.error(" 找不到动作 ", animName);
         return;
       }
 
       for (let i = 0; i < actions.length; i++) {
         const element = actions[i];
         if (element.animName == animName) {
-          console.error(" 重复添加动作 ", animName);
+          // console.error(" 重复添加动作 ", animName);
           return;
         }
       }
@@ -632,7 +632,7 @@ class YJLoadAvatar {
  
     let extendAnimData = [];
     this.LoadExtendAnim = function(avatarData, animName,animNameFullback){
-      _this._YJSceneManager.CreateOrLoadPlayerAnimData().PlayExtendAnim(avatarData, animName, (isLoop, anim) => {
+      _Global._YJPlayerAnimData.PlayExtendAnim(avatarData, animName, (isLoop, anim) => {
         
         // console.log(" 扩展动作返回 ",animName,anim);
         
@@ -695,6 +695,8 @@ class YJLoadAvatar {
     //切换动画
     this.ChangeAnim = function (animName,animNameFullback,callback) {
       // console.error(" 直接设置玩家角色动作 11 " + animName);
+      if(animName == undefined){animName = 'idle';}
+      if(animNameFullback == undefined){animNameFullback = 'idle';}
       if (oldAnimName == animName) { return; }
  
       if (mmdCtrl) {
@@ -706,6 +708,8 @@ class YJLoadAvatar {
     this.ChangeAnimDirect = function (animName,animNameFullback,callback) {
       // console.error(" 直接设置玩家角色动作 22 " + animName);
       oldAnimName = "";
+      if(animName == undefined){animName = 'idle';}
+      if(animNameFullback == undefined){animNameFullback = 'idle';}
       ChangeAnimDirectFn(animName,animNameFullback,callback);
     }
     function ChangeAnimDirectFn(animName,animNameFullback,callback) {

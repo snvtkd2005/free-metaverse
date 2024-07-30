@@ -19,6 +19,11 @@ class YJNameTransMerged {
 
     let geometry = null;
     let material = null;
+    // const material = new THREE.MeshLambertMaterial( { color: 0xffffff, wireframe: false } );
+    // const material = new THREE.MeshBasicMaterial({
+    //   color: 0xffffff,
+    //   transparent: true,
+    // });
     let pos = null;
     let scale = null;
 
@@ -41,6 +46,7 @@ class YJNameTransMerged {
     let posList = [];
     let rotaList = [];
     let scaleList = [];
+    let colorList = [];
 
     function transformToMatrix4(pos, size, rota) {
 
@@ -54,7 +60,9 @@ class YJNameTransMerged {
 
       matrix.compose(position, quaternion, scale);
     }
-
+    const color = new THREE.Color();
+    
+    const blossomPalette = [ 0xF20587, 0xF2D479, 0xF2C879, 0xF2B077, 0xF24405 ];
     function makeInstanced(geometry, material, pos, scale) {
       _InstancedMesh = new THREE.InstancedMesh(geometry, material, count);
       for (let i = 0; i < count; i++) {
@@ -72,6 +80,10 @@ class YJNameTransMerged {
         transformToMatrix4(pos1, scale1);
         // transformToMatrix4(posList[i], scaleList[i], rotaList[i]);
         _InstancedMesh.setMatrixAt(i, matrix);
+        color.setHex(colorList[i] );
+				// color.setHex( blossomPalette[ Math.floor( Math.random() * blossomPalette.length ) ] );
+        _InstancedMesh.setColorAt( i, color );
+
       }
       _Global.YJ3D.scene.add(_InstancedMesh);
       _InstancedMesh.owner = scope;
@@ -88,6 +100,7 @@ class YJNameTransMerged {
           posList.splice(i, 1);
           scaleList.splice(i, 1);
           groupList.splice(i, 1);
+          colorList.splice(i, 1);
           has = true;
         }
       }
@@ -95,10 +108,10 @@ class YJNameTransMerged {
         // console.error(" 移除姓名id缺不存在",id,idList);
         return;
       }
-      this.ReMerged(idList, groupList, posList, scaleList);
+      this.ReMerged(idList, groupList, posList, scaleList,colorList);
     }
 
-    this.addPoint = function (id, group, pos, scale) {
+    this.addPoint = function (id, group, pos, scale,color) {
       // return;
       let has = false;
       for (let i = idList.length - 1; i >= 0 && !has; i--) {
@@ -112,14 +125,15 @@ class YJNameTransMerged {
       idList.push(id); 
       groupList.push(group);
       posList.push(pos);
+      colorList.push(color);
       scaleList.push(scale ? scale : { x: 1, y: 1, z: 1 });
-      this.ReMerged(idList, groupList, posList, scaleList);
+      this.ReMerged(idList, groupList, posList, scaleList,colorList);
     }
     this.Destroy = function(){
       _Global.YJ3D.scene.remove(_InstancedMesh);
     }
     // 数量改变时，重新计算
-    this.ReMerged = (_idList, _groupList, _posList, _scaleList, _rotaList) => {
+    this.ReMerged = (_idList, _groupList, _posList, _scaleList,_colorList, _rotaList) => {
 
       _Global.YJ3D.scene.remove(_InstancedMesh);
 
@@ -134,6 +148,7 @@ class YJNameTransMerged {
       groupList = _groupList;
       // rotaList = _rotaList;
       scaleList = _scaleList;
+      colorList = _colorList;
       count = posList.length;
 
       makeInstanced(geometry, material, pos, scale);
@@ -145,7 +160,7 @@ class YJNameTransMerged {
       for (let i = 0; i < groupList.length; i++) {
         const group = groupList[i]; 
         transformToMatrix4(group.getWorldPosition(new THREE.Vector3()), scaleList[i],group.rotation);
-        _InstancedMesh.setMatrixAt(i, matrix);
+        _InstancedMesh.setMatrixAt(i, matrix); 
         _InstancedMesh.instanceMatrix.needsUpdate = true;
       } 
     } 

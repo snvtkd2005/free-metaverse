@@ -156,10 +156,12 @@ class YJNPC {
     this.npcName = "";
     this.SetName = function (v) {
       this.npcName = v;
+      // console.log("设置新名字： "+ this.npcName);
       scope.applyEvent("重置昵称", this.npcName);
     }
     this.ResetName = function () {
       this.npcName = data.name;
+      // console.log("重置为原始名字： "+ this.npcName);
       scope.applyEvent("重置昵称", this.npcName);
     }
     //创建姓名条参考物体
@@ -173,7 +175,9 @@ class YJNPC {
       createnametimes++;
       // console.log(" 设置姓名条 ",content);
       _Global._YJPlayerNameManager.CreateNameTrans(
-        scope, scope.id, content, playerHeight, parent.scale.x, nameScale, _Global.user.camp != baseData.camp ? '#ee0000' : '#ffffff'
+        scope, scope.id, content, playerHeight, parent.scale.x, nameScale, 
+        _Global.user.camp != baseData.camp ? 0xee0000 : 0xffffff
+        // _Global.user.camp != baseData.camp ? '#ee0000' : '#ffffff'
       );
       return;
       if (namePosTrans == null) {
@@ -419,9 +423,12 @@ class YJNPC {
     // 随机寻路点
     this.RadomNavPos = function () {
 
+      // console.log(GetNickName()+ " 巡逻点 00 ",data.inAreaRandom,movePos);
 
       if (_Global.setting.inEditor){return;}
-      // console.log(GetNickName()+ " 巡逻点 00 ",data.inAreaRandom,movePos);
+      if(ownerPlayer){
+        return;
+      }
       if (data.inAreaRandom) {
         let startPos = parent.position.clone();
         let targetPos = fireBeforePos.clone();
@@ -609,19 +616,25 @@ class YJNPC {
       navpath = [targetModel.GetWorldPos()];
       // GetNavpath(parent.position.clone(),  targetModel.GetWorldPos(),0);
     }
+    let times = 0;
     // 获取寻路路径
     function GetNavpath(fromPos, targetPos, _randomRedius) {
       if (!scope.canMove) { return; }
       if (oldTargetPos && targetPos.distanceTo(oldTargetPos) < 0.01) {
-        // console.log(" 目标点不变 ",oldTargetPos,targetPos);
-        if(baseData.state == stateType.Normal){
-          setTimeout(() => {
-            scope.RadomNavPos();
-          }, 2000);
-        }
+        // console.error(" 目标点不变 ",oldTargetPos,targetPos);
+        // if(baseData.state == stateType.Normal){
+        //   setTimeout(() => {
+        //     scope.RadomNavPos();
+        //   }, 2000);
+        // }
         return;
       } else {
       }
+      // if(scope.GetNickName().includes("阳光万里")){
+      //   times++;
+      //   console.error(" 设置目标点 ",times);
+      // }
+
       oldTargetPos.set(targetPos.x,targetPos.y,targetPos.z);
       if (_randomRedius != undefined) {
         randomRedius = _randomRedius;
@@ -699,10 +712,14 @@ class YJNPC {
       // data = JSON.parse(msg);
       data = (msg);
       scope.id = scope.transform.id;
+      this.npcName = data.name;
+
+      if(!scope.transform.GetActive()){
+        return;
+      }
       // console.log( scope.GetNickName() + "in NPC msg = ", scope.id, data);
 
 
-      this.npcName = data.name;
       baseData = data.baseData;
       // console.log( scope.GetNickName() + "in NPC 00 baseData = ", JSON.stringify(baseData));
       // console.log( scope.GetNickName() + "in NPC camp = ",  baseData.camp);
@@ -724,6 +741,7 @@ class YJNPC {
       modelScale = data.avatarData.modelScale;
       nameScale = data.avatarData.nameScale;
       playerHeight = data.avatarData.height;
+
       CreateNameTrans(this.npcName);
       scope.CreateHealth();
       scope.transform.isIgnoreRaycast = true;
@@ -1045,12 +1063,36 @@ class YJNPC {
       // );
     }
 
+    //#region 
+    //#endregion
 
+    //#region 作为玩家镜像/玩家宠物/玩家跟随守护时的逻辑：战斗时，攻击玩家同战斗的敌人。其他状态跟随玩家
     let ownerPlayer = null;
     this.setOwnerPlayer = function (_ownerPlayer) {
       ownerPlayer = _ownerPlayer;
       oldPlayerPos.y = -100;
-      scope.FollowPlayer();
+      // scope.FollowPlayer();
+      ownerPlayer.addEventListener("进入战斗",(camp, fireId,targetNpc)=>{
+        console.log(scope.GetNickName() + " 监听 主播进入战斗 ",camp, fireId);
+        scope.fireId = fireId;
+        scope.camp = camp;
+        scope.SetNpcTarget(targetNpc);
+				_Global.DyncManager.AddFireGroup(scope.id, camp,fireId);
+
+      });
+      ownerPlayer.addEventListener("脱离战斗",()=>{
+        scope.fireOff();
+      });
+      ownerPlayer.addEventListener("pos",(pos)=>{
+        // console.log(pos);
+        if (oldPlayerPos.distanceTo(pos) > 0.5) {
+          scope.FollowPlayer();
+          oldPlayerPos = pos.clone();
+          return;
+        } 
+
+      });
+
     }
     this.GetIsPlayer = function () {
       return data.isPlayer;
@@ -1060,31 +1102,15 @@ class YJNPC {
       if (baseData.state == stateType.Fire) {
         return;
       }
-      if (data.isPlayer) {
-        let pos = ownerPlayer.GetWorldPos().clone();
-
-        if (oldPlayerPos.distanceTo(pos) < 0.5) {
-          setTimeout(() => {
-            this.FollowPlayer();
-          }, 1000);
-          return;
-        }
-        oldPlayerPos = pos.clone();
-        fireBeforePos = pos.clone();
-
-        fireBeforePos.x += radomNum(-2, 2);
-        fireBeforePos.z += radomNum(-2, 2);
-        setTimeout(() => {
-          this.FollowPlayer();
-        }, 500);
-      }
+      let pos = ownerPlayer.GetWorldPos().clone();
       let currentPos = scope.GetWorldPos();
-      // if (currentPos.distanceTo(fireBeforePos) >= 20) {
-      // }
-      baseData.speed = 8 + currentPos.distanceTo(fireBeforePos) / 3;
-
-      GetNavpath(parent.position.clone(), fireBeforePos);
+      // console.log(scope.GetNickName() +" 跟随玩家 " + ownerPlayer.GetNickName(),currentPos.distanceTo(pos));
+      GetNavpath(currentPos, pos,2);
     }
+
+    //#endregion
+
+
     this.GetWorldPos = function () {
       return scope.transform.GetWorldPos();
     }
@@ -1133,7 +1159,7 @@ class YJNPC {
       }
       laterNav = setTimeout(() => {
 
-        if (data.isPlayer) {
+        if (ownerPlayer) {
           oldPlayerPos.y = -100;
           scope.FollowPlayer();
           return;
@@ -1221,9 +1247,9 @@ class YJNPC {
       if (targetModel == null) {
         targetModel = _targetModel;
         //加入战斗
-        // if (isLocal && checkNear) {
-        //   _Global.DyncManager.NPCAddFire(scope, targetModel);
-        // }
+        if (isLocal && checkNear) {
+          _Global.DyncManager.NPCAddFire(scope, targetModel);
+        }
 
         // 停止寻路
         SetNavPathToNone();
@@ -1724,6 +1750,15 @@ class YJNPC {
     function ChangeEvent(e) {
       if (e == "准备巡逻") {
         scope.SetPlayerState("normal");
+        
+        if(ownerPlayer){
+          // 有跟随玩家时，不启用自身巡逻
+          let currentPos = scope.GetWorldPos(); 
+          fireBeforePos = currentPos.clone();
+          oldPlayerPos = ownerPlayer.GetWorldPos().clone();
+          // console.log( scope.GetNickName() + " 到达玩家位置");
+          return;
+        }
         ClearLater("清除巡逻");
         laterNav = setTimeout(() => {
           //在正常模式到达目标点，表示在巡逻过程中。再次到下一个巡逻点
@@ -1791,6 +1826,9 @@ class YJNPC {
       }
     }
 
+    this.InFire = function(){
+      return baseData.state == stateType.Fire;
+    }
     this._update = function () {
       // return;
       if (_Global.mainUser) {
@@ -1799,9 +1837,10 @@ class YJNPC {
           tick(clock.getDelta());
         }
 
-        if(_YJSkill && baseData.state == stateType.Fire){
+        if(_YJSkill){
           _YJSkill._update(clock.getDelta());
         } 
+        
         this.applyEvent("pos", playerPosition.clone());
 
         // 主控实时发送坐标来同步。
@@ -1864,7 +1903,7 @@ class YJNPC {
           baseData.speed = WALKSPEED;
           GetAnimNameByPlayStateAndWeapon("行走", weaponData);
 
-          if (data.isPlayer) {
+          if (ownerPlayer) {
             baseData.speed = RUNSPEED;
             GetAnimNameByPlayStateAndWeapon("移动", weaponData);
           }
@@ -2011,6 +2050,7 @@ class YJNPC {
         }
 
         parent.position.copy(pos);
+
         if (baseData.state == stateType.Normal) {
           scope.SetPlayerState("巡逻");
         } else if (baseData.state == stateType.Back) {
@@ -2018,6 +2058,7 @@ class YJNPC {
         } else {
           scope.SetPlayerState("跑向目标");
         }
+
         // console.log(" npc往目标移动 ", velocity.lengthSq(), 0.00075 * baseData.speed);
         isMoving = true;
         if (targetModel != null && targetModel.isDead) {

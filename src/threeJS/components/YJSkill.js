@@ -290,6 +290,9 @@ class YJSkill {
                 let controlId = effect.controlId;
                 let { receiveEffect } = skillItem;
 
+                if(receiveEffect == undefined){
+                    return;
+                }
                 owner.inControl = true;
                 if (skillItem.hasReceiveEffect) {
 
@@ -572,6 +575,7 @@ class YJSkill {
                     _Global.CombatLog.log(owner.GetNickName() + " 11 ", "", "技能", skillItem.effect.skillName);
 
                 }
+                // owner.EventHandler("技能施放成功");
             }
             // if (e.includes( "中断")) {
             //     if (_Global.CombatLog 
@@ -586,6 +590,12 @@ class YJSkill {
 
         }
         let oldskillname = "";
+        this.UseBaseSkill = function(){
+            if(baseSkillItem){
+                baseSkillItem.auto = true;
+                SkillGo(baseSkillItem);
+            }
+        }
         this.UseSkill = function (skillItem) {
             if (skillItem.skillName == "基础攻击") {
                 skillItem.auto = true;
@@ -1094,11 +1104,15 @@ class YJSkill {
             }
         }
         this._update = function (dt) {
-            if (_Global.pauseGame) { return; }
+            if (_Global.pauseGame ) { return; }
+
             for (let i = 0; i < skillList.length; i++) {
                 const skillItem = skillList[i];
                 if (skillItem.trigger.type == "perSecond") {
                     if (skillItem.cCD == skillItem.CD) {
+                         
+                        if (!owner.InFire()) { continue; }
+
                         if (!skillItem.auto) {
                             continue;
                         } else {
@@ -1107,6 +1121,7 @@ class YJSkill {
                                 continue;
                             }
                         }
+
                         if (inSkill) {
                             // return;
                             if (skillItem.effect.type == "control" || skillItem.effect.type == "shield") {

@@ -18,7 +18,8 @@ class GenerateDMNPC {
     //#region 
     //#endregion
 
-    let assetIdList = ["战士4", "弓箭手4", "战士3", "弓箭手3", "战士2", "弓箭手2", "战士1", "弓箭手1"];
+    let assetIdList = ["战士4", "战士2", "弓箭手2", "弓箭手1"];
+    // let assetIdList = ["战士4", "弓箭手4", "战士3", "弓箭手3", "战士2", "弓箭手2", "战士1", "弓箭手1"];
     let posIdList = ["24", "14", "23", "13", "22", "12", "21", "11"];
     let camps = ["血色十字军", "亡灵"];
 
@@ -37,8 +38,11 @@ class GenerateDMNPC {
     function GetPropertyStr(s, v) {
       return " 加 " + "【" + s + "】" + v;
     }
-    
-    
+    const NPCMODE = {
+      STANCE:0, //站桩
+      FOLLOW:1, //跟随主角
+    }
+    let npcmode = NPCMODE.FOLLOW;
 
     this.ChangeDMNPCDead = function (npcId) {
       let assetId = "";
@@ -221,7 +225,9 @@ class GenerateDMNPC {
         return;
       }
       GanerateNPCFn(dmplayer);
+      dmVue.setDMPlayer(DMPlayer);
     }
+
 
     function saveDMPlayer() {
       localStorage.setItem("DMPlayer", JSON.stringify(DMPlayer));
@@ -278,7 +284,11 @@ class GenerateDMNPC {
         // 测试显示指定名称id的NPC
         copy.SetActive(true);
         let npc = copy.GetComponent("NPC");
-        npc.canMove = false;
+        npc.canMove = npcmode == NPCMODE.FOLLOW;
+
+        if(npcmode == NPCMODE.FOLLOW){
+          npc.setOwnerPlayer(_Global._YJPlayerFireCtrl);
+        }
         npc.deadedHidden = false;
         npc.canLevelUp = true;
 
@@ -430,20 +440,13 @@ class GenerateDMNPC {
 
 
       _Global.addEventListener("3d加载完成", () => {
-
-        // target.GetComponent("NPC").addEventListener("死亡", () => {
-        //   //主播角色死亡，立即结束战斗
-        //   _Global.createCompleted = true;
-        //   _Global.inGame = false;
-        //   _Global.applyEvent("战斗结束",10000);
-        // });
-        // target = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId("弓箭手1");
-        // target.GetComponent("NPC").canMove = false;
+        dmVue.setDMPlayer(DMPlayer);
+        return;
 
         let s = localStorage.getItem("DMPlayer");
         if (s) {
-          // console.log(s);
           DMPlayer = JSON.parse(s);
+          console.log('getItem("DMPlayer"' ,DMPlayer);
         }
         let nosame = [];
         for (let i = world_configs.dmplayer.length - 1; i >= 0; i--) {
@@ -451,7 +454,7 @@ class GenerateDMNPC {
           for (let j = 0; j < DMPlayer.length && !has; j++) {
             if (DMPlayer[j].uname == world_configs.dmplayer[i].uname) {
               DMPlayer[j].assetId = world_configs.dmplayer[i].assetId;
-              DMPlayer[j].skill[0].level = world_configs.dmplayer[i].skill[0].level;
+              // DMPlayer[j].skill[0].level = world_configs.dmplayer[i].skill[0].level;
               has = true;
             }
           }
@@ -463,9 +466,10 @@ class GenerateDMNPC {
           DMPlayer.push(nosame[i]);
         }
 
-
-        for (let i = 16; i >= 0; i--) {
-          DMPlayer.splice(DMPlayer.length - i, 1);
+        if(DMPlayer.length>16 || true){
+          for (let i = 14; i >= 0; i--) {
+            DMPlayer.splice(DMPlayer.length - i, 1);
+          }
         }
 
         for (let i = DMPlayer.length - 1; i >= 0; i--) {
@@ -475,9 +479,9 @@ class GenerateDMNPC {
           //   continue;
           // }
 
-          if (dmplayer.uname.includes("阳光万里")) {
-            dmplayer.skill[0].level = 2;
-          }
+          // if (dmplayer.uname.includes("阳光万里")) {
+          //   dmplayer.skill[0].level = 2;
+          // }
           // if (dmplayer.uname.includes("你好莎莎")) {
           //   dmplayer.skill[0].level = 2;
           // }

@@ -112,8 +112,14 @@ export default {
     };
   },
   created() {},
-  mounted() { 
-    this.skillList = _Global.skillList;
+  mounted() {  
+    if (_Global.skillList) {
+        this.skillList = _Global.skillList;
+    }else{
+      setTimeout(() => {
+        this.skillList = _Global.skillList || [];
+      }, 2000);
+    }
   },
   methods: {
     EditorEvent(e, item, i) {

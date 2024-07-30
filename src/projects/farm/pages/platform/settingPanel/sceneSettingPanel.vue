@@ -535,6 +535,10 @@ export default {
       if (property == "setting-targetRota") {
         _Global.YJ3D.YJController.SetMinMax(e); 
       }
+      if (property == "setting-hasCamRaycast") {
+        _Global.YJ3D.YJController.SetSetting(this.sceneData.setting); 
+      }
+      
       if (property == "setting-projection") {
         _Global.YJ3D.changeProjection(e);
       }

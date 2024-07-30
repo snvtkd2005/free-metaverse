@@ -114,32 +114,79 @@ export default {
         this.goldValue = v.gold;
       });
 
-      _Global.addEventListener("在动作条中调用并摧毁Prop", (id) => {
+      // _Global.addEventListener("在动作条中调用并摧毁Prop", (id) => {
+      //   for (let i = 0; i < this.itemList.length; i++) {
+      //     const item = this.itemList[i];
+      //     if (item.skill && item.skill.id == id) {
+      //       item.skill = null;
+      //     }
+      //   }
+      // });
+
+      _Global.addEventListener("在动作条中调用Prop", (id) => {
+
         for (let i = 0; i < this.itemList.length; i++) {
           const item = this.itemList[i];
           if (item.skill && item.skill.id == id) {
-            item.skill = null;
+            item.skill.allCount--;  
+          }
+        }
+        let has = false;
+        let change = false;
+        for (let i = 0; i < this.itemList.length && !has; i++) {
+          const item = this.itemList[i];
+          if (item.skill && item.skill.id == id) {
+            item.skill.count--;  
+            if(item.skill.count<=0){
+              item.skill = null;
+              _Global.applyEvent("在动作条中停用prop",id);
+              change = true;
+            }
+            has = true;
+          }
+        }
+
+        if(change){
+          for (let i = 0; i < this.itemList.length; i++) {
+            const item = this.itemList[i];
+            if (item.skill && item.skill.id == id) {
+              _Global.applyEvent("替换动作条中prop的引用",id,item.skill);
+              return;
+            }
           }
         }
       });
+      
 
       for (let i = 0; i < this.itemList.length; i++) {
         const item = this.itemList[i];
         item.hoverPart = "bagbase_" + i;
       }
 
-      let list = _Global.propList;
+      // let list = _Global.propList;
+      // console.log(" 所有道具物品 ", list);
+      // //随机取出3张卡片
+      // for (let i = 0; i < list.length; i++) {
+      //   const item = list[i];
+      //   item.canDrag = true;
+      //   item.count = 1;
+      //   if (item.countType && item.countType == "group") {
+      //     item.count = 20;
+      //   }
+      //   this.itemList[i].skill = JSON.parse(JSON.stringify(item)) ;
+      // }
 
-      console.log(" 所有道具物品 ", list);
-      //随机取出3张卡片
-      for (let i = 0; i < list.length; i++) {
-        const item = list[i];
-        item.canDrag = true;
-        if (item.countType && item.countType == "group") {
-          item.count = 20;
-        }
-        this.itemList[i].skill = item;
+
+      let data = _Global.GetPropById("1720684572588");
+      let has = false;
+      for (let i = 0; i < this.itemList.length && !has; i++) {
+          const element = this.itemList[i];
+          if (element.skill == null) {
+            element.skill = JSON.parse(JSON.stringify(data))  ;
+            has = true;
+          }
       }
+      
       _Global.LoadEquipById("1709603486019", (equip) => {
         for (let i = 0; i < this.itemList.length; i++) {
           const element = this.itemList[i];
@@ -149,6 +196,31 @@ export default {
           }
         }
       });
+      // _Global.LoadEquipById("1709594878614", (equip) => {
+      //   for (let i = 0; i < this.itemList.length; i++) {
+      //     const element = this.itemList[i];
+      //     if (element.skill == null) {
+      //       element.skill = equip;
+      //       return;
+      //     }
+      //   }
+      // });
+      
+      // let data = _Global.GetPropById("1720706871111");
+      // let has = false;
+      // for (let i = 0; i < this.itemList.length && !has; i++) {
+      //     const element = this.itemList[i];
+      //     if (element.skill == null) {
+      //       element.skill = JSON.parse(JSON.stringify(data))  ;
+      //       element.skill.count = 10;
+      //       has = true;
+      //     }
+      // }
+
+      this.updateAcionbar();
+
+
+
 
       _Global.addEventListener("加金币", (v) => {
         _Global._YJPlayerFireCtrl.GetProperty().updateBasedata({ value: v, property: "gold" });
@@ -166,6 +238,7 @@ export default {
               has = true; 
             }
           }
+          this.updateAcionbar();
           _Global.applyEvent("获取道具记录","道具",skill.name);
 
         }
@@ -174,6 +247,45 @@ export default {
   },
 
   methods: {
+    updateAcionbar(){
+
+      let idcount = [];
+      for (let i = 0; i < this.itemList.length; i++) {
+          const element = this.itemList[i];
+          if (element.skill != null) {
+            let has = false;
+            for (let j = 0; j < idcount.length && !has; j++) {
+              const idc = idcount[j];
+              if(idc.id == element.skill.id){
+                idc.skill.allCount += element.skill.count;
+                has = true;
+              }
+            }
+            if(has){
+              
+            }else{
+              element.skill.allCount = element.skill.count;
+              idcount.push({id:element.skill.id,skill:element.skill});
+            }
+          }
+      }
+
+      for (let j = 0; j < idcount.length; j++) {
+        const idc = idcount[j];
+        for (let i = 0; i < this.itemList.length; i++) {
+            const element = this.itemList[i];
+            if (element.skill != null && element.skill.id == idc.id) {
+              element.skill.allCount = idc.skill.allCount;
+            }
+        } 
+      }
+
+      for (let i = 0; i < idcount.length; i++) {
+        const element = idcount[i];
+        _Global.applyEvent("在动作条中激活prop",element.id,element.skill)
+      }
+    },
+
     cancelDrag(e) {
       if (e == "右键点击") {
         this.checkDragFromIndex();
@@ -193,12 +305,20 @@ export default {
 
       if (e == "摧毁拖拽Prop") {
         this.checkDragFromIndex();
+        let id = this.itemList[this.dragFromIndex].skill.id;
         _Global.applyEvent(
-          "摧毁Prop并在动作条中停用prop",
-          this.itemList[this.dragFromIndex].skill.id
+          "在背包中摧毁prop", id,this.itemList[this.dragFromIndex].skill.count
         );
         this.itemList[this.dragFromIndex].skill = null;
         this.itemList[this.dragFromIndex].inDraging = false;
+
+        // for (let i = 0; i < this.itemList.length; i++) {
+        //   const item = this.itemList[i];
+        //   if (item.skill && item.skill.id == id) {
+        //     item.skill.allCount--;  
+        //   }
+        // }
+
       }
     },
 
@@ -208,26 +328,26 @@ export default {
       }
     },
     checkDragFromIndex() {
-      if (_Global.hoverPart) {
+      if (_Global.dragPart) {
         this.dragFromIndex = parseInt(
-          _Global.hoverPart.replace("bagbase_", "")
+          _Global.dragPart.replace("bagbase_", "")
         );
       } else {
         console.error(" 未拖拽 ");
       }
     },
     setItem(skill) {
-      if (!_Global.hoverPart.includes("bag")) {
+      if (!_Global.dragPart.includes("bag")) {
         return;
       }
-      if (_Global.hoverPart) {
+      if (_Global.dragPart) {
         this.dragFromIndex = parseInt(
-          _Global.hoverPart.replace("bagbase_", "")
+          _Global.dragPart.replace("bagbase_", "")
         );
 
         this.itemList[this.dragFromIndex].skill = skill;
         this.itemList[this.dragFromIndex].inDraging = false;
-        _Global.hoverPart = "";
+        _Global.dragPart = "";
       }
     },
     removeItem(index) {

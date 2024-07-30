@@ -360,7 +360,18 @@ class YJDMManager_GameBase {
 
       _GenerateDMNPC = new GenerateDMNPC(dmVue);
 
-      new ReceiveDMGift(scope);
+      let _ReceiveDMGift = new ReceiveDMGift(scope);
+      
+      _Global.addEventListener("连接弹幕服务器", (liveAnchorCodeId) => { 
+        _ReceiveDMGift.init(liveAnchorCodeId,()=>{
+          _Global.applyEvent("连接弹幕服务器成功");
+          scope.DMsocketState(true);
+        },(code)=>{
+          scope.DMsocketState(false); 
+          _Global.applyEvent("连接弹幕服务器失败", code);
+        });
+      });
+
       _Global.LogFireById = ((npcId) => {
         _Global._YJNPCManager.GetNpcComponentById(npcId).LogFire();
       })

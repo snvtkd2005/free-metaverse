@@ -9,16 +9,24 @@ export default {
   ],
   // 控制
   control:{
-    children:[
+    menuList:[
       {field:'playerCtrl',title:"控制方式",}, 
     ],
     playerCtrl:[
       {field:'ctrlType',title:"视角控制方式",type:'drop',value:"魔兽世界"},
     ],
   },
+  // 直播
+  live:{
+    children:[
+      {field:'liveAnchorCodeId',title:"主播身份码",type:'password',value:""},
+      {field:'connectDM',title:"连接弹幕服务器",type:'button',value:""},
+    ], 
+  },
+  
   // 快捷键
   keyData: {
-    children:[
+    menuList:[
       {field:'move',title:"移动按键",},
       {field:'panel',title:"界面面板",},
       {field:'actionBar1',title:"动作条",},

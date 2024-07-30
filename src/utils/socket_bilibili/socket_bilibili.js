@@ -10,14 +10,14 @@ import {
 	, gameEnd
 } from './api_bilibili';
 
-import * as world_configs from './socket_bilibili/index';
+import * as world_configs from './index';
 
 class socket_bilibili {
-	constructor(open, close, callback) {
+	constructor(liveAnchorCodeId,open, close, callback) {
 		let scope = this;
 
 		// 替换你的主播身份码
-		let codeId = "BS5GG5AXPBLS0";
+		let codeId = liveAnchorCodeId?liveAnchorCodeId:"BS5GG5AXPBLS0";
 		// 替换你的app应用 [这里测试为互动游戏]
 		let appId = 1708553545004;
 		// 替换你的秘钥
@@ -113,15 +113,18 @@ class socket_bilibili {
 						}
 					} else {
 						console.log("-----游戏开始失败-----，原因：", data)
-						if (data.code == 7002 || 7001) {
+						if (data.code == 7002 || data.code == 7001) {
 							scope.gameEnd();
 							setTimeout(() => {
 								gameStartFn();
 							}, 5000);
 							
-							if (close) {
-								close();
-							}
+						}
+						if (data.code == 7007) {
+						}
+						
+						if (close) {
+							close(data.code);
 						}
 
 					}

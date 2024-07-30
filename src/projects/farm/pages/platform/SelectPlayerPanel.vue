@@ -17,10 +17,10 @@
         z-60
         w-64
         xl:w-auto
-        h-auto
+        h-full
       ">
       <!-- 角色选择 -->
-      <div class="xl:w-auto w-auto h-auto self-center mx-auto">
+      <div class="xl:w-auto w-auto h-full  self-center mx-auto">
         <div class="
             flex
             mb-2
@@ -39,10 +39,11 @@
             w-full
             max-w-2xl
             h-16
+            px-2
             gap-3
-            xl:gap-10 xl:h-2/3
+            xl:gap-14 xl:h-3/4
             justify-items-start
-            grid grid-cols-4
+            grid grid-cols-4 overflow-y-scroll overflow-scroll
           ">
           <div v-for="(item, i) in playerImgPath" :key="i" :index="item.img" class="
               w-16
@@ -219,20 +220,22 @@ export default {
         for (let i = 0; i < avatarList.length; i++) {
           const element = avatarList[i];
           // 到角色数据中，模型路径、动画数据
-          let data = element.message.data;
-          data.modelPath = this.$uploadUrl + element.modelPath;
-          this.$refs.playerSelect3DPanel.AddAvatarData(data);
+          if(element.message){
+            let data = element.message.data;
+            data.modelPath = this.$uploadUrl + element.modelPath;
+            this.$refs.playerSelect3DPanel.AddAvatarData(data);
 
-          if (element.folderBase == "farmPlayer" || element.name == "小孩") {
-            continue;
-          } 
-          element.icon = element.folderBase +  "/" + "thumb.png";
-          // 加入到选中icon中，角色名、角色icon
-          this.playerImgPath.push({
-            name: element.name,
-            folderBase: element.folderBase,
-            img: this.$uploadUrl + element.icon,
-          });
+            if (element.folderBase == "farmPlayer" || element.name == "小孩") {
+              continue;
+            } 
+            element.icon = element.folderBase +  "/" + "thumb.png";
+            // 加入到选中icon中，角色名、角色icon
+            this.playerImgPath.push({
+              name: element.name,
+              folderBase: element.folderBase,
+              img: this.$uploadUrl + element.icon,
+            });
+          }
         }
         if (callback) {
           callback();

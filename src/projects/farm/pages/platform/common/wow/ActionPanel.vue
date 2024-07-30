@@ -393,9 +393,19 @@ export default {
               this.actionList.actionBar1[actionBarRecode.index].skill = skill;
             }
           }
-          if(actionBarRecode.type && actionBarRecode.type =="prop"){
+          if (actionBarRecode.type && actionBarRecode.type == "prop") {
             //通过id获取道具信息
             // this.actionList.actionBar1[actionBarRecode.index].skill = skill;
+
+            for (let j = 0; j < _Global.propList.length; j++) {
+              const skill = _Global.propList[j];
+              if (skill.id == actionBarRecode.id) {
+                this.actionList.actionBar1[
+                  actionBarRecode.index
+                ].isDeleled = true;
+                this.actionList.actionBar1[actionBarRecode.index].skill = skill;
+              }
+            }
           }
           // console.log(" actionBarRecode ",actionBarRecode);
         }
@@ -479,14 +489,13 @@ export default {
           }
         }
         this.$forceUpdate();
-
       });
 
       _Global.addEventListener("关闭窗口", (e) => {
         _Global.panelState[e] = false;
       });
 
-      _Global.addEventListener("摧毁Prop并在动作条中停用prop", (id) => {
+      _Global.addEventListener("在背包中调用prop", (id,allCount) => {
         for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
           const element = this.actionList.actionBar1[i];
           if (
@@ -494,13 +503,68 @@ export default {
             element.skill.type == "prop" &&
             element.skill.id == id
           ) {
-            element.skill.isDeleled = true;
-            element.isDeleled = true;
+            element.skill.allCount = allCount;
+            if (element.skill.allCount <= 0) {
+              element.skill.isDeleled = true;
+              element.isDeleled = true;
+            }
+            
+            // element.skill.isDeleled = true;
+            // element.isDeleled = true;
           }
         }
       });
 
-      _Global.addEventListener("添加Prop并在动作条中激活prop", (id) => {
+      _Global.addEventListener("在动作条中停用prop", (id) => {
+        for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
+          const element = this.actionList.actionBar1[i];
+          if (
+            element.skill &&
+            element.skill.type == "prop" &&
+            element.skill.id == id
+          ) {
+            if(element.skill.allCount<=0){
+              element.skill.isDeleled = true;
+              element.isDeleled = true;
+            }
+          }
+        }
+      });
+
+      _Global.addEventListener("替换动作条中prop的引用", (id,skill) => {
+        for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
+          const element = this.actionList.actionBar1[i];
+          if (
+            element.skill &&
+            element.skill.type == "prop" &&
+            element.skill.id == id
+          ) {
+            element.skill = skill; 
+          }
+        }
+      });
+
+      _Global.addEventListener("在背包中摧毁prop", (id,allCount) => {
+        for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
+          const element = this.actionList.actionBar1[i];
+          if (
+            element.skill &&
+            element.skill.type == "prop" &&
+            element.skill.id == id
+          ) {
+            if(allCount){
+              element.skill.allCount-=allCount;
+            }
+            if(element.skill.allCount<=0){
+              element.skill.isDeleled = true;
+              element.isDeleled = true;
+            }
+          }
+        }
+      });
+
+
+      _Global.addEventListener("在动作条中激活prop", (id, skill) => {
         for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
           const element = this.actionList.actionBar1[i];
           if (
@@ -510,6 +574,7 @@ export default {
           ) {
             element.skill.isDeleled = false;
             element.isDeleled = false;
+            element.skill = skill;
           }
         }
       });
@@ -555,7 +620,7 @@ export default {
   methods: {
     saveActionList() {
       _Global.SaveActionList(this.actionList);
-      console.log("SaveActionList  ",this.actionList);
+      // console.log("SaveActionList  ",this.actionList);
     },
     cancelDrag() {
       for (let i = 0; i < this.actionList.actionBar1.length; i++) {
@@ -636,29 +701,30 @@ export default {
         this.panelState.mainmenu = !this.panelState.mainmenu;
         return;
       }
-      if(e == "taskList"){
+      if (e == "taskList") {
         this.panelState.player = false;
         this.panelState.skill = false;
         this.panelState[e] = !this.panelState[e];
 
         _Global._YJAudioManager.playAudio(
-          this.panelState.taskList?'1722064300006/iquestlogopena.ogg'
-          :'1722064316964/iquestlogclosea.ogg');
-
+          this.panelState.taskList
+            ? "1722064300006/iquestlogopena.ogg"
+            : "1722064316964/iquestlogclosea.ogg"
+        );
       }
     },
     SkillGoByActionBar(keycode) {
       for (let i = 0; i < this.actionList.actionBar1.length; i++) {
         const element = this.actionList.actionBar1[i];
         if (element.key == keycode && element.skill) {
-
           this.UseItem(element);
           // this.$parent.UseItem(element);
           return;
         }
       }
     },
-    
+
+    // 动作条快捷键触发
     UseItem(item) {
       let skill = item.skill;
       if (skill.type == "prop") {
@@ -668,26 +734,22 @@ export default {
           console.log(" 使用药水 ", complted, skill);
           if (complted) {
             //药水数量减- 或 药水使用完
-            if (skill.countType == "group") {
-              if (skill.count) {
-                skill.count--;
-                if (skill.count > 0) {
-                  return;
-                }
-              } else {
+            
+            // 在动作条中使用时，通知在背包中物品减一
+            _Global.applyEvent("在动作条中调用Prop", skill.id);
+
+            setTimeout(() => {
+              if (skill.allCount == 0) {
+                skill.isDeleled = true;
+                item.isDeleled = true;
               }
-            }
-            console.log(" 删除药水 ");
-            _Global.applyEvent("摧毁Prop并在动作条中停用prop", skill.id);
-            // 在动作条中使用时，通知在背包中删除
-            _Global.applyEvent("在动作条中调用并摧毁Prop", skill.id);
+            }, 200);
           }
         }
         return;
-      } 
+      }
       // this.parent.UseItem(item);
       this.$parent.UseItem(item);
-
     },
 
     AddSkill(_skill) {
@@ -702,7 +764,7 @@ export default {
           has = true;
         }
       }
-      if(has){
+      if (has) {
         return;
       }
       // 自动添加时，从左到右，第一个没有使用的动作框

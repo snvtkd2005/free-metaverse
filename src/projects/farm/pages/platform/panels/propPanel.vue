@@ -84,7 +84,14 @@ export default {
   },
   created() {},
   mounted() {
-    this.initValue();
+    if (_Global.propList) {
+        this.propList = _Global.propList;
+    }else{
+      setTimeout(() => {
+        this.propList = _Global.propList || [];
+        this.initValue();
+      }, 2000);
+    }
   },
   methods: {
     getItemsPropType(propType) {
@@ -126,10 +133,7 @@ export default {
         }
       }
     },
-    initValue() {
-      if (_Global.propList) {
-        this.propList = _Global.propList;
-      }
+    initValue() { 
       for (let i = this.propList.length - 1; i >= 0; i--) {
         const element = this.propList[i];
         if (element == null) {

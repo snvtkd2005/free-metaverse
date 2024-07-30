@@ -30,7 +30,8 @@ module.exports = {
   proxy: {
 
     '/bilibili': {
-      target: 'http://127.0.0.1:3000', // 目标地址 --> 服务器地址
+      target: 'http://snvtkd2005.com:3336', // 目标地址 --> 服务器地址
+      // target: 'http://127.0.0.1:3000', // 目标地址 --> 服务器地址
       // target: 'https://live-open.biliapi.com', // 目标地址 --> 服务器地址
       changeOrigin: true,
       // secure: false,

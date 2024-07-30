@@ -542,9 +542,9 @@ class FaceBone {
             initMorphs();
 
             onChangeMorph();
-            // morphs.close();
+            morphs.close();
             bq.close();
-            // zhimu.close();
+            zhimu.close();
         }
 
         function getCurrent(name) {
@@ -628,6 +628,8 @@ class FaceBone {
 
             // }
 
+            // return;
+
             setInterval(() => {
 
                 for (let i = 0; i < expression.length; i++) {
@@ -667,7 +669,7 @@ class FaceBone {
                     } 
                     // console.log("音节:", syllables);
                 }
-                console.log("音节:", all);
+                // console.log("音节:", all);
                 playZM(all, 0);
             }, 2000 * 1);
             return;
@@ -703,7 +705,7 @@ class FaceBone {
             for (let i = 0; i < zhimuData.length; i++) {
                 const element = zhimuData[i];
                 if (element.name.includes(syllables[num])) {
-                    console.log(element,);
+                    // console.log(element,);
                     for (let j = 0; j < element.faceData.length; j++) {
                         const facedataItem = element.faceData[j];
                         let { name, value } = facedataItem;

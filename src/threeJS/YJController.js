@@ -383,8 +383,7 @@ class YJController {
     function ChangeCtrl() {
       // return;
       // console.log(" 切换控制模式 setting ", setting);
-
-      hasCamRaycast = setting.hasCamRaycast != undefined && setting.hasCamRaycast;
+ 
       //
       viewStateEnum = "人视";
       OnViewStateChangeFn(viewStateEnum);
@@ -2357,7 +2356,7 @@ class YJController {
       //   return;
       // }
       // console.log(" in ResetToNiaokanView 222 ");
-      hasCamRaycast = false;
+      setting.hasCamRaycast = false;
       b_inNiaokan = !b_inNiaokan;
       ChangeNiaokanPersonView();
     }
@@ -3354,12 +3353,11 @@ class YJController {
         return null;
 
       }
-    }
-    let hasCamRaycast = true; //是否激活摄像机视角障碍检测
+    } 
     function CheckCameraLine() {
       // console.log("摄像机障碍检测", hasCamRaycast, viewState);
-
-      if (!hasCamRaycast || viewState == 1) { return; }
+      //是否激活摄像机视角障碍检测
+      if (!setting.hasCamRaycast || viewState == 1) { return; }
       let fromPos = camTargetDirection.getWorldPosition(new THREE.Vector3());
       let direction = camTargetDirection.getWorldDirection(new THREE.Vector3());
 
@@ -3987,6 +3985,7 @@ class YJController {
       return v.x + "  " + v.y + "  " + v.z + "  " + v.w;
     }
     var addEventListenered = false;
+
 
     this.dispose = function () {
 

@@ -92,9 +92,9 @@
             </div>
           </div>
           <div class="mx-auto w-5/6 h-1 mt-1 bg-gray-400"></div>
-          <div class="flex-grow overflow-y-scroll">
+          <div v-if="currentData.menuList" class="flex-grow overflow-y-scroll">
             <div
-              v-for="(item, i) in currentData.children"
+              v-for="(item, i) in currentData.menuList"
               :key="i"
               class="flex w-full mt-6 relative"
             >
@@ -149,6 +149,48 @@
               </div>
             </div>
           </div>
+
+          <div v-if="currentData.children" class="flex-grow mt-6 overflow-y-scroll">
+            <div
+                  v-for="(item, i) in currentData.children"
+                  :key="i"
+                  class="flex pl-10 relative text-yellow-400"
+                >
+                  <div class="flex justify-between">
+                    <div class="w-64 h-7 relative text-left">
+                      <div class="w-full leading-7"
+                      :class="item.type=='button'?' border rounded-lg cursor-pointer text-center pointer-events-auto ':''"
+                      @click="ClickValue(item.field)"
+                      >{{ item.title }}</div>
+                    </div>
+                    <div
+                      class="w-auto cursor-pointer" 
+                    >
+                      <div v-if="item.type=='drop'"  class="w-40 h-10  rounded-md text-white" >
+                        <YJinput_drop 
+                          :value="item.value"
+                          :options="GameSettingData[item.field]"
+                          :callback="(e)=>{item.value=e;ChangeValue(item.field,e);}"
+                        />
+                      </div> 
+                      <div v-if="item.type == 'text'" class="w-32 h-4 text-black">
+                        <YJinput_text  
+                          :value="item.value" 
+                          :callback="(e)=>{item.value=e;ChangeValue(item.field,e);}"
+                        />
+                      </div>
+                      <div v-if="item.type == 'password'" class="w-32 h-4 text-black">
+                        <YJinput_password  
+                          :value="item.value" 
+                          :callback="(e)=>{item.value=e;ChangeValue(item.field,e);}"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+          </div>
+
+
         </div>
       </div>
 
@@ -163,6 +205,12 @@
           </div>
         </div>
       </div>
+
+      <div v-if="connectDMserver" class=" z-40 absolute bottom-0  left-0 w-full  text-xl "
+      :class="tipCode==0?' text-white ': ( tipCode==1?' text-red-500 ':' text-green-500')"
+      >
+        <div>{{errorTip}}</div>
+      </div>
     </div>
   </div>
 </template>
@@ -173,45 +221,20 @@
 <script >
  
 import YJinput_drop from '../../components/YJinput_drop.vue';
+import YJinput_text from '../../components/YJinput_text.vue';
+import YJinput_password from '../../components/YJinput_password.vue';
 import GameSettingData from "../../../../data/platform/GameSettingData";
 
 export default {
   props: [],
   components: {
     YJinput_drop,
+    YJinput_text,
+    YJinput_password,
   },
   data() {
     return {
-      lefMenuList: [
-        {
-          title: "游戏功能",
-          children: [
-            { field: "control", title: "控制" },
-            // { field: "panel", title: "界面" },
-            // { field: "actionBar", title: "动作条" },
-            // { field: "comba", title: "战斗" },
-            // { field: "", title: "社交" },
-            { field: "keyData", title: "快捷键" },
-          ],
-        },
-        // {
-        //   title: "易用性",
-        //   children: [
-        //     { field: "control", title: "综合" },
-        //     { field: "panel", title: "色盲模式" },
-        //     { field: "actionBar", title: "文本转语音" },
-        //   ],
-        // },
-        // {
-        //   title: "系统",
-        //   children: [
-        //     { field: "control", title: "图形" },
-        //     { field: "panel", title: "音频" },
-        //     { field: "actionBar", title: "语言" },
-        //     { field: "actionBar", title: "网络" },
-        //   ],
-        // },
-      ],
+      lefMenuList: [],
       currentData: {},
       childTitle: "快捷键",
       childTitle2:"",
@@ -227,16 +250,38 @@ export default {
       playerImg: "./public/images/cursorList/mainmenu/inv_misc_book_09.png",
       hoverPart: "",
       GameSettingData:{},
+      errorTip:"",
+      connectDMserver:false,
+      tipCode:0,
     };
   },
   created() {},
   mounted() {
     this.GameSettingData = GameSettingData;
+    this.lefMenuList = GameSettingData.lefMenuList;
     console.log(" in setting panel ",this.GameSettingData['ctrlType']);
 
     setTimeout(() => {
       this.clickTitle(this.lefMenuList[0].children[0]);
     }, 20);
+    _Global.addEventListener("连接弹幕服务器失败",(code)=>{
+      this.errorTip = "正在连接，请稍后";
+      this.tipCode = 0;
+      if(code==7007){
+        //主播身份码错误，请查证后再试一次
+        this.errorTip = "主播身份码错误，请查证后再试一次";
+        this.tipCode = 1;
+        // setTimeout(() => {
+        //   this.errorTip = "";
+        // }, 3000);
+      } 
+    });
+    _Global.addEventListener("连接弹幕服务器成功",()=>{
+      this.errorTip = "连接成功";
+      this.tipCode = 2; 
+    });
+
+    
   },
 
   methods: {
@@ -257,8 +302,8 @@ export default {
         this.currentData = _Global.GameSetting[field];
         this.currentData.field = field;
         if (field == "keyData") {
-          for (let i = 0; i < this.currentData.children.length; i++) {
-            let secField = this.currentData.children[i].field;
+          for (let i = 0; i < this.currentData.menuList.length; i++) {
+            let secField = this.currentData.menuList[i].field;
             for (let j = 0; j < this.currentData[secField].length; j++) {
               this.currentData[secField][j].type = "key";
               let key = this.currentData[secField][j].key;
@@ -303,11 +348,20 @@ export default {
     },
     ChangeValue(field,v) {
       if(field=='ctrlType'){
-        if(v=='wow'){}
-        if(v=='overlook'){}
+        _Global.applyEvent("切换控制方式",v) ;
       }
-      _Global.SaveGameSetting();
+      if(field=='liveAnchorCodeId'){
+        
+      }
+      // _Global.SaveGameSetting();
 
+    },
+    ClickValue(field){
+      if(field=='connectDM'){
+        this.connectDMserver = true;
+        _Global.applyEvent("连接弹幕服务器",this.currentData.children[0].value) ;
+        console.log(" 连接弹幕服务器 ",this.currentData.children[0].value);
+      }
     },
     clickTitle2(item) {
       if(item.type == "key"){

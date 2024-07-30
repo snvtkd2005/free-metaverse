@@ -961,8 +961,7 @@ export default {
       );
 
       console.log(" 获取场景配置 ", res.data);
-      this.sceneData = res.data;
-      this.sceneData.setting.hasCamRaycast = false;
+      this.sceneData = res.data; 
       this.sceneData.setting.camOffsetY =
         this.sceneData.setting.playerHeight / 2;
       this.sceneData.setting.title = this.oldFileName;
@@ -971,8 +970,8 @@ export default {
       // this.isDMGame = this.sceneData.setting.isDMGame;
       // _Global.isDMGame = this.isDMGame;
 
-      // this.isMMD = this.sceneData.setting.isMMD;
-      // _Global.isMMD = this.isMMD;
+      this.isMMD = this.sceneData.setting.isMMD;
+      _Global.isMMD = this.isMMD;
       this.gameType = this.sceneData.setting.gameType;
       _Global.gameType = this.gameType;
 

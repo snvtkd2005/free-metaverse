@@ -6,8 +6,8 @@ import * as THREE from "three";
 import { GameRecord } from "/@/threeJS/common/gameRecord";
 import { RandomInt } from "/@/utils/utils";
 
-import { socket_bilibili } from "/@/utils/socket_bilibili.js";
-import * as world_configs from "/@/utils/socket_bilibili/index.js";
+// import { socket_bilibili } from "/@/utils/socket_bilibili.js";
+// import * as world_configs from "/@/utils/socket_bilibili/index.js";
 import { GenerateEnemyNPC } from "./GenerateEnemyNPC";
 import { GenerateDMNPC } from "./GenerateDMNPC";
 

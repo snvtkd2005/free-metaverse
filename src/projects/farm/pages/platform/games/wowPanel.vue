@@ -312,29 +312,30 @@ export default {
         this.cancelDrag("右键点击");
       });
       _Global.addEventListener("从动作条拖拽到动作条", () => {
-        this.cancelDrag("从动作条拖拽到动作条");
-          
-        this.$refs.ActionPanelVue.saveActionList();
+        this.cancelDrag("从动作条拖拽到动作条"); 
       });
       _Global.addEventListener("从角色面板拖拽到动作条", () => {
-        this.cancelDrag("从角色面板拖拽到动作条");
-        this.$refs.ActionPanelVue.saveActionList();
+        this.cancelDrag("从角色面板拖拽到动作条"); 
       });
       _Global.addEventListener("从角色面板拖拽到背包", () => {
         this.cancelDrag("从角色面板拖拽到背包");
       });
 
       _Global.addEventListener("从背包拖拽到动作条", () => {
-        this.cancelDrag("从背包拖拽到动作条");
-        this.$refs.ActionPanelVue.saveActionList();
+        this.cancelDrag("从背包拖拽到动作条"); 
+      });
+      _Global.addEventListener("从背包拖拽到背包", () => {
+        this.cancelDrag("从背包拖拽到背包"); 
+      });
+      _Global.addEventListener("从背包拖拽到角色面板", () => {
+        this.cancelDrag("从背包拖拽到角色面板"); 
       });
       _Global.addEventListener("取消拖拽Prop", () => {
         this.cancelDrag("取消拖拽Prop");
       });
 
       _Global.addEventListener("摧毁拖拽Prop", () => {
-        this.cancelDrag("摧毁拖拽Prop");
-        this.$refs.ActionPanelVue.saveActionList();
+        this.cancelDrag("摧毁拖拽Prop"); 
       });
 
       // _Global.panelState.receiveTask = true;
@@ -404,9 +405,13 @@ export default {
       this.dragIcon = item.icon;
       this.dragSkill = item;
     },
+    dragStartItem(item) { 
+      this.dragItem = item;
+    },
     dragEnd(item) {
       this.inDraging = false;
       this.dragSkill = null;
+      this.dragItem = null;
       _Global.dragPart = "";
       this.$refs.ActionPanelVue.saveActionList();
     },
@@ -794,8 +799,10 @@ export default {
         this.inHover = false;
         this.newDiv.style.display = "none";
       }
+      _Global.hoverPart = "";
     },
-    UseItem(item) {
+    UseItem(item) { 
+      
       if (item.isDeleled) {
         return false;
       }

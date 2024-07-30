@@ -1,15 +1,15 @@
 <template>
-  <div class="w-full h-full absolute left-2 top-0 pointer-events-none">
     <!-- 弹幕玩家血量、等级、技能状态 -->
+  <div class="w-auto h-full absolute left-2 top-0 pointer-events-none">
     <div class="absolute top-32 left-0  h-full w-auto transform origin-left">
-      <div class="w-full h-full pt-2">
+      <div class="w-auto h-2/3 pl-2 gap-x-1  pt-2 flex flex-col flex-wrap ">
         <div
           v-for="(item, i) in dmPlayer"
           :key="item"
           :index="i"
-          class="w-full mb-6"
+          class="w-52 h-16 mb-1  "
         >
-          <div class="px-2 text-white">
+          <div class=" text-white">
             <div class="flex relative">
               <div class="w-12 h-12 mt-3 relative">
                 <img
@@ -29,10 +29,10 @@
                   {{ item.level }}
                 </div>
               </div>
-              <div class="w-11/12 px-1 text-xl text-yellow-300 ">
+              <div class="w-11/12 px-1 text-base text-yellow-300 ">
                 <div class="flex">
-                  <div class="ml-1 text-left leading-5">{{ item.uname }}</div>
-                  <div class=" ml-1 text-left leading-5">
+                  <div class=" w-24 text-left leading-5 truncate">{{ item.uname }}</div>
+                  <div class=" ml-1 text-left leading-5 whitespace-nowrap">
                     {{
                       item.state == "run"
                         ? "[" + item.posId + "]"
@@ -40,9 +40,9 @@
                     }}
                   </div>
                 </div>
-                <div class=" mt-1 mb-1 w-full h-auto relative">
+                <div class=" mt-1 mb-1 w-28 text-white h-auto relative">
                   <!-- 生命条 -->
-                  <div class="w-full border relative h-4">
+                  <div class="w-full border relative h-3">
                     <div
                       class="bg-green-500 h-full"
                       :style="
@@ -189,6 +189,8 @@ export default {
   methods: {
     setDMPlayer(_dmplayer) {
       this.dmPlayer = _dmplayer;
+      // console.log(" this.dmPlayer ",this.dmPlayer);
+      this.$forceUpdate();
     },
     forceUpdate(){
       this.$forceUpdate();

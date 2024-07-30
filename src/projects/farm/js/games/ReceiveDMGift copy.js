@@ -5,8 +5,8 @@
 
 import { RandomInt } from "/@/utils/utils";
 
-import { socket_bilibili } from "/@/utils/socket_bilibili.js";
-import * as world_configs from "/@/utils/socket_bilibili/index.js"; 
+// import { socket_bilibili } from "/@/utils/socket_bilibili.js";
+// import * as world_configs from "/@/utils/socket_bilibili/index.js"; 
 
 // 弹幕互动管理器
 /**

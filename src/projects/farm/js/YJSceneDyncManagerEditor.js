@@ -250,7 +250,6 @@ class YJSceneDyncManagerEditor {
         targetModel.SetNpcTarget(npcComponent, true, true);
       }
       console.log(" 开始新的战斗 ", targetModel.GetNickName() + " " + npcComponent.GetNickName(), fireGroup[fireGroup.length - 1]);
-      //让玩家加入战斗
       scope.SendSceneStateAll("玩家加入战斗", { playerId: targetModel.id, fireId: fireId });
       scope.SendSceneState("战斗状态");
 
@@ -1092,19 +1091,20 @@ class YJSceneDyncManagerEditor {
         } else {
 
         }
-        if (_Global.mainUser) {
-          let player = scope.GetPlayerById(playerId);
-          if (player.playerMirrors && player.playerMirrors.length > 0) {
-            for (let i = 0; i < player.playerMirrors.length; i++) {
-              const mirrorId = player.playerMirrors[i];
-              let mirror = scope.GetNpcById(mirrorId);
-              console.log("玩家加入战斗后，让其镜像设置目标", mirrorId);
-              let mirrorNpc = mirror.GetComponent("NPC");
-              mirrorNpc.fireId = fireId;
-              // mirrorNpc.CheckNextTarget();
-            }
-          }
-        }
+        // 玩家加入战斗后，让其镜像设置目标
+        // if (_Global.mainUser) {
+        //   let player = scope.GetPlayerById(playerId);
+        //   if (player.playerMirrors && player.playerMirrors.length > 0) {
+        //     for (let i = 0; i < player.playerMirrors.length; i++) {
+        //       const mirrorId = player.playerMirrors[i];
+        //       let mirror = scope.GetNpcById(mirrorId);
+        //       console.log("玩家加入战斗后，让其镜像设置目标", mirrorId);
+        //       let mirrorNpc = mirror.GetComponent("NPC");
+        //       mirrorNpc.fireId = fireId;
+        //       // mirrorNpc.CheckNextTarget();
+        //     }
+        //   }
+        // }
         return;
       }
 

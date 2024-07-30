@@ -5,7 +5,7 @@
 
 import { RandomInt } from "/@/utils/utils";
 
-import { socket_bilibili } from "/@/utils/socket_bilibili.js";
+import { socket_bilibili } from "/@/utils/socket_bilibili/socket_bilibili.js";
 import * as world_configs from "/@/utils/socket_bilibili/index.js"; 
 
 // 弹幕互动管理器
@@ -337,6 +337,21 @@ class ReceiveDMGift {
 
       if (t == "点赞") {
         ctrl.DMevent("加入敌方角色",{state}); 
+        
+        //所有玩家加10点生命
+        if (_Global.YJDync) {
+          _Global._YJDyncManager.SendSceneStateAll("转发", { type: "所有人加生命", state: 200 });
+        } else {
+          _Global._SceneManager.ReceivePlayer({ buff: "addHealth", buffValue: 200 });
+        }
+        return;
+      }
+      if(t=="弹幕"){
+        if (_Global.YJDync) {
+          _Global._YJDyncManager.SendSceneStateAll("转发", { type: "弹幕", state: state });
+        } else {
+          _Global.applyEvent("弹幕信息",state);
+        }
         return;
       }
 
@@ -551,37 +566,14 @@ class ReceiveDMGift {
       ctrl.resetLifeById(modelId);
     } 
    
-    function init() {
+    this.init = function(liveAnchorCodeId,openCallback,closeCallback) {
 
       // console.log(" 初始化礼物管理器 "); 
- 
-
-      _Global.addEventListener("战斗结束", (msg) => {
-      });
-      _Global.addEventListener("3d加载完成", () => {
-      });
-      _Global.addEventListener("战斗开始", () => {
-
-      });
-
-      new socket_bilibili(()=>{
-        ctrl.DMsocketState(true);
-      },()=>{
-        ctrl.DMsocketState(false);
-      },(_data) => {
+      new socket_bilibili(liveAnchorCodeId,openCallback,closeCallback,(_data) => {
         let { cmd, msg, uname, uid, uface, data } = _data;
         switch (cmd) {
           case world_configs.LIVE_OPEN_PLATFORM_DM:
-            console.log(uname, " 发送弹幕 ", msg);
-            // if(msg==1 ||msg==2||msg==3||msg==4||msg==5 ){
-            //   let i = msg-1;
-            //   if (_Global.YJDync) {
-            //     _SceneDyncManager.SendModel({ id: propList[i].id, modelType: "交互模型", state: { type: "add", value:  propList[i].buffValue } });
-            //   } else {
-            //     _SceneManager.ReceivePlayer( propList[i]);
-            //   }
-            //   // return;
-            // } 
+            console.log(uname, " 发送弹幕 ", msg); 
 
             for (let i = 0; i < dmCtrl.length; i++) {
               const element = dmCtrl[i];
@@ -593,25 +585,15 @@ class ReceiveDMGift {
                 let isPlayer = ctrl.hasPlayer(uname)
                 if (!isPlayer) {
                   element.event({ uface, uname, msg: "加入" });
-                }
-
+                } 
               }
             }
-            if (_Global.YJDync) {
-              _Global._YJDyncManager.SendSceneStateAll("转发", { type: "弹幕", state: { uface, uname, msg } });
-            } else {
-              _Global.applyEvent("弹幕信息",{ uface, uname, msg });
-            }
+            eventHander("弹幕", { uface, uname, msg });
+
             break;
           case world_configs.LIVE_OPEN_PLATFORM_LIKE:
             console.log(uname, " 点赞 ");
             eventHander("点赞", { uface, uname, msg });
-            //所有玩家加10点生命
-            if (_Global.YJDync) {
-              _Global._YJDyncManager.SendSceneStateAll("转发", { type: "所有人加生命", state: 200 });
-            } else {
-              _Global._SceneManager.ReceivePlayer({ buff: "addHealth", buffValue: 200 });
-            }
             break;
 
           case world_configs.LIVE_OPEN_PLATFORM_SEND_GIFT:
@@ -626,7 +608,7 @@ class ReceiveDMGift {
 
     }
 
-    init();
+    // init();
   }
 }
 

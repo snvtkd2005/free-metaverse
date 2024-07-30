@@ -172,10 +172,10 @@ export default {
   },
   methods: {
     // 设置头像框上的角色名
-    SetTarget(npcData) {
+    SetTarget(npcData,nickName) {
       // console.log(  " 设置 NPC 头像框上数据更新 111 ",npcData);
 
-      this.targetName = npcData.name;
+      this.targetName = nickName;
       this.baseData = npcData.baseData;
 
       this.selfCamp = this.baseData.camp == _Global.user.camp;

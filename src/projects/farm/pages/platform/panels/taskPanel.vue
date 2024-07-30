@@ -97,9 +97,13 @@ export default {
   },
   created() {},
   mounted() { 
-    setTimeout(() => {
-      this.taskList = _Global.taskList || [];
-    }, 2000);
+    if (_Global.taskList) {
+        this.taskList = _Global.taskList;
+    }else{
+      setTimeout(() => {
+        this.taskList = _Global.taskList || [];
+      }, 2000);
+    }
   },
   methods: {
     EditorEvent(e, item, i) {

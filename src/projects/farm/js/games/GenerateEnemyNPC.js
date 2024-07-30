@@ -123,7 +123,7 @@ class GenerateEnemyNPC {
           if (state) {
 
           } else {
-            element.transform.SetActive(false);
+            npc.transform.SetActive(false);
           }
         }
       });

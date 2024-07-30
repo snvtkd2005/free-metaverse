@@ -1012,8 +1012,8 @@ class YJSceneManager {
       // 返回所有非静态模型
       // if(allHoverCollider.length == 0){
       // }
-      return modelParent.children;
-      return scene.children;
+      // return modelParent.children;
+      // return scene.children;
       return allHoverCollider;
     }
 

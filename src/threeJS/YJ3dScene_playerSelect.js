@@ -33,6 +33,7 @@ class YJ3dScene_playerSelect {
         return _YJPlayerAnimData;
       }
       _YJPlayerAnimData = new YJPlayerAnimData(_this, scope);
+      _Global._YJPlayerAnimData = _YJPlayerAnimData;
       return _YJPlayerAnimData;
     }
 
@@ -435,10 +436,14 @@ class YJ3dScene_playerSelect {
       }
       model.rotation.set(rota[0]/de2reg,rota[1]/de2reg, rota[2]/de2reg);
     }
+    let avatarData = null;
+    this.GetavatarData = function () {
+      return avatarData;
+    }
     // 此函数用来做npc
-    this.ChangeAvatarByCustom = function (avatarData, callback) {
+    this.ChangeAvatarByCustom = function (_avatarData, callback) {
       clearGroup(group); 
-
+      avatarData = _avatarData  ;
       playerHeight = avatarData.height;
       playerName = avatarData.name;
       avatarId = avatarData.id;

@@ -43,7 +43,7 @@ class YJEquip {
             let path = _Global.YJ3D.$uploadUrl + weapon.assetId + "/" + "data.txt" + "?time=" + new Date().getTime();
 
             _Global.YJ3D._YJSceneManager.LoadAssset(path, (data) => {
-                console.log(path, data);
+                // console.log(path, data);
                 weaponData = data.message.data;
                 owner.GetSkill().ChangeBaseSkillByWeapon(weaponData);
 

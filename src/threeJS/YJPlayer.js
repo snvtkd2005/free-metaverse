@@ -585,7 +585,7 @@ class YJPlayer {
         scope, scope.id, nickName, 
         playerHeight,modelScaleDrect, 
         nameScale, 
-        _Global.user.camp != scope.camp ? '#ee0000' : '#bab8ff'
+        _Global.user.camp != scope.camp ? 0xee0000 : 0xbab8ff
       );
  
       // _YJPlayerChat.CreateChatTrans("测试测测试"); 
@@ -1327,6 +1327,7 @@ class YJPlayer {
 
     // update();
     var updateId = null;
+    let oldPlayerPos = new THREE.Vector3();
     this._update = function () {
 
       // updateId = requestAnimationFrame(update);
@@ -1349,8 +1350,11 @@ class YJPlayer {
       if(avatar){
         avatar._update();
       }
-      
-      this.applyEvent("pos", this.GetWorldPos());
+      let pos =  this.GetWorldPos();
+      if (oldPlayerPos.distanceTo(pos) > 0.1) {
+        this.applyEvent("pos",pos);
+        oldPlayerPos = pos.clone();
+      } 
       // this.applyEvent("pos", this.GetPlayerWorldPos());
       // this.applyEvent("pos", playerGroup.getWorldPosition(new THREE.Vector3()));
 

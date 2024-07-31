@@ -397,7 +397,7 @@ class YJPlayerNameManager {
       }
 
 
-      npc.addEventListener("重置昵称", (_nickName) => {
+      npc.addEventListener("重置昵称", (_nickName,_color) => {
         console.log(" 重置昵称 ",nickName,_nickName);
         // if (resetButton) {
         //   resetButton.remove(resetButton.children[0]);
@@ -408,7 +408,7 @@ class YJPlayerNameManager {
         //   resetButtonText.name = "nameBar";
         //   resetButtonText.material.color.set(color);
         // }
-
+        color = _color;
         let has = false;
         // 移除旧的姓名条
         for (let i = nickNameMerged.length - 1; i >= 0 && !has; i--) {

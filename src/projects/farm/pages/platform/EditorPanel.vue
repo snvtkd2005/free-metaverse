@@ -977,9 +977,7 @@ export default {
 
       this.hasHUD = this.sceneData.setting.hasHUD;
       _Global.hasAvatar = this.sceneData.setting.hasAvatar;
-      this.hasAvatar = this.sceneData.setting.hasAvatar;
-      _Global.user.camp =
-        (this.sceneData.user && this.sceneData.user.camp) ?? 1000;
+      this.hasAvatar = this.sceneData.setting.hasAvatar; 
 
       this.Enter();
     },

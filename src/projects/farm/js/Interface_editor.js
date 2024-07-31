@@ -145,7 +145,8 @@ class Interface {
       DMGame: !inEditor,
     }
     _Global.user = {
-      camp: 1000
+      camp: 1000,
+      id:"sdfsdf",
     }
     _Global.url = {
       uploadUrl: _this.$uploadUrl,

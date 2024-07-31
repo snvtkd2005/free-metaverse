@@ -228,12 +228,12 @@ class YJDMManager_bilibili {
         if (npc.isDead) {
           npc.Dync({ title: "重新生成" });
         }
-        _Global.DyncManager.AddNpc(copy);
+        _Global._YJFireManager.AddNpc(copy);
 
         console.log(" 战斗状态 ", _Global.inGame);
         if (_Global.inGame) {
           let npcComponent = copy.GetComponent("NPC");
-          _Global.DyncManager.NPCAddFireGroup(npcComponent, target ? target.id : null);
+          _Global._YJFireManager.NPCAddFireGroup(npcComponent, target ? target.id : null);
           //并指定其目标为指定名称id的npc
           copy.GetComponent("NPC").SetNpcTarget(target.GetComponent("NPC"), true, true);
         }

@@ -89,6 +89,10 @@ class YJTransform {
       // console.error( data.modelId,"" ,data);
       return data;
     }
+    
+    this.GetModelScale = function(){
+        return data.scale.x;
+    }
     this.GetMessage = function () {
       return data.message;
     }

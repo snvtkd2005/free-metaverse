@@ -68,8 +68,7 @@ export default {
     envSceneHDRPath: "020.hdr",
 
     // 是否启用摄像机遮挡时拉近摄像机功能
-    hasCamRaycast: false,
-    // hasCamRaycast: true,
+    hasCamRaycast: true,
     camRaycastMode: "near",  // near 视角拉近 ; transparent 透明遮挡物。
     // camRaycastMode: "transparent",  // near 视角拉近 ; transparent 透明遮挡物。
 
@@ -93,7 +92,8 @@ export default {
     hasAvatar: true,
     // 是否有界面
     hasHUD: true,
-
+    gameType: "WOW",
+    
     // 操作方式。 0 键鼠控制/遥感控制，1 鼠标点击地面 
     contrlState: 0,
     //舍弃/>-1控制隐藏角色。该值由 cameraOffset 在YJController.中计算得出 键鼠控制时，摄像机距离

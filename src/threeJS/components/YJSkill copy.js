@@ -1243,7 +1243,7 @@ class YJSkill {
                 hyperplasiaTrans.push(npcComponent);
                 if (targetModel) {
                     npcComponent.SetNpcTarget(targetModel);
-                    _Global.DyncManager.NPCAddFireById(npcComponent, owner.fireId, targetModel.id);
+                    _Global._YJFireManager.NPCAddFireById(npcComponent, owner.fireId, targetModel.id);
                 }
                 num++;
                 if (num == count) {

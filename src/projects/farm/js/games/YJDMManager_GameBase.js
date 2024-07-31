@@ -214,7 +214,7 @@ class YJDMManager_GameBase {
         //全部死亡
         console.error(" 检测到所有友方死亡 ");
         _Global.applyEvent("战斗结束", 10000);
-        _Global.DyncManager.ClearFire();
+        _Global._YJFireManager.ClearFire();
         return null;
       }
       return targetCom;
@@ -330,17 +330,17 @@ class YJDMManager_GameBase {
             _YJGame_mainCtrl.createGold(npc.GetWorldPos().clone());
           } 
           // 从一场战斗中移除npc
-          _Global.DyncManager.RemoveNPCFireId(id,fireId);
+          _Global._YJFireManager.RemoveNPCFireId(id,fireId);
           _Global.applyEvent("杀死npc",npc.GetNickName());
 
         });
       }
       _GenerateEnemyNPC = new GenerateEnemyNPC((npcComponent) => {
  
-        // if (_Global.DyncManager.CheckHasFire()) {
-        //   _Global.DyncManager.NPCAddFireGroup(npcComponent, enemyNpcTarget.id);
+        // if (_Global._YJFireManager.CheckHasFire()) {
+        //   _Global._YJFireManager.NPCAddFireGroup(npcComponent, enemyNpcTarget.id);
         // } else {
-        //   _Global.DyncManager.NPCAddFire(npcComponent, enemyNpcTarget);
+        //   _Global._YJFireManager.NPCAddFire(npcComponent, enemyNpcTarget);
         // }
         // //并指定其目标为指定名称id的npc
         // npcComponent.SetNpcTarget(enemyNpcTarget, true, true);
@@ -352,7 +352,7 @@ class YJDMManager_GameBase {
           _YJGame_mainCtrl.createGold(npc.GetWorldPos().clone());
         } 
         // 从一场战斗中移除npc
-        _Global.DyncManager.RemoveNPCFireId(id,fireId);
+        _Global._YJFireManager.RemoveNPCFireId(id,fireId);
         enemyCount--;
         _Global.applyEvent("杀死npc",npc.GetNickName());
         // console.log(" 敌人数量 "+enemyCount);

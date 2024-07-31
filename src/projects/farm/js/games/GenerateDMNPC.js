@@ -5,8 +5,8 @@
 import * as THREE from "three";
 
 
-import * as world_configs from "/@/utils/socket_bilibili/index.js"; 
- 
+import * as world_configs from "/@/utils/socket_bilibili/index.js";
+
 /**
  * 
  * 生成弹幕NPC
@@ -14,7 +14,7 @@ import * as world_configs from "/@/utils/socket_bilibili/index.js";
 class GenerateDMNPC {
   constructor(dmVue) {
     let scope = this;
- 
+
     //#region 
     //#endregion
 
@@ -39,8 +39,8 @@ class GenerateDMNPC {
       return " 加 " + "【" + s + "】" + v;
     }
     const NPCMODE = {
-      STANCE:0, //站桩
-      FOLLOW:1, //跟随主角
+      STANCE: 0, //站桩
+      FOLLOW: 1, //跟随主角
     }
     let npcmode = NPCMODE.FOLLOW;
 
@@ -77,7 +77,7 @@ class GenerateDMNPC {
 
 
     }
-    this.resetLife = function(state) {
+    this.resetLife = function (state) {
       let { uname } = state;
       for (let i = 0; i < DMPlayer.length; i++) {
         const element = DMPlayer[i];
@@ -100,7 +100,7 @@ class GenerateDMNPC {
     }
     function resetLifeById(modelId) {
 
-      if (_Global.YJDync) {
+      if (_Global.YJDync && _Global._YJDyncManager) {
         _Global._YJDyncManager.SendSceneStateAll("转发", { type: "重新生成", state: { modelId: modelId } });
       }
 
@@ -118,7 +118,7 @@ class GenerateDMNPC {
       //   npc.Dync({ title: "重新生成" });
       // }
     }
-    this.GanerateNPC = function(assetId, camp, state) {
+    this.GanerateNPC = function (assetId, camp, state) {
       let { uface, uname, msg } = state;
       for (let i = 0; i < DMPlayer.length; i++) {
         const element = DMPlayer[i];
@@ -200,8 +200,7 @@ class GenerateDMNPC {
         }
       }
 
-      let npcId = uname;
-      // let npcId = new Date().getTime();
+      let npcId = uname + new Date().getTime();
       let dmplayer = {
         level: 1,
         uname: uname,
@@ -232,7 +231,7 @@ class GenerateDMNPC {
     function saveDMPlayer() {
       localStorage.setItem("DMPlayer", JSON.stringify(DMPlayer));
     }
-    this.hiddenProjectionUI = function(b){
+    this.hiddenProjectionUI = function (b) {
       for (let j = 0; j < assetIdList.length; j++) {
         let has = false;
         for (let i = 0; i < DMPlayer.length && !has; i++) {
@@ -241,9 +240,9 @@ class GenerateDMNPC {
             has = true;
           }
         }
-        if(!has){
+        if (!has) {
           let posId = posIdList[j];
-          _Global.YJ3D._YJSceneManager.DisplayProjectionUI(posId,b);
+          _Global.YJ3D._YJSceneManager.DisplayProjectionUI(posId, b);
         }
       }
     }
@@ -261,18 +260,10 @@ class GenerateDMNPC {
 
       let { uname, uface, assetId, camp, npcId, isDead } = dmPlayer;
       let yjtransform = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId(assetId);
-      let target = null;
-      if (camp == "红方") {
-        target = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId("boss");
-      }
-      if (camp == "蓝方") {
-        target = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId("redboss");
-        // target.GetComponent("NPC").canMove = false;
-      }
 
-      if (_Global.YJDync) {
-        _Global._YJDyncManager.SendSceneState("添加", { id: npcId, modelType: "NPC模型", state: { modelId: assetId, npcId: npcId, dmData: { uname, uface } } });
-      }
+
+      dmNpcListData.push({ npcId, assetId, uname, uface });
+
 
       let modelData = JSON.parse(JSON.stringify(yjtransform.modelData));
       modelData.name = uname;
@@ -286,7 +277,7 @@ class GenerateDMNPC {
         let npc = copy.GetComponent("NPC");
         npc.canMove = npcmode == NPCMODE.FOLLOW;
 
-        if(npcmode == NPCMODE.FOLLOW){
+        if (npcmode == NPCMODE.FOLLOW) {
           npc.setOwnerPlayer(_Global._YJPlayerFireCtrl);
         }
         npc.deadedHidden = false;
@@ -296,10 +287,8 @@ class GenerateDMNPC {
         npc.SetLevelData(dmPlayer);
         npc.CreateHeader(uface);
 
-
-
         npc.addEventListener("死亡", () => {
-          scope.ChangeDMNPCDead(npcId); 
+          scope.ChangeDMNPCDead(npcId);
           dmVue.forceUpdate();
         });
         npc.addEventListener("healthChange", (health, maxHealth) => {
@@ -323,10 +312,10 @@ class GenerateDMNPC {
           let npcSkills = npc.GetSkillList();
           if (npcSkills) {
             return;
-          } 
+          }
         });
 
-        if (_Global.inGame) { 
+        if (_Global.inGame) {
         }
         let npcSkills = npc.GetSkillList();
         // console.log(" npcSkills ",npcSkills);
@@ -349,42 +338,35 @@ class GenerateDMNPC {
             }
             skills.push(cSkill);
           }
-          npc.addEventListener("技能CD", (skillName, cCD,CD) => {
+          npc.addEventListener("技能CD", (skillName, cCD, CD) => {
             for (let i = 0; i < skills.length; i++) {
               const skill = skills[i];
               if (skill.name == skillName) {
-                dmVue.changeDMPlayerSkillCD(npcId, i, cCD,CD);
+                dmVue.changeDMPlayerSkillCD(npcId, i, cCD, CD);
               }
             }
           });
-        } else { 
+        } else {
 
         }
         _Global._YJNPCManager.AddNpc(copy);
 
-        // console.log(" 战斗状态 ", _Global.inGame);
-        // if (_Global.inGame) {
-        //   let npcComponent = copy.GetComponent("NPC");
-        //   _Global.DyncManager.NPCAddFireGroup(npcComponent, target ? target.id : null);
-        //   //并指定其目标为指定名称id的npc
-        //   copy.GetComponent("NPC").SetNpcTarget(target.GetComponent("NPC"), true, true);
-        // }
-
       }, npcId);
     }
     let dmNpcList = []; //弹幕npc
-    this.GetdmNpcList = function(){
+    let dmNpcListData = []; //弹幕npc
+    this.GetdmNpcList = function () {
       return dmNpcList;
     }
     let selfNpcList = []; //自身召唤npc
 
-    this.GetselfNpcList = function(){
+    this.GetselfNpcList = function () {
       return selfNpcList;
     }
-    
+
     let DMPlayer = [];
-    
-    this.GetDMPlayer = function(){
+
+    this.GetDMPlayer = function () {
       return DMPlayer;
     }
 
@@ -394,7 +376,7 @@ class GenerateDMNPC {
     let intervalList = []; //敌方npc生成位置
 
     //召唤友方NPC
-    this.DuplicateSelfNPC = function(assetId) {
+    this.DuplicateSelfNPC = function (assetId) {
       let npcId = assetId + new Date().getTime();
       if (_Global.YJDync) {
         _Global._YJDyncManager.SendSceneState("添加", { id: npcId, modelType: "NPC模型", state: { modelId: assetId, npcId: npcId } });
@@ -420,11 +402,11 @@ class GenerateDMNPC {
       });
     }
     function init() {
- 
+
 
       // console.error(" in Generate DM NPC"); 
       posRefList = _Global.YJ3D._YJSceneManager.GetPosRefList();
-   
+
       // _Global.LogFireById(1711340121297)
 
       _Global.addEventListener("战斗结束", (msg) => {
@@ -436,17 +418,27 @@ class GenerateDMNPC {
         }
 
       });
+      _Global.addEventListener("连接服务器成功", () => {
 
+        console.log(" ======= 连接服务器成功 ========= ");
+        // for (let i = 0; i < dmNpcListData.length; i++) {
+        //   const element = dmNpcListData[i];
+        //   let { uname, uface, assetId, camp, npcId, isDead } = element;
+        //   if (_Global.YJDync && _Global._YJDyncManager) {
+        //     _Global._YJDyncManager.SendSceneStateAll("转发", { type: "添加弹幕玩家镜像", state:  { fromId:_Global.user.id, id: npcId, modelType: "NPC模型", state: { modelId: assetId, npcId: npcId, dmData: { uname, uface } } } });
+        //   }
+        // }
+
+      });
 
 
       _Global.addEventListener("3d加载完成", () => {
-        dmVue.setDMPlayer(DMPlayer);
-        return;
+        // dmVue.setDMPlayer(DMPlayer); return;
 
         let s = localStorage.getItem("DMPlayer");
         if (s) {
           DMPlayer = JSON.parse(s);
-          console.log('getItem("DMPlayer"' ,DMPlayer);
+          console.log('getItem("DMPlayer"', DMPlayer);
         }
         let nosame = [];
         for (let i = world_configs.dmplayer.length - 1; i >= 0; i--) {
@@ -466,7 +458,7 @@ class GenerateDMNPC {
           DMPlayer.push(nosame[i]);
         }
 
-        if(DMPlayer.length>16 || true){
+        if (DMPlayer.length > 16 || true) {
           for (let i = 14; i >= 0; i--) {
             DMPlayer.splice(DMPlayer.length - i, 1);
           }
@@ -510,11 +502,11 @@ class GenerateDMNPC {
           dmplayer.isDead = false;
           dmplayer.state = "waite";
           if (dmplayer.skill == undefined || dmplayer.skill.length == 0) {
-            dmplayer.skill = []; 
+            dmplayer.skill = [];
           } else {
             for (let i = 0; i < dmplayer.skill.length; i++) {
               const element = dmplayer.skill[i];
-              element.perCD = 0; 
+              element.perCD = 0;
             }
           }
         }
@@ -577,10 +569,11 @@ class GenerateDMNPC {
           } else {
           }
           hasAssetId.push(dmplayer.assetId);
+          dmplayer.npcId += new Date().getTime();
           GanerateNPCFn(dmplayer);
         }
         dmVue.setDMPlayer(DMPlayer);
-
+        _Global._YJPlayerFireCtrl.GetProperty().updateDMPlayer(dmNpcListData);
       });
 
     }

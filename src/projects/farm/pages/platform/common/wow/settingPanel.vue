@@ -337,8 +337,11 @@ export default {
 
           _Global.addEventListener("keycodeUp", this.keyEvent);
         } 
+        else if (field == "live") {
+        }
         else 
         {
+
           if (this.keyEvent) {
             _Global.removeEventListener(this.keyEvent);
             this.keyEvent = null;
@@ -353,15 +356,28 @@ export default {
       if(field=='liveAnchorCodeId'){
         
       }
-      // _Global.SaveGameSetting();
+      if(field=='campType'){
+        _Global.user.camp = v;
+        // 阵营改变时，同步到其他玩家 
+        // 强制同步yjplayer
+        _Global.applyEvent("玩家改变阵营",_Global.user.id,v) ;
+      } 
+      _Global.SaveGameSetting();
 
     },
     ClickValue(field){
       if(field=='connectDM'){
         this.connectDMserver = true;
-        _Global.applyEvent("连接弹幕服务器",this.currentData.children[0].value) ;
+        let anchorCode = this.currentData.children[0].value;
+        if(anchorCode == ""){      
+          this.errorTip = "请输入您的B站主播身份码";
+          this.tipCode = 0;
+          return;
+        }
+        _Global.applyEvent("连接弹幕服务器",) ;
         console.log(" 连接弹幕服务器 ",this.currentData.children[0].value);
       }
+
     },
     clickTitle2(item) {
       if(item.type == "key"){

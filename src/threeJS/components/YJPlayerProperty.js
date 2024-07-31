@@ -175,10 +175,15 @@ class YJPlayerProperty {
 				if(baseData.health>baseData.maxHealth){
 					baseData.health=baseData.maxHealth;
 				}
+				baseData.equipList = equipList;
 				// console.log(" 装备更新属性 ",equipList,baseData);
 				owner.applyEvent("属性改变", baseData);
+				owner.updateEquip();
 			});
  
+		}
+		this.updateDMPlayer = function(_dmPlayer){
+			baseData.dmplayerList = _dmPlayer;
 		}
 		this.changeProperty = function () {
 			owner.applyEvent("属性改变", baseData);

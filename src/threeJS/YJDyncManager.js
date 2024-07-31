@@ -705,7 +705,7 @@ class YJDyncManager {
       if (title == "NPC对玩家") {
         fromData.sceneState = msg;
       }
-      if (title == "添加") {
+      if (title == "添加" || title == "添加弹幕玩家镜像") {
         fromData.model = msg;
       }
       if (title == "删除") {
@@ -993,7 +993,7 @@ class YJDyncManager {
             YJDync.DelPlayer(data.id);
             this.hotPoint.splice(j, 1);
             //移除该玩家创建的模型。注释后不在玩家离线时删除他创建的模型
-            _Global.DyncManager.DelPlayer(data.id);
+            _Global._YJFireManager.DelPlayer(data.id);
             // YJDync._YJSceneManager.RemoveModelByUserId(data.id);
             // this.addSystemMsg(data.message + " 已下线");
             continue;

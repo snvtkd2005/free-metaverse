@@ -142,7 +142,8 @@ export default {
           property: "baseData-camp", display: true, title: "阵营", type: "drop", value: 10000, options: [
             // { value: 1000, label: '联盟npc' },
             // { value: 1001, label: '部落npc' },
-            { value: 10000, label: '部落' },
+            { value: 10000, label: '野怪' },
+            { value: 1001, label: '部落' },
             { value: 1000, label: '联盟' },
             // { value: 9000, label: '中立' },
           ], callback: this.ChangeValue,

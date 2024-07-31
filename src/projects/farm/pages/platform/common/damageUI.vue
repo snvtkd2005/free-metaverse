@@ -24,7 +24,7 @@
       <div
         class="w-32 h-14 flex"
         :class="
-          item.addredius == 'redius' ? ' text-yellow-400 ' : ' text-green-400 '
+         item.addredius == 'redius' ? (item.isSelf ? ' text-red-400': ' text-yellow-400 ') : ' text-green-400 '
         "
       >
         <div class="self-center mx-auto text-4xl">
@@ -76,7 +76,7 @@ export default {
       }
     },
     AddDamage(msg) {
-      let { owner, type, value, pos3d, pos, addredius } = msg;
+      let { owner,isSelf, type, value, pos3d, pos, addredius } = msg;
       for (let i = this.damageList.length - 1; i >= 0; i--) {
         const e = this.damageList[i];
         if (e.owner == owner && e.type == type) {
@@ -92,6 +92,7 @@ export default {
         value: value,
         pos3d: pos3d,
         pos: pos,
+        isSelf: isSelf,
         addredius: addredius,
         opacity: 1,
         time: 0,

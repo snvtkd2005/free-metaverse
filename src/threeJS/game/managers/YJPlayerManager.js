@@ -152,29 +152,7 @@ class YJPlayerManager {
         }
       }
       return npcs;
-    }
-    this.GetNoSameCampNPC = function (playerPos) {
-      let npcs = [];
-      
-      let playerList = this.GetAllVaildPlayer();
-      for (let i = 0; i < playerList.length; i++) {
-        const element = playerList[i];
-        let npcComponent = element.GetComponent("NPC");
-        // 相同阵营的不计算
-        if (npcComponent.GetCamp() == _Global.user.camp) {
-          continue;
-        }
-        if (npcComponent.isCanSetTarget()) {
-          let npcPos = element.GetWorldPos();
-          let distance = playerPos.distanceTo(npcPos); 
-          if (distance <= 12) {
-            npcs.push(npcComponent); 
-          }
-        }
-      }
-      return npcs;
-    }
-    
+    } 
      
     this.GetSameCampNPCInFire = function (camp) {
       let npcs = [];
@@ -189,22 +167,7 @@ class YJPlayerManager {
         }
       }
       return npcs;
-    }
-    this.GetNoSameCampNPCInFire = function (camp) {
-      let npcs = [];
-      let playerList = this.GetAllVaildPlayer();
-      // console.log(" 所有有效npc ",playerList);
-      for (let i = 0; i < playerList.length; i++) {
-        const element = playerList[i];
-        let npcComponent = element.GetComponent("NPC");
-        // 不相同阵营 
-        if (npcComponent.GetCamp() == camp) {
-          continue;
-        }
-        npcs.push(npcComponent); 
-      }
-      return npcs;
-    }
+    } 
     // 有效距离内的所有
     this.GetNoSameCampNPCInFireInVailDis = function (fromPos,camp,dis) {
       let npcs = [];
@@ -279,13 +242,19 @@ class YJPlayerManager {
       return players;
     }
     
-    this.GetNoSameCamp = function (camp) { 
+    this.GetNoSameCamp = function (camp,fireId) { 
       let playerList = this.GetAllVaildPlayer();
       let players = []; 
       for (let i = 0; i < playerList.length; i++) {
         const element = playerList[i];
         if(element.GetCamp() != camp){
-          players.push(element);
+          if(fireId){
+            if(element.fireId == fireId){
+              players.push(element);
+            }
+          }else{
+            players.push(element);
+          }
         }
       }
       return players;

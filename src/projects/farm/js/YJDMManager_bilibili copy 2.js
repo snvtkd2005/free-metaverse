@@ -313,12 +313,12 @@ class YJDMManager_bilibili {
         npc.addEventListener("死亡", () => {
           scope.ChangeDMNPCDead(npcId);
         });
-        _Global.DyncManager.AddNpc(copy);
+        _Global._YJFireManager.AddNpc(copy);
 
         // console.log(" 战斗状态 ", _Global.inGame);
         // if (_Global.inGame) {
         //   let npcComponent = copy.GetComponent("NPC");
-        //   _Global.DyncManager.NPCAddFireGroup(npcComponent, target ? target.id : null);
+        //   _Global._YJFireManager.NPCAddFireGroup(npcComponent, target ? target.id : null);
         //   //并指定其目标为指定名称id的npc
         //   copy.GetComponent("NPC").SetNpcTarget(target.GetComponent("NPC"), true, true);
         // }
@@ -349,12 +349,12 @@ class YJDMManager_bilibili {
         npc.addEventListener("死亡", () => {
           warWave.count--;
         });
-        _Global.DyncManager.AddNpc(copy);
+        _Global._YJFireManager.AddNpc(copy);
 
         // console.log(" 战斗状态 ", _Global.inGame);
         if (_Global.inGame) {
           let npcComponent = copy.GetComponent("NPC");
-          _Global.DyncManager.NPCAddFireGroup(npcComponent, target ? target.id : null);
+          _Global._YJFireManager.NPCAddFireGroup(npcComponent, target ? target.id : null);
           //并指定其目标为指定名称id的npc
           copy.GetComponent("NPC").SetNpcTarget(target.GetComponent("NPC"), true, true);
         }
@@ -373,7 +373,7 @@ class YJDMManager_bilibili {
         for (let i = 0; i < dmNpcList.length; i++) {
           const npcComponent = dmNpcList[i];
           if (npcComponent.fireId == -1 && npcs[0].fireId != -1) {
-            _Global.DyncManager.NPCAddFireGroup(npcComponent, null);
+            _Global._YJFireManager.NPCAddFireGroup(npcComponent, null);
             //并指定其目标为指定名称id的npc            
             npcComponent.SetNpcTarget(npcs[0], true, true);
             // console.log(" dm 玩家战斗状态 并设置目标 ",npcComponent.fireId,npcComponent.GetState());
@@ -386,7 +386,7 @@ class YJDMManager_bilibili {
         // let gjsCom = (gjs.GetComponent("NPC"));
         // gjsCom.canMove = false; 
         // if (gjsCom.fireId == -1 && npcs[0].fireId != -1) {
-        //   _Global.DyncManager.NPCAddFireGroup(gjsCom, null); 
+        //   _Global._YJFireManager.NPCAddFireGroup(gjsCom, null); 
         //   gjsCom.SetNpcTarget(npcs[0], true, true); 
         // } 
 

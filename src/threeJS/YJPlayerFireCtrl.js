@@ -117,6 +117,10 @@ class YJPlayerFireCtrl {
 		this.isInDead = function () {
 			return baseData.health == 0;
 		}
+		this.updateEquip = function () {
+			_this.YJController.directUpate("equip");
+		}
+
 		this.SetPlayerEvent = function (content, msg) {
 			if (content == "删除镜像" || content == "重生") {
 
@@ -333,12 +337,12 @@ class YJPlayerFireCtrl {
 				transform.SetActive(false);
 				transform.id = playId;
 				setTimeout(() => {
-					_Global.DyncManager.AddNpc(transform);
+					_Global._YJFireManager.AddNpc(transform);
 					let _npcComponent = transform.GetComponent("NPC");
 					_npcComponent.id = playId;
 					if (_YJPlayer.fireId != -1) {
 						_npcComponent.fireId = _YJPlayer.fireId;
-						_Global.DyncManager.AddFireGroup(playId, _YJPlayer.camp, _YJPlayer.fireId);
+						_Global._YJFireManager.AddFireGroup(playId, _YJPlayer.camp, _YJPlayer.fireId);
 						_npcComponent.CheckNextTarget();
 					}
 					transform.SetActive(true);
@@ -432,7 +436,7 @@ class YJPlayerFireCtrl {
 			if (npcTransform == null) {
 				return;
 			}
-			_Global.DyncManager.PlayerAddFire(npcTransform.GetComponent("NPC"), _YJPlayer);
+			_Global._YJFireManager.PlayerAddFire(npcTransform.GetComponent("NPC"), _YJPlayer);
 		}
 
 		this.CheckHealth = function () {
@@ -512,7 +516,11 @@ class YJPlayerFireCtrl {
 		function SelectNPC(_npcTransform) {
 			npcTransform = _npcTransform;
 			if (npcTransform != null) {
-				npcComponent = npcTransform.GetComponent("NPC");
+				if(npcTransform.isYJTransform){
+					npcComponent = npcTransform.GetComponent("NPC");
+				}else{
+					npcComponent = npcTransform;
+				}
 				scope.applyEvent("设置目标", npcComponent);
 				//自动显示其头像 
 				_Global._SceneManager.SetTargetModel(npcTransform);
@@ -521,6 +529,10 @@ class YJPlayerFireCtrl {
 			scope.applyEvent("设置目标", null);
 
 		}
+		
+		this.GetOwnerPlayerId = function(){
+			return "";
+		  }
 		function ReadyFire() {
 
 			var { s, v, a } = GetSkillDataByWeapon(weaponData);
@@ -615,7 +627,7 @@ class YJPlayerFireCtrl {
 		let npcComponent = null;
 		// 是否有效攻击距离
 		function inVaildArea(dis) {
-			return dis < vaildAttackDis + npcTransform.GetData().scale.x;
+			return dis < vaildAttackDis + npcTransform.GetModelScale();
 		}
 		function CheckCamp() {
 			return npcComponent.GetCamp() != _Global.user.camp;
@@ -784,7 +796,7 @@ class YJPlayerFireCtrl {
 
 				if (hyperplasiaTrans.length > 0) {
 					for (let i = 0; i < hyperplasiaTrans.length; i++) {
-						_Global.DyncManager.AddFireGroup(hyperplasiaTrans[i].id, _YJPlayer.camp, _YJPlayer.fireId);
+						_Global._YJFireManager.AddFireGroup(hyperplasiaTrans[i].id, _YJPlayer.camp, _YJPlayer.fireId);
 						hyperplasiaTrans[i].fireId = _YJPlayer.fireId;
 						hyperplasiaTrans[i].SetNpcTarget(msg ? msg : npcComponent);
 					}
@@ -794,7 +806,7 @@ class YJPlayerFireCtrl {
 			
 			if (e == "添加镜像") {
 				let mirrorId = msg;
-				let npcTransform = _Global.DyncManager.GetNpcById(mirrorId);
+				let npcTransform = _Global._YJFireManager.GetNpcById(mirrorId);
 				let npcComponent = npcTransform.GetComponent("NPC");
 				npcComponent.setOwnerPlayer(_YJPlayer);
 				hyperplasiaTrans.push(npcComponent);
@@ -1088,8 +1100,9 @@ class YJPlayerFireCtrl {
 				if (_YJEquip == null) {
 					_YJEquip = new YJEquip(scope);
 				}
-			}
-			scope.id = _YJPlayer.id;
+			} 
+			scope.id = _Global.user.id;
+
 			_Global._YJPlayerFireCtrl = scope;
 			_Global.YJ3D._YJSceneManager.AddNeedUpdateJS(scope);
 			_YJPlayer.addEventListener("pos", (pos) => {

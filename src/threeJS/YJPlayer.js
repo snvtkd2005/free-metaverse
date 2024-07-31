@@ -9,13 +9,14 @@ import { YJLoadAvatar } from "./YJLoadAvatar.js";
 import { YJLoadModel } from "./YJLoadModel.js";
 import { YJPlayerDync } from "./YJPlayerDync.js";
 import { YJPlayerChat } from "./YJPlayerChat.js";
+import { YJEquip } from './components/YJEquip';
 
 import TWEEN from '@tweenjs/tween.js';
 import { YJPlayerNameTrans } from "./YJPlayerNameTrans.js";
+import { YJDMPlayer } from "./components/YJDMPlayer.js";
 
 class YJPlayer {
   constructor(_this, scene, local, nickName, controllerCallback,loadAvatarMirrorCompleted) {
-
     var scope = this;
     this.isLocal = local;
     this.fireId = -1; 
@@ -29,7 +30,8 @@ class YJPlayer {
     var playerObj = null;
     var hasPlayer = false;
     var inSetDefaltPos = false;
-
+    let _YJEquip = null;
+    let _YJDMplayer = null;
     var namePosTrans = null;
 
 
@@ -444,6 +446,9 @@ class YJPlayer {
 
     this.ChangeAvatarByCustom = function (avatarData, isLocal) {
       // console.log("切换角色112222222222");
+      if(avatarData == undefined){
+        return;
+      }
       playerHeight = avatarData.height;
       avatar.ChangeAvatar(
         _this.GetPublicUrl() + avatarData.modelPath,
@@ -548,6 +553,25 @@ class YJPlayer {
     this.SetBaseData = function(_baseData){
       baseData = _baseData;
     }
+    this.GetData = function(){
+      return {
+        avatarData:avatarData,
+        baseData:baseData,
+      };
+    }
+    this.GetModelScale = function(){
+      return nameScale;
+    }
+    
+    this.GetDamageTextPos = function () {
+      let pos = scope.GetWorldPos().clone();
+      pos.y += playerHeight * nameScale / 2;
+      return pos;
+    }
+    this.GetBaseData = () => { 
+      return oldUserData.baseData;
+    }
+    
 		this.GetHealthPerc = function () {
 			return parseInt( baseData.health / baseData.maxHealth * 100);
 		}
@@ -566,6 +590,9 @@ class YJPlayer {
     }
 
     let createNameTimes = 0;
+    function getCampColor(){
+      return  _Global.user.camp != scope.camp ? 0xee0000 : 0xbab8ff;
+    }
     //创建姓名条参考物体
     function CreateNameTransFn() {
         
@@ -585,7 +612,7 @@ class YJPlayer {
         scope, scope.id, nickName, 
         playerHeight,modelScaleDrect, 
         nameScale, 
-        _Global.user.camp != scope.camp ? 0xee0000 : 0xbab8ff
+       getCampColor(),
       );
  
       // _YJPlayerChat.CreateChatTrans("测试测测试"); 
@@ -782,10 +809,6 @@ class YJPlayer {
       // let group = playerGroup.clone();
       return { group, playerHeight };
     }
-    this.GetBaseData = () => { 
-      return oldUserData.baseData;
-    }
-    
 		this.getPlayerType = function(){
 			return "玩家";
 		}
@@ -952,9 +975,12 @@ class YJPlayer {
       handlerList = [];
     }
 
+    this.ResetName = function () { 
+      scope.applyEvent("重置昵称",scope.GetNickName(),getCampColor());
+    }
     let dyncTimes = 0;
     let userDataList = [];
-    let oldUserData = {};
+    let oldUserData = null; 
     //接收服务器同步过来的其他用户角色位置、旋转、动作
     this.SetUserData = function (userData) {
 
@@ -965,6 +991,7 @@ class YJPlayer {
       } else {
       }
       oldUserData = userData;
+
 
       if (!hasPlayer) {
         //在角色没创建完成前，就接收到位置，则先把位置记录下来
@@ -1000,13 +1027,34 @@ class YJPlayer {
       
       for (let i = 0; i < handlerList.length; i++) {
         const element = handlerList[i];
-        element(oldUserData.baseData);
+        element(scope.GetData());
       }
       if(oldUserData.baseData){
+        baseData = oldUserData.baseData;
         this.isDead = oldUserData.baseData.health <= 0;
-        this.camp = oldUserData.baseData.camp;
         this.UpdateHealth(oldUserData.baseData.health,oldUserData.baseData.maxHealth);
+        if(this.camp != oldUserData.baseData.camp){
+          this.camp = oldUserData.baseData.camp;
+          scope.ResetName();
+        }
+        if(oldUserData.dyncType == "equip" || _YJEquip == null){
+          if(baseData.equipList){
+            if(_YJEquip == null){
+              _YJEquip = new YJEquip(scope,false);
+            }
+            _YJEquip.ChangeEquipList(baseData.equipList);
+          } 
+        }
+        if(baseData.dmplayerList){
+          // console.log("同步其他用户的角色镜像  执行 111 " ,userData); 
 
+          if(_YJDMplayer == null){
+          console.log("同步其他用户的角色镜像  执行 22222 " ,userData); 
+
+            _YJDMplayer = new YJDMPlayer(scope);
+            _YJDMplayer.ChangeEquipList(baseData.dmplayerList);
+          } 
+        }
       }
 
       // 同步拾取物体
@@ -1079,7 +1127,7 @@ class YJPlayer {
       }
 
       Display(userData.dyncDisplay);
-
+ 
       // playerGroup.position.set(newPos.x, newPos.y, newPos.z);
 
       // group.rotation.set(0, userData.rotateY , 0);
@@ -1089,6 +1137,7 @@ class YJPlayer {
       if (e) {
         group.rotation.set(e.x, e.y, e.z);
       }
+ 
 
       // let lookatPos = newPos.clone();
       // lookatPos.y = currentTargetPos.y;
@@ -1240,8 +1289,7 @@ class YJPlayer {
         oldPos = newPos;
         dyncTimes++;
         MovingEnd();
-      }
-
+      } 
     }
 
     let inmoving = false;

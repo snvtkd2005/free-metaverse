@@ -778,9 +778,15 @@ class SceneManager {
 
 
       let _pos = _Global.YJ3D._YJSceneManager.WorldPosToScreenPos(pos.clone());
-      // console.log("伤害和坐标", from,to,value, _pos);
+      // console.log("伤害和坐标", fromId,fromName,tarteId,to,value, _pos);
       _Global.applyEvent("伤害跳字",{
-        owner:tarteId, type, value,pos3d: pos.clone(),pos: _pos, addredius
+        owner:tarteId, 
+        type, 
+        value,
+        pos3d: pos.clone(),
+        pos: _pos, 
+        addredius,
+        isSelf:tarteId==_Global.YJ3D.YJPlayer.id,
       });
 
       damageStatistics.push({ fromName, to, value });
@@ -821,29 +827,61 @@ class SceneManager {
         _Global.YJ3D._YJSceneManager.GetTransformManager().detach();
         return;
       }
-      let npcComponent = targetModel.GetComponent("NPC");
       let camp = "normal";
+
+      let target = null;
+      let isYJNPC = false;
+      if(targetModel.GetComponent){
+        target = targetModel.GetComponent("NPC");
+        isYJNPC = true;
+      }else{
+        target = targetModel;
+      }
+      
       // 相同阵营的不计算
-      if (npcComponent.GetCamp() != _Global.user.camp) {
+      if (target.GetCamp() != _Global.user.camp) {
         camp = "enmity";
       }
 
-      let message = targetModel.GetData().message;
-      if (message.data.baseData.health == 0) {
-        camp = "dead";
-      }
-      let { group, playerHeight } = npcComponent.GetBaseModel();
-      _YJProjector.Active(group, playerHeight, camp);
-      // console.log(" 设置目标头像 targetModel ", targetModel);
-      targetModel.AddHandle((data) => {
-        if (data.baseData.health == 0) {
-          indexVue.$refs.HUD.$refs.headerUI.display = false;
-          ClearProjector();
-          return;
+      if(isYJNPC){
+
+        let message = targetModel.GetData().message;
+        if (message.data.baseData.health == 0) {
+          camp = "dead";
         }
-        indexVue.$refs.HUD.$refs.headerUI.SetTarget(data,npcComponent.GetNickName());
-      });
-      indexVue.$refs.HUD.$refs.headerUI.SetTarget(message.data,npcComponent.GetNickName());
+        let { group, playerHeight } = target.GetBaseModel();
+        _YJProjector.Active(group, playerHeight, camp);
+        // console.log(" 设置目标头像 targetModel ", targetModel);
+        targetModel.AddHandle((data) => {
+          if (data.baseData.health == 0) {
+            indexVue.$refs.HUD.$refs.headerUI.display = false;
+            ClearProjector();
+            return;
+          }
+          indexVue.$refs.HUD.$refs.headerUI.SetTarget(data,target.GetNickName());
+        });
+        indexVue.$refs.HUD.$refs.headerUI.SetTarget(message.data,target.GetNickName());
+        return;
+      }
+      
+      let data = targetModel.GetData();
+      console.log(" click player data ",data);
+        if (data.baseData.health == 0) {
+          camp = "dead";
+        }
+        let { group, playerHeight } = target.GetBaseModel();
+        _YJProjector.Active(group, playerHeight, camp);
+        // console.log(" 设置目标头像 targetModel ", targetModel);
+        targetModel.AddHandle((data) => {
+          if (data.baseData.health == 0) {
+            indexVue.$refs.HUD.$refs.headerUI.display = false;
+            ClearProjector();
+            return;
+          }
+          indexVue.$refs.HUD.$refs.headerUI.SetTarget(data,target.GetNickName());
+        });
+        indexVue.$refs.HUD.$refs.headerUI.SetTarget(data,target.GetNickName());
+
     }
 
     this.ClearTarget = function(){
@@ -906,6 +944,16 @@ class SceneManager {
           // 点击自身
         } else {
           // 点击其他角色
+          this.SetTargetModel(hitObject.owner);
+
+            // if (hitObject.owner.GetCamp() != _Global.user.camp) {
+            //   // console.log(" 选中玩家 000 ",message.data.baseData);
+            //   //进入战斗状态
+            //   if (hitObject.owner.GetBaseData().health > 0) {
+            //   }
+            // }
+          _Global._YJPlayerFireCtrl.SetPlayerEvent("设置npc", hitObject.owner);
+
         }
         return;
       }
@@ -1023,15 +1071,18 @@ class SceneManager {
       if (hitObject.transform && hitObject.transform.GetActive()) {
         this.ClickModelTransform(hitObject.transform);
         return;
-      }
-
-
+      } 
       let modelType = hitObject.tag;
       if (modelType == undefined) {
         EventHandler("点击空");
         return;
       }
-      console.log("点击物体 ", modelType);
+      console.log("点击物体 ", modelType);      
+      if (modelType == "player") {
+        this.SetTargetModel(hitObject.owner);
+        _Global._YJPlayerFireCtrl.SetPlayerEvent("选中npc", hitObject.owner);
+        return;
+      }
       if (modelType == "bonedummy") {
         // 选中创建的骨骼参考虚拟物体
         _Global.YJ3D._YJSceneManager.GetTransformManager().attach(hitObject.parent);

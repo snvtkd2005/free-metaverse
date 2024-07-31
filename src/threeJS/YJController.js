@@ -3544,14 +3544,14 @@ class YJController {
       parentName: "scene",
       avatarDisplay: true,
 
+      dyncType:"all",
       //武器
-      weaponData: {
-        pickType: "",
-        weaponType: "",
-        weaponId: "", //武器模型
-        transId: "", //武器模型在场景中的id
-      },
-
+      // weaponData: {
+      //   pickType: "",
+      //   weaponType: "",
+      //   weaponId: "", //武器模型
+      //   transId: "", //武器模型在场景中的id
+      // }, 
       baseData: {
         camp: 1000, //阵营
         speed: 8, //移动速度
@@ -3561,6 +3561,9 @@ class YJController {
       }
 
     };
+    // this.SetEquip = function(_equipList){
+    //   userData.baseData.equipList = _equipList;
+    // }
 
     this.SetNameTransOffsetAndScale = function (h, scale) {
       userData.nameTrans = { h: h, scale: scale };
@@ -3632,9 +3635,13 @@ class YJController {
       userData.baseData = _baseData;
       directUpate = true;
 			console.log(" 设置控制器baseData",  JSON.stringify(_baseData));
-
     }
-    this.directUpate = function () {
+    this.updateBaseDataField = function (field,v) {
+      userData.baseData[field] = v;
+      directUpate = true; 
+    }
+    this.directUpate = function (type) {
+      userData.dyncType = type;
       directUpate = true;
     }
     this.resetLife = function () {
@@ -3699,6 +3706,10 @@ class YJController {
         && olddyncDisplay == userData.dyncDisplay
         && !directUpate
       ) {
+
+        if(userData.dyncType){
+          userData.dyncType = "";
+        }
         // console.log(" 角色状态不变，不发送更新 ");
         return;
       }

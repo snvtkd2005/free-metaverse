@@ -5,7 +5,7 @@ import * as THREE from "three";
 
 // 角色装备
 class YJEquip {
-    constructor(owner) {
+    constructor(owner, isLocal = true) {
         let scope = this;
         let equipList = [];
         this.GetEquipList = function () {
@@ -15,7 +15,7 @@ class YJEquip {
 
         let weaponModel = null;
         let weaponData = null;
-        this.GetWeaponData = function(){
+        this.GetWeaponData = function () {
             return weaponData;
         }
         let data = null;
@@ -23,56 +23,122 @@ class YJEquip {
         function init() {
             data = owner.GetData();
             // console.log(" in equip 角色数据 ", data);
-            scope.RemoveWeapon();
 
             if (data.weaponData && data.weaponData.message) {
                 scope.ChangeEquip("武器", data.weaponData);
             }
 
             if (data.equipList && data.equipList.length > 0) {
-                equipList = data.equipList;
-                for (let i = 0; i < data.equipList.length; i++) {
-                    const element = data.equipList[i];
-                    addEquip(element.part, element.modelPath);
+                // equipList = data.equipList;
+                // for (let i = 0; i < data.equipList.length; i++) {
+                //     const element = data.equipList[i];
+                //     addEquip(element.part, element.modelPath);
+                // }
+                scope.ChangeEquipList(data.equipList);
+            }
+        }
+
+        this.ChangeEquipList = function (_equipList) {
+            let add = [];
+            for (let i = 0; i < _equipList.length; i++) {
+                let has = false;
+                for (let j = 0; j < equipList.length && !has; j++) {
+                    if(_equipList[i].folderBase == equipList[j].folderBase){
+                        has = true;
+                    }
+                }
+                if(!has){
+                    // 提取没有的，需要添加的装备
+                    add.push(_equipList[i]);
                 }
             }
+ 
+            for (let i = 0; i < add.length; i++) {
+                const element = add[i];
+                if (element.pointType == "weapon") {
+                    scope.initWeapon({ assetId: element.folderBase });
+                }
+                if (element.pointType == "equip") {
+                    scope.addEquip({ assetId: element.folderBase });
+                }
+            }
+
+            // 提取需要减少的
+            let redius = [];
+            for (let i = 0; i < equipList .length; i++) {
+                let has = false;
+                for (let j = 0; j < _equipList.length && !has; j++) {
+                    if(equipList[i].folderBase == _equipList[j].folderBase){
+                        has = true;
+                    }
+                }
+                if(!has){
+                    // 提取没有的，需要添加的装备
+                    redius.push(equipList[i]);
+                }
+            }
+            console.log(" 需要减少的装备 ",redius);
+            for (let i = 0; i < redius.length; i++) {
+                const element = redius[i];
+                if (element.pointType == "weapon") {
+                    scope.RemoveEquip(element.part);
+                }
+                if (element.pointType == "equip") {
+                    scope.RemoveEquip(element.part);
+                }
+            }
+
         }
         //#region 玩家装备
         this.initWeapon = function (weapon, callback) {
-            //   console.error( " in 玩家装备 ",weapon);
+            for (let i = 0; i < equipList.length; i++) {
+                const element = equipList[i];
+                if (element.folderBase == weapon.assetId) {
+                    return;
+                }
+            }
+            console.error(" in 玩家装备 ", isLocal ? '' : " 玩家镜像 ", weapon);
             let path = _Global.YJ3D.$uploadUrl + weapon.assetId + "/" + "data.txt" + "?time=" + new Date().getTime();
 
             _Global.YJ3D._YJSceneManager.LoadAssset(path, (data) => {
                 // console.log(path, data);
                 weaponData = data.message.data;
-                owner.GetSkill().ChangeBaseSkillByWeapon(weaponData);
 
                 let { pickType, weaponType } = data.message.data;
 
-                equipList.push({
-                    type: "equip",
-                    folderBase: weapon.assetId,
-                    icon: _Global.url.uploadUrl + data.folderBase + "/" + data.icon,
-                    // 武器名称
-                    name: data.name,
-                    // 武器类型：弓、剑、斧等
-                    weaponType,
-                    part: pickType,
-                    qualityType: data.message.data.qualityType,
-                    pointType: data.message.pointType,
-                    // 攻击速度
-                    speed: data.message.data.attackSpeed,
-                    // 武器伤害
-                    strength: data.message.data.strength ? data.message.data.strength : 20,
-                    propertyList: data.message.data.propertyList,
-                });
-                owner.applyEvent('更新装备', equipList);
+                if (isLocal) {
+                    owner.GetSkill().ChangeBaseSkillByWeapon(weaponData);
+                    equipList.push({
+                        type: "equip",
+                        folderBase: weapon.assetId,
+                        icon: _Global.url.uploadUrl + data.folderBase + "/" + data.icon,
+                        // 武器名称
+                        name: data.name,
+                        // 武器类型：弓、剑、斧等
+                        weaponType,
+                        part: pickType,
+                        qualityType: data.message.data.qualityType,
+                        pointType: data.message.pointType,
+                        // 攻击速度
+                        speed: data.message.data.attackSpeed,
+                        // 武器伤害
+                        strength: data.message.data.strength ? data.message.data.strength : 20,
+                        propertyList: data.message.data.propertyList,
+                    });
+                    owner.applyEvent('更新装备', equipList);
+                } else {
+                    equipList.push({
+                        folderBase: weapon.assetId,
+                        part: pickType,
+                        pointType: data.message.pointType,
+                    });
+                }
 
                 data.pos = { x: 0, y: 0, z: 0 };
                 data.rotaV3 = { x: 0, y: 0, z: 0 };
                 data.scale = { x: 1, y: 1, z: 1 };
 
-                let YJPlayer = _Global.YJ3D.YJPlayer;
+                let YJPlayer = isLocal ? _Global.YJ3D.YJPlayer : owner;
                 _Global.YJ3D._YJSceneManager.GetLoadUserModelManager().LoadStaticModel2(data, (transform) => {
                     //   console.log(transform);
                     let owner = transform;
@@ -201,6 +267,14 @@ class YJEquip {
 
         }
         this.addEquip = function (equip) {
+
+            for (let i = 0; i < equipList.length; i++) {
+                const element = equipList[i];
+                if (element.folderBase == equip.assetId) {
+                    return;
+                }
+            }
+
             let path = _Global.YJ3D.$uploadUrl + equip.assetId + "/" + "data.txt" + "?time=" + new Date().getTime();
             _Global.YJ3D._YJSceneManager.LoadAssset(path, (data) => {
                 this.ChangeEquip("装备", data);
@@ -213,7 +287,7 @@ class YJEquip {
         }
         this.WearEquip = function (item) {
             // console.log(" 右键穿戴装备 ", item, equipList);
-            this.UnWearEquip(item.part); 
+            this.UnWearEquip(item.part);
             if (item.pointType == "weapon") {
                 this.initWeapon({ assetId: item.folderBase });
                 return;
@@ -224,7 +298,9 @@ class YJEquip {
             if (type == "武器") {
                 this.RemoveWeapon();
                 weaponData = data.message.data;
-                owner.GetSkill().ChangeBaseSkillByWeapon(weaponData);
+                if (isLocal) {
+                    owner.GetSkill().ChangeBaseSkillByWeapon(weaponData);
+                }
 
                 let boneName = GetRealyBoneName(weaponData.boneName);
                 //加载武器
@@ -276,23 +352,33 @@ class YJEquip {
                 });
             }
             if (type == "装备") {
-                equipList.push({
-                    type: "equip",
-                    // 唯一id
-                    folderBase: data.folderBase,
-                    icon: _Global.url.uploadUrl + data.folderBase + "/" + data.icon,
-                    // 装备名称
-                    name: data.name,
-                    // 品质
-                    qualityType: data.message.data.qualityType,
-                    // 部位，唯一
-                    part: data.message.data.partType,
-                    // 武器或装备
-                    pointType: data.message.pointType,
-                    // 附加属性
-                    propertyList: data.message.data.propertyList,
-                });
-                owner.applyEvent('更新装备', equipList);
+                if (isLocal) {
+
+                    equipList.push({
+                        type: "equip",
+                        // 唯一id
+                        folderBase: data.folderBase,
+                        icon: _Global.url.uploadUrl + data.folderBase + "/" + data.icon,
+                        // 装备名称
+                        name: data.name,
+                        // 品质
+                        qualityType: data.message.data.qualityType,
+                        // 部位，唯一
+                        part: data.message.data.partType,
+                        // 武器或装备
+                        pointType: data.message.pointType,
+                        // 附加属性
+                        propertyList: data.message.data.propertyList,
+                    });
+                    owner.applyEvent('更新装备', equipList);
+                } else {
+                    equipList.push({
+                        folderBase: data.folderBase,
+                        part: data.message.data.partType,
+                        pointType: data.message.pointType,
+                    });
+                }
+
                 addEquip(data.message.data.partType, data.modelPath);
             }
             if (type == "移除装备") {
@@ -300,6 +386,7 @@ class YJEquip {
             }
         }
         this.RemoveEquip = function (part) {
+
             // let boneName = GetRealyBoneName(part);
             // owner.GetBoneVague(boneName, (bone) => {
             //     if (bone.equip) {
@@ -316,7 +403,9 @@ class YJEquip {
                     equipList.splice(i, 1);
                 }
             }
-            owner.applyEvent('更新装备', equipList);
+            if (isLocal) {
+                owner.applyEvent('更新装备', equipList);
+            }
 
             for (let i = equipModelList.length - 1; i >= 0; i--) {
                 const element = equipModelList[i];
@@ -334,16 +423,18 @@ class YJEquip {
 
                 }
             }
-            if(part == "twoHand"
-            || part == "mainHand"
-            || part == "oneHand"
-            || part == "ranged"
-            ){
+            if (part == "twoHand"
+                || part == "mainHand"
+                || part == "oneHand"
+                || part == "ranged"
+            ) {
                 weaponData = null;
-                owner.GetSkill().ChangeBaseSkillByWeapon(weaponData);
+                if (isLocal) {
+                    owner.GetSkill().ChangeBaseSkillByWeapon(weaponData);
+                }
                 owner.ChangeAnimDirect("idle");
 
-            } 
+            }
         }
 
         function addEquip(part, modelPath, mirror) {

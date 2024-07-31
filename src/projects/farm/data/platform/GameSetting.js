@@ -21,6 +21,7 @@ export default {
     children:[
       {field:'liveAnchorCodeId',title:"主播身份码",type:'password',value:""},
       {field:'connectDM',title:"连接弹幕服务器",type:'button',value:""},
+      {field:'campType',title:"主播阵营",type:'drop',value:1000},
     ], 
   },
   

@@ -12,6 +12,10 @@ export default {
     { value: "wow", label: "魔兽世界" },
     { value: "overlook", label: "俯视" },
   ],
+  campType: [ 
+    { value: 1000, label: "阵营1000" },
+    { value: 1001, label: "阵营1001" },
+  ],
   lefMenuList:[
     {
       title: "游戏功能",

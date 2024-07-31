@@ -65,6 +65,19 @@ class YJClient {
       setTimeout(() => {
         InitYJController();
       }, 1000);
+
+      _Global.addEventListener("玩家改变阵营", (id,camp) => { 
+        if(_Global.user.id == id){
+          //更新其他玩家镜像的姓名条颜色
+          for (let i = 0; i < allPlayer.length; i++) {
+            if (allPlayer[i].id != id) {
+              allPlayer[i].player.ResetName(); 
+            }
+          } 
+          return;
+        } 
+      });
+
     }
     this.GetUserData = function () {
       return {
@@ -90,6 +103,7 @@ class YJClient {
       this.id = id;
       indexVue.connected = true;
       indexVue.id = id;
+      _Global.applyEvent("连接服务器成功");
       this.InitTRTC(id);
     }
     //#region 用户音视频通话
@@ -306,7 +320,8 @@ class YJClient {
           skin: false,
         }); 
 			  _Global._YJPlayerFireCtrl.id = id; 
-        // console.log("生成本地角色 " + id);
+			  _Global.user.id = id; 
+        console.log("服务器连接成功后，重新设置user id " + id);
         return;
       }
 

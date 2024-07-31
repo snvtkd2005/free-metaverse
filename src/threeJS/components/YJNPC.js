@@ -326,7 +326,9 @@ class YJNPC {
       oldAnimName = v;
 
       // 武器可能也有动作，如拉弓时弓的变形动画
-      _YJEquip.ChangeAnim(v);
+      if(_YJEquip){
+        _YJEquip.ChangeAnim(v);
+      }
     }
 
 
@@ -713,6 +715,7 @@ class YJNPC {
       data = (msg);
       scope.id = scope.transform.id;
       this.npcName = data.name;
+      fireBeforePos = scope.GetWorldPos();
 
       if(!scope.transform.GetActive()){
         return;
@@ -769,7 +772,6 @@ class YJNPC {
         _YJPlayerProperty = new YJPlayerProperty(scope);
       }
       _YJBuff = new YJBuff(scope);
-      fireBeforePos = scope.GetWorldPos();
 
       // console.log(scope.GetNickName() + " 技能 ", skillList);
       if (data.canMove != undefined) {
@@ -988,6 +990,9 @@ class YJNPC {
     }
 
 
+		this.updateEquip = function () {
+			
+		}
     this.TargetDead = function () {
 
     }
@@ -1047,14 +1052,14 @@ class YJNPC {
       }
 
       // 向主控请求下一个目标
-      _Global.DyncManager.NPCTargetToNone({
+      _Global._YJFireManager.NPCTargetToNone({
         npcId: scope.id, camp: baseData.camp, fireId: scope.fireId
         , ignorePlayerId: targetModel ? targetModel.id : null,
         vaildDis: vaildAttackDis
       });
 
       // 获取战斗组中的其他玩家作为目标。 没有时，npc结束战斗
-      // _Global.DyncManager.RequestNextFireIdPlayer(
+      // _Global._YJFireManager.RequestNextFireIdPlayer(
       //   {
       //     npcId: scope.id, camp: baseData.camp, fireId: scope.fireId
       //     , ignorePlayerId: targetModel ? targetModel.id : null,
@@ -1073,11 +1078,11 @@ class YJNPC {
       oldPlayerPos.y = -100;
       // scope.FollowPlayer();
       ownerPlayer.addEventListener("进入战斗",(camp, fireId,targetNpc)=>{
-        console.log(scope.GetNickName() + " 监听 主播进入战斗 ",camp, fireId);
+        console.log(scope.GetNickName() + " 监听 主播进入战斗 ",camp, fireId,targetNpc);
         scope.fireId = fireId;
         scope.camp = camp;
         scope.SetNpcTarget(targetNpc);
-				_Global.DyncManager.AddFireGroup(scope.id, camp,fireId);
+				_Global._YJFireManager.AddFireGroup(scope.id, camp,fireId);
 
       });
       ownerPlayer.addEventListener("脱离战斗",()=>{
@@ -1089,10 +1094,12 @@ class YJNPC {
           scope.FollowPlayer();
           oldPlayerPos = pos.clone();
           return;
-        } 
-
+        }  
       });
 
+    }
+    this.GetOwnerPlayerId = function(){
+      return ownerPlayer ? ownerPlayer.id :"";
     }
     this.GetIsPlayer = function () {
       return data.isPlayer;
@@ -1248,7 +1255,7 @@ class YJNPC {
         targetModel = _targetModel;
         //加入战斗
         if (isLocal && checkNear) {
-          _Global.DyncManager.NPCAddFire(scope, targetModel);
+          _Global._YJFireManager.NPCAddFire(scope, targetModel);
         }
 
         // 停止寻路
@@ -1289,7 +1296,7 @@ class YJNPC {
         }
         );
         if (checkNear) {
-          _Global.DyncManager.SetNearNPCTarget(scope, targetModel);
+          _Global._YJFireManager.SetNearNPCTarget(scope, targetModel);
         }
       }
       if (baseData.state == stateType.Normal || baseData.state == stateType.Back) {
@@ -1603,7 +1610,7 @@ class YJNPC {
       
       scope.applyEvent("死亡",scope.transform.id, scope.fireId);
       // 从一场战斗中移除npc
-      // _Global.DyncManager.RemoveNPCFireId(scope.transform.id, scope.fireId);
+      // _Global._YJFireManager.RemoveNPCFireId(scope.transform.id, scope.fireId);
       scope.fireId = -1;
       // 清除技能触发
       ClearFireLater();
@@ -1831,7 +1838,30 @@ class YJNPC {
     }
     this._update = function () {
       // return;
-      if (_Global.mainUser) {
+      if (ownerPlayer  ) {
+        CheckState();
+        if (this.canMove && !scope.inControl) {
+          tick(clock.getDelta());
+        }
+
+        if(_YJSkill){
+          _YJSkill._update(clock.getDelta());
+        } 
+        
+        this.applyEvent("pos", playerPosition.clone());
+
+        // 主控实时发送坐标来同步。
+        let oldTransData = scope.transform.CheckSamePos();
+        if (oldTransData == null) {
+          return;
+        }
+        // this.applyEvent("pos",oldTransData.pos);
+        _Global.DyncManager.UpdateModel(scope.id, "pos",
+          oldTransData);
+          return;
+      }
+
+      if (_Global.mainUser ) {
         CheckState();
         if (this.canMove && !scope.inControl) {
           tick(clock.getDelta());
@@ -1940,6 +1970,7 @@ class YJNPC {
       return targetPosRef.distanceTo(npcPos);
     }
     function CheckState() {
+      // return;
       if (baseData.state == stateType.Normal) {
       }
 
@@ -2147,7 +2178,7 @@ class YJNPC {
         if (msg.playerId) {
           if (targetModel == null) {
             baseData.state = stateType.Fire;
-            // this.SetNpcTarget(_Global.DyncManager.GetPlayerById(msg.playerId));
+            // this.SetNpcTarget(_Global._YJFireManager.GetPlayerById(msg.playerId));
           }
         } else {
           baseData.state = stateType.Normal;

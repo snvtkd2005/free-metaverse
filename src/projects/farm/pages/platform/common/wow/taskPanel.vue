@@ -33,7 +33,7 @@
               <img class="w-full h-full" :src="redBtnUrl" alt="" />
               <div
                 class="absolute left-0 top-1 w-full h-8 text-xs cursor-pointer"
-                @click="clickEvent('拒绝')"
+                @click="clickEvent('关闭窗口')"
               >
                 拒绝
               </div>
@@ -286,7 +286,7 @@ export default {
     },
     clickEvent(e) {
       if (e == "关闭窗口") {
-        // _Global.applyEvent("界面开关", "receiveTask", false);
+        _Global.applyEvent("界面开关", "receiveTask", false);
       }
       if (e == "接受") {
         //接受任务

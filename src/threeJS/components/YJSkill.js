@@ -409,17 +409,30 @@ class YJSkill {
 
             owner.CheckHealth(fromModel.GetNickName());
 
-            _Global._SceneManager.UpdateNpcDamageValue(
-                fromModel.id,
-                fromModel.GetNickName(),
-                owner.GetNickName(),
-                owner.id,
-                owner.GetCamp(),
-                value,
-                owner.GetDamageTextPos(),
-                addredius
-            );
+            // _Global._SceneManager.UpdateNpcDamageValue(
+            //     fromModel.id,
+            //     fromModel.GetNickName(),
+            //     owner.GetNickName(),
+            //     owner.id,
+            //     owner.GetCamp(),
+            //     value,
+            //     owner.GetDamageTextPos(),
+            //     addredius
+            // );
 
+            console.log( owner.GetNickName() +" 伤害跳字 来自 "+fromModel.GetNickName() ,fromModel.GetOwnerPlayerId());
+            _Global.DyncManager.SendSceneStateAll("伤害跳字",
+            {
+                fromId: fromModel.id,
+                fromType: fromModel.getPlayerType(),
+                fromName: fromModel.GetNickName(),
+                fromOwnerPlayerId:fromModel.GetOwnerPlayerId(),
+                targetId: owner.id,
+                targetType: owner.getPlayerType(),
+                targetName: owner.GetNickName(),
+                value: value,
+                addredius: addredius,
+            }); 
 
         }
 
@@ -693,10 +706,10 @@ class YJSkill {
                 if (targetType.includes("random")) {
                     if (targetType.includes("Friendly")) {
                         // 找友方目标 
-                        searchModel = _Global._YJFireManager.GetSameCampByRandom(owner.GetCamp());
+                        searchModel = _Global._YJFireManager.GetSameCampByRandom(owner.GetCamp(),owner.fireId);
                     } else {
                         // 找敌对阵营的目标
-                        searchModel = _Global._YJFireManager.GetNoSameCampByRandom(owner.GetCamp());
+                        searchModel = _Global._YJFireManager.GetNoSameCampByRandom(owner.GetCamp(),owner.fireId);
                     }
                     // 随机进没目标时，返回false 不施放技能
                     if (searchModel == null) {
@@ -1385,9 +1398,7 @@ class YJSkill {
                         skillName: skillName,
                         effect: effect,
                         skillItem: skillItem,
-                    });
-
-
+                    }); 
             });
 
 
@@ -1452,7 +1463,7 @@ class YJSkill {
                 hyperplasiaTrans.push(npcComponent);
                 if (targetModel) {
                     npcComponent.SetNpcTarget(targetModel);
-                    _Global.DyncManager.NPCAddFireById(npcComponent, owner.fireId, targetModel.id);
+                    _Global._YJFireManager.NPCAddFireById(npcComponent, owner.fireId, targetModel.id);
                 }
                 num++;
                 if (num == count) {

@@ -917,7 +917,7 @@ class YJNPC {
 
       // 范围攻击
       if (targetType == "area") {
-        let players = _Global.DyncManager.GetPlayerByNpcForwardInFireId(
+        let players = _Global._YJFireManager.GetPlayerByNpcForwardInFireId(
           scope, scope.fireId, vaildAttackDis, skillItem.target.value);
         // 范围内无目标，不施放技能
         if (players.length == 0) {
@@ -997,12 +997,12 @@ class YJNPC {
 
         if (targetType.includes("Friendly")) {
           // 找友方目标 
-          let { player, playerId } = _Global.DyncManager.GetSameCampByRandom(scope.GetCamp());
+          let { player, playerId } = _Global._YJFireManager.GetSameCampByRandom(scope.GetCamp());
           randomSelectModel = player;
           skillItem.effect.playerId = playerId;
         } else {
           // 找敌对阵营的目标
-          let { player, playerId } = _Global.DyncManager.GetNoSameCampByRandom(scope.GetCamp());
+          let { player, playerId } = _Global._YJFireManager.GetNoSameCampByRandom(scope.GetCamp());
           randomSelectModel = player;
           skillItem.effect.playerId = playerId;
         }
@@ -1103,7 +1103,7 @@ class YJNPC {
       if (targetType.includes("minHealth")) {
         if (targetType.includes("Friendly")) {
           // 找友方目标 
-          let players = _Global.DyncManager.GetSameCamp(scope.GetCamp());
+          let players = _Global._YJFireManager.GetSameCamp(scope.GetCamp());
 
           let max = 100;
           let _player = null;
@@ -1499,7 +1499,7 @@ class YJNPC {
         hyperplasiaTrans.push(npcComponent);
         if (targetModel) {
           npcComponent.SetNpcTarget(targetModel);
-          _Global.DyncManager.NPCAddFireById(npcComponent, scope.fireId, targetModel.id);
+          _Global._YJFireManager.NPCAddFireById(npcComponent, scope.fireId, targetModel.id);
         }
         num++;
         if (num == count) {
@@ -1582,14 +1582,14 @@ class YJNPC {
 
       // 向主控请求下一个目标
       // console.error(scope.GetNickName()+ "向主控请求下一个目标");
-      _Global.DyncManager.NPCTargetToNone({
+      _Global._YJFireManager.NPCTargetToNone({
         npcId: scope.id, camp: baseData.camp, fireId: scope.fireId
         , ignorePlayerId: targetModel ? targetModel.id : null,
         vaildDis: vaildAttackDis
       });
 
       // 获取战斗组中的其他玩家作为目标。 没有时，npc结束战斗
-      // _Global.DyncManager.RequestNextFireIdPlayer(
+      // _Global._YJFireManager.RequestNextFireIdPlayer(
       //   {
       //     npcId: scope.id, camp: baseData.camp, fireId: scope.fireId
       //     , ignorePlayerId: targetModel ? targetModel.id : null,
@@ -1764,7 +1764,7 @@ class YJNPC {
         targetModel = _targetModel;
         //加入战斗
         // if (isLocal && checkNear) {
-        //   _Global.DyncManager.NPCAddFire(scope, targetModel);
+        //   _Global._YJFireManager.NPCAddFire(scope, targetModel);
         // }
 
         // 停止寻路
@@ -1804,7 +1804,7 @@ class YJNPC {
         }
         );
         // if (checkNear) {
-        //   _Global.DyncManager.SetNearNPCTarget(scope, targetModel);
+        //   _Global._YJFireManager.SetNearNPCTarget(scope, targetModel);
         // }
       }
       if (baseData.state == stateType.Normal) {
@@ -1953,7 +1953,7 @@ class YJNPC {
       // 计算伤害最高的玩家id
       CheckMaxDamage(_targetModelId, value);
       if (targetModel == null) {
-        this.SetNpcTarget(_Global.DyncManager.GetPlayerById(_targetModelId), true, true);
+        this.SetNpcTarget(_Global._YJFireManager.GetPlayerById(_targetModelId), true, true);
       } else {
       }
 
@@ -1961,12 +1961,12 @@ class YJNPC {
 
       CombatLog("玩家 [" + fromName + "] " + " 攻击 " + GetNickName() + " 造成 " + value + " 点伤害 ");
 
-      // console.log(GetNickName() + "受到来自玩家["+targetModel.GetNickName()+"] 的伤害 ", _targetModelId, _Global.DyncManager.GetPlayerById(_targetModelId));
+      // console.log(GetNickName() + "受到来自玩家["+targetModel.GetNickName()+"] 的伤害 ", _targetModelId, _Global._YJFireManager.GetPlayerById(_targetModelId));
 
       //在移动中受到攻击，判断下一个目标
       if (maxDamagePlayerId != 0 && isMoving) {
         if (maxDamagePlayerId != targetModel.id) {
-          targetModel = _Global.DyncManager.GetPlayerById(maxDamagePlayerId);
+          targetModel = _Global._YJFireManager.GetPlayerById(maxDamagePlayerId);
         }
       }
 
@@ -2359,7 +2359,7 @@ class YJNPC {
       // 设为死亡状态
       baseData.state = stateType.Dead;
       // 从一场战斗中移除npc
-      _Global.DyncManager.RemoveNPCFireId(scope.transform.id, scope.fireId);
+      _Global._YJFireManager.RemoveNPCFireId(scope.transform.id, scope.fireId);
       scope.fireId = -1;
       // 清除技能触发
       ClearFireLater();
@@ -2788,7 +2788,7 @@ class YJNPC {
               if (maxDamagePlayerId != 0) {
                 // console.log(" 设置下一个目标 ", maxDamagePlayerId, targetModel.id);
                 if (maxDamagePlayerId != targetModel.id) {
-                  targetModel = _Global.DyncManager.GetPlayerById(maxDamagePlayerId);
+                  targetModel = _Global._YJFireManager.GetPlayerById(maxDamagePlayerId);
                 }
               }
             }, attackStepSpeed * 100);
@@ -3010,7 +3010,7 @@ class YJNPC {
         if (msg.playerId) {
           if (targetModel == null) {
             baseData.state = stateType.Fire;
-            // this.SetNpcTarget(_Global.DyncManager.GetPlayerById(msg.playerId));
+            // this.SetNpcTarget(_Global._YJFireManager.GetPlayerById(msg.playerId));
           }
         } else {
           baseData.state = stateType.Normal;

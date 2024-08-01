@@ -40,6 +40,10 @@ class YJFireManager {
       let npcs = _Global._YJNPCManager.GetNoSameCampNPC(playerPos);
       for (let i = 0; i < npcs.length; i++) {
         const npcComponent = npcs[i];
+        if (npcComponent.GetIsPlayer()) {
+          // 玩家的镜像或守护弹幕玩家不使用巡视范围找目标
+          continue;
+        }
         if (_Global.mainUser) {
           // 第三个参数表示是否查找npc附近的npc，让附近的npc一起攻击玩家
           npcComponent.SetNpcTarget(_Global.YJ3D.YJPlayer, true, true);
@@ -215,15 +219,15 @@ class YJFireManager {
       }
       return npcs;
     }
-    
+
     this.GetNpcById = function (npcId) {
       return _Global._YJNPCManager.GetNpcTransformById(npcId);
     }
-    
-    this.GetPlayerById = function (playerId) { 
+
+    this.GetPlayerById = function (playerId) {
       return _Global._YJPlayerManager.GetPlayerById(playerId)
     }
-    
+
     // npc范围攻击。 获取npc范围内的玩家
     this.GetPlayerByNpcForwardInFireId = function (npcComponent, fireId, vaildDistance, max, ingorePlayerId) {
       let num = 0;
@@ -821,7 +825,7 @@ class YJFireManager {
         targetModel.SetNpcTarget(npcComponent, true, true);
       }
       console.log(" 开始新的战斗 ", targetModel.GetNickName() + " " + npcComponent.GetNickName(), fireGroup[fireGroup.length - 1]);
-      _Global.DyncManager.SendSceneStateAll("玩家加入战斗", { playerId: targetModel.id,targetId:npcId, fireId: fireId });
+      _Global.DyncManager.SendSceneStateAll("玩家加入战斗", { playerId: targetModel.id, targetId: npcId, fireId: fireId });
       _Global.DyncManager.SendSceneState("战斗状态");
     }
 
@@ -839,20 +843,34 @@ class YJFireManager {
     }
 
 
-    this.AddModelDMPlayer = function(state) {
-      console.log("添加弹幕玩家镜像 ",state); 
-      let { modelId, npcId, dmData } = state;
-      _Global._YJNPCManager.DuplicateNPC(modelId, npcId, (copy) => {
+    this.AddModelDMPlayer = function (state, callback) {
+      console.log("添加弹幕玩家镜像 ", state);
+      let { modelId, npcId, camp, dmData } = state;
+
+      let npcTransform = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId(modelId);
+      if (npcTransform == null) {
+        console.error("不该进入此判断：", modelId + " 不存在");
+        return;
+      }
+      let modelData = JSON.parse(JSON.stringify(npcTransform.modelData));
+      modelData.active = true;
+      modelData.message.data.baseData.camp = camp;
+      modelData.id = npcId;
+      _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().DuplicateModelNPC(modelData, (copy) => {
+        // 测试显示指定名称id的NPC
+        _YJNPCManager.AddNpc(copy); 
+        let npc = copy.GetComponent("NPC");
         if (dmData) {
           let { uname, uface } = dmData;
-          let npc = copy.GetComponent("NPC");
           npc.CreateHeader(uface);
           npc.SetName(uname);
         }
-        
+        npc.SetDMPlayerMirror();
         copy.SetActive(true);
-
-      });
+        if (callback) {
+          callback(npc);
+        }
+      }, npcId);
 
 
     }

@@ -3,32 +3,33 @@
 
   <!-- 在线列表 -->
   <div id="userListPanel"
-    class=" xl:block w-48 h-48 absolute right-0 top-10 xl:top-20  origin-top-right transform scale-50 xl:scale-100 ">
+    class=" xl:block w-32 h-48 absolute right-0 top-10 xl:top-60  origin-top-right transform scale-50 xl:scale-100 ">
 
     <!-- 透明度背景 -->
     <div class="absolute left-0 top-0 z-0 w-full h-full ">
       <!-- <img :src="publicUrl + 'images/gameUI/zaixianrensu.png'" alt=""> -->
     </div>
 
-    <div class=" absolute left-16 w-20 top-3 z-10 text-white  ">
+    <div class=" text-center w-20  text-white  ">
       {{ language.content.onlineList }} {{ otherUser.length }}
     </div>
 
-    <div class=" mt-10 text-left h-auto max-h-96 overflow-y-auto overscroll-auto text-white">
+    <div class=" mt-1 text-left h-auto max-h-96 overflow-y-auto overscroll-auto text-white">
       <div v-for="(item, i) in otherUser" :key="i" :index="item.userName" class=" relative w-11/12  pl-2   "
         :id="item.id">
         <div class=" flex ">
 
           <div class=" w-auto  whitespace-nowrap  truncate "
-            :class="item.id == id ? ' pointer-events-none ' : 'cursor-pointer', (isMainUser && item.id == id) ? ' text-green-400 ' : ''"
+            :class="[item.id == id ? ' pointer-events-none ' : 'cursor-pointer', (isMainUser && item.id == id) ? ' text-green-400 ' : '']"
             @click="ClickOtherUser('select', item)">
             <div>
               {{ item.userName + (item.id == id ? ' (自己)' : '') }}
             </div>
           </div>
 
-          <div class=" hidden absolute right-0 z-auto " :class="(isMainUser && item.id != id) ? 'pointer-events-auto cursor-pointer ' : 'pointer-events-none',
-            item.audio ? ' opacity-1 ' : ' opacity-0 '
+          <div class=" hidden absolute right-0 z-auto " 
+          :class="[(isMainUser && item.id != id) ? 'pointer-events-auto cursor-pointer ' : 'pointer-events-none',
+            item.audio ? ' opacity-1 ' : ' opacity-0 ']
             " @click.stop="ToggleAudio(item)">
             <div class=" w-6 h-6 p-px ">
               <!-- <img class=" w-full h-full " :src="publicUrl + 'images/' + (item.mute ? 'mute' : '') + 'mico.png'" alt=""> -->
@@ -42,7 +43,7 @@
 
         <!-- 生命条 -->
         <div v-if="item.user.userData.baseData" class=" mb-1 w-full h-auto   relative ">
-          <div class=" w-full border relative h-5  ">
+          <div class=" w-full border relative h-3  ">
             <div class="  bg-green-500  h-full "
               :style="'width: ' + (item.user.userData.baseData.health / item.user.userData.baseData.maxHealth) * 100 + '%'">
             </div>

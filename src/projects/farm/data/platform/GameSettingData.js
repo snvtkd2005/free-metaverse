@@ -15,6 +15,15 @@ export default {
   campType: [ 
     { value: 1000, label: "阵营1000" },
     { value: 1001, label: "阵营1001" },
+    { value: 1002, label: "阵营1002" },
+    { value: 1003, label: "阵营1003" },
+    { value: 1004, label: "阵营1004" },
+    { value: 1005, label: "阵营1005" },
+    { value: 1006, label: "阵营1006" },
+    { value: 1007, label: "阵营1007" },
+    { value: 1008, label: "阵营1008" },
+    { value: 1009, label: "阵营1009" },
+    { value: 1010, label: "阵营1010" },
   ],
   lefMenuList:[
     {

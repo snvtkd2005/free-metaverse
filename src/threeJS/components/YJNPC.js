@@ -154,15 +154,21 @@ class YJNPC {
     let weaponData = null;
     let npcPos = [];
     this.npcName = "";
+    function getCampColor(){
+      return  _Global.user.camp != baseData.camp ? 0xee0000 : 0xbab8ff;
+    }
     this.SetName = function (v) {
       this.npcName = v;
       // console.log("设置新名字： "+ this.npcName);
-      scope.applyEvent("重置昵称", this.npcName);
+      scope.applyEvent("重置昵称", this.npcName,getCampColor());
     }
     this.ResetName = function () {
       this.npcName = data.name;
       // console.log("重置为原始名字： "+ this.npcName);
-      scope.applyEvent("重置昵称", this.npcName);
+      scope.applyEvent("重置昵称", this.npcName,getCampColor());
+    }
+    this.ResetNameColor = function(){
+      scope.applyEvent("重置昵称", this.npcName,getCampColor());
     }
     //创建姓名条参考物体
     let namePosTrans = null;
@@ -176,7 +182,7 @@ class YJNPC {
       // console.log(" 设置姓名条 ",content);
       _Global._YJPlayerNameManager.CreateNameTrans(
         scope, scope.id, content, playerHeight, parent.scale.x, nameScale, 
-        _Global.user.camp != baseData.camp ? 0xee0000 : 0xffffff
+        getCampColor()
         // _Global.user.camp != baseData.camp ? '#ee0000' : '#ffffff'
       );
       return;
@@ -913,6 +919,9 @@ class YJNPC {
     this.SetMoveSpeed = function (f) {
 
     }
+    
+    this.RemoveHandle = function () {
+    }
     this.SetVaildAttackDis = function (v) {
       setVaildAttackDis(v);
     }
@@ -1073,9 +1082,10 @@ class YJNPC {
 
     //#region 作为玩家镜像/玩家宠物/玩家跟随守护时的逻辑：战斗时，攻击玩家同战斗的敌人。其他状态跟随玩家
     let ownerPlayer = null;
+    let ownerPlayerMirror = false; //是否为弹幕玩家镜像，当是弹幕玩家镜像时，不发送位置，只同步位置
     this.setOwnerPlayer = function (_ownerPlayer) {
       ownerPlayer = _ownerPlayer;
-      oldPlayerPos.y = -100;
+      oldPlayerPos.y = -100; 
       // scope.FollowPlayer();
       ownerPlayer.addEventListener("进入战斗",(camp, fireId,targetNpc)=>{
         console.log(scope.GetNickName() + " 监听 主播进入战斗 ",camp, fireId,targetNpc);
@@ -1098,11 +1108,15 @@ class YJNPC {
       });
 
     }
+    
+    this.SetDMPlayerMirror = function(){
+      ownerPlayerMirror = true;
+    }
     this.GetOwnerPlayerId = function(){
       return ownerPlayer ? ownerPlayer.id :"";
     }
     this.GetIsPlayer = function () {
-      return data.isPlayer;
+      return data.isPlayer || ownerPlayerMirror || ownerPlayer;
     }
     // 玩家生成的镜像或宠物，在玩家移动后，跟随玩家
     this.FollowPlayer = function () {
@@ -1402,6 +1416,9 @@ class YJNPC {
     this.GetNickName = function () {
       return GetNickName();
     }
+    this.GetModelScale = function () {
+      return scope.transform.GetModelScale();
+    }
     function GetNickName() {
       return scope.npcName;
       // return "[" + scope.npcName + "]";
@@ -1653,6 +1670,9 @@ class YJNPC {
         return;
       }
 
+      if (ownerPlayer || ownerPlayerMirror) {
+        return;
+      }
 
       fireLater.push({
         type: "timeout", fn:
@@ -1838,7 +1858,10 @@ class YJNPC {
     }
     this._update = function () {
       // return;
-      if (ownerPlayer  ) {
+      if(ownerPlayerMirror){
+        return;
+      }
+      if (ownerPlayer   ) {
         CheckState();
         if (this.canMove && !scope.inControl) {
           tick(clock.getDelta());
@@ -1884,6 +1907,10 @@ class YJNPC {
       }
     }
 
+    this.updateCamp = function(){
+      _Global.DyncManager.UpdateModel(scope.id, "camp",
+      baseData.camp);
+    }
 
 
     this.SetPlayerState = function (e, _animName) {

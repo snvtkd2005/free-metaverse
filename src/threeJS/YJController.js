@@ -3560,10 +3560,7 @@ class YJController {
         maxHealth: 500, //最大生命值
       }
 
-    };
-    // this.SetEquip = function(_equipList){
-    //   userData.baseData.equipList = _equipList;
-    // }
+    }; 
 
     this.SetNameTransOffsetAndScale = function (h, scale) {
       userData.nameTrans = { h: h, scale: scale };

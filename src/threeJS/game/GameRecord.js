@@ -4,6 +4,7 @@
 
 
 
+import levelsData from "../../projects/farm/data/platform/levelsData";
 import roguelikeGameData from "../../projects/farm/data/platform/roguelikeGameData";
 import { toTime } from "../../utils/utils";
 
@@ -19,7 +20,7 @@ class GameRecord {
     let currentExp = 0;
     let currentKill = 0;
     let teamStats = roguelikeGameData.teamStats;
-    let needExpByLevels = roguelikeGameData.needExpByLevels;
+    let needExpByLevels = levelsData.needExpByLevels;
     let record = teamStats.record;
     let level = 1;
     let needExpByLevel = needExpByLevels[level - 1];

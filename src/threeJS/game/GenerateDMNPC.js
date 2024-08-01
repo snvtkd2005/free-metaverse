@@ -98,6 +98,13 @@ class GenerateDMNPC {
         }
       }
     }
+    function ReLifeAll(){
+      for (let i = dmNpcList.length - 1; i >= 0; i--) {
+        if (dmNpcList[i].isDead) {
+          dmNpcList[i].Dync({ title: "重新生成" });
+        }
+      }
+    }
     function resetLifeById(modelId) {
 
       if (_Global.YJDync && _Global._YJDyncManager) {
@@ -225,6 +232,9 @@ class GenerateDMNPC {
       }
       GanerateNPCFn(dmplayer);
       dmVue.setDMPlayer(DMPlayer);
+
+      _Global._YJPlayerFireCtrl.GetProperty().updateDMPlayer(dmNpcListData);
+
     }
 
 
@@ -262,12 +272,12 @@ class GenerateDMNPC {
       let yjtransform = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId(assetId);
 
 
-      dmNpcListData.push({ npcId, assetId, uname, uface });
-
+      dmNpcListData.push({ npcId, assetId, uname, uface,camp:_Global.user.camp });
 
       let modelData = JSON.parse(JSON.stringify(yjtransform.modelData));
       modelData.name = uname;
       modelData.message.data.name = uname;
+      modelData.message.data.baseData.camp = _Global.user.camp;
       modelData.active = true;
       modelData.id = npcId;
       _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().DuplicateModelNPC(modelData, (copy) => {
@@ -418,6 +428,25 @@ class GenerateDMNPC {
         }
 
       });
+      _Global.addEventListener("玩家改变阵营", (playerId,camp) => { 
+        for (let i = 0; i < dmNpcList.length; i++) {
+          const element = dmNpcList[i];
+          element.npc.GetBaseData().camp = camp;
+          element.npc.ResetNameColor();
+          element.npc.updateCamp();
+        }
+        //
+       let dmplayerList = _Global._YJPlayerFireCtrl.GetBaseData().dmplayerList;
+       for (let i = 0; i < dmplayerList.length; i++) {
+          const element = dmplayerList[i];
+          element.camp = camp;
+        }
+			 _Global.YJ3D.YJController.directUpate("camp");
+      }); 
+      
+      _Global.addEventListener('主角重生', () => {
+        ReLifeAll();
+      });
       _Global.addEventListener("连接服务器成功", () => {
 
         console.log(" ======= 连接服务器成功 ========= ");
@@ -433,6 +462,7 @@ class GenerateDMNPC {
 
 
       _Global.addEventListener("3d加载完成", () => {
+        return;
         // dmVue.setDMPlayer(DMPlayer); return;
 
         let s = localStorage.getItem("DMPlayer");

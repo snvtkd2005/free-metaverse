@@ -284,7 +284,6 @@ class YJSkill {
                     skillItem: skillItem
                 });
 
-
             if (type == "control") {
 
                 let controlId = effect.controlId;
@@ -347,6 +346,7 @@ class YJSkill {
 
                 return;
             }
+
             if (type == "shield") {
 
                 effect.particleId = skillItem.skillFireParticleId;
@@ -372,6 +372,9 @@ class YJSkill {
         }
 
         this.ReceiveSkill = function (fromModel, skillName, effect, skillItem) {
+            
+			// console.log(" 玩家接收技能 11 " ,fromModel, skillName, effect,skillItem);
+            
             let { type, time, duration, describe, icon } = effect;
             effect.skillName = skillName || skillItem.skillName;
             effect.describe = describe;
@@ -420,7 +423,7 @@ class YJSkill {
             //     addredius
             // );
 
-            console.log( owner.GetNickName() +" 伤害跳字 来自 "+fromModel.GetNickName() ,fromModel.GetOwnerPlayerId());
+            // console.log( owner.GetNickName() +" 伤害跳字 来自 "+fromModel.GetNickName() ,fromModel.GetOwnerPlayerId());
             _Global.DyncManager.SendSceneStateAll("伤害跳字",
             {
                 fromId: fromModel.id,
@@ -847,6 +850,7 @@ class YJSkill {
 
                 if (targetType == "self") {
                     // scope.ReceiveSkill(owner,skillItem.skillName,effect,skillItem);
+                    // console.log(" 施放自身法术 ",getSendTitle(owner),skillItem);
                     _Global.DyncManager.SendDataToServer(getSendTitle(owner),
                         {
                             fromId: owner.id,
@@ -1021,11 +1025,30 @@ class YJSkill {
         let skillList = [];
         let oldSkillList = [];
         let hyperplasiaTimes = 0;
-        this.SendSkill = function (effect, skillItem) {
-            SendSkill(effect, skillItem);
-        }
         // 施放不需要目标或目标是自身的技能 如 增生
         function SendSkill(effect, skillItem) {
+            /**
+            			//增生
+			// if (type == "hyperplasia") {
+			// 	hyperplasiaTimes++;
+			// 	hyperplasia(modelData, 0, value, hyperplasiaTimes);
+			// }
+			// //进化
+			// if (type == "evolution") {
+			// 	oldSkillList = JSON.parse(JSON.stringify(skillList));
+
+			// 	// 所有技能伤害增加v%
+			// 	for (let i = 0; i < skillList.length; i++) {
+			// 		const skillItem = skillList[i];
+			// 		// 触发方式 每间隔n秒触发。在进入战斗时调用
+			// 		if (skillItem.target.type != "none") {
+			// 			skillItem.effect.value += skillItem.effect.value * value * 0.01;
+			// 		}
+			// 	}
+			// }
+             * 
+             */
+
             let { type, skillName, value, time, duration, describe, controlId } = effect;
             // console.log("施放不需要目标或目标是自身的技能 00 ", effect, skillItem);
             if (type == "shield" || type == "control") {
@@ -1419,7 +1442,7 @@ class YJSkill {
             let { type, skillName, value, time, duration } = effect;
 
             // 发送战斗记录
-            _Global.DyncManager.SendFireRecode({ playerId: owner.id, npcId: target.transform.id, npcName: target.npcName, skillName: skillName, strength: value });
+            _Global.DyncManager.SendFireRecode({ playerId: owner.id, npcId: target.id, npcName: target.npcName, skillName: skillName, strength: value });
             // 发送技能特效
             shootTarget(target, skillItem, null);
 

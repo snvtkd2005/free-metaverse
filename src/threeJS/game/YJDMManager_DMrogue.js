@@ -3,13 +3,13 @@
 
 
 import * as THREE from "three";
-import { GameRecord } from "/@/threeJS/common/gameRecord";
+import { GameRecord } from "/@/threeJS/game/gameRecord";
 import { RandomInt } from "/@/utils/utils";
  
 import { GenerateEnemyNPC } from "./GenerateEnemyNPC";
 import { GenerateDMNPC } from "./GenerateDMNPC";
 import { ReceiveDMGift } from "./ReceiveDMGift";
-import { YJGame_mainCtrl } from "../../../../threeJS/game/YJGame_mainCtrl";
+import { YJGame_mainCtrl } from "./YJGame_mainCtrl";
 
 
 /**

@@ -71,7 +71,7 @@ class YJClient {
           //更新其他玩家镜像的姓名条颜色
           for (let i = 0; i < allPlayer.length; i++) {
             if (allPlayer[i].id != id) {
-              allPlayer[i].player.ResetName(); 
+              allPlayer[i].player.ResetName();  
             }
           } 
           return;

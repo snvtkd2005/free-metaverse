@@ -840,6 +840,13 @@ class YJLoadUserModelManager {
             transform.GetComponent("NPC").SetActionScale(actionScale);
             transform.GetComponent("NPC").applyEvent("pos",pos);
           }
+          // npc阵营
+          if (title == "camp") {
+            let camp = data;
+            let transform = elment.transform; 
+            transform.GetComponent("NPC").GetBaseData().camp = camp;
+            transform.GetComponent("NPC").ResetNameColor();
+          }
           // npc巡逻点索引
           if (title == "navPosIndex") {
             let { navPosIndex } = data;

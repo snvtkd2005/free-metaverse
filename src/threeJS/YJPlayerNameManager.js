@@ -398,7 +398,7 @@ class YJPlayerNameManager {
 
 
       npc.addEventListener("重置昵称", (_nickName,_color) => {
-        console.log(" 重置昵称 ",nickName,_nickName);
+        // console.log(" 重置昵称 ",nickName,_nickName);
         // if (resetButton) {
         //   resetButton.remove(resetButton.children[0]);
         //   const resetButtonText = createText(nickName, 0.06);

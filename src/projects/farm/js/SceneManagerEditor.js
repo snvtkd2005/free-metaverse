@@ -831,12 +831,17 @@ class SceneManager {
 
       let target = null;
       let isYJNPC = false;
-      if(targetModel.GetComponent){
+      if(targetModel.isYJTransform){
         target = targetModel.GetComponent("NPC");
         isYJNPC = true;
+      }else if(targetModel.isYJNPC){
+        isYJNPC = true;
+        target = targetModel;
+        targetModel = targetModel.transform;
       }else{
         target = targetModel;
       }
+
       
       // 相同阵营的不计算
       if (target.GetCamp() != _Global.user.camp) {
@@ -865,7 +870,7 @@ class SceneManager {
       }
       
       let data = targetModel.GetData();
-      console.log(" click player data ",data);
+      console.log(" click player data ",targetModel,data);
         if (data.baseData.health == 0) {
           camp = "dead";
         }
@@ -931,7 +936,7 @@ class SceneManager {
               //敌人  
               //进入战斗状态
               if (message.data.baseData.health > 0) {
-                _Global._YJPlayerFireCtrl.SetPlayerEvent("设置npc", hitObject.transform);
+                _Global._YJPlayerFireCtrl.SetPlayerEvent("设置npc", hitObject.transform.GetComponent("NPC"));
               }
             }
           }
@@ -1032,9 +1037,9 @@ class SceneManager {
         if (message.pointType == "npc") {
           // 头像
           this.SetTargetModel(transform);
-          console.log(" 点击NPC  ", transform.GetComponent("NPC"));
+          // console.log(" 点击NPC  ", transform.GetComponent("NPC"));
           EventHandler("点击NPC", transform);
-          _Global._YJPlayerFireCtrl.SetPlayerEvent("选中npc", transform);
+          _Global._YJPlayerFireCtrl.SetPlayerEvent("选中npc", transform.GetComponent("NPC"));
           if (_Global.LogFireById) {
             _Global.LogFireById(transform.id);
           }

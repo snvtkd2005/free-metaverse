@@ -3,7 +3,7 @@
 
 
 import * as THREE from "three";
-import { GameRecord } from "/@/threeJS/common/gameRecord";
+import { GameRecord } from "/@/threeJS/game/gameRecord";
 import { RandomInt } from "/@/utils/utils";
 
 // import { socket_bilibili } from "/@/utils/socket_bilibili.js";

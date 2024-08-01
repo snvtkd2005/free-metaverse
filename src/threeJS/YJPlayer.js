@@ -578,6 +578,10 @@ class YJPlayer {
     this.GetNickName = function () {
       return nickName;
     }
+    
+		this.GetOwnerPlayerId = function(){
+			return "";
+		  }
     // 设置姓名条高度偏移和尺寸
     this.SetNameTransOffsetAndScale = function (h, scale) {
       namePosTrans.position.set(0, h, 0); //原点位置
@@ -879,6 +883,9 @@ class YJPlayer {
       scene.remove(playerGroup);
 
       cancelAnimationFrame(updateId);
+      if(_YJDMplayer){
+        _YJDMplayer.DelPlayer();
+      }
       console.log(" 角色下线 移除角色 ");
       scope.applyEvent("Destroy");
     }
@@ -977,7 +984,10 @@ class YJPlayer {
 
     this.ResetName = function () { 
       scope.applyEvent("重置昵称",scope.GetNickName(),getCampColor());
-    }
+      if(_YJDMplayer){
+        _YJDMplayer.ChangeCamp();
+      }
+    } 
     let dyncTimes = 0;
     let userDataList = [];
     let oldUserData = null; 
@@ -1045,15 +1055,16 @@ class YJPlayer {
             _YJEquip.ChangeEquipList(baseData.equipList);
           } 
         }
-        if(baseData.dmplayerList){
+        if(oldUserData.dyncType == "camp" || _YJDMplayer == null){
           // console.log("同步其他用户的角色镜像  执行 111 " ,userData); 
-
-          if(_YJDMplayer == null){
-          console.log("同步其他用户的角色镜像  执行 22222 " ,userData); 
-
-            _YJDMplayer = new YJDMPlayer(scope);
-            _YJDMplayer.ChangeEquipList(baseData.dmplayerList);
-          } 
+          if(baseData.dmplayerList){
+            if(_YJDMplayer == null){
+              console.log("同步其他用户的角色镜像  执行 22222 " ,userData); 
+              _YJDMplayer = new YJDMPlayer(scope);
+              _YJDMplayer.ChangeEquipList(baseData.dmplayerList);
+            } 
+            _YJDMplayer.ChangeCamp();
+          }
         }
       }
 

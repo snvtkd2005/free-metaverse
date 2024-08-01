@@ -22,6 +22,21 @@ class Interface {
   // _this 为三维主页面vue
   constructor(_this, inEditor) {
 
+    _Global.hasAvatar = true;
+    _Global.mainPlayerIsDead = false;
+    _Global.inDragProp = false;
+    _Global.inDragAction = false;
+
+    _Global.user = {
+      camp: 1000,
+      id:"YJPlayer",
+    }
+    _Global.url = {
+      uploadUrl: _this.$uploadUrl,
+      uploadUVAnimUrl: _this.$uploadUVAnimUrl,
+    }
+    _Global.inFocus = true;
+
     _Global.panelState = {
       player: false, 
       skill: false,
@@ -42,9 +57,9 @@ class Interface {
       if (_gs) {
         try {
           _Global.GameSetting = JSON.parse(_gs);
-
+          _Global.user.camp = _Global.GameSetting.live.children[2].value;
         } catch (error) {
-
+          console.log("_Global.GameSetting error ",error);
         }
       }
     }
@@ -130,11 +145,6 @@ class Interface {
     });
 
 
-    _Global.hasAvatar = true;
-    _Global.mainPlayerIsDead = false;
-    _Global.inDragProp = false;
-    _Global.inDragAction = false;
-
 
     // npc巡逻点模型
     let spare = new THREE.SphereGeometry(0.1, 10);
@@ -144,15 +154,6 @@ class Interface {
       navPointMesh: new THREE.Mesh(spare, material),
       DMGame: !inEditor,
     }
-    _Global.user = {
-      camp: 1000,
-      id:"sdfsdf",
-    }
-    _Global.url = {
-      uploadUrl: _this.$uploadUrl,
-      uploadUVAnimUrl: _this.$uploadUVAnimUrl,
-    }
-    _Global.inFocus = true;
 
     let cursorUrl = null;
     // 切换光标

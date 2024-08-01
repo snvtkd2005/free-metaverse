@@ -90,8 +90,7 @@ class YJSceneDyncManagerEditor {
       dyncModelList.push(data);
     }
     this.SendDataToServer = (type, data) => {
-
-      // console.log(" in SendDataToServer 发送 ", type, data);
+ 
       if (type == "玩家离开房间") {
         //删除玩家的镜像角色
         if (_Global.mainUser) {
@@ -114,7 +113,9 @@ class YJSceneDyncManagerEditor {
           this.Receive({ type:type, state: data });
           return;
         }
-        this.SendSceneState("转发", { type: type, state: data });
+        // this.SendSceneState("转发", { type: type, state: data });
+        _Global._YJDyncManager.SendSceneStateAll("转发", { type: type, state: data });
+
         return;
       }
 
@@ -299,7 +300,7 @@ class YJSceneDyncManagerEditor {
 
       if (type == "玩家死亡") {
         if (_Global.mainUser) {
-          this.RemovePlayerFireId(state.playerId, state.fireId);
+          _YJFireManager.RemovePlayerFireId(state.playerId, state.fireId);
         }
         return;
       }
@@ -326,7 +327,7 @@ class YJSceneDyncManagerEditor {
       if (type == "玩家加入战斗") {
         let { playerId, fireId,targetId } = state;
         if (_Global.YJ3D.YJPlayer.id == playerId) {
-          _Global._YJPlayerFireCtrl.SetPlayerEvent("选中npc", _YJFireManager.GetNpcById(targetId));
+          _Global._YJPlayerFireCtrl.SetPlayerEvent("选中npc", _YJFireManager.GetNpcById(targetId).GetComponent("NPC"));
           _Global._YJPlayerFireCtrl.SetPlayerEvent("玩家加入战斗", fireId);
         } else {
 
@@ -382,7 +383,7 @@ class YJSceneDyncManagerEditor {
                 );
             }
           }else{
-            console.log(" dync 伤害跳字 ",_Global.user.id,fromOwnerPlayerId);
+            // console.log(" dync 伤害跳字 ",_Global.user.id,targetId,fromId,fromOwnerPlayerId);
             if(_Global.user.id == targetId || _Global.user.id == fromId || _Global.user.id == fromOwnerPlayerId ){
               _Global._SceneManager.UpdateNpcDamageValue(
                 fromId,
@@ -420,6 +421,7 @@ class YJSceneDyncManagerEditor {
           targetModel = _YJFireManager.GetNpcById(targetId).GetComponent("NPC");
         }
 
+        console.log(" in dync ",type,_Global.user.id,fromType,targetType,fromId,targetId,targetModel);
         if(targetModel){
           if(targetModel.isPlayer ){
             if(_Global.user.id == targetId){

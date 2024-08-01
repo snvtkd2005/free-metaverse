@@ -41,7 +41,7 @@ class YJGame_mainCtrl {
         _Global.applyEvent('主角重生');
         // 还原战斗记录
         _Global.applyEvent('激活技能栏');
-        // _Global.applyEvent('战斗开始');
+        // _Global.applyEvent('战斗开始'); 
 
       });
       _Global.applyEvent('主角姓名', _Global._YJPlayerFireCtrl.GetNickName());
@@ -68,9 +68,10 @@ class YJGame_mainCtrl {
 
       _Global.addEventListener("玩家改变阵营", (playerId,camp) => { 
         console.log("玩家改变阵营  "+camp );
-        // 把主播玩家阵营改变
+        // 把主播玩家阵营改变,并同步
         _Global.YJ3D.YJController.updateBaseDataField("camp",camp);
-        // 更新其他玩家镜像的姓名条颜色
+        // 同时更新主播玩家所属的弹幕玩家阵营
+
         
         //把主播玩家带领的弹幕玩家的阵营也改变
         _Global._YJDyncManager.SendSceneStateAll("转发", { type: "玩家改变阵营", 

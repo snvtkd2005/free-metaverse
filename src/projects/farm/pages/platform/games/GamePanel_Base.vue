@@ -17,7 +17,7 @@
 
  
 <script >
-import { YJDMManager_GameBase } from "../../../js/games/YJDMManager_GameBase.js";
+import { YJDMManager_GameBase } from "/@/threeJS/game/YJDMManager_GameBase.js";
 import CombatPanelVue from "../common/combatLogPanel.vue";
 import DMPlayerPanelVue from "./DMPlayerPanel.vue";
 import wowPanelVue from "./wowPanel.vue";

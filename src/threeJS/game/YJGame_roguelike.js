@@ -3,10 +3,9 @@
 
 
 
-import * as THREE from "three";
-import GameItems from "../../projects/farm/data/platform/GameItems";
+import * as THREE from "three"; 
 import roguelikeGameData from "../../projects/farm/data/platform/roguelikeGameData";
-import { GameRecord } from "../common/gameRecord";
+import { GameRecord } from "./gameRecord";
 import { YJGame_mainCtrl } from "./YJGame_mainCtrl";
 
 

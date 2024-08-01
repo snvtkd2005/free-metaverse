@@ -15,8 +15,10 @@ class YJSprite {
       var textureLoader = new THREE.TextureLoader();
       spriteBG = textureLoader.load(spritePath);
       createSprite();
-      parent.add(mesh);
-      mesh.position.copy(offset);
+      if(parent){
+        parent.add(mesh);
+        mesh.position.copy(offset);
+      }
     }
 
     this.display = function(b){

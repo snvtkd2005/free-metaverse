@@ -324,14 +324,20 @@ class YJDMManager_GameBase {
       for (let i = 0; i < npcs.length; i++) {
         const npc = npcs[i];
 
-        npc.addEventListener("死亡",(id,fireId)=>{
-          if(_GameRecord){
-            _GameRecord.addKill();
-            _YJGame_mainCtrl.createGold(npc.GetWorldPos().clone());
-          } 
+        npc.addEventListener("死亡",(id,fireId,damageFromData)=>{
+          for (let i = 0; i < damageFromData.length; i++) {
+            const element = damageFromData[i];
+            if(element.fromId == _Global.user.id){
+              // 根据伤害百分比来分配经验值
+              console.log("获得经验 ", npc.GetExp(),element.per,npc.GetExp() * element.per);
+
+              _GameRecord.addKill( npc.GetExp() * element.per );
+              _YJGame_mainCtrl.createGold(npc.GetWorldPos().clone());
+              _Global.applyEvent("杀死npc",npc.GetNickName());
+            }
+          }
           // 从一场战斗中移除npc
           _Global._YJFireManager.RemoveNPCFireId(id,fireId);
-          _Global.applyEvent("杀死npc",npc.GetNickName());
 
         });
       }
@@ -346,15 +352,20 @@ class YJDMManager_GameBase {
         // npcComponent.SetNpcTarget(enemyNpcTarget, true, true);
         enemyCount++;
         // console.log(" 敌人数量 "+ enemyCount);
-      },(npc,id,fireId)=>{
-        if(_GameRecord){
-          _GameRecord.addKill();
-          _YJGame_mainCtrl.createGold(npc.GetWorldPos().clone());
-        } 
+      },(npc,id,fireId,damageFromData)=>{
+ 
+        for (let i = 0; i < damageFromData.length; i++) {
+          const element = damageFromData[i];
+          if(element.fromId == _Global.user.id){
+            // 根据伤害百分比来分配经验值
+            _GameRecord.addKill( npc.GetExp() * element.per );
+            _YJGame_mainCtrl.createGold(npc.GetWorldPos().clone());
+            _Global.applyEvent("杀死npc",npc.GetNickName());
+          }
+        }
         // 从一场战斗中移除npc
         _Global._YJFireManager.RemoveNPCFireId(id,fireId);
-        enemyCount--;
-        _Global.applyEvent("杀死npc",npc.GetNickName());
+        enemyCount--; 
         // console.log(" 敌人数量 "+enemyCount);
       });
 

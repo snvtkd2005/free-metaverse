@@ -646,6 +646,7 @@ class YJLoadUserModelManager {
         }
       } 
       loadQueue.push({ folderBase, msg: [], callback: [] });
+      // console.log("loadQueue ",loadQueue);
       let path = _Global.YJ3D.$uploadUrl + folderBase + "/" + "data.txt" + "?time=" + new Date().getTime();
       _Global.YJ3D._YJSceneManager.LoadAssset(path, (modelData) => {
         modelData.pos = { x: 0, y: 0, z: 0 };

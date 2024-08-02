@@ -393,18 +393,24 @@ export default {
 
     document.addEventListener("visibilitychange", () => {
       // console.log(document.hidden);
-      if (document.hidden && this.isMainUser && this.otherUser.length > 1) {
-        //当前用户是主控时，窗口失去焦点时，交出主控权
-        this.isMainUser = false;
-        if (this._YJClient) {
-          this._YJClient.cancelMainUser();
-        }
+      // if (document.hidden && this.isMainUser && this.otherUser.length > 1) {
+      //   //当前用户是主控时，窗口失去焦点时，交出主控权
+      //   this.isMainUser = false;
+      //   if (this._YJClient) {
+      //     this._YJClient.cancelMainUser();
+      //   }
+      // } else {
+      //   if (this._YJClient) {
+      //     this._YJClient.needMainUser();
+      //   }
+      // }
+      if (document.hidden) {
+
       } else {
         if (this._YJClient) {
           this._YJClient.needMainUser();
         }
       }
-
     });
     // window.onfocus = () => {
     // };

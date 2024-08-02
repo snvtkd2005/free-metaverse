@@ -1609,6 +1609,28 @@ class YJNPC {
       }
 
     }
+    this.GetExp = function(){
+      return data.exp==undefined?30:data.exp;
+    }
+    // 伤害来源数据：被谁攻击的，以及伤害占比多少。这个数据决定给谁多少经验
+    let damageFromData = [
+      // {fromId:0,per:0.5}
+    ];
+    this.addDamageFrom = function(fromId,per){
+      let has =false;
+      for (let i = 0; i < damageFromData.length && !has; i++) {
+        const element = damageFromData[i];
+        if(element.fromId == fromId){
+          element.per += per;
+          has = true;;
+        }
+      }
+      if(!has){
+        damageFromData.push({fromId,per});
+      }
+      //同步 
+      _Global._YJDyncManager.SendSceneStateAll("转发", { type:"同步npc伤害分配", state:{fromId:_Global.user.id, npcId: scope.id,damageFromData} });
+    }
     // 死亡
     function dead() {
       if (!_Global.mainUser) {
@@ -1625,9 +1647,9 @@ class YJNPC {
       // 设为死亡状态
       baseData.state = stateType.Dead;
       
-      scope.applyEvent("死亡",scope.transform.id, scope.fireId);
+      scope.applyEvent("死亡",scope.id, scope.fireId,damageFromData);
       // 从一场战斗中移除npc
-      // _Global._YJFireManager.RemoveNPCFireId(scope.transform.id, scope.fireId);
+      // _Global._YJFireManager.RemoveNPCFireId(scope.id, scope.fireId);
       scope.fireId = -1;
       // 清除技能触发
       ClearFireLater();
@@ -1735,7 +1757,7 @@ class YJNPC {
       scope.RadomNavPos();
       fireBeforePos = scope.GetWorldPos();
 
-
+      damageFromData = [];
       // if (_YJPlayerNameTrans != null) {
       //   _YJPlayerNameTrans.resetLife();
       // }
@@ -2161,6 +2183,10 @@ class YJNPC {
         resetLife();
         return;
       }
+      if (msg.title == "同步npc伤害分配") {
+        damageFromData = msg.damageFromData;
+        return;
+      }
       if (msg.title == "加护甲") {
         if (scope.isDead) { return; }
         baseData.armor += msg.value;
@@ -2237,6 +2263,7 @@ class YJNPC {
           // 清除技能触发
           ClearFireLater();
           activeFalse();
+          scope.applyEvent("死亡",scope.id, scope.fireId,damageFromData);
         }
         scope.transform.UpdateData(); // 触发更新数据的回调事件
 

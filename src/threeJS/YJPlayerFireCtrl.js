@@ -56,7 +56,10 @@ class YJPlayerFireCtrl {
 		this.GetNickName = function () {
 			return _YJPlayer.GetNickName();
 		}
-
+		
+		this.addDamageFrom = function () { 
+		}
+		
 		this.CheckMaxDamage = function (fromId, value) {
 		}
 		this.CombatLog = function (from, to, type, content) {

@@ -110,12 +110,12 @@ class YJMeshMerged {
       const mesh = new THREE.InstancedMesh(geometry, material, count);
       for (let i = 0; i < count; i++) {
 
-        let pos1 = posList[i];
+        let pos1 = new THREE.Vector3( posList[i].x, posList[i].y, posList[i].z); 
         pos1.x += pos.x;
         pos1.y += pos.y;
         pos1.z += pos.z;
 
-        let scale1 = scaleList[i].clone();
+        let scale1 = new THREE.Vector3( scaleList[i].x, scaleList[i].y, scaleList[i].z); 
         scale1.x *= scale.x;
         scale1.y *= scale.y;
         scale1.z *= scale.z;

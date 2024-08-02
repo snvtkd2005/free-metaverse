@@ -2,16 +2,13 @@
 
 
 import * as THREE from "three";
-import { YJSkillModel } from "./YJSkillModel";
 
 class YJSkill {
     constructor(owner) {
         let scope = this;
         let targetModel = null;
         let baseData = null;
-        let _YJSkillModel = new YJSkillModel(owner);
         function init() {
-            
             owner.addEventListener("首次进入战斗", () => {
                 // CheckSkill();
             });
@@ -205,17 +202,17 @@ class YJSkill {
                 }
             }
         }
-        this.ChangeBaseSkillByWeapon = function (weaponData) {
-
-            if (baseSkillItem) {
+        this.ChangeBaseSkillByWeapon = function(weaponData){
+            
+            if(baseSkillItem){
                 let strength = 10;
                 let castTime = 2;
 
-                if (weaponData) {
+                if(weaponData){
                     castTime = weaponData.attackSpeed;
                     strength = weaponData.strength;
                 }
-                var { s, v, a, _ready, _fire } = _Global.CreateOrLoadPlayerAnimData().GetSkillDataByWeapon(weaponData);
+			    var { s, v, a, _ready, _fire } = _Global.CreateOrLoadPlayerAnimData().GetSkillDataByWeapon(weaponData);
                 baseSkillItem.vaildDis = v;
                 baseSkillItem.castTime = a;
                 if (_ready) {
@@ -232,7 +229,7 @@ class YJSkill {
                 baseSkillItem.animNameReady = ready.animName;
                 baseSkillItem.animName = fire.animName;
                 baseSkillItem.effect.value = strength;
-
+                
             }
         }
         this.CheckSkillInVaildDis = function (pos) {
@@ -277,25 +274,26 @@ class YJSkill {
             }
             EventHandler("中断技能");
         }
-        this.ReceiveControl = function (msg) {
-            _YJSkillModel.ReceiveControl(msg,false); 
+        this.ReceiveControl = function(skillItem){
+            
         }
         function ReceiveControl(_targetModel, skillName, effect, skillItem) {
             let { type, value, time, duration, describe, icon, fromName } = effect;
             effect.skillName = skillName || skillItem.skillName;
 
-            _Global.DyncManager.SendDataToServer("受到技能",
-                {
-                    fromId: owner.id,
-                    skillItem: skillItem
-                });
+            _Global.DyncManager.SendDataToServer("同步角色控制技能状态",
+            {
+                fromId: owner.id,
+                effect:effect,
+                skillItem: skillItem
+            });
 
             if (type == "control") {
 
                 let controlId = effect.controlId;
                 let { receiveEffect } = skillItem;
 
-                if (receiveEffect == undefined) {
+                if(receiveEffect == undefined){
                     return;
                 }
                 owner.inControl = true;
@@ -314,8 +312,30 @@ class YJSkill {
                         pos: owner.GetWorldPos(),
                         scale: new THREE.Vector3(nameScale, nameScale, nameScale),
                     }
+                    // let fn = (model) => {
+                    //     model.SetPos(owner.GetWorldPos());
+                    //     let nameScale = owner.GetScale();
+                    //     model.AddScale(new THREE.Vector3(nameScale, nameScale, nameScale));
+                    //     model.SetActive(true);
+                    //     AddControlModel(receiveEffect.particleId, model);
+                    //     _Global._YJGame_mainCtrl.AttachToPool(receiveEffect.particleId, model);
+                    // }
 
-                    _YJSkillModel.ReceiveControl(msg,true); 
+                    AddControlModel(receiveEffect.particleId, 'merged');
+
+                    // 静态物体使用合批的方法做法
+                    _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillFolderBaseByMSG(
+                        receiveEffect.particleId, msg);
+
+                    // let transform = _Global._YJGame_mainCtrl.GetModelInPool(receiveEffect.particleId);
+                    // if (transform != null) {
+                    //     fn(transform);
+                    // } else {
+                    //     _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillByFolderBase(
+                    //         receiveEffect.particleId, (model) => {
+                    //             fn(model);
+                    //         });
+                    // }
 
                 }
 
@@ -340,16 +360,15 @@ class YJSkill {
                 if (HasControlModel(skillItem.skillFireParticleId)) {
                     return false;
                 }
- 
-                let nameScale = owner.GetScale();
-                let msg = {
-                    title: "生成组合模型",
-                    folderBase: skillItem.skillFireParticleId,
-                    id: owner.id,
-                    pos: owner.GetWorldPos(),
-                    scale: new THREE.Vector3(nameScale, nameScale, nameScale),
-                }
-                _YJSkillModel.ReceiveControl(msg,true);
+                _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillGroup(skillItem.skillFireParticleId, (model) => {
+                    model.SetPos(owner.GetWorldPos());
+                    let nameScale = owner.GetScale();
+                    model.SetScale(new THREE.Vector3(nameScale, nameScale, nameScale));
+                    owner.GetGroup().attach(model.GetGroup());
+                    model.SetActive(true);
+                    AddControlModel(skillItem.skillFireParticleId, model);
+                });
+
 
                 return;
             }
@@ -357,9 +376,9 @@ class YJSkill {
         }
 
         this.ReceiveSkill = function (fromModel, skillName, effect, skillItem) {
-
-            // console.log(" 玩家接收技能 11 " ,fromModel, skillName, effect,skillItem);
-
+            
+			// console.log(" 玩家接收技能 11 " ,fromModel, skillName, effect,skillItem);
+            
             let { type, time, duration, describe, icon } = effect;
             effect.skillName = skillName || skillItem.skillName;
             effect.describe = describe;
@@ -386,7 +405,7 @@ class YJSkill {
             if (type == "damage" || type == "contDamage") {
                 value = owner.GetProperty().RealyDamage(value);
                 let d = value;
-                if (value > baseData.health) {
+                if(value>baseData.health){
                     d = baseData.health;
                 }
 
@@ -394,8 +413,8 @@ class YJSkill {
                 owner.CombatLog(fromModel.GetNickName() + " 攻击 " + owner.GetNickName() + " 造成 " + value + " 点伤害 ");
                 owner.CheckMaxDamage(fromModel.id, value);
 
-                owner.addDamageFrom(fromModel.id, d / baseData.maxHealth);
-                if (baseSkillItem) {
+                owner.addDamageFrom(fromModel.id,d/baseData.maxHealth);
+                if(baseSkillItem){
                     // 被攻击时，自动反击
                     baseSkillItem.auto = true;
                 }
@@ -416,17 +435,17 @@ class YJSkill {
 
             // console.log( owner.GetNickName() +" 伤害跳字 来自 "+fromModel.GetNickName() ,fromModel.GetOwnerPlayerId());
             _Global.DyncManager.SendSceneStateAll("伤害跳字",
-                {
-                    fromId: fromModel.id,
-                    fromType: fromModel.getPlayerType(),
-                    fromName: fromModel.GetNickName(),
-                    fromOwnerPlayerId: fromModel.GetOwnerPlayerId(),
-                    targetId: owner.id,
-                    targetType: owner.getPlayerType(),
-                    targetName: owner.GetNickName(),
-                    value: value,
-                    addredius: addredius,
-                });
+            {
+                fromId: fromModel.id,
+                fromType: fromModel.getPlayerType(),
+                fromName: fromModel.GetNickName(),
+                fromOwnerPlayerId:fromModel.GetOwnerPlayerId(),
+                targetId: owner.id,
+                targetType: owner.getPlayerType(),
+                targetName: owner.GetNickName(),
+                value: value,
+                addredius: addredius,
+            }); 
 
         }
 
@@ -444,7 +463,6 @@ class YJSkill {
             }
             return false;
         }
-
         function RemoveSkill(skill) {
             // console.log(" 解除技能 Skill ", skill);
             let particleId = skill.particleId;
@@ -522,13 +540,11 @@ class YJSkill {
 
                 return;
             }
-
-            // if (msg.title == "受到技能") {
-            //     let skill = msg.skill;
-            //     scope.ReceiveSkill('', '', skill.effect, skill);
-            //     return;
-            // }
-
+            if (msg.title == "受到技能") {
+                let skill = msg.skill;
+                scope.ReceiveSkill('', '', skill.effect, skill);
+                return;
+            }
             if (msg.title == owner.owerType('技能攻击')) {
                 let skill = msg.skill;
                 //增生
@@ -600,8 +616,8 @@ class YJSkill {
 
         }
         let oldskillname = "";
-        this.UseBaseSkill = function () {
-            if (baseSkillItem) {
+        this.UseBaseSkill = function(){
+            if(baseSkillItem){
                 baseSkillItem.auto = true;
                 SkillGo(baseSkillItem);
             }
@@ -613,7 +629,7 @@ class YJSkill {
                 if ("基础攻击" == oldskillname) {
                     inSkill = false;
                 }
-                if (baseSkillItem) {
+                if(baseSkillItem){
                     baseSkillItem.auto = true;
                 }
             }
@@ -652,8 +668,8 @@ class YJSkill {
                 let targetType = skillItem.target.type;
                 if (targetType == "target") {
                     if (targetModel == null) {
-                        errorLog = "无目标";
-                        if (skillName != "基础攻击") {
+                        errorLog = "无目标"; 
+                        if(skillName != "基础攻击"){
                             owner.MyFireState("我没有目标");
                         }
                         EventHandler("没有目标", skillItem);
@@ -661,7 +677,7 @@ class YJSkill {
                     }
                     if ((targetModel && targetModel.isDead)) {
                         errorLog = "目标已死亡";
-                        if (skillName != "基础攻击") {
+                        if(skillName != "基础攻击"){
                             owner.MyFireState("目标已死亡");
                         }
                         EventHandler("目标死亡", skillItem);
@@ -681,7 +697,7 @@ class YJSkill {
                         owner.MyFireState("我不能攻击这个目标");
                         return false;
                     }
-
+                    
                     //面向目标
                     owner.LookatTarget(targetModel);
                 }
@@ -692,7 +708,7 @@ class YJSkill {
                     if (owner.GetNickName().includes("居民")) {
                         console.error(owner.GetNickName() + " 范围攻击目标 ", max, areaTargets);
                     }
-
+                    
                     // 范围内无目标，不施放技能
                     if (areaTargets.length == 0) {
                         errorLog = "有效范围内无目标";
@@ -703,10 +719,10 @@ class YJSkill {
                 if (targetType.includes("random")) {
                     if (targetType.includes("Friendly")) {
                         // 找友方目标 
-                        searchModel = _Global._YJFireManager.GetSameCampByRandom(owner.GetCamp(), owner.fireId);
+                        searchModel = _Global._YJFireManager.GetSameCampByRandom(owner.GetCamp(),owner.fireId);
                     } else {
                         // 找敌对阵营的目标
-                        searchModel = _Global._YJFireManager.GetNoSameCampByRandom(owner.GetCamp(), owner.fireId);
+                        searchModel = _Global._YJFireManager.GetNoSameCampByRandom(owner.GetCamp(),owner.fireId);
                     }
                     // 随机进没目标时，返回false 不施放技能
                     if (searchModel == null) {
@@ -767,7 +783,7 @@ class YJSkill {
 
                 let targetType = skillItem.target.type;
                 if (targetType == "target") {
-
+                    
                     let { type, skillName, value, time, duration, describe, controlId } = effect;
                     if (effect.type == "control") {
                         if (controlId == "冲锋") {
@@ -1022,24 +1038,24 @@ class YJSkill {
         // 施放不需要目标或目标是自身的技能 如 增生
         function SendSkill(effect, skillItem) {
             /**
-                        //增生
-            // if (type == "hyperplasia") {
-            // 	hyperplasiaTimes++;
-            // 	hyperplasia(modelData, 0, value, hyperplasiaTimes);
-            // }
-            // //进化
-            // if (type == "evolution") {
-            // 	oldSkillList = JSON.parse(JSON.stringify(skillList));
+            			//增生
+			// if (type == "hyperplasia") {
+			// 	hyperplasiaTimes++;
+			// 	hyperplasia(modelData, 0, value, hyperplasiaTimes);
+			// }
+			// //进化
+			// if (type == "evolution") {
+			// 	oldSkillList = JSON.parse(JSON.stringify(skillList));
 
-            // 	// 所有技能伤害增加v%
-            // 	for (let i = 0; i < skillList.length; i++) {
-            // 		const skillItem = skillList[i];
-            // 		// 触发方式 每间隔n秒触发。在进入战斗时调用
-            // 		if (skillItem.target.type != "none") {
-            // 			skillItem.effect.value += skillItem.effect.value * value * 0.01;
-            // 		}
-            // 	}
-            // }
+			// 	// 所有技能伤害增加v%
+			// 	for (let i = 0; i < skillList.length; i++) {
+			// 		const skillItem = skillList[i];
+			// 		// 触发方式 每间隔n秒触发。在进入战斗时调用
+			// 		if (skillItem.target.type != "none") {
+			// 			skillItem.effect.value += skillItem.effect.value * value * 0.01;
+			// 		}
+			// 	}
+			// }
              * 
              */
 
@@ -1134,13 +1150,13 @@ class YJSkill {
             }
         }
         this._update = function (dt) {
-            if (_Global.pauseGame) { return; }
+            if (_Global.pauseGame ) { return; }
 
             for (let i = 0; i < skillList.length; i++) {
                 const skillItem = skillList[i];
                 if (skillItem.trigger.type == "perSecond") {
                     if (skillItem.cCD == skillItem.CD) {
-
+                         
                         if (!owner.InFire()) { continue; }
 
                         if (!skillItem.auto) {
@@ -1310,7 +1326,7 @@ class YJSkill {
             }
             if (e == "目标死亡" || e == "没有目标") {
                 owner.TargetDead();
-                if (baseSkillItem) {
+                if(baseSkillItem){
                     baseSkillItem.auto = false;
                 }
             }
@@ -1415,7 +1431,7 @@ class YJSkill {
                         skillName: skillName,
                         effect: effect,
                         skillItem: skillItem,
-                    });
+                    }); 
             });
 
 

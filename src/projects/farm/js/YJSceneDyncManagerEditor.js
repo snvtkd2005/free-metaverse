@@ -102,12 +102,13 @@ class YJSceneDyncManagerEditor {
 
       if (type == "npc技能" 
       || type == "npc技能攻击" 
-      || type == "受到技能"
+      || type == "同步角色控制技能状态"
       || type == "玩家技能"
       || type == "玩家对玩家"
       || type == "玩家对NPC"
       || type == "NPC对NPC"
       || type == "NPC对玩家"
+      || type == "受到技能"
       || type == "解除技能") {
         if (!_Global.YJClient) {
           this.Receive({ type:type, state: data });
@@ -421,7 +422,7 @@ class YJSceneDyncManagerEditor {
           targetModel = _YJFireManager.GetNpcById(targetId).GetComponent("NPC");
         }
 
-        console.log(" in dync ",type,_Global.user.id,fromType,targetType,fromId,targetId,targetModel);
+        // console.log(" in dync ",type,_Global.user.id,fromType,targetType,fromId,targetId,targetModel);
         if(targetModel){
           if(targetModel.isPlayer ){
             if(_Global.user.id == targetId){
@@ -433,8 +434,31 @@ class YJSceneDyncManagerEditor {
         }
         return;
       }
-
-
+      if (type == "同步npc伤害分配" ) {
+        let { fromId, npcId,damageFromData} = state;
+        if(_Global.user.id == fromId){ return;}
+        let npc = _YJFireManager.GetNpcById(npcId).GetComponent("NPC");
+        if(npc){
+          npc.Dync({title:type,damageFromData:damageFromData});;
+        }
+        return;
+      }
+      
+      if (type == "同步角色控制技能状态") {
+        let {userId,fromId,fromType,msg} = state;
+        if(_Global.user.id == userId){return;}
+        
+        let fromModel = null;
+        if(fromType == "玩家"){
+          fromModel = _YJFireManager.GetPlayerById(fromId);
+          fromModel.ReceiveControl(msg);
+        }
+        if(fromType == "NPC"){
+          fromModel = _YJFireManager.GetNpcById(fromId).GetComponent("NPC");
+          fromModel.GetSkill().ReceiveControl(msg);
+        } 
+        return;
+      }
       if (type == "npc技能" || type == "npc技能攻击" || type == "受到技能" || type == "解除技能") {
         let { fromType,targetType,fromId,targetId, skillItem } = state;
         // if (type == "npc技能") {

@@ -61,9 +61,9 @@ class GameRecord {
         exp: 0,//经验值
       };
     }
-    this.addKill = function () {
+    this.addKill = function (exp) {
       record.kill++;
-      currentExp += 30;
+      currentExp += exp;
       checkKillCount();
     }
     

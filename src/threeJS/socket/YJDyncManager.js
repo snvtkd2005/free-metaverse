@@ -460,9 +460,12 @@ class YJDyncManager {
         if (message.user.cancelMainUser == "指定主控权") {
           if (_this.id == message.id) {
             _Global.mainUser = true;
-            YJDync.SetMainUser(_Global.mainUser);
             // console.log("指定当前用户为主控 22");
+          }else{
+            _Global.mainUser = false;
           }
+          YJDync.SetMainUser(_Global.mainUser);
+
           return;
         }
 

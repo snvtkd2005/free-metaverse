@@ -14,12 +14,13 @@ import { YJEquip } from './components/YJEquip';
 import TWEEN from '@tweenjs/tween.js';
 import { YJPlayerNameTrans } from "./YJPlayerNameTrans.js";
 import { YJDMPlayer } from "./components/YJDMPlayer.js";
+import { YJSkillModel } from "./components/YJSkillModel.js";
 
 class YJPlayer {
-  constructor(_this, scene, local, nickName, controllerCallback,loadAvatarMirrorCompleted) {
+  constructor(_this, scene, local, nickName, controllerCallback, loadAvatarMirrorCompleted) {
     var scope = this;
     this.isLocal = local;
-    this.fireId = -1; 
+    this.fireId = -1;
     this.isPlayer = true;
     this.isDead = false;
     this.id = "YJPlayer";
@@ -75,11 +76,11 @@ class YJPlayer {
       _YJPlayerDync = new YJPlayerDync(_this, scene, scope, playerGroup);
       _YJPlayerDync.DyncPlayerState({ type: "脚底光圈", msg: "生成" });
 
-      if(local){
+      if (local) {
         scope.camp = _Global.user.camp;
       }
     }
-    this.GetGroup = function(){
+    this.GetGroup = function () {
       return group;
     }
     this.DyncPlayerState = function (state) {
@@ -184,7 +185,7 @@ class YJPlayer {
       } else {
         playerObj.rotation.set(0, 0, 0); // 
       }
-      mountAvatar.ClearMesh(); 
+      mountAvatar.ClearMesh();
       this.ChangeAnim(oldAnimName);
       mountName = "";
 
@@ -209,14 +210,14 @@ class YJPlayer {
       _this.YJController.SetMount(_mountName);
 
     }
-    
+
     let de2reg = 57.3248407;
-    function SetRotaArray(model,rota){
-      if(!rota){
-        model.rotation.set(0,0,0);
+    function SetRotaArray(model, rota) {
+      if (!rota) {
+        model.rotation.set(0, 0, 0);
         return;
       }
-      model.rotation.set(rota[0]/de2reg,rota[1]/de2reg, rota[2]/de2reg);
+      model.rotation.set(rota[0] / de2reg, rota[1] / de2reg, rota[2] / de2reg);
     }
 
     //创建坐骑
@@ -276,13 +277,13 @@ class YJPlayer {
     this.LoadPlayer = function (id) {
 
       if (!_Global.hasAvatar && this.isLocal) {
-        console.log("无角色浏览"); 
+        console.log("无角色浏览");
         if (controllerCallback) {
           controllerCallback(group, playerGroup);
         }
         return;
       }
-      if (_this.$parent.sceneData.setting.firstPerson == undefined ) {
+      if (_this.$parent.sceneData.setting.firstPerson == undefined) {
 
       } else {
         if (_this.$parent.sceneData.setting.firstPerson) {
@@ -312,7 +313,7 @@ class YJPlayer {
     }
     this.ChangeSkinCompleted = function () {
       group.visible = true;
-      if(namePosTrans){
+      if (namePosTrans) {
         namePosTrans.visible = true;
       }
       if (!this.isLocal) {
@@ -331,7 +332,7 @@ class YJPlayer {
         modelPath = _this.GetPublicUrl() + modelPath;
       }
 
-      console.log("加载角色0",modelPath,avatarData,animationsData);
+      console.log("加载角色0", modelPath, avatarData, animationsData);
       avatar = new YJLoadAvatar(
         _this,
         _this.scene,
@@ -357,13 +358,13 @@ class YJPlayer {
           playerObj.position.set(0, 0, 0); //原点位置
           let size = modelScale;
           playerObj.scale.set(size, size, size); //模型缩放
-          SetRotaArray(playerObj,rotation);
+          SetRotaArray(playerObj, rotation);
           // console.log(" 加载模型完成 " + playerObj.name);
           if (local) {
             if (controllerCallback) {
               controllerCallback(group, playerGroup);
             }
-            console.log("创建 本地角色 == > " + playerName, playerHeight,avatarData.rotaY);
+            console.log("创建 本地角色 == > " + playerName, playerHeight, avatarData.rotaY);
             _this.YJController.SetTargetHeight(playerHeight);
 
           } else {
@@ -394,7 +395,7 @@ class YJPlayer {
             CreateNameTransFn();
           }
 
-          
+
           if (loadAvatarMirrorCompleted) {
             loadAvatarMirrorCompleted(scope);
           }
@@ -446,7 +447,7 @@ class YJPlayer {
 
     this.ChangeAvatarByCustom = function (avatarData, isLocal) {
       // console.log("切换角色112222222222");
-      if(avatarData == undefined){
+      if (avatarData == undefined) {
         return;
       }
       playerHeight = avatarData.height;
@@ -514,10 +515,9 @@ class YJPlayer {
       // console.log("从模型中查找bone ", playerObj,boneName);
       doonce = 0;
       playerObj.traverse(function (item) {
-        if (doonce > 0) { return; } 
+        if (doonce > 0) { return; }
         // if (item.type == "Bone" && item.name == (boneName)) 
-        if (item.type == "Bone" && item.name.includes(boneName)) 
-        {
+        if (item.type == "Bone" && item.name.includes(boneName)) {
           if (callback) {
             callback(item);
           }
@@ -541,7 +541,7 @@ class YJPlayer {
     //----------姓名条 开始-----------------
     let hasName = false;
     this.CreateNameTrans = function (e) {
-      if (!_Global.hasAvatar  && this.isLocal) { 
+      if (!_Global.hasAvatar && this.isLocal) {
         return;
       }
 
@@ -549,39 +549,39 @@ class YJPlayer {
       hasName = true;
       CreateNameTransFn();
     }
-    let baseData = null; 
-    this.SetBaseData = function(_baseData){
+    let baseData = null;
+    this.SetBaseData = function (_baseData) {
       baseData = _baseData;
     }
-    this.GetData = function(){
+    this.GetData = function () {
       return {
-        avatarData:avatarData,
-        baseData:baseData,
+        avatarData: avatarData,
+        baseData: baseData,
       };
     }
-    this.GetModelScale = function(){
+    this.GetModelScale = function () {
       return nameScale;
     }
-    
+
     this.GetDamageTextPos = function () {
       let pos = scope.GetWorldPos().clone();
       pos.y += playerHeight * nameScale / 2;
       return pos;
     }
-    this.GetBaseData = () => { 
+    this.GetBaseData = () => {
       return oldUserData.baseData;
     }
-    
-		this.GetHealthPerc = function () {
-			return parseInt( baseData.health / baseData.maxHealth * 100);
-		}
+
+    this.GetHealthPerc = function () {
+      return parseInt(baseData.health / baseData.maxHealth * 100);
+    }
     this.GetNickName = function () {
       return nickName;
     }
-    
-		this.GetOwnerPlayerId = function(){
-			return "";
-		  }
+
+    this.GetOwnerPlayerId = function () {
+      return "";
+    }
     // 设置姓名条高度偏移和尺寸
     this.SetNameTransOffsetAndScale = function (h, scale) {
       namePosTrans.position.set(0, h, 0); //原点位置
@@ -594,41 +594,41 @@ class YJPlayer {
     }
 
     let createNameTimes = 0;
-    function getCampColor(){
-      return  _Global.user.camp != scope.camp ? 0xee0000 : 0xbab8ff;
+    function getCampColor() {
+      return _Global.user.camp != scope.camp ? 0xee0000 : 0xbab8ff;
     }
     //创建姓名条参考物体
     function CreateNameTransFn() {
-        
+
       // CreateVideo();
       if (_YJPlayerChat == null) {
         _YJPlayerChat = new YJPlayerChat(namePosTrans, nameScale);
-      } 
-      if(playerHeight == 0){
+      }
+      if (playerHeight == 0) {
         return;
       }
-      if(createNameTimes>0){
+      if (createNameTimes > 0) {
         return;
       }
       createNameTimes++;
       // console.error(nickName + "playerHeight 00 " ,playerHeight,modelScaleDrect, nameScale);
       _Global._YJPlayerNameManager.CreateNameTrans(
-        scope, scope.id, nickName, 
-        playerHeight,modelScaleDrect, 
-        nameScale, 
-       getCampColor(),
+        scope, scope.id, nickName,
+        playerHeight, modelScaleDrect,
+        nameScale,
+        getCampColor(),
       );
- 
+
       // _YJPlayerChat.CreateChatTrans("测试测测试"); 
       // _YJPlayerChat.CreateChatTrans("1测试测试测试试试测试测试测试测试测试测试1"); 
       // _YJPlayerChat.CreateChatTrans("测试测试测试试测试测试试测试测试试测试测试测试测试测试测试测试"); 
     }
-    this.resetLife = function(){
+    this.resetLife = function () {
       scope.applyEvent("重生");
     }
-    
+
     this.GetTargetModelDistance = function () {
-      if(this.isLocal){
+      if (this.isLocal) {
         return _Global._YJPlayerFireCtrl.GetTargetModelDistance();
       }
     }
@@ -639,11 +639,11 @@ class YJPlayer {
       eventList.push({ eventName: e, fn: fn });
     }
     // 执行事件
-    this.applyEvent = function (e, v, v2,v3) {
+    this.applyEvent = function (e, v, v2, v3) {
       for (let i = 0; i < eventList.length; i++) {
         const element = eventList[i];
         if (element.eventName == e) {
-          element.fn(v, v2,v3);
+          element.fn(v, v2, v3);
         }
       }
     }
@@ -658,9 +658,9 @@ class YJPlayer {
       }
       _YJPlayerChat.CreateChatTrans(e);
     }
-    this.UpdateHealth = function(health,maxHealth){
+    this.UpdateHealth = function (health, maxHealth) {
       if (_YJPlayerNameTrans != null) {
-        _YJPlayerNameTrans.UpdateHealth(health,maxHealth); 
+        _YJPlayerNameTrans.UpdateHealth(health, maxHealth);
       }
     }
     //#endregion
@@ -803,9 +803,13 @@ class YJPlayer {
       // pos.y += playerHeight;
       return pos;
     }
+    this.GetScale = function () {
+      return nameScale;
+    }
+    
     this.GetPlayerWorldPos = function () {
       let pos = getWorldPosition(playerGroup).clone();
-      pos.y += playerHeight/2;
+      pos.y += playerHeight / 2;
       return pos;
     }
     // 生成光圈时调用，返回父物体、角色高度
@@ -813,9 +817,9 @@ class YJPlayer {
       // let group = playerGroup.clone();
       return { group, playerHeight };
     }
-		this.getPlayerType = function(){
-			return "玩家";
-		}
+    this.getPlayerType = function () {
+      return "玩家";
+    }
     function makeButtonMesh(x, y, z, color) {
       const geometry = new THREE.BoxGeometry(x, y, z);
       const material = new THREE.MeshPhongMaterial({ color: color });
@@ -841,12 +845,12 @@ class YJPlayer {
     var oldAnimName = "";
     let animNameFullback = "";
     //切换动画
-    this.ChangeAnim = function (animName,_animNameFullback,callback) {
+    this.ChangeAnim = function (animName, _animNameFullback, callback) {
       // console.log("切换动画 ", animName);
       animNameFullback = _animNameFullback;
-      ChangeAnimFn(animName,callback);
+      ChangeAnimFn(animName, callback);
     }
-    function ChangeAnimFn(animName,callback) {
+    function ChangeAnimFn(animName, callback) {
       if (!hasPlayer) {
         return;
       }
@@ -855,7 +859,7 @@ class YJPlayer {
         if (hasMount) {
           mountAvatar.ChangeAnim(animName);
         } else {
-          avatar.ChangeAnim(animName,animNameFullback,callback);
+          avatar.ChangeAnim(animName, animNameFullback, callback);
         }
         oldAnimName = animName;
         return;
@@ -883,7 +887,7 @@ class YJPlayer {
       scene.remove(playerGroup);
 
       cancelAnimationFrame(updateId);
-      if(_YJDMplayer){
+      if (_YJDMplayer) {
         _YJDMplayer.DelPlayer();
       }
       console.log(" 角色下线 移除角色 ");
@@ -927,7 +931,7 @@ class YJPlayer {
 
     let display_avatar = true;
     this.DisplayAvatar = function (b) {
-      if (b == undefined || playerObj == null ) { return; }
+      if (b == undefined || playerObj == null) { return; }
       if (display_avatar == b) { return; }
       if (b) {
         playerObj.scale.set(modelScale, modelScale, modelScale); //模型缩放
@@ -936,7 +940,7 @@ class YJPlayer {
       }
       display_avatar = b;
       // namePosTrans.visible = b;
-      scope.applyEvent("显示隐藏姓名条",b);
+      scope.applyEvent("显示隐藏姓名条", b);
 
       console.log("设置角色avatar 缩放 ", display_avatar);
     }
@@ -970,10 +974,10 @@ class YJPlayer {
 
       oldNameTrans = nameTrans;
     }
-    this.GetUserData = function(){
+    this.GetUserData = function () {
       return oldUserData;
     }
-    
+
     let handlerList = [];
     this.AddHandle = function (handler) {
       handlerList.push(handler);
@@ -982,15 +986,23 @@ class YJPlayer {
       handlerList = [];
     }
 
-    this.ResetName = function () { 
-      scope.applyEvent("重置昵称",scope.GetNickName(),getCampColor());
-      if(_YJDMplayer){
+    this.ResetName = function () {
+      scope.applyEvent("重置昵称", scope.GetNickName(), getCampColor());
+      if (_YJDMplayer) {
         _YJDMplayer.ChangeCamp();
       }
-    } 
+    }
     let dyncTimes = 0;
     let userDataList = [];
-    let oldUserData = null; 
+    let oldUserData = null;
+    let _YJSkillModel = null;
+    this.ReceiveControl = function (msg) {
+      if(_YJSkillModel == null){
+        _YJSkillModel = new YJSkillModel(scope);
+      }
+      _YJSkillModel.ReceiveControl(msg,false);
+      
+    }
     //接收服务器同步过来的其他用户角色位置、旋转、动作
     this.SetUserData = function (userData) {
 
@@ -1034,35 +1046,35 @@ class YJPlayer {
 
 
       }
-      
+
       for (let i = 0; i < handlerList.length; i++) {
         const element = handlerList[i];
         element(scope.GetData());
       }
-      if(oldUserData.baseData){
+      if (oldUserData.baseData) {
         baseData = oldUserData.baseData;
         this.isDead = oldUserData.baseData.health <= 0;
-        this.UpdateHealth(oldUserData.baseData.health,oldUserData.baseData.maxHealth);
-        if(this.camp != oldUserData.baseData.camp){
+        this.UpdateHealth(oldUserData.baseData.health, oldUserData.baseData.maxHealth);
+        if (this.camp != oldUserData.baseData.camp) {
           this.camp = oldUserData.baseData.camp;
           scope.ResetName();
         }
-        if(oldUserData.dyncType == "equip" || _YJEquip == null){
-          if(baseData.equipList){
-            if(_YJEquip == null){
-              _YJEquip = new YJEquip(scope,false);
+        if (oldUserData.dyncType == "equip" || _YJEquip == null) {
+          if (baseData.equipList) {
+            if (_YJEquip == null) {
+              _YJEquip = new YJEquip(scope, false);
             }
             _YJEquip.ChangeEquipList(baseData.equipList);
-          } 
+          }
         }
-        if(oldUserData.dyncType == "camp" || _YJDMplayer == null){
+        if (oldUserData.dyncType == "camp" || _YJDMplayer == null) {
           // console.log("同步其他用户的角色镜像  执行 111 " ,userData); 
-          if(baseData.dmplayerList){
-            if(_YJDMplayer == null){
-              console.log("同步其他用户的角色镜像  执行 22222 " ,userData); 
+          if (baseData.dmplayerList) {
+            if (_YJDMplayer == null) {
+              console.log("同步其他用户的角色镜像  执行 22222 ", userData);
               _YJDMplayer = new YJDMPlayer(scope);
               _YJDMplayer.ChangeEquipList(baseData.dmplayerList);
-            } 
+            }
             _YJDMplayer.ChangeCamp();
           }
         }
@@ -1074,13 +1086,13 @@ class YJPlayer {
       // console.log("获取角色镜像同步数据",userData,oldUserData);
 
 
-      if(userData.animName.includes("idle")){
-        if(b_lerpChangeView){
+      if (userData.animName.includes("idle")) {
+        if (b_lerpChangeView) {
 
-        }else{
+        } else {
           this.ChangeAnim(userData.animName);
         }
-      }else{
+      } else {
         this.ChangeAnim(userData.animName);
       }
 
@@ -1138,7 +1150,7 @@ class YJPlayer {
       }
 
       Display(userData.dyncDisplay);
- 
+
       // playerGroup.position.set(newPos.x, newPos.y, newPos.z);
 
       // group.rotation.set(0, userData.rotateY , 0);
@@ -1148,7 +1160,7 @@ class YJPlayer {
       if (e) {
         group.rotation.set(e.x, e.y, e.z);
       }
- 
+
 
       // let lookatPos = newPos.clone();
       // lookatPos.y = currentTargetPos.y;
@@ -1171,47 +1183,47 @@ class YJPlayer {
       id: "",
     };
     let pickBone = [];
-    this.AddPick = function(boneName){
+    this.AddPick = function (boneName) {
       pickBone.push(boneName);
     }
-    this.CheckPick = function(boneName){
+    this.CheckPick = function (boneName) {
       for (let i = 0; i < pickBone.length; i++) {
-        if(pickBone[i] == boneName) {return true;}
+        if (pickBone[i] == boneName) { return true; }
       }
       return false;
     }
     let weaponModel = null;
-    this.addWeaponModel = function(_weaponModel){
+    this.addWeaponModel = function (_weaponModel) {
       weaponModel = _weaponModel;
     }
-    this.getWeaponModel = function(_weaponModel){
+    this.getWeaponModel = function (_weaponModel) {
       return weaponModel;
     }
-    this.removeWeaponModel = function(){
+    this.removeWeaponModel = function () {
       weaponModel = null;
     }
     // 同步拾取物体
     function dyncPickModel(_weaponData) {
-      if(_weaponData == undefined){
+      if (_weaponData == undefined) {
         return;
       }
       // console.log(weaponData,_weaponData);
-      if(weaponData.weaponId == _weaponData.weaponId){
+      if (weaponData.weaponId == _weaponData.weaponId) {
         return;
       }
-      weaponData = _weaponData; 
-      if(_weaponData.weaponId == ""){
+      weaponData = _weaponData;
+      if (_weaponData.weaponId == "") {
         for (let i = 0; i < pickBone.length; i++) {
           scope.GetBoneVague(pickBone[i], (bone) => {
-            if(bone.weaponModel){
-              bone.remove(bone.weaponModel); 
-            } 
+            if (bone.weaponModel) {
+              bone.remove(bone.weaponModel);
+            }
           });
         }
         pickBone = [];
         return;
       }
-      _Global.PickWeapon(scope,_weaponData.weaponId);
+      _Global.PickWeapon(scope, _weaponData.weaponId);
 
     }
 
@@ -1300,7 +1312,7 @@ class YJPlayer {
         oldPos = newPos;
         dyncTimes++;
         MovingEnd();
-      } 
+      }
     }
 
     let inmoving = false;
@@ -1406,14 +1418,14 @@ class YJPlayer {
       }
 
       if (!hasPlayer) { return; }
-      if(avatar){
+      if (avatar) {
         avatar._update();
       }
-      let pos =  this.GetWorldPos();
+      let pos = this.GetWorldPos();
       if (oldPlayerPos.distanceTo(pos) > 0.1) {
-        this.applyEvent("pos",pos);
+        this.applyEvent("pos", pos);
         oldPlayerPos = pos.clone();
-      } 
+      }
       // this.applyEvent("pos", this.GetPlayerWorldPos());
       // this.applyEvent("pos", playerGroup.getWorldPosition(new THREE.Vector3()));
 
@@ -1429,7 +1441,7 @@ class YJPlayer {
       // console.log("in playerObj   pos = " + posToString(playerObj.position) + "  rota = "+posToString(playerObj.rotation));
 
     }
- 
+
     this.GetCamp = function () {
       return scope.camp;
     }

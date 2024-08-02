@@ -127,7 +127,7 @@ export default {
         equipList:[],
         fireAudio:"", //攻击音效
         deadAudio:"", //死亡音效
-
+        exp:30,
       },
       // npc行为
       npcActionData: {
@@ -169,6 +169,7 @@ export default {
         { property: "areaRadius", display: false, title: "区域半径",unit:"m", type: "slider", value: 1, min: 0, max: 5, step: 0.1, callback: this.ChangeValue },
         { property: "fireAudio", display: true, title: "攻击音效", type: "file",filetype:"audio", value: "" },
         { property: "deadAudio", display: true, title: "死亡音效", type: "file",filetype:"audio", value: "" },
+        { property: "exp", display: true, title: "击杀后玩家获取经验值", type: "int", step: 1, value: 30, callback: this.ChangeValue, },
 
       ],
       isMoving: true,

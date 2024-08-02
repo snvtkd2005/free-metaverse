@@ -94,13 +94,13 @@ class GenerateEnemyNPC {
           copy.SetPos(pos);
         }
         let npc = copy.GetComponent("NPC");
-        npc.addEventListener("死亡", (id,fireid) => {
+        npc.addEventListener("死亡", (id,fireid,damageFromData) => {
 
           if(id!=npcId){
             console.error(" id不符 ",id,npcId);
           }
           if(onDead){
-            onDead(npc,id,fireid);
+            onDead(npc,id,fireid,damageFromData);
           }
         });
         if (state) {

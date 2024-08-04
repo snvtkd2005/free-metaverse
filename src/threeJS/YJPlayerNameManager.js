@@ -319,7 +319,7 @@ class YJPlayerNameManager {
 
       // console.log(nickName + "player.active ",player.active);
 
-      let scale = nameScale * modelScale * 4;
+      let scale = nameScale * modelScale * 2 * playerHeight;
       let pos = npc.GetWorldPos();
       let height = (playerHeight + 0.3);
       pos.y += height;
@@ -388,7 +388,7 @@ class YJPlayerNameManager {
         loadQueue.push({ id, nickName, callback: [] });
 
       }
-      group.scale.set(modelScale, modelScale, modelScale);
+      // group.scale.set(modelScale, modelScale, modelScale);
 
 
       if (inMergeName && player.active && !hasCurrentMerged) {

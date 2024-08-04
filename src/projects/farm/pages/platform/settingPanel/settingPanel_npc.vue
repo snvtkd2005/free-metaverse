@@ -142,10 +142,18 @@ export default {
           property: "baseData-camp", display: true, title: "阵营", type: "drop", value: 10000, options: [
             // { value: 1000, label: '联盟npc' },
             // { value: 1001, label: '部落npc' },
-            { value: 10000, label: '野怪' },
+            { value: 10000, label: '敌对' },
+            { value: 10001, label: '友善' },
+            { value: 10002, label: '中立' },
             { value: 1000, label: '阵营1000' },
             { value: 1001, label: '阵营1001' },
-            // { value: 9000, label: '中立' },
+            { value: 1002, label: '阵营1002' },
+            { value: 1003, label: '阵营1003' },
+            { value: 1004, label: '阵营1004' },
+            { value: 1005, label: '阵营1005' },
+            { value: 1006, label: '阵营1006' },
+            { value: 1007, label: '阵营1007' },
+            { value: 1008, label: '阵营1008' },
           ], callback: this.ChangeValue,
         },
         {
@@ -162,7 +170,7 @@ export default {
         { property: "avatar", display: true, title: "角色", type: "file", filetype: "avatar", value: "", callback: this.ClickHandler, },
         { property: "weapon", display: true, title: "武器", type: "file", filetype: "weapon", value: "", callback: this.ClickHandler, },
         { property: "equip", display: true, title: "装备", type: "file", filetype: "equip", value: "", callback: this.ClickHandler, },
-        { property: "equipList", display: true, title: "已有装备", type: "equipList", value: "", callback: this.ClickHandler, },
+        { property: "equipList", display: false, title: "已有装备", type: "equipList", value: "", callback: this.ClickHandler, },
         { property: "relifeTime", display: true, title: "死亡后重新生成间隔时间(0表示不重新生成)", type: "num", step: 1, value: 0, callback: this.ChangeValue },
         { property: "inAreaRandom", display: true, title: "是否区域内随机移动", type: "toggle", value: false, callback: this.ChangeValue },
         { property: "canMove", display: true, title: "是否能移动", type: "toggle", value: true, callback: this.ChangeValue },
@@ -288,6 +296,8 @@ export default {
       );
       console.log(" 获取 npc ",res);
       this.settingData.equipList = res.data.message.data.equipList;
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "equipList","display", this.settingData.equipList.length>0);
+
       let singleTransform =
           _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
         singleTransform.GetComponent("NPC").SetMessage(this.settingData);
@@ -338,6 +348,8 @@ export default {
           equipData = {part:part,modelPath:item.modelPath,icon:item.icon,folderBase:item.folderBase};
           this.settingData.equipList.push(equipData);
         }
+
+        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "equipList","display", this.settingData.equipList.length>0);
 
         // //加载武器并让角色使用
         // this.Utils.SetSettingItemByProperty(this.setting, "weapon", this.settingData.weaponData.icon);

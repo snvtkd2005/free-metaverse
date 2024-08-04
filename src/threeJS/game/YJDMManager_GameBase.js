@@ -299,7 +299,7 @@ class YJDMManager_GameBase {
     function init() {
 
 
-      console.error(" in DMRogue");
+      console.log(" in GameBase");
       _Global.DMManager = scope;
       posRefList = _Global.YJ3D._YJSceneManager.GetPosRefList();
       setInterval(() => {

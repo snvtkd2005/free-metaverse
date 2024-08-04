@@ -53,6 +53,8 @@ class YJClient {
       
       roomName = userData.roomName;
       userName = userData.userName;
+
+      _Global.user.name = userName;
       console.log("启动 同步 ",userData);
 
 
@@ -72,6 +74,9 @@ class YJClient {
           for (let i = 0; i < allPlayer.length; i++) {
             if (allPlayer[i].id != id) {
               allPlayer[i].player.ResetName();  
+            }
+            if (allPlayer[i].id == id) {
+              allPlayer[i].player.camp = camp;  
             }
           } 
           return;
@@ -443,7 +448,7 @@ class YJClient {
     }
     this.GetPlayerById = function (id) {
       // console.log("获取同一战斗组中的玩家 ", allPlayer, ThreejsHumanChat.YJPlayer.id, id);
-      if (ThreejsHumanChat.YJPlayer.id == id) { return ThreejsHumanChat.YJPlayer; }
+      // if (ThreejsHumanChat.YJPlayer.id == id) { return ThreejsHumanChat.YJPlayer; }
       for (let i = 0; i < allPlayer.length; i++) {
         if (allPlayer[i].id == id) {
           return allPlayer[i].player;
@@ -453,7 +458,7 @@ class YJClient {
     }
     this.GetAllPlayer = function () {
       let players = [];
-      players.push(ThreejsHumanChat.YJPlayer);
+      // players.push(ThreejsHumanChat.YJPlayer);
       for (let i = 0; i < allPlayer.length; i++) {
         players.push(allPlayer[i].player);
       }

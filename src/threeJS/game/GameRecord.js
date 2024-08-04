@@ -40,7 +40,7 @@ class GameRecord {
         level = 1;
         _Global.applyEvent("存活时间", toTime(record.time));
         needExpByLevel = needExpByLevels[level - 1];
-        _Global.applyEvent('设置等级', level);
+        _Global.applyEvent('重置主角等级');
         _Global.applyEvent('经验值', currentExp, needExpByLevel.exp);
 
 

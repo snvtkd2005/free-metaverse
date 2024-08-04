@@ -34,6 +34,11 @@ class YJGame_mainCtrl {
         //清空技能
         _Global._YJPlayerFireCtrl.ClearSkill();
         _Global.applyEvent('主角重生');
+        //等级归0
+        
+        // 还原战斗记录
+        _Global.applyEvent('激活技能栏');
+
         // _Global.applyEvent('战斗开始');
 
       });
@@ -55,6 +60,10 @@ class YJGame_mainCtrl {
         _Global._YJPlayerFireCtrl.GetProperty().changeProperty();
         // 弹窗卡牌选择
         // openCard(level);
+      });
+
+      _Global.addEventListener('重置主角等级', () => {
+        _Global._YJPlayerFireCtrl.GetProperty().SetBasedataItem({property:"level",value:1});
       });
 
       _Global._YJPlayerFireCtrl.addEventListener("重生", (skillName, cCD) => {

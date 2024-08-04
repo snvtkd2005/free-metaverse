@@ -29,7 +29,7 @@
       <!-- <div>{{ item.id }}</div> -->
     </div>
   </div>
-  <div v-if="hasStats" class=" absolute top-3 right-3 text-white">
+  <div v-if="hasStatsDrawcall" class=" absolute top-3 right-3 text-white">
     <div>drawcall: {{statsText.drawcall}}</div>
     <div>triangles: {{statsText.triangles}}</div>
   </div>
@@ -73,6 +73,7 @@ export default {
       cursorUrl: "",
       // hasStats: true,
       hasStats: false,
+      hasStatsDrawcall: true,
       videoList: [],
       statsText:{
         drawcall:0,

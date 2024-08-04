@@ -41,15 +41,13 @@ class YJAvatar {
     } 
 
     let data = null;
-    let npcPos = [];
-    this.npcName = "";
+    let npcPos = []; 
     this.SetMessage = function (msg) {
       if (msg == null || msg == undefined || msg == "") { return; }
       // data = JSON.parse(msg);
       data = (msg);
       // console.log("in YJAvatar msg = " ,data); 
-
-      this.npcName = data.name;
+ 
       nameScale = data.nameScale;
       playerHeight = data.height; 
 
@@ -68,6 +66,9 @@ class YJAvatar {
         //npc随机在点位之间移动
         navpath = npcManager.GetNavpath(fromPos, targetPos);
         console.log("navpath ", navpath);
+      }
+      if(_Global.setting.inEditor){
+        CreateNameTrans(data.name);
       }
     }
 
@@ -116,6 +117,10 @@ class YJAvatar {
     //#endregion
  
     //创建姓名条参考物体
+    this.SetHeight = function(h){
+      playerHeight = h;
+      CreateNameTrans(data.name);
+    }
     let namePosTrans = null;
     function CreateNameTrans(content) {
       if(namePosTrans == null){
@@ -136,7 +141,7 @@ class YJAvatar {
       namePosTrans.add(resetButton);
       resetButton.name = "ignoreRaycast";
       resetButton.position.set(0, 0, 0);
-      var size = 2;
+      var size = 2 * playerHeight;
       resetButton.scale.set(size, size, size);
       namePosTrans.scale.set(nameScale, nameScale, nameScale);
 

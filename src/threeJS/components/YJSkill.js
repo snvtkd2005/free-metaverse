@@ -280,7 +280,12 @@ class YJSkill {
         this.ReceiveControl = function (msg) {
             _YJSkillModel.ReceiveControl(msg,false); 
         }
-        function ReceiveControl(_targetModel, skillName, effect, skillItem) {
+
+        this.SendSkill = function (msg) {
+            _YJSkillModel.SendSkill(msg,false); 
+        }
+
+        function ReceiveControl(_fromModel, skillName, effect, skillItem) {
             let { type, value, time, duration, describe, icon, fromName } = effect;
             effect.skillName = skillName || skillItem.skillName;
 
@@ -293,64 +298,37 @@ class YJSkill {
             if (type == "control") {
 
                 let controlId = effect.controlId;
-                let { receiveEffect } = skillItem;
+                if(controlId == "冰霜新星"){
 
-                if (receiveEffect == undefined) {
-                    return;
-                }
-                owner.inControl = true;
-                if (skillItem.hasReceiveEffect) {
-
-                    if (HasControlModel(receiveEffect.particleId)) {
-                        return false;
+                    let { receiveEffect } = skillItem;
+                    owner.SetInControl(true);
+                    if (receiveEffect == undefined) {
+                        return;
                     }
-
-                    let nameScale = owner.GetScale() * 3;
-
-                    let msg = {
-                        title: "生成静态模型",
-                        folderBase: receiveEffect.particleId,
-                        id: owner.id,
-                        pos: owner.GetWorldPos(),
-                        scale: new THREE.Vector3(nameScale, nameScale, nameScale),
+                    if (skillItem.hasReceiveEffect) { 
+                        let nameScale = owner.GetScale() * 3;
+                        let msg = {
+                            title: "生成静态模型",
+                            folderBase: receiveEffect.particleId,
+                            id: owner.id,
+                            pos: owner.GetWorldPos(),
+                            scale: new THREE.Vector3(nameScale, nameScale, nameScale),
+                        }
+    
+                        _YJSkillModel.ReceiveControl(msg,true); 
+    
                     }
-
-                    _YJSkillModel.ReceiveControl(msg,true); 
-
+    
+                    owner.SetPlayerState("停止移动");
+    
+                    if (controlFnLater != null) {
+                        clearTimeout(controlFnLater);
+                    }
+                    controlFnLater = setTimeout(() => {
+                        RemoveSkill({ type: "control", particleId: receiveEffect.particleId });
+                    }, duration * 1000);
+    
                 }
-
-                owner.SetPlayerState("停止移动");
-
-                if (controlFnLater != null) {
-                    clearTimeout(controlFnLater);
-                }
-                controlFnLater = setTimeout(() => {
-                    RemoveSkill({ type: "control", particleId: receiveEffect.particleId });
-                }, duration * 1000);
-
-                return;
-            }
-
-            if (type == "shield") {
-
-                effect.particleId = skillItem.skillFireParticleId;
-                // console.log( effect);
-                owner.GetBuff().addBuff(effect);
-
-                if (HasControlModel(skillItem.skillFireParticleId)) {
-                    return false;
-                }
- 
-                let nameScale = owner.GetScale();
-                let msg = {
-                    title: "生成组合模型",
-                    folderBase: skillItem.skillFireParticleId,
-                    id: owner.id,
-                    pos: owner.GetWorldPos(),
-                    scale: new THREE.Vector3(nameScale, nameScale, nameScale),
-                }
-                _YJSkillModel.ReceiveControl(msg,true);
-
                 return;
             }
 
@@ -429,80 +407,23 @@ class YJSkill {
                 });
 
         }
-
-        let controlModels = [];
-        let controlFnLater = null;
-        function AddControlModel(type, modelTransform) {
-            controlModels.push({ type, modelTransform });
-        }
-        function HasControlModel(type) {
-            for (let i = 0; i < controlModels.length; i++) {
-                const element = controlModels[i];
-                if (element.type == type) {
-                    return true;
-                }
-            }
-            return false;
-        }
+ 
+        let controlFnLater = null; 
 
         function RemoveSkill(skill) {
             // console.log(" 解除技能 Skill ", skill);
             let particleId = skill.particleId;
 
-            if (skill.type == "control") {
-                owner.inControl = false;
-
-
+            if (skill.type == "control") { 
+                owner.SetInControl(false);
             }
             if (skill.type == "shield") {
                 owner.GetBuff().removeBuffById(skill.id);
             }
-            for (let i = controlModels.length - 1; i >= 0; i--) {
-                const item = controlModels[i];
-                if (item.type == particleId) {
-                    if (item.modelTransform == "merged") {
-                        let msg = {
-                            title: "移除静态模型",
-                            folderBase: particleId,
-                            id: owner.id,
-                        }
-                        _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().RemoveSkillByFolderBase(
-                            particleId, msg);
-                        controlModels.splice(i, 1);
-                        continue;
-                    }
-                    item.modelTransform.Destroy();
-                    controlModels.splice(i, 1);
-                }
-            }
-
-            // _Global.DyncManager.SendDataToServer("解除技能",
-            //     {
-            //         fromId: owner.id,
-            //         particleId: particleId
-            //     });
+            _YJSkillModel.RemoveSkill(skill); 
         }
         function ClearControlModel() {
-
-            if (controlModels.length > 0) {
-                for (let i = controlModels.length - 1; i >= 0; i--) {
-                    const item = controlModels[i];
-
-                    if (item.modelTransform == "merged") {
-                        let msg = {
-                            title: "移除静态模型",
-                            folderBase: item.type,
-                            id: owner.id,
-                        }
-                        _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().RemoveSkillByFolderBase(
-                            item.type, msg);
-                        controlModels.splice(i, 1);
-                        continue;
-                    }
-                    item.modelTransform.Destroy();
-                    controlModels.splice(i, 1);
-                }
-            }
+            _YJSkillModel.ClearControlModel(); 
         }
 
         function Dync(msg) {
@@ -687,17 +608,7 @@ class YJSkill {
                 }
                 // 范围攻击
                 if (targetType == "area") {
-                    let max = skillItem.target.value;
-                    areaTargets = _Global._YJFireManager.GetOtherNoSameCampInArea(owner.GetCamp(), vaildAttackDis, max, owner.GetWorldPos());
-                    if (owner.GetNickName().includes("居民")) {
-                        console.error(owner.GetNickName() + " 范围攻击目标 ", max, areaTargets);
-                    }
-
-                    // 范围内无目标，不施放技能
-                    if (areaTargets.length == 0) {
-                        errorLog = "有效范围内无目标";
-                        // return false;
-                    }
+                    
                 }
 
                 if (targetType.includes("random")) {
@@ -789,6 +700,29 @@ class YJSkill {
 
                 // 范围攻击
                 if (targetType == "area") {
+                    let max = skillItem.target.value;
+                    areaTargets = _Global._YJFireManager.GetOtherNoSameCampInArea(owner.GetCamp(), vaildAttackDis, max, owner.GetWorldPos());
+                    if (owner.GetNickName().includes("居民")) {
+                        console.error(owner.GetNickName() + " 范围攻击目标 ", max, areaTargets);
+                    }
+
+                    if(effect.controlId == "冰霜新星"){
+                        let msg = {
+                            title: "冰霜新星",
+                            folderBase: skillItem.skillFireParticleId,
+                            id: owner.id,
+                            pos: owner.GetWorldPos(),
+                            scale: null,
+                        } 
+                        _YJSkillModel.SendSkill(msg,true);
+                    }
+
+                    // 范围内无目标，不施放技能
+                    if (areaTargets.length == 0) {
+                        errorLog = "有效范围内无目标";
+                        return;
+                    }
+
                     if (effect.type == "damage") {
                         for (let l = 0; l < areaTargets.length; l++) {
                             if (areaTargets[l].isDead) {
@@ -799,29 +733,41 @@ class YJSkill {
                     }
                     else if (effect.type == "control") {
                         if (effect.controlId == "冰霜新星") {
-                            SendSkill(effect, skillItem);
-                            return true;
+
+                            effect.value = 0;
+                            console.log(" 冰霜新星目标 ",areaTargets);
+                            for (let i = 0; i < areaTargets.length; i++) {
+                                const target = areaTargets[i];
+                                if(target.isYJNPC){
+                                    target.ReceiveSkill(owner, skillName, effect, skillItem);
+                                }else{
+
+                                //瞬发技能直接同步
+                                _Global.DyncManager.SendDataToServer(getSendTitle(target),
+                                    { 
+                                        fromId: owner.id,
+                                        fromType: owner.getPlayerType(),
+                                        targetType: target.getPlayerType(),
+                                        targetId: target.id,
+                                        skillItem: skillItem
+                                    });
+                                }
+                            }
+                            return;
                         }
                         if (effect.controlId == "嘲讽") {
                             // console.log(owner.GetNickName() + " 嘲讽 ", vaildAttackDis, areaTargets, skillItem);
                             for (let l = 0; l < areaTargets.length; l++) {
-                                if (areaTargets[l].isDead) {
+                                const target = areaTargets[i];
+                                if (target.isDead) {
                                     continue;
                                 }
-                                areaTargets[l].SetNpcTargetToNoneDrict();
-                                areaTargets[l].SetNpcTarget(owner, true, false);
+                                if(target.isYJNPC){
+                                    target.SetNpcTargetToNoneDrict();
+                                    target.SetNpcTarget(owner, true, false);
+                                }
                             }
-                            //有效攻击 && 
-                            // SendSkill(effect, skillItem);
-                            //瞬发技能直接同步
-                            // _Global.DyncManager.SendDataToServer(owner.owerType('技能攻击'),
-                            //     {
-                            //         fromId: owner.id,
-                            //         fromType: owner.getPlayerType(),
-                            //         targetType: "",
-                            //         targetId: '',
-                            //         skillItem: skillItem
-                            //     });
+                            return;
                         }
 
                     }
@@ -843,16 +789,23 @@ class YJSkill {
                 }
 
                 if (targetType == "self") {
-                    // scope.ReceiveSkill(owner,skillItem.skillName,effect,skillItem);
-                    // console.log(" 施放自身法术 ",getSendTitle(owner),skillItem);
-                    _Global.DyncManager.SendDataToServer(getSendTitle(owner),
-                        {
-                            fromId: owner.id,
-                            fromType: owner.getPlayerType(),
-                            targetType: owner.getPlayerType(),
-                            targetId: owner.id,
-                            skillItem: skillItem
-                        });
+                    // console.log(" 施放自身法术 ",owner.owerType('技能攻击'),effect,skillItem);
+                    if(effect.type == "shield"){
+                        if(effect.controlId == "寒冰护体"){
+                            effect.particleId = skillItem.skillFireParticleId;
+                            owner.GetBuff().addBuff(effect); 
+                            let nameScale = owner.GetScale();
+                            let msg = {
+                                title: "寒冰护体",
+                                folderBase: skillItem.skillFireParticleId,
+                                id: owner.id,
+                                pos: owner.GetWorldPos(),
+                                scale: new THREE.Vector3(nameScale, nameScale, nameScale),
+                            } 
+                            _YJSkillModel.SendSkill(msg,true);
+                        }
+                    }
+
                 }
                 if (targetType == "none" || targetType == "selfPos") {
                     //有效攻击 && 
@@ -1019,6 +972,8 @@ class YJSkill {
         let skillList = [];
         let oldSkillList = [];
         let hyperplasiaTimes = 0;
+        
+
         // 施放不需要目标或目标是自身的技能 如 增生
         function SendSkill(effect, skillItem) {
             /**
@@ -1051,48 +1006,7 @@ class YJSkill {
                 if (type == "shield") {
                     ReceiveControl(owner, skillName, effect, skillItem);
                     return true;
-                }
-                if (type == "control") {
-
-                    // 冰环特效
-                    _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillGroup(skillItem.skillFireParticleId, (model) => {
-                        model.SetPos(owner.GetWorldPos());
-                        model.SetActive(true);
-                    });
-                    // 冻结20米内的敌人。 冰霜新星冻结特效
-                    let npcs = _Global._YJNPCManager.GetNoSameCampNPCInFireInVailDis(owner.GetWorldPos(), owner.GetCamp(), skillItem.vaildDis);
-                    if (npcs.length == 0) {
-                        return false;
-                    }
-                    effect.value = 0;
-                    for (let i = 0; i < npcs.length; i++) {
-                        const npcComponent = npcs[i];
-                        npcComponent.ReceiveSkill(owner, skillName, effect, skillItem);
-                    }
-                    return true;
-                }
-                //
-
-                // console.log("施放不需要目标或目标是自身的技能 ", controlId);
-
-                // if (controlId == "冰霜新星") {
-                //     // 冻结20米内的敌人。 冰霜新星冻结特效
-                //     let npcs = _Global._YJNPCManager.GetNoSameCampNPCInFireInVailDis(owner.GetWorldPos(), owner.GetCamp(), 20);
-                //     if (npcs.length == 0) {
-                //         return false;
-                //     }
-                //     effect.value = 0;
-                //     for (let i = 0; i < npcs.length; i++) {
-                //         const npcComponent = npcs[i];
-                //         npcComponent.ReceiveDamageByPlayer(null, controlId, effect);
-                //     }
-
-                //     // 冰霜新星施放特效
-                //     _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().CopyModel("冰霜新星", (model) => {
-                //         model.SetPos(owner.GetWorldPos());
-                //         model.SetActive(true);
-                //     });
-                // }
+                } 
             }
             //
             if (type == "addHealth") {

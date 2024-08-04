@@ -185,7 +185,7 @@ class YJMeshRenderer {
       model.scale.set(meshScale * f, meshScale * f, meshScale * f);
     }
     this.SetRota = function (rota) {
-      model.rotation.set(rota.x, rota.y, rota.x.z);
+      model.rotation.set(rota.x, rota.y, rota.z);
     }
     let de2reg = 57.3248407;
     this.SetRotaArray = function (rota) {
@@ -195,6 +195,18 @@ class YJMeshRenderer {
       }
       model.rotation.set(rota[0] / de2reg, rota[1] / de2reg, rota[2] / de2reg);
     }
+    
+    this.SetPos = function (pos) {
+      model.position.set(pos.x, pos.y, pos.z);
+    }
+    this.SetPosArray = function (pos) {
+      if (!pos) {
+        model.position.set(0, 0, 0);
+        return;
+      }
+      model.position.set(pos[0], pos[1], pos[2]);
+    }
+
     this.RotaY = function (f) {
       model.rotation.y += f;
     }

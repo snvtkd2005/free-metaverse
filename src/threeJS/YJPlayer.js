@@ -1001,8 +1001,14 @@ class YJPlayer {
         _YJSkillModel = new YJSkillModel(scope);
       }
       _YJSkillModel.ReceiveControl(msg,false);
-      
     }
+    this.SendSkill = function (msg) {
+      if(_YJSkillModel == null){
+        _YJSkillModel = new YJSkillModel(scope);
+      }
+      _YJSkillModel.SendSkill(msg,false);
+    }
+
     //接收服务器同步过来的其他用户角色位置、旋转、动作
     this.SetUserData = function (userData) {
 

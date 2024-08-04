@@ -30,6 +30,7 @@ class Interface {
     _Global.user = {
       camp: 1000,
       id:"YJPlayer",
+      name:"",
     }
     _Global.url = {
       uploadUrl: _this.$uploadUrl,

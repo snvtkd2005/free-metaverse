@@ -175,7 +175,7 @@ export default {
         { property: "path", display: true, title: "动作(记录动作信息的json或fbx文件)", type: "upload",accept: ".json,.fbx", value: "none", callback: this.ChangeValue,
         handleBeforeUpload:this.handleBeforeUpload },
         // { property: "path", title: "动作(上传记录动作信息的json文件)", type: "upload", value: "none", callback: this.ChangeValue },
-        { property: "weapon", display: true, title: "装备", type: "file", filetype: "weapon", value: "",},
+        { property: "weapon", display: true, title: "设置拾取不同装备后的装备位置", type: "file", filetype: "weapon", value: "",},
         
         { property: "position", display: false, title: "拾取后偏移", type: "vector3", value: [0, 0, 0], step: 0.01, callback: this.ChangeValue },
         { property: "rotation", display: false, title: "拾取后旋转", type: "vector3", value: [0, 0, 0], step: 0.01, callback: this.ChangeValue },
@@ -224,8 +224,7 @@ export default {
   },
   mounted() {
 
-
-    // _Global.SendMsgTo3D("添加组件", { component: "car", data: this.carData });
+ 
     let modelData = JSON.parse(localStorage.getItem("modelData"));
     this.folderBase = modelData.folderBase;
 
@@ -366,10 +365,7 @@ export default {
         pointType: this.pointType,
         data: this.settingData,
       };
-    },
-    Init(_carData) {
-      this.carData = _carData;
-    },
+    }, 
     ChangeValue(i, e) {
 
       let property = this.setting[i].property ;
@@ -423,18 +419,26 @@ export default {
       console.log(i + " " + this.setting[i].value, this.animName);
     }, 
     SetAnimName(anim) {
+      this.currentAnimData.isLoop = false;
+      this.currentAnimData.path = "";
+
       this.setting[0].value = anim.animName;
       this.animName = this.setting[0].value;
       this.currentAnimData.animName = this.animName;
+      // console.log("编辑 ",anim);
       if (this.animName == "") {
         return;
       }
+      // console.log("编辑 11 ",this.animName,this.modelData,this.modelData.name);
+
       // 从当前角色的动作中获取
       this.PlayerAnimData().
-        GetAnimDataByAnimName(this.modelData.name, this.animName, (animData) => {
+        GetAnimDataByAnimName(this.modelData.folderBase, this.animName, (animData) => {
           this.setting[1].value = animData.isLoop;
           this.currentAnimData.isLoop = this.setting[1].value;
           this.currentAnimData.path = animData.path;
+        // console.log("编辑 22 ",animData);
+
           //npc播放动作
           if (animData.path != "") {
             let _YJAnimator = _Global.YJ3D._YJSceneManager
@@ -507,7 +511,7 @@ export default {
             this.currentAnimData.animName = this.animName;
             // this.$uploadUrl + this.folderBase + "/" +
             let items = [this.currentAnimData];
-            this.PlayerAnimData().AddAllExtendAnimData(this.modelData.name, items);
+            this.PlayerAnimData().AddAllExtendAnimData(this.modelData.folderBase, items);
             // 加载动作
             // _Global.YJ3D.YJController.ChangeAnimDirect(this.animName);
 
@@ -670,7 +674,11 @@ export default {
       return [v3.x/scale,v3.y/scale,v3.z/scale];
     },
     save() {
-
+      
+      if(this.currentAnimData.path == ""){
+        this.parent.SetTip("请先上传动作文件");
+        return;
+      }
       if (this.settingData.animationsExtendData == undefined) {
         this.settingData.animationsExtendData = [];
       }
@@ -737,7 +745,7 @@ export default {
           this.parent.SetTip("保存成功");
           this.canSave = false;
 
-          let animList = this.PlayerAnimData().AddAllExtendAnimData(this.modelData.name, this.animListData);
+          let animList = this.PlayerAnimData().AddAllExtendAnimData(this.modelData.folderBase, this.animListData);
           // window.location.reload();
         }
       });

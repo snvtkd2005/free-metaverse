@@ -219,6 +219,7 @@ export default {
         this.inAdd = true;
         this.animFrom[0].value = item.animName;
         this.animFrom[1].value = item.content;
+
       }
       if (e == "删除") {
         // 技能名为空时，运行删除

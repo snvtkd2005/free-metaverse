@@ -109,6 +109,7 @@ class YJTransform {
         com.SetMessage(message.data);
         this.GetComponent("MeshRenderer").SetSize(message.data.avatarData.modelScale);
         this.GetComponent("MeshRenderer").SetRotaArray(message.data.avatarData.rotation);
+        this.GetComponent("MeshRenderer").SetPosArray(message.data.avatarData.offsetPos);
         this.isYJNPC = true;
 
       }
@@ -118,6 +119,7 @@ class YJTransform {
           com.SetMessage(message.data);
           this.GetComponent("MeshRenderer").SetSize(message.data.modelScale);
           this.GetComponent("MeshRenderer").SetRotaArray(message.data.rotation);
+          this.GetComponent("MeshRenderer").SetPosArray(message.data.offsetPos);
         }
       }
       if (message.pointType == "UV动画") {

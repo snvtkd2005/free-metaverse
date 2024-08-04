@@ -275,10 +275,22 @@ export default {
         //   this.errorTip = "";
         // }, 3000);
       } 
+      if(code==8001){
+        this.errorTip = "弹幕服务器心跳检测失败，正常尝试重新连接";
+        this.tipCode = 1;
+        
+      } 
     });
     _Global.addEventListener("连接弹幕服务器成功",()=>{
-      this.errorTip = "连接成功";
+      this.errorTip = "弹幕服务器连接成功,可以开始互动直播";
       this.tipCode = 2; 
+      //
+      _Global.DyncManager.SendDataToServer("系统消息",
+      {
+          userId: _Global.user.id,
+          userName:_Global.user.name,
+          msg: {title:"开启互动直播"}
+      });
     });
 
     
@@ -374,8 +386,8 @@ export default {
           this.tipCode = 0;
           return;
         }
-        _Global.applyEvent("连接弹幕服务器",) ;
-        console.log(" 连接弹幕服务器 ",this.currentData.children[0].value);
+        _Global.applyEvent("连接弹幕服务器",anchorCode) ;
+        // console.log(" 连接弹幕服务器 ",this.currentData.children[0].value);
       }
 
     },

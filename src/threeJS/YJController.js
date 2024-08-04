@@ -28,7 +28,9 @@ class YJController {
     this.SetEnabled = function (b) {
       scope.enabled = b;
     }
-
+    this.SetAmmoEnabled = function (b) {
+      _YJAmmo.SetEnabled(b);
+    }
     // Mouse buttons
     this.mouseButtons = { ORBIT: THREE.MOUSE.LEFT, ZOOM: THREE.MOUSE.MIDDLE, PAN: THREE.MOUSE.RIGHT };
     var STATE = { NONE: - 1, ROTATE: 0, DOLLY: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_DOLLY: 4, TOUCH_PAN: 5 };

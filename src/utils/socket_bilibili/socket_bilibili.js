@@ -13,11 +13,11 @@ import {
 import * as world_configs from './index';
 
 class socket_bilibili {
-	constructor(liveAnchorCodeId,open, close, callback) {
+	constructor(liveAnchorCodeId, open, close, callback) {
 		let scope = this;
 
 		// 替换你的主播身份码
-		let codeId = liveAnchorCodeId?liveAnchorCodeId:"BS5GG5AXPBLS0";
+		let codeId = liveAnchorCodeId ? liveAnchorCodeId : "BS5GG5AXPBLS0";
 		// 替换你的app应用 [这里测试为互动游戏]
 		let appId = 1708553545004;
 		// 替换你的秘钥
@@ -31,42 +31,46 @@ class socket_bilibili {
 
 		let ws = null;
 
+		function InitFn() { 
 
-		// heartBeat Timer
-		// const heartBeatTimer = ref<NodeJS.Timer>()
-		// // be ready
-		// clearInterval(heartBeatTimer.value!)
-
-		function InitFn() {
-			gameId = localStorage.getItem("gameId");
-
-			// setTimeout(() => {
-			// 	gameStartFn();
-			// }, 2000);
-			// return;
 			let fromData = new FormData();
-			fromData.appKey = appKey,
-				fromData.appSecret = appSecret,
-				fromData.app_id = appId,
-				fromData.code = codeId,
-				// {
-				// 	appKey: appKey,
-				// 	appSecret: appSecret,
-
-				// 	app_id : 1708553545004,
-				// 	code : "BS5GG5AXPBLS0",
-				// }
-				getAuth(JSON.stringify(fromData)).then((res) => {
-					console.log("-----鉴权成功-----")
-					// console.log("返回：", res)
+			fromData.appKey = appKey;
+			fromData.appSecret = appSecret;
+			fromData.app_id = appId;
+			fromData.code = codeId;
+			// fromData.appKey = appKey;
+			// fromData.appSecret = appSecret;
+			// fromData.app_id = appId;
+			// fromData.code = codeId;
+			getAuth(JSON.stringify(fromData)).then((res) => {
+				console.log("-----鉴权成功-----", res)
+				if (close) {
+					close(7001);
+				}
+				if (res.code == 0) {
+					const data = res.data;
+					const { anchor_info, game_info, websocket_info } = data;
+					const { auth_body, wss_link } = websocket_info;
+					authBody = auth_body;
+					wssLinks = wss_link;
+					anchorInfo = anchor_info;
+					gameId = game_info.game_id;
+					localStorage.setItem("gameId", gameId);
 					scope.gameEnd();
-					setTimeout(() => {
-						gameStartFn();
-					}, 200);
-				})
-					.catch((err) => {
-						console.log("-----鉴权失败-----")
-					});
+					return;
+
+				}
+				if (res.code == 7002) {
+					gameId = localStorage.getItem("gameId");
+					scope.gameEnd();
+					return;
+				}
+				gameStartFn();
+
+			})
+				.catch((err) => {
+					console.log("-----鉴权失败-----", err);
+				});
 
 		}
 		function heartBeatThisFn(game_id) {
@@ -77,7 +81,12 @@ class socket_bilibili {
 				// console.log("-----心跳成功-----")
 				// console.log("返回：", data)
 			}).catch((err) => {
-				// console.log("-----心跳失败-----")
+				if (close) {
+					close(8001);
+				}
+				gameStartFn();
+
+				console.log("-----心跳失败-----");
 			})
 		}
 		this.gameStart = () => {
@@ -85,79 +94,90 @@ class socket_bilibili {
 		function gameStartFn() {
 
 			let fromData = new FormData();
-			// fromData.appKey = appKey,
-			// fromData.appSecret = appSecret,
-			fromData.app_id = appId,
-				fromData.code = codeId,
+			fromData.app_id = appId;
+			fromData.code = codeId;
 
-				gameStart(JSON.stringify(fromData)).then((data) => {
-					// console.log(data);
-					if (data.code === 0) {
-						const res = data.data
-						const { anchor_info, game_info, websocket_info } = res
-						const { auth_body, wss_link } = websocket_info
-						authBody = auth_body
-						wssLinks = wss_link
-						anchorInfo = anchor_info;
-						console.log("-----游戏开始成功-----")
-						console.log("返回GameId：", game_info)
-						gameId = game_info.game_id
-						localStorage.setItem("gameId", gameId);
-						// v2改为20s请求心跳一次，不然60s会自动关闭
-						heartBeatTimer = setInterval(() => {
-							heartBeatThisFn(game_info.game_id)
-						}, 20000);
-						scope.handleCreateSocket();
-						if (open) {
-							open();
-						}
-					} else {
-						console.log("-----游戏开始失败-----，原因：", data)
-						if (data.code == 7002 || data.code == 7001) {
-							scope.gameEnd();
-							setTimeout(() => {
-								gameStartFn();
-							}, 5000);
-							
-						}
-						if (data.code == 7007) {
-						}
-						
-						if (close) {
-							close(data.code);
-						}
-
+			gameStart(JSON.stringify(fromData)).then((data) => {
+				// console.log(data);
+				if (data.code === 0) {
+					const res = data.data
+					const { anchor_info, game_info, websocket_info } = res
+					const { auth_body, wss_link } = websocket_info
+					authBody = auth_body
+					wssLinks = wss_link
+					anchorInfo = anchor_info;
+					// console.log("-----游戏开始成功-----");
+					gameId = game_info.game_id
+					localStorage.setItem("gameId", gameId);
+					// v2改为20s请求心跳一次，不然60s会自动关闭
+					heartBeatTimer = setInterval(() => {
+						heartBeatThisFn(game_info.game_id)
+					}, 20000);
+					scope.handleCreateSocket();
+					if (open) {
+						open();
 					}
+				} else {
+					// console.log("-----游戏开始失败-----，原因：", data)
+					if (data.code == 7002) {
+						setTimeout(() => {
+							scope.gameEnd();
+						}, 2000);
+					}
+					// 请求冷却期
+					if (data.code == 7001) {
+						setTimeout(() => {
+							gameStartFn();
+						}, 2000);
+					}
+					if (data.code == 7007) {
+					}
+
+					if (close) {
+						close(data.code);
+					}
+
+				}
+			})
+				.catch((err) => {
+					// console.log("-----游戏开始失败 或长连接失败 11-----", err);
 				})
-					.catch((err) => {
-						console.log("-----游戏开始失败 或长连接失败 11-----")
-						console.log(err)
-					})
 		}
 		this.gameEnd = () => {
-			
+
 			let fromData = new FormData();
-			fromData.game_id = gameId,
-				fromData.app_id = appId,
-				gameEnd(JSON.stringify(fromData)).then((data) => {
-					if (data.code === 0) {
-						console.log("-----游戏关闭成功-----")
-						console.log("返回：", data)
-						// 清空长链
-						authBody = ""
-						wssLinks = []
-						clearInterval(heartBeatTimer)
-						scope.handleDestroySocket()
-						console.log("-----心跳关闭成功-----")
-					} else {
-						// console.log("-----游戏关闭失败-----")
-						// console.log("原因：", data)
+			fromData.game_id = gameId;
+			fromData.app_id = appId;
+			gameEnd(JSON.stringify(fromData)).then((data) => {
+				if (data.code === 0) {
+					// console.log("-----游戏关闭成功-----", data);
+					// 清空长链
+					authBody = "";
+					wssLinks = [];
+					clearInterval(heartBeatTimer);
+					scope.handleDestroySocket();
+					setTimeout(() => {
+						gameStartFn();
+					}, 2000);
+				} else {
+					// console.log("-----游戏关闭失败-----", data);
+					if (data.code == 7003) {
+						setTimeout(() => {
+							gameStartFn();
+						}, 2000);
+						return;
 					}
+					setTimeout(() => {
+						scope.gameEnd();
+					}, 2000);
+				}
+			})
+				.catch((err) => {
+					// console.log("-----游戏关闭失败-----", err);
+					setTimeout(() => {
+						scope.gameEnd();
+					}, 2000);
 				})
-					.catch((err) => {
-						// console.log("-----游戏关闭失败-----")
-						// console.log(err)
-					})
 		}
 
 		this.handleCreateSocket = () => {

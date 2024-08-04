@@ -58,8 +58,8 @@ class YJPlayerFireCtrl {
 		}
 		
 		this.addDamageFrom = function () { 
-		}
-		
+		} 
+
 		this.CheckMaxDamage = function (fromId, value) {
 		}
 		this.CombatLog = function (from, to, type, content) {
@@ -991,6 +991,10 @@ class YJPlayerFireCtrl {
 
 		}
 
+		this.SetInControl = function(b){
+			_this.YJController.SetEnabled(!b);
+			_this.YJController.SetAmmoEnabled(!b);
+		}
 		this.GetTargetModelDistance = function () {
 			if (targetModel == null) {
 				return 10000;

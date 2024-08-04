@@ -339,6 +339,7 @@ class YJPlayerAnimData {
     }
     this.GetAnimDataByAnimName = function (id, animName, callback) {
 
+      console.log(avatarDataList,id);
       let animList = [];
       let has = false;
       let avatarData = null;

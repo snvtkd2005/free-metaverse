@@ -59,7 +59,7 @@
       </div>
 
       <div
-        v-if="panelState.setting"
+        v-show="panelState.setting"
         class="absolute left-0 top-0 w-full h-full"
       >
         <settingPanelVue ref="settingPanelVue"></settingPanelVue>

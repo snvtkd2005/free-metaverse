@@ -111,8 +111,11 @@
     </div>
 
     <modelSelectPanel ref="modelSelectPanel" />
+    <!-- 给npc添加技能 -->
+    <skillSelectPanel ref="skillSelectPanel" />
     <animPanel ref="animPanel" />
     <boneConvertPanel ref="boneConvertPanel" />
+
 
     <!-- 左上角血条头像 -->
     <!-- <div class=" absolute left-24 top-10">
@@ -132,6 +135,7 @@ import YJmetaBase from "./YJmetaBase.vue";
 import PanelCut from "./PanelCut.vue";
 
 import modelSelectPanel from "./panels/modelSelectPanel.vue";
+import skillSelectPanel from "./panels/skillSelectPanel.vue";
 import animPanel from "./panels/animPanel.vue";
 import boneConvertPanel from "./panels/boneConvertPanel.vue";
 
@@ -158,6 +162,7 @@ export default {
     loadingPanel,
     YJmetaBase,
     modelSelectPanel,
+    skillSelectPanel,
     animPanel,
     boneConvertPanel,
     settingPanelCtrl,
@@ -469,6 +474,10 @@ export default {
       }
 
       if (this.modelData.modelType == "角色模型") {
+        
+        this.setSettingDisplayById("single_collider", false);
+        this.setSettingDisplayById("single_usercollider", false);
+        this.setSettingDisplayById("single_planeState", false);
         setTimeout(() => {
           this.$refs.settingPanelCtrl.$refs.settingPanel_player.SetAvatar(
             _Global.YJ3D._YJSceneManager.GetSingleModelTransform()

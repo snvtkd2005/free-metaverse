@@ -58,7 +58,7 @@ class YJPlayerManager {
       for (let i = 0; i < playerList.length; i++) {
         const element = playerList[i];
         if (element.GetCamp() == camp) {
-          // console.log(" 范围查找玩家 跳过同阵营玩家 ");
+          console.log(" 范围查找玩家 跳过同阵营玩家 ");
           continue;
         }
         if (element.id == ingoreNpcId) {
@@ -68,7 +68,7 @@ class YJPlayerManager {
         // 未判断npc是否在玩家前方
         let distance = centerPos.distanceTo(element.GetWorldPos());
 
-        // console.log(" 范围查找玩家 ",distance,element);
+        console.log(" 范围查找玩家 ",distance,element);
         // console.log(" 范围查找玩家 ",distance,vaildDistance);
 
         if (distance <= vaildDistance) {

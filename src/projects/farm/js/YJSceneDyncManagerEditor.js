@@ -100,8 +100,11 @@ class YJSceneDyncManagerEditor {
         return;
       }
 
-      if (type == "npc技能" 
+      if (
+        type == "npc技能" 
       || type == "npc技能攻击" 
+      || type == "玩家技能攻击" 
+      || type == "同步角色施放技能状态"
       || type == "同步角色控制技能状态"
       || type == "玩家技能"
       || type == "玩家对玩家"
@@ -109,7 +112,9 @@ class YJSceneDyncManagerEditor {
       || type == "NPC对NPC"
       || type == "NPC对玩家"
       || type == "受到技能"
-      || type == "解除技能") {
+      || type == "解除技能"
+      || type == "系统消息"
+      ) {
         if (!_Global.YJClient) {
           this.Receive({ type:type, state: data });
           return;
@@ -164,6 +169,7 @@ class YJSceneDyncManagerEditor {
     this.SendSceneStateAll = function (type, msg) {
       if (type == "玩家死亡") {
         if (!_Global.YJClient) {
+          this.Receive({ type: "玩家死亡", state: msg });
           return;
         }
         _Global._YJDyncManager.SendSceneStateAll("转发", { type: "玩家死亡", state: msg });
@@ -400,6 +406,12 @@ class YJSceneDyncManagerEditor {
           }
         }
       }
+      if (type == "玩家技能攻击") {
+        let { fromType,targetType,fromId,targetId, skillItem } = state;
+        let fromModel = _YJFireManager.GetPlayerById(fromId);
+
+      }
+      
       if (type == "玩家对玩家" || type == "玩家对NPC" || type == "NPC对NPC" || type == "NPC对玩家") {
 
         // if (!_Global.mainUser) {
@@ -443,7 +455,21 @@ class YJSceneDyncManagerEditor {
         }
         return;
       }
-      
+      if (type == "同步角色施放技能状态") {
+        let {userId,fromId,fromType,msg} = state;
+        if(_Global.user.id == userId){return;}
+        let fromModel = null;
+        if(fromType == "玩家"){
+          fromModel = _YJFireManager.GetPlayerById(fromId);
+          fromModel.SendSkill(msg);
+        }
+        if(fromType == "NPC"){
+          fromModel = _YJFireManager.GetNpcById(fromId).GetComponent("NPC");
+          fromModel.GetSkill().SendSkill(msg);
+        } 
+        return;
+      }
+
       if (type == "同步角色控制技能状态") {
         let {userId,fromId,fromType,msg} = state;
         if(_Global.user.id == userId){return;}
@@ -459,6 +485,19 @@ class YJSceneDyncManagerEditor {
         } 
         return;
       }
+      
+      if (type == "系统消息") {
+        let {userId,userName,msg} = state;
+        if(_Global.user.id == userId){return;}
+        let content = "";
+        if(msg.title=="开启互动直播"){
+          content = "玩家 "+userName + " " + msg.title;
+        }
+        _Global.applyEvent("系统消息",content);
+        return;
+      }
+      
+
       if (type == "npc技能" || type == "npc技能攻击" || type == "受到技能" || type == "解除技能") {
         let { fromType,targetType,fromId,targetId, skillItem } = state;
         // if (type == "npc技能") {

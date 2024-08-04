@@ -188,6 +188,16 @@ class YJPlayerProperty {
 		this.changeProperty = function () {
 			owner.applyEvent("属性改变", baseData);
 		}
+		this.SetBasedataItem = function(card){
+			let {value, property } = card;
+			if (baseData[property] != undefined) {
+				baseData[property] = value;
+			} else {
+				basicProperty[property] = value;
+			}
+			owner.applyEvent("属性改变", baseData);
+
+		}
 		this.updateBasedata = function (card) {
 			let {value, property } = card;
 

@@ -315,7 +315,7 @@ class YJAnimator {
 
     this.ChangeAnimByAnimData = function (animName, isLoop, anim) {
       if (animName == "") { return; }
-      // console.log("添加扩展动画 ", animName);
+      // console.error("添加扩展动画 ", animName);
 
       for (let i = 0; i < actions.length; i++) {
         const element = actions[i];

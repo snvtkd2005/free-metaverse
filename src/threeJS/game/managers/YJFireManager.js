@@ -168,6 +168,8 @@ class YJFireManager {
     }
 
     function RemoveFromArroy(peopleList, items) {
+      // console.log(" 移除 战斗参与者 00 ", peopleList, items);
+
       for (let i = 0; i < items.length; i++) {
         const item = items[i];
         let has = false;
@@ -175,18 +177,15 @@ class YJFireManager {
           const element = peopleList[j].id;
           if (element == item) {
             peopleList.splice(j, 1);
-            console.log(" 移除 战斗参与者 ", item);
+            // console.log(" 移除 战斗参与者 ", item);
             has = true;
           }
         }
         if (CheckSameCamp(peopleList)) {
-          let camp = peopleList[0].camp;
+          sameCamp = peopleList[0].camp;
           for (let k = peopleList.length - 1; k >= 0; k--) {
-            const people = peopleList[k];
-            _Global.DyncManager.SendSceneStateAll("玩家脱离战斗", people.id);
-          }
-          fireGroup.splice(0, 1);
-          FireOff(camp);
+            peopleList.splice(k, 1);
+          }  
           return;
         }
       }
@@ -344,6 +343,7 @@ class YJFireManager {
     // 玩家死亡
     this.RemovePlayerFireId = function (playerId, fireId) {
 
+      // console.log(" 玩家死亡 ",playerId, fireId);
       let players = [];
       players.push(playerId);
       // 玩家死亡后，如玩家有镜像角色，删除镜像角色
@@ -360,6 +360,9 @@ class YJFireManager {
       if (fireId == undefined) {
         return;
       }
+
+      // console.log(" 玩家死亡 11 ",players);
+
       let has = false;
       for (let i = fireGroup.length - 1; i >= 0 && !has; i--) {
         const element = fireGroup[i];
@@ -369,17 +372,6 @@ class YJFireManager {
           if (element.peopleList.length == 0) {
             fireGroup.splice(i, 1);
             FireOff();
-            continue;
-          }
-
-          if (CheckSameCamp(element.peopleList)) {
-            let camp = element.peopleList[0].camp;
-            for (let k = element.peopleList.length - 1; k >= 0; k--) {
-              const people = element.peopleList[k];
-              _Global.DyncManager.SendSceneStateAll("玩家脱离战斗", people.id);
-            }
-            fireGroup.splice(i, 1);
-            FireOff(camp);
             continue;
           }
         }
@@ -509,9 +501,10 @@ class YJFireManager {
 
     }
 
+    // 设置NPC的目标为空，并请求下一个目标
     this.NPCTargetToNone = function (state) {
       let { npcId, camp, fireId, ignorePlayerId, vaildDis } = state;
-      // console.log(npcId + " 的目标为空 ");
+      // console.log(npcId + " 的目标为空 ",fireGroup);
       for (let i = fireGroup.length - 1; i >= 0; i--) {
         const element = fireGroup[i];
         if (element.fireId == fireId) {
@@ -519,12 +512,12 @@ class YJFireManager {
             const people = element.peopleList[j];
             if (people.id == npcId) {
               people.targetId = null;
-              GetFireIdPlayer(state, people);
-              return;
+              return GetFireIdPlayer(state, people);
             }
           }
         }
       }
+      return false;
 
     }
 
@@ -588,7 +581,7 @@ class YJFireManager {
       let npcComponent = _Global._YJNPCManager.GetNpcComponentById(npcId);
       if (npcComponent == null) {
         console.error(" 不该进入此判断: npcId [" + npcId + "] 为空 ", state);
-        return;
+        return ;
       }
       if (npcComponent.isDead) {
         return;
@@ -721,6 +714,9 @@ class YJFireManager {
 
     // 判断战斗中的角色是否同阵营
     function CheckSameCamp(peopleList) {
+      if(peopleList.length==1){
+        return true;
+      }
       // console.log("判断战斗中的角色是否同阵营 ",peopleList);
       let camp = peopleList[0].camp
       for (let j = peopleList.length - 1; j >= 1; j--) {
@@ -731,8 +727,7 @@ class YJFireManager {
       return true;
     }
     let sameCamp = 0;
-    function FireOff(camp) {
-      sameCamp = camp;
+    function FireOff() {
       if (!_Global.createCompleted) {
         return false;
       }

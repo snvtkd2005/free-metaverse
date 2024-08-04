@@ -3,27 +3,38 @@
 
 import axios from 'axios'
 
+// let baseUrl = "";//开发模式，在vit.config中定义代理,
+let baseUrl = "https://snvtkd2005.com:3336";//正式环境
+//创建axios的一个实例 
+var request = axios.create({ 
+    baseURL:baseUrl,  
+	crossDomain:true,
+	headers: {
+		"Access": "application/json",
+		"Content-Type": "application/json", 
+	},
+}); 
+
+
 
 // let baseUrl = "/bilibili";
 // let baseUrl = "https://live-open.biliapi.com";
-let baseUrl = "http://127.0.0.1:3000";
 
-//创建axios的一个实例 
-var request = axios.create({ 
-	
-    // baseURL:baseUrl, //后台接口
-    baseURL:"", //后台接口
-    // baseURL:"http://snvtkd2005.com:3336", //后台接口
-	crossDomain:true,
-    withCredentials: true,
-	headers: {
-		"Access": "application/json",
-		"Content-Type": "application/json",
-		// "Access-Control-Allow-Origin": "*",
-	},
-	  // timeout: 6000, //设置超时  
-});
-// var request = axios.create();
+// let baseUrl = "";//开发模式，在vit.config中定义代理,
+// // let baseUrl = "http://snvtkd2005.com:3336";//正式环境
+
+// //创建axios的一个实例 
+// var request = axios.create({ 
+//     baseURL:baseUrl,  
+// 	crossDomain:true,
+//     // withCredentials: true,
+// 	headers: {
+// 		"Access": "application/json",
+// 		"Content-Type": "application/json", 
+// 		// "Access-Control-Allow-Origin": "*", 
+// 	},
+// 	  // timeout: 6000, //设置超时  
+// }); 
 
 //请求拦截器 
 request.interceptors.request.use((config) => {

@@ -687,7 +687,7 @@ class YJLoadUserModelManager {
                 scaleList.push(msg.scale);
               }
             }
-            _YJMeshMerged.ReMerged(idList, posList, scaleList);
+            _YJMeshMerged.ReMerged(idList, posList, scaleList); 
             continue;
           }
         }

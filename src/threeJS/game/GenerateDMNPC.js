@@ -98,7 +98,7 @@ class GenerateDMNPC {
         }
       }
     }
-    function ReLifeAll(){
+    function ReLifeAll() {
       for (let i = dmNpcList.length - 1; i >= 0; i--) {
         if (dmNpcList[i].isDead) {
           dmNpcList[i].Dync({ title: "重新生成" });
@@ -272,7 +272,7 @@ class GenerateDMNPC {
       let yjtransform = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId(assetId);
 
 
-      dmNpcListData.push({ npcId, assetId, uname, uface,camp:_Global.user.camp });
+      dmNpcListData.push({ npcId, assetId, uname, uface, camp: _Global.user.camp });
 
       let modelData = JSON.parse(JSON.stringify(yjtransform.modelData));
       modelData.name = uname;
@@ -282,14 +282,16 @@ class GenerateDMNPC {
       modelData.id = npcId;
       _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().DuplicateModelNPC(modelData, (copy) => {
 
-        // 测试显示指定名称id的NPC
-        copy.SetActive(true);
         let npc = copy.GetComponent("NPC");
         npc.canMove = npcmode == NPCMODE.FOLLOW;
 
         if (npcmode == NPCMODE.FOLLOW) {
           npc.setOwnerPlayer(_Global._YJPlayerFireCtrl);
         }
+        
+        // 测试显示指定名称id的NPC
+        copy.SetActive(true);
+        
         npc.deadedHidden = false;
         npc.canLevelUp = true;
 
@@ -428,7 +430,7 @@ class GenerateDMNPC {
         }
 
       });
-      _Global.addEventListener("玩家改变阵营", (playerId,camp) => { 
+      _Global.addEventListener("玩家改变阵营", (playerId, camp) => {
         for (let i = 0; i < dmNpcList.length; i++) {
           const element = dmNpcList[i];
           element.npc.GetBaseData().camp = camp;
@@ -436,14 +438,16 @@ class GenerateDMNPC {
           element.npc.updateCamp();
         }
         //
-       let dmplayerList = _Global._YJPlayerFireCtrl.GetBaseData().dmplayerList;
-       for (let i = 0; i < dmplayerList.length; i++) {
-          const element = dmplayerList[i];
-          element.camp = camp;
+        let dmplayerList = _Global._YJPlayerFireCtrl.GetBaseData().dmplayerList;
+        if (dmplayerList) {
+          for (let i = 0; i < dmplayerList.length; i++) {
+            const element = dmplayerList[i];
+            element.camp = camp;
+          }
         }
-			 _Global.YJ3D.YJController.directUpate("camp");
-      }); 
-      
+        _Global.YJ3D.YJController.directUpate("camp");
+      });
+
       _Global.addEventListener('主角重生', () => {
         ReLifeAll();
       });

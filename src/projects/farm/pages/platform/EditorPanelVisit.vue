@@ -27,7 +27,10 @@
  
       <!-- HUD -->
       <HUD v-if="hasHUD" ref="HUD" />
-
+      <div class=" absolute left-0 top-0 w-full h-full pointer-events-none">
+        <systemLogPanel ref="systemLogPanel" />
+      </div>
+      
       <!-- 鸟瞰2d点位 -->
       <div
         v-if="niaokanUI"
@@ -122,6 +125,7 @@ import { SceneManager } from "../../js/SceneManagerEditor.js";
 import { Interface } from "../../js/Interface_editor.js";
 
 import HUD from "./common/HUD.vue";
+import systemLogPanel from "./common/systemLogPanel.vue";
 // 摇杆
 import JoystickLeftPanel from "./joystickLeft.vue";
 
@@ -143,6 +147,7 @@ export default {
     YJDync,
     settingPanel,
     HUD,
+    systemLogPanel,
   },
   data() {
     return {

@@ -73,6 +73,7 @@ class YJPlayerAnimData {
     }
 
 
+    
     this.UpdateAvatarDataById = function (id, avatarData) {
       let has = false;
       for (let i = 0; i < avatarDataList.length && !has; i++) {
@@ -86,6 +87,7 @@ class YJPlayerAnimData {
       }
       FindBoneRefAnimationData(avatarData);
     }
+
     this.PlayExtendAnim = function (avatarData, animName, callback) {
       // console.log(avatarData);
       
@@ -337,6 +339,53 @@ class YJPlayerAnimData {
         // }
       }
     }
+
+    // 
+    /**
+     * 从avatarData中获取animName的单条数据， {是否循序、动作文件路径}
+     * @param {*} avatarData 
+     * @param {*} animName 
+     * @param {*} callback 
+     * @returns 
+     */
+    this.GetSingleAnimDataInAvatar = function(avatarData,animName,callback){
+      for (let i = 0; i < avatarData.animationsData.length; i++) {
+        const element = avatarData.animationsData[i];
+        if (element.animName == animName) {
+          if (callback) {
+            callback(element);
+          }
+          return;
+        }
+      }
+
+      //再查找其扩展动作
+      if (avatarData.animationsExtendData) {
+        for (let i = 0; i < avatarData.animationsExtendData.length; i++) {
+          const element = avatarData.animationsExtendData[i];
+          if (element.animName == animName) {
+            if (callback) {
+              callback(element);
+            }
+            return;
+          }
+        }
+      }
+
+      // 再从映射动作中查找
+      if (avatarData.boneRefPlayerAnimationData) {
+        for (let i = 0; i < avatarData.boneRefPlayerAnimationData.length; i++) {
+          const element = avatarData.boneRefPlayerAnimationData[i];
+          if (element.animName == animName) {
+            if (callback) {
+              callback(element);
+            }
+            return;
+          }
+        }
+      }
+
+    }
     this.GetAnimDataByAnimName = function (id, animName, callback) {
 
       console.log(avatarDataList,id);
@@ -350,41 +399,7 @@ class YJPlayerAnimData {
         }
       }
       if (has) {
-        for (let i = 0; i < avatarData.animationsData.length; i++) {
-          const element = avatarData.animationsData[i];
-          if (element.animName == animName) {
-            if (callback) {
-              callback(element);
-            }
-            return;
-          }
-        }
-
-        //再查找其扩展动作
-        if (avatarData.animationsExtendData) {
-          for (let i = 0; i < avatarData.animationsExtendData.length; i++) {
-            const element = avatarData.animationsExtendData[i];
-            if (element.animName == animName) {
-              if (callback) {
-                callback(element);
-              }
-              return;
-            }
-          }
-        }
-
-        // 再从映射动作中查找
-        if (avatarData.boneRefPlayerAnimationData) {
-          for (let i = 0; i < avatarData.boneRefPlayerAnimationData.length; i++) {
-            const element = avatarData.boneRefPlayerAnimationData[i];
-            if (element.animName == animName) {
-              if (callback) {
-                callback(element);
-              }
-              return;
-            }
-          }
-        }
+        this.GetSingleAnimDataInAvatar(avatarData,animName,callback); 
       }
     }
     async function LoadExtendData(playerName, callback) {
@@ -468,6 +483,32 @@ class YJPlayerAnimData {
         }
       }
       return this.GetAllExtendAnim(id);
+    }
+    this.AddSingleExtendAnimData = function(avatarData,playerData){
+      if (avatarData.animationsExtendData == undefined) {
+        avatarData.animationsExtendData = [];
+      }
+      for (let i = 0; i < playerData.length; i++) {
+        const item = playerData[i];
+        let hass = false;
+        for (let j = 0; j < avatarData.animationsExtendData.length; j++) {
+          const element = avatarData.animationsExtendData[j];
+          if (element.animName == item.animName) {
+            element.isLoop = item.isLoop;
+            element.path = item.path;
+            hass = true;
+          }
+        }
+        if (!hass) {
+          avatarData.animationsExtendData.push({ animName: item.animName, isLoop: item.isLoop, path: item.path });
+        }
+      }
+      let animList = [];
+      for (let i = 0; i < avatarData.animationsExtendData.length; i++) {
+        const element = avatarData.animationsExtendData[i];
+        animList.push(element.animName);
+      }
+      return animList;
     }
     this.AddAllExtendAnimData = function (id, playerData) {
       let has = false;

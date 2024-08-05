@@ -224,13 +224,10 @@ export default {
   },
   mounted() {
 
- 
     let modelData = JSON.parse(localStorage.getItem("modelData"));
     this.folderBase = modelData.folderBase;
-
     this.modelData = modelData;
 
-    // this.folderBase = "farmplayer";
     console.log("modelData in playerPanel ", modelData);
     this.settingData.name = modelData.name;
     if (modelData.message == undefined) {
@@ -252,6 +249,7 @@ export default {
     this.setSettingItemByProperty("isLoop", this.currentAnimData.isLoop);
   },
   methods: {
+    
     ballRadiusChangeFn(v){
       _Global.YJAmmoPlayerBody.CreateSphere(this.ballRadius);
     },
@@ -421,7 +419,7 @@ export default {
     SetAnimName(anim) {
       this.currentAnimData.isLoop = false;
       this.currentAnimData.path = "";
-
+      this.setting[1].value = false;
       this.setting[0].value = anim.animName;
       this.animName = this.setting[0].value;
       this.currentAnimData.animName = this.animName;
@@ -432,8 +430,9 @@ export default {
       // console.log("编辑 11 ",this.animName,this.modelData,this.modelData.name);
 
       // 从当前角色的动作中获取
-      this.PlayerAnimData().
-        GetAnimDataByAnimName(this.modelData.folderBase, this.animName, (animData) => {
+      // this.PlayerAnimData().GetAnimDataByAnimName(this.modelData.folderBase, 
+      this.PlayerAnimData().GetSingleAnimDataInAvatar(this.modelData.message.data, 
+      this.animName, (animData) => {
           this.setting[1].value = animData.isLoop;
           this.currentAnimData.isLoop = this.setting[1].value;
           this.currentAnimData.path = animData.path;
@@ -511,7 +510,9 @@ export default {
             this.currentAnimData.animName = this.animName;
             // this.$uploadUrl + this.folderBase + "/" +
             let items = [this.currentAnimData];
-            this.PlayerAnimData().AddAllExtendAnimData(this.modelData.folderBase, items);
+            // this.PlayerAnimData().AddAllExtendAnimData(this.modelData.folderBase, items);
+            this.PlayerAnimData().AddSingleExtendAnimData(this.modelData.message.data, items);
+            
             // 加载动作
             // _Global.YJ3D.YJController.ChangeAnimDirect(this.animName);
 
@@ -610,9 +611,9 @@ export default {
       this.settingData.equipPosList = item.equipPosList;
       this.save();
       // 更新 YJPlayerAnimData 中的数据
-      this.PlayerAnimData().UpdateAvatarDataById(this.settingData.id, this.settingData);
-
-      _Global.YJ3D._YJSceneManager
+      // this.PlayerAnimData().UpdateAvatarDataById(this.settingData.id, this.settingData);
+      this.modelData.message.data = this.settingData;
+      _Global.YJ3D._YJSceneManager  
           .GetSingleModelTransform().SetMessage(this.getMessage());
       return;
       let refBonelist = item.message.data.boneList;
@@ -715,7 +716,8 @@ export default {
       if (this.parent.updateModelTxtData) {
         this.parent.modelData.message = this.getMessage();
         this.parent.updateModelTxtData();
-        let animList = this.PlayerAnimData().AddAllExtendAnimData(this.settingData.id, this.settingData.animationsExtendData);
+        // let animList = this.PlayerAnimData().AddAllExtendAnimData(this.settingData.id, this.settingData.animationsExtendData);
+        let animList = this.PlayerAnimData().AddSingleExtendAnimData(this.getMessage() , this.settingData.animationsExtendData);
         this.parent.$refs.animPanel.UpdateState(animList);
 
       } else {
@@ -745,7 +747,9 @@ export default {
           this.parent.SetTip("保存成功");
           this.canSave = false;
 
-          let animList = this.PlayerAnimData().AddAllExtendAnimData(this.modelData.folderBase, this.animListData);
+          // let animList = this.PlayerAnimData().AddAllExtendAnimData(this.modelData.folderBase, this.animListData);
+          let animList = this.PlayerAnimData().AddSingleExtendAnimData(this.modelData.message.data , this.animListData);
+
           // window.location.reload();
         }
       });

@@ -46,6 +46,7 @@ export default {
         { label: "随机敌方", value: "randomEnemy" },
         { label: "生命值最少的友方", value: "minHealthFriendly" },
         { label: "当前目标", value: "target" },
+        { label: "当前目标及其附近", value: "targetAndNear" },
         { label: "半径范围内", value: "area" },
       ],
       // 法术效果类型
@@ -214,7 +215,7 @@ export default {
     ChangeUIState(property, e) {
       // 根据选择判断哪些属性不显示
       if (property == "target-type") {
-        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "target-value", "display", e == "area");
+        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "target-value", "display", e == "area" ||  e == 'targetAndNear');
       }
       if (property == "hasReceiveEffect") {
         this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "receiveEffect-modelType", "display", e );

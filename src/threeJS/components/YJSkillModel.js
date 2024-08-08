@@ -63,8 +63,7 @@ class YJSkillModel {
             }
             if (skill.type == "shield") {
 
-            }
-
+            } 
 
             for (let i = controlModels.length - 1; i >= 0; i--) {
                 const item = controlModels[i];
@@ -92,12 +91,6 @@ class YJSkillModel {
                     scope.ReceiveControl(msg, true);
                 }
             }
-
-            // _Global.DyncManager.SendDataToServer("解除技能",
-            //     {
-            //         fromId: owner.id,
-            //         particleId: particleId
-            //     });
         }
         this.ReceiveControl = function (msg, needDync) {
             if (needDync) {
@@ -108,10 +101,10 @@ class YJSkillModel {
                         fromType: owner.getPlayerType(),
                         msg: msg
                     });
-                console.log("发送 同步技能 ", msg);
+                // console.log("发送 同步技能 ", msg);
 
             } else {
-                console.log("接收 同步技能 ", msg);
+                // console.log("接收 同步技能 ", msg);
             }
 
             let { title, folderBase, id, pos, scale } = msg;
@@ -119,6 +112,7 @@ class YJSkillModel {
                 if (HasControlModel(folderBase)) {
                     return false;
                 }
+
                 AddControlModel(folderBase, 'merged');
                 // 静态物体使用合批的方法做法
                 _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillFolderBaseByMSG(folderBase, msg);
@@ -180,10 +174,10 @@ class YJSkillModel {
                         fromType: owner.getPlayerType(),
                         msg: msg
                     });
-                console.log("发送 同步施放技能 ", msg);
+                // console.log("发送 同步施放技能 ", msg);
 
             } else {
-                console.log("接收 同步施放技能 ", msg);
+                // console.log("接收 同步施放技能 ", msg);
             }
 
             let { title, folderBase, id, pos, scale } = msg;

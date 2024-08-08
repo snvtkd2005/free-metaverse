@@ -74,10 +74,13 @@ class YJProjector {
         case 'normal':
           camp = 0x0000ff;
           break;
+        case 'friendy':
+          camp = 0x00ee00;
+          break;
         case 'dead':
           camp = 0xaaaaaa;
-          break; 
-        default: 
+          break;
+        default:
       }
       projectMat.color.setHex(camp);
       group.visible = true;
@@ -87,7 +90,7 @@ class YJProjector {
         return;
       }
       group.visible = b;
-      scene.add(group); 
+      scene.add(group);
     }
     let projectMat = null;
     function CreatePlane() {

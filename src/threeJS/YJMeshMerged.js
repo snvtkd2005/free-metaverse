@@ -203,7 +203,6 @@ class YJMeshMerged {
         const element = allMesh[i];
         makeInstanced(element.geometry, element.material, element.pos, element.scale);
       }
-
       // makeMergedCollider();
 
     }

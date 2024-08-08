@@ -255,8 +255,10 @@ class YJTransform {
 
       if (b) {
         _this._YJSceneManager.AddNeedUpdateJS(scope);
+        this.CreateCollider();
       } else {
         _this._YJSceneManager.RemoveNeedUpdateJS(scope);
+        this.DestroyCollider();
       }
 
       if (children.length > 0) {
@@ -268,6 +270,8 @@ class YJTransform {
 
       // let modelData = JSON.parse(JSON.stringify(scope.modelData));
       // scope.SetPosRota(modelData.pos, modelData.rotaV3, modelData.scale);
+ 
+
 
       let message = data.message;
       if(message == null){ 
@@ -285,7 +289,6 @@ class YJTransform {
         if (this.GetComponent("Trail")) {
           this.GetComponent("Trail").start();
         }
-
       } else {
         if (message.pointType == "interactive") {
           let com = this.GetComponent("Interactive");
@@ -293,11 +296,13 @@ class YJTransform {
         }
         if (message.pointType == "geometry") {
           let com = this.GetComponent("Geometry");
-          com.DestroyTrigger();
+          com.Destroy();
         }
         if (this.GetComponent("Trail")) {
           this.GetComponent("Trail").stop();
         }
+        this.DestroyCollider(); 
+
       }
 
       // if (message.pointType == "NPC模型") {

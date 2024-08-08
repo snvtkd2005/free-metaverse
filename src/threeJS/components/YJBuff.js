@@ -10,7 +10,7 @@ class YJBuff {
         let targetModel = null;
         let baseData = null;
         function init() {
-            owner.addEventListener("死亡或离开战斗", () => {
+            owner.addEventListener("死亡", () => {
                 ClearFireLater();
             });
             baseData = owner.GetBaseData();

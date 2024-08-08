@@ -48,7 +48,9 @@
     <div class="relative w-health h-4 ml-1.5 mt-7">
       <div
         class="absolute h-full w-full"
-        :class="selfCamp ? ' bg-blue-100 ' : ' bg-red-500 '"
+        :class="
+        selfCamp==10000 ? '  bg-red-500 ' :
+        (selfCamp==10001 ? '  bg-green-500 ':'  bg-yellow-100') "
       ></div>
     </div>
 
@@ -103,7 +105,10 @@
     <div class="absolute left-0 w-health h-4 ml-1 mt-7">
       <div
         class="h-4 text-xs transform scale-90 text-center truncate tracking-widest"
-        :class="selfCamp ? ' text-white ' : ' text-yellow-300 '"
+        :class="
+        
+        selfCamp==10000 ? '  text-yellow-300 ' :
+        (selfCamp==10001 ? '  text-white ':'  text-white') "
       >
         {{ targetName }}
       </div>
@@ -153,7 +158,7 @@ export default {
         rare: "./public/images/cursorList/headerBG_rare.png", //  稀有
         elite: "./public/images/cursorList/headerBG_elite.png", //   精英
       },
-      selfCamp: false,
+      selfCamp: 10000, 
       skillPerc: 0,
     };
   },
@@ -168,18 +173,32 @@ export default {
           }
         }
       );
+
+      _Global.addEventListener("选中角色",(targetModel) => {
+          this.SetTarget(targetModel.GetData(), targetModel.GetNickName());
+      });
+      _Global.addEventListener("取消选中角色",() => {
+        this.display = false;
+      });
     }
   },
   methods: {
     // 设置头像框上的角色名
     SetTarget(npcData,nickName) {
-      // console.log(  " 设置 NPC 头像框上数据更新 111 ",npcData);
+      // console.log(  " 设置 NPC 头像框上数据更新 111 ",npcData,this.baseData.camp);
 
       this.targetName = nickName;
       this.baseData = npcData.baseData;
 
-      this.selfCamp = this.baseData.camp == _Global.user.camp;
-
+      if(this.baseData.camp != _Global.user.camp){
+        this.selfCamp = 10000;
+      }
+      if(this.baseData.camp == 10001){
+        this.selfCamp = 10001;
+      }
+      if(this.baseData.camp == 10002){
+        this.selfCamp = 10002;
+      }
       // 普通 稀有 精英
       this.headerBGUrl = this.headerBGUrlData[this.baseData.type || "normal"];
       this.GetHealth();

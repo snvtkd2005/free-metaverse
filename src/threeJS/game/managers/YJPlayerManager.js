@@ -58,7 +58,7 @@ class YJPlayerManager {
       for (let i = 0; i < playerList.length; i++) {
         const element = playerList[i];
         if (element.GetCamp() == camp) {
-          console.log(" 范围查找玩家 跳过同阵营玩家 ");
+          // console.log(" 范围查找玩家 跳过同阵营玩家 ");
           continue;
         }
         if (element.id == ingoreNpcId) {
@@ -68,7 +68,7 @@ class YJPlayerManager {
         // 未判断npc是否在玩家前方
         let distance = centerPos.distanceTo(element.GetWorldPos());
 
-        console.log(" 范围查找玩家 ",distance,element);
+        // console.log(" 范围查找玩家 ",distance,element);
         // console.log(" 范围查找玩家 ",distance,vaildDistance);
 
         if (distance <= vaildDistance) {
@@ -134,24 +134,17 @@ class YJPlayerManager {
       return npcComponent;
     }
     // 设置npc1附近的npc共同攻击npc1的目标
-    this.GetNearNPC = function (npcComponent1) {
-      let npcs = [];
+    this.GetNearDirect = function (playerPos) {
+      let players = [];
       let playerList = this.GetAllVaildPlayer();
       for (let i = 0; i < playerList.length; i++) {
-        const element = playerList[i];
-        let npcComponent = element.GetComponent("NPC");
-        // 相同阵营的返回
-        if (npcComponent != npcComponent1 && npcComponent.GetCamp() == npcComponent1.GetCamp()) {
-          if (npcComponent.isCanSetTarget()) {
-            let distance = npcComponent1.transform.GetGroup().position.distanceTo(element.GetGroup().position);
-            // console.log("查找到附近npc ", npcComponent.npcName,distance);
-            if (distance <= 12) {
-              npcs.push(npcComponent); 
-            }
-          }
-        }
+        const player = playerList[i];
+        let distance = player.GetWorldPos().distanceTo(playerPos);
+        if(distance <= 12 && !player.isDead){
+          players.push(player); 
+        } 
       }
-      return npcs;
+      return players;
     } 
      
     this.GetSameCampNPCInFire = function (camp) {
@@ -236,6 +229,18 @@ class YJPlayerManager {
       for (let i = 0; i < playerList.length; i++) {
         const element = playerList[i];
         if(element.GetCamp() == camp){
+          players.push(element);
+        }
+      }
+      return players;
+    }
+    
+    this.GetSameCampInFire = function (camp,fireId) {
+      let playerList = this.GetSameCamp(camp);
+      let players = []; 
+      for (let i = 0; i < playerList.length; i++) {
+        const element = playerList[i];
+        if(element.fireId == fireId){
           players.push(element);
         }
       }

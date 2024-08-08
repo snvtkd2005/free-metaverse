@@ -181,27 +181,7 @@ class YJPlayerFireCtrl {
 					break;
 				case "攻击":
 					state.canAttack = true;
-					break;
-				case "点击技能":
-					let skillItem = state.msg;
-
-					if (skillItem == undefined || skillItem == "普通攻击") {
-						if (targetModel == null) {
-							scope.MyFireState("我没有目标");
-							return;
-						}
-						// 判断目标是否可攻击
-						ReadyFire();
-					} else {
-						//判断目标是否可攻击
-						vaildAttackDis = skillItem.vaildDis;
-						if (!CheckCanAttack()) {
-							return;
-						}
-						// 使用技能攻击
-						UseSkill(skillItem);
-					}
-					break;
+					break; 
 				default:
 					break;
 			}
@@ -223,10 +203,8 @@ class YJPlayerFireCtrl {
 		this.LookatTarget = function (targetModel) {
 			_this.YJController.PlayerLookatPos(targetModel.GetWorldPos());
 		}
-		function UseSkill(skillItem) {
-			playerState = PLAYERSTATE.ATTACKING;
-			_YJSkill.UseSkill(skillItem);
-			return;
+		this.UseSkill = function(skillItem) {
+			_YJSkill.UseSkill(skillItem); 
 		}
 		this.UseProp = function (skillItem) {
 			UseProp(skillItem);
@@ -426,7 +404,7 @@ class YJPlayerFireCtrl {
 					clearTimeout(vaildAttackLater);
 					vaildAttackLater = null;
 				}
-				scope.applyEvent("死亡或离开战斗");
+				scope.applyEvent("死亡");
 				return true;
 			}
 		}
@@ -597,7 +575,12 @@ class YJPlayerFireCtrl {
 			return dis < vaildAttackDis + targetModel.GetModelScale();
 		}
 		function CheckCamp() {
-			return targetModel.GetCamp() != _Global.user.camp;
+			let targetCamp = targetModel.GetCamp();
+			if(targetCamp==10001){return false;} //不可攻击友善目标
+			return targetCamp != _Global.user.camp;
+		}
+		this.CheckCanAttack = function(){
+			return CheckCanAttack();
 		}
 		function CheckCanAttack() {
 			if (!targetModel) {
@@ -607,7 +590,7 @@ class YJPlayerFireCtrl {
 			//如果目标阵营不可攻击
 			let b0 = CheckCamp();
 			if (!b0) {
-				// scope.MyFireState("不能攻击这个目标");
+				scope.MyFireState("不能攻击这个目标");
 				state.canAttack = false;
 				return false;
 			}
@@ -761,30 +744,30 @@ class YJPlayerFireCtrl {
 			}
 			if (e == "进入战斗" || e == "设置目标") {
 
-				if (hyperplasiaTrans.length > 0) {
-					for (let i = 0; i < hyperplasiaTrans.length; i++) {
-						_Global._YJFireManager.AddFireGroup(hyperplasiaTrans[i].id, _YJPlayer.camp, _YJPlayer.fireId);
-						hyperplasiaTrans[i].fireId = _YJPlayer.fireId;
-						hyperplasiaTrans[i].SetNpcTarget(msg ? msg : targetModel);
-					}
-				}
+				// if (hyperplasiaTrans.length > 0) {
+				// 	for (let i = 0; i < hyperplasiaTrans.length; i++) {
+				// 		_Global._YJFireManager.AddFireGroup(hyperplasiaTrans[i].id, _YJPlayer.camp, _YJPlayer.fireId);
+				// 		hyperplasiaTrans[i].fireId = _YJPlayer.fireId;
+				// 		hyperplasiaTrans[i].SetNpcTarget(msg ? msg : targetModel);
+				// 	}
+				// }
 				scope.applyEvent("进入战斗", _YJPlayer.camp, _YJPlayer.fireId, targetModel);
 			}
 
 			if (e == "添加镜像") {
-				let mirrorId = msg;
-				let targetModel = _Global._YJFireManager.GetNpcById(mirrorId).GetComponent("NPC");
-				targetModel.setOwnerPlayer(_YJPlayer);
-				hyperplasiaTrans.push(targetModel);
+				// let mirrorId = msg;
+				// let targetModel = _Global._YJFireManager.GetNpcById(mirrorId).GetComponent("NPC");
+				// targetModel.setOwnerPlayer(_YJPlayer);
+				// hyperplasiaTrans.push(targetModel);
 			}
 			if (e == "删除镜像") {
-				let mirrorId = msg;
-				for (let i = hyperplasiaTrans.length - 1; i >= 0; i--) {
-					const element = hyperplasiaTrans[i];
-					if (element.id == mirrorId) {
-						hyperplasiaTrans.splice(i, 1);
-					}
-				}
+				// let mirrorId = msg;
+				// for (let i = hyperplasiaTrans.length - 1; i >= 0; i--) {
+				// 	const element = hyperplasiaTrans[i];
+				// 	if (element.id == mirrorId) {
+				// 		hyperplasiaTrans.splice(i, 1);
+				// 	}
+				// }
 
 			}
 		}

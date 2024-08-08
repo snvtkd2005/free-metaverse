@@ -155,6 +155,10 @@ class YJNPC {
     let npcPos = [];
     this.npcName = "";
     function getCampColor() {
+      // 敌对、友善、中立
+      if(baseData.camp==10000){return 0xee0000;}
+      if(baseData.camp==10001){return 0x00ee00;}
+      if(baseData.camp==10002){return 0xeeee00;}
       return _Global.user.camp != baseData.camp ? 0xee0000 : 0xbab8ff;
     }
     this.SetName = function (v) {
@@ -289,9 +293,8 @@ class YJNPC {
       }
       // 清除技能触发
       ClearFireLater();
-      if (laterNav) {
-        clearTimeout(laterNav);
-      }
+      clearLaterNav();
+
 
     }
     //放下后，获取模型的坐标和旋转，记录到服务器，让其他客户端创建
@@ -1008,18 +1011,21 @@ class YJNPC {
 
     }
     function TargetDead() {
+
+      targetModel = null;
+      scope.SetNpcTargetToNoneDrict();
       TargetNone();
       // return;
-      console.log(GetNickName() + " 的目标已死亡");
-      CheckNextTarget();
+      // console.log(GetNickName() + " 的目标已死亡");
     }
     function TargetNone() {
       inRequestNext = false;
-      scope.applyEvent("施法中断");
 
       oldTargetPos.set(0, 0, 0);
       oldState = "";
       readyAttack_doonce = 0;
+      CheckNextTarget();
+
     }
     function CheckNextTarget() {
       if (!_Global.mainUser) {
@@ -1062,24 +1068,20 @@ class YJNPC {
 
       }
 
-      // 向主控请求下一个目标
-      let hasNext =  _Global._YJFireManager.NPCTargetToNone({
-        npcId: scope.id, camp: baseData.camp, fireId: scope.fireId
-        , ignorePlayerId: targetModel ? targetModel.id : null,
-        vaildDis: vaildAttackDis
-      });
-      if(!hasNext){
-        scope.fireOff();
-      }
+      // return;
 
-      // 获取战斗组中的其他玩家作为目标。 没有时，npc结束战斗
-      // _Global._YJFireManager.RequestNextFireIdPlayer(
-      //   {
-      //     npcId: scope.id, camp: baseData.camp, fireId: scope.fireId
-      //     , ignorePlayerId: targetModel ? targetModel.id : null,
-      //     vaildDis: vaildAttackDis
-      //   }
-      // );
+      // console.log( " [" + scope.GetNickName() + "] "," 请求查找下一个目标  ");
+
+      // 向主控请求下一个目标
+      let hasNext =  _Global._YJFireManager.SetNPCNextTarget({
+        id: scope.id, camp: baseData.camp, fireId: scope.fireId
+        , type:"NPC"
+      });
+      // if(!hasNext){
+      //   console.log( scope.GetNickName() + " 离开战斗");
+      //   scope.fireOff();
+      // }
+ 
     }
 
     //#region 
@@ -1101,7 +1103,7 @@ class YJNPC {
         scope.fireId = fireId;
         scope.camp = camp;
         scope.SetNpcTarget(targetNpc);
-        _Global._YJFireManager.AddFireGroup(scope.id, camp, fireId);
+        _Global._YJFireManager.AddFireGroup(scope.id, camp,scope.getPlayerType(), fireId);
 
       });
       ownerPlayer.addEventListener("脱离战斗", () => {
@@ -1161,19 +1163,27 @@ class YJNPC {
       return scope.isDead;
     }
     let fireBeforePos = null;
+    function clearLaterNav(){
+      // console.error(scope.GetNickName() + " 清除延迟巡逻 ");
+      if (laterNav != null) {
+        clearTimeout(laterNav);
+        laterNav = null;
+      }
+    }
     this.fireOff = function () {
       if (scope.isDead) {
         return;
       }
       scope.fireId = -1;
-      targetModel = null;
-      TargetNone();
+      scope.SetNpcTargetToNoneDrict();
+      scope.applyEvent("离开战斗");
 
       if (data.isPlayer) {
         baseData.state = stateType.Normal;
       } else {
         // 只有敌方NPC失去目标时，才会进入返回状态
-        baseData.state = stateType.Back;
+        // baseData.state = stateType.Back;
+        baseData.state = stateType.Normal;
         this.SetFireOff();
       }
       if (!this.canMove) {
@@ -1185,11 +1195,12 @@ class YJNPC {
       if (!scope.canMove) {
         return;
       }
-      if (laterNav != null) {
-        clearTimeout(laterNav);
-        laterNav = null;
-      }
+
+      // console.log(scope.GetNickName() + " 战斗结束，准备 回到战斗前位置 00  ",fireBeforePos);
+
+      clearLaterNav();
       laterNav = setTimeout(() => {
+        // console.log(scope.GetNickName() + " 战斗结束，准备 回到战斗前位置 11  ",ownerPlayer,fireBeforePos);
 
         if (ownerPlayer) {
           oldPlayerPos.y = -100;
@@ -1200,7 +1211,7 @@ class YJNPC {
         if (currentPos.distanceTo(fireBeforePos) >= 20) {
           baseData.speed = MISSSPEED;
         }
-        // console.log(scope.GetNickName() + " fireBeforePos  22 = ",fireBeforePos);
+        // console.log(scope.GetNickName() + " 战斗结束， 回到战斗前位置  ",fireBeforePos);
         vaildAttackDis = 0;
         GetNavpath(parent.position.clone(), fireBeforePos);
       }, 1000);
@@ -1208,13 +1219,26 @@ class YJNPC {
     }
 
     this.SetNpcTargetToNoneDrict = function () {
-      targetModel = null;
-      outVaildArea = false;
-    }
-    this.SetNpcTargetToNone = function (isLocal) {
+      if(targetModel != null){
+        let has =false;
+        for (let i = receiveDamageData.length-1; i >=0  && !has ; i--) {
+          const element = receiveDamageData[i];
+          if (element.fromId == targetModel.id) {
+            receiveDamageData.splice(i,1);
+            has = true;
+          }
+        }
+      }
+      scope.applyEvent("施法中断");
 
       targetModel = null;
       outVaildArea = false;
+      scope.applyEvent("设置目标",targetModel);
+      
+    }
+    this.SetNpcTargetToNone = function (isLocal) {
+
+      scope.SetNpcTargetToNoneDrict();
       // 暂停1秒
       SetNavPathToNone();
 
@@ -1224,8 +1248,6 @@ class YJNPC {
       GetAnimNameByPlayStateAndWeapon("准备战斗", weaponData);
       scope.ChangeAnim(animName, animNameFullback);
 
-      ClearLater("清除巡逻");
-
       if (isLocal) {
         SendModelState({ title: "设置目标", playerId: "", });
       }
@@ -1234,7 +1256,7 @@ class YJNPC {
 
 
     this.LogFire = function () {
-      return;
+      // return;
       console.log("fireid = ", scope.fireId);
       console.log("inskill = ", _YJSkill.GetinSkill());
       console.log("targetmodel = ", targetModel);
@@ -1295,10 +1317,8 @@ class YJNPC {
 
 
 
-      if (laterNav != null) {
-        clearTimeout(laterNav);
-        laterNav = null;
-      }
+      clearLaterNav();
+
 
       let npcPos = parent.position.clone();
       readyAttack = false;
@@ -1407,7 +1427,6 @@ class YJNPC {
           clearTimeout(fireLater[i].fn);
         }
       }
-      scope.applyEvent("死亡或离开战斗");
 
       if (laterCheckNextTarget != null) {
         clearTimeout(laterCheckNextTarget);
@@ -1519,7 +1538,6 @@ class YJNPC {
       }
       scope.transform.UpdateData(); // 触发更新数据的回调事件
       if (baseData.health <= 0) {
-        ClearLater("清除巡逻");
         dead();
       }
       if (baseData && baseData.maxHealth) {
@@ -1658,9 +1676,9 @@ class YJNPC {
         return;
       }
 
-      if (targetModel != null) {
-        targetModel = null;
-      }
+      scope.SetNpcTargetToNoneDrict();
+      receiveDamageData = [];
+      maxDamagePlayerId = 0;
       scope.isDead = true;
       scope.inControl = false;
       // CombatLog(GetNickName() + " 死亡");
@@ -1669,7 +1687,6 @@ class YJNPC {
 
       scope.applyEvent("死亡", scope.id, scope.fireId, damageFromData);
       // 从一场战斗中移除npc
-      // _Global._YJFireManager.RemoveNPCFireId(scope.id, scope.fireId);
       scope.fireId = -1;
       // 清除技能触发
       ClearFireLater();
@@ -1762,7 +1779,8 @@ class YJNPC {
     function resetLife() {
 
       scope.transform.ResetPosRota();
-      targetModel = null;
+      scope.SetNpcTargetToNoneDrict();
+
       scope.isDead = false;
       scope.transform.SetActive(true);
       // 还原材质
@@ -1806,10 +1824,8 @@ class YJNPC {
     function ClearLater(e) {
       if (e == "清除巡逻") {
         // console.log("清除巡逻 66 ");
-        if (laterNav != null) {
-          clearTimeout(laterNav);
-          laterNav = null;
-        }
+        clearLaterNav();
+
       }
       if (e == "清除准备战斗") {
         // console.log(" 清除准备战斗 "); 
@@ -2039,8 +2055,17 @@ class YJNPC {
       return targetPosRef.distanceTo(npcPos);
     }
     function CheckState() {
+      
+
       // return;
       if (baseData.state == stateType.Normal) {
+        if (targetModel != null && targetModel.isDead) {
+          scope.fireOff();
+          // TargetDead();
+          console.log( scope.GetNickName() + " 的目标 " + targetModel.GetNickName() 
+          +"  " + targetModel.isDead +"  " + baseData.state);
+          return;
+        }
       }
 
       if (baseData.state == stateType.Fire) {
@@ -2163,7 +2188,7 @@ class YJNPC {
 
         // console.log(" npc往目标移动 ", velocity.lengthSq(), 0.00075 * baseData.speed);
         isMoving = true;
-        if (targetModel != null && targetModel.isDead) {
+        if ((targetModel != null && targetModel.isDead)) {
           navpath = [];
           TargetDead();
         }
@@ -2198,7 +2223,7 @@ class YJNPC {
         scope.fireId = -1;
         scope.SetNpcTargetToNone();
         //增生角色死亡
-        scope.applyEvent("死亡或离开战斗");
+        scope.applyEvent("离开战斗");
         return;
       }
       if (msg.title == "重新生成") {
@@ -2275,7 +2300,8 @@ class YJNPC {
             baseData.health = msg.health;
             // 模型渐隐消失
             // scope.transform.Destroy();
-            targetModel = null;
+            scope.SetNpcTargetToNoneDrict();
+
             scope.transform.SetActive(false);
             return;
           }

@@ -322,6 +322,8 @@ export default {
       this.infocus = true;
     },
     removeEventListener() {
+      // console.log(" 点击 其他页面 threeJS 失去焦点   ");
+
       this.infocus = false;
       this.YJController.dispose();
       this.YJRaycaster.SetMouseDown(false);

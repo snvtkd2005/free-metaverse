@@ -324,7 +324,7 @@ export default {
 
     clickEvent(e) {
       if (e == "关闭窗口") {
-        _Global.applyEvent("界面开关", "bag", false);
+        _Global.applyEvent("界面开关", "bagBase", false);
       }
     },
     checkDragFromIndex() {

@@ -60,7 +60,7 @@ class YJGeometry {
         // }else{
         //   _this._YJSceneManager.AddCollider(item);
         // }
-        console.log(" 创建碰撞体 ", size);
+        // console.log(" 创建碰撞体 ", size);
         _this._YJSceneManager.CreateTriangeMeshCollider(mesh, size);
       }
       if (data.isTrigger) {
@@ -105,20 +105,11 @@ class YJGeometry {
       }
     }
     this.Reset = function () {
-      // createLater = setTimeout(() => {
-      //   Init();
-      // }, 200);
-    }
-    this.CreateTrigger = function () {
-      this.Destroy();
-      // return;
-
-    }
-    
-    this.DestroyTrigger = function () {
-      this.Destroy(); 
-    }
-    
+      createLater = setTimeout(() => {
+        // console.error("in YJGeometry Reset = ", data);
+        Init()
+      }, 200);
+    }  
     //删除模型
     this.Destroy = function () {
       if (createLater != null) {
@@ -126,23 +117,25 @@ class YJGeometry {
         createLater = null;
       }
 
-      this.DestroyCollider();
-    }
-    this.DestroyCollider = function () {
+      // console.log("in YJGeometry Destroy = ", data,mesh);
+
       if (mesh != null) {
         //删除碰撞体 
         _this._YJSceneManager.RemoveCollider(mesh);
         _this._YJSceneManager.ClearMesh(mesh);
         mesh = null;
       }
-    }
+
+    } 
 
     let data = null;
     this.SetMessage = function (msg) {
       if (msg == null || msg == undefined || msg == "") { return; }
       // data = JSON.parse(msg);
+
       data = (msg);
       // console.log("in YJGeometry msg = ", data);
+ 
       Init();
     }
 

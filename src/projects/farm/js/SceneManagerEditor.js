@@ -799,13 +799,7 @@ class SceneManager {
     this.GetTargetModel  =function(){
       return targetModel;
     }
-    this.SetTargetSkill = function (npcId, skill) {
-      // if (targetModel == null) { return; }
-      // if (targetModel.id == npcId) {
-      //   indexVue.$refs.HUD.$refs.headerUI.SetSkill(skill);
-      // }
-      //
-    }
+    
     this.SetTargetModel = function (transform) {
       _Global.hasTarget = transform != null;
       if (targetModel != null) {
@@ -820,9 +814,7 @@ class SceneManager {
       oldTarget = targetModel;
 
       if (targetModel == null) {
-        if (indexVue.$refs.HUD) {
-          indexVue.$refs.HUD.$refs.headerUI.display = false;
-        }
+        _Global.applyEvent("取消选中角色");
         ClearProjector();
         _Global.YJ3D._YJSceneManager.GetTransformManager().detach();
         return;
@@ -847,7 +839,9 @@ class SceneManager {
       if (target.GetCamp() != _Global.user.camp) {
         camp = "enmity";
       }
-
+      if (target.GetCamp() == 10001) {
+        camp = "friendy";
+      }
       if(isYJNPC){
 
         let message = targetModel.GetData().message;
@@ -859,13 +853,14 @@ class SceneManager {
         // console.log(" 设置目标头像 targetModel ", targetModel);
         targetModel.AddHandle((data) => {
           if (data.baseData.health == 0) {
-            indexVue.$refs.HUD.$refs.headerUI.display = false;
+            _Global.applyEvent("取消选中角色");
+            
             ClearProjector();
             return;
-          }
-          indexVue.$refs.HUD.$refs.headerUI.SetTarget(data,target.GetNickName());
+          }      
+          _Global.applyEvent("选中角色",targetModel.GetComponent("NPC"));
         });
-        indexVue.$refs.HUD.$refs.headerUI.SetTarget(message.data,target.GetNickName());
+        _Global.applyEvent("选中角色",targetModel.GetComponent("NPC"));
         return;
       }
       
@@ -879,13 +874,15 @@ class SceneManager {
         // console.log(" 设置目标头像 targetModel ", targetModel);
         targetModel.AddHandle((data) => {
           if (data.baseData.health == 0) {
-            indexVue.$refs.HUD.$refs.headerUI.display = false;
+            _Global.applyEvent("取消选中角色");
             ClearProjector();
             return;
-          }
-          indexVue.$refs.HUD.$refs.headerUI.SetTarget(data,target.GetNickName());
-        });
-        indexVue.$refs.HUD.$refs.headerUI.SetTarget(data,target.GetNickName());
+          }      
+          _Global.applyEvent("选中角色",targetModel);
+
+        }); 
+      _Global.applyEvent("选中角色",targetModel);
+
 
     }
 
@@ -902,6 +899,10 @@ class SceneManager {
         _YJProjector.SetActive(false);
         oldTarget = null;
         ChangeTarget();
+      }
+      
+      if (_this.$parent.$parent.ClickFloor) {
+        _this.$parent.$parent.ClickFloor();
       }
     }
     // 删除脚下光标
@@ -921,6 +922,8 @@ class SceneManager {
 
       console.log(" 右键点击 ", hitObject);
       if(hitObject == null){
+        // 点击空白位置 
+        ClearTarget();
         return;
       }
       if (hitObject.transform) {
@@ -985,6 +988,9 @@ class SceneManager {
       if (baseData.camp != _Global.user.camp) {
         camp = "enmity";
       }
+      if (baseData.camp == 10001) {
+        camp = "friendy";
+      }
       if (baseData.health == 0) {
         camp = "dead";
       }
@@ -995,14 +1001,16 @@ class SceneManager {
       data.baseData = baseData;
       player.AddHandle((baseData) => {
         if (baseData.health == 0) {
-          indexVue.$refs.HUD.$refs.headerUI.display = false;
+          _Global.applyEvent("取消选中角色");
+          
           ClearProjector();
           return;
         }
-        data.baseData = baseData;
-        indexVue.$refs.HUD.$refs.headerUI.SetTarget(data);
-      });
-      indexVue.$refs.HUD.$refs.headerUI.SetTarget(data);
+        data.baseData = baseData;      
+        _Global.applyEvent("选中角色",player);
+
+      }); 
+      _Global.applyEvent("选中角色",player);
 
       // 点击npc，播放其音效
       // console.log(owner);

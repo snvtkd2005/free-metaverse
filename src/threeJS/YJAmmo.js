@@ -307,7 +307,7 @@ class YJAmmo {
     let later_stopFly = null;
     let upSpeed = 1;
     let flySpeed = 1;
-    let jumpForce = 2;
+    let jumpForce = 2.8;
     let downForce = 0; //下落的力
     this.addRigidBody = function (body) {
       physicsWorld.addRigidBody(body);

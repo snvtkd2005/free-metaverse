@@ -407,6 +407,8 @@ export default {
             // singleTransform.GetComponent("NPC").SetMessage(this.settingData);
             singleTransform.SetMessage(this.getMessage());
             _YJAnimator.ChangeAnimDirect("idle");
+            _Global.applyEvent("选中角色",singleTransform.GetComponent("NPC"));
+
           },
           (e) => { }
         );
@@ -472,11 +474,15 @@ export default {
         this.settingData.baseData['health'] = e;
       } 
 
-      if (property == "name" || property == "baseData-camp") {
+      if (property == "name" || property == "baseData-camp" ||property == "baseData-type" ) {
         // 控制三维
         _Global.YJ3D._YJSceneManager
           .GetSingleModelTransform()
           .SetMessage(this.getMessage());
+          let npc = _Global.YJ3D._YJSceneManager.GetSingleModelTransform().GetComponent("NPC");
+          //更新到头像上
+          _Global.applyEvent("选中角色",npc);
+          npc.ResetNameColor();
       }
       this.ChangeUIState();
 

@@ -1028,8 +1028,12 @@ export default {
       }
     },
     focus() {
+      // console.log(" in YJinputCtrl 取消焦点 ");
       if (this.$parent.$parent.removeThreeJSfocus) {
         this.$parent.$parent.removeThreeJSfocus();
+      }
+      if (this.$parent.$parent.$parent.removeThreeJSfocus) {
+        this.$parent.$parent.$parent.removeThreeJSfocus();
       }
     },
     blur() {},

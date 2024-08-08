@@ -338,21 +338,7 @@ class YJSceneDyncManagerEditor {
           _Global._YJPlayerFireCtrl.SetPlayerEvent("玩家加入战斗", fireId);
         } else {
 
-        }
-        // 玩家加入战斗后，让其镜像设置目标
-        // if (_Global.mainUser) {
-        //   let player = _YJFireManager.GetPlayerById(playerId);
-        //   if (player.playerMirrors && player.playerMirrors.length > 0) {
-        //     for (let i = 0; i < player.playerMirrors.length; i++) {
-        //       const mirrorId = player.playerMirrors[i];
-        //       let mirror = _YJFireManager.GetNpcById(mirrorId);
-        //       console.log("玩家加入战斗后，让其镜像设置目标", mirrorId);
-        //       let mirrorNpc = mirror.GetComponent("NPC");
-        //       mirrorNpc.fireId = fireId;
-        //       // mirrorNpc.CheckNextTarget();
-        //     }
-        //   }
-        // }
+        } 
         return;
       }
       if(type == "伤害跳字" ){
@@ -500,10 +486,7 @@ class YJSceneDyncManagerEditor {
 
       if (type == "npc技能" || type == "npc技能攻击" || type == "受到技能" || type == "解除技能") {
         let { fromType,targetType,fromId,targetId, skillItem } = state;
-        // if (type == "npc技能") {
-        //   // npc技能施法/吟唱状态
-        //   _SceneManager.SetTargetSkill(npcId, skill);
-        // }
+ 
         let fromModel = null;
         let targetModel = null;
         if(fromType == "玩家"){

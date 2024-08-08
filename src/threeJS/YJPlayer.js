@@ -557,6 +557,7 @@ class YJPlayer {
       return {
         avatarData: avatarData,
         baseData: baseData,
+        name:scope.GetNickName(),
       };
     }
     this.GetModelScale = function () {
@@ -595,6 +596,10 @@ class YJPlayer {
 
     let createNameTimes = 0;
     function getCampColor() {
+      // 敌对、友善、中立
+      if(scope.camp==10000){return 0xee0000;}
+      if(scope.camp==10001){return 0x00ee00;}
+      if(scope.camp==10002){return 0xeeee00;}
       return _Global.user.camp != scope.camp ? 0xee0000 : 0xbab8ff;
     }
     //创建姓名条参考物体

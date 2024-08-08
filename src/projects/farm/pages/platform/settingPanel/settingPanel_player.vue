@@ -675,12 +675,9 @@ export default {
       return [v3.x/scale,v3.y/scale,v3.z/scale];
     },
     save() {
-      
-      if(this.currentAnimData.path == ""){
-        this.parent.SetTip("请先上传动作文件");
-        return;
-      }
-      if (this.settingData.animationsExtendData == undefined) {
+      if(this.currentAnimData.animName != "" && this.currentAnimData.path != ""){
+
+        if (this.settingData.animationsExtendData == undefined) {
         this.settingData.animationsExtendData = [];
       }
       console.log("添加新动作 11 ",this.currentAnimData.animName , this.animName);
@@ -710,6 +707,7 @@ export default {
         this.settingData.animationsExtendData.push(JSON.parse(JSON.stringify(this.currentAnimData)));
       }
 
+      } 
       // 能保存的情况下，才显示保存按钮
       console.log("角色数据 ", this.settingData);
       // 单品中才有 updateModelTxtData

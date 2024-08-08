@@ -632,6 +632,7 @@ class YJMeshRenderer {
             _this._YJSceneManager.CreateTriangeMeshCollider(item, cSize);
             if (item.name.indexOf("land")) {
               _this._YJSceneManager.AddLandCollider(item);
+              // console.error("添加地面collider");
             } else {
               _this._YJSceneManager.AddCollider(item);
             }

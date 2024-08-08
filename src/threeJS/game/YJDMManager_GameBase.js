@@ -320,7 +320,8 @@ class YJDMManager_GameBase {
       _GameRecord = new GameRecord();
       let _YJGame_mainCtrl = new YJGame_mainCtrl();
 
-      let npcs = _Global._YJNPCManager.GetNoSameCampNPCInFire(1000);
+      // let npcs = _Global._YJNPCManager.GetNoSameCampNPCInFire(1000);
+      let npcs = _Global._YJNPCManager.GetAllVaildNPC();
       for (let i = 0; i < npcs.length; i++) {
         const npc = npcs[i];
 
@@ -329,9 +330,10 @@ class YJDMManager_GameBase {
             const element = damageFromData[i];
             if(element.fromId == _Global.user.id){
               // 根据伤害百分比来分配经验值
-              console.log("获得经验 ", npc.GetExp(),element.per,npc.GetExp() * element.per);
+              let exp = Math.round( npc.GetExp() * element.per);
+              console.log("获得经验 ", npc.GetExp(),element.per,npc.GetExp() * element.per,exp);
 
-              _GameRecord.addKill( npc.GetExp() * element.per );
+              _GameRecord.addKill(exp );
               _YJGame_mainCtrl.createGold(npc.GetWorldPos().clone());
               _Global.applyEvent("杀死npc",npc.GetNickName());
             }

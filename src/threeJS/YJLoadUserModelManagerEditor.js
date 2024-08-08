@@ -254,7 +254,9 @@ class YJLoadUserModelManager {
     }
     // 物体移动完成
     this.EditorEnd = function (transform) {
-      transform.EditorEnd();
+      if (_Global.setting.inEditor) {
+        transform.EditorEnd();
+      }
     }
 
     // 上传模型文件后生成
@@ -645,7 +647,7 @@ class YJLoadUserModelManager {
           return;
         }
       } 
-      loadQueue.push({ folderBase, msg: [], callback: [] });
+      loadQueue.push({ folderBase, msg: [msg], callback: [] });
       // console.log("loadQueue ",loadQueue);
       let path = _Global.YJ3D.$uploadUrl + folderBase + "/" + "data.txt" + "?time=" + new Date().getTime();
       _Global.YJ3D._YJSceneManager.LoadAssset(path, (modelData) => {
@@ -688,6 +690,7 @@ class YJLoadUserModelManager {
               }
             }
             _YJMeshMerged.ReMerged(idList, posList, scaleList); 
+
             continue;
           }
         }
@@ -795,9 +798,9 @@ class YJLoadUserModelManager {
       modelData.pos = pos;
 
       CreateTransform(parent, modelData, (object) => {
-        if (object) {
-          object.EditorEnd();
-        }
+        // if (object) {          
+        //   scope.EditorEnd(object);  
+        // }
         if (callback) {
           callback(object);
         }
@@ -1183,9 +1186,9 @@ class YJLoadUserModelManager {
       currentLoadCount++;
 
       CreateTransform(parent, modelData, (object) => {
-        if (object) {
-          object.EditorEnd();
-        }
+        // if (object) {
+        //   scope.EditorEnd(object); 
+        // }
         parent.attach(object.GetGroup());
         modelList.splice(0, 1);
 

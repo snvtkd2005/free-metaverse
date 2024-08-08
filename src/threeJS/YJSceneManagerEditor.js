@@ -1012,9 +1012,10 @@ class YJSceneManager {
       // 返回所有非静态模型
       // if(allHoverCollider.length == 0){
       // }
-      // return modelParent.children;
+      
+      return _Global.setting.inEditor ? modelParent.children : allHoverCollider;
       // return scene.children;
-      return allHoverCollider;
+      // return allHoverCollider;
     }
 
     let allCollider = [];
@@ -2122,25 +2123,7 @@ class YJSceneManager {
             _Global.SendMsgTo3D("显示隐藏九宫格");
           }
         }
-      });
-
-      window.addEventListener('mousedown', function (event) {
-        switch (event.button) {
-          //鼠标左键
-          case THREE.MOUSE.LEFT:
-            break;
-          case THREE.MOUSE.MIDDLE:
-            break;
-
-          //鼠标右键
-          case THREE.MOUSE.RIGHT:
-            if (_this.$parent.$parent.ClickFloor) {
-              _this.$parent.$parent.ClickFloor();
-            }
-            break;
-        }
-
-      });
+      }); 
     }
     this.displayCollider = function (b) {
       colliderVisible = b;

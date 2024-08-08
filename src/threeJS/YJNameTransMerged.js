@@ -138,7 +138,7 @@ class YJNameTransMerged {
       _Global.YJ3D.scene.remove(_InstancedMesh);
 
       if (_posList.length == 0) {
-        console.log( "姓名条数量为0");
+        // console.log( "姓名条数量为0");
         return;
       }
 

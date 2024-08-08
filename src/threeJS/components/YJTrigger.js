@@ -38,10 +38,9 @@ class YJTrigger {
         wireframe:_Global.setting.inEditor,
       });
       let plane = new THREE.Mesh(planeGeometry, planeMaterial);
-      plane.visible = false;
+      plane.visible = !_Global.setting.inEditor;
       plane.name = "trigger";
-      plane.modelType = "trigger";
-      plane.visible = false;
+      plane.modelType = "trigger"; 
       parent.add(plane);
       _this._YJSceneManager.CreateTriangeMeshTrigger(plane, size,
         triggerId, "triggerArea", owner); 

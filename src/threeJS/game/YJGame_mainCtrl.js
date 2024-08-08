@@ -83,8 +83,10 @@ class YJGame_mainCtrl {
 
         
         //把主播玩家带领的弹幕玩家的阵营也改变
-        _Global._YJDyncManager.SendSceneStateAll("转发", { type: "玩家改变阵营", 
-        state: {playerId:playerId,camp:camp} });
+        if(_Global._YJDyncManager){
+          _Global._YJDyncManager.SendSceneStateAll("转发", { type: "玩家改变阵营", 
+          state: {playerId:playerId,camp:camp} });
+        }
       });
 
     }

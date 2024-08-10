@@ -57,7 +57,44 @@ class Interface {
       let _gs = localStorage.getItem("GameSetting");
       if (_gs) {
         try {
-          _Global.GameSetting = JSON.parse(_gs);
+          let settingData = JSON.parse(_gs);
+          settingData.key2keytext = undefined;
+          // console.log(" settingData ",settingData);
+
+          let names = Object.getOwnPropertyNames(settingData);
+
+          // console.log(" settingData names ",names);
+
+          // 第一层主菜单
+          for (let i = 0; i < names.length; i++) {
+            const children = names[i];
+            if(children == "key2keytext"){
+              continue;
+            }
+            let childrennames = Object.getOwnPropertyNames(settingData[children]);
+            // console.log(" settingData 第二层菜单下分类 ",childrennames);
+            // 第二层菜单下分类
+            for (let j = 0; j < childrennames.length; j++) {
+              const element = childrennames[j];
+              if(element=="field"){
+                continue;
+              }
+              let ar = settingData[children][element];
+              let car = GameSetting[children][element]; 
+              for (let k = 0; k < ar.length; k++) {
+                // 第三层每一条
+                const arelement = ar[k];
+                for (let l = 0; l < car.length; l++) {
+                  const carelement = car[l];
+                  if( arelement.field == carelement.field){
+                    carelement.value =  arelement.value;
+                  }
+                }
+              } 
+            }
+          }
+          // console.log("_Global.GameSetting ",GameSetting);
+          _Global.GameSetting = GameSetting;
           _Global.user.camp = _Global.GameSetting.live.children[2].value;
         } catch (error) {
           console.log("_Global.GameSetting error ",error);
@@ -317,6 +354,11 @@ class Interface {
         _this.$uploadPlayerUrl + "task_data.txt" + "?time=" + new Date().getTime()
       );
       _Global.taskList = res.data;
+
+      res = await _this.$axios.get(
+        _this.$uploadPlayerUrl + "level_data.txt" + "?time=" + new Date().getTime()
+      );
+      _Global.levelList = res.data;
 
       // console.log("_Global.animList = ", _Global.animList);
       // console.log("_Global.propList = ", _Global.propList);

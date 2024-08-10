@@ -214,7 +214,7 @@ export default {
         { property: "setting-hasCamRaycast", display: true, title: "启用摄像机遮挡", type: "toggle", value: true, callback: this.ChangeValue },
         { property: "setting-multiGame", display: true, title: "启用多人模式", type: "toggle", value: true, callback: this.ChangeValue },
         { property: "setting-hasAvatar", display: true, title: "启用第三人称角色", type: "toggle", value: true, callback: this.ChangeValue },
-        { property: "setting-hasHUD", display: false, title: "是否有界面", type: "toggle", value: true, callback: this.ChangeValue },
+        { property: "setting-hasHUD", display: true, title: "是否有界面", type: "toggle", value: true, callback: this.ChangeValue },
         { property: "setting-targetRota", display: true, title: "上下角度限制", type: "vector2xy", step:0.01, value: true, callback: this.ChangeValue },
         // { property: "setting-cameraOffset", display: true, title: "视角中心偏移", type: "vector3xyz", step:0.01, value: true, callback: this.ChangeValue },
         {

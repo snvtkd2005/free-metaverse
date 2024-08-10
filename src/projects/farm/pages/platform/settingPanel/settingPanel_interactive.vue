@@ -57,15 +57,16 @@ export default {
         
         {
           property: "buff", display: true, title: "触发效果", type: "drop", value: "加护甲", options: [
-            { value: 'addArmor', label: '加护甲' },
-            { value: 'addHealth', label: '加生命' },
-            { value: 'addEnergy', label: '加能量' },
+            { value: 'armor', label: '加护甲' },
+            { value: 'health', label: '加生命' },
+            // { value: 'addEnergy', label: '加能量' },
             { value: 'addGold', label: '加金币' },
           ], callback: this.ChangeValue,
         },
+        { property: "buffValue", display: true, title: "触发效果值", type: "num", value: 0, callback: this.ChangeValue },
+
         { property: "type", display: true, title: "道具类型(同一种道具类型保持一致)", type: "text", value: "", callback: this.ChangeValue },
 
-        { property: "buffValue", display: true, title: "触发效果值", type: "num", value: 0, callback: this.ChangeValue },
         { property: "relifeTime", display: true, title: "重新生成间隔时间", type: "num", value: 0, callback: this.ChangeValue },
         { property: "describe", display: true, title: "道具描述", type: "textarea", value: "", callback: this.ChangeValue },
 
@@ -98,7 +99,9 @@ export default {
     },
     Init(data) {
       this.settingData = data;
-
+      if(this.settingData.volume == undefined){
+        this.settingData.volume = [1,1,1];
+      }
       console.log(" this.settingData ", this.settingData );
       // Utils.SetSettingItemByProperty(this.setting,"name",  this.settingData.name);
       // Utils.SetSettingItemByProperty(this.setting,"imgPath",  this.settingData.imgPath);
@@ -110,6 +113,8 @@ export default {
       this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
 
       this.Utils.SetSettingItemByProperty(this.setting, "volume", this.settingData.volume);
+      this.Utils.SetSettingItemByProperty(this.setting, "name", this.settingData.name || " ");
+      this.Utils.SetSettingItemByProperty(this.setting, "describe", this.settingData.describe || " ");
 
     },
     ChangeValue(i, e) {

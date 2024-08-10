@@ -45,6 +45,7 @@ export const SetSettingItemByPropertyAll = (setting, settingData) => {
   let names = Object.getOwnPropertyNames(settingData);
   for (let i = 0; i < names.length; i++) {
     const element = names[i];
+    if(!settingData[element]){continue;}
     let names2 = Object.getOwnPropertyNames(settingData[element]);
     if (typeof settingData[element] === 'object') {
       for (let j = 0; j < names2.length; j++) {
@@ -57,6 +58,12 @@ export const SetSettingItemByPropertyAll = (setting, settingData) => {
   }
 }
 
+/**
+ * 
+ * @param {改变object中同名property条目中'value'字段的值} object 
+ * @param {*} property 
+ * @param {*} value 
+ */
 export const SetSettingItemByProperty = (object, property, value) => {
   for (let i = 0; i < object.length; i++) {
     const element = object[i];
@@ -86,7 +93,7 @@ export const GetSettingItemByProperty = (object, property) => {
 
 /**
  * 
- * @param {*} object 
+ * @param {改变object中同名property条目中 同名property2 字段的值} object 
  * @param {*} property 
  * @param {*} property2 
  * @param {*} value 

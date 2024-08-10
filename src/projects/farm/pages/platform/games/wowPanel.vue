@@ -214,6 +214,7 @@ export default {
       inDraging: false,
       dragIcon: "",
       delDialog: false,
+      hoverOffsetPos:{ x: 0, y: 0 },//编辑模式悬浮偏移要让开顶部高度和检视面板宽度  
     };
   },
   created() {},
@@ -295,8 +296,11 @@ export default {
       //   _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(_YJController_roguelike);
       // }
       _Global.YJ3D.YJRaycaster.addEventListener("mousePos", (x, y) => {
-        this.dragPos.x = (0.5 + x / 2) * window.innerWidth;
-        this.dragPos.y = (0.5 - y / 2) * window.innerHeight;
+        // this.dragPos.x = (0.5 + x / 2) * window.innerWidth;
+        // this.dragPos.y = (0.5 - y / 2) * window.innerHeight;
+        
+        this.dragPos.x = x;
+        this.dragPos.y = y;
         // console.log("mousePos ",this.dragPos.x,this.dragPos.y);
       });
 
@@ -397,6 +401,10 @@ export default {
       }
     },
     mousePos(x, y) {
+      if(_Global.setting.inEditor){
+        this.hoverOffsetPos.x = localStorage.getItem("hierarchyStyle_width");
+        this.hoverOffsetPos.y = 40;
+      } 
       this.dragPos.x = x;
       this.dragPos.y = y;
     },
@@ -785,8 +793,10 @@ export default {
           offsetX -= rect2;
           this.inRightOrder = true;
         }
-        this.newDiv.style.top = parseInt(rect.top) + offsetY + "px";
-        this.newDiv.style.left = parseInt(rect.left) + offsetX + "px";
+
+
+        this.newDiv.style.left = parseInt(rect.left) + offsetX -this.hoverOffsetPos.x+ "px";
+        this.newDiv.style.top = parseInt(rect.top) + offsetY -this.hoverOffsetPos.y+ "px";
         this.newDiv.style.opacity = 1;
       });
 

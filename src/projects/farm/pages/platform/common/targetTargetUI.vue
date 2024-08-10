@@ -2,7 +2,7 @@
 <template>
   <div
     v-if="display"
-    class="absolute left-64 top-2 flex text-white origin-top-left transform scale-50 xl:scale-100"
+    class="absolute left-96 top-24 ml-20 flex text-white origin-top-left transform scale-50 xl:scale-100"
     style="width: 273px; height: 109px"
     @mouseenter="hover = true"
     @mouseleave="hover = false"
@@ -35,7 +35,7 @@
             <div class="w-5 h-5 bg-gray-500">
               <img
                 class="w-full h-full"
-                :src="this.$uploadUVAnimUrl + debuff.icon"
+                :src=" debuff.icon"
                 alt=""
               />
             </div>
@@ -71,9 +71,9 @@
     />
 
     <!-- 生命法术条文字 -->
-    <div class="absolute left-1 top-7 w-health h-auto">
-      <div class="relative">
-        <div class="h-2 relative">
+    <div class="absolute left-1 top-10 w-health h-auto">
+      <div class="relative mt-1">
+        <div class="h-3 relative">
           <div
             v-if="hover"
             class="absolute left-0 top-0 w-full text-center text-xs transform scale-90"
@@ -81,7 +81,7 @@
             {{ this.baseData.health + "/" + this.baseData.maxHealth }}
           </div>
         </div>
-        <div class="mt-px h-2 relative">
+        <div class="mt-px h-3 relative">
           <div
             v-if="hover"
             class="absolute left-0 top-0 w-full text-center text-xs transform scale-90"
@@ -129,7 +129,7 @@
 import skillProgressUI from "./skillProgressUI.vue";
 
 export default {
-  name: "headerUI",
+  name: "targetTargetUI",
   components: {
     skillProgressUI,
   },
@@ -138,7 +138,7 @@ export default {
       // display: true,
       display: false,
       //npc头像
-      hover: false,
+      hover: true,
       playerImg: "",
       targetName: "hhh",
       energy: 100, //能量值
@@ -152,7 +152,7 @@ export default {
         health: 100, //生命值
         maxHealth: 100, //最大生命值
       },
-      headerBGUrl: "",
+      headerBGUrl: "./public/images/cursorList/headerBG_normal.png",
       headerBGUrlData: {
         normal: "./public/images/cursorList/headerBG_normal.png", //头像背景图 普通
         rare: "./public/images/cursorList/headerBG_rare.png", //  稀有
@@ -165,16 +165,7 @@ export default {
   created() {},
   mounted() {
     if (_Global.addEventListener) {
-      _Global.addEventListener(
-        "设置目标技能进度条",
-        (msg, skillName, reverse) => {
-          if (this.$refs.skillProgressUI) {
-            this.$refs.skillProgressUI.SetProgress(msg, skillName, reverse);
-          }
-        }
-      );
-
-      _Global.addEventListener("选中角色",(targetModel) => {
+      _Global.addEventListener("选中角色的目标",(targetModel) => {
           this.SetTarget(targetModel.GetData(), targetModel.GetNickName());
       });
       _Global.addEventListener("取消选中角色",() => {
@@ -185,6 +176,7 @@ export default {
   methods: {
     // 设置头像框上的角色名
     SetTarget(npcData,nickName) {
+      if(!_Global.GameSetting.control.playerCtrl[1].value){return;}
       // console.log(  " 设置 NPC 头像框上数据更新 111 ",npcData,this.baseData.camp);
 
       this.targetName = nickName;

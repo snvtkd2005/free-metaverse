@@ -2,6 +2,7 @@
 
 
 import * as THREE from "three";
+import { RandomInt } from "../../utils/utils";
 import { YJSkillModel } from "./YJSkillModel";
 
 class YJSkill {
@@ -778,9 +779,9 @@ class YJSkill {
                 if (targetType == "area") {
                     let max = skillItem.target.value;
                     areaTargets = _Global._YJFireManager.GetOtherNoSameCampInArea(owner.GetCamp(), vaildAttackDis, max, owner.GetWorldPos());
-                    if (owner.GetNickName().includes("居民")) {
-                        console.error(owner.GetNickName() + " 范围攻击目标 ", max, areaTargets);
-                    }
+                    // if (owner.GetNickName().includes("居民")) {
+                    //     console.error(owner.GetNickName() + " 范围攻击目标 ", max, areaTargets);
+                    // }
 
                     if(effect.controlId == "冰霜新星"){
                         let msg = {
@@ -960,6 +961,9 @@ class YJSkill {
                                 EventHandler("中断施法");
                                 return;
                             }
+                            let max = skillItem.target.value;
+                            areaTargets = _Global._YJFireManager.GetOtherNoSameCampInArea(owner.GetCamp(), vaildAttackDis, max, owner.GetWorldPos());
+                            
                             for (let l = 0; l < areaTargets.length; l++) {
                                 if (areaTargets[l].isDead) {
                                     continue;
@@ -1050,18 +1054,12 @@ class YJSkill {
         }
 
         let skillList = [];
-        let oldSkillList = [];
-        let hyperplasiaTimes = 0;
+        let oldSkillList = []; 
         
 
         // 施放不需要目标或目标是自身的技能 如 增生
         function SendSkill(effect, skillItem) {
             /**
-                        //增生
-            // if (type == "hyperplasia") {
-            // 	hyperplasiaTimes++;
-            // 	hyperplasia(modelData, 0, value, hyperplasiaTimes);
-            // }
             // //进化
             // if (type == "evolution") {
             // 	oldSkillList = JSON.parse(JSON.stringify(skillList));
@@ -1094,10 +1092,17 @@ class YJSkill {
             }
             //增生
             if (type == "hyperplasia") {
-                effect.times = hyperplasiaTimes;
-                let modelData = owner.GetData();
-                hyperplasiaTimes++;
-                hyperplasia(modelData, 0, value, hyperplasiaTimes);
+                let count = effect.times;
+                count = 1;
+                let modelData = null;
+                if(owner.isYJNPC){
+                    modelData = owner.transform.modelData;
+                }else{
+
+                }
+                for (let i = 0; i < count; i++) {
+                    hyperplasia(modelData);
+                }
             }
             //进化
             if (type == "evolution") {
@@ -1446,15 +1451,17 @@ class YJSkill {
 
 
         let hyperplasiaTrans = [];
-        function hyperplasia(modelData, num, count, times) {
+        function hyperplasia(modelData) {
             modelData = JSON.parse(JSON.stringify(modelData));
+            
             modelData.scale = { x: 1, y: 1, z: 1 };
             let data = modelData.message.data;
-            data.name = owner.GetNickName() + "的增生" + times + "_" + (num + 1);
+            data.skillList = [];
+            data.name = owner.GetNickName() + "的增生";
             let pos = owner.GetWorldPos();
-            modelData.pos.x = pos.x + (num + 1);
+            modelData.pos.x = pos.x + (RandomInt(-2,2));
             modelData.pos.y = pos.y;
-            modelData.pos.z = pos.z;
+            modelData.pos.z = pos.z + (RandomInt(-2,2));
             data.isCopy = true;
             if (data.baseData.maxHealth > 200) {
                 data.baseData.maxHealth = 200;
@@ -1463,18 +1470,12 @@ class YJSkill {
             data.baseData.health = data.baseData.maxHealth;
 
             // console.log("创建增生 ", data.name);
-            _Global._YJNPCManager.DuplicateNPCByModelData(modelData, owner.id + "_" + times + "_" + num, (transform) => {
-
+            _Global._YJNPCManager.DuplicateNPCByModelData(modelData, owner.id + "_" + new Date().getTime(), (transform) => {
                 let npcComponent = transform.GetComponent("NPC");
                 hyperplasiaTrans.push(npcComponent);
                 if (targetModel) {
                     npcComponent.SetNpcTarget(targetModel);
                     _Global._YJFireManager.NPCAddFireById(npcComponent, owner.fireId, targetModel.id);
-                }
-                num++;
-                if (num == count) {
-                } else {
-                    hyperplasia(modelData, num, count, times);
                 }
             });
         }

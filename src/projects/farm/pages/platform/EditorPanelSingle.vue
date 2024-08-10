@@ -115,12 +115,6 @@
     <skillSelectPanel ref="skillSelectPanel" />
     <animPanel ref="animPanel" />
     <boneConvertPanel ref="boneConvertPanel" />
-
-
-    <!-- 左上角血条头像 -->
-    <!-- <div class=" absolute left-24 top-10">
-      <headerUI ref="headerUI" />
-    </div> -->
     <loadingPanel class="absolute z-50 left-0 top-0" ref="loadingPanel" />
   </div>
 </template>
@@ -145,8 +139,7 @@ import settingPanel from "./settingPanel/settingPanelSimple.vue";
 import loadingPanel from "./loadingPanel2.vue";
 
 import settingPanelCtrl from "./settingPanel/settingPanelCtrl.vue";
-
-import headerUI from "./common/headerUI.vue";
+ 
 import skillProgressUI from "./common/skillProgressUI.vue";
 
 import addComponent from "./components/addComponent.vue";
@@ -168,8 +161,7 @@ export default {
     settingPanelCtrl,
     settingPanel,
     addComponent,
-    PanelCut,
-    headerUI,
+    PanelCut, 
     skillProgressUI,
   },
   data() {

@@ -44,6 +44,7 @@ export default {
       { content: "技能" },
       { content: "道具" },
       { content: "任务" },
+      { content: "角色等级属性" },
     ],
     templateList: [
       {

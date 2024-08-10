@@ -4,7 +4,6 @@
 
 
 
-import levelsData from "../../projects/farm/data/platform/levelsData";
 import roguelikeGameData from "../../projects/farm/data/platform/roguelikeGameData";
 import { toTime } from "../../utils/utils";
 
@@ -20,7 +19,7 @@ class GameRecord {
     let currentExp = 0;
     let currentKill = 0;
     let teamStats = roguelikeGameData.teamStats;
-    let needExpByLevels = levelsData.needExpByLevels;
+    let needExpByLevels = _Global.levelList;
     let record = teamStats.record;
     let level = 1;
     let needExpByLevel = needExpByLevels[level - 1];
@@ -63,6 +62,9 @@ class GameRecord {
     }
     this.addKill = function (exp) {
       record.kill++;
+      if(exp == undefined){
+        exp = 30;
+      }
       currentExp += exp;
       checkKillCount();
     }

@@ -120,30 +120,32 @@
             ></div>
           </div>
 
-          <div class="absolute left-10 bottom-0 text-left text-xs tracking-widest   text-white w-full h-28 px-8">
-            <div class="w-full h-auto flex ">
-              <div class="w-1/2 h-auto  border ">
-                <div class="  pl-2 border ">基础属性</div>
+          <div
+            class="absolute left-10 bottom-0 text-left text-xs tracking-widest text-white w-full h-28 px-8"
+          >
+            <div class="w-full h-auto flex">
+              <div class="w-1/2 h-auto border">
+                <div class="pl-2 border">基础属性</div>
                 <div
                   v-for="(item, i) in baseProperty"
                   :key="i"
                   class="flex px-1 w-auto h-auto leading-3.5 justify-between"
                 >
-                  <div class="text-yellow-wow ">{{ item.title }}:</div>
+                  <div class="text-yellow-wow">{{ item.title }}:</div>
                   <div>{{ item.value }}</div>
                 </div>
-              </div> 
-              <div class="w-1/2 h-auto  border ">
-                <div class="  pl-2 border ">法术</div>
+              </div>
+              <div class="w-1/2 h-auto border">
+                <div class="pl-2 border">法术</div>
                 <div
                   v-for="(item, i) in spellProperty"
                   :key="i"
                   class="flex px-1 w-auto h-auto leading-3.5 justify-between"
                 >
-                  <div class="text-yellow-wow ">{{ item.title }}:</div>
+                  <div class="text-yellow-wow">{{ item.title }}:</div>
                   <div>{{ item.value }}</div>
                 </div>
-              </div> 
+              </div>
             </div>
           </div>
         </div>
@@ -365,107 +367,12 @@ export default {
     setTimeout(() => {
       _Global.addEventListener("3d加载完成", () => {
         _Global._YJPlayerFireCtrl.addEventListener("更新装备", (equipList) => {
-          for (let i = 0; i < this.skillList.length; i++) {
-            const element = this.skillList[i];
-            // element.skill = {type:"equip",text:element.text};
-            for (let j = 0; j < equipList.length; j++) {
-              const equip = equipList[j];
-              if (equip.part && equip.part.toLowerCase() == element.part) {
-                element.icon = equip.icon;
-                element.skill = equip;
-              }
-            }
-          }
-          for (let i = 0; i < this.skillList2.length; i++) {
-            const element = this.skillList2[i];
-            // element.skill = {type:"equip",text:element.text};
-            for (let j = 0; j < equipList.length; j++) {
-              const equip = equipList[j];
-              if (equip.part && equip.part.toLowerCase() == element.part) {
-                element.icon = equip.icon;
-                element.skill = equip;
-              }
-            }
-          }
-          for (let i = 0; i < this.skillList3.length; i++) {
-            const element = this.skillList3[i];
-            // element.skill = {type:"equip",text:element.text};
-            for (let j = 0; j < equipList.length; j++) {
-              const equip = equipList[j];
-              if (equip.part && equip.part.toLowerCase() == element.part) {
-                element.icon = equip.icon;
-                element.skill = equip;
-              }
-            }
-          }
+          this.updatePanelByEquip(equipList);
         });
       });
       _Global.addEventListener("属性改变", (basedata) => {
-        this.property = basedata;
-
-        this.propertyList = [];
-        this.propertyList.push({
-          title: "生命值",
-          value: basedata.health + "/" + basedata.maxHealth,
-        });
-
-        let basicProperty = basedata.basicProperty;
-
-        this.propertyList.push({ title: "力量", value:  basicProperty.strength  });
-        this.propertyList.push({ title: "敏捷", value:  basicProperty.agile  });
-        this.propertyList.push({ title: "耐力", value:  basicProperty.endurance });
-        this.propertyList.push({ title: "智力", value:  basicProperty.intelligence });
-        this.propertyList.push({ title: "精神", value:  basicProperty.spirit  });
-
-        this.propertyList.push({ title: "护甲", value: basicProperty.armor });
-
-        this.propertyList.push({
-          title: "暴击率",
-          value: basicProperty.CriticalHitRate,
-        });
-        this.propertyList.push({
-          title: "暴击等级",
-          value: basicProperty.CriticalHitLevel,
-        });
-        this.propertyList.push({
-          title: "攻击速度",
-          value: basicProperty.attackSpeed,
-        });
-        this.propertyList.push({
-          title: "攻击强度",
-          value: basicProperty.attackPower,
-        });
-        this.propertyList.push({
-          title: "移动速度",
-          value: basicProperty.moveSpeed,
-        });
-        this.propertyList.push({
-          title: "急速等级",
-          value: basicProperty.hasteLevel,
-        });
-        this.propertyList.push({
-          title: "急速冷却",
-          value: basicProperty.CDRate,
-        });
-
-        this.baseProperty = [];
-        for (let i = 0; i < this.propertyList.length; i++) {
-          const element = this.propertyList[i];
-          if (
-            element.title == "力量" ||
-            element.title == "敏捷" ||
-            element.title == "耐力" ||
-            element.title == "智力" ||
-            element.title == "精神" ||
-            element.title == "护甲"
-          ) {
-            this.baseProperty.push(element);
-          }
-        }
-
-        // console.log(" 属性改变 ",this.property);
+        this.updatePanelProperty(basedata);
       });
- 
 
       _Global.addEventListener("主角头像", (s) => {
         // console.log("主角头像", s);
@@ -478,6 +385,26 @@ export default {
 
       _Global.addEventListener("主角死亡", () => {});
       _Global.addEventListener("战斗开始", () => {});
+
+      if (_Global.setting.inEditor) {
+        // 编辑模式，选中npc显示其属性面板
+        _Global.addEventListener("选中角色", (targetModel) => {
+          let data = targetModel.GetData();
+          console.log(" in 角色面板 ", targetModel, data);
+          this.playerName = targetModel.GetNickName();
+          this.playerImg = this.$uploadUrl + data.avatarData.id + "/thumb.png";
+
+          this.updatePanelProperty(data.baseData);
+
+          //装备
+          // console.log(" in 角色面板 装备 ",targetModel.GetEquip().GetEquipList());
+          this.updatePanelByEquip(targetModel.GetEquip().GetEquipList());
+          targetModel.addEventListener("更新装备", (equipList) => {
+            // console.log(" in 角色面板 更新装备 ",equipList);
+            this.updatePanelByEquip(equipList);
+          });
+        });
+      }
     }, 1000);
 
     for (let i = 0; i < this.skillList.length; i++) {
@@ -495,6 +422,120 @@ export default {
   },
 
   methods: {
+    updatePanelProperty(basedata) {
+      // console.log(" 属性改变 ",this.property);
+      this.property = basedata;
+      this.propertyList = [];
+      this.propertyList.push({
+        title: "生命值",
+        value: basedata.health + "/" + basedata.maxHealth,
+      });
+
+      let basicProperty = basedata.basicProperty;
+
+      this.propertyList.push({
+        title: "力量",
+        value: basicProperty.strength,
+      });
+      this.propertyList.push({ title: "敏捷", value: basicProperty.agile });
+      this.propertyList.push({
+        title: "耐力",
+        value: basicProperty.endurance,
+      });
+      this.propertyList.push({
+        title: "智力",
+        value: basicProperty.intelligence,
+      });
+      this.propertyList.push({ title: "精神", value: basicProperty.spirit });
+
+      this.propertyList.push({ title: "护甲", value: basicProperty.armor });
+
+      this.propertyList.push({
+        title: "暴击率",
+        value: basicProperty.CriticalHitRate,
+      });
+      this.propertyList.push({
+        title: "暴击等级",
+        value: basicProperty.CriticalHitLevel,
+      });
+      this.propertyList.push({
+        title: "攻击速度",
+        value: basicProperty.attackSpeed,
+      });
+      this.propertyList.push({
+        title: "攻击强度",
+        value: basicProperty.attackPower,
+      });
+      this.propertyList.push({
+        title: "移动速度",
+        value: basicProperty.moveSpeed,
+      });
+      this.propertyList.push({
+        title: "急速等级",
+        value: basicProperty.hasteLevel,
+      });
+      this.propertyList.push({
+        title: "急速冷却",
+        value: basicProperty.CDRate,
+      });
+
+      this.baseProperty = [];
+      for (let i = 0; i < this.propertyList.length; i++) {
+        const element = this.propertyList[i];
+        if (
+          element.title == "力量" ||
+          element.title == "敏捷" ||
+          element.title == "耐力" ||
+          element.title == "智力" ||
+          element.title == "精神" ||
+          element.title == "护甲"
+        ) {
+          this.baseProperty.push(element);
+        }
+      }
+    },
+    updatePanelByEquip(equipList) {
+      if (equipList == undefined) {
+        return;
+      }
+      for (let i = 0; i < this.skillList.length; i++) {
+        const element = this.skillList[i];
+        element.skill = null;
+        // element.skill = {type:"equip",text:element.text};
+        for (let j = 0; j < equipList.length; j++) {
+          const equip = equipList[j];
+          if (equip.part && equip.part.toLowerCase() == element.part) {
+            element.icon = equip.icon;
+            element.skill = equip;
+          }
+        }
+      }
+      for (let i = 0; i < this.skillList2.length; i++) {
+        const element = this.skillList2[i];
+        element.skill = null;
+        // element.skill = {type:"equip",text:element.text};
+        for (let j = 0; j < equipList.length; j++) {
+          const equip = equipList[j];
+
+          if (equip.part && equip.part.toLowerCase() == element.part) {
+            element.icon = equip.icon;
+            element.skill = equip;
+          }
+        }
+      }
+      for (let i = 0; i < this.skillList3.length; i++) {
+        const element = this.skillList3[i];
+        element.skill = null;
+        // element.skill = {type:"equip",text:element.text};
+        for (let j = 0; j < equipList.length; j++) {
+          const equip = equipList[j];
+          if (equip.part && equip.part.toLowerCase() == element.part) {
+            element.icon = equip.icon;
+            element.skill = equip;
+          }
+        }
+      }
+    },
     cancelDrag(e) {
       //取消装备模型，把装备放入背包
       let item = null;

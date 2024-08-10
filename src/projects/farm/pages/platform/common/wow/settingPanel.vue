@@ -143,6 +143,15 @@
                           :callback="(e)=>{item2.value=e;ChangeValue(item2.field,e);}"
                         />
                       </div> 
+
+                      <div v-if="item2.type == 'toggle'" class="w-4 h-6 flex ">
+                        <YJinput_toggle
+                          class="w-4 h-4 self-center"
+                          :index="i"
+                          :value="item2.value"
+                          :callback="(i,e)=>{item2.value=e;ChangeValue(item2.field,e);}"
+                        ></YJinput_toggle>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -222,6 +231,7 @@
  
 import YJinput_drop from '../../components/YJinput_drop.vue';
 import YJinput_text from '../../components/YJinput_text.vue';
+import YJinput_toggle from '../../components/YJinput_toggle.vue';
 import YJinput_password from '../../components/YJinput_password.vue';
 import GameSettingData from "../../../../data/platform/GameSettingData";
 
@@ -231,6 +241,7 @@ export default {
     YJinput_drop,
     YJinput_text,
     YJinput_password,
+    YJinput_toggle,
   },
   data() {
     return {

@@ -323,8 +323,8 @@ class YJNPCManager {
           continue;
         }
         if (npcComponent.isCanSetTarget()) {
-          let npcPos = element.GetWorldPos();
-          let distance = npcComponent.distanceTo(npcPos); 
+          let npcPos = npcComponent.GetWorldPos();
+          let distance = playerPos.distanceTo(npcPos); 
           let b = _Global.YJ3D._YJSceneManager.checkPlayerForward(npcPos);
           // console.log(" 前方npc是否可用tab选择 ",distance,b);
           if (distance <= 40 && b) {

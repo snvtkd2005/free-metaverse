@@ -151,11 +151,7 @@ class SceneManager {
               scope.OutCar();
               InDriving = false;
             }
-          }
-
-          // if (_this._YJSceneManager) {
-          //   _this._YJSceneManager.ClickInteractive();
-          // }
+          } 
         }
 
 
@@ -632,43 +628,42 @@ class SceneManager {
         // 角色死亡后不接收道具效果
         return;
       }
-
-      if (model.buff == "addHealth") {
-        //加生命值
-        // data.buffValue
-        let v = _this.YJController.GetUserDataItem("baseData", "health") + model.buffValue;
-        let maxHealth = _this.YJController.GetUserDataItem("baseData", "maxHealth");
-        if (v >= maxHealth) {
-          v = maxHealth;
-        }
-        _this.YJController.SetUserDataItem("baseData", "health", v);
-
-      }
-      if (model.buff == "addArmor") {
-        //加护甲值
-        // data.buffValue
-        let oldV = _this.YJController.GetUserDataItem("baseData", "armor");
-        // console.log(" 旧护甲值为 ", oldV," 加 "+ model.buffValue);
-        let v = oldV + model.buffValue;
-        // console.log(" 新护甲值为 ", v);
-
-        _this.YJController.SetUserDataItem("baseData", "armor", v);
-      }
-
-      if (model.buff == "addEnergy") {
-        //加能量值
-        // data.buffValue
-        let oldV = _this.YJController.GetUserDataItem("baseData", "energy");
-        // console.log(" 旧能量值为 ", oldV," 加 "+ model.buffValue);
-        let v = oldV + model.buffValue;
-        // console.log(" 新能量值为 ", v);
-
-        _this.YJController.SetUserDataItem("baseData", "energy", v);
-      }
-
+      
       if (model.buff == "addGold") {
         _Global._YJPlayerFireCtrl.GetProperty().updateBasedata({value:1,property:"gold"});
+        return;
       }
+
+      let propItem = {
+        id:'',
+        type:"prop",
+        name: "",
+        useType: 'consumables', //道具效果类型
+        propType: 'potion', //道具效果类型
+        effectType: "playerProperty", //效果类型：增加角色属性
+        property: '',// 角色属性字段
+        displayType:"none",//显示方式
+        qualityType: "normal",
+        bindingType: "bindinged",
+        countType: "group",
+        count:1, //当前数量
+        groupCount:20, //可堆叠物体一组最多堆叠数量
+        value: 0, //效果值
+        icon: "", //图标
+        CD:0,// 冷却时间
+        describe: "使用：", //描述
+      }; 
+      propItem.id =  model.type;
+      propItem.value =  model.buffValue;
+      propItem.icon =  model.imgPath;
+      propItem.name =  model.name;
+      propItem.describe += model.describe;
+      propItem.property = model.buff;
+      _Global.applyEvent("加道具",[{skill:propItem}]);
+
+      // let oldV = _this.YJController.GetUserDataItem("baseData", "armor");
+      // let v = oldV + model.buffValue;
+      // _this.YJController.SetUserDataItem("baseData", "armor", v);
     }
 
     let laterSitting = null;

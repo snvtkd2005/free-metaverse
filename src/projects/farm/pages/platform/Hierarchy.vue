@@ -47,7 +47,7 @@
           </div>
           <div
             class="w-11/12 flex justify-between cursor-pointer relative"
-            @click="SelectModel(item)"
+            @click="SelectModel(item,i)"
             :class="
               selectUUID == item.uuid
                 ? ' bg-black  hover:bg-black '
@@ -78,8 +78,7 @@
               class="w-2/3 self-center truncate"
               :style="'padding-left:' + item.paddingLeft + 'px;'"
             >
-              {{ item.name + "-" + item.modelId }}
-              {{ item.modelType == "NPC模型" ? item.npcName : "" }}
+              {{ item.name + "-" + item.modelId }} 
             </div>
             <div class="self-center text-left truncate w-12">
               {{ item.modelType }}
@@ -159,6 +158,25 @@ export default {
       _Global.mouseY = event.clientY ;
       // console.log( _Global.mouseX,_Global.mouseY);
     });
+
+
+    setTimeout(() => {
+      _Global.addEventListener("改变modelId或名称", (data) => { 
+        this.upadteDataByUUID(data); 
+      });
+      _Global.addEventListener("keycodeUp", (keycode) => { 
+        console.log("keycodeUp", (keycode));
+        if(keycode == 'ArrowUp'){
+          this.selectIndex--;
+          this.SelectModelByIndex(this.selectIndex);
+        }
+        if(keycode == 'ArrowDown'){
+          this.selectIndex++;
+          this.SelectModelByIndex(this.selectIndex);
+        }
+      }); 
+
+    }, 2000);
 
     if (this.newDiv == null) {
       this.newDiv = document.createElement("div");
@@ -356,7 +374,7 @@ export default {
       }
     },
     resetPanel(modelList) {
-      console.log(" modelList data  = ", modelList);
+      console.error(" modelList data  = ", modelList);
 
       this.modelList = [];
 
@@ -426,18 +444,43 @@ export default {
       this.dragOnTop = false;
     },
 
+    upadteDataByUUID(data){
+      for (let i = 0; i < this.modelList.length; i++) {
+        const element = this.modelList[i];
+        if (element.uuid == data.uuid) {
+          element.name = data.name;
+          element.modelId = data.modelId;
+        }
+      }
+    },
     // 在3d中点击模型，反向设置检视面板选中状态
     SelectModelBy3d(uuid) {
       for (let i = 0; i < this.modelList.length; i++) {
         const element = this.modelList[i];
         if (element.uuid == uuid) {
           this.selectUUID = uuid;
+          this.selectIndex = i;
+          return;
         }
       }
     },
-    // 点击检视面板选中模型
-    SelectModel(item) {
+    SelectModelByIndex(i) {
+      if(i>=this.modelList.length){
+        i=0;
+      }
+      if(i<0){
+        i=this.modelList.length-1;
+      }
+      let item = this.modelList[i];
       console.log(" 点击检视面板选中模型 ", item);
+      this.selectIndex = i;
+      this.selectUUID = item.uuid;
+      this.$parent.SetSelectTransformByUUID(item.uuid);
+    },
+    // 点击检视面板选中模型
+    SelectModel(item,i) {
+      console.log(" 点击检视面板选中模型 ", item);
+      this.selectIndex = i;
       this.selectUUID = item.uuid;
       this.$parent.SetSelectTransformByUUID(item.uuid);
     },

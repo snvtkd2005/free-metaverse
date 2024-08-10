@@ -450,7 +450,7 @@ class YJAnimator {
       if (!currentAction) {
         return;
       }
-      scale = scale.toFixed(2);
+      scale = scale.toFixed(1);
       if (oldScale == scale) {
         return;
       }

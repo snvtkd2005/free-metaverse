@@ -410,7 +410,11 @@
         <div v-if="currentTable == '任务'" class="gap-6 w-full mx-auto h-full">
           <taskPanel></taskPanel>
         </div>
-
+        
+        <div v-if="currentTable == '角色等级属性'" class="gap-6 w-full mx-auto h-full">
+          <levelPanel></levelPanel>
+        </div>
+        
       </div>
     </div>
 
@@ -710,6 +714,7 @@ import PlayerAnimData from "../../data/playerAnimSetting.js";
 import skillPanel from "./panels/skillPanel.vue";
 import propPanel from "./panels/propPanel.vue";
 import taskPanel from "./panels/taskPanel.vue";
+import levelPanel from "./panels/levelPanel.vue";
 
 import { Interface } from "../../js/Interface_editor.js";
 import SceneData from "../../data/sceneData.js";
@@ -738,6 +743,7 @@ export default {
     skillPanel,
     propPanel,
     taskPanel,
+    levelPanel,
   },
   data() {
     return {

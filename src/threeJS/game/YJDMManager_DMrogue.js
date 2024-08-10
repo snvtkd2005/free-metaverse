@@ -519,9 +519,10 @@ class YJDMManager_DMrogue {
       if (npc == null) {
         return;
       }
+      _Global._YJPlayerFireCtrl.SetInteractiveNPC(npc);
+
       let npcTransform = npc.transform;
       if (npcTransform) {
-        _Global._YJPlayerFireCtrl.SetInteractiveNPC(npcTransform);
       } else {
         // _Global._YJPlayerFireCtrl.shootTargetPos(tagetPos.clone(), "time");
       }
@@ -646,7 +647,7 @@ class YJDMManager_DMrogue {
       })
 
 
-      _Global._YJPlayerFireCtrl.GetEquip().initWeapon({ assetId: 1692787200597 }, () => {
+      _Global._YJPlayerFireCtrl.GetEquip().addEquip({ assetId: 1692787200597 }, () => {
         _Global._YJPlayerFireCtrl.SetPlayerState("normal");
       });
       _Global._YJPlayerFireCtrl.SetState('canMoveAttack', true);

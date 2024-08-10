@@ -819,7 +819,7 @@ class YJFireManager {
         return false;
       }
       console.error(" 战斗双方只剩一方 ");
-      _Global.applyEvent("战斗结束", camp);
+      _Global.applyEvent("战斗结束", sameCamp);
     }
     this.ClearFire = function () {
       fireGroup = [];

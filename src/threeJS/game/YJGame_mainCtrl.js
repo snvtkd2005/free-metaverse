@@ -88,6 +88,13 @@ class YJGame_mainCtrl {
           state: {playerId:playerId,camp:camp} });
         }
       });
+      _Global.addEventListener("overlapinteractive", (buff, pos) => {
+        if (buff == "addGold") {
+          YJSpriteMerged_gold.RemovePos(pos);
+        }
+        
+      });
+
 
     }
     function changeCtrlMode(e) {
@@ -139,11 +146,7 @@ class YJGame_mainCtrl {
           YJSpriteMerged_gold.SetAutoCollect(autoCollecting);
           YJSpriteMerged_gold.addPoint(pos);
           _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(YJSpriteMerged_gold);
-          _Global.addEventListener("overlapinteractive", (buff, pos) => {
-            if (buff == "addGold") {
-              YJSpriteMerged_gold.RemovePos(pos);
-            }
-          });
+
 
           YJSpriteMerged_gold.addEventListener("收集1个", () => {
             _Global._YJPlayerFireCtrl.GetProperty().updateBasedata({ value: 1, property: "gold" });

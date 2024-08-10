@@ -10,7 +10,7 @@
     <div class="cursor-pointer  bg-black bg-opacity-40 " @click=" ChangePanel('设置')">
       <p class="p-2">设置</p>
     </div>
-    <div class=" hidden   p-2 flex  h-10 text-center  cursor-pointer  bg-black bg-opacity-40  "
+    <div class=" p-2 flex  h-10 text-center  cursor-pointer  bg-black bg-opacity-40  "
       :class="panelState.model ? ' bg-opacity-80 ' : 'bg-opacity-40'" @click=" ChangePanel('模型')">
       <div class=" self-center">
         模型库
@@ -57,7 +57,7 @@ export default {
       openModelPanel: "设置",
       panelState: {
         setting: true,
-        model: true,
+        model: false,
       },
       fullScreen:false,
     };
@@ -73,6 +73,8 @@ export default {
       if(_Global.YJ3D && _Global.YJ3D._YJSceneManager){
         this.sceneSetting.hasDirectionalLight = _Global.YJ3D._YJSceneManager.GetSceneData().AmbientLightData.hasDirectionalLight;
       }
+      let height = localStorage.getItem("modelPanelStyle_height");
+      this.panelState.model = height!=0;
     }, 5000);
 
   },
@@ -96,6 +98,8 @@ export default {
       }
       if ("模型" == e) {
         this.panelState.model = !this.panelState.model;
+        localStorage.setItem("modelPanelStyle_height",this.panelState.model ?200:0);
+        this.parent.setPanelSize();
         this.parent.$refs.modelPanel.SetVisible(this.panelState.model);
         return;
       }

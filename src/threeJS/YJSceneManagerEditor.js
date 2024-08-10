@@ -622,7 +622,7 @@ class YJSceneManager {
       // return;
       // const size = 100;
       // const divisions = 10;
-
+      if(!_Global.setting.inEditor){return;}
       gridHelper = new THREE.GridHelper(size, divisions);
       scene.add(gridHelper); 
       gridHelper.position.set(0,y,0);
@@ -1634,6 +1634,7 @@ class YJSceneManager {
     let projectionUIDataList = [];
 
     this.DisplayProjectionUI = function (v,b) {
+      // console.log(" 设置 映射显示 ",v,b,projectionUIDataList);
       for (let i = 0; i < projectionUIDataList.length; i++) {
         const item = projectionUIDataList[i];
         if(item.tag==v || item.content == v){
@@ -1643,6 +1644,7 @@ class YJSceneManager {
       } 
     }
     this.AddProjectionUI = function (msg) {
+      // console.error("添加映射 ",msg);
       projectionUIList.push({ id: msg.tag, _hotPoint: msg.transform });
       projectionUIDataList.push({ id:msg.tag,display:true,content:msg.content,event:msg.event, pos: { x: 0, y: 0 } });
       // console.log("添加3转2", projectionUIList);

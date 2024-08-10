@@ -982,6 +982,7 @@ export default {
         }
         if (type == "选择装备") {
           selectModelTable = "装备模型";
+          selectModelTable2 = "武器模型";
         }
         
         if (type == "选择武器") {

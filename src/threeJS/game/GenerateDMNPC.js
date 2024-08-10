@@ -170,9 +170,8 @@ class GenerateDMNPC {
                     }
                   }
                   for (let j = 0; j < assetIdList.length; j++) {
-                    if (element.assetId == assetIdList[j]) {
-                      let posId = posIdList[j];
-                      _Global.YJ3D._YJSceneManager.DisplayProjectionUI(posId, true);
+                    if (element.assetId == assetIdList[j]) { 
+                      DisplayProjectionUI(posIdList[j]);
                     }
                   }
 
@@ -251,10 +250,13 @@ class GenerateDMNPC {
           }
         }
         if (!has) {
-          let posId = posIdList[j];
-          _Global.YJ3D._YJSceneManager.DisplayProjectionUI(posId, b);
+          DisplayProjectionUI( posIdList[j], b);
         }
       }
+    }
+    function DisplayProjectionUI(posId, b=true){
+      return;
+      _Global.YJ3D._YJSceneManager.DisplayProjectionUI(posId, b);
     }
     // 生成弹幕玩家
     function GanerateNPCFn(dmPlayer) {
@@ -262,7 +264,7 @@ class GenerateDMNPC {
         if (dmPlayer.assetId == assetIdList[j]) {
           let posId = posIdList[j];
           dmPlayer.posId = posId;
-          _Global.YJ3D._YJSceneManager.DisplayProjectionUI(posId);
+          DisplayProjectionUI(posId);
         }
       }
       dmPlayer.state = "run";
@@ -416,9 +418,13 @@ class GenerateDMNPC {
     function init() {
 
 
-      // console.error(" in Generate DM NPC"); 
+      console.log(" in Generate DM NPC"); 
       posRefList = _Global.YJ3D._YJSceneManager.GetPosRefList();
-
+      
+      for (let i = posIdList.length - 1; i >= 0; i--) {
+        let posId = posIdList[i];
+        _Global.YJ3D._YJSceneManager.DisplayProjectionUI(posId, false);
+      }
       // _Global.LogFireById(1711340121297)
 
       _Global.addEventListener("战斗结束", (msg) => {

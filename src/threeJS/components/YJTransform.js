@@ -100,18 +100,19 @@ class YJTransform {
       data.message = message;
 
       // 静态模型message为空
-      if(message == null){
+      if(message == null){ 
         this.SetActive(data.active);
         return;
       }
       if (message.pointType == "npc") {
+        data.name = message.data.name;
+
         let com = this.GetComponent("NPC");
         com.SetMessage(message.data);
         this.GetComponent("MeshRenderer").SetSize(message.data.avatarData.modelScale);
         this.GetComponent("MeshRenderer").SetRotaArray(message.data.avatarData.rotation);
         this.GetComponent("MeshRenderer").SetPosArray(message.data.avatarData.offsetPos);
         this.isYJNPC = true;
-
       }
       if (message.pointType == "player" || message.pointType == "avatar") {
         let com = this.GetComponent("Avatar");
@@ -244,12 +245,13 @@ class YJTransform {
         this.GetComponent("Trail").stop();
       }
     }
+    let doonce = 0;
     this.SetActive = function (b) {
       // console.error( " in SetActive ",b);
-      // if(group.visible == b){
-      //   return;
-      // }
-      
+      if(group.visible == b && doonce > 0){
+        return;
+      }
+      doonce++;
       group.visible = b;
       data.active = b;
 

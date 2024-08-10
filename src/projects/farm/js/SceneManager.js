@@ -151,12 +151,7 @@ class SceneManager {
         }
         if (key == "Digit8") {
           skillIndex = 7;
-        }
-        if(skillIndex>-1 && indexVue.$refs.HUD ){
-          indexVue.$refs.HUD.$refs.skillPanel_virus.ClickSkillIndex(skillIndex);
-        }
-
- 
+        } 
         if (key == "KeyM") {
           //   //  开关地图
           //   if (setting.keyM != undefined && setting.keyM && _this.$parent.clickOpenPanel) {

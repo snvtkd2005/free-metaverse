@@ -563,7 +563,8 @@ class YJPlayer {
     this.GetModelScale = function () {
       return nameScale;
     }
-
+    this.SetWeaponData = function(_weaponData){ 
+    }
     this.GetDamageTextPos = function () {
       let pos = scope.GetWorldPos().clone();
       pos.y += playerHeight * nameScale / 2;
@@ -642,6 +643,13 @@ class YJPlayer {
     // 添加事件监听
     this.addEventListener = function (e, fn) {
       eventList.push({ eventName: e, fn: fn });
+    }
+    this.removeEvent = function (e) {
+      for (let i = eventList.length -1 ; i >= 0 ; i--) {
+        if (eventList[i].eventName == e) {
+          eventList.splice(i,1);
+        }
+      }
     }
     // 执行事件
     this.applyEvent = function (e, v, v2, v3) {

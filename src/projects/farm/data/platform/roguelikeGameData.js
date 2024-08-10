@@ -72,7 +72,18 @@ export default {
       count: 2,//卡牌出现次数
     },
   ], 
-  
+  // 每个等级需要的exp
+  /**
+    level:1, //当前等级
+    exp:200,//当前等级升级所需经验值
+    rewardType:"",//升级时奖励类型。 道具items、技能skill
+    rewardIds:[],//奖励id
+    //当前等级需要击杀多少个敌人才能升级 
+   */
+    needExpByLevels:[
+      {level:1,exp:30,rewardType:"skill",},
+      {level:2,exp:70,rewardType:"items",}, 
+    ], 
 }
 
 

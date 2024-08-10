@@ -155,7 +155,7 @@ class YJGame_roguelike {
 
         });
 
-        _Global._YJPlayerFireCtrl.GetEquip().initWeapon(roguelikeGameData.weaponList[0], () => {
+        _Global._YJPlayerFireCtrl.GetEquip().addEquip(roguelikeGameData.weaponList[0], () => {
           _Global._YJPlayerFireCtrl.SetPlayerState("normal");
         });
         _Global._YJPlayerFireCtrl.SetState('canMoveAttack', true);

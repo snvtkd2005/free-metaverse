@@ -163,8 +163,8 @@ export default {
         item.hoverPart = "bagbase_" + i;
       }
 
-      // let list = _Global.propList;
-      // console.log(" 所有道具物品 ", list);
+      let list = _Global.propList;
+      console.log(" 所有道具物品 ", list);
       // //随机取出3张卡片
       // for (let i = 0; i < list.length; i++) {
       //   const item = list[i];
@@ -228,14 +228,26 @@ export default {
       });
 
       _Global.addEventListener("加道具", (rewardItems) => {
+        // console.log("加道具", (rewardItems));
         for (let i = 0; i < rewardItems.length; i++) {
           const skill = rewardItems[i].skill;
           let has = false;
           for (let j = 0; j < this.itemList.length && !has; j++) {
             const element = this.itemList[j];
-            if (element.skill == null) {
-              element.skill = skill;
-              has = true; 
+            //如果已有且可堆叠且未堆满
+            if(element.skill){
+              if(element.skill.id == skill.id 
+              && element.skill.countType == 'group'
+              && element.skill.count <  element.skill.groupCount
+              ){
+                element.skill.count++;
+                has = true; 
+              }
+            }else{
+              if (element.skill == null) {
+                element.skill = skill;
+                has = true; 
+              }
             }
           }
           this.updateAcionbar();

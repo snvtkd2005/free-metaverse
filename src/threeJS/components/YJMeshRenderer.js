@@ -294,11 +294,11 @@ class YJMeshRenderer {
                 //   }
                 // }
 
-                let cloneMat = item.material[0].clone();
-                for (let i = item.material.length-1; i >=1 ; i--) {
-                  item.material.splice(i,1);
-                }
-                item.material = cloneMat;
+                // let cloneMat = item.material[0].clone();
+                // for (let i = item.material.length-1; i >=1 ; i--) {
+                //   item.material.splice(i,1);
+                // }
+                // item.material = cloneMat;
               }else{ 
               }
             }

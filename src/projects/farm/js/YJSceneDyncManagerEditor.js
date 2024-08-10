@@ -53,10 +53,7 @@ class YJSceneDyncManagerEditor {
             }
             let model = element.message.data;
             // console.log("交互模型",model);
-            // indexVue.$refs.HUD.$refs.skillPanel_virus.initIcon({describe: model.describe,type: model.type, value: model.buffValue, imgPath:  model.imgPath });
-            if (indexVue && indexVue.$refs.HUD) {
-              indexVue.$refs.HUD.$refs.skillPanel_virus.initIcon(model);
-            }
+ 
 
             addVirus(model);
           }
@@ -565,10 +562,7 @@ class YJSceneDyncManagerEditor {
           if (!has) {
             dyncModelList.push(_state);
           }
-
-          if (_state.modelType == "交互模型") {
-            indexVue.$refs.HUD.$refs.skillPanel_virus.SetSkillCount({ type: _state.id, value: _state.state.value, count: _state.state.count });
-          }
+ 
         }
 
         for (let i = 0; i < sceneModels.length; i++) {
@@ -720,7 +714,7 @@ class YJSceneDyncManagerEditor {
           return;
         case "更新道具数量":
           if (model.modelType == "交互模型") {
-            indexVue.$refs.HUD.$refs.skillPanel_virus.SetSkillCount({ type: model.id, value: model.state.value, count: model.state.count });
+            // indexVue.$refs.HUD.$refs.skillPanel_virus.SetSkillCount({ type: model.id, value: model.state.value, count: model.state.count });
           }
           return;
           break;

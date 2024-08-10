@@ -22,6 +22,9 @@ class YJPlayerFireCtrl {
 		this.GetWeaponType = function () {
 			return weaponData;
 		}
+		this.SetWeaponData = function (_weaponData) {
+			weaponData = _weaponData;
+		}  
 		let baseData = null;
 		//玩家动作状态机
 		var PLAYERSTATE = {
@@ -56,9 +59,9 @@ class YJPlayerFireCtrl {
 		this.GetNickName = function () {
 			return _YJPlayer.GetNickName();
 		}
-		
-		this.addDamageFrom = function () { 
-		} 
+
+		this.addDamageFrom = function () {
+		}
 
 		this.CheckMaxDamage = function (fromId, value) {
 		}
@@ -85,12 +88,12 @@ class YJPlayerFireCtrl {
 				if (fromModel.GetCamp() == scope.GetCamp()) {
 					return;
 				}
- 
+
 				scope.SetInteractiveNPC(fromModel);
 
 				// ReadyFire();
 				// PlayerAddFire();
-				EventHandler("设置目标", targetModel); 
+				EventHandler("设置目标", targetModel);
 			}
 
 			if (!state.inFire) {
@@ -181,7 +184,7 @@ class YJPlayerFireCtrl {
 					break;
 				case "攻击":
 					state.canAttack = true;
-					break; 
+					break;
 				default:
 					break;
 			}
@@ -203,8 +206,8 @@ class YJPlayerFireCtrl {
 		this.LookatTarget = function (targetModel) {
 			_this.YJController.PlayerLookatPos(targetModel.GetWorldPos());
 		}
-		this.UseSkill = function(skillItem) {
-			_YJSkill.UseSkill(skillItem); 
+		this.UseSkill = function (skillItem) {
+			_YJSkill.UseSkill(skillItem);
 		}
 		this.UseProp = function (skillItem) {
 			UseProp(skillItem);
@@ -576,10 +579,10 @@ class YJPlayerFireCtrl {
 		}
 		function CheckCamp() {
 			let targetCamp = targetModel.GetCamp();
-			if(targetCamp==10001){return false;} //不可攻击友善目标
+			if (targetCamp == 10001) { return false; } //不可攻击友善目标
 			return targetCamp != _Global.user.camp;
 		}
-		this.CheckCanAttack = function(){
+		this.CheckCanAttack = function () {
 			return CheckCanAttack();
 		}
 		function CheckCanAttack() {
@@ -974,7 +977,7 @@ class YJPlayerFireCtrl {
 
 		}
 
-		this.SetInControl = function(b){
+		this.SetInControl = function (b) {
 			_this.YJController.SetEnabled(!b);
 			_this.YJController.SetAmmoEnabled(!b);
 		}

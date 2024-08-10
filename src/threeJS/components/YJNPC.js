@@ -152,13 +152,23 @@ class YJNPC {
 
     let data = null;
     let weaponData = null;
+    let incluesss = "装备测试";
+    function onlyLog() {
+      return scope.GetNickName().includes(incluesss);
+    }
+    this.SetWeaponData = function (_weaponData) {
+      weaponData = _weaponData;
+      // if (onlyLog()) {
+      //   console.error(scope.GetNickName() + " 武器数据 ", weaponData);
+      // }
+    }
     let npcPos = [];
     this.npcName = "";
     function getCampColor() {
       // 敌对、友善、中立
-      if(baseData.camp==10000){return 0xee0000;}
-      if(baseData.camp==10001){return 0x00ee00;}
-      if(baseData.camp==10002){return 0xeeee00;}
+      if (baseData.camp == 10000) { return 0xee0000; }
+      if (baseData.camp == 10001) { return 0x00ee00; }
+      if (baseData.camp == 10002) { return 0xeeee00; }
       return _Global.user.camp != baseData.camp ? 0xee0000 : 0xbab8ff;
     }
     this.SetName = function (v) {
@@ -309,7 +319,10 @@ class YJNPC {
       if (targetModel == null) { return null; }
       return targetModel.id;
     }
-
+    this.GetTargetModel = () => {
+      if (targetModel == null) { return null; }
+      return targetModel;
+    }
     function lookAtTargetPos() {
       if (navpath.length == 0) {
         return;
@@ -726,9 +739,6 @@ class YJNPC {
       this.npcName = data.name;
       fireBeforePos = scope.GetWorldPos();
 
-      if (!scope.transform.GetActive()) {
-        return;
-      }
       // console.log( scope.GetNickName() + "in NPC msg = ", scope.id, data);
 
 
@@ -755,6 +765,21 @@ class YJNPC {
       nameScale = data.avatarData.nameScale;
       playerHeight = data.avatarData.height;
 
+      _YJPlayerProperty = new YJPlayerProperty(scope);
+      _YJEquip = new YJEquip(scope);
+
+      if (data.skillList == undefined) {
+        data.skillList = [];
+      }
+
+      _YJSkill = new YJSkill(scope);
+
+      _YJBuff = new YJBuff(scope);
+
+      if (!scope.transform.GetActive()) {
+        return;
+      }
+
       CreateNameTrans(this.npcName);
       scope.CreateHealth();
       scope.transform.isIgnoreRaycast = true;
@@ -770,18 +795,6 @@ class YJNPC {
         }
       });
 
-      if (data.skillList == undefined) {
-        data.skillList = [];
-      }
-
-      _YJSkill = new YJSkill(scope);
-
-      _YJEquip = new YJEquip(scope);
-
-      if (_YJPlayerProperty == null) {
-        _YJPlayerProperty = new YJPlayerProperty(scope);
-      }
-      _YJBuff = new YJBuff(scope);
 
       // console.log(scope.GetNickName() + " 技能 ", skillList);
       if (data.canMove != undefined) {
@@ -795,45 +808,43 @@ class YJNPC {
         }
       }
 
-      if (data.weaponData && data.weaponData.message) {
-        weaponData = data.weaponData.message.data;
-        var { s, v, a, _ready } = GetSkillDataByWeapon(weaponData);
-        setVaildAttackDis(v);
-      }
+      setTimeout(() => {
 
+        skillList = data.skillList;
 
-      skillList = data.skillList;
+        if (!_Global.setting.inEditor) {
+          let baseSkillItem = JSON.parse(JSON.stringify(skillItem.skill));
+          baseSkillItem.level = 1;
+          //从武器中获取动作
+          var { s, v, a, _ready, _fire } = GetSkillDataByWeapon(weaponData);
+          setVaildAttackDis(v);
+          if (_ready) {
+            baseSkillItem.skillReadyAudio = _ready.audio;
+            baseSkillItem.skillReadyParticleId = _ready.particle;
+          }
+          if (_fire) {
+            baseSkillItem.skillFireAudio = _fire.audio;
+            baseSkillItem.skillFireParticleId = _fire.particle;
+          }
+          let ready = _Global.CreateOrLoadPlayerAnimData().GetAnimNameByPlayStateAndWeapon("准备战斗", weaponData);
+          let fire = _Global.CreateOrLoadPlayerAnimData().GetAnimNameByPlayStateAndWeapon("普通攻击", weaponData);
 
-      if (!_Global.setting.inEditor) {
-        let baseSkillItem = JSON.parse(JSON.stringify(skillItem.skill));
-        baseSkillItem.level = 1;
-        //从武器中获取动作
-        var { s, v, a, _ready, _fire } = GetSkillDataByWeapon(weaponData);
-        setVaildAttackDis(v);
-        if (_ready) {
-          baseSkillItem.skillReadyAudio = _ready.audio;
-          baseSkillItem.skillReadyParticleId = _ready.particle;
+          baseSkillItem.animNameReady = ready.animName;
+          baseSkillItem.animName = fire.animName;
+          baseSkillItem.vaildDis = v;
+          baseSkillItem.trigger.value = a;
+          baseSkillItem.cCD = baseSkillItem.trigger.value;
+          baseSkillItem.CD = baseSkillItem.trigger.value;
+          baseSkillItem.canUse = false;
+          baseSkillItem.effect.value = baseData.strength;
+          skillList.push(baseSkillItem);
+          // if (onlyLog()) {
+          //   console.error(scope.GetNickName() + " 初始化基础攻击 ", JSON.stringify(weaponData));
+          // }
         }
-        if (_fire) {
-          baseSkillItem.skillFireAudio = _fire.audio;
-          baseSkillItem.skillFireParticleId = _fire.particle;
-        }
-        let ready = _Global.CreateOrLoadPlayerAnimData().GetAnimNameByPlayStateAndWeapon("准备战斗", weaponData);
-        let fire = _Global.CreateOrLoadPlayerAnimData().GetAnimNameByPlayStateAndWeapon("普通攻击", weaponData);
+        _YJSkill.SetSkill(skillList, baseData);
+      }, 1000);
 
-        baseSkillItem.animNameReady = ready.animName;
-        baseSkillItem.animName = fire.animName;
-        baseSkillItem.vaildDis = v;
-        baseSkillItem.trigger.value = a;
-        baseSkillItem.cCD = baseSkillItem.trigger.value;
-        baseSkillItem.CD = baseSkillItem.trigger.value;
-        baseSkillItem.canUse = false;
-        baseSkillItem.effect.value = baseData.strength;
-        skillList.push(baseSkillItem);
-
-      }
-
-      _YJSkill.SetSkill(skillList, baseData);
       if (weaponData == null) {
         scope.SetPlayerState("normal");
         this.PathfindingCompleted();
@@ -852,9 +863,6 @@ class YJNPC {
 
     }
 
-    this.ChangeEquip = function (type, data) {
-      _YJEquip.ChangeEquip(type, data);
-    }
     //#endregion 
 
     this.GetBoneVagueFire = function (part, callback) {
@@ -904,7 +912,7 @@ class YJNPC {
 
     this.EventHandler = function (e, cutSkill) {
       if (e == "中断施法") {
-        _Global.applyEvent("设置目标技能进度条", "中断");
+        scope.applyEvent("设置目标技能进度条", "中断");
       }
     }
 
@@ -918,7 +926,7 @@ class YJNPC {
       if (scope.transform != _Global._SceneManager.GetTargetModel()) {
         return;
       }
-      _Global.applyEvent("设置目标技能进度条", skillCastTime, skillName, reverse);
+      scope.applyEvent("设置目标技能进度条", skillCastTime, skillName, reverse);
 
     }
     this.SetMoveSpeed = function (f) {
@@ -952,7 +960,10 @@ class YJNPC {
       let an = _Global.CreateOrLoadPlayerAnimData().GetAnimNameByPlayStateAndWeapon(e, weaponData);
       animName = an.animName;
       animNameFullback = an.animNameFullback;
-      // console.log({animName,animNameFullback});
+
+      // if (onlyLog()) {
+      //   console.error(scope.GetNickName() + " 武器动作 ", e, { animName, animNameFullback });
+      // }
     }
     function GetSkillDataByWeapon(weaponData) {
       return _Global.CreateOrLoadPlayerAnimData().GetSkillDataByWeapon(weaponData);
@@ -1073,15 +1084,15 @@ class YJNPC {
       // console.log( " [" + scope.GetNickName() + "] "," 请求查找下一个目标  ");
 
       // 向主控请求下一个目标
-      let hasNext =  _Global._YJFireManager.SetNPCNextTarget({
+      let hasNext = _Global._YJFireManager.SetNPCNextTarget({
         id: scope.id, camp: baseData.camp, fireId: scope.fireId
-        , type:"NPC"
+        , type: "NPC"
       });
       // if(!hasNext){
       //   console.log( scope.GetNickName() + " 离开战斗");
       //   scope.fireOff();
       // }
- 
+
     }
 
     //#region 
@@ -1103,7 +1114,7 @@ class YJNPC {
         scope.fireId = fireId;
         scope.camp = camp;
         scope.SetNpcTarget(targetNpc);
-        _Global._YJFireManager.AddFireGroup(scope.id, camp,scope.getPlayerType(), fireId);
+        _Global._YJFireManager.AddFireGroup(scope.id, camp, scope.getPlayerType(), fireId);
 
       });
       ownerPlayer.addEventListener("脱离战斗", () => {
@@ -1163,7 +1174,7 @@ class YJNPC {
       return scope.isDead;
     }
     let fireBeforePos = null;
-    function clearLaterNav(){
+    function clearLaterNav() {
       // console.error(scope.GetNickName() + " 清除延迟巡逻 ");
       if (laterNav != null) {
         clearTimeout(laterNav);
@@ -1219,12 +1230,12 @@ class YJNPC {
     }
 
     this.SetNpcTargetToNoneDrict = function () {
-      if(targetModel != null){
-        let has =false;
-        for (let i = receiveDamageData.length-1; i >=0  && !has ; i--) {
+      if (targetModel != null) {
+        let has = false;
+        for (let i = receiveDamageData.length - 1; i >= 0 && !has; i--) {
           const element = receiveDamageData[i];
           if (element.fromId == targetModel.id) {
-            receiveDamageData.splice(i,1);
+            receiveDamageData.splice(i, 1);
             has = true;
           }
         }
@@ -1233,8 +1244,8 @@ class YJNPC {
 
       targetModel = null;
       outVaildArea = false;
-      scope.applyEvent("设置目标",targetModel);
-      
+      scope.applyEvent("设置目标", targetModel);
+
     }
     this.SetNpcTargetToNone = function (isLocal) {
 
@@ -1561,6 +1572,14 @@ class YJNPC {
     this.addEventListener = function (e, fn) {
       eventList.push({ eventName: e, fn: fn });
     }
+    this.removeEvent = function (e) {
+      for (let i = eventList.length - 1; i >= 0; i--) {
+        if (eventList[i].eventName == e) {
+          eventList.splice(i, 1);
+        }
+      }
+    }
+
     // 执行事件
     this.applyEvent = function (e, v, v2, v3) {
       for (let i = 0; i < eventList.length; i++) {
@@ -2055,15 +2074,15 @@ class YJNPC {
       return targetPosRef.distanceTo(npcPos);
     }
     function CheckState() {
-      
+
 
       // return;
       if (baseData.state == stateType.Normal) {
         if (targetModel != null && targetModel.isDead) {
           scope.fireOff();
           // TargetDead();
-          console.log( scope.GetNickName() + " 的目标 " + targetModel.GetNickName() 
-          +"  " + targetModel.isDead +"  " + baseData.state);
+          console.log(scope.GetNickName() + " 的目标 " + targetModel.GetNickName()
+            + "  " + targetModel.isDead + "  " + baseData.state);
           return;
         }
       }
@@ -2146,7 +2165,8 @@ class YJNPC {
       if (velocity.lengthSq() > 0.00075 * baseData.speed) {
         velocity.normalize();
         // Move player to target  
-        playerPosition.add(velocity.multiplyScalar(0.015 * baseData.speed));
+        playerPosition.add(velocity.multiplyScalar(0.022 * baseData.speed));
+        // playerPosition.add(velocity.multiplyScalar(0.015 * baseData.speed));
 
         // let pos = raycasterDownPos(playerPosition.clone());
         let pos = playerPosition.clone();

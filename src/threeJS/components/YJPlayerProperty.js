@@ -20,34 +20,63 @@ class YJPlayerProperty {
 			state: 'normal', //状态
 			speed: 8, //移动速度
 			fireId: -1, //战斗组id  -1表示未在战斗中
-			gold:0, //金钱
+			gold: 0, //金钱
 			buffList: [],//buff列表
 			debuffList: [],//debuff列表
-			basicProperty: {}, 
+			basicProperty: {},
 		};
 		this.GetBaseData = function () {
 			return baseData;
-		} 
+		}
 		let buffList = [];
 		let debuffList = [];
-		function resetBasicProperty(){
+		function resetBasicProperty(level) {
 			basicProperty.armor = 0;
-			basicProperty.intelligence = 0;
-			basicProperty.endurance = 0;
-			basicProperty.agile = 6;
-			basicProperty.strength = 7;
-			basicProperty.spirit = 10;
+
+			if (_Global.user.id == owner.id) {
+
+				for (let i = 0; i < _Global.levelList.length; i++) {
+					const element = _Global.levelList[i];
+					if (element.level == level) {
+						// console.log(" 等级 " + level, element);
+						basicProperty.intelligence = element.intelligence;
+						basicProperty.endurance = element.endurance;
+						basicProperty.agile = element.agile;
+						basicProperty.strength = element.strength;
+						basicProperty.spirit = element.spirit;
+						baseData.baseHealth = element.maxHealth;
+					}
+				}
+			} else {
+				basicProperty.intelligence = 0;
+				basicProperty.endurance = 0;
+				basicProperty.agile = 0;
+				basicProperty.strength = 0;
+				basicProperty.spirit = 0;
+			}
+			for (let i = 0; i < baseData.equipList.length; i++) {
+				const element = baseData.equipList[i];
+				if (element.propertyList && element.propertyList.length > 0) {
+					for (let j = 0; j < element.propertyList.length; j++) {
+						const property = element.propertyList[j];
+						basicProperty[property.property] += property.value;
+					}
+				}
+			}
+
+			baseData.maxHealth = baseData.baseHealth + basicProperty.endurance * 10;
+
 		}
 		let basicProperty = {
 			armor: 0, //护甲
 			intelligence: 0,//智力 提高法术伤害
 			endurance: 0,//耐力 提高最大生命值
-			agile: 10, //敏捷 提升攻击速度和闪避
-			strength: 20,//力量 提升武器伤害和基础伤害
+			agile: 0, //敏捷 提升攻击速度和闪避
+			strength: 0,//力量 提升武器伤害和基础伤害
 			spirit: 0,//精神 提高恢复率
 
 			energy: 0, //能量
-			
+
 			speedScale: 1, //急速等级/攻击速度百分比
 
 			attackSpeed: 1, //攻击速度
@@ -61,14 +90,14 @@ class YJPlayerProperty {
 			CDRate: 0,//技能冷却时长百分比 最大值1
 		}
 
-    // 属性
-    // 生命值、生命回复、生命加成、生命吸血几率、生命吸血值、
-    // 护甲、命中后无敌、移动速度
-    // 武器伤害、暴击率、暴击伤害值、武器射速、武器装填时间
-    // 技能伤害、技能冷却
-    // 磁力范围、金钱倍率、经验值倍率、运气、躲避几率
+		// 属性
+		// 生命值、生命回复、生命加成、生命吸血几率、生命吸血值、
+		// 护甲、命中后无敌、移动速度
+		// 武器伤害、暴击率、暴击伤害值、武器射速、武器装填时间
+		// 技能伤害、技能冷却
+		// 磁力范围、金钱倍率、经验值倍率、运气、躲避几率
 
-    // 动作相关动画速度可变{移动速度、攻击速度}
+		// 动作相关动画速度可变{移动速度、攻击速度}
 
 		this.EventHandler = function (e) {
 			if (e == "重生") {
@@ -96,7 +125,7 @@ class YJPlayerProperty {
 		this.RealyDamage = function (strength) {
 			// let v = 0;
 			// 有护盾，先使用护盾减伤
-			for (let i = baseData.buffList.length-1; i >=0 ; i--) {
+			for (let i = baseData.buffList.length - 1; i >= 0; i--) {
 				const element = baseData.buffList[i];
 				if (element.type == "shield") {
 					if (element.value >= strength) {
@@ -104,7 +133,7 @@ class YJPlayerProperty {
 						return 0;
 					} else {
 						strength -= element.value;
-						owner.applyEvent("解除技能",element);
+						owner.applyEvent("解除技能", element);
 					}
 				}
 			}
@@ -151,45 +180,36 @@ class YJPlayerProperty {
 				}
 			}
 
-			if(baseData.gold == undefined){
+			if (baseData.gold == undefined) {
 				baseData.gold = 0;
 			}
 			baseData.buffList = buffList;
 			baseData.debuffList = debuffList;
 			baseData.baseHealth = baseData.maxHealth;
+
+			basicProperty = baseData.basicProperty;
 			// console.log(owner.GetNickName() + " 的属性 ",baseData);
 			owner.applyEvent("属性改变", baseData);
-			owner.addEventListener("更新装备",  (equipList) => {
-				resetBasicProperty();
-				for (let i = 0; i < equipList.length; i++) {
-					const element = equipList[i];
-					if(element.propertyList && element.propertyList.length>0){
-						for (let j = 0; j < element.propertyList.length; j++) {
-							const property = element.propertyList[j]; 
-							basicProperty[property.property] += property.value;
-						}
-					}
-				}
-				//
-				baseData.maxHealth = baseData.baseHealth+basicProperty.endurance*10;
-				if(baseData.health>baseData.maxHealth){
-					baseData.health=baseData.maxHealth;
-				}
+			owner.addEventListener("更新装备", (equipList) => {
 				baseData.equipList = equipList;
-				// console.log(" 装备更新属性 ",equipList,baseData);
+				resetBasicProperty(baseData.level);
+				if (baseData.health > baseData.maxHealth) {
+					baseData.health = baseData.maxHealth;
+				}
+				// console.log(owner.GetNickName() + " 装备更新属性 ",equipList,baseData);
 				owner.applyEvent("属性改变", baseData);
 				owner.updateEquip();
 			});
- 
+
 		}
-		this.updateDMPlayer = function(_dmPlayer){
+		this.updateDMPlayer = function (_dmPlayer) {
 			baseData.dmplayerList = _dmPlayer;
 		}
 		this.changeProperty = function () {
 			owner.applyEvent("属性改变", baseData);
 		}
-		this.SetBasedataItem = function(card){
-			let {value, property } = card;
+		this.SetBasedataItem = function (card) {
+			let { value, property } = card;
 			if (baseData[property] != undefined) {
 				baseData[property] = value;
 			} else {
@@ -199,7 +219,7 @@ class YJPlayerProperty {
 
 		}
 		this.updateBasedata = function (card) {
-			let {value, property } = card;
+			let { value, property } = card;
 
 
 			if (baseData[property] != undefined) {
@@ -211,13 +231,24 @@ class YJPlayerProperty {
 			if (property == "moveSpeed") {
 				owner.SetMoveSpeed(basicProperty.moveSpeed);
 			}
-			if (property == "CDRate") { 
+			if (property == "CDRate") {
 				owner.GetSkill().SetSkillCDRate(basicProperty[property]);
-			} 
-			if(baseData.health>baseData.maxHealth){
-				baseData.health=baseData.maxHealth;
 			}
-			
+
+
+			if (property == "level") {
+				// 其他属性随等级提升
+				if (_Global.user.id == owner.id) {
+					resetBasicProperty(baseData.level);
+					baseData.health = baseData.maxHealth;
+				}
+			}
+
+
+			if (baseData.health > baseData.maxHealth) {
+				baseData.health = baseData.maxHealth;
+			}
+
 			owner.applyEvent("属性改变", baseData);
 		}
 

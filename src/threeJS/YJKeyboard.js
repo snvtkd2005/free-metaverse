@@ -4,7 +4,7 @@
 
 class YJKeyboard {
   constructor(keyCallback, keyUpCallback) {
-
+    let scope = this;
     let inShiftLeft = false;
     let inControlLeft = false;
     let isKeyPressed = false;
@@ -95,6 +95,7 @@ class YJKeyboard {
       if (addEventListenered) { return; }
       addEventListenered = true;
 
+      _Global._YJKeyboard = scope;
 
       window.addEventListener('keydown', _onKeyDown);
       window.addEventListener('keyup', _onKeyUp);

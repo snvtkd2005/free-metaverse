@@ -321,13 +321,13 @@ class YJPlayerNameManager {
 
       let scale = nameScale * modelScale * 2 * playerHeight;
       let pos = npc.GetWorldPos();
-      let height = (playerHeight + 0.3);
+      let height = modelScale * (playerHeight + 0.3);
       pos.y += height;
       group.position.copy(pos);
 
 
       npc.addEventListener("pos", (pos) => {
-        pos.y += (playerHeight + 0.3);
+        pos.y +=  modelScale * (playerHeight + 0.3);
         group.position.set(pos.x, pos.y, pos.z);
       });
 
@@ -387,8 +387,7 @@ class YJPlayerNameManager {
         }
         loadQueue.push({ id, nickName, callback: [] });
 
-      }
-      // group.scale.set(modelScale, modelScale, modelScale);
+      } 
 
 
       if (inMergeName && player.active && !hasCurrentMerged) {

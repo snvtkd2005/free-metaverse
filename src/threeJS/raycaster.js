@@ -72,6 +72,9 @@ class YJRaycaster extends YJEvent {
     this.SetContainerSize = function(w,h){
       containerWidth = w;
       containerHeight = h;
+
+      _Global.containerWidth=containerWidth;
+      _Global.containerHeight=containerHeight;
     }
     let eventHandlers = [];
     this.addEventListener = function(e,event){
@@ -427,9 +430,13 @@ class YJRaycaster extends YJEvent {
       
       mouse.x = ((event.clientX-offset.left) / containerWidth) * 2 - 1;
       mouse.y = -((event.clientY-offset.top) / containerHeight) * 2 + 1;
+      // EventHandler("mousePos",mouse.x,mouse.y);
 
 
-      EventHandler("mousePos",mouse.x,mouse.y);
+
+      let mouseInCanvasPosX = (0.5 + mouse.x / 2) * containerWidth;
+      let mouseInCanvasPosY = (0.5 - mouse.y / 2) * containerHeight;
+      EventHandler("mousePos",mouseInCanvasPosX,mouseInCanvasPosY);
     }
     this.onMouseMove = function (event) {
 

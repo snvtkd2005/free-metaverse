@@ -972,10 +972,13 @@ export default {
 
       this.isMMD = this.sceneData.setting.isMMD;
       _Global.isMMD = this.isMMD;
-      this.gameType = this.sceneData.setting.gameType;
-      _Global.gameType = this.gameType;
+      // this.gameType = this.sceneData.setting.gameType;
+      // _Global.gameType = this.gameType; 
+      // this.hasHUD = this.sceneData.setting.hasHUD;
 
-      this.hasHUD = this.sceneData.setting.hasHUD;
+      this.hasHUD = true;
+      _Global.gameType = "WOW";
+
       _Global.hasAvatar = this.sceneData.setting.hasAvatar;
       this.hasAvatar = this.sceneData.setting.hasAvatar; 
 

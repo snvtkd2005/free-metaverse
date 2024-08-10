@@ -96,6 +96,7 @@ YJinputCtrl,
       } 
       if (this.setting[i].property == "modelId") { 
         this.transformJS.SetModelId(e);
+        _Global.applyEvent("改变modelId或名称", this.transformJS.GetData());
         return;
       } 
     },

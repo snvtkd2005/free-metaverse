@@ -394,6 +394,15 @@ export default {
       if (e == "完成任务") {
         // 点击完成任务，获取奖励
         let item = this.taskListData[this.selectIndex];
+
+          for (let i = _Global.user.currentTaskList.length-1; i >=0 ; i--) {
+            const element = _Global.user.currentTaskList[i];
+            if(element == item.id){
+              _Global.user.currentTaskList.splice(i,1);
+            }
+          }
+        _Global.user.completedTaskList.push(this.taskData.id);
+
         // 装备道具、金币奖励放到背包,经验值加
         _Global.applyEvent("加金币",item.rewardGold);
         _Global.applyEvent("加经验",item.rewardExp);

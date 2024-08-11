@@ -140,6 +140,7 @@ class YJGame_mainCtrl {
           model.SetDisplay(false);
         }, 1000);
         model.nameType = "gold";
+        model.GetComponent("Interactive").DestroySprite();
         modelPool.push({ folderBase: folderBase, transform: model });
         if (YJSpriteMerged_gold == null) {
           YJSpriteMerged_gold = new YJSpriteMerged(model.modelData.message.data.imgPath);

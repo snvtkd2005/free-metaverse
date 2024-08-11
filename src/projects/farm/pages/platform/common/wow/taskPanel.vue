@@ -191,10 +191,12 @@ export default {
       //   }, 100);
       // });
 
-      _Global.addEventListener("openTask",(id) => {
+      _Global.addEventListener("openTask",(id,from,icon) => {
+        this.leftIcon = icon;
          for (let i = 0; i < _Global.taskList.length; i++) {
            const element = _Global.taskList[i];
            if(element.id == id){
+              element.from = from;
              this.resetTaskData(element);
            }
          }
@@ -207,7 +209,7 @@ export default {
 
     resetTaskData(taskData) {
 
-      console.log("触发任务 ",taskData);
+      // console.log("触发任务 ",taskData);
       this.taskData = taskData;
       taskData.describe = taskData.describe.replace(
         "${name}",
@@ -293,7 +295,7 @@ export default {
         _Global.applyEvent("界面开关", "receiveTask", false);
         this.$parent.$refs.taskListPanel.addTask(this.taskData);
         _Global._YJAudioManager.playAudio('1722064234835/iquestactivate.ogg');
-       
+       _Global.user.currentTaskList.push(this.taskData.id);
 
       }
     },

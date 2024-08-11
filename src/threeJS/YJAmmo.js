@@ -1935,23 +1935,25 @@ class YJAmmo {
 
 
 
-      if (camera) {
+      // if (camera) {
+      //   camera.getWorldDirection(dir);
+      //   camera.children[0].getWorldDirection(dirChild);
+      //   // myCtrlRb.getWorldDirection(dir);
+      //   // myCtrlRbChild.getWorldDirection(dirChild);
+      //   // _Global.AddLog(" 前后方向 :" , dir);
+      //   // console.log(" 前后方向 :" , dir);
+      //   // console.log(" 左右方向 :" , dirChild);
+      //   // dir.x = dir.z = 0;
+      // } else {
+      //   myCtrlRb.getWorldDirection(dir);
+      //   myCtrlRbChild.getWorldDirection(dirChild);
+      // }
 
-        camera.getWorldDirection(dir);
-        camera.children[0].getWorldDirection(dirChild);
-
-        // myCtrlRb.getWorldDirection(dir);
-        // myCtrlRbChild.getWorldDirection(dirChild);
-        // _Global.AddLog(" 前后方向 :" , dir);
-        // console.log(" 前后方向 :" , dir);
-        // console.log(" 左右方向 :" , dirChild);
-        // dir.x = dir.z = 0;
-      } else {
-        myCtrlRb.getWorldDirection(dir);
-        myCtrlRbChild.getWorldDirection(dirChild);
-      }
 
       if (enableGravity) {
+
+        myCtrlRb.getWorldDirection(dir);
+        myCtrlRbChild.getWorldDirection(dirChild);
 
         // if (inJumping) {
         //   downForce -= 0.8;
@@ -1980,6 +1982,9 @@ class YJAmmo {
 
       } else {
 
+
+        camera.getWorldDirection(dir);
+        camera.children[0].getWorldDirection(dirChild);
 
         if (!inJumping) {
         }

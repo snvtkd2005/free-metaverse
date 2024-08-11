@@ -135,6 +135,9 @@ class YJController {
       }
 
       this.SetContrlStateOnly(setting.contrlState, setting.wheelValue);
+      currentCamPos.set(wheelCurrentValue, 0,0);
+      camera.position.set(wheelCurrentValue, 0,0);
+
     }
 
 
@@ -2072,7 +2075,6 @@ class YJController {
     //#region old
 
     let oldPlayerParentPos = new THREE.Vector3(0, 0, 0);
-    let oldWheelValue;
     //设置模型回到上载具之前的位置
     this.SetToOldPos = () => {
       canMoving = true;
@@ -2478,19 +2480,27 @@ class YJController {
 
     // 切换远近视角
     let b_lerpToChangeViewFar = false;
+    let camOffsetPos = new THREE.Vector3();
     function ChangeViewFar() {
       if (b_lerpToChangeViewFar) {
-        // let camTargetPos = camPosRefGroup.getWorldPosition(new THREE.Vector3());
-        let camTargetPos = camPosRefGroup.position.clone();
-        lepToNiankanLength += 0.001;
-        currentCamPos.lerp(camTargetPos, lepToNiankanLength);
-        camera.position.set(currentCamPos.x, currentCamPos.y, currentCamPos.z);
 
-        let distance = currentCamPos.distanceTo(camTargetPos);
+        // let camTargetPos = camPosRefGroup.position.clone();
+        // lepToNiankanLength += 0.001;
+        // currentCamPos.lerp(camTargetPos, lepToNiankanLength);
+        // camera.position.set(currentCamPos.x, currentCamPos.y, currentCamPos.z);
+        // let distance = currentCamPos.distanceTo(camTargetPos);
+
+        lepToNiankanLength += 0.001 * 10;
+        currentCamPos.lerp(camOffsetPos, lepToNiankanLength);
+        camera.position.set(currentCamPos.x, currentCamPos.y, currentCamPos.z);
+        let distance = currentCamPos.distanceTo(camOffsetPos);
+
+
         if (distance < 0.01
         ) {
           b_lerpToChangeViewFar = false;
           lepToNiankanLength = 0;
+          oldWheelValue = camOffsetPos.x;
           console.log(" 远近视角切换完成 ");
         }
       }
@@ -3356,7 +3366,10 @@ class YJController {
 
       }
     } 
+ 
+    let oldWheelValue = 0;
     function CheckCameraLine() {
+      // return;
       // console.log("摄像机障碍检测", hasCamRaycast, viewState);
       //是否激活摄像机视角障碍检测
       if (!setting.hasCamRaycast || viewState == 1) { return; }
@@ -3374,7 +3387,13 @@ class YJController {
         let hit_collider = GetInvaildCastObj(intersects_collider);
         if (hit_collider != null) {
           // intersects_collider[hitIndex].point
-          camera.position.set(-intersects_collider[hitIndex].distance + 0.5, 0, 0);
+          // camera.position.set(-intersects_collider[hitIndex].distance + 0.5, 0, 0); 
+          let x = -intersects_collider[hitIndex].distance + 0.5;
+          if(oldWheelValue == x){
+            return;
+          }
+          camOffsetPos.set(x, 0, 0);
+          b_lerpToChangeViewFar = true;
           return;
         }
         // console.log("摄像机障碍检测",hit_collider);
@@ -3389,7 +3408,11 @@ class YJController {
         }
         old_castArray = [];
       }
-      camera.position.set(wheelCurrentValue, 0, 0);
+      if(oldWheelValue == wheelCurrentValue){return;}
+      camOffsetPos.set(wheelCurrentValue, 0, 0);
+      b_lerpToChangeViewFar = true;
+
+      // camera.position.set(wheelCurrentValue, 0, 0);
 
     }
     this.CheckVaildTargetByRayline = function (fromPos, direction,list, callback) {
@@ -3825,7 +3848,7 @@ class YJController {
 
       lerpFollow();
 
-      LerpMovePlayer();
+      LerpMovePlayer(); 
       lerpLookat();
       ChangeView();
       ChangeToNiaokanView();

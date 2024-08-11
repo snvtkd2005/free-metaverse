@@ -38,15 +38,7 @@ export default {
     return {
       dialogTitle: "添加任务",
       settingData: {},
-      setting: [
-        {
-          property: "from",
-          display: true,
-          title: "任务来源",
-          type: "text",
-          value: "",
-          callback: this.ChangeValue,
-        },
+      setting: [ 
         {
           property: "taskTitle",
           display: true,

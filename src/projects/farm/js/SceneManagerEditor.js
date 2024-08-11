@@ -252,19 +252,16 @@ class SceneManager {
         return;
       }
       let playerPos = _Global.YJ3D.YJController.GetPlayerWorldPos();
-
-      let canSelectNpc = _Global._YJNPCManager.GetForwardNoSameCampNPC(playerPos);
-
-      console.log("tab 切换目标 ",canSelectNpc);
+      let canSelectNpc = _Global._YJFireManager.GetForwardNoSameCampNPC(playerPos);
       if(canSelectNpc.length==0){
         return;
       }
       if (tabSelectIndex >= canSelectNpc.length) {
         tabSelectIndex = 0;
       }
-      scope.ClickModelTransform(canSelectNpc[tabSelectIndex]);
-      tabSelectIndex++;
-      canSelectNpc = [];
+      // console.log("tab 切换目标 ",canSelectNpc[tabSelectIndex],canSelectNpc);
+      scope.ClickModelTransform(canSelectNpc[tabSelectIndex].transform);
+      tabSelectIndex++; 
     }
 
     let boneAttachList = [];

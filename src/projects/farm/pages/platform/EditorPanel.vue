@@ -891,6 +891,8 @@ export default {
         if (this.oldFileName != this.modelData.name) {
           this.updateSceneTxtData();
           this.oldFileName = this.modelData.name;
+          this.sceneData.setting.title = this.oldFileName;
+
         }
       }
       _Global.YJ3D.threeJSfocus();
@@ -974,9 +976,8 @@ export default {
       _Global.isMMD = this.isMMD;
       // this.gameType = this.sceneData.setting.gameType;
       // _Global.gameType = this.gameType; 
-      // this.hasHUD = this.sceneData.setting.hasHUD;
-
-      this.hasHUD = true;
+      this.hasHUD = this.sceneData.setting.hasHUD;
+ 
       _Global.gameType = "WOW";
 
       _Global.hasAvatar = this.sceneData.setting.hasAvatar;

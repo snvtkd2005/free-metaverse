@@ -128,6 +128,18 @@ class YJFireManager {
     }
 
 
+    // tab获取玩家前方不同阵营的npc，优先在选择战斗的
+    this.GetForwardNoSameCampNPC = function (playerPos) {
+      let npcs = [];
+      let fireId =  _Global.YJ3D.YJPlayer.fireId;
+      if(fireId==-1){
+        npcs = _Global._YJNPCManager.GetForwardNoSameCampNPC(playerPos);
+      }else{
+        npcs = this.GetNoSameCampInFire(_Global.user.camp,fireId);
+      } 
+      return npcs;
+    }
+
     this.GetNPCs = function () {
       return playerList;
     }

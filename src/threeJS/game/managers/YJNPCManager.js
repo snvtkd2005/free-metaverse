@@ -19,7 +19,9 @@ class YJNPCManager {
     }
     this.GetOtherNoSameCampInArea = function (camp,vaildDistance, max, centerPos, ingoreNpcId) {
       let npcs = [];
-      
+      if(max<=0){
+        max = 100000;
+      }
       let npcModelList = this.GetAllVaildNPC();
       for (let i = 0; i < npcModelList.length; i++) {
         const npcComponent = npcModelList[i]; 

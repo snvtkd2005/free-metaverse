@@ -17,6 +17,7 @@ import { YJTween } from "./YJTween";
 class YJTransform {
   constructor(_this, scene, id, pos, rota, name, callback) {
     let scope = this;
+    this.transform = scope;
     this.isYJTransform = true;
     this.isYJNPC = false;
     this.modelData = null;
@@ -41,8 +42,8 @@ class YJTransform {
       siblingIndex:0, //相对父物体的排序
     }
     let children = [];
-    this.AddChildren = function (tranform) {
-      children.push(tranform);
+    this.AddChildren = function (transform) {
+      children.push(transform);
     }
     this.GetChildren = function(){
       return children;

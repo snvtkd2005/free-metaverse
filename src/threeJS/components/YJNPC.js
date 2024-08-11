@@ -712,6 +712,9 @@ class YJNPC {
 
     //#region 
 
+    this.GetModelData = function () {
+      return scope.transform.modelData;
+    }
     this.MyFireState = function (e) {
 
     }
@@ -730,6 +733,64 @@ class YJNPC {
     let modelScale = 1;
     this.GetData = function () {
       return data;
+    }
+    this.CallEvent = function () {
+      let eventData = data.eventData;
+      if (eventData.npcType == "task") {
+
+        let c = 0;
+        let index = 0;
+        let taskData = [];
+        for (let j = 0; j < eventData.taskList.length; j++) {
+          for (let i = _Global.user.completedTaskList.length - 1; i >= 0; i--) {
+            const element = _Global.user.completedTaskList[i];
+            if (element == eventData.taskList[j].id) {
+              c++;
+              index = j;
+            }
+          }
+        }
+        if (c == eventData.taskList.length) {
+          // 任务全部完成 
+        }else{
+
+          let ing = false;
+          let taskid = eventData.taskList[index].id;
+          for (let i = _Global.user.currentTaskList.length - 1 && !ing; i >= 0; i--) {
+            const element = _Global.user.currentTaskList[i];
+            if (element == taskid) {
+              //正在做任务，返回
+              taskData = [
+                {
+                  state: 1, //0未接受、1正在进行、2可完成
+                  task: eventData.taskList[index]
+                } 
+              ]
+              ing = true; 
+            }
+          }
+          if(!ing){
+            taskData = [
+              {
+                state: 0, //0未接受、1正在进行、2可完成
+                task: eventData.taskList[index]
+              } 
+            ]
+          }
+
+        } 
+
+        _Global.applyEvent("openTalk", {
+          textContent: eventData.textContent,
+          from: scope.GetNickName(),
+          icon: _Global.url.uploadUrl + data.avatarData.id + "/" + "thumb.png",
+          taskData: taskData
+        });
+
+
+        // _Global.applyEvent("openTask",taskid,scope.GetNickName()
+        // ,_Global.url.uploadUrl + data.avatarData.id + "/" + "thumb.png");
+      }
     }
     this.SetMessage = function (msg) {
       if (msg == null || msg == undefined || msg == "") { return; }
@@ -1108,6 +1169,7 @@ class YJNPC {
       pos.x += radomNum(-1 * 2, 1 * 2);
       pos.z += radomNum(-1 * 2, 1 * 2);
       scope.transform.SetPos(pos);
+      let eventId = new Date().getTime();
       // scope.FollowPlayer();
       ownerPlayer.addEventListener("进入战斗", (camp, fireId, targetNpc) => {
         console.log(scope.GetNickName() + " 监听 主播进入战斗 ", camp, fireId, targetNpc);
@@ -1116,10 +1178,15 @@ class YJNPC {
         scope.SetNpcTarget(targetNpc);
         _Global._YJFireManager.AddFireGroup(scope.id, camp, scope.getPlayerType(), fireId);
 
-      });
+      }, eventId);
       ownerPlayer.addEventListener("脱离战斗", () => {
         scope.fireOff();
-      });
+      }, eventId);
+
+      ownerPlayer.addEventListener("死亡", () => {
+        scope.Dead();
+        ownerPlayer.removeEventById(eventId);
+      }, eventId);
       ownerPlayer.addEventListener("pos", (pos) => {
         // console.log(pos);
         if (oldPlayerPos.distanceTo(pos) > 0.5) {
@@ -1127,7 +1194,7 @@ class YJNPC {
           oldPlayerPos = pos.clone();
           return;
         }
-      });
+      }, eventId);
 
     }
     this.SetInControl = function (b) {
@@ -1569,8 +1636,8 @@ class YJNPC {
     }
     let eventList = [];
     // 添加事件监听
-    this.addEventListener = function (e, fn) {
-      eventList.push({ eventName: e, fn: fn });
+    this.addEventListener = function (e, fn, id) {
+      eventList.push({ eventName: e, fn: fn, id });
     }
     this.removeEvent = function (e) {
       for (let i = eventList.length - 1; i >= 0; i--) {
@@ -1579,7 +1646,13 @@ class YJNPC {
         }
       }
     }
-
+    this.removeEventById = function (id) {
+      for (let i = eventList.length - 1; i >= 0; i--) {
+        if (eventList[i].id == id) {
+          eventList.splice(i, 1);
+        }
+      }
+    }
     // 执行事件
     this.applyEvent = function (e, v, v2, v3) {
       for (let i = 0; i < eventList.length; i++) {
@@ -1748,9 +1821,6 @@ class YJNPC {
         return;
       }
 
-      if (ownerPlayer || ownerPlayerMirror) {
-        return;
-      }
 
       fireLater.push({
         type: "timeout", fn:
@@ -1772,6 +1842,10 @@ class YJNPC {
             }
           }, 7000)
       });
+
+      if (ownerPlayer || ownerPlayerMirror) {
+        return;
+      }
 
       if (!_Global.YJClient) {
         //重新生成

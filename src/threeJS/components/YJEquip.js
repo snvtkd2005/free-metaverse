@@ -367,7 +367,6 @@ class YJEquip {
                         model.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
                         model.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
                         model.scale.set(100 * scale[0], 100 * scale[1], 100 * scale[2]);
-                        owner.SetPlayerState("normal");
 
                         equipModelList.push({ part: part, bone: bone, model: weaponModel });
 

@@ -7,7 +7,7 @@
       :key="i"
       class="text-xs mx-auto text-left flex w-full px-1 mb-1 justify-between"
     >
-      <div v-if="item.display" class="self-center w-2/3 truncate">
+      <div v-if="item.display" class="self-center w-2/3 truncate ">
         {{ item.title }}
       </div>
       <div v-if="item.display" class="self-center">
@@ -387,6 +387,29 @@
           </div> 
         </div>
 
+        <!-- 任务发布 -->
+        <div v-if="item.type == 'taskList'" class=" relative gap-2 pt-8 text-white">
+          <div class=" absolute right-0 top-0 border text-white w-4 h-4 self-center cursor-pointer text-center " @click="item.value.push({id:'',from:'',taskTitle:''})">+</div>
+          <div
+            v-for="(item2, j) in item.value"
+            :key="j"
+            class="self-center w-auto h-auto relative gap-x-3 flex "
+          > 
+            <div>{{item2.taskTitle}}</div>
+            
+            <div class="w-auto h-6 rounded-sm flex">
+              <div
+                class="text-xs pl-1 self-center mx-auto w-10 h-6 leading-6 bg-gray-50 rounded-sm text-black cursor-pointer"
+                @click="SelectItem2('选择任务',item2.type,j)"
+              >
+                浏览...
+              </div>
+            </div>
+            <div class=" border text-white w-8 h-full self-center cursor-pointer text-center " @click="item.value.push({id:item2.id,from:item2.from,taskTitle:item2.taskTitle})">+</div>
+            <div class=" border text-white w-8 h-full self-center cursor-pointer text-center " @click="item.value.splice(j,1)">-</div>
+          </div> 
+        </div>
+
         <div v-if="item.type == 'int'" class="flex gap-2 text-black">
           <YJinput_number
             :value="item.value"
@@ -532,6 +555,7 @@
     </div>
   </div>
 
+
   <!-- 选择HDR 选择UV图 选择音效 的弹窗 -->
   <el-dialog
     :title="selectTitle"
@@ -539,7 +563,7 @@
     center
     v-model="isOpen"
     :modal-append-to-body="false"
-    width="55%"
+    width="75%"
   >
     <div
       class="mt-2 overflow-y-scroll h-96 flex flex-wrap"
@@ -644,6 +668,9 @@
       </div>
     </div>
 
+    <YJinputCtrl_task v-if="selectTitle=='选择任务'"
+            class="w-full h-20" 
+          />
 
     <div
       class="mt-2 overflow-y-scroll h-96 flex flex-wrap"
@@ -711,6 +738,8 @@ import YJinput_vector2xy from "./YJinput_vector2xy.vue";
 import YJinput_vector3 from "./YJinput_vector3.vue";
 import YJinput_vector3xyz from "./YJinput_vector3.vue";
 
+import YJinputCtrl_task from "./YJinputCtrl_task.vue";
+
 import {
   GetAllHDR,
   GetAllAudio,
@@ -735,6 +764,7 @@ export default {
     YJinput_vector2,
     YJinput_vector2xy,
     YJinput_vector3xyz,
+    YJinputCtrl_task,
   },
   data() {
     return {
@@ -746,7 +776,7 @@ export default {
       settingIndex: -1,
       audioList: [],
       modelList: [],
-      propList:[],
+      propList:[], 
       selectTitle: "",
       isOpen: false,
     };
@@ -756,20 +786,20 @@ export default {
   methods: {
     SelectUVAnim(item, i) {
       this.selectTitle = "选择通用图片";
-      this.RequestGetAllHDR(this.selectTitle);
+      this.RequestGetAll(this.selectTitle);
       this.isOpen = true;
       this.settingIndex = i;
     },
     SelectHDR(item, i) {
       this.selectTitle = "选择HDR";
-      this.RequestGetAllHDR(this.selectTitle);
+      this.RequestGetAll(this.selectTitle);
 
       this.isOpen = true;
       this.settingIndex = i;
     },
     SelectAudio(item, i) {
       this.selectTitle = "选择音效";
-      this.RequestGetAllHDR(this.selectTitle);
+      this.RequestGetAll(this.selectTitle);
 
       this.isOpen = true;
       this.settingIndex = i;
@@ -810,7 +840,7 @@ export default {
         this.ClickUVAnim("");
         return;
       }
-      this.RequestGetAllHDR(this.selectTitle);
+      this.RequestGetAll(this.selectTitle);
       
       this.isOpen = true;
     },
@@ -824,7 +854,11 @@ export default {
           this.selectTitle = "选择道具";
         } 
       }
-      this.RequestGetAllHDR(this.selectTitle);
+      if (e == "选择任务") {
+        this.selectTitle = e;
+      }
+
+      this.RequestGetAll(this.selectTitle);
       this.isOpen = true;
     },
 
@@ -908,7 +942,7 @@ export default {
         );
       }
     },
-    async RequestGetAllHDR(type) {
+    async RequestGetAll(type) {
       if (type == "选择HDR") {
         GetAllHDR().then((res) => {
           // console.log("获取所有 hdr ", res);
@@ -1026,7 +1060,7 @@ export default {
       if (type == "选择道具") {
         this.propList = _Global.propList;
         return;
-      }
+      } 
     },
     focus() {
       // console.log(" in YJinputCtrl 取消焦点 ");

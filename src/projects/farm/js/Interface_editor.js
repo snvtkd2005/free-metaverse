@@ -31,6 +31,8 @@ class Interface {
       camp: 1000,
       id:"YJPlayer",
       name:"",
+      currentTaskList:[],
+      completedTaskList:[],
     }
     _Global.url = {
       uploadUrl: _this.$uploadUrl,
@@ -46,6 +48,7 @@ class Interface {
       setting: false,
       receiveTask:false,//接收任务对话框
       taskList:false, //任务日志
+      talk:false, //与npc的对话框
     };
     _Global.hoverPart = "";
     _Global.dragPart = "";

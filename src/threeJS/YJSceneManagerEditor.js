@@ -308,11 +308,12 @@ class YJSceneManager {
         modelData.scale = { x: 1, y: 1, z: 1 };
 
         scope.Create_LoadUserModelManager().ImportModel(modelData, (tranform) => {
-          console.log(" 单品模型加载完成 ！！！！");
+          console.log(" 单品模型加载完成 ！！！！",tranform);
           singleTransform = tranform;
           // if (callback) {
           //   callback();
           // }
+          _Global.applyEvent("单品模型加载完成",tranform);
         }); 
       });
 
@@ -379,7 +380,7 @@ class YJSceneManager {
       this.Create_LoadUserModelManager().ImportModel(modelData, (tranform) => {
         singleTransform = tranform;
         if (callback) {
-          callback();
+          callback(singleTransform);
         }
       });
       return;

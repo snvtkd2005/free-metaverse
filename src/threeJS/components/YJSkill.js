@@ -496,10 +496,12 @@ class YJSkill {
                 let skill = msg.skill;
                 //增生
                 if (skill.type == "hyperplasia") {
-                    let { value, times } = skill;
-                    hyperplasiaTimes = times;
-                    let modelData = owner.GetData();
-                    hyperplasia(modelData, 0, value, times);
+                    let { value, times } = skill; 
+                    let modelData = owner.GetModelData();
+                    times = 1;
+                    for (let i = 0; i < times; i++) { 
+                        hyperplasia(modelData);
+                    }
                     return;
                 }
                 //进化
@@ -619,7 +621,7 @@ class YJSkill {
             let errorLog = "";
             let checkCan = () => {
                 let targetType = skillItem.target.type;
-                if (targetType == "target") {
+                if (targetType == "target" || targetType == "targetAndNear") {
                     if (targetModel == null) {
                         errorLog = "无目标";
                         if (skillName != "基础攻击") {
@@ -1094,12 +1096,7 @@ class YJSkill {
             if (type == "hyperplasia") {
                 let count = effect.times;
                 count = 1;
-                let modelData = null;
-                if(owner.isYJNPC){
-                    modelData = owner.transform.modelData;
-                }else{
-
-                }
+                let modelData = owner.GetModelData();
                 for (let i = 0; i < count; i++) {
                     hyperplasia(modelData);
                 }
@@ -1457,7 +1454,7 @@ class YJSkill {
             modelData.scale = { x: 1, y: 1, z: 1 };
             let data = modelData.message.data;
             data.skillList = [];
-            data.name = owner.GetNickName() + "的增生";
+            data.name = owner.GetNickName() + "的增生"; 
             let pos = owner.GetWorldPos();
             modelData.pos.x = pos.x + (RandomInt(-2,2));
             modelData.pos.y = pos.y;
@@ -1472,11 +1469,7 @@ class YJSkill {
             // console.log("创建增生 ", data.name);
             _Global._YJNPCManager.DuplicateNPCByModelData(modelData, owner.id + "_" + new Date().getTime(), (transform) => {
                 let npcComponent = transform.GetComponent("NPC");
-                hyperplasiaTrans.push(npcComponent);
-                if (targetModel) {
-                    npcComponent.SetNpcTarget(targetModel);
-                    _Global._YJFireManager.NPCAddFireById(npcComponent, owner.fireId, targetModel.id);
-                }
+                npcComponent.setOwnerPlayer(owner); 
             });
         }
 

@@ -221,13 +221,8 @@ class YJPlayerFireCtrl {
 		this.GetBoneVague = function (boneName, callback) {
 			_YJPlayer.GetBoneVague(boneName, callback);
 		}
-		this.GetData = function () {
-			let avatarData = _YJPlayer.GetavatarData();
-
-			return {
-				avatarData: avatarData,
-			};
-
+		this.GetModelData = function(){
+			// 使用镜像技能时，转换为npc数据
 			let modelData = {
 				id: "", //资源id
 				name: _YJPlayer.GetNickName(), // 资源名字
@@ -241,14 +236,21 @@ class YJPlayerFireCtrl {
 				message: {
 					pointType: "npc",
 					data: {
-						avatarData: avatarData,
+						avatarData: _YJPlayer.GetavatarData(),
 						baseData: _YJPlayerProperty.GetBaseData(),// baseData,
-						weaponData: weaponData != null ? _this.YJController.GetUserDataItem("weaponDataData") : null,
 					}
 				}, //模型热点信息
 				uuid: "",//在场景中的唯一标识
 			};
 			return modelData;
+		}
+		this.GetData = function () {
+			let avatarData = _YJPlayer.GetavatarData();
+
+			return {
+				avatarData: avatarData,
+			};
+
 		}
 		function hyperplasia(modelData, num, count, times) {
 			modelData = JSON.parse(JSON.stringify(modelData));
@@ -381,6 +383,9 @@ class YJPlayerFireCtrl {
 
 		let targetModel = null;
 		let npcPos = null;
+		this.GetFireId = function(){
+			return _YJPlayer.fireId;
+		}
 		// 玩家加入战斗
 		function PlayerAddFire() {
 			if (_YJPlayer.fireId != -1) {
@@ -464,6 +469,19 @@ class YJPlayerFireCtrl {
 				}
 				return;
 			}
+
+			if (_targetModel == scope || _targetModel == _YJPlayer) {
+				return;
+			}
+			if (_targetModel.GetCamp() == scope.GetCamp() || _targetModel.GetCamp() == 10001) {
+				if(_targetModel.isYJNPC){
+					let data = _targetModel.GetData();
+					if(data.eventData){
+						_targetModel.CallEvent();
+					}
+				}
+				return;
+			} 
 			ReadyFire();
 		}
 		function SelectNPC(_targetModel) {
@@ -1035,6 +1053,7 @@ class YJPlayerFireCtrl {
 			if (baseData == null) {
 
 				baseData = _this.YJController.GetUserData().baseData;
+				baseData.camp = _Global.user.camp;
 				console.log(" 从控制器获取 baseData", JSON.stringify(baseData));
 				if (_YJPlayerProperty == null) {
 					_YJPlayerProperty = new YJPlayerProperty(scope);

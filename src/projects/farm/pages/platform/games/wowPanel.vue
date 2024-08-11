@@ -19,7 +19,11 @@
           <div class="w-96 h-64" v-show="panelState.receiveTask">
             <taskPanel ref="taskPanel"></taskPanel>
           </div>
-
+          
+          <div class="w-96 h-64" v-show="panelState.talk">
+            <talkPanel ref="talkPanel"></talkPanel>
+          </div>
+          
           <div class="w-96 h-64" v-show="panelState.player">
             <PlayerPropertyPanelVue
               ref="PlayerPropertyPanelVue"
@@ -152,6 +156,7 @@ import ActionPanelVue from "../common/wow/ActionPanel.vue";
 import PlayerPropertyPanelVue from "../common/wow/PlayerPropertyPanel.vue";
 import skillPanel from "../common/wow/skillPanel.vue";
 import bagPanel from "../common/wow/bagPanel.vue";
+import talkPanel from "../common/wow/talkPanel.vue";
 import taskPanel from "../common/wow/taskPanel.vue";
 import taskListPanel from "../common/wow/taskListPanel.vue";
 
@@ -174,6 +179,7 @@ export default {
     skillPanel,
     taskListPanel,
     bagPanel,
+    talkPanel,
     taskPanel,
     menuPanelVue,
     delDialogPanelVue,
@@ -240,6 +246,7 @@ export default {
       });
 
       _Global.addEventListener("keycodeUp", (keycode) => {
+        if(_Global.setting.inEditor){return;}
         // 按键在配置中设置
         for (let i = 0; i < GameSetting.keyData.panel.length; i++) {
           const element = GameSetting.keyData.panel[i];

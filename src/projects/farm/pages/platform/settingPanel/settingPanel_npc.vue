@@ -7,6 +7,7 @@
     </div> 
 
     <settingPanel_npcSkill ref="settingPanel_npcSkill" />
+    <settingPanel_npcType ref="settingPanel_npcType" />
 
     <div v-if="!isMoving" class=" mt-4 flex">
       <div class=" text-left ">巡逻点</div>
@@ -41,9 +42,6 @@
 
     </div>
 
-
-
-
     <div class="mt-2 w-full h-10 text-white cursor-pointer" @click="ClickHandler(isMoving ? '停止巡逻' : '开始巡逻')">
       <div class="mt-2 bg-445760 rounded-md inline-block px-14 py-1">
         {{ isMoving ? '停止巡逻' : '开始巡逻' }}
@@ -76,6 +74,7 @@
 import YJinputCtrl from "../components/YJinputCtrl.vue";
 
 import settingPanel_npcSkill from "./settingPanel_npcSkill.vue";
+import settingPanel_npcType from "./settingPanel_npcType.vue";
 
 
 export default {
@@ -83,6 +82,7 @@ export default {
   components: {
     YJinputCtrl,
     settingPanel_npcSkill,
+    settingPanel_npcType,
   },
   data() {
     return {
@@ -114,8 +114,6 @@ export default {
         defaultAnim: "idle", //默认动作
         relifeTime: 0,//重新生成间隔时间 秒
         avatarData: {}, //avatar模型数据
-        eventType: "no",//事件类型 
-        contentData: {},//事件内容数据
         inAreaRandom:false, //是否区域内随机
         canMove:true, //是否能移动
         canEquip:false, //是否能装备
@@ -126,7 +124,8 @@ export default {
         equipList:[],//装备，含武器
         fireAudio:"", //攻击音效
         deadAudio:"", //死亡音效
-        exp:30,
+        exp:30, 
+        eventData: {},//事件类型内容数据
       },
       // npc行为
       npcActionData: {
@@ -212,13 +211,16 @@ export default {
     
     this.settingData.name = modelData.name;
     this.initValue();
+    _Global.addEventListener("单品模型加载完成",(transform)=>{
+      this.transformJS = transform;
+    });
   },
   methods: {
     ClickHandler(e, item, i) {
 
       if (e == "停止巡逻" || e == "开始巡逻") {
         this.isMoving = !this.isMoving;
-        this.transfomJS.GetComponent("NPC")
+        this.transformJS.GetComponent("NPC")
           .UpdateNavPos(e, this.settingData.movePos);
         return;
       }
@@ -227,7 +229,7 @@ export default {
         if (i == 0) { return; }
         this.settingData.movePos.splice(i, 1);
         //在场景中添加巡逻位置参考坐标点
-        this.transfomJS.GetComponent("NPC")
+        this.transformJS.GetComponent("NPC")
           .UpdateNavPos(e, null, i);
         return;
       }
@@ -235,13 +237,13 @@ export default {
 
         this.settingData.movePos.push({ x: 0, y: 0, z: 0 });
         //在场景中添加巡逻位置参考坐标点
-        this.transfomJS.GetComponent("NPC")
+        this.transformJS.GetComponent("NPC")
           .UpdateNavPos(e, { x: 0, y: 0, z: 0 });
         return;
       }
       if (e == "值改变") {
         if (i == 0) { item.x = item.y = item.z = 0; return; }
-        this.transfomJS.GetComponent("NPC")
+        this.transformJS.GetComponent("NPC")
           .UpdateNavPos("更新", item, i);
         // this.settingData.movePos[i].
         return;
@@ -254,11 +256,11 @@ export default {
       }
       
       if (e == "设置为npc目标") {
-        this.transfomJS.GetComponent("NPC")
+        this.transformJS.GetComponent("NPC")
           .SetNpcTarget(_Global.YJ3D.YJPlayer, true, true);
       }
       if (e == "设置npc失去目标") {
-        this.transfomJS.GetComponent("NPC")
+        this.transformJS.GetComponent("NPC")
           .SetNpcTarget(null);
       }
 
@@ -275,7 +277,7 @@ export default {
       this.settingData.equipList = res.data.message.data.equipList;
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "equipList","display", this.settingData.equipList.length>0);
 
-      this.transfomJS.GetComponent("NPC").SetMessage(this.settingData);
+      this.transformJS.GetComponent("NPC").SetMessage(this.settingData);
       this.save();
       // 用folderBase查找最新数据
        
@@ -312,7 +314,7 @@ export default {
 
         this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "equipList","display", this.settingData.equipList.length>0);
  
-        this.transfomJS.GetComponent("NPC").GetEquip().addEquip({ assetId:item.folderBase});
+        this.transformJS.GetComponent("NPC").GetEquip().addEquip({ assetId:item.folderBase});
 
         return;
       }
@@ -329,24 +331,23 @@ export default {
 
       //区分首次加载和第二次加载，首次加载直接创建，第二次加载修改第一次加载的内容
  
-      if (this.transfomJS == null || this.transfomJS == undefined) {
+      if (this.transformJS == null || this.transformJS == undefined) {
         //加载模型
         _Global.YJ3D._YJSceneManager.CreateSingleModel(
           item.modelPath,
-          () => {
+          (transform) => {
             this.parent.SetTip("加载模型完成");
-            setTimeout(() => {
+            console.log(transform);
+            this.transformJS = transform;
               // 控制三维
-              this.transfomJS
-                .SetMessage(this.getMessage());
-            }, 1000);
+              this.transformJS.SetMessage(this.getMessage());
           },
           (e) => {
             this.$parent.SetTip("出错了。加载模型出错，" + e);
           }
         );
       } else {
-        let MeshRenderer = this.transfomJS.GetComponent("MeshRenderer");
+        let MeshRenderer = this.transformJS.GetComponent("MeshRenderer");
         MeshRenderer.Destroy();
         let modelPath = this.$uploadUrl + item.modelPath;
 
@@ -354,12 +355,12 @@ export default {
         MeshRenderer.load(
           modelPath,
           (scope) => {
-            let _YJAnimator = this.transfomJS.GetComponent("Animator");
+            let _YJAnimator = this.transformJS.GetComponent("Animator");
             _YJAnimator.Destroy();
             _YJAnimator.UpdateModel(scope.GetModel(), scope.GetAnimations()); 
-            this.transfomJS.SetMessage(this.getMessage());
+            this.transformJS.SetMessage(this.getMessage());
             _YJAnimator.ChangeAnimDirect("idle");
-            _Global.applyEvent("选中角色",this.transfomJS.GetComponent("NPC"));
+            _Global.applyEvent("选中角色",this.transformJS.GetComponent("NPC"));
 
           },
           (e) => { }
@@ -371,16 +372,22 @@ export default {
       this.parent.modelData.message = this.getMessage();
 
       // 控制三维 
-      this.transfomJS.SetMessage(this.getMessage());
+      this.transformJS.SetMessage(this.getMessage());
     },
     Init(_settingData) {
 
-      this.transfomJS = _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
+      this.transformJS = _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
 
       this.settingData = _settingData;
       this.settingData.canEquip = false;
       if (this.settingData.equipList == undefined) {
         this.settingData.equipList = [];
+      } 
+      if (this.settingData.inAreaRandom == undefined) {
+        this.settingData.inAreaRandom = false;
+      } 
+      if (this.settingData.eventData == undefined) {
+        this.settingData.eventData = {};
       } 
       this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
 
@@ -398,6 +405,7 @@ export default {
       this.Utils.SetSettingItemByProperty(this.setting, "equipList", this.settingData.equipList);
       this.Utils.SetSettingItemByProperty(this.setting, "canEquip", this.settingData.canEquip);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "canEquip", "value",this.settingData.canEquip);
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "inAreaRandom", "value",this.settingData.inAreaRandom);
 
       if (this.$refs.settingPanel_npcSkill) {
         this.$refs.settingPanel_npcSkill.initValue();
@@ -437,13 +445,13 @@ export default {
          
         
         // 控制三维
-        this.transfomJS.SetMessage(this.getMessage());
-          let npc = this.transfomJS.GetComponent("NPC");
+        this.transformJS.SetMessage(this.getMessage());
+          let npc = this.transformJS.GetComponent("NPC");
           //更新到头像上
           _Global.applyEvent("选中角色",npc);
           npc.ResetNameColor();
            
-          _Global.applyEvent("改变modelId或名称", this.transfomJS.GetData());
+          _Global.applyEvent("改变modelId或名称", this.transformJS.GetData());
       }
       this.ChangeUIState();
 
@@ -455,7 +463,7 @@ export default {
         let equipData =  this.settingData.equipList[i];
         this.settingData.equipList.splice(i,1);
         // //加载武器并让角色使用
-        this.transfomJS.GetComponent("NPC").GetEquip().UnWearEquip(equipData.part);
+        this.transformJS.GetComponent("NPC").GetEquip().UnWearEquip(equipData.part);
         return;
       }
     },
@@ -488,6 +496,7 @@ export default {
       };
     },
     save() {
+      this.$refs.settingPanel_npcType.save();
       // 单品中才有 updateModelTxtData
       if (this.parent.updateModelTxtData) {
         this.parent.modelData.message = this.getMessage();
@@ -506,7 +515,7 @@ export default {
     },
 
     Update() {
-      this.transfomJS.SetMessage(
+      this.transformJS.SetMessage(
         this.getMessage()
       );
       // 调用场景保存

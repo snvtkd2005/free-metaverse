@@ -457,9 +457,8 @@ export default {
       _Global.isMMD = this.isMMD;
       // this.gameType = this.sceneData.setting.gameType;
       // _Global.gameType = this.gameType;
-      // this.hasHUD = this.sceneData.setting.hasHUD;
-
-      this.hasHUD = true;
+      this.hasHUD = this.sceneData.setting.hasHUD;
+ 
       _Global.gameType = "WOW";
 
       document.title = this.sceneData.setting.title; 

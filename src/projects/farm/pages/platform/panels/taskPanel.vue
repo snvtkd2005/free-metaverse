@@ -13,7 +13,6 @@
       <!-- <el-table-column type="selection" width="40" /> -->
       <el-table-column type="index" label="序号" width="60" />
       <el-table-column prop="id" label="ID" width="130" />
-      <el-table-column prop="from" label="任务来源" width="150" />
       <el-table-column prop="taskTitle" label="任务名" width="150" />
       <el-table-column label="装备或道具奖励" width="240">
         <template #default="scope">

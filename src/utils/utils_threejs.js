@@ -14,6 +14,21 @@ export const checkV3Equel = (v1, v2) => {
     || Math.abs(v1.y - v2.y) < 0.001;
 }
 
+export const CreateCapsuleCollider = (scene, height) => {
+  // 坐标轴
+  // let axes = new THREE.AxesHelper(20); // 坐标轴
+  // scene.add(axes); // 场景添加坐标轴
+
+  const geometry = new THREE.CapsuleGeometry( 1, 1, 4, 8 ); 
+  const material = new THREE.MeshBasicMaterial( {color: 0x00ff00,transparent:true,opacity:0.5 } ); 
+  let capsule = new THREE.Mesh( geometry, material ); 
+  capsule.name = "hoverCollider";
+  scene.add( capsule ); 
+  capsule.visible = false;
+  capsule.position.set(0,height/2,0);
+  return capsule;
+}
+
 export const CreateFloorCollider = (scene, name) => {
   // 坐标轴
   // let axes = new THREE.AxesHelper(20); // 坐标轴

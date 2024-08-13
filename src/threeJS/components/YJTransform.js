@@ -115,6 +115,17 @@ class YJTransform {
         this.GetComponent("MeshRenderer").SetPosArray(message.data.avatarData.offsetPos);
         this.isYJNPC = true;
       }
+      
+      if (message.pointType == "modelAnim") {
+        data.name = message.data.name;
+        let com = this.GetComponent("Animator");
+        message.data.pointType = message.pointType;
+        com.SetMessage(message.data);
+        // com.SetMessage(message.data);
+        this.GetComponent("MeshRenderer").SetSize(message.data.localOffset.modelScale);
+        this.GetComponent("MeshRenderer").SetRotaArray(message.data.localOffset.rotation);
+        this.GetComponent("MeshRenderer").SetPosArray(message.data.localOffset.offsetPos);
+      }
       if (message.pointType == "player" || message.pointType == "avatar") {
         let com = this.GetComponent("Avatar");
         if(com){

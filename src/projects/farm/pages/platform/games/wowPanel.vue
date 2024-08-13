@@ -142,6 +142,23 @@
         alt=""
       />
     </div>
+
+    
+    <!-- 光标的父物体 -->
+    <div ref="curorParentRef" class="absolute z-50 left-0 top-0 w-full h-full">
+      <div
+        v-show="hasCuror"
+        ref="dragItemRef"
+        class="absolute z-50 left-0 top-0 w-12 h-12"
+        :style="'left:' + mouseX + 'px;' + 'top:' + mouseY + 'px;'"
+      >
+        <img
+          class="w-full h-full absolute -left-2 -top-2"
+          :src="curorIcon"
+          alt=""
+        />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -221,6 +238,11 @@ export default {
       dragIcon: "",
       delDialog: false,
       hoverOffsetPos:{ x: 0, y: 0 },//编辑模式悬浮偏移要让开顶部高度和检视面板宽度  
+
+      hasCuror:true,
+      mouseX:0,
+      mouseY:0,
+      curorIcon:"./public/images/cursorList/normal.png",
     };
   },
   created() {},
@@ -243,6 +265,25 @@ export default {
 
       _Global.addEventListener("界面开关", (e, b) => {
         this.panelState[e] = b;
+      });
+      _Global.addEventListener("切换光标", (icon) => {
+        this.curorIcon = icon; 
+        if(!_Global.setting.inEditor){
+          document.body.style.cursor = "none";
+        }
+      });
+      window.addEventListener("mousemove", (event) => { 
+        event.preventDefault(); 
+        let mousex = ((event.clientX-_Global.containerOffsetLeft) /_Global.containerWidth) * 2 - 1;
+        let mousey = -((event.clientY-_Global.containerOffsetRight) / _Global.containerHeight) * 2 + 1;
+        this.mouseX = (0.5 + mousex / 2) * _Global.containerWidth;
+        this.mouseY = (0.5 - mousey / 2) * _Global.containerHeight;
+        // this.mouseX = event.clientX ;
+        // this. mouseY = event.clientY ;
+        if(!_Global.setting.inEditor){
+          document.body.style.cursor = "none";
+        }
+        // console.log("mousePos ",this.mouseX,this.mouseY);
       });
 
       _Global.addEventListener("keycodeUp", (keycode) => {
@@ -952,7 +993,14 @@ export default {
 }
 
 </style> -->
+<style>
+</style>
 <style scoped>
+
+.cursor-pointer {
+    /* cursor: pointer; */
+    cursor: none;
+}
 .min-wh {
   min-width: 80px;
   max-width: 330px;

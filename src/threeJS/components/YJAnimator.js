@@ -8,7 +8,7 @@ import * as THREE from "three";
 import TWEEN from '@tweenjs/tween.js';
 
 class YJAnimator {
-  constructor(model, animations) {
+  constructor(model, animations,parent) {
 
     let scope = this;
     // 创建一个时钟对象Clock
@@ -78,13 +78,23 @@ class YJAnimator {
           });
         } else {
           // console.log(" messageData ",messageData);
-          _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.id, animName, (isLoop, anim) => {
+          _Global.CreateOrLoadPlayerAnimData().PlayExtendAnim(messageData, animName, (isLoop, anim) => {
+            console.error(" in 加载扩展动作 11 ",anim); 
             if (anim != null) {
               scope.ChangeAnimByAnimData(animName, isLoop, anim);
-            } else {
+            }else {
               ChangeAnimFn(animNameFullback);
             }
           });
+
+
+          // _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.id, animName, (isLoop, anim) => {
+          //   if (anim != null) {
+          //     scope.ChangeAnimByAnimData(animName, isLoop, anim);
+          //   } else {
+          //     ChangeAnimFn(animNameFullback);
+          //   }
+          // });
         }
       }
       //
@@ -266,7 +276,12 @@ class YJAnimator {
         let messageData = message.data;
         if (messageData.animationsExtendData) {
           let animName = messageData.animationsExtendData[i].animName;
+
+          console.error(" in 加载扩展动作 00 ",animName); 
+
           _Global.CreateOrLoadPlayerAnimData().PlayExtendAnim(messageData, animName, (isLoop, anim) => {
+            console.error(" in 加载扩展动作 11 ",anim); 
+            
             if (anim != null) {
               scope.ChangeAnimByAnimData(animName, isLoop, anim);
             }
@@ -525,8 +540,7 @@ class YJAnimator {
     this.UpdateModel = function (model, _animations) {
       mixer = new THREE.AnimationMixer(model);
       animations = _animations;
-      actions = [];
-      update();
+      actions = []; 
     }
     function Init() {
 
@@ -564,8 +578,7 @@ class YJAnimator {
         playActinByIndex(i);
       }
       playActinByIndex(0);
-
-      update();
+ 
     }
     function playActinByIndex(i) {
       if (actions.length <= i) { return; }
@@ -705,11 +718,17 @@ class YJAnimator {
       });
 
     }
-
+    let data = null;
     this.SetMessage = function (msg) {
       if (msg == null || msg == undefined || msg == "") { return; }
-
+      data = msg;
       console.log(" 设置动画模型 msg = ", msg);
+      if(data.pointType && data.pointType == "modelAnim"){
+        if ( data.animationsExtendData &&data.animationsExtendData.length > 0) {
+          scope.ChangeAnim(data.animationsExtendData[0].animName);
+        }
+      }
+      return;
       //新的热点数据含 pointType 字段
       if (msg.indexOf("animType") > -1) {
         hotPointData = JSON.parse(msg);
@@ -760,8 +779,7 @@ class YJAnimator {
       }
     }
 
-    function update() {
-      updateId = requestAnimationFrame(update);
+    this._update = function() {
 
       if (mixer !== null) {
         //clock.getDelta()方法获得两帧的时间间隔
@@ -775,7 +793,18 @@ class YJAnimator {
         // console.log("执行模型动画 中 ",currentTime);
         // console.log("执行动画 中 ",mixer);
       }
-
+      if(parent && data.pointType && data.pointType =="modelAnim" && data.isLookatCam){
+        
+        var lookatPos = new THREE.Vector3();  
+        _Global.YJ3D.camera.getWorldPosition(lookatPos);
+        if(data.isLockY){
+          var nameWorlPos = new THREE.Vector3();
+          parent.getWorldPosition(nameWorlPos);
+          lookatPos.y = nameWorlPos.y; 
+        }
+        parent.lookAt(lookatPos);
+        
+      }
     }
 
   }

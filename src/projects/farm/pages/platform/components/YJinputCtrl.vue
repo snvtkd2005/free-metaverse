@@ -393,9 +393,9 @@
           <div
             v-for="(item2, j) in item.value"
             :key="j"
-            class="self-center w-auto h-auto relative gap-x-3 flex "
+            class="self-center w-auto h-auto relative gap-x-1 flex "
           > 
-            <div>{{item2.taskTitle}}</div>
+            <div class=" w-20">{{item2.taskTitle}}</div>
             
             <div class="w-auto h-6 rounded-sm flex">
               <div
@@ -405,8 +405,31 @@
                 浏览...
               </div>
             </div>
-            <div class=" border text-white w-8 h-full self-center cursor-pointer text-center " @click="item.value.push({id:item2.id,from:item2.from,taskTitle:item2.taskTitle})">+</div>
-            <div class=" border text-white w-8 h-full self-center cursor-pointer text-center " @click="item.value.splice(j,1)">-</div>
+            <div class=" border text-white w-4 h-4 self-center cursor-pointer text-center " @click="item.value.push({id:item2.id,from:item2.from,taskTitle:item2.taskTitle})">+</div>
+            <div class=" border text-white w-4 h-4 self-center cursor-pointer text-center " @click="item.value.splice(j,1)">-</div>
+          </div> 
+        </div>
+
+        <!-- 商品列表 -->
+        <div v-if="item.type == 'goodsList'" class=" relative gap-2 pt-8 text-white">
+          <div class=" absolute right-0 top-0 border text-white w-4 h-4 self-center cursor-pointer text-center " @click="item.value.push({id:'',from:'',taskTitle:''})">+</div>
+          <div
+            v-for="(item2, j) in item.value"
+            :key="j"
+            class="self-center w-auto mb-px h-auto relative gap-x-1 flex "
+          > 
+            <div class=" w-20">{{item2.name}}</div>
+            
+            <div class="w-auto h-6 rounded-sm flex">
+              <div
+                class="text-xs pl-1 self-center mx-auto w-10 h-6 leading-6 bg-gray-50 rounded-sm text-black cursor-pointer"
+                @click="SelectItem2('选择商品',item2.type,j)"
+              >
+                浏览...
+              </div>
+            </div>
+            <div class=" border text-white w-4 h-4 self-center cursor-pointer text-center " @click="item.value.push({id:item2.id,from:item2.from,taskTitle:item2.taskTitle})">+</div>
+            <div class=" border text-white w-4 h-4 self-center cursor-pointer text-center " @click="item.value.splice(j,1)">-</div>
           </div> 
         </div>
 
@@ -668,10 +691,9 @@
       </div>
     </div>
 
-    <YJinputCtrl_task v-if="selectTitle=='选择任务'"
-            class="w-full h-20" 
-          />
-
+    <YJinputCtrl_task v-if="selectTitle=='选择任务' " class="w-full h-20" />
+    <YJinputCtrl_shop v-if="selectTitle=='选择商品' " class="w-full h-20" />
+    
     <div
       class="mt-2 overflow-y-scroll h-96 flex flex-wrap"
       v-if="selectTitle == '选择道具'"
@@ -739,6 +761,7 @@ import YJinput_vector3 from "./YJinput_vector3.vue";
 import YJinput_vector3xyz from "./YJinput_vector3.vue";
 
 import YJinputCtrl_task from "./YJinputCtrl_task.vue";
+import YJinputCtrl_shop from "./YJinputCtrl_shop.vue";
 
 import {
   GetAllHDR,
@@ -765,6 +788,7 @@ export default {
     YJinput_vector2xy,
     YJinput_vector3xyz,
     YJinputCtrl_task,
+    YJinputCtrl_shop,
   },
   data() {
     return {
@@ -857,7 +881,10 @@ export default {
       if (e == "选择任务") {
         this.selectTitle = e;
       }
-
+      if (e == "选择商品") {
+        this.selectTitle = e;
+      }
+      
       this.RequestGetAll(this.selectTitle);
       this.isOpen = true;
     },

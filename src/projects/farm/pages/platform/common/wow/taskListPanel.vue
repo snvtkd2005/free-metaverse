@@ -306,7 +306,19 @@ export default {
             if(this.selectIndex == i){
               this.selectIsCompleted = allCompleted;
             }
-
+            if(element.allCompleted){
+              // 从正在进行中移除
+              for (let i = _Global.user.currentTaskList.length-1; i >=0 ; i--) {
+                const cutaskId = _Global.user.currentTaskList[i].taskId;
+                if(cutaskId == element.id){
+                // 并添加到可完成中
+                let task = _Global.user.currentTaskList[i];
+                _Global.user.canCompletedTaskList.push(task);
+                _Global._YJNPCManager.GetNpcComponentById(task.fromId).SetNPCHeaderUp("task_2");
+                _Global.user.currentTaskList.splice(i,1);
+                }
+              }
+            }
           }
         });
       });
@@ -381,6 +393,7 @@ export default {
       this.$parent.outHover();
     },
     clickEvent(e, item,i) {
+      console.log(e, item,i);
       if (e == "关闭窗口") {
         _Global.applyEvent("界面开关", "taskList", false);
 
@@ -395,13 +408,17 @@ export default {
         // 点击完成任务，获取奖励
         let item = this.taskListData[this.selectIndex];
 
-          for (let i = _Global.user.currentTaskList.length-1; i >=0 ; i--) {
-            const element = _Global.user.currentTaskList[i];
+          // 从可完成中移除
+          for (let i = _Global.user.canCompletedTaskList.length-1; i >=0 ; i--) {
+            const element = _Global.user.canCompletedTaskList[i].taskId;
             if(element == item.id){
-              _Global.user.currentTaskList.splice(i,1);
+              let task = _Global.user.canCompletedTaskList[i];
+              _Global.user.completedTaskList.push(task);
+              _Global.user.canCompletedTaskList.splice(i,1);
+              _Global._YJNPCManager.GetNpcComponentById(task.fromId).CheckNextTask();
             }
           }
-        _Global.user.completedTaskList.push(this.taskData.id);
+
 
         // 装备道具、金币奖励放到背包,经验值加
         _Global.applyEvent("加金币",item.rewardGold);
@@ -433,4 +450,9 @@ export default {
   },
 };
 </script>
- 
+<style scoped>
+.cursor-pointer {
+    /* cursor: pointer; */
+    cursor: none;
+}
+</style>

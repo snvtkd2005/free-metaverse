@@ -2,7 +2,7 @@
   <div class="w-full h-full relative pointer-events-auto">
     <div class="absolute left-0 top-20 md:top-20 flex">
       <div class="relative transform md:scale-100 mx-auto flex">
-        <div class="absolute left-0 top-0 w-full h-full -z-10">
+        <div class="absolute left-0 top-0 w-full h-full pointer-events-none -z-10">
           <div class="absolute left-1 top-1">
             <img class="w-16 h-16 rounded-full" :src="leftIcon" alt="" />
           </div>
@@ -18,29 +18,29 @@
           class="absolute left-0 top-0 w-full h-full z-10 pointer-events-none"
         >
           <div
-            class="absolute left-0 bottom-16 w-full px-5 flex justify-between text-yellow-wow pointer-events-auto"
+            class="absolute left-0 bottom-16 w-full px-5 flex justify-between text-yellow-wow "
           >
-            <div class="relative ml-1 w-20 h-8">
+            <div class="relative ml-1 w-20 h-8   pointer-events-auto cursor-pointer"
+            @click="clickEvent('关闭窗口')"
+            >
               <img class="w-full h-full" :src="redBtnUrl" alt="" />
               <div
-                class="absolute left-0 top-1 w-full h-8 text-xs pointer-events-auto cursor-pointer"
-                @click="clickEvent('关闭窗口')"
+                class="absolute left-0 top-1 w-full h-8  text-xs"
               >
                 再见
               </div>
             </div>
-            <div class="relative mr-4 w-20 h-8">
-              <img class="w-full h-full" :src="redBtnUrl" alt="" />
-              <div
-                class="absolute left-0 top-1 w-full h-8 text-xs pointer-events-auto cursor-pointer"
-                @click="clickEvent('关闭窗口')"
-              >
+            <div class="relative mr-4 w-20 h-8  pointer-events-auto cursor-pointer" 
+            @click="clickEvent('关闭窗口')"
+            >
+              <img class="w-full h-full  " :src="redBtnUrl" alt="" />
+              <div class="absolute left-0 top-1  w-full h-8 text-xs pointer-events-none " >
                 关闭
               </div>
             </div>
           </div>
         </div>
-        <div class="mx-auto flex pointer-events-none">
+        <div class="mx-auto  flex pointer-events-none">
           <div class="flex flex-col">
             <div class="flex">
               <div
@@ -56,7 +56,7 @@
                 "
               ></div>
             </div>
-            <div class="flex">
+            <div class="flex ">
               <div
                 class="w-64 h-64"
                 style="
@@ -147,10 +147,12 @@ export default {
         this.leftIcon = talkData.icon;
         this.textContent = talkData.textContent;
         this.from = talkData.from; 
+        this.fromId = talkData.fromId; 
         this.taskData = talkData.taskData;
 
         // console.log("  this.taskData ", this.taskData);
         this.$nextTick(() => {
+          _Global.applyEvent("界面开关", "taskList", false);
           _Global.applyEvent("界面开关", "talk", true);
         });
       });
@@ -165,16 +167,26 @@ export default {
       }
       if (e == "选择任务") {
         if(item.state!=0){
+          //点击正在进行中的任务，直接打开任务日志面板
           _Global.applyEvent("界面开关", "taskList", true);
           _Global.applyEvent("界面开关", "talk", false);
-
           return;
         }
-        _Global.applyEvent("openTask", item.task.id, this.from, this.leftIcon);
+        _Global.applyEvent("openTask",{
+          taskId: item.task.id,
+          from:this.from,
+          fromId:this.fromId,
+          icon:this.leftIcon,
+        });
         _Global.applyEvent("界面开关", "talk", false);
       }
     },
   },
 };
 </script>
- 
+<style scoped>
+.cursor-pointer {
+    /* cursor: pointer; */
+    cursor: none;
+}
+</style>

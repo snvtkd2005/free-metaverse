@@ -86,7 +86,7 @@
     <!-- 多人同步 -->
     <YJDync
       v-if="isMultiGame && inLoadCompleted"
-      class="absolute z-50 left-0 top-0 w-full h-full"
+      class="absolute z-0 left-0 top-0 w-full h-full"
       ref="YJDync"
     />
 

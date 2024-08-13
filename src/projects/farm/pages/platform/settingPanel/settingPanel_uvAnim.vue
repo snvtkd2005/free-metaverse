@@ -46,7 +46,7 @@ export default {
         { property: "speedY", display: true, title: "Y轴播放速度", type: "slider", value: 1, min: 0, max: 5, step: 0.5, callback: this.ChangeValue },
         { property: "isBlack", display: true, title: "是否黑底", type: "toggle", value: false, callback: this.ChangeValue },
         { property: "isLookatCam", display: true, title: "是否始终朝向视图", type: "toggle", value: false, callback: this.ChangeValue },
-        { property: "isLockY", display: true, title: "锁定在X轴旋转", type: "toggle", value: false, callback: this.ChangeValue },
+        { property: "isLockY", display: true, title: "锁定在Y轴旋转", type: "toggle", value: false, callback: this.ChangeValue },
       ],
     };
   },
@@ -86,7 +86,7 @@ export default {
     ChangeValue(i, e) {
       this.setting[i].value = e;
       let property = this.setting[i].property;
-      this.settingData[this.setting[i].property] = e;
+      this.settingData[property] = e;
 
       this.Update();
 

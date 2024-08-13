@@ -8,8 +8,8 @@ import { YJAudioManager } from "./YJAudioManager.js";
 
 import IconData from "../data/iconData.js";
 import GameSetting from "../data/platform/GameSetting.js";
-
-
+import NPCheadUpModelItems from "../data/platform/NPCheadUpModelItems.js";
+ 
 // Threejs 中的事件传出接口
 
 //所有 this.functionHandle 用来传出threejs中的操作，由threejs调用。界面开发人员无需关心
@@ -32,6 +32,7 @@ class Interface {
       id:"YJPlayer",
       name:"",
       currentTaskList:[],
+      canCompletedTaskList:[],
       completedTaskList:[],
     }
     _Global.url = {
@@ -142,7 +143,17 @@ class Interface {
     _Global.SaveActionList = this.SaveActionList;
 
 
-
+    this.GetHeaderModelByType = function(type){
+      for (let i = 0; i < NPCheadUpModelItems.npcHeaderUpType.length; i++) {
+        const element = NPCheadUpModelItems.npcHeaderUpType[i];
+        if(element.value == type){
+          return element.folderBase;
+        }
+      } 
+      return null;
+    }
+    _Global.GetHeaderModelByType = this.GetHeaderModelByType;
+    
     //#endregion
 
 
@@ -204,12 +215,14 @@ class Interface {
       }
       cursorUrl = content;
       // return;
-      // console.log("切换光标", IconData.cursorList, content);
+      console.log("切换光标", IconData.cursorList, content);
       for (let i = 0; i < IconData.cursorList.length; i++) {
         const element = IconData.cursorList[i];
         // console.log(element.content, content, element.content == content);
         if (element.content == content) {
-          _Global.YJ3D.SetCursor(element.path == '' ? '' : "./public/images/cursorList" + element.path);
+          let path = element.path == '' ? '' : "./public/images/cursorList" + element.path;
+          // _Global.YJ3D.SetCursor(path);
+          _Global.applyEvent("切换光标",path);
           return;
         }
       }

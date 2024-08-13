@@ -11,6 +11,9 @@ class YJSkill {
         let targetModel = null;
         let baseData = null;
         let _YJSkillModel = new YJSkillModel(owner);
+        this.GetSkillModel = function(){
+            return _YJSkillModel;
+        }
         function init() {
             
             owner.addEventListener("首次进入战斗", () => {

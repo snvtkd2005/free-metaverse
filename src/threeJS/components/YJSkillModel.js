@@ -63,7 +63,7 @@ class YJSkillModel {
             }
             if (skill.type == "shield") {
 
-            } 
+            }
 
             for (let i = controlModels.length - 1; i >= 0; i--) {
                 const item = controlModels[i];
@@ -202,6 +202,26 @@ class YJSkillModel {
                 });
                 return;
             }
+        }
+
+        let headModel = null;
+        this.SetNPCHeaderUp = function (type) {
+            if(_Global.setting.inEditor){
+                return;
+            }
+            if(headModel){
+                headModel.Destroy();
+            }
+            let folderBase = _Global.GetHeaderModelByType(type); 
+            if(folderBase==null){
+                return;
+            }
+            _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadByFolderBase(folderBase, (model) => {
+                model.SetPos(owner.GetHeaderUpPos()); 
+                owner.GetGroup().attach(model.GetGroup());
+                model.SetActive(true);
+                headModel = model;
+            });
         }
 
         init();

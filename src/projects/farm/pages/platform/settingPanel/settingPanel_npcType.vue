@@ -71,6 +71,7 @@ export default {
       this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
 
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "taskList", "value",this.settingData.taskList);
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "goodsList", "value",this.settingData.goodsList);
       this.ChangeUIState();
     },
     
@@ -115,6 +116,19 @@ export default {
           })
         }
         this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "taskList", "value",this.settingData.taskList);
+
+      }
+      if(e=="添加商品"){
+        console.log("in npctype ", v);
+        this.settingData.goodsList = [];
+        for (let i = 0; i < v.length; i++) {
+          const vv = v[i];
+          this.settingData.goodsList.push({
+            id:vv.id,
+            name:vv.name, 
+          })
+        }
+        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "goodsList", "value",this.settingData.goodsList);
 
       }
     },  

@@ -182,21 +182,14 @@ export default {
   mounted() {
     // return;
 
-    setTimeout(() => {
-      // _Global.addEventListener(
-      // "主角姓名",
-      // () => {
-      //   setTimeout(() => {
-      //     this.resetTaskData(this.taskData);
-      //   }, 100);
-      // });
-
-      _Global.addEventListener("openTask",(id,from,icon) => {
-        this.leftIcon = icon;
+    setTimeout(() => { 
+      _Global.addEventListener("openTask",(taskData) => {
+        this.leftIcon = taskData.icon;
+        this.fromId = taskData.fromId;
          for (let i = 0; i < _Global.taskList.length; i++) {
            const element = _Global.taskList[i];
-           if(element.id == id){
-              element.from = from;
+           if(element.id == taskData.taskId){
+              element.from = taskData.from;
              this.resetTaskData(element);
            }
          }
@@ -295,11 +288,17 @@ export default {
         _Global.applyEvent("界面开关", "receiveTask", false);
         this.$parent.$refs.taskListPanel.addTask(this.taskData);
         _Global._YJAudioManager.playAudio('1722064234835/iquestactivate.ogg');
-       _Global.user.currentTaskList.push(this.taskData.id);
-
+       _Global.user.currentTaskList.push({fromId:this.fromId,taskId:this.taskData.id});
+       //
+       _Global._YJNPCManager.GetNpcComponentById(this.fromId).SetNPCHeaderUp("task_1");
       }
     },
   },
 };
 </script>
- 
+<style scoped>
+.cursor-pointer {
+    /* cursor: pointer; */
+    cursor: none;
+}
+</style>

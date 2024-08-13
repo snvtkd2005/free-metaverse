@@ -97,7 +97,7 @@ class YJPlayerAnimData {
           if (element.animName == animName) {
 
             let path = (_this.$uploadUrl + avatarData.id + "/" + element.path);
-            // console.log("加载扩展动作 ",path);
+            console.log("加载扩展动作 ",path);
             if (path.includes("json")) {
               this.LoadAssset(path, (data) => {
                 // console.log(" 读取扩展动作 ", path, data);

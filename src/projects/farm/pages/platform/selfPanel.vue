@@ -1417,24 +1417,23 @@ export default {
 
     // 删除
     Delete(item, i) {
-      console.log(" 删除 ", item);
+      // console.log(" 删除 ", item);
       this.dialogTitle = "删除";
       this.dialogVisible = true;
       this.deleteItem = item;
       this.deleteItemIndex = i;
-      // _Global.SendMsgTo3D("删除folderBase",{type:"uploadsGroup/",folderBase:"1704941752535"});
     },
     DeleteOK() {
+      return;
       this.dialogTitle = "";
       this.dialogVisible = false;
-      return;
-      if (this.deleteItem.modelType == "角色模型") {
-        _Global.SendMsgTo3D("删除folderBase", {
-          type: "uploads/",
-          folderBase: item.folderBase,
-        });
-        this.modelsList.splice(this.deleteItemIndex, 1);
+      let path = "uploads/";
+      // return;
+      if (this.deleteItem.modelType == "组合") {
+        path = "uploadsGroup/"; 
       }
+      this.modelsList.splice(this.deleteItemIndex, 1);
+      _Global.SendMsgTo3D("删除folderBase",{type:path,folderBase:this.deleteItem.folderBase});
 
       // _Global.SendMsgTo3D("删除folderBase",{type:"uploadsGroup/",folderBase:"1704941752535"});
     },

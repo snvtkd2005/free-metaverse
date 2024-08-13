@@ -222,7 +222,7 @@ class YJFireManager {
             const people = otherPeople[i];
             if(people.type=="NPC"){
               let npc = _YJNPCManager.GetNpcComponentById(people.id);
-              if(!npc.isDead){
+              if(!npc.isDead && npc.GetCamp() != 10001){
                 other.push(npc);
               }
             }

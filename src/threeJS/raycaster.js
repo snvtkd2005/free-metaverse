@@ -58,6 +58,9 @@ class YJRaycaster extends YJEvent {
       left:0,
       top:0,
     }
+    
+    _Global.containerOffsetLeft=0;
+    _Global.containerOffsetRight=0;
     this.getOffset = function(){
       return offset;
     }
@@ -65,6 +68,9 @@ class YJRaycaster extends YJEvent {
     this.SetOffset = function(left,top){
       offset.left = left;
       offset.top = top; 
+      
+      _Global.containerOffsetLeft=left;
+      _Global.containerOffsetRight=top;
       // console.log(" 设置3d画面偏移 ", offset);
     }
     let containerWidth = window.innerWidth;
@@ -229,6 +235,7 @@ class YJRaycaster extends YJEvent {
       for (let i = 0; i < intersects.length; i++) {
         const element = intersects[i].object;
         // console.log("点击筛选",element); 
+        if (element.name == "hoverCollider") {hitIndex = i; return element ; } 
         if (element.visible == false) { continue; }
         if (element.name == "ignoreRaycast") { continue; } 
         if (element.tag == "ignoreRaycast") { continue; }

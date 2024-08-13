@@ -178,3 +178,11 @@ export default {
   },
 };
 </script>
+
+
+<style scoped>
+.cursor-pointer {
+    /* cursor: pointer; */
+    cursor: none;
+}
+</style>

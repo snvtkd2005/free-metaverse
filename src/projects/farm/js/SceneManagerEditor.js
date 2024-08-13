@@ -1142,14 +1142,20 @@ class SceneManager {
 
       }
     }
+    let oldHoverObj = null;
     this.HoverObject = (hoverObject, hoverPoint) => {
       if (hoverObject == null) {
+        oldHoverObj = null;
         _Global.ReportTo3D("切换光标", "正常");
         return;
       }
 
-      _Global.ReportTo3D("切换光标", "正常");
-      if (hoverObject.transform && hoverObject.transform.GetActive && hoverObject.transform.GetActive() && hoverObject.transform.GetData) {
+      if ( hoverObject.transform && hoverObject.transform.GetActive && hoverObject.transform.GetActive() && hoverObject.transform.GetData) {
+        if(oldHoverObj == hoverObject.transform){
+          return;
+        }
+        oldHoverObj = hoverObject.transform;
+
         // 点击NPC
         // console.log(" 右键点击 transform ", message);
         let message = hoverObject.transform.GetData().message;
@@ -1159,17 +1165,38 @@ class SceneManager {
           // console.log(" == in scene manager editor  hover npc  ", message.pointType == "npc");
 
           if (message.pointType == "npc") {
-            if (message.data.baseData.camp != _Global.user.camp
+            if (
+              message.data.baseData.camp != _Global.user.camp
+              && message.data.baseData.camp != 10001
               && message.data.baseData.health != 0
             ) {
               //敌人  
               _Global.ReportTo3D("切换光标", "可攻击");
             }
 
+            if (
+              message.data.baseData.camp == 10001
+              && message.data.baseData.health != 0
+            ) {
+              if(message.data.eventData){
+                let npc = hoverObject.transform.GetComponent("NPC");
+                let {npcType,state} =  npc.GetEventState();
+                if (npcType == "task") {
+                  _Global.ReportTo3D("切换光标",state==0?"可接任务":(state==1?"任务进行中":"任务已完成"));
+                }
+                if (npcType == "shop"){
+                  _Global.ReportTo3D("切换光标", "商人");
+                }
+              } 
+            }
+
           }
         }
         return;
       }
+      oldHoverObj = null;
+      _Global.ReportTo3D("切换光标", "正常");
+
       return;
       if (hoverObject == null) {
         // _this.SetCursor("default");

@@ -832,6 +832,11 @@ export default {
 </script>
 
 <style scoped>
+
+.cursor-pointer {
+    /* cursor: pointer; */
+    cursor: none;
+}
 .scalex {
   transform: translateX(-32px) scaleX(-1);
 }

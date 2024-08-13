@@ -1007,16 +1007,16 @@ class YJSceneManager {
     let allHoverCollider = [];
     // 鼠标悬浮检测的物体
     this.AddHoverCollider = function (colliderMesh) {
+      // 给npc或可悬浮交互的物体设置简易碰撞体
       allHoverCollider.push(colliderMesh);
     }
     this.GetHoverCollider = function () {
       // 返回所有非静态模型
       // if(allHoverCollider.length == 0){
       // }
-      
+      return allHoverCollider;
       return _Global.setting.inEditor ? modelParent.children : allHoverCollider;
       // return scene.children;
-      // return allHoverCollider;
     }
 
     let allCollider = [];

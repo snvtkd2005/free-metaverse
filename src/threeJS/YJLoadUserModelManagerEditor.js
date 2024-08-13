@@ -391,7 +391,7 @@ class YJLoadUserModelManager {
 
       if (modelData.modelType == "动画模型") {
         MeshRenderer.load(modelPath, (scope) => {
-          let component = new YJAnimator(scope.GetModel(), scope.GetAnimations());
+          let component = new YJAnimator(scope.GetModel(), scope.GetAnimations(), object.GetGroup());
           object.AddComponent("Animator", component);
 
           if (modelData.message != undefined) {
@@ -726,6 +726,26 @@ class YJLoadUserModelManager {
             callback(model);
           }
         });
+      });
+    }
+
+    this.LoadByFolderBase = function (folderBase, callback) {
+      let path = _Global.YJ3D.$uploadUrl + folderBase + "/" + "data.txt" + "?time=" + new Date().getTime();
+      _Global.YJ3D._YJSceneManager.LoadAssset(path, (modelData) => {
+        modelData.pos = { x: 0, y: 0, z: 0 };
+        modelData.rotaV3 = { x: 0, y: 0, z: 0 };
+        modelData.scale = { x: 1, y: 1, z: 1 };
+        // modelData.active = false;
+        CreateTransform(null, modelData, (object) => {
+          if (callback) {
+            callback(object);
+          }
+        });
+        // this.LoadStaticModel2(modelData, (model) => {
+        //   if (callback) {
+        //     callback(model);
+        //   }
+        // });
       });
     }
 

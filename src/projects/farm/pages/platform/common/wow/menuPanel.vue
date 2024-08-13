@@ -47,11 +47,9 @@
     </div>
   </div>
 </template>
-
-
-
  
 <script >
+
 export default {
   props: [],
   components: {},
@@ -94,3 +92,11 @@ export default {
   },
 };
 </script>
+
+
+<style scoped>
+.cursor-pointer {
+    /* cursor: pointer; */
+    cursor: none;
+}
+</style>

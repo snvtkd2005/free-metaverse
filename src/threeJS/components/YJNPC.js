@@ -9,6 +9,7 @@ import { YJPlayerProperty } from './YJPlayerProperty';
 import { YJshader_dissolve } from "/@/threeJS/loader/YJshader_dissolve";
 import { YJBuff } from "./YJBuff";
 import skillItem from "../../projects/farm/data/platform/skillItem";
+import { CreateCapsuleCollider } from "../../utils/utils_threejs";
 
 
 // NPC
@@ -734,63 +735,138 @@ class YJNPC {
     this.GetData = function () {
       return data;
     }
-    this.CallEvent = function () {
-      let eventData = data.eventData;
-      if (eventData.npcType == "task") {
+    this.SetNPCHeaderUp =function(type){
+      _YJSkill.GetSkillModel().SetNPCHeaderUp(type);
+    }
+    this.CheckNextTask = function(){
 
+      let {npcType,state} =  scope.GetEventState();
+      if (npcType == "task") { 
+        scope.SetNPCHeaderUp(npcType + "_" + state);
+      }else{
+        scope.SetNPCHeaderUp(npcType);
+      }
+    }
+    //鼠标悬浮在npc上，获取其交互状态，以改变光标样式
+    this.GetEventState = function(){
+      let eventData = data.eventData;
+      if(eventData==undefined){
+        return {npcType:null};
+      }
+      let state = 0; //0未接受、1正在进行、2可完成
+      if (eventData.npcType == "task") {
+        
         let c = 0;
         let index = 0;
         let taskData = [];
         for (let j = 0; j < eventData.taskList.length; j++) {
           for (let i = _Global.user.completedTaskList.length - 1; i >= 0; i--) {
-            const element = _Global.user.completedTaskList[i];
+            const element = _Global.user.completedTaskList[i].taskId;
             if (element == eventData.taskList[j].id) {
               c++;
-              index = j;
+              index++;
             }
           }
         }
         if (c == eventData.taskList.length) {
-          // 任务全部完成 
+          // 任务已全部完成 
+          return {npcType:null};
         }else{
 
-          let ing = false;
+          let ing = false; //是否正在进行，状态包含1或2 
           let taskid = eventData.taskList[index].id;
-          for (let i = _Global.user.currentTaskList.length - 1 && !ing; i >= 0; i--) {
-            const element = _Global.user.currentTaskList[i];
+          console.log(" _Global.user.canCompletedTaskList ",_Global.user.canCompletedTaskList);
+          for (let i = _Global.user.canCompletedTaskList.length - 1; i >= 0 && !ing; i--) {
+            const element = _Global.user.canCompletedTaskList[i].taskId;
             if (element == taskid) {
-              //正在做任务，返回
-              taskData = [
-                {
-                  state: 1, //0未接受、1正在进行、2可完成
-                  task: eventData.taskList[index]
-                } 
-              ]
+              state = 2; //任务为可完成状态 
+              ing = true; 
+            }
+          } 
+          for (let i = _Global.user.currentTaskList.length - 1 ; i >= 0 && !ing; i--) {
+            const element = _Global.user.currentTaskList[i].taskId;
+            if (element == taskid) { 
+              state = 1, //正在进行状态
               ing = true; 
             }
           }
           if(!ing){
-            taskData = [
-              {
-                state: 0, //0未接受、1正在进行、2可完成
-                task: eventData.taskList[index]
-              } 
-            ]
+            state = 0;
           }
+          taskData = [
+            {
+              state: state, //0未接受、1正在进行、2可完成
+              task: eventData.taskList[index]
+            } 
+          ]
+        }  
+      }
+      if (eventData.npcType == "shop"){
+        
+      }
+      return {npcType:eventData.npcType,state:state}
+    }
+    this.CallEvent = function () {
+      let eventData = data.eventData;
+      if (eventData.npcType == "task") {
+        
+        let c = 0;
+        let index = 0;
+        let taskData = [];
+        for (let j = 0; j < eventData.taskList.length; j++) {
+          for (let i = _Global.user.completedTaskList.length - 1; i >= 0; i--) {
+            const element = _Global.user.completedTaskList[i].taskId;
+            if (element == eventData.taskList[j].id) {
+              c++;
+              index++;
+            }
+          }
+        }
+        if (c == eventData.taskList.length) {
+          // 任务已全部完成 
+        }else{
 
+          let ing = false; //是否正在进行，状态包含1或2 
+          let taskid = eventData.taskList[index].id;
+          let state = 0; //0未接受、1正在进行、2可完成
+          for (let i = _Global.user.canCompletedTaskList.length - 1 ; i >= 0 && !ing; i--) {
+            const element = _Global.user.canCompletedTaskList[i].taskId;
+            if (element == taskid) {
+              state = 2; //任务为可完成状态 
+              ing = true; 
+            }
+          } 
+          for (let i = _Global.user.currentTaskList.length - 1 ; i >= 0 && !ing; i--) {
+            const element = _Global.user.currentTaskList[i].taskId;
+            if (element == taskid) { 
+              state = 1, //正在进行状态
+              ing = true; 
+            }
+          }
+          if(!ing){
+            state = 0;
+          }
+          taskData = [
+            {
+              state: state, //0未接受、1正在进行、2可完成
+              task: eventData.taskList[index]
+            } 
+          ]
         } 
 
         _Global.applyEvent("openTalk", {
           textContent: eventData.textContent,
           from: scope.GetNickName(),
+          fromId: scope.id,
           icon: _Global.url.uploadUrl + data.avatarData.id + "/" + "thumb.png",
           taskData: taskData
-        });
-
-
-        // _Global.applyEvent("openTask",taskid,scope.GetNickName()
-        // ,_Global.url.uploadUrl + data.avatarData.id + "/" + "thumb.png");
+        }); 
       }
+    }
+    function addSimpleCollider(){
+      let mesh = CreateCapsuleCollider(scope.transform.GetGroup(),playerHeight);
+      mesh.transform = scope.transform;
+      _Global.YJ3D._YJSceneManager.AddHoverCollider(mesh);
     }
     this.SetMessage = function (msg) {
       if (msg == null || msg == undefined || msg == "") { return; }
@@ -840,7 +916,7 @@ class YJNPC {
       if (!scope.transform.GetActive()) {
         return;
       }
-
+      addSimpleCollider();
       CreateNameTrans(this.npcName);
       scope.CreateHealth();
       scope.transform.isIgnoreRaycast = true;
@@ -920,6 +996,11 @@ class YJNPC {
         skillList = [];
         ClearFireLater();
       }
+      let {npcType,state} =  scope.GetEventState();
+      if (npcType == "task") { 
+        scope.SetNPCHeaderUp(npcType + "_" + state);
+      }
+      
       // console.log( scope.GetNickName() + "in NPC msg = ", baseData);
 
     }
@@ -1446,6 +1527,12 @@ class YJNPC {
     this.GetDamageTextPos = function () {
       let pos = scope.GetWorldPos().clone();
       pos.y += playerHeight * nameScale / 2;
+      return pos;
+    }
+    
+    this.GetHeaderUpPos = function () {
+      let pos = scope.GetWorldPos().clone();
+      pos.y +=  (playerHeight * 1 + 0.3) ;
       return pos;
     }
     function RealyDamage(strength, fromId, fromName) {

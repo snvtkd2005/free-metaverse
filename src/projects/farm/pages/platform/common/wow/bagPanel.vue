@@ -224,13 +224,17 @@ export default {
 
       _Global.addEventListener("加金币", (v) => {
         _Global._YJPlayerFireCtrl.GetProperty().updateBasedata({ value: v, property: "gold" });
-        _Global.applyEvent("获取道具记录","金币",v);
+        if(v<0){
+
+        }else{
+          _Global.applyEvent("获取道具记录","金币",v);
+        }
       });
 
       _Global.addEventListener("加道具", (rewardItems) => {
         // console.log("加道具", (rewardItems));
         for (let i = 0; i < rewardItems.length; i++) {
-          const skill = rewardItems[i].skill;
+          const skill = rewardItems[i].skill; 
           let has = false;
           for (let j = 0; j < this.itemList.length && !has; j++) {
             const element = this.itemList[j];
@@ -245,7 +249,7 @@ export default {
               }
             }else{
               if (element.skill == null) {
-                element.skill = skill;
+                element.skill = JSON.parse(JSON.stringify(skill)) ;
                 has = true; 
               }
             }

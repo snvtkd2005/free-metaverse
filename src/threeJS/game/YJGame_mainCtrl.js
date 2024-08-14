@@ -50,7 +50,7 @@ class YJGame_mainCtrl {
 
       });
       _Global.applyEvent('主角姓名', _Global._YJPlayerFireCtrl.GetNickName());
-      _Global.applyEvent('主角头像', _Global.YJ3D.YJPlayer.GetavatarData());
+      // _Global.applyEvent('主角头像', _Global.YJ3D.YJPlayer.GetavatarData());
 
       _Global.addEventListener('经验值', (c, v) => {
 

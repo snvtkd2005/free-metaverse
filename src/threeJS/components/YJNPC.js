@@ -747,6 +747,13 @@ class YJNPC {
         scope.SetNPCHeaderUp(npcType);
       }
     }
+    this.GetNPCType = function(){
+      let eventData = data.eventData;
+      if(eventData==undefined){
+        return null;
+      }
+      return eventData.npcType
+    }
     //鼠标悬浮在npc上，获取其交互状态，以改变光标样式
     this.GetEventState = function(){
       let eventData = data.eventData;
@@ -860,6 +867,13 @@ class YJNPC {
           fromId: scope.id,
           icon: _Global.url.uploadUrl + data.avatarData.id + "/" + "thumb.png",
           taskData: taskData
+        }); 
+      }
+      if (eventData.npcType == "shop") {
+        _Global.applyEvent("openShop", {
+          from: scope.GetNickName(),
+          icon: _Global.url.uploadUrl + data.avatarData.id + "/" + "thumb.png",
+          goodsList: eventData.goodsList
         }); 
       }
     }

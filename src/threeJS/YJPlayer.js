@@ -124,49 +124,54 @@ class YJPlayer {
     let mountAvatar = null;
     let avatarId = 0;
     let modelScaleDrect = 1;
-    function GetAnimData(id) {
-      let animationsData = [];
+    let animationsData = [];
+    function GetAnimData(id, callback) {
 
       avatarId = id;
       // avatarData = _this.$parent.GetAvatarData(playerName);
-      avatarData = _this._YJSceneManager.CreateOrLoadPlayerAnimData().GetAvatarDataById(id);
-      playerName = avatarData.name;
-      // console.error(" 加载角色名 " + playerName, avatarData);
+      _this._YJSceneManager.CreateOrLoadPlayerAnimData().GetAvatarDataById(id, (_avatarData) => {
+        avatarData = _avatarData;
 
-      modelPath = avatarData.modelPath;
-      playerHeight = avatarData.height;
-      rotation = avatarData.rotation;
+        playerName = avatarData.name;
+        // console.error(" 加载角色名 ", id, playerName, avatarData);
 
-      modelScale = avatarData.modelScale;
-      // modelScaleDrect = avatarData.modelScale;
-      if (modelPath.indexOf("fbx") > -1) {
-        modelScale = modelScale * 0.01;
-      }
-      nameScale = avatarData.nameScale;
-      // 动作数据
-      animationsData = avatarData.animationsData;
+        modelPath = avatarData.modelPath;
+        playerHeight = avatarData.height;
+        rotation = avatarData.rotation;
 
-      //坐骑模型
-      if (avatarData.flyMount) {
-        let size = modelScale;
+        modelScale = avatarData.modelScale;
+        // modelScaleDrect = avatarData.modelScale;
         if (modelPath.indexOf("fbx") > -1) {
-          size = modelScale * 100;
+          modelScale = modelScale * 0.01;
         }
-        mountAvatar = new YJLoadModel(
-          _this,
-          group,
-          "id",
-          _this.GetPublicUrl() + avatarData.flyMount,
-          new THREE.Vector3(0, 0, 0),
-          // new THREE.Vector3(0,0,0),
-          new THREE.Vector3(0, Math.PI, 0),
-          new THREE.Vector3(size, size, size),
-          "flyMount", false, () => {
-            mountAvatar.GetModel().visible = false;
+        nameScale = avatarData.nameScale;
+        // 动作数据
+        animationsData = avatarData.animationsData;
+
+        //坐骑模型
+        if (avatarData.flyMount) {
+          let size = modelScale;
+          if (modelPath.indexOf("fbx") > -1) {
+            size = modelScale * 100;
           }
-        )
-      }
-      return animationsData;
+          mountAvatar = new YJLoadModel(
+            _this,
+            group,
+            "id",
+            _this.GetPublicUrl() + avatarData.flyMount,
+            new THREE.Vector3(0, 0, 0),
+            // new THREE.Vector3(0,0,0),
+            new THREE.Vector3(0, Math.PI, 0),
+            new THREE.Vector3(size, size, size),
+            "flyMount", false, () => {
+              mountAvatar.GetModel().visible = false;
+            }
+          )
+        }
+        if (callback) {
+          callback();
+        }
+      });
     }
 
     let hasMount = false;
@@ -294,8 +299,9 @@ class YJPlayer {
         }
       }
 
-      let animationsData = GetAnimData(id);
-      LoadAvatar(modelPath, playerHeight, animationsData);
+      GetAnimData(id,()=>{
+        LoadAvatar(modelPath, playerHeight, animationsData);
+      });
       return playerHeight;
     }
 
@@ -413,31 +419,33 @@ class YJPlayer {
     this.ChangeAvatar = function (id, isLocal) {
 
       // console.log("切换角色11");
-      let animationsData = GetAnimData(id);
 
-      avatar.ChangeAvatar(
-        _this.GetPublicUrl() + modelPath,
-        animationsData,
-        (_playerObj) => {
-          clearGroup(group);
-          playerObj = _playerObj;
-          group.add(playerObj);
-          playerObj.position.set(0, 0, 0); //原点位置
-          let size = modelScale;
-          playerObj.scale.set(size, size, size); //模型缩放
+      GetAnimData(id, () => {
+        avatar.ChangeAvatar(
+          _this.GetPublicUrl() + modelPath,
+          animationsData,
+          (_playerObj) => {
+            clearGroup(group);
+            playerObj = _playerObj;
+            group.add(playerObj);
+            playerObj.position.set(0, 0, 0); //原点位置
+            let size = modelScale;
+            playerObj.scale.set(size, size, size); //模型缩放
 
-          oldAnimName = "idle";
-          //刷新姓名条高度；刷新摄像机目标高度
-          UpdateNameTransHeight();
+            oldAnimName = "idle";
+            //刷新姓名条高度；刷新摄像机目标高度
+            UpdateNameTransHeight();
 
-          if (isLocal) {
-            if (controllerCallback) {
-              controllerCallback();
+            if (isLocal) {
+              if (controllerCallback) {
+                controllerCallback();
+              }
+              _this.YJController.SetTargetHeight(playerHeight);
             }
-            _this.YJController.SetTargetHeight(playerHeight);
           }
-        }
-      );
+        );
+      });
+
     }
 
 
@@ -557,13 +565,13 @@ class YJPlayer {
       return {
         avatarData: avatarData,
         baseData: baseData,
-        name:scope.GetNickName(),
+        name: scope.GetNickName(),
       };
     }
     this.GetModelScale = function () {
       return nameScale;
     }
-    this.SetWeaponData = function(_weaponData){ 
+    this.SetWeaponData = function (_weaponData) {
     }
     this.GetDamageTextPos = function () {
       let pos = scope.GetWorldPos().clone();
@@ -586,11 +594,13 @@ class YJPlayer {
     }
     // 设置姓名条高度偏移和尺寸
     this.SetNameTransOffsetAndScale = function (h, scale) {
+      if(namePosTrans == null){return;}
       namePosTrans.position.set(0, h, 0); //原点位置
       namePosTrans.scale.set(scale, scale, scale);
     }
     // 还原姓名条高度偏移和尺寸到角色数据中数值
     this.ResetNameTransOffsetAndScale = function () {
+      if(namePosTrans == null){return;}
       namePosTrans.position.set(0, (playerHeight + 0.3), 0); //原点位置
       namePosTrans.scale.set(nameScale, nameScale, nameScale);
     }
@@ -598,9 +608,9 @@ class YJPlayer {
     let createNameTimes = 0;
     function getCampColor() {
       // 敌对、友善、中立
-      if(scope.camp==10000){return 0xee0000;}
-      if(scope.camp==10001){return 0x00ee00;}
-      if(scope.camp==10002){return 0xeeee00;}
+      if (scope.camp == 10000) { return 0xee0000; }
+      if (scope.camp == 10001) { return 0x00ee00; }
+      if (scope.camp == 10002) { return 0xeeee00; }
       return _Global.user.camp != scope.camp ? 0xee0000 : 0xbab8ff;
     }
     //创建姓名条参考物体
@@ -645,9 +655,9 @@ class YJPlayer {
       eventList.push({ eventName: e, fn: fn });
     }
     this.removeEvent = function (e) {
-      for (let i = eventList.length -1 ; i >= 0 ; i--) {
+      for (let i = eventList.length - 1; i >= 0; i--) {
         if (eventList[i].eventName == e) {
-          eventList.splice(i,1);
+          eventList.splice(i, 1);
         }
       }
     }
@@ -819,7 +829,7 @@ class YJPlayer {
     this.GetScale = function () {
       return nameScale;
     }
-    
+
     this.GetPlayerWorldPos = function () {
       let pos = getWorldPosition(playerGroup).clone();
       pos.y += playerHeight / 2;
@@ -1010,16 +1020,16 @@ class YJPlayer {
     let oldUserData = null;
     let _YJSkillModel = null;
     this.ReceiveControl = function (msg) {
-      if(_YJSkillModel == null){
+      if (_YJSkillModel == null) {
         _YJSkillModel = new YJSkillModel(scope);
       }
-      _YJSkillModel.ReceiveControl(msg,false);
+      _YJSkillModel.ReceiveControl(msg, false);
     }
     this.SendSkill = function (msg) {
-      if(_YJSkillModel == null){
+      if (_YJSkillModel == null) {
         _YJSkillModel = new YJSkillModel(scope);
       }
-      _YJSkillModel.SendSkill(msg,false);
+      _YJSkillModel.SendSkill(msg, false);
     }
 
     //接收服务器同步过来的其他用户角色位置、旋转、动作

@@ -265,7 +265,7 @@ export default {
       }
 
       this.$nextTick(()=>{
-        _Global.applyEvent("界面开关", "receiveTask", true);
+        _Global.applyEvent("界面开关", "task", true);
       });
 
     },
@@ -281,11 +281,11 @@ export default {
     },
     clickEvent(e) {
       if (e == "关闭窗口") {
-        _Global.applyEvent("界面开关", "receiveTask", false);
+        _Global.applyEvent("界面开关", "task", false);
       }
       if (e == "接受") {
         //接受任务
-        _Global.applyEvent("界面开关", "receiveTask", false);
+        _Global.applyEvent("界面开关", "task", false);
         this.$parent.$refs.taskListPanel.addTask(this.taskData);
         _Global._YJAudioManager.playAudio('1722064234835/iquestactivate.ogg');
        _Global.user.currentTaskList.push({fromId:this.fromId,taskId:this.taskData.id});

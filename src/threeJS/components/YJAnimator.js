@@ -79,7 +79,7 @@ class YJAnimator {
         } else {
           // console.log(" messageData ",messageData);
           _Global.CreateOrLoadPlayerAnimData().PlayExtendAnim(messageData, animName, (isLoop, anim) => {
-            console.error(" in 加载扩展动作 11 ",anim); 
+            // console.error(" in 加载扩展动作 11 ",anim); 
             if (anim != null) {
               scope.ChangeAnimByAnimData(animName, isLoop, anim);
             }else {

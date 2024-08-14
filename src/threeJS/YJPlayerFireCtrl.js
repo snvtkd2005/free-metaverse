@@ -24,7 +24,7 @@ class YJPlayerFireCtrl {
 		}
 		this.SetWeaponData = function (_weaponData) {
 			weaponData = _weaponData;
-		}  
+		}
 		let baseData = null;
 		//玩家动作状态机
 		var PLAYERSTATE = {
@@ -221,7 +221,7 @@ class YJPlayerFireCtrl {
 		this.GetBoneVague = function (boneName, callback) {
 			_YJPlayer.GetBoneVague(boneName, callback);
 		}
-		this.GetModelData = function(){
+		this.GetModelData = function () {
 			// 使用镜像技能时，转换为npc数据
 			let modelData = {
 				id: "", //资源id
@@ -383,7 +383,7 @@ class YJPlayerFireCtrl {
 
 		let targetModel = null;
 		let npcPos = null;
-		this.GetFireId = function(){
+		this.GetFireId = function () {
 			return _YJPlayer.fireId;
 		}
 		// 玩家加入战斗
@@ -474,14 +474,14 @@ class YJPlayerFireCtrl {
 				return;
 			}
 			if (_targetModel.GetCamp() == scope.GetCamp() || _targetModel.GetCamp() == 10001) {
-				if(_targetModel.isYJNPC){
+				if (_targetModel.isYJNPC) {
 					let data = _targetModel.GetData();
-					if(data.eventData){
+					if (data.eventData) {
 						_targetModel.CallEvent();
 					}
 				}
 				return;
-			} 
+			}
 			ReadyFire();
 		}
 		function SelectNPC(_targetModel) {
@@ -1085,6 +1085,19 @@ class YJPlayerFireCtrl {
 					_YJSkill.CheckSkillInVaildDis(pos);
 				}
 				scope.applyEvent("pos", pos);
+				//当在与商人或接任务时，距离超过10米时，关闭对话框
+				if (_Global.panelState.task || _Global.panelState.talk || _Global.panelState.shop
+				) {
+					if (_Global.talkPos) {
+						let dis = scope.GetWorldPos().distanceTo(_Global.talkPos);
+						if (dis > 10) {
+							_Global.applyEvent("界面开关", "talk", false);
+							_Global.applyEvent("界面开关", "task", false);
+							_Global.applyEvent("界面开关", "shop", false);
+							_Global.talkPos = null;
+						}
+					}
+				}
 			});
 			setTimeout(() => {
 				let skillList = [];
@@ -1134,6 +1147,9 @@ class YJPlayerFireCtrl {
 
 
 			}, 1000);
+			_Global.applyEvent("主角战斗控制初始化完成");
+			let avatarData = _Global.YJ3D.YJPlayer.GetavatarData();
+			_Global.applyEvent('主角头像', avatarData.id + "/thumb.png" );
 			UpdateData();
 		}
 		Init();

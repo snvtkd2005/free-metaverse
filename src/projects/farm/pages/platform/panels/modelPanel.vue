@@ -126,11 +126,11 @@ export default {
 
             if (item.modelType == "角色模型") {
               // 到角色数据中，模型路径、动画数据
-              if (item.message) {
-                let data = item.message.data;
-                data.modelPath = this.$uploadUrl + item.modelPath;
-                _Global.CreateOrLoadPlayerAnimData().AddAvatarData(data);
-              }
+              // if (item.message) {
+              //   let data = item.message.data;
+              //   data.modelPath = this.$uploadUrl + item.modelPath;
+              //   _Global.CreateOrLoadPlayerAnimData().AddAvatarData(data);
+              // }
             } else {
               this.modelsList.push(item);
             }

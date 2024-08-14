@@ -56,6 +56,15 @@ export default {
         },
 
         {
+          property: "gold",
+          display: true,
+          title: "售价",
+          type: "num",
+          value: 0,
+          callback: this.ChangeValue,
+        },
+
+        {
           property: "useType",
           display: true,
           title: "使用类型",
@@ -179,6 +188,13 @@ export default {
       if (this.settingData.effectType == undefined) {
         this.settingData.effectType = "";
       }
+      
+      if(this.settingData.countType == undefined){
+        this.settingData.countType = GameItems.countType[0].value;
+      }
+      if(this.settingData.gold == undefined){
+        this.settingData.gold = 0;
+      }
       this.Utils.SetSettingItemPropertyValueByProperty(
         this.setting,
         "useType",
@@ -230,7 +246,11 @@ export default {
         GameItems.countType
       );
       console.log(this.settingData);
+
       this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
+
+      // this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "countType", "value",this.settingData.countType);
+
       for (let i = 0; i < this.setting.length; i++) {
         this.ChangeUIState(this.setting[i].property, this.setting[i].value);
       }

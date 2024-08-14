@@ -47,9 +47,10 @@ class Interface {
       bagBase: false,
       mainmenu: false,
       setting: false,
-      receiveTask:false,//接收任务对话框
+      task:false,//接收任务对话框
       taskList:false, //任务日志
       talk:false, //与npc的对话框
+      shop:false, //商人 
     };
     _Global.hoverPart = "";
     _Global.dragPart = "";
@@ -215,7 +216,7 @@ class Interface {
       }
       cursorUrl = content;
       // return;
-      console.log("切换光标", IconData.cursorList, content);
+      // console.log("切换光标", IconData.cursorList, content);
       for (let i = 0; i < IconData.cursorList.length; i++) {
         const element = IconData.cursorList[i];
         // console.log(element.content, content, element.content == content);
@@ -233,9 +234,7 @@ class Interface {
     _Global.isSupportedHls = false;
     function init() {
       _Global.isSupportedHls = Hls.isSupported();
-      RequestGetAllModel();
-
-
+      RequestGetAllModel(); 
     }
 
     let modelsList = [];
@@ -307,8 +306,10 @@ class Interface {
 
 
     async function RequestGetAllModel() {
+      // return;
       GetAllModel().then((res) => {
-        // console.log("获取所有单品模型 ", res);
+        return;
+        console.log(" in editor 获取所有单品模型 ", res);
         //先记录旧照片
         if (res.data.txtDataList) {
           let txtDataList = res.data.txtDataList;
@@ -337,10 +338,10 @@ class Interface {
                 let data = item.message.data;
                 data.modelPath = _this.$uploadUrl + item.modelPath;
                 data.icon = "thumb.png";
+                console.log(" in editor 添加角色数据 ");
                 _Global.CreateOrLoadPlayerAnimData().AddAvatarData(data);
               }
-            } else {
-              // this.modelsList.push(item);
+            } else { 
             }
           }
 

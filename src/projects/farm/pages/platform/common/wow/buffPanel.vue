@@ -95,7 +95,7 @@ export default {
   created() {},
   mounted() {
     setTimeout(() => {
-      _Global.addEventListener("主角头像", (s) => {
+      _Global.addEventListener("主角战斗控制初始化完成", (s) => {
         _Global._YJPlayerFireCtrl.addEventListener("添加debuff", (debuff) => {
           debuff.icon = _Global.url.uploadUVAnimUrl + debuff.icon;
           this.debuffList.push(debuff);

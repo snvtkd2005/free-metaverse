@@ -45,7 +45,7 @@ export const SetSettingItemByPropertyAll = (setting, settingData) => {
   let names = Object.getOwnPropertyNames(settingData);
   for (let i = 0; i < names.length; i++) {
     const element = names[i];
-    if(!settingData[element]){continue;}
+    if(settingData[element]==undefined){continue;}
     let names2 = Object.getOwnPropertyNames(settingData[element]);
     if (typeof settingData[element] === 'object') {
       for (let j = 0; j < names2.length; j++) {

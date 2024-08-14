@@ -11,6 +11,7 @@ class YJPlayerAnimData {
 
     let _YJLoadAnimation = null;
     function Init() {
+      return;
       if (_this.GetPlayerAnimData) {
         PlayerAnimData = _this.GetPlayerAnimData();
       } else if (_this.$parent.GetPlayerAnimData) {
@@ -48,14 +49,29 @@ class YJPlayerAnimData {
       }
       console.error(" 角色信息未找到 ", playerName);
     }
-    this.GetAvatarDataById = function (id) {
+    this.GetAvatarDataById = function (id,callback) {
+      // console.error(" 所有角色数据 ", avatarDataList);
+
       for (let i = 0; i < avatarDataList.length; i++) {
         if (avatarDataList[i].id == id) {
-          return FindBoneRefAnimationData(avatarDataList[i]);
+          if(callback){
+            callback(FindBoneRefAnimationData(avatarDataList[i]));
+          }
+          return; 
         }
       }
-      console.error(" 角色信息未找到 ", id);
+
+      let path = (_this.$uploadUrl + id + "/data.txt?time=" + new Date().getTime());
+      this.LoadAssset(path, (data) => { 
+        // console.log(" 查找角色信息 " ,data);
+        this.AddAvatarData(data.message.data);
+        if(callback){
+          callback(data.message.data);
+        }
+      });
+      // console.error(" 角色信息未找到 ",path, id);
     }
+
     //查找动画数据时，把映射数据也加上
     function FindBoneRefAnimationData(avatarData) {
       if (avatarData.boneRefPlayer == undefined || avatarData.boneRefPlayer == '') {
@@ -84,6 +100,8 @@ class YJPlayerAnimData {
       }
       if (!has) {
         avatarDataList.push(avatarData);
+      // console.error(" 刷新角色数据 ",id, avatarData);
+
       }
       FindBoneRefAnimationData(avatarData);
     }
@@ -421,12 +439,12 @@ class YJPlayerAnimData {
     this.AddAvatarData = function (avatarData) {
       for (let i = 0; i < avatarDataList.length; i++) {
         const element = avatarDataList[i];
-        if (element.name == avatarData.name) {
+        if (element.id == avatarData.id) {
           return;
         }
       }
-      (scope.AddAllExtendAnimData(avatarData.name, avatarData.animationsExtendData));
-
+      scope.AddAllExtendAnimData(avatarData.name, avatarData.animationsExtendData);
+      // console.error(" 添加角色数据 ", avatarData);
       avatarDataList.push(avatarData);
     }
 

@@ -218,6 +218,13 @@ class YJPlayerProperty {
 			owner.applyEvent("属性改变", baseData);
 
 		}
+		this.GetPropertyValue = function(e){
+			if (baseData[e] != undefined) {
+				return baseData[e];
+			} else {
+				return basicProperty[e];
+			}
+		}
 		this.updateBasedata = function (card) {
 			let { value, property } = card;
 

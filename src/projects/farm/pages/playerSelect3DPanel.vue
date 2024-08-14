@@ -50,8 +50,8 @@ export default {
     GetAllAnim(playerName,callback){
       return this._YJ3dScene.CreateOrLoadPlayerAnimData().GetAllAnim(playerName,callback);
     },
-    GetAvatarData(playerName) {
-      return this._YJ3dScene.CreateOrLoadPlayerAnimData().GetAvatarDataById(playerName);
+    GetAvatarData(id) {
+      return this._YJ3dScene.CreateOrLoadPlayerAnimData().GetAvatarDataById(id);
     },
     SelectAvatar(selectPlayerName,callback) {
 
@@ -62,8 +62,9 @@ export default {
 
       this._YJ3dScene.NeedChangeSkin();
       // console.log("selectPlayerName = " + selectPlayerName);
-      let avatarData = this._YJ3dScene.CreateOrLoadPlayerAnimData().GetAvatarDataById(selectPlayerName);
-      let modelData = {
+      this._YJ3dScene.CreateOrLoadPlayerAnimData().GetAvatarDataById(selectPlayerName,(avatarData)=>{
+
+        let modelData = {
         name:avatarData.name,
         modelType:"角色模型",
         modelPath:avatarData.modelPath,
@@ -75,6 +76,8 @@ export default {
 
       //加载3d模型
       this._YJ3dScene.ChangeAvatarByCustom(avatarData,callback);
+
+      });
     },
     AddAvatarData (avatarData){
       if (this._YJ3dScene == null) {

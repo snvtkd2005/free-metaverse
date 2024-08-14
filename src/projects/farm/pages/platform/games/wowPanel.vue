@@ -16,8 +16,12 @@
             <skillPanel ref="skillPanel"></skillPanel>
           </div>
 
-          <div class="w-96 h-64" v-show="panelState.receiveTask">
+          <div class="w-96 h-64" v-show="panelState.task">
             <taskPanel ref="taskPanel"></taskPanel>
+          </div>
+          
+          <div class="w-96 h-64" v-show="panelState.shop">
+            <shopPanel ref="shopPanel"></shopPanel>
           </div>
           
           <div class="w-96 h-64" v-show="panelState.talk">
@@ -172,6 +176,7 @@ import buffPanel from "../common/wow/buffPanel.vue";
 import ActionPanelVue from "../common/wow/ActionPanel.vue";
 import PlayerPropertyPanelVue from "../common/wow/PlayerPropertyPanel.vue";
 import skillPanel from "../common/wow/skillPanel.vue";
+import shopPanel from "../common/wow/shopPanel.vue";
 import bagPanel from "../common/wow/bagPanel.vue";
 import talkPanel from "../common/wow/talkPanel.vue";
 import taskPanel from "../common/wow/taskPanel.vue";
@@ -194,6 +199,7 @@ export default {
     ActionPanelVue,
     PlayerPropertyPanelVue,
     skillPanel,
+    shopPanel,
     taskListPanel,
     bagPanel,
     talkPanel,
@@ -390,7 +396,7 @@ export default {
         this.cancelDrag("摧毁拖拽Prop"); 
       });
 
-      // _Global.panelState.receiveTask = true;
+      // _Global.panelState.task = true;
     }, 2000);
 
     // if (_Global.setting.inEditor) {

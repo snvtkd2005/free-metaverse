@@ -348,8 +348,7 @@ export default {
       isMobile: false,
 
       language: null,
-      isEn: false,
-      // playerAnimData: null,
+      isEn: false, 
       contrlState: 0,
 
       windowWidth: 0,

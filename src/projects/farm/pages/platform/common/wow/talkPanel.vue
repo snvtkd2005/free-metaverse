@@ -140,7 +140,7 @@ export default {
 
     setTimeout(() => {
       _Global.addEventListener("openTalk", (talkData) => {
-        if (_Global.panelState.receiveTask) {
+        if (_Global.panelState.task) {
           return;
         }
 
@@ -153,8 +153,12 @@ export default {
         // console.log("  this.taskData ", this.taskData);
         this.$nextTick(() => {
           _Global.applyEvent("界面开关", "taskList", false);
+          _Global.applyEvent("界面开关", "shop", false);
+
           _Global.applyEvent("界面开关", "talk", true);
         });
+        _Global.talkPos = _Global._YJPlayerFireCtrl.GetWorldPos().clone();
+
       });
     }, 1000);
   },

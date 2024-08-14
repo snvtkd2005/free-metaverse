@@ -211,8 +211,7 @@ export default {
       isMobile: false,
 
       language: null,
-      isEn: false,
-      // playerAnimData: null,
+      isEn: false, 
       contrlState: 0,
 
       windowWidth: 0,
@@ -335,6 +334,11 @@ export default {
     },
     // 获取所有单品
     async RequestGetAllModel(callback) {
+      
+      if (callback) {
+            callback();return;
+          }
+
       GetAllModel().then((res) => {
         // console.log("获取所有单品模型 ", this.folderBase, res);
         if (res.data.txtDataList) {

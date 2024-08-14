@@ -124,7 +124,7 @@ export default {
       });
       _Global.addEventListener("主角头像", (s) => {
         // console.log("主角头像", s);
-        this.baseData.playerImg = this.$uploadUrl + s.id + "/" + s.icon;
+        this.baseData.playerImg = this.$uploadUrl + s;
       });
 
       _Global.addEventListener("设置技能进度条", (msg) => {

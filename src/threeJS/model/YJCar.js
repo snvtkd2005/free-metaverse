@@ -69,7 +69,7 @@ class YJCar {
     let wjjPlane001;
 
 
-    let canMoving = false;
+    let canMoving = true;
     let isUsed = false;
     this.IsUsed = function () {
       return isUsed;
@@ -88,7 +88,7 @@ class YJCar {
     }
 
     this.SetKeyboard = function (key) {
-        // console.log("汽车控制",key,keysActions[key]);
+        // console.log("汽车控制",key,keysActions[key],canMoving); 
       if (!canMoving) { return; }
 
       if (keysActions[key]) {
@@ -911,35 +911,9 @@ class YJCar {
     let times = 0;
     // 停止时计次，超过100则取消动力学、被控制后归零
     let stopTimes = 0;
-
-    function update() {
-      // return;
-      // console.log( "_Global.mainUser  = ",_Global.mainUser);
-      requestAnimationFrame(update);
-
-      if (times < 100 || _Global.mainUser) {
-        if (times > 100) {
-          SendStatePos();
-        }
-        var dt = clock.getDelta();
-        for (var i = 0; i < syncList.length; i++) {
-          syncList[i](dt);
-        }
-        times++;
-      }
-
-      if (c_p_arr.length > 0) {
-        SetModelRigidPosRota(chassisMesh.userData.physicsBody, c_p_arr[0][0].pos, c_p_arr[0][0].quat);
-        SetModelPosRota(wheelMeshes[0], c_p_arr[0][1].pos, c_p_arr[0][1].quat);
-        SetModelPosRota(wheelMeshes[1], c_p_arr[0][2].pos, c_p_arr[0][2].quat);
-        SetModelPosRota(wheelMeshes[2], c_p_arr[0][3].pos, c_p_arr[0][3].quat);
-        SetModelPosRota(wheelMeshes[3], c_p_arr[0][4].pos, c_p_arr[0][4].quat);
-        c_p_arr.shift();
-      }
-    }
     let inDriving = true;
     this._update = function () {
-      // console.log( _Global.mainUser);
+      // console.log("in car ", _Global.mainUser);
       if (times < 100 || _Global.mainUser) {
         if (times > 100) {
           SendStatePos();

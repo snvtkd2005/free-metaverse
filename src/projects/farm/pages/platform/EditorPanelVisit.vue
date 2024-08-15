@@ -16,6 +16,10 @@
       <div v-if="isMobile && hasAvatar && contrlState == 0">
         <JoystickLeftPanel class="" ref="JoystickLeftPanel" />
       </div>
+      
+    <!-- 视角远近滑块 -->
+    <input ref="viewFarCtrl" v-if="isMobile" class=" absolute  -right-10 bottom-32  outline-none  transform rotate-90" @input="viewFarFn"
+      v-model="viewFar" type="range" min="0" max="23" step="1">
       <!-- <JoystickLeftPanel class="" ref="JoystickLeftPanel" /> -->
 
       <!-- <JoystickRightPanel class=" " ref="JoystickRightPanel" /> -->
@@ -327,6 +331,10 @@ export default {
 
       // console.log(" _Global.inFocus ", _Global.inFocus);
     });
+    _Global.addEventListener("是否启用虚拟摇杆", (b) => {
+      this.isMobile = b; 
+    });
+
   },
   methods: {
     PlayBGAudio() {
@@ -467,7 +475,8 @@ export default {
 
       document.title = this.sceneData.setting.title; 
 
-      _Global.skillList = this.sceneData.skillList;
+      _Global.skillList_scene = this.sceneData.skillList;
+
       // _Global.propList = this.sceneData.propList;
       _Global.hasAvatar = this.sceneData.setting.hasAvatar;
       this.hasAvatar = this.sceneData.setting.hasAvatar; 

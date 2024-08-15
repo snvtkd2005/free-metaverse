@@ -1850,13 +1850,10 @@ class YJAmmo {
 
 
       // detectCollision();
-      if (enabledRigidbody) {
+      UpdateMyUser();
 
-        UpdateMyUser();
-
-        checkContact();
-        CheckOverlap();
-      }
+      checkContact();
+      CheckOverlap();
 
     }
     var hasInput = false;
@@ -1909,14 +1906,14 @@ class YJAmmo {
 
       if (Math.abs(x) > 0.1) {
         joystickData.lr = true;
-        // joystickData.dx = x>0?1:-1;
-        joystickData.dx = x * 1;
+        joystickData.dx = x>0?1:-1; //速度一致，摇杆控制方向
+        // joystickData.dx = x * 1; //速度随摇杆中心距边缘距离决定，越远越快
         // joystickData.dx = x * 1.5;
       }
       if (Math.abs(y) > 0.1) {
         joystickData.fb = true;
-        // joystickData.dz = y>0?1:-1;
-        joystickData.dz = y * 1;
+        joystickData.dz = y>0?1:-1;//速度一致，摇杆控制方向
+        // joystickData.dz = y * 1;
         // joystickData.dz = y * 1.5;
       }
 
@@ -2294,12 +2291,16 @@ class YJAmmo {
       return myCtrlRbChild;
     }
     let rotaRefChild = null;
-
-    // 是否启用玩家碰撞
-    let enabledRigidbody = true;
+ 
     // 设置是否启用玩家碰撞
-    this.SetRigidbodySleep = function (b) {
-      enabledRigidbody = b;
+    this.SetRigidbodyEnable = function (b) {
+      // 获取当前的碰撞标志  
+      // var collisionFlags = rigidbody.getCollisionFlags();  
+      // console.log(" collisionFlags ",collisionFlags);
+      // // 添加CF_NO_CONTACT_RESPONSE标志   
+      // collisionFlags |= Ammo.btCollisionObject.CF_NO_CONTACT_RESPONSE;  
+      // 设置修改后的碰撞标志  
+      rigidbody.setCollisionFlags(b?0:4);
     }
     this.GetPlayerRigidbody = function(){
       return rigidbody;
@@ -2376,6 +2377,8 @@ class YJAmmo {
       scene.add(threeObject);
 
       myCtrlRb = threeObject;
+
+
       // rigidBodies.push(threeObject);
       addRigidBodyFn(body);
 

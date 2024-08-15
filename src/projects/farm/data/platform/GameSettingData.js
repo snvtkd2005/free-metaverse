@@ -10,7 +10,7 @@ export default {
   // 控制
   ctrlType: [ 
     { value: "wow", label: "魔兽世界" },
-    { value: "overlook", label: "俯视" },
+    { value: "overlook", label: "俯视" }, 
   ],
   campType: [ 
     { value: 1000, label: "阵营1000" },

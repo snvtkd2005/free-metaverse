@@ -2210,7 +2210,7 @@ class YJAmmo {
     // 是否启用玩家碰撞
     let enabledRigidbody = true;
     // 设置是否启用玩家碰撞
-    this.SetRigidbodySleep = function (b) {
+    this.SetRigidbodyEnable = function (b) {
       enabledRigidbody = b;
     }
     function YJgenerateObject() {

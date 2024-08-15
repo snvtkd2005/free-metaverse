@@ -60,7 +60,7 @@ import AvatarData from "/@/data/playerSelect.js";
 // city
 // import AvatarData from "/@/data/playerSelectCity.js";
 
-import Language from "/@/data/zh_cn.js";
+import Language from "../data/zh_cn.js";
 
 import farmInsetPanel from "/@/views/chat/farm/farmInsetPanel.vue";
 

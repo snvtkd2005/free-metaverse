@@ -25,7 +25,7 @@ class YJNPCManager {
       let npcModelList = this.GetAllVaildNPC();
       for (let i = 0; i < npcModelList.length; i++) {
         const npcComponent = npcModelList[i]; 
-        if (npcComponent.GetCamp() == camp) {
+        if (npcComponent.GetCamp() == camp || npcComponent.GetCamp() == 10001) {
           continue;
         }
         if (npcComponent.id == ingoreNpcId) {

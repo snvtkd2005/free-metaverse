@@ -206,16 +206,16 @@ export default {
       //   }
       // });
       
-      // let data = _Global.GetPropById("1720706871111");
-      // let has = false;
-      // for (let i = 0; i < this.itemList.length && !has; i++) {
-      //     const element = this.itemList[i];
-      //     if (element.skill == null) {
-      //       element.skill = JSON.parse(JSON.stringify(data))  ;
-      //       element.skill.count = 10;
-      //       has = true;
-      //     }
-      // }
+      data = _Global.GetPropById("1720928724923");
+      has = false;
+      for (let i = 0; i < this.itemList.length && !has; i++) {
+          const element = this.itemList[i];
+          if (element.skill == null) {
+            element.skill = JSON.parse(JSON.stringify(data))  ;
+            element.skill.count = 10;
+            has = true;
+          }
+      }
 
       this.updateAcionbar();
 

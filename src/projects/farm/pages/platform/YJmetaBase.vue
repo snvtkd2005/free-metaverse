@@ -84,9 +84,8 @@ export default {
   },
   mounted() {
     this.CheckInMobile();
-
+ 
     this.ThreejsHumanChat = this.GetThreejsHumanChat();
-
 
     this.windowWidth = 0;
     this.windowHeight = 0;
@@ -203,7 +202,7 @@ export default {
       var UserClient = navigator.userAgent.toLowerCase();
       console.log(" 判断是否移动端 ", UserClient);
       // setTimeout(() => {
-      //   _Global.CombatLog.log(UserClient);
+      //   _Global.CombatLog.log(JSON.stringify( window.result));
       // }, 10000);
       var IsHWIPad = UserClient.indexOf("huawei") > -1 || UserClient.indexOf("honor") > -1;
       var IsIPad = UserClient.indexOf("ipad") > -1;

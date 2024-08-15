@@ -222,7 +222,7 @@ import AvatarData from "../data/sceneSetting.js";
 import PlayerAnimData from "../data/platform/playerAnimSetting.js";
 
 
-import Language from "/@/data/zh_cn.js";
+import Language from "../data/zh_cn.js";
 
 import YJmetaBase from "/@/views/chat/YJmetaBase.vue";
 

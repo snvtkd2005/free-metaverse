@@ -376,6 +376,9 @@ export default {
       if(field=='ctrlType'){
         _Global.applyEvent("切换控制方式",v) ;
       }
+      if(field=='isMobile'){ 
+        _Global.applyEvent("是否启用虚拟摇杆",v);
+      }
       if(field=='liveAnchorCodeId'){
         
       }

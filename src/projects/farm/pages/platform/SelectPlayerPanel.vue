@@ -56,12 +56,12 @@
               cursor-pointer
               flex
               relative
-            " :class="selectPlayerName == item.folderBase ? ' ' : ' '" @click="SelectAvatar(item)">
+            " :class="selectPlayerId == item.folderBase ? ' ' : ' '" @click="SelectAvatar(item)">
             <div class="self-center mx-auto w-full h-full rounded-full">
               <img class="w-full h-full rounded-full" :src="item.img" />
             </div>
-            <div v-if="selectPlayerName == item.folderBase" class="absolute bottom-0 right-0">
-              <img class="w-4 h-4 xl:w-full xl:h-full object-fill" :src="publicUrl + 'images/spUI/select.png'" />
+            <div v-if="selectPlayerId == item.folderBase" class="absolute bottom-0 right-0">
+              <img class="w-4 h-4 xl:w-full xl:h-full object-fill" :src="publicUrl + 'images/select.png'" />
             </div>
           </div>
         </div>
@@ -69,7 +69,7 @@
     </div>
 
     <!-- 右侧角色模型展示 -->
-    <div class="absolute z-20 right-0 top-0 w-full md:w-3/4 h-full overflow-hidden">
+    <div class="absolute z-20 right-0 top-0 w-full md:w-1/2 h-full overflow-hidden">
       <playerSelect3DPanel id="contain" class="w-full h-full" ref="playerSelect3DPanel"></playerSelect3DPanel>
       <YJinputPlayerName class="absolute bottom-16 md:bottom-6 xl:bottom-2 w-full h-16" :callback="ChangeNickName" />
       <!-- 角色换装选择  -->
@@ -107,7 +107,7 @@
       <YJinput_drop class="w-32 h-16" :value="animValue" :options="animList" :callback="ChangeAnim" />
 
       <!--  -->
-      <div v-if="this.selectPlayerName != 'litleUnityChain2'" class="mt-2 w-32 h-10 text-white cursor-pointer" @click="editorPlayer()">
+      <div v-if="this.selectPlayerId != 'litleUnityChain2'" class="mt-2 w-32 h-10 text-white cursor-pointer" @click="editorPlayer()">
         <div class="mt-2 bg-445760 rounded-md inline-block px-6 py-1">编辑</div>
       </div>
     </div>
@@ -149,12 +149,12 @@ export default {
         },
       },
 
-      selectPlayerName: "小孩",
+      selectPlayerId: "小孩",
 
       // 角色选择界面的角色信息
       playerImgPath: [],
 
-      publicUrl: "./public/farm/",
+      publicUrl: "./public/",
       userName: "",
 
       needEnter: false,
@@ -176,10 +176,10 @@ export default {
     this.GetServerAvatar(() => {
 
       console.log(this.playerImgPath);
-      this.selectPlayerName = this.playerImgPath[0].folderBase;
+      this.selectPlayerId = this.playerImgPath[0].folderBase;
 
       if (localStorage.getItem("avatarId")) {
-        this.selectPlayerName = localStorage.getItem("avatarId");
+        this.selectPlayerId = localStorage.getItem("avatarId");
       }
 
       if (localStorage.getItem("userName")) {
@@ -190,26 +190,11 @@ export default {
         this.needEnter = true;
       }
 
-      // this.selectPlayerName = this.avatarData.defaultUser.avatarId;
-      console.log("  this.selectPlayerName =  ", this.selectPlayerName);
+      // this.selectPlayerId = this.avatarData.defaultUser.avatarId;
+      console.log("  this.selectPlayerId =  ", this.selectPlayerId);
 
+      this.SelectAvatarFn();
 
-      this.$refs.playerSelect3DPanel.SelectAvatar(this.selectPlayerName);
-
-      setTimeout(() => {
-        this.skinData = this.$refs.playerSelect3DPanel.GetAvatarData(
-          this.selectPlayerName
-        ).skinData;
-        if (this.skinData != undefined && this.skinData.length > 1) {
-          setTimeout(() => {
-            this.UpdateSkin(localStorage.getItem("playerState"));
-          }, 100);
-        } else {
-          this.$refs.playerSelect3DPanel.ChangeSkinCompleted();
-        }
-
-        this.updateAnimList(this.selectPlayerName);
-      }, 100);
     });
   },
   methods: {
@@ -290,10 +275,9 @@ export default {
       });
       window.open(href.href, "_blank");
     },
-    updateAnimList(selectPlayerName) {
+    updateAnimList() {
       this.animList = [];
       this.$refs.playerSelect3DPanel.GetAllAnim(
-        selectPlayerName,
         (_animList) => {
           for (let i = 0; i < _animList.length; i++) {
             const element = _animList[i];
@@ -453,26 +437,49 @@ export default {
     },
     SelectAvatar(item) {
       console.log("选择角色", item);
-      this.selectPlayerName = item.folderBase;
+      this.selectPlayerId = item.folderBase;
       this.folderBase = item.folderBase;
- 
-      //加载3d模型
-      this.$refs.playerSelect3DPanel.SelectAvatar(this.folderBase);
-      this.skinData = this.$refs.playerSelect3DPanel.GetAvatarData(
-        this.folderBase
-      ).skinData;
-      if (this.skinData != undefined && this.skinData.length > 1) {
-        setTimeout(() => {
-          this.UpdateSkin(localStorage.getItem("playerState"));
-        }, 100);
-      } else {
-        this.$refs.playerSelect3DPanel.ChangeSkinCompleted();
-      }
-      this.updateAnimList(this.selectPlayerName);
       localStorage.setItem("avatarId", this.folderBase);
+      this.SelectAvatarFn();
+ 
+
+
+
+      // setTimeout(() => {
+      //   this.skinData = this.$refs.playerSelect3DPanel.GetAvatarData(
+      //     this.selectPlayerId
+      //   ).skinData;
+      //   if (this.skinData != undefined && this.skinData.length > 1) {
+      //     setTimeout(() => {
+      //       this.UpdateSkin(localStorage.getItem("playerState"));
+      //     }, 100);
+      //   } else {
+      //     this.$refs.playerSelect3DPanel.ChangeSkinCompleted();
+      //   } 
+      // }, 100);
+
+
+      // this.skinData = this.$refs.playerSelect3DPanel.GetAvatarData(
+      //   this.folderBase
+      // ).skinData;
+      // if (this.skinData != undefined && this.skinData.length > 1) {
+      //   setTimeout(() => {
+      //     this.UpdateSkin(localStorage.getItem("playerState"));
+      //   }, 100);
+      // } else {
+      //   this.$refs.playerSelect3DPanel.ChangeSkinCompleted();
+      // }
+
+    },
+    SelectAvatarFn(){
+
+      //加载3d模型
+      this.$refs.playerSelect3DPanel.SelectAvatar(this.selectPlayerId,(avatar)=>{
+        this.updateAnimList();
+      });
     },
     ClickeSelectOK() {
-      if (this.selectPlayerName == "") {
+      if (this.selectPlayerId == "") {
         return;
       }
       if (this.userName == "") {
@@ -480,7 +487,7 @@ export default {
       }
 
       localStorage.removeItem("needEnter");
-      localStorage.setItem("avatarId", this.selectPlayerName);
+      localStorage.setItem("avatarId", this.selectPlayerId);
       localStorage.setItem("userName", this.userName);
 
       localStorage.setItem("reloadTimes", 1);

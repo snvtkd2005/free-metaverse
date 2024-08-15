@@ -46,11 +46,11 @@
                         cursor-pointer
                         flex
                        relative
-                      " :class="selectPlayerName == item.name ? ' ' : ' '" @click="SelectAvatar(item.name)">
+                      " :class="selectPlayerId == item.name ? ' ' : ' '" @click="SelectAvatar(item.name)">
           <div class=" self-center mx-auto">
             <img class=" w-full h-full object-fill" :src="publicUrl + item.img" />
           </div>
-          <div v-if="selectPlayerName == item.name" class=" absolute bottom-0 right-0 ">
+          <div v-if="selectPlayerId == item.name" class=" absolute bottom-0 right-0 ">
             <img class=" w-4 h-4 xl:w-full xl:h-full object-fill" :src="publicUrl + 'images/spUI/select.png'" />
           </div>
         </div>
@@ -192,7 +192,7 @@ export default {
       // 皮肤弹出框的角色选项
       modelsList: [],
 
-      selectPlayerName: "机器人",
+      selectPlayerId: "机器人",
       selectSceneName: "scene1",
 
       // 角色选择界面的角色信息
@@ -220,12 +220,12 @@ export default {
 
     this.modelsList = this.avatarData.modelsList;
     this.roomName = this.avatarData.roomName;
-    this.selectPlayerName = this.avatarData.defaultUser.avatarName;
+    this.selectPlayerId = this.avatarData.defaultUser.avatarId;
     this.userName = this.avatarData.defaultUser.userName;
     this.publicUrl = this.$publicUrl + PlayerAnimData.localPath;
 
-    if (localStorage.getItem("avatarName")) {
-      this.selectPlayerName = localStorage.getItem("avatarName");
+    if (localStorage.getItem("avatarId")) {
+      this.selectPlayerId = localStorage.getItem("avatarId");
     }
     if (localStorage.getItem("userName")) {
       this.userName = localStorage.getItem("userName");
@@ -235,7 +235,7 @@ export default {
     this.$refs.nickNameInput.focus();
 
     this.$refs.playerSelect3DPanel.SetPlayerAnimData(PlayerAnimData.avatarData);
-    this.$refs.playerSelect3DPanel.SelectAvatar(this.selectPlayerName);
+    this.$refs.playerSelect3DPanel.SelectAvatar(this.selectPlayerId);
 
     this.$refs.playerSelect3DPanel.ChangeSkinCompleted();
 
@@ -265,16 +265,19 @@ export default {
       this.$parent.SelectScene(this.selectSceneName);
 
     },
+    GetAvatarData(folderBase){
+
+    },
     SelectAvatar(e) {
-      this.selectPlayerName = e;
-      // console.log("this.selectPlayerName = " + this.selectPlayerName);
+      this.selectPlayerId = e;
+      // console.log("this.selectPlayerId = " + this.selectPlayerId);
       //加载3d模型
-      this.$refs.playerSelect3DPanel.SelectAvatar(this.selectPlayerName);
+      this.$refs.playerSelect3DPanel.SelectAvatar(this.selectPlayerId);
       this.$refs.playerSelect3DPanel.ChangeSkinCompleted();
 
     },
     ClickeSelectOK() {
-      if (this.selectPlayerName == "") {
+      if (this.selectPlayerId == "") {
         return;
       }
       if (this.userName == "") {
@@ -282,13 +285,12 @@ export default {
       }
       window.removeEventListener('keydown', this._onKeyDown);
 
-      localStorage.setItem("avatarName", this.selectPlayerName);
+      localStorage.setItem("avatarId", this.selectPlayerId);
       localStorage.setItem("userName", this.userName);
       // _Global.reloadTimes = 1;
 
 
-
-      this.$parent.ClickSelectPlayerOK(this.selectPlayerName, this.userName);
+      this.$parent.ClickSelectPlayerOK(this.selectPlayerId, this.userName);
       this.$refs.playerSelect3DPanel.Close();
 
       // this.importAmmoJS();

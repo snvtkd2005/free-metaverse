@@ -50,9 +50,8 @@ class YJ3dScene_playerSelect {
     const FPS = 30; // 指的是 30帧每秒的情况
     const singleFrameTime = 1 / FPS;
     let timeStamp = 0;
-    let group;
     let width, height;
-    let playerGroup;
+    let group,playerGroup;
 
     let windowWidth, windowHeight;
     this._YJTransformManager = null;
@@ -133,6 +132,8 @@ class YJ3dScene_playerSelect {
       InitYJController();
 
 
+      group = new THREE.Group();
+      scene.add(group); 
 
       playerGroup = new THREE.Group();
       scene.add(playerGroup);
@@ -155,8 +156,6 @@ class YJ3dScene_playerSelect {
 
       _YJController.SetMinMax({ x: -1.25, y: 0.3 });
       _YJController.SetCanMouseWheel(true);
-      group = new THREE.Group();
-      scene.add(group);
 
       update();
 
@@ -456,7 +455,7 @@ class YJ3dScene_playerSelect {
       let modelScale = avatarData.modelScale;
       let rotation = avatarData.rotation;
 
-      console.log(" 准备加载角色 ", avatarData);
+      // console.log(" 准备加载角色 ", avatarData);
       SetViewHeight();
       if (avatar == null) {
         avatar = new YJLoadAvatar(
@@ -466,9 +465,9 @@ class YJ3dScene_playerSelect {
           avatarData.animationsData,
           scope,
           (_playerObj) => {
-            console.log(" 加载角色完成 ===", _playerObj);
+            // console.log(" 加载角色完成 00 ===", _playerObj);
             setTimeout(() => {
-              group.add(_playerObj);
+              group.add(_playerObj); 
               _playerObj.position.set(0, 0, 0); //原点位置
               group.scale.set(modelScale,modelScale, modelScale); //原点位置
               SetRotaArray(group,rotation);
@@ -477,6 +476,7 @@ class YJ3dScene_playerSelect {
             if (callback) {
               callback(avatar);
             }
+            group.visible = true;
 
             let boneLength = 0;
             _playerObj.traverse((item) => {
@@ -485,7 +485,7 @@ class YJ3dScene_playerSelect {
                 boneLength++;
               }
             });
-            console.log("骨骼总数为 ", boneLength);
+            // console.log("骨骼总数为 ", boneLength);
 
             // loadAssset(_this.GetPublicUrl() + "models/player/farmplayer/anim.json", (data) => {
             //   let animName = "animTest";
@@ -498,7 +498,12 @@ class YJ3dScene_playerSelect {
             // avatar.ChangeAnimDirect("walk");
           },
           (animName) => {
-            scope.CreateOrLoadPlayerAnimData().GetExtendAnim(avatarId, animName, (isLoop, anim) => {
+            // scope.CreateOrLoadPlayerAnimData().GetExtendAnim(avatarId, animName, (isLoop, anim) => {
+            //   avatar.ChangeAnimByAnimData(animName, isLoop, anim);
+            // });
+            scope.CreateOrLoadPlayerAnimData().PlayExtendAnim(avatarData, animName, (isLoop, anim) => {
+              // console.log("加载动作 ",animName, isLoop, anim);
+              
               avatar.ChangeAnimByAnimData(animName, isLoop, anim);
             });
           }
@@ -510,7 +515,7 @@ class YJ3dScene_playerSelect {
           modelPath ,
           avatarData.animationsData,
           (_playerObj) => {
-            // console.log(" 加载角色完成 ===");
+            // console.log(" 加载角色完成 11 ===",_playerObj);
 
             group.add(_playerObj);
             _playerObj.position.set(0, 0, 0); //原点位置
@@ -521,6 +526,7 @@ class YJ3dScene_playerSelect {
             }
 
             avatar.ChangeAnimDirect("idle");
+            group.visible = true;
 
             // console.log(group);
           }

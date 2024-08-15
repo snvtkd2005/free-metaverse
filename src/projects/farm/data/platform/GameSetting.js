@@ -7,6 +7,7 @@ export default {
       {field:'playerCtrl',title:"控制方式",}, 
     ],
     playerCtrl:[
+      {field:'isMobile',title:"使用虚拟摇杆",type:'toggle',value:false},
       {field:'ctrlType',title:"视角控制方式",type:'drop',value:"魔兽世界"},
       {field:'targettarget',title:"目标的目标",type:'toggle',value:false},
     ],

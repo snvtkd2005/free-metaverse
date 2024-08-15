@@ -29,6 +29,7 @@ class YJEquip {
         }
 
         this.ChangeEquipList = function (_equipList) {
+            // console.log(owner.GetNickName() + " in equip 装备数据 ", _equipList);
             let add = [];
             for (let i = 0; i < _equipList.length; i++) {
                 let has = false;
@@ -254,8 +255,10 @@ class YJEquip {
 
         }
         this.addEquip = function (equip) {
-            // console.log(owner.GetNickName() + "添加装备 00 ", equip, equipList);
-
+            if( equip.assetId == undefined){
+                console.error(owner.GetNickName() + "添加装备 00 ", equip, equipList);
+                return;
+            }
             for (let i = 0; i < equipList.length; i++) {
                 const element = equipList[i];
                 if (element.folderBase == equip.assetId) {
@@ -283,9 +286,8 @@ class YJEquip {
             this.addEquip({ assetId: item.folderBase });
         }
         this.ChangeEquip = function (type, data) {
+            // console.error(" in equip changeequip ",data);
             type = data.message.pointType;
-
-
             if (type == "weapon") {
                 this.RemoveWeapon();
                 weaponData = data.message.data;

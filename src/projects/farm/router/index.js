@@ -203,14 +203,7 @@ const router = createRouter({
       component: () => import('../pages/index.vue'),
       children: [
       ]
-    },
-    {
-      path: '/ello', //布局页
-      name: 'ello',
-      component: () => import('../pages/indexEllo.vue'),
-      children: [
-      ]
-    },
+    }, 
     {
       path: '/multifarm/:userName', //布局页
       name: 'multifarmid',

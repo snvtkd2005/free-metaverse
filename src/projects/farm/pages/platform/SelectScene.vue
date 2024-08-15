@@ -140,7 +140,7 @@ export default {
       userSceneList: [],
       // 开放世界入口
       metaWorldList: [
-        { name: "开放世界中心", icon: "./public/textures/metaworld.png", x: 0, z: 0 }
+        { name: "开放世界中心", icon: "./public/images/metaworld.png", x: 0, z: 0 }
       ],
       selectSceneName: "scene1",
       currentSceneData: null,

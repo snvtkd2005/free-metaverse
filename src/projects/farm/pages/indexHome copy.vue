@@ -225,7 +225,7 @@ import PlayerAnimData from "../data/playerAnimSkinSetting.js";
 
 
 
-import Language from "/@/data/zh_cn.js";
+import Language from "../data/zh_cn.js";
 
 import YJmetaBase from "/@/views/chat/YJmetaBase.vue";
 

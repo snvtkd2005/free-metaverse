@@ -47,35 +47,33 @@ export default {
     NeedChangeSkin(){
       this._YJ3dScene.NeedChangeSkin();
     },
-    GetAllAnim(playerName,callback){
-      return this._YJ3dScene.CreateOrLoadPlayerAnimData().GetAllAnim(playerName,callback);
+    GetAllAnim(callback){
+      return this._YJ3dScene.CreateOrLoadPlayerAnimData().GetAllAnim(this.avatarData,callback);
     },
     GetAvatarData(id) {
       return this._YJ3dScene.CreateOrLoadPlayerAnimData().GetAvatarDataById(id);
     },
-    SelectAvatar(selectPlayerName,callback) {
+    SelectAvatar(selectPlayerId,callback) {
 
       if (this._YJ3dScene == null) {
         this._YJ3dScene = new YJ3dScene_playerSelect(this.$refs.YJ3dscene, this.$parent);
       }
- 
 
-      this._YJ3dScene.NeedChangeSkin();
-      // console.log("selectPlayerName = " + selectPlayerName);
-      this._YJ3dScene.CreateOrLoadPlayerAnimData().GetAvatarDataById(selectPlayerName,(avatarData)=>{
+      this._YJ3dScene.NeedChangeSkin(); 
+      this._YJ3dScene.CreateOrLoadPlayerAnimData().GetAvatarDataById(selectPlayerId,(avatarData)=>{
 
         let modelData = {
-        name:avatarData.name,
-        modelType:"角色模型",
-        modelPath:avatarData.modelPath,
-        message:{
-          data:avatarData
+          name:avatarData.name,
+          modelType:"角色模型",
+          modelPath:avatarData.modelPath,
+          message:{
+            data:avatarData
+          }
         }
-      }
-      localStorage.setItem("modelData", JSON.stringify(modelData));
-
-      //加载3d模型
-      this._YJ3dScene.ChangeAvatarByCustom(avatarData,callback);
+        localStorage.setItem("modelData", JSON.stringify(modelData));
+        this.avatarData = avatarData;
+        //加载3d模型
+        this._YJ3dScene.ChangeAvatarByCustom(avatarData,callback);
 
       });
     },

@@ -56,6 +56,15 @@ class Interface {
     _Global.dragPart = "";
     //#region 游戏设置记录与还原、动作条记录与还原
 
+    function ff (local,localStorage,sameFiled,valueFiled){
+      for (let i = 0; i < local.length; i++) {
+        for (let j = 0; j < localStorage.length; j++) {
+          if(local[i][sameFiled] == localStorage[i][sameFiled]){
+            local[i][valueFiled] = localStorage[i][valueFiled];
+          }
+        }
+      }
+    }
     // 游戏设置记录与还原
     _Global.GameSetting = GameSetting;
     function LoadLocalGameSetting() {
@@ -64,7 +73,11 @@ class Interface {
         try {
           let settingData = JSON.parse(_gs);
           settingData.key2keytext = undefined;
-          // console.log(" settingData ",settingData);
+          console.log("  localStorage GameSetting ",settingData);
+
+          if(settingData.keyData.actionBar1){
+            ff( GameSetting.keyData.actionBar1,settingData.keyData.actionBar1,"title","key");
+          }
 
           let names = Object.getOwnPropertyNames(settingData);
 
@@ -84,8 +97,10 @@ class Interface {
               if(element=="field"){
                 continue;
               }
+
               let ar = settingData[children][element];
               let car = GameSetting[children][element]; 
+ 
               for (let k = 0; k < ar.length; k++) {
                 // 第三层每一条
                 const arelement = ar[k];
@@ -101,6 +116,13 @@ class Interface {
           // console.log("_Global.GameSetting ",GameSetting);
           _Global.GameSetting = GameSetting;
           _Global.user.camp = _Global.GameSetting.live.children[2].value;
+          if(_Global.GameSetting.control.playerCtrl && _Global.GameSetting.control.playerCtrl[0].field == 'isMobile' ){
+            setTimeout(() => {
+              _Global.applyEvent("是否启用虚拟摇杆",_Global.GameSetting.control.playerCtrl[0].value);
+            }, 2000);
+          }
+          console.log(" _Global.GameSetting ",_Global.GameSetting);
+          
         } catch (error) {
           console.log("_Global.GameSetting error ",error);
         }

@@ -248,7 +248,7 @@ export default {
       hasCuror:true,
       mouseX:0,
       mouseY:0,
-      curorIcon:"./public/images/cursorList/normal.png",
+      curorIcon:"./public/images/cursorList/ui-tutorialframe-glovecursor.png",
     };
   },
   created() {},

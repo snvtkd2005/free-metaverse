@@ -207,8 +207,8 @@ class YJSkill {
                 baseSkillItem = _skill;
                 CheckSkill_Persecond(_skill);
             }
-            owner.applyEvent("添加技能", _skill);
-            // console.log(" 添加技能 ", _skill);
+            owner.applyEvent("添加技能", _skill);  
+
         }
         this.EditorSkill = function (_skill) {
             for (let i = 0; i < skillList.length; i++) {
@@ -539,8 +539,8 @@ class YJSkill {
             if (skillItem) {
                 if (skillItem.cCD == skillItem.CD) {
                     skillItem.cCD = 0;
-                }
-                // console.log(skillItem.skillName + e);
+                } 
+                // console.log(skillItem.skillName, e,skillItem.cCD , skillItem.CD);
                 _Global._YJAudioManager.stopAudio(readyskillAudioName);
                 owner.skillEnd();
             } else {
@@ -592,7 +592,15 @@ class YJSkill {
                 }
             }
             // console.log(" 手动触发 ",skillItem);
+            
+            // for (let i = 0; i < skillList.length; i++) {
+            //     const _skillItem = skillList[i];
+            //     if(_skillItem.skillName == skillItem.skillName){
+            //         SkillGo(_skillItem);
+            //     }
+            // }
             SkillGo(skillItem);
+
         }
         let skillCastTime = 0;
         //施放技能
@@ -1132,11 +1140,14 @@ class YJSkill {
                 CheckSkill_Persecond(skillItem);
             }
         }
-        this._update = function (dt) {
-            if (_Global.pauseGame) { return; }
+        this._update = function (dt) { 
 
             for (let i = 0; i < skillList.length; i++) {
                 const skillItem = skillList[i];
+                // if(owner.GetNickName().includes("aa")){
+                //     console.log(owner.GetNickName()+" 技能CD ", skillItem.cCD,skillItem.CD);
+                // }
+
                 if (skillItem.trigger.type == "perSecond") {
                     if (skillItem.cCD == skillItem.CD) {
 

@@ -23,6 +23,7 @@
     "three.cubemap-to-equirectangular": "^1.1.2",
     "trtc-js-sdk": "^4.15.2",
     "tweakpane": "^3.1.4",
+    "ua-parser-js": "^1.0.38",
     "vue": "^3.2.4",
     "vue-socket.io": "^3.0.10",
     "vue-video-player": "^6.0.0",

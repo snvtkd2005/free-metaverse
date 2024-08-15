@@ -96,7 +96,7 @@ class YJProjector {
     function CreatePlane() {
 
       const map = new THREE.TextureLoader().load(
-        _this.GetPublicUrl() + "checkPoint.png"
+        "./public/images/checkPoint.png"
       );
       projectMat = new THREE.MeshBasicMaterial({
         map: map,
@@ -126,7 +126,7 @@ class YJProjector {
 
 
     const decalMaterial = new THREE.MeshBasicMaterial({
-      map: _this._YJSceneManager.checkLoadTexture(_this.GetPublicUrl() + "checkPoint.png"),
+      map: _this._YJSceneManager.checkLoadTexture(  "./public/images/checkPoint.png"),
       transparent: true,
       color: 0x00ffff,
       opacity: 0.5,

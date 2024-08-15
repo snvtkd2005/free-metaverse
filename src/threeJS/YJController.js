@@ -1703,6 +1703,10 @@ class YJController {
     this.GetAmmoPlayer = function () {
       return _YJAmmoPlayer;
     }
+    
+    this.GetAmmo = function () {
+      return _YJAmmo;
+    }
     this.GetCamParent = function () {
       return camBaseParent;
     }

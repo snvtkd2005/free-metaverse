@@ -165,7 +165,7 @@ export default {
         _Global.applyEvent("获取道具记录","技能点");
       });
 
-      let skills = _Global.skillList;
+      let skills = _Global.skillList_scene;
       for (let i = 0; i < skills.length; i++) {
         const skill = skills[i];
         skill.level = 0;

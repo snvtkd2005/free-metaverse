@@ -765,7 +765,7 @@ class SceneManager {
 
       //把刚体放在中心，且刚体忽略物理效果、显示姓名条
 
-      _this._YJSceneManager.GetAmmo().SetRigidbodySleep(false);
+      _this._YJSceneManager.GetAmmo().SetRigidbodyEnable(false);
 
       let pos = _this._YJSceneManager.GetWorldPosition(scope.GetModel());
       _this._YJSceneManager.GetAmmo().SetPlayerPos(pos);
@@ -788,7 +788,7 @@ class SceneManager {
       _this._YJSceneManager.GetAmmo().SetPlayerPos(pos);
 
       // 最后激活刚体
-      _this._YJSceneManager.GetAmmo().SetRigidbodySleep(true);
+      _this._YJSceneManager.GetAmmo().SetRigidbodyEnable(true);
 
       _this.YJController.SetLockDisplay(false);
       // _this.YJController.SetPlayerDisplay(true);

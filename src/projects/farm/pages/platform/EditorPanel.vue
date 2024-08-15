@@ -968,6 +968,8 @@ export default {
       this.sceneData.setting.title = this.oldFileName;
       document.title = this.oldFileName;
 
+      _Global.skillList_scene = this.sceneData.skillList;
+      
       // this.isDMGame = this.sceneData.setting.isDMGame;
       // _Global.isDMGame = this.isDMGame;
 

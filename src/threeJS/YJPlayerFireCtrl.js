@@ -805,7 +805,9 @@ class YJPlayerFireCtrl {
 			_YJSkill.ClearSkill("基础攻击");
 		}
 		this.InFire = function () {
-			return playerState == PLAYERSTATE.ATTACKING;
+			return true;
+			// return fireId != -1;
+			// return playerState == PLAYERSTATE.ATTACKING;
 		}
 		this.GetIsDead = function () {
 			return _YJPlayer.isDead;
@@ -1149,7 +1151,9 @@ class YJPlayerFireCtrl {
 			}, 1000);
 			_Global.applyEvent("主角战斗控制初始化完成");
 			let avatarData = _Global.YJ3D.YJPlayer.GetavatarData();
-			_Global.applyEvent('主角头像', avatarData.id + "/thumb.png" );
+			if(avatarData){
+				_Global.applyEvent('主角头像', avatarData.id + "/thumb.png" );
+			}
 			UpdateData();
 		}
 		Init();

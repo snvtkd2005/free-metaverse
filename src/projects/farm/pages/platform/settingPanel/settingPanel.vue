@@ -10,6 +10,14 @@
     <div class="cursor-pointer  bg-black bg-opacity-40 " @click=" ChangePanel('设置')">
       <p class="p-2">设置</p>
     </div>
+    
+    <div class=" p-2 flex  h-10 text-center  cursor-pointer  bg-black bg-opacity-40  "
+      :class="panelState.free ? ' bg-opacity-80 ' : 'bg-opacity-40'" @click=" ChangePanel('自由穿行')">
+      <div class=" self-center">
+        自由穿行
+      </div>
+    </div>
+
     <div class=" p-2 flex  h-10 text-center  cursor-pointer  bg-black bg-opacity-40  "
       :class="panelState.model ? ' bg-opacity-80 ' : 'bg-opacity-40'" @click=" ChangePanel('模型')">
       <div class=" self-center">
@@ -58,6 +66,7 @@ export default {
       panelState: {
         setting: true,
         model: false,
+        free: false,
       },
       fullScreen:false,
     };
@@ -92,6 +101,21 @@ export default {
         // 
         return;
       }
+       
+      if ("自由穿行" == e) {
+        this.panelState.free = !this.panelState.free;
+        if(this.panelState.free){
+          _Global.YJ3D.YJController.GetAmmo().SetGravityActive(false);
+          _Global.YJ3D.YJController.GetAmmo().SetRigidbodyEnable(false);
+
+        }else{
+          _Global.YJ3D.YJController.GetAmmo().SetGravityActive(true);
+          _Global.YJ3D.YJController.GetAmmo().SetRigidbodyEnable(true);
+
+        }
+        return;
+      }
+
       if ("设置" == e) {
         this.parent.ChangePanel('setting');
         return;

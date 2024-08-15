@@ -384,7 +384,7 @@ export default {
             if (skill.skillName == actionBarRecode.skillName) {
               skill.auto = false;
               skill.isDeleled = true;
-              skill.level = 1;
+              skill.level = 0;
               skill.cCD = skill.CD;
               skill.perCD = 0;
               this.actionList.actionBar1[
@@ -437,7 +437,7 @@ export default {
 
       _Global.addEventListener("主角头像", (s) => {
         // console.log("主角头像", s);
-        this.playerImg = this.$uploadUrl + s.id + "/" + s.icon;
+        this.playerImg = this.$uploadUrl + s;
       });
 
       _Global.addEventListener("keycodeUp", (keycode) => {
@@ -599,14 +599,14 @@ export default {
           if (this.newLevel) {
             this.newLevel = false;
           }
-          this.AddSkill(_skill);
-          // console.log(" 添加技能 2", this.actionList);
+          this.AddSkill(_skill); 
         });
         _Global._YJPlayerFireCtrl.addEventListener("移除技能", (_skill) => {
           for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
             const element = this.actionList.actionBar1[i];
             if (element.skill && element.skill.skillName == _skill.skillName) {
               // element.skill = null;
+              element.skill.level = 0;
               element.skill.isDeleled = true;
               element.isDeleled = true;
               return;
@@ -755,13 +755,18 @@ export default {
     AddSkill(_skill) {
       let has = false;
       for (let i = 0; i < this.actionList.actionBar1.length; i++) {
-        const skill = this.actionList.actionBar1[i].skill;
+        let skill = this.actionList.actionBar1[i].skill;
         if (skill && skill.skillName == _skill.skillName) {
+          skill = _skill;
           this.actionList.actionBar1[i].isDeleled = false;
           skill.isDeleled = false;
           skill.level = 1;
           skill.auto = false;
+          skill.cCD = skill.CD;
+          skill.perCD = 0;
           has = true;
+          // console.log("替换skill");
+          this.actionList.actionBar1[i].skill = _skill;
         }
       }
       if (has) {

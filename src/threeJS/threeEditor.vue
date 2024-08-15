@@ -313,21 +313,24 @@ export default {
     },
     //让threejs获取焦点，div必须添加 tabindex="-1"
     threeJSfocus() {
-      // console.log(" 点击 threeJS页面  ",this.canAddListner,this.infocus);
       if (!this.canAddListner || this.infocus) {
         return;
       }
+      console.log(" 点击 threeJS页面  ",this.canAddListner,this.infocus);
+
       this.$refs.container.focus();
       this.YJController.addEventListener();
       this.infocus = true;
+      _Global.infocus3d = true;
     },
     removeEventListener() {
-      // console.log(" 点击 其他页面 threeJS 失去焦点   ");
+      console.log(" 点击 其他页面 threeJS 失去焦点   ");
 
       this.infocus = false;
       this.YJController.dispose();
       this.YJRaycaster.SetMouseDown(false);
       this.YJController.onMouseUp();
+      _Global.infocus3d = false;
     },
 
     SetCanAddControllerListner(b) {

@@ -1251,7 +1251,7 @@ class YJController {
       if (!CheckCanMoving()) {
         return;
       }
-      // console.log("event.code = " + event.code );
+      // console.error("event.code = " + event.code );
       switch (event.code) {
 
         case 'ArrowUp':
@@ -4028,7 +4028,6 @@ class YJController {
 
       if (!addEventListenered) { return; }
       addEventListenered = false;
-
       console.log("移除 控制器操作监听");
 
       this.domElement.removeEventListener('contextmenu', contextmenu);
@@ -4063,7 +4062,7 @@ class YJController {
     }
     this.addMouseEventListener = function () {
 
-      // console.log(" 监听控制器操作 ");
+      console.log(" 监听控制器操作 ");
 
       this.domElement.addEventListener('mousemove', _onMouseMove);
 

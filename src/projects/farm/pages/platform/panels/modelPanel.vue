@@ -240,6 +240,7 @@ export default {
         isCollider: false,
         isTrigger: false,
         tiggerTag: "",
+        name: "几何体",
       };
       this.SelectModelFn(modelData);
     },

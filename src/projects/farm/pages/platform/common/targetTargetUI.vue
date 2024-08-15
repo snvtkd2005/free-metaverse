@@ -177,7 +177,7 @@ export default {
     // 设置头像框上的角色名
     SetTarget(npcData,nickName) {
       if(!_Global.GameSetting.control.playerCtrl[2].value){return;}
-      console.log(  " 设置 NPC 头像框上数据更新 111 ",npcData,this.baseData.camp);
+      // console.log(  " 设置 NPC 头像框上数据更新 111 ",npcData,this.baseData.camp);
 
       this.targetName = nickName;
       this.baseData = npcData.baseData;

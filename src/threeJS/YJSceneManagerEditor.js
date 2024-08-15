@@ -2308,7 +2308,6 @@ class YJSceneManager {
       _YJAmmo.SetPlayerPos(new THREE.Vector3(pos.x, pos.y, pos.z));
     }
 
-
     this.SetPlayerPos = function (pos) {
       _YJAmmo.SetJumpOnly(true);
       _YJAmmo.SetGravityActive(false);

@@ -2,7 +2,7 @@
   <div class="w-full h-full relative pointer-events-none">
     <div
       v-show="showPanel"
-      class="absolute left-0 top-20 md:top-20 flex pointer-events-auto"
+      class="absolute left-0 top-20 md:top-20 flex pointer-events-none"
     >
       <div class="relative transform md:scale-100 mx-auto flex">
         <div class="absolute left-0 top-0 w-full h-full -z-10">

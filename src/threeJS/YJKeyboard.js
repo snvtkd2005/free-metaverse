@@ -14,24 +14,30 @@ class YJKeyboard {
       switch (e.code) {
         case 'Tab':
           e.preventDefault();
-          break; 
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          break;
       }
 
-      if(isKeyPressed && !inShiftLeft && !inControlLeft){
+      if (isKeyPressed && !inShiftLeft && !inControlLeft) {
         return;
       }
       isKeyPressed = true;
       let keycode = e.code;
- 
-      switch (e.code) { 
+
+      switch (e.code) {
         case 'KeyT':
-          if (inShiftLeft) { 
-            keycode = ("ShiftLeft+T");  
+          if (inShiftLeft) {
+            keycode = ("ShiftLeft+T");
           }
           break;
         case 'KeyC':
           if (inShiftLeft) {
-            keycode = ("ShiftLeft+C"); 
+            keycode = ("ShiftLeft+C");
           }
           break;
 
@@ -39,12 +45,12 @@ class YJKeyboard {
           if (inControlLeft) {
             e.preventDefault();
             keycode = ("ControlLeft+D");
-          } 
+          }
         case 'KeyZ':
           if (inShiftLeft) {
             keycode = ("ShiftLeft+Z");
-          }  
-          break; 
+          }
+          break;
         case 'ShiftLeft':
           inShiftLeft = true;
           break;
@@ -58,13 +64,13 @@ class YJKeyboard {
 
       }
       keyCallback(e);
-      _Global.applyEvent("keycodeDown",keycode);
+      _Global.applyEvent("keycodeDown", keycode);
 
     };
 
     this.onKeyUp = function (e) {
       isKeyPressed = false;
-      _Global.applyEvent("keycodeUp",e.code);
+      _Global.applyEvent("keycodeUp", e.code);
       switch (e.code) {
         case 'ShiftLeft':
           inShiftLeft = false;

@@ -167,7 +167,7 @@ class SceneManager {
           }
         }
 
-        _Global.YJ3D.YJController.onKeyDown(event);
+        // _Global.YJ3D.YJController.onKeyDown(event);
       }, (event) => {
         inJoystick = true;
         let key = event.code;
@@ -175,7 +175,7 @@ class SceneManager {
           _YJCar.SetKeyboardUp(key);
         }
 
-        _Global.YJ3D.YJController.onKeyUp(event);
+        // _Global.YJ3D.YJController.onKeyUp(event);
         _Global.TransformController.onKeyUp(event);
       });
 

@@ -19,7 +19,7 @@ export const CreateCapsuleCollider = (scene, height) => {
   // let axes = new THREE.AxesHelper(20); // 坐标轴
   // scene.add(axes); // 场景添加坐标轴
 
-  const geometry = new THREE.CapsuleGeometry( 1, 1, 4, 8 ); 
+  const geometry = new THREE.CapsuleGeometry( height/2, 1, 4, 8 ); 
   const material = new THREE.MeshBasicMaterial( {color: 0x00ff00,transparent:true,opacity:0.5 } ); 
   let capsule = new THREE.Mesh( geometry, material ); 
   capsule.name = "hoverCollider";

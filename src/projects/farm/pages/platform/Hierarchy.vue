@@ -161,11 +161,14 @@ export default {
 
 
     setTimeout(() => {
-      _Global.addEventListener("改变modelId或名称", (data) => { 
-        this.upadteDataByUUID(data); 
+      _Global.addEventListener("改变modelId或名称", (type,data) => { 
+        this.upadteDataByUUID(data,type); 
       });
       _Global.addEventListener("keycodeUp", (keycode) => { 
         console.log("keycodeUp", (keycode));
+        if(_Global.infocus3d){
+          return;
+        }
         if(keycode == 'ArrowUp'){
           this.selectIndex--;
           this.SelectModelByIndex(this.selectIndex);
@@ -444,12 +447,16 @@ export default {
       this.dragOnTop = false;
     },
 
-    upadteDataByUUID(data){
+    upadteDataByUUID(data,type){
       for (let i = 0; i < this.modelList.length; i++) {
         const element = this.modelList[i];
         if (element.uuid == data.uuid) {
-          element.name = data.name;
-          element.modelId = data.modelId;
+          if(type=="name"){
+            element.name = data.name;
+          }
+          if(type=="modelId"){
+            element.modelId = data.modelId;
+          }
         }
       }
     },
@@ -483,6 +490,8 @@ export default {
       this.selectIndex = i;
       this.selectUUID = item.uuid;
       this.$parent.SetSelectTransformByUUID(item.uuid);
+      _Global.YJ3D.removeEventListener();
+
     },
     animate() {
       if (!this.inDrag) {

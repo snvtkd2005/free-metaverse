@@ -27,7 +27,7 @@ export default {
     return {
       pointType: "geometry",
       settingData: {
-        name: "",
+        name: "几何体",
         geometryType: "",
         row: 14,
         col: 1,
@@ -47,10 +47,10 @@ export default {
       setting: [
         {
           property: "name",
-          display: true,
+          display: false,
           title: "名字",
           type: "text",
-          value: "",
+          value: "几何体",
           callback: this.ChangeValue,
         },
 
@@ -170,7 +170,7 @@ export default {
         };
       }
       if (!this.settingData.name) {
-        this.settingData.name = "";
+        this.settingData.name = "几何体";
       }
       console.log(this.settingData);
       this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);

@@ -46,7 +46,7 @@ export default {
         isBlack: false,
       },
       setting: [
-        { property: "name", display: true, title: "道具名", type: "text", value: "", callback: this.ChangeValue },
+        { property: "name", display: false, title: "道具名", type: "text", value: "", callback: this.ChangeValue },
         { property: "imgPath", display: true, title: "选择图片", type: "file", filetype: "image", value: null },
         // {property: "color", title: "叠加色", type: "color", value: "#ffffff", callback: this.ChangeColor },
         // {property: "row", title: "UV X", type: "num", value: 14, callback: this.ChangeX },

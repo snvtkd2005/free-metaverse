@@ -451,7 +451,7 @@ export default {
           _Global.applyEvent("选中角色",npc);
           npc.ResetNameColor();
            
-          _Global.applyEvent("改变modelId或名称", this.transformJS.GetData());
+          _Global.applyEvent("改变modelId或名称","name", this.transformJS.GetData());
       }
       this.ChangeUIState();
 

@@ -1,6 +1,7 @@
 
 <template>
-  <div class=" absolute right-0 top-0 w-full h-full overflow-y-scroll overflow-hidden bg-546770">
+  <div class=" absolute right-0 top-0 w-full h-full overflow-y-scroll overflow-hidden bg-546770"
+  @click="ClickEvent('bg')">
 
     <!-- 场景设置面板 -->
     <div v-show="panelState.setting" class=" mt-10 w-full border-t  max-w-md ">
@@ -214,7 +215,12 @@ export default {
     setComponent(c){
       console.log(" 当前物体有通用组件",c);
       this.components = c;
-    }
+    },
+    ClickEvent(e){
+      if(e=='bg'){
+        _Global.YJ3D.removeEventListener();
+      }
+    },
   },
 };
 </script>

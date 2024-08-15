@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full h-full relative pointer-events-auto">
+  <div class="w-full h-full relative pointer-events-none">
     <div class="absolute left-0 top-20 md:top-20 flex">
       <div class="relative transform md:scale-100 mx-auto flex">
         <div class="absolute left-0 top-0 w-full h-full pointer-events-none -z-10">
@@ -34,7 +34,7 @@
             @click="clickEvent('关闭窗口')"
             >
               <img class="w-full h-full  " :src="redBtnUrl" alt="" />
-              <div class="absolute left-0 top-1  w-full h-8 text-xs pointer-events-none " >
+              <div class="absolute left-0 top-1  w-full h-8 text-xs  " >
                 关闭
               </div>
             </div>

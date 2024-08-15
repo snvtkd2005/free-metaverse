@@ -40,7 +40,7 @@ class Interface {
       uploadUVAnimUrl: _this.$uploadUVAnimUrl,
     }
     _Global.inFocus = true;
-
+    _Global.infocus3d = true;
     _Global.panelState = {
       player: false, 
       skill: false,

@@ -406,14 +406,7 @@ export default {
     // this.last = performance.now();
     // this.deltaTime = 0;
     // this.animate();
-
-    setTimeout(() => {
-      _Global.addEventListener("战斗结束", (msg) => {});
-    }, 5000);
-    setTimeout(() => {
-      _Global.addEventListener("敌方攻势", (num) => {});
-      _Global.addEventListener("战斗开始", () => {});
-    }, 5000);
+ 
   },
 
   methods: {
@@ -537,8 +530,12 @@ export default {
         describe += "对当前目标";
       }
       if (item.target.type == "area") {
-        describe +=
-          "对半径" + item.vaildDis + "米范围内最多" + targetValue + "个目标";
+        describe += "对半径" + item.vaildDis + "米范围内"
+        if(item.target.value==0){
+          describe += "所有目标";
+        }else{
+          describe +=  "最多" + item.target.value + "个目标";
+        }
       }
 
       if (item.target.type == "minHealthFriendly") {

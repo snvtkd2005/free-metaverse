@@ -26,6 +26,7 @@ class Interface {
     _Global.mainPlayerIsDead = false;
     _Global.inDragProp = false;
     _Global.inDragAction = false;
+    _Global.isMobile = false;
 
     _Global.user = {
       camp: 1000,
@@ -118,7 +119,8 @@ class Interface {
           _Global.user.camp = _Global.GameSetting.live.children[2].value;
           if(_Global.GameSetting.control.playerCtrl && _Global.GameSetting.control.playerCtrl[0].field == 'isMobile' ){
             setTimeout(() => {
-              _Global.applyEvent("是否启用虚拟摇杆",_Global.GameSetting.control.playerCtrl[0].value);
+              _Global.isMobile = _Global.GameSetting.control.playerCtrl[0].value;
+              _Global.applyEvent("是否启用虚拟摇杆", _Global.isMobile);
             }, 2000);
           }
           console.log(" _Global.GameSetting ",_Global.GameSetting);
@@ -401,6 +403,7 @@ class Interface {
 
       // console.log("_Global.animList = ", _Global.animList);
       // console.log("_Global.propList = ", _Global.propList);
+      // console.log("_Global.skillList = ", _Global.skillList);
     }
 
     this.GetPropById = function(id){

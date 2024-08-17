@@ -20,7 +20,7 @@
               <div v-for="(item,i) in scope.row.rewardItems " :key='i'>
                 <div v-if="item.skill"
                   class="w-full h-full relative flex">
-              <div>
+              <div class=" relative ">
                     <img
                       v-if="item.skill.icon"
                       class="w-9 h-9 rounded-md"
@@ -32,6 +32,8 @@
                       "
                       alt=""
                     />
+                    <div  v-if="item.type=='prop'" class=" absolute -right-1 -bottom-0 w-4 h-4 text-white rounded-full leading-4 ">{{item.count}}</div>
+
                   </div>
 
                   <div
@@ -42,7 +44,6 @@
                     </div>
                   </div>
 
-                  <div class=" text-black h-full self-center ml-2 " v-if="item.type=='prop'">数量：{{item.count}}</div>
             </div> 
               </div>
             

@@ -1,8 +1,8 @@
 <template>
   <div class="w-full h-full relative pointer-events-none">
     <!-- 动作条 -->
-    <div class="absolute left-0 top-20 md:top-20 flex">
-      <div class="relative transform md:scale-100 mx-auto flex">
+    <div class="absolute left-0 top-0 xl:top-20 flex">
+      <div class="relative transform scale-75 xl:scale-100 mx-auto flex">
         <div class="absolute left-0 top-0 w-full h-full -z-10">
           <div class="absolute left-1 top-1">
             <img class="w-16 h-16 rounded-full" :src="leftIcon" alt="" />
@@ -136,7 +136,7 @@ export default {
         //   level: 0,
         // },
       ],
-      skillPoint: 0, //可使用技能点
+      skillPoint: 10, //可使用技能点
       topleftUrl:
         "./public/images/cursorList/paperdollinfoframe/ui-character-general-topleft.png",
       toprightUrl:

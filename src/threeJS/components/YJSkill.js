@@ -620,7 +620,7 @@ class YJSkill {
             readyskillAudioName = skillName;
 
 
-
+            let fromPos = owner.GetWorldPos().clone();
             vaildAttackDis = skillItem.vaildDis;
             attackStepSpeed = skillItem.castTime;
             skillCastTime = skillItem.castTime * (1 - baseData.basicProperty.hasteLevel);
@@ -675,11 +675,11 @@ class YJSkill {
                 if (targetType.includes("random")) {
                     if (targetType.includes("Friendly")) {
                         // 找友方目标 
-                        searchModel = _Global._YJFireManager.GetSameCampByRandomInFire(owner.GetCamp(), owner.fireId);
+                        searchModel = _Global._YJFireManager.GetSameCampByRandomInFire(owner.GetCamp(), owner.fireId,{fromPos,vaildAttackDis});
                     } else {
                         // 找敌对阵营的目标
-                        console.log(" 查找 随机 敌对阵营的目标 ",owner.GetCamp(), owner.fireId);
-                        searchModel = _Global._YJFireManager.GetNoSameCampByRandomInFire(owner.GetCamp(), owner.fireId);
+                        // console.log(" 查找 随机 敌对阵营的目标 ",owner.GetCamp(), owner.fireId);
+                        searchModel = _Global._YJFireManager.GetNoSameCampByRandomInFire(owner.GetCamp(), owner.fireId,{fromPos,vaildAttackDis});
                     }
                     // 随机进没目标时，返回false 不施放技能
                     if (searchModel == null) {
@@ -726,7 +726,7 @@ class YJSkill {
 
             if (!checkCan()) {
                 // if (skillName != "基础攻击" && owner.GetNickName().includes('落地水')) {
-                //     console.error(owner.GetNickName() + skillName + "施放失败: " + errorLog, targetModel);
+                    // console.error(owner.GetNickName() + skillName + "施放失败: " + errorLog, targetModel);
                 // }
                 inSkill = false;
                 return false;
@@ -777,7 +777,7 @@ class YJSkill {
                             //找到目标附近的敌人
                             SendDamageToTarget(targetModel, effect, skillItem);
                             let max = skillItem.target.value;
-                            areaTargets = _Global._YJFireManager.GetNearNPCByNPC(targetModel, 5, max);
+                            areaTargets = _Global._YJFireManager.GetNearNPCByNPC(targetModel,10, max);
                             for (let l = 0; l < areaTargets.length; l++) {
                                 if (areaTargets[l].isDead) {
                                     continue;
@@ -793,19 +793,16 @@ class YJSkill {
                     let max = skillItem.target.value;
                     areaTargets = _Global._YJFireManager.GetOtherNoSameCampInArea(owner.GetCamp(), vaildAttackDis, max, owner.GetWorldPos());
                     // if (owner.GetNickName().includes("居民")) {
-                    //     console.error(owner.GetNickName() + " 范围攻击目标 ", max, areaTargets);
+                    //     console.error(owner.GetNickName() + " 范围攻击目标 ",skillItem, max, areaTargets);
                     // }
-
-                    if(effect.controlId == "冰霜新星"){
-                        let msg = {
-                            title: "冰霜新星",
-                            folderBase: skillItem.skillFireParticleId,
-                            id: owner.id,
-                            pos: owner.GetWorldPos(),
-                            scale: null,
-                        } 
-                        _YJSkillModel.SendSkill(msg,true);
-                    }
+                    let msg = {
+                        title: skillItem.skillName,
+                        folderBase: skillItem.skillFireParticleId,
+                        id: owner.id,
+                        pos: owner.GetWorldPos(),
+                        scale: null,
+                    } 
+                    _YJSkillModel.SendSkill(msg,true); 
 
                     // 范围内无目标，不施放技能
                     if (areaTargets.length == 0) {
@@ -1312,8 +1309,7 @@ class YJSkill {
                     clearTimeout(vaildAttackLater2);
                     vaildAttackLater = null;
                     vaildAttackLater2 = null;
-                }
-                owner.EventHandler("中断技能");
+                } 
 
                 return;
             }
@@ -1348,9 +1344,9 @@ class YJSkill {
             if (e == "中断施法") {
                 clearCastSkill();
                 skillEnd(null, "中断施法");
+                owner.EventHandler(e);
             }
 
-            owner.EventHandler(e);
         }
         function clearCastSkill() {
 

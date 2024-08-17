@@ -46,6 +46,8 @@ class YJTween {
       if (data.type == "alpha") {
         TweenAlpha(_from, _to, duration * 1000, playStyle);
       }
+
+      // console.error(" in tween 组件");
     }
     this.GetData = function () {
 
@@ -228,6 +230,7 @@ class YJTween {
       let meshes = [];
       model.traverse(function (item) {
         if (item.isMesh) {
+          item.tag = 'ignoreRaycast';
           meshes.push(item);
         }
       }); 

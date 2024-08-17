@@ -63,18 +63,6 @@ export default {
       this._YJDMManager = new YJDMManager_GameBase(this);
       // _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(_YJDMManager);
     });
-
-    setTimeout(() => {
-      setTimeout(() => {
-        _Global.addEventListener("战斗结束", (msg) => {
-        });
-      }, 5000);
-      setTimeout(() => { 
-        _Global.addEventListener("战斗开始", () => {
-          
-        });
-      }, 5000);
-    }, 5000);
   },
 
   methods: {

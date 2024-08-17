@@ -1,6 +1,6 @@
 <template>
   <div class="w-full h-full flex relative pointer-events-auto">
-    <div class="w-2/3 px-20 h-3/4 -mt-28 relative mx-auto self-center">
+    <div class=" w-11/12 xl:w-2/3 px-20 h-3/4 -mt-28 relative transform scale-75 xl:scale-100 mx-auto self-center">
       <div class="w-full relative bg-gray-600 mx-auto">
         <div class="w-full h-8 flex">
           <div class="w-full border-2 leading-8 text-yellow-400">设置选项</div>
@@ -78,7 +78,7 @@
           </div>
         </div>
         <!-- 右 -->
-        <div class="w-full h-full px-6 pt-7 flex flex-col relative bg-gray-600">
+        <div class=" flex-grow h-full px-6 pt-7 flex flex-col relative bg-gray-600">
           <div class="text-left text-lg text-white">{{ childTitle }}</div>
           <div class="absolute right-10 top-7">
             <div>

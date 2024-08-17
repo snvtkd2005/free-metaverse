@@ -389,6 +389,11 @@ export default {
       if (this.settingData.eventData == undefined) {
         this.settingData.eventData = {};
       } 
+      if (this.settingData.relifeTime == undefined) {
+        this.settingData.relifeTime = 0;
+      } 
+      
+      
       this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
 
       let hasEquip = false;

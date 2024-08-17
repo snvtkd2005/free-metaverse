@@ -1,7 +1,7 @@
 <template>
   <div class="w-full h-full relative flex pointer-events-none">
     <!-- 游戏菜单 -->
-    <div class="absolute left-0 top-52 w-96 mx-auto flex">
+    <div class="absolute left-0 top-24 xl:top-52 w-96  transform scale-75 xl:scale-100 mx-auto flex">
       <div class="relative transform scale-125 mx-auto flex">
         <div class="absolute left-0 top-0 w-full h-full">
           <div class="absolute left-1 top-1.5 transform scale-125">

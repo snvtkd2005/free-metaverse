@@ -4,7 +4,11 @@ import { Pathfinding, PathfindingHelper } from "three-pathfinding";
 
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
-//  
+
+/**
+ * 制作寻路网格注意事项：
+ * 网格mesh从三维软件导出时，必须在原点导出
+ */
 
 class YJPathfindingCtrl {
   constructor(scene, callback) {
@@ -52,7 +56,7 @@ class YJPathfindingCtrl {
         if (
           // !navmesh && 
           node.type == "Mesh"
-          && node.name.includes("navMesh")
+          && node.name.toLowerCase().includes("navmesh")
         ) {
           // console.log(node); 
           if (true) {
@@ -73,16 +77,18 @@ class YJPathfindingCtrl {
             // const zone = Pathfinding.createZone(navmesh.geometry);
             // console.timeEnd('createZone()');
             // pathfinding.setZoneData(ZONE, zone);
-
-            // if (!inEditor) {
-            //   navmesh.visible = false;
-            // }
+            // navmesh.position.y+=0.1;
+            if (!inEditor) {
+              navmesh.visible = false;
+            }
             // navmesh.visible = true;
-            navmesh.visible = false;
+            // navmesh.visible = false;
 
             // 
 
-            let transform = node.parent.parent.parent.parent;
+            let transform = navmesh.transform.GetGroup();; 
+            // console.log("navmesh owner ",navmesh.transform);
+            // console.log("navmesh transform ",transform);
             let position = transform.position;
             let quaternion = transform.quaternion;
             let scale = transform.scale;
@@ -100,6 +106,8 @@ class YJPathfindingCtrl {
             const zone = Pathfinding.createZone(instanceGeometry);
             console.timeEnd('createZone()');
             pathfinding.setZoneData(ZONE, zone);
+            console.log(" zone = ", pathfinding.zones);
+
             hasPathfinding = true;
             if (callback) {
               callback();
@@ -107,18 +115,17 @@ class YJPathfindingCtrl {
             return;
 
           }
-          // console.log(" zone = ", pathfinding.zones);
         }
       });
 
       if (geometries.length == 0) {
         return;
       }
-
+      return;
       const mergedGeometry = BufferGeometryUtils.mergeGeometries(geometries);
-      console.time('createZone()');
+      console.time('createZone() 11 ');
       const zone = Pathfinding.createZone(mergedGeometry);
-      console.timeEnd('createZone()');
+      console.timeEnd('createZone() 11 ');
       pathfinding.setZoneData(ZONE, zone);
       for (let i = 1; i < pathfinding.zones.npcLevel1.groups.length; i++) {
         pathfinding.zones.npcLevel1.groups[i].map(ii => {
@@ -256,23 +263,17 @@ class YJPathfindingCtrl {
         navpath = [tempV3];
         return navpath;
       }
-      // fromPos.y = 0; 
-      // targetPos.y = fromPos.y;
+      
       // console.log(" 查找寻路路径 ", ZONE, fromPos, targetPos);
       let groupId = pathfinding.getGroup(ZONE, fromPos, true);
       // console.log("groupId " + groupId);
       try {
         const closest = pathfinding.getClosestNode(fromPos, ZONE, groupId); //返回离目标位置最近的节点
-        // console.log("closest ", closest);
         navpath = pathfinding.findPath(closest.centroid, targetPos, ZONE, groupId);
       } catch (error) {
-        // console.log('寻路错误：',ZONE,error);
-        tempV3.set(targetPos.x, targetPos.y, targetPos.z);
-        navpath = [tempV3];
-        // console.error(" 无法寻路 直接移动到目标点 000 ");
-        
+        console.log('寻路错误：',ZONE,error); 
       }
-      if (navpath == null ) {
+      if (navpath == null || navpath.length==0 ) {
         
         tempV3.set(targetPos.x, targetPos.y, targetPos.z);
         navpath = [tempV3];

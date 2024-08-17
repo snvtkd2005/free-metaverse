@@ -10,7 +10,7 @@
 
     <div class=" w-full flex ">
       <span slot="footer" class="dialog-footer   mx-auto ">
-        <el-button class="   " type="primary" @click="FloatEvent('保存')">保存</el-button>
+        <el-button class="   " type="primary" @click="ClickEvent('保存')">保存</el-button>
       </span>
     </div>
   </el-dialog>
@@ -20,7 +20,6 @@
 
 import YJinputCtrl from "../components/YJinputCtrl.vue";
 
-import skillItem from "../../../data/platform/skillItem.js";
 
 
 export default {
@@ -127,10 +126,7 @@ export default {
   mounted() {
     
   },
-  methods: {
-    createNew(){
-      this.initValue(JSON.parse(JSON.stringify(skillItem.skill)));
-    },
+  methods: { 
     SetVisible(b, _settingData) {
       this.isOpen = b;
       if (b && _settingData) {
@@ -331,14 +327,14 @@ export default {
 
     },
 
-    FloatEvent(e) {
+    ClickEvent(e) {
       if (e == "保存") {
         this.settingData.describe = this.GetDescribe(this.settingData);
         this.$parent.saveSkill(this.settingData);
         this.inAdd = false;
 
         console.log(this.settingData);
-      }
+      } 
     },
     GetDescribe(item) {
       let describe = "";
@@ -371,7 +367,12 @@ export default {
         describe += "对当前目标";
       }
       if (item.target.type == "area") {
-        describe += "对半径" + item.vaildDis + "米范围内最多" + item.target.value + "个目标";
+        describe += "对半径" + item.vaildDis + "米范围内"
+        if(item.target.value==0){
+          describe += "所有目标";
+        }else{
+          describe +=  "最多" + item.target.value + "个目标";
+        }
       }
 
       if (item.target.type == "minHealthFriendly") {

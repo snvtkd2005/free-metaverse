@@ -1,9 +1,12 @@
 <template>
+    <!-- -->
+
   <div
     class="relative w-full h-full"
     @contextmenu.prevent="onContextMenu($event, item)"
     @mouseup="clickItem($event, item)"
-    @mouseover="LookSkill($event, item)"
+    @mouseover="LookSkill($event, item)" 
+    @touchend="touchItem(item);outHover()"
     @mouseleave="outHover()"
     @mousemove="MouseMove($event)"
     :draggable="item.skill != null && !item.lockAction"
@@ -222,7 +225,10 @@ export default {
       if (ev.button == 2) {
         return;
       }
-      // console.log(" clickItem ", item, this.parent.dragSkill);
+      if(_Global.isMobile){
+        return;
+      }
+      // console.log(" clickItem ev ", ev);
 
       if (item.skill == null) {
         if (this.parent.dragSkill == null) {
@@ -373,6 +379,7 @@ export default {
     UseItem(item) {
       
       let skill = item.skill;
+      
       if (skill.type == "prop") {
         let complted = this.parent.UseItem(item);
         // 消耗品
@@ -428,6 +435,11 @@ export default {
         }
       }
       this.parent.UseItem(item);
+    },
+    touchItem(item){ 
+      if( item.skill == null){return;} 
+
+      this.UseItem(item);
     },
   },
 };

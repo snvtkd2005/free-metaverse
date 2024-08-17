@@ -6,7 +6,6 @@
     <mainPlayerHeaderUI v-show="hasMainHeaderUI" ref="mainPlayerHeaderUI" />
 
     <targetUI ref="targetUI" />
-    <targetTargetUI ref="targetTargetUI" />
 
     <div class="absolute w-full left-0 bottom-20">
       <skillProgressUI color="blue" ref="skillProgressUI" />
@@ -29,7 +28,6 @@
 <script>
 import mainPlayerHeaderUI from "./mainPlayerHeaderUI.vue";
 import targetUI from "./targetUI.vue";
-import targetTargetUI from "./targetTargetUI.vue";
  
 import skillProgressUI from "./skillProgressUI.vue";
 import damageUI from "./damageUI.vue";
@@ -46,8 +44,7 @@ export default {
   name: "HUD",
   components: { 
     mainPlayerHeaderUI,
-    targetUI,
-    targetTargetUI,
+    targetUI, 
     skillProgressUI,
     damageUI,
     fireStateUI, 

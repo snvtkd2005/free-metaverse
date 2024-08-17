@@ -104,7 +104,7 @@ export default {
     async RequestGetAllModel() {
       this.modelsList = [];
       GetAllModel().then((res) => {
-        console.log("获取所有单品模型 ", res);
+        // console.log("获取所有单品模型 ", res);
         //先记录旧照片
         if (res.data.txtDataList) {
           let txtDataList = res.data.txtDataList;
@@ -139,6 +139,9 @@ export default {
           } else {
             this.RequestGetAllGroup();
           }
+
+          console.log("获取所有单品模型 ", modelsList);
+
         }
       });
     },

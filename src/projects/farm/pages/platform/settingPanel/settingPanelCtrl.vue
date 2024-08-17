@@ -154,8 +154,7 @@ export default {
     return {
       isTransform:false,
       panelState: {
-        setting: false,
-        // setting: true,
+        setting: false, 
         model: false,
         uvAnim: false,
         car: false,

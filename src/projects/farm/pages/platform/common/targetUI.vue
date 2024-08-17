@@ -1,8 +1,8 @@
 
 <template>
   <div
-    v-if="display"
-    class="absolute left-64 top-2 flex text-white origin-top-left transform scale-50 xl:scale-100"
+    v-if="display "
+    class="absolute left-36 xl:left-64 top-3 xl:top-2 flex text-white origin-top-left transform scale-50 xl:scale-100"
     style="width: 273px; height: 109px"
     @mouseenter="hover = true"
     @mouseleave="hover = false"
@@ -122,16 +122,21 @@
         </div>
       </div>
     </div>
+
+    <targetTargetUI ref="targetTargetUI" />
+
   </div>
 </template>
 
 <script>
 import skillProgressUI from "./skillProgressUI.vue";
+import targetTargetUI from "./targetTargetUI.vue";
 
 export default {
   name: "targetUI",
   components: {
     skillProgressUI,
+    targetTargetUI,
   },
   data() {
     return {

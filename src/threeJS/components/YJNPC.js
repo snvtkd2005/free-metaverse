@@ -45,7 +45,7 @@ class YJNPC {
     const clock = new THREE.Clock();
     const WALKSPEED = 3;
     const RUNSPEED = 8;
-    const MISSSPEED = 12;
+    const MISSSPEED = 10;
     let playerPosition = new THREE.Vector3(0, 0, 0);
 
     let fromGroup;
@@ -403,7 +403,7 @@ class YJNPC {
 
     // 判断两点之间是否可以直接到达，即两点之间是否有障碍物，有障碍物表示不可直接到达
     function CheckColliderBetween(fromPos, targetPos) {
-      return false;
+      // return false;
 
       temp.position.copy(fromPos);
       temp2.position.copy(targetPos);
@@ -464,10 +464,15 @@ class YJNPC {
         targetPos.z += radomNum(-data.areaRadius, data.areaRadius);
         // targetPos.y += 5;
         // let p = targetPos.clone();
-        // p.y -= 10;
+        // p.y -= 100;
         // let point = CheckTrainPos(targetPos, p);
-        GetNavpath(startPos, targetPos);
+        // if(point){
+        //   // console.log(GetNickName() + "  检测到地面 ", point);
+        // }else{
+        //   // console.log(GetNickName() + " 未 检测到地面 ");
+        // }
         // GetNavpath(startPos, point ? point : targetPos);
+        GetNavpath(startPos, targetPos);
         // console.log(GetNickName() + "  巡逻随机范围 ", targetPos);
       } else {
 
@@ -878,6 +883,7 @@ class YJNPC {
       }
     }
     function addSimpleCollider(){
+      if(_Global.setting.inEditor){return;}
       let mesh = CreateCapsuleCollider(scope.transform.GetGroup(),playerHeight);
       mesh.transform = scope.transform;
       _Global.YJ3D._YJSceneManager.AddHoverCollider(mesh);
@@ -1137,20 +1143,24 @@ class YJNPC {
       if (targetModel == null) {
         return false;
       }
-      return true;
+      // return true;
       let targetPos = targetModel.GetWorldPos();
       targetPos.y = 1;
-      npcPos = scope.GetWorldPos();
+      let npcPos = scope.GetWorldPos();
       npcPos.y = 1;
       // 与目标之间有遮挡
       let b2 = CheckColliderBetween(npcPos, targetPos);
-      if (b2) { return false; }
+      if (b2) { 
+        console.log( scope.GetNickName() + "  与目标之间有遮挡 " );
+        return false; 
+      }
       return true;
     }
     function CheckVaildArea() {
       // console.log(" npc追击距离 ",targetPos.distanceTo(fireBeforePos));
       // 超出追击距离后，请求下一个目标。 没有下一个目标时，返回巡逻点
-      if (targetPos && targetPos.distanceTo(fireBeforePos) >= 100) {
+      if (targetPos && targetPos.distanceTo(fireBeforePos) >= 200) {
+        console.log(scope.GetNickName() + " 超出追击距离 200 ");
         return false;
       }
       return true;
@@ -1644,7 +1654,7 @@ class YJNPC {
         return;
       }
 
-      // console.log(scope.GetNickName() + " receive skill fromModel ", fromModel);
+      console.log(scope.GetNickName() + " receive skill fromModel ", fromModel);
       fromName = fromModel.GetNickName();
 
       let setT = false;
@@ -1661,6 +1671,8 @@ class YJNPC {
       if (setT && fromModel.GetCamp() != scope.GetCamp()) {
         this.SetNpcTarget(fromModel, true, true);
       }
+      _YJSkill.ReceiveSkill(fromModel, skillName, effect, skillItem);
+
       if (targetModel == null) { return; }
 
       //在移动中受到攻击，判断下一个目标
@@ -1680,7 +1692,6 @@ class YJNPC {
       }
       );
 
-      _YJSkill.ReceiveSkill(fromModel, skillName, effect, skillItem);
 
     }
 
@@ -2276,9 +2287,10 @@ class YJNPC {
         }
 
         if (_YJSkill.GetinSkill()) {
-          // console.log("in skill true ");
+          console.log("in skill true ");
           return;
         }
+        // console.log(scope.GetNickName() +"in CheckState ",targetModel,baseData.state,_YJSkill.GetinSkill());
 
         // 逻辑见note/npc策划.md 战斗策略
         let dis = scope.GetTargetModelDistance();
@@ -2299,6 +2311,8 @@ class YJNPC {
           outVaildArea = false;
           inRequestNext = false;
           getnavpathTimes = 0;
+          // console.log(GetNickName() +" 到达攻击距离 ");
+
         } else {
           if (!scope.canMove) {
             // console.log(GetNickName() +" 不可移动，但它的目标超出距离范围 ");
@@ -2309,17 +2323,23 @@ class YJNPC {
             }
           }
 
+
           scope.applyEvent("施法中断");
           readyAttack_doonce = 0;
           if (!CheckVaildArea()) {
             return;
           }
+
+          // console.log(scope.GetNickName() +"in CheckState 11 ",getnavPathTime,targetModel,baseData.state,_YJSkill.GetinSkill());
+
           getnavPathTime++;
           if (getnavPathTime > 20) {
             if (!scope.canMove) {
             } else {
               //跑向目标 
-              GetNavpath(npcPos, targetPos);
+              GetNavpath(scope.GetWorldPos(), targetPos);
+              console.log(GetNickName() +" 跑向目标 ");
+
             }
             getnavPathTime = 0;
           }
@@ -2350,7 +2370,9 @@ class YJNPC {
 
         moveLength = pos.distanceTo(oldMovePos) * 5;
 
-        // console.log(" in tick moveLength = ", moveLength);
+        // if(targetModel){
+        //   console.log(scope.GetNickName() + " in tick moveLength = ", moveLength);
+        // }
 
         // if (moveLength < 0.1) {
         //   samePosTimes++;

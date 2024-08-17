@@ -63,17 +63,8 @@ class GenerateEnemyNPC {
             npcComponent.ResetName();
             npcComponent.applyEvent("隐藏头像");
           }
-
-          if (_Global.inGame) {
-            if(generateSingle){
-              generateSingle(npcComponent);
-            }
-          } else {
-            if (state) {
-
-            } else {
-              element.transform.SetActive(false);
-            }
+          if(generateSingle){
+            generateSingle(npcComponent);
           }
         }
       }
@@ -114,18 +105,10 @@ class GenerateEnemyNPC {
             _Global._YJDyncManager.SendSceneState("删除", { id: npcId, modelType: "NPC模型" });
           }
         });
-        if (_Global.inGame) {
-          let npcComponent = copy.GetComponent("NPC");
-          if(generateSingle){
-            generateSingle(npcComponent);
-          }
-        } else {
-          if (state) {
 
-          } else {
-            npc.transform.SetActive(false);
-          }
-        }
+        if(generateSingle){
+          generateSingle(npc);
+        } 
       });
     } 
     /**
@@ -135,7 +118,7 @@ class GenerateEnemyNPC {
      * @param {生成间隔} genSpeed 
      * @param {生成下一批怪物的等待时间} waitTime 
      * @param {生成下一批怪物的函数 } callback 
-     * @param {*} state 
+     * @param {弹幕玩家头像名称等数据} state 
      */
     function GenerateHot(assetIds, count, genSpeed, waitTime, callback, state) {
       for (let i = 0; i < count; i++) {
@@ -296,8 +279,13 @@ class GenerateEnemyNPC {
       _Global.addEventListener("3d加载完成", () => { });
       _Global.addEventListener("战斗开始", () => {
         _Global.createCompleted = false;
+        // GenerateHot(["boss"], 1, 0.5);
+        GenerateHot(["boss", "食尸鬼", "食尸鬼2", "食尸鬼3"], 10, 0.5);
       });
-
+      // _Global.applyEvent("战斗开始");
+      // setTimeout(() => {
+      //   _Global.applyEvent("战斗开始");
+      // }, 5000);
     }
 
     init();

@@ -104,8 +104,7 @@ const router = createRouter({
     {
       path: '/editorGroup', // 组合编辑页
       name: 'editorGroup',
-      component: () => import('../pages/platform/EditorPanel.vue'),
-      // component: () => import('../pages/platform/EditorPanelGroup.vue'),
+      component: () => import('../pages/platform/EditorPanel.vue'), 
     },
     
     {

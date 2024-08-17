@@ -27,9 +27,9 @@ export default {
     }, //describe技能描述，duration持续时间。perDamage、冻结、眩晕等状态效果才需要持续时间
     hasReceiveEffect:false, //是否有接收效果（生成模型）
     receiveEffect:{
-      modelType:"静态模型",
-      particleId:"1709818566951",
-    },
+      // modelType:"静态模型",
+      // particleId:"1709818566951",
+    }, 
     //技能施放的有效范围 或 范围攻击的游戏范围
     vaildDis: 3, //  
     hasVaildDisLv:false, //施放范围等级

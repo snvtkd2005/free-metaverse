@@ -341,7 +341,7 @@ class YJAmmo {
 			physicsWorld.getWorldInfo().set_m_gravity( new Ammo.btVector3( 0, gravity, 0 ) );
       console.log("初始化 ammo  完成");
       transformAux1 = new Ammo.btTransform();
-      console.log("physicsWorld 00 ",physicsWorld);
+      // console.log("physicsWorld 00 ",physicsWorld);
 
       // var ghostObject = new Ammo.btPairCachingGhostObject();
       // ghostObject.setOverlapFilterCallback({

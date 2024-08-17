@@ -133,7 +133,8 @@ export default {
       } 
     },
     load() {
-      _Global.YJ3D._YJSceneManager.GetSingleModelTransform().UpdateComponents(this.index, this.getMessage());
+      _Global.YJ3D._YJSceneManager.GetSingleModelTransform().UpdateComponentsData(this.index, this.getMessage());
+      _Global.YJ3D._YJSceneManager.GetSingleModelTransform().UpdateAllComponents();
     },
     Update() { 
       // 调用场景保存

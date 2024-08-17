@@ -571,6 +571,7 @@ class YJLoadUserModelManager {
       } else {
         MeshRenderer.load(modelPath, () => {
           object.SetMessage(modelData.message);
+          
           if (callback) {
             callback(object);
           }
@@ -758,6 +759,7 @@ class YJLoadUserModelManager {
       );
 
       let data = res.data;
+      // console.log(" 加载组合数据 ",data);
       let sceneModelsData = [];
       for (let i = 0; i < data.length; i++) {
         const element = data[i];

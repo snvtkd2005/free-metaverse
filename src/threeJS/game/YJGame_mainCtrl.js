@@ -91,8 +91,7 @@ class YJGame_mainCtrl {
       _Global.addEventListener("overlapinteractive", (buff, pos) => {
         if (buff == "addGold") {
           YJSpriteMerged_gold.RemovePos(pos);
-        }
-        
+        } 
       });
 
 

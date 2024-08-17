@@ -7,10 +7,17 @@
     <div class=" hidden cursor-pointer  bg-black bg-opacity-40 " @click=" ChangePanel('导出')">
       <p class="p-2">导出</p>
     </div>
-    <div class="cursor-pointer  bg-black bg-opacity-40 " @click=" ChangePanel('设置')">
+    <div v-if="panelShow.setting" class="cursor-pointer  bg-black bg-opacity-40 " @click=" ChangePanel('设置')">
       <p class="p-2">设置</p>
     </div>
     
+    <div class=" p-2 flex  h-10 text-center  cursor-pointer  bg-black bg-opacity-40  "
+      :class="panelState.grid ? ' bg-opacity-80 ' : 'bg-opacity-40'" @click=" ChangePanel('grid')">
+      <div class=" self-center">
+        grid
+      </div>
+    </div>
+
     <div class=" p-2 flex  h-10 text-center  cursor-pointer  bg-black bg-opacity-40  "
       :class="panelState.free ? ' bg-opacity-80 ' : 'bg-opacity-40'" @click=" ChangePanel('自由穿行')">
       <div class=" self-center">
@@ -32,7 +39,7 @@
       </div>
     </div>
 
-    <div class=" p-2 flex h-10 text-center cursor-pointer  bg-black bg-opacity-40 " @click="ChangeSetting('启动')">
+    <div v-if="panelShow.run" class=" p-2 flex h-10 text-center cursor-pointer  bg-black bg-opacity-40 " @click="ChangeSetting('启动')">
       <div class=" self-center">
         启动
       </div>
@@ -51,8 +58,8 @@
 
 export default {
   name: "settingpanel",
+  props: ["title"],
   components: {
-
   },
   data() {
     return {
@@ -63,10 +70,15 @@ export default {
       },
       // openModelPanel: "",
       openModelPanel: "设置",
+      panelShow:{
+        setting:false,
+        run:false,
+      },
       panelState: {
         setting: true,
         model: false,
         free: false,
+        grid:false,
       },
       fullScreen:false,
     };
@@ -76,15 +88,18 @@ export default {
   },
   mounted() {
     this.parent = this.$parent;
-
      
     setTimeout(() => {
+      
+    this.panelShow.setting = this.title == "scene";
+    this.panelShow.run = this.title == "scene"; 
+    this.panelState.grid = this.title == "group"; 
       if(_Global.YJ3D && _Global.YJ3D._YJSceneManager){
         this.sceneSetting.hasDirectionalLight = _Global.YJ3D._YJSceneManager.GetSceneData().AmbientLightData.hasDirectionalLight;
       }
       let height = localStorage.getItem("modelPanelStyle_height");
       this.panelState.model = height!=0;
-    }, 5000);
+    }, 3000);
 
   },
   methods: {
@@ -101,7 +116,13 @@ export default {
         // 
         return;
       }
-       
+      
+      if ("grid" == e) {
+        this.panelState.grid = !this.panelState.grid;
+        _Global.YJ3D._YJSceneManager.ToggleGrid(this.panelState.grid);
+        return;
+      }
+      
       if ("自由穿行" == e) {
         this.panelState.free = !this.panelState.free;
         if(this.panelState.free){

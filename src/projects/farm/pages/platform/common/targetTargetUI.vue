@@ -1,14 +1,14 @@
 
 <template>
   <div
-    v-if="display"
-    class="absolute left-96 top-24 ml-20 flex text-white origin-top-left transform scale-50 xl:scale-100"
+    v-if="display  "
+    class="absolute left-28 xl:left-20 xl:ml-2 top-20 flex text-white origin-top-left transform scale-50 xl:scale-75"
     style="width: 273px; height: 109px"
     @mouseenter="hover = true"
     @mouseleave="hover = false"
   >
     <!-- 生命法术条 -->
-    <div class="absolute left-2 top-12 h-auto w-health">
+    <div class="absolute left-32 top-12 h-auto w-health">
       <div class="relative">
         <div class="h-3 relative">
           <div
@@ -45,7 +45,7 @@
     </div>
 
     <!-- 姓名栏背景 -->
-    <div class="relative w-health h-4 ml-1.5 mt-7">
+    <div class="relative w-health h-4 ml-32 mt-7">
       <div
         class="absolute h-full w-full"
         :class="
@@ -55,7 +55,7 @@
     </div>
 
     <!-- 头像 -->
-    <div class="absolute right-12 mt-2 w-20 h-20">
+    <div class="absolute left-12 mt-2 w-20 h-20">
       <img
         class="absolute right-0 p-2 w-20 h-20 rounded-full"
         :src="icon"
@@ -65,13 +65,13 @@
 
     <!-- 整个背景ui -->
     <img
-      class="absolute left-0 top-0 w-full h-full"
+      class="absolute left-0 top-0 transform -scale-x-100 w-full h-full"
       :src="headerBGUrl"
       alt=""
     />
 
     <!-- 生命法术条文字 -->
-    <div class="absolute left-1 top-10 w-health h-auto">
+    <div class="absolute left-32 top-10 w-health h-auto">
       <div class="relative mt-1">
         <div class="h-3 relative">
           <div
@@ -92,7 +92,7 @@
       </div>
     </div>
 
-    <div class="absolute right-12 mt-2 w-20 h-20">
+    <div class=" absolute -left-2 mt-2 w-20 h-20">
       <!-- 等级文字 -->
       <div class="absolute right-px bottom-px w-6 h-6 text-xs flex">
         <div class="text-white self-center mx-auto">
@@ -102,7 +102,7 @@
     </div>
 
     <!-- npc名称 -->
-    <div class="absolute left-0 w-health h-4 ml-1 mt-7">
+    <div class="absolute left-32 w-health h-4 ml-1 mt-7">
       <div
         class="h-4 text-xs transform scale-90 text-center truncate tracking-widest"
         :class="
@@ -134,8 +134,7 @@ export default {
     skillProgressUI,
   },
   data() {
-    return {
-      // display: true,
+    return { 
       display: false,
       //npc头像
       hover: true,
@@ -241,6 +240,9 @@ export default {
 </script>
  
 <style scoped>
+.-scale-x-100{ 
+  --tw-scale-x: -1; 
+}
 .w-health {
   width: 139px;
 }

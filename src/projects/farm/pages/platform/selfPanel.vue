@@ -58,7 +58,6 @@
               class="w-40 h-40 mx-auto cursor-pointer"
               @click="CreateNew(currentTable)"
             >
-              <!-- <img class=" w-full h-full    object-fill hover:opacity-70 " src="publicUrl + item.icon" /> -->
             </div>
             <div
               class="absolute left-0 top-0 w-full h-full flex pointer-events-none"
@@ -124,7 +123,6 @@
               class="w-40 h-40 mx-auto cursor-pointer"
               @click="CreateNew(currentTable)"
             >
-              <!-- <img class=" w-full h-full    object-fill hover:opacity-70 " src="publicUrl + item.icon" /> -->
             </div>
             <div
               class="absolute left-0 top-0 w-full h-full flex pointer-events-none"
@@ -186,7 +184,6 @@
               class="w-40 h-40 self-center mx-auto cursor-pointer"
               @click="CreateNew(currentTable)"
             >
-              <!-- <img class=" w-full h-full    object-fill hover:opacity-70 " src="publicUrl + item.icon" /> -->
             </div>
             <div
               class="absolute left-0 top-0 w-full h-full flex pointer-events-none"
@@ -243,7 +240,6 @@
               class="w-40 h-40 self-center mx-auto cursor-pointer"
               @click="CreateNew(currentTable)"
             >
-              <!-- <img class=" w-full h-full    object-fill hover:opacity-70 " src="publicUrl + item.icon" /> -->
             </div>
             <div
               class="absolute left-0 top-0 w-full h-full flex pointer-events-none"
@@ -291,7 +287,6 @@
               class="w-full h-full self-center mx-auto cursor-pointer"
               @click="CreateNew('UVAnim')"
             >
-              <!-- <img class=" w-full h-full    object-fill hover:opacity-70 " src="publicUrl + item.icon" /> -->
             </div>
             <div
               class="absolute left-0 top-0 w-full h-full flex pointer-events-none"
@@ -305,10 +300,10 @@
           <div
             v-for="(item, i) in uvAnimList"
             :key="i"
-            class="self-center w-32 h-auto relative"
+            class="self-center w-24 h-auto relative"
           >
             <div
-              class="w-32 h-32 self-center mx-auto overflow-hidden cursor-pointer"
+              class="w-16 h-16 self-center mx-auto overflow-hidden cursor-pointer"
             >
               <img
                 class="w-full h-full object-fill hover:opacity-70 transform"
@@ -340,7 +335,6 @@
               class="w-full h-full self-center mx-auto cursor-pointer"
               @click="CreateNew('audio')"
             >
-              <!-- <img class=" w-full h-full    object-fill hover:opacity-70 " src="publicUrl + item.icon" /> -->
             </div>
             <div
               class="absolute left-0 top-0 w-full h-full flex pointer-events-none"
@@ -519,7 +513,7 @@
               >
                 <img
                   class="w-2 h-2 xl:w-6 xl:h-6 object-fill"
-                  :src="publicUrl + 'images/spUI/select.png'"
+                  :src="publicUrl + 'images/select.png'"
                 />
               </div>
             </div>
@@ -607,7 +601,7 @@
 
         <div v-if="uvAnimUrl != ''">
           <img
-            class="w-96 h-48"
+            class="w-48 h-48"
             :src="this.$uploadUVAnimUrl + uvAnimUrl"
             alt=""
           />
@@ -786,7 +780,7 @@ export default {
 
       selectSceneName: "scene1",
       currentSceneData: null,
-      publicUrl: "",
+      publicUrl: "./public/",
       uploadUrl: "",
       uploadSceneUrl: "",
       // 是否有目标，目标为npc、其他玩家
@@ -825,7 +819,6 @@ export default {
   mounted() {
     this.uploadUrl = this.$uploadUrl;
     this.uploadSceneUrl = this.$uploadSceneUrl;
-    this.publicUrl = this.$publicUrl + this.avatarData.localPath;
 
     new Interface(this, true);
     // this.sceneList = SceneData.sceneList;
@@ -887,6 +880,7 @@ export default {
     uploadOk(e) {
       if (e == "UVAnim") {
         this.dialogVisible = false;
+        this.uvAnimUrl = "";
         this.RequestGetAllUVAnim();
       }
       if (e == "audio") {
@@ -1218,6 +1212,23 @@ export default {
         return;
       }
 
+      if(e=="组合"){
+        for (let i = 0; i < this.templateList.length; i++) {
+          const item = this.templateList[i];
+          if (item.title == e) {
+            this.dialogTitle = "创建" + e; 
+            this.createTemplate = item.template; 
+            this.createForm.template = e;
+            for (let i = 0; i <  this.createTemplate.length; i++) {
+              const element =  this.createTemplate [i];
+              if(element.name == e){
+                this.createForm.content = element.content;
+              }
+            }
+          }
+        }
+        return;
+      }
       for (let i = 0; i < this.templateList.length; i++) {
         const item = this.templateList[i];
         if (item.title == e) {

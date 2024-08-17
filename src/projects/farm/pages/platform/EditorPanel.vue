@@ -83,7 +83,7 @@
       </div>
       <!-- 右上角按钮 -->
       <div class="absolute right-20 top-2">
-        <settingPanel ref="settingPanel" />
+        <settingPanel :title="sceneType" ref="settingPanel" />
       </div>
 
       <!-- 鸟瞰2d点位 -->
@@ -269,18 +269,6 @@ export default {
       modelPanelStyle: "",
       settingPanelStyle: "",
       topStyle: "",
-
-      panelState: {
-        // setting: false,
-        setting: true,
-        model: true,
-        uvAnim: false,
-        screen: false,
-        particle: false,
-        npc: false,
-        interactive: false,
-        weapon: false,
-      },
 
       hover: false,
       infloating: false,
@@ -594,7 +582,7 @@ export default {
       "?time=" +
       new Date().getTime();
 
-    console.log(" this.folderBase ", this.folderBase, this.loadingUrl);
+    console.log(" this.folderBase ",this.modelData, this.folderBase, this.loadingUrl);
     this.$refs.YJmetaBase.SetloadingPanel(this.$refs.loadingPanel);
     this.$refs.PanelCut.Init(_Global.YJ3D);
 
@@ -604,7 +592,6 @@ export default {
         // console.log(" this.modelData.icon  = ", this.modelData.icon);
         if (this.modelData.icon == undefined) {
           // console.log(" 新建场景  ==== ");
-
           this.updateSceneTxtData(() => {
             this.updateSceneData(() => {
               this.updateSceneModelDataNone();
@@ -853,7 +840,13 @@ export default {
           if (item.folderBase == this.folderBase) {
             localStorage.setItem("modelData", JSON.stringify(item));
             this.modelData = item;
+            if (this.sceneType == "group"){
+              if(this.modelData.modelType != "组合"){
+                this.modelData.modelType = "组合";
+              }
+            }
             this.oldFileName = this.modelData.name;
+            console.log(" in " + this.sceneType + " this.modelData ",this.modelData);
             if (callback) {
               callback();
             }
@@ -1372,6 +1365,11 @@ export default {
       });
     },
     ChangePanel(e) {
+      if(this.sceneType=='group'){
+        if(e=="setting"){
+          return;
+        }
+      }
       this.$refs.settingPanelCtrl.ChangePanel(e);
     },
 

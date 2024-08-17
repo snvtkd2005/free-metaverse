@@ -344,14 +344,15 @@ class YJDMManager_GameBase {
         });
       }
       _GenerateEnemyNPC = new GenerateEnemyNPC((npcComponent) => {
- 
-        // if (_Global._YJFireManager.CheckHasFire()) {
-        //   _Global._YJFireManager.NPCAddFireGroup(npcComponent, enemyNpcTarget.id);
-        // } else {
-        //   _Global._YJFireManager.NPCAddFire(npcComponent, enemyNpcTarget);
-        // }
-        // //并指定其目标为指定名称id的npc
-        // npcComponent.SetNpcTarget(enemyNpcTarget, true, true);
+        enemyNpcTarget = _Global.YJ3D.YJPlayer;
+        if (_Global._YJFireManager.CheckHasFire()) {
+          _Global._YJFireManager.NPCAddFireGroup(npcComponent, enemyNpcTarget.id);
+        } else {
+          _Global._YJFireManager.NPCAddFire(npcComponent, enemyNpcTarget);
+        }
+        //并指定其目标为指定名称id的npc
+        npcComponent.SetNpcTarget(enemyNpcTarget, true, true);
+
         enemyCount++;
         // console.log(" 敌人数量 "+ enemyCount);
       },(npc,id,fireId,damageFromData)=>{

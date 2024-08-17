@@ -181,13 +181,13 @@ class YJSkillModel {
             }
 
             let { title, folderBase, id, pos, scale } = msg;
-            if (title == "冰霜新星") {
-                // 冰环特效
-                _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillGroup(folderBase, (model) => {
-                    model.SetPos(owner.GetWorldPos());
-                    model.SetActive(true);
-                });
-            }
+            // if (title == "冰霜新星") {
+            //     // 冰环特效
+            //     _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillGroup(folderBase, (model) => {
+            //         model.SetPos(owner.GetWorldPos());
+            //         model.SetActive(true);
+            //     });
+            // }
             if (title == "寒冰护体") {
                 if (HasControlModel(folderBase)) {
                     return false;
@@ -202,6 +202,12 @@ class YJSkillModel {
                 });
                 return;
             }
+            // 冰环特效\魔爆术等当前位置施放就结束的法术
+            _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillGroup(folderBase, (model) => {
+                model.SetPos(owner.GetWorldPos());
+                model.SetActive(true);
+            });
+
         }
 
         let headModel = null;

@@ -78,13 +78,14 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="操作" width="100">
+      <el-table-column label="操作" width="200">
         <template #default="scope">
           <el-button
             size="small"
             @click="EditorEvent('编辑', scope.row, scope.$index)"
             >编辑</el-button
           >
+          <el-button size="small" @click="EditorEvent('复制到新建', scope.row,scope.$index)">复制到新建</el-button>
           <!-- <el-button size="small" type="danger" @click="EditorEvent('删除', scope.row,scope.$index)">删除</el-button> -->
         </template>
       </el-table-column>
@@ -97,6 +98,7 @@
 
 <script>
 import skillItemEditorPanel from "./skillItemEditorPanel.vue";
+import skillItem from "../../../data/platform/skillItem.js";
 
 import { UploadPlayerFile } from "../../../js/uploadThreejs.js";
 
@@ -126,8 +128,10 @@ export default {
       console.log(e, item, i);
       if (e == "新建") {
         this.editorIndex = -1; 
-        this.$refs.skillItemEditorPanel.dialogTitle = "新建技能";
-        this.$refs.skillItemEditorPanel.createNew();
+        this.$refs.skillItemEditorPanel.dialogTitle = "新建技能"; 
+        this.$refs.skillItemEditorPanel.initValue(
+          JSON.parse(JSON.stringify(skillItem.skill))
+        );
       }
       if (e == "编辑") {
         this.editorIndex = i; 
@@ -139,8 +143,17 @@ export default {
       if (e == "删除") {
         // 技能名为空时，运行删除
         this.skillList.splice(i, 1);
-        this.saveSkill();
+        this.save();
       }
+      
+      if (e == "复制到新建") { 
+        this.editorIndex = -1; 
+        this.$refs.skillItemEditorPanel.dialogTitle = "新建技能";
+        this.$refs.skillItemEditorPanel.initValue(
+          JSON.parse(JSON.stringify(item))
+        ); 
+      }
+      
     },
 
     saveSkill(settingData) {
@@ -149,6 +162,9 @@ export default {
       } else {
         this.skillList[this.editorIndex] = settingData;
       }
+      this.save();
+    },
+    save(){
       let s = JSON.stringify(this.skillList);
       let fromData = new FormData();
       //服务器中的本地地址

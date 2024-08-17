@@ -30,7 +30,9 @@ export default {
   text-align: center;
   color: #2c3e50;
 }
-
+.touch-action-none{
+   touch-action: none;/*在移动设备上使用时，<input>元素不会导致页面滚动 */
+}
 .text-yellow-wow{
   color:#ffd100 ;
 }

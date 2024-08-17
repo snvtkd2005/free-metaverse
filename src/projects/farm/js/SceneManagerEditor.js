@@ -918,7 +918,7 @@ class SceneManager {
         ClearTarget();
         return;
       }
-      if (hitObject.transform) {
+      if (hitObject.transform && hitObject.transform.GetActive()) {
         // 点击NPC
         let message = hitObject.transform.GetData().message;
         // console.log(" 右键点击 transform ", message);

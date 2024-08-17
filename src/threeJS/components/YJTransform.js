@@ -74,7 +74,12 @@ class YJTransform {
       group.name = data.modelType + name;
       // console.log(" group.name =  ",group.name ,data.active);
 
-
+      // setTimeout(() => {
+      //   for (let i = 0; i < data.components.length; i++) {
+      //     this.UpdateComponents(i,data.components[i]);
+      //   }
+      // }, 1000);
+ 
     }
     let de2reg = 57.29578;
     this.GetTransform = function () {
@@ -102,6 +107,7 @@ class YJTransform {
 
       // 静态模型message为空
       if(message == null){ 
+        this.UpdateAllComponents(); 
         this.SetActive(data.active);
         return;
       }
@@ -169,10 +175,8 @@ class YJTransform {
         let com = this.GetComponent("Geometry");
         com.SetMessage(message.data);
       }
-
-      for (let i = 0; i < data.components.length; i++) {
-        this.UpdateComponents(i,data.components[i]);
-      }
+ 
+      this.UpdateAllComponents(); 
       
       this.SetActive(data.active);
 
@@ -219,6 +223,15 @@ class YJTransform {
         tween.SetMessage(msg.data);
       }
     }
+    this.UpdateComponentsData = function(index,msg){
+      data.components[index] = (msg); 
+    }
+    this.UpdateAllComponents = function(){
+      for (let i = 0; i < data.components.length; i++) {
+        this.UpdateComponents(i,data.components[i]);
+      } 
+    }
+
     this.SetDisplay = function(b){
       group.visible = b;
       let message = data.message;

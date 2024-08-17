@@ -47,12 +47,12 @@ class YJFireManager {
           // 玩家的镜像或守护弹幕玩家 不使用巡视范围找目标
           continue;
         }
-        if(npcComponent.GetCamp() == 10002){
+        if (npcComponent.GetCamp() == 10002) {
           // 中立npc 不使用巡视范围找目标
           continue;
         }
-        
-        if(npcComponent.fireId != -1){
+
+        if (npcComponent.fireId != -1) {
           //已经在战斗中，不使用巡视范围找目标
           continue;
         }
@@ -66,9 +66,9 @@ class YJFireManager {
         // }
       }
     }
-    function CheckNpcLookatFn(npc){
-      
-      let npcs = _Global._YJNPCManager.GetNearDirect(npc.id,npc.GetWorldPos());
+    function CheckNpcLookatFn(npc) {
+
+      let npcs = _Global._YJNPCManager.GetNearDirect(npc.id, npc.GetWorldPos());
       let players = _Global._YJPlayerManager.GetNearDirect(npc.GetWorldPos());
       for (let i = 0; i < players.length; i++) {
         npcs.push(players[i]);
@@ -80,28 +80,28 @@ class YJFireManager {
           // 玩家的镜像或守护弹幕玩家 不使用巡视范围找目标
           continue;
         }
-        if( npcComponent.GetCamp() == npc.GetCamp()){
+        if (npcComponent.GetCamp() == npc.GetCamp()) {
           // 忽略同阵营
           continue;
         }
-          if( npcComponent.GetCamp() != npc.GetCamp()){
-          if(npcComponent.GetCamp() == 10002){
+        if (npcComponent.GetCamp() != npc.GetCamp()) {
+          if (npcComponent.GetCamp() == 10002) {
             //忽略中立npc
             continue;
           }
-          if(npc.GetCamp() == 10001 && npcComponent.isPlayer){
+          if (npc.GetCamp() == 10001 && npcComponent.isPlayer) {
             // 友善npc 对玩家忽略
             continue;
           }
 
-          if(_Global.mainUser){
+          if (_Global.mainUser) {
             npc.SetNpcTarget(npcComponent, true, true);
-          }else{
-            if(_Global.DyncManager){
+          } else {
+            if (_Global.DyncManager) {
               _Global.DyncManager.SendSceneState("转发", { type: "npc发现玩家", state: { npcId: npcComponent.transform.id, playerId: _Global.YJ3D.YJPlayer.id } });
             }
           }
-        }else{
+        } else {
 
         }
       }
@@ -117,13 +117,13 @@ class YJFireManager {
       for (let i = 0; i < npcs.length; i++) {
         const npcComponent = npcs[i];
         npcComponent.SetNpcTarget(targetModel, true, false);
-        scope.NPCAddFireById(npcComponent, npcComponent1.fireId,targetModel.id);
+        scope.NPCAddFireById(npcComponent, npcComponent1.fireId, targetModel.id);
       }
     }
 
     // 获取npc附近的同阵营其他npc
-    this.GetNearNPCByNPC = function (fromNpc, dis,max) {
-      let npcs = _Global._YJNPCManager.GetNearSameCampNPCByNPC(fromNpc, dis,max);
+    this.GetNearNPCByNPC = function (fromNpc, dis, max) {
+      let npcs = _Global._YJNPCManager.GetNearSameCampNPCByNPC(fromNpc, dis, max);
       return npcs;
     }
 
@@ -131,12 +131,12 @@ class YJFireManager {
     // tab获取玩家前方不同阵营的npc，优先在选择战斗的
     this.GetForwardNoSameCampNPC = function (playerPos) {
       let npcs = [];
-      let fireId =  _Global.YJ3D.YJPlayer.fireId;
-      if(fireId==-1){
+      let fireId = _Global.YJ3D.YJPlayer.fireId;
+      if (fireId == -1) {
         npcs = _Global._YJNPCManager.GetForwardNoSameCampNPC(playerPos);
-      }else{
-        npcs = this.GetNoSameCampInFire(_Global.user.camp,fireId);
-      } 
+      } else {
+        npcs = this.GetNoSameCampInFire(_Global.user.camp, fireId);
+      }
       return npcs;
     }
 
@@ -202,7 +202,10 @@ class YJFireManager {
       return npcs[RandomInt(0, npcs.length - 1)];
     }
 
-    this.GetNoSameCampInFire = function(camp, fireId){
+    function CheckInVaildDis(vaildAttackDis, targetModel) {
+      return vaildAttackDis.vaildAttackDis >= vaildAttackDis.fromPos.distanceTo(targetModel.GetWorldPos());
+    }
+    this.GetNoSameCampInFire = function (camp, fireId, vaildAttackDis) {
       let other = [];
       let has = false;
       for (let i = fireGroup.length - 1; i >= 0 && !has; i--) {
@@ -211,24 +214,24 @@ class YJFireManager {
           has = true;
           let peopleList = element.peopleList;
           let otherPeople = [];
-          for (let j = peopleList.length - 1; j >= 0 ; j--) {
+          for (let j = peopleList.length - 1; j >= 0; j--) {
             const people = peopleList[j];
             if (people.camp != camp) {
               otherPeople.push(people);
             }
-          }  
+          }
 
           for (let i = 0; i < otherPeople.length; i++) {
             const people = otherPeople[i];
-            if(people.type=="NPC"){
+            if (people.type == "NPC") {
               let npc = _YJNPCManager.GetNpcComponentById(people.id);
-              if(!npc.isDead && npc.GetCamp() != 10001){
+              if (!npc.isDead && CheckInVaildDis(vaildAttackDis, npc) && npc.GetCamp() != 10001) {
                 other.push(npc);
               }
             }
-            else if(people.type=="玩家" && camp != 10001){
+            else if (people.type == "玩家" && camp != 10001) {
               let yjplayer = _YJPlayerManager.GetPlayerById(people.id);
-              if(!yjplayer.isDead){
+              if (!yjplayer.isDead && CheckInVaildDis(vaildAttackDis, yjplayer)) {
                 other.push(yjplayer);
               }
             }
@@ -237,15 +240,16 @@ class YJFireManager {
       }
       return other;
     }
-    this.GetNoSameCampByRandom = function (camp, fireId) {
-      console.log("查找随机目标",camp, fireId,fireGroup);
+    this.GetNoSameCampByRandomInFire = function (camp, fireId, vaildAttackDis) {
+      // console.log("查找随机目标", camp, fireId, fireGroup);
       //随机目标，优先去同战斗id中找
-      if(fireId!=undefined && fireId !=-1){
-        let other = this.GetNoSameCampInFire(camp, fireId);
+      if (fireId != undefined && fireId != -1) {
+        let other = this.GetNoSameCampInFire(camp, fireId, vaildAttackDis);
+        if (other.length == 0) { return null; }
         return other[RandomInt(0, other.length - 1)];
       }
-      let npcs = _YJNPCManager.GetNoSameCamp(camp, fireId);
-      let players = _YJPlayerManager.GetNoSameCamp(camp, fireId);
+      let npcs = _YJNPCManager.GetNoSameCamp(camp, fireId, vaildAttackDis);
+      let players = _YJPlayerManager.GetNoSameCamp(camp, fireId, vaildAttackDis);
       for (let j = 0; j < players.length; j++) {
         npcs.push(players[j]);
       }
@@ -254,23 +258,7 @@ class YJFireManager {
       }
       return npcs[RandomInt(0, npcs.length - 1)];
     }
-    this.GetNoSameCampByRandomInFire = function (camp, fireId) {
-      console.log("查找随机目标",camp, fireId,fireGroup);
-      //随机目标，优先去同战斗id中找
-      if(fireId!=undefined && fireId !=-1){
-        let other = this.GetNoSameCampInFire(camp, fireId);
-        return other[RandomInt(0, other.length - 1)];
-      }
-      let npcs = _YJNPCManager.GetNoSameCamp(camp, fireId);
-      let players = _YJPlayerManager.GetNoSameCamp(camp, fireId);
-      for (let j = 0; j < players.length; j++) {
-        npcs.push(players[j]);
-      }
-      if (npcs.length == 0) {
-        return null;
-      }
-      return npcs[RandomInt(0, npcs.length - 1)];
-    }
+
 
     this.GetNpcOrPlayerById = function (id) {
       let npc = _YJNPCManager.GetNpcComponentById(id);
@@ -301,7 +289,7 @@ class YJFireManager {
       }
       const element = fireGroup[0];
       npcComponent.fireId = element.fireId;
-      checkAddPeople(element.peopleList, { id: npcComponent.transform.id,type:npcComponent.getPlayerType(), camp: npcComponent.GetCamp(), targetId: targetId });
+      checkAddPeople(element.peopleList, { id: npcComponent.transform.id, type: npcComponent.getPlayerType(), camp: npcComponent.GetCamp(), targetId: targetId });
       // console.log(npcComponent.GetNickName() + " " + npcComponent.transform.id +" 加入战斗 ");
       return true;
     }
@@ -324,7 +312,7 @@ class YJFireManager {
           sameCamp = peopleList[0].camp;
           for (let k = peopleList.length - 1; k >= 0; k--) {
             peopleList.splice(k, 1);
-          }  
+          }
           return;
         }
       }
@@ -471,7 +459,7 @@ class YJFireManager {
       for (let i = 0; i < npcs.length; i++) {
         const npcComponent = npcs[i].GetComponent("NPC");
         npcComponent.fireId = fireId;
-        checkAddPeople(element.peopleList, { id: npcComponent.transform.id,type:npcComponent.getPlayerType(), camp: npcComponent.GetCamp(), targetId: null });
+        checkAddPeople(element.peopleList, { id: npcComponent.transform.id, type: npcComponent.getPlayerType(), camp: npcComponent.GetCamp(), targetId: null });
       }
       for (let k = element.peopleList.length - 1; k >= 0; k--) {
         const people = element.peopleList[k];
@@ -519,7 +507,7 @@ class YJFireManager {
       player.playerMirrors = [];
     }
 
-    this.AddFireGroup = function (id, camp,type, fireId, targetId) {
+    this.AddFireGroup = function (id, camp, type, fireId, targetId) {
       for (let i = 0; i < fireGroup.length; i++) {
         const element = fireGroup[i];
         if (element.fireId == fireId) {
@@ -531,9 +519,9 @@ class YJFireManager {
               return;
             }
           }
-          checkAddPeople(element.peopleList, { id: id, camp: camp,type, targetId: targetId });
+          checkAddPeople(element.peopleList, { id: id, camp: camp, type, targetId: targetId });
           console.log(" 加入战斗组 ", element);
-          if(camp==undefined){
+          if (camp == undefined) {
             console.error(" ===== camp 为空 ");
           }
         }
@@ -557,12 +545,12 @@ class YJFireManager {
         if (hasNpc || hasPlayer) {
           if (!hasNpc) {
             npcComponent.fireId = element.fireId;
-            checkAddPeople(element.peopleList, { id: npcComponent.transform.id,type:npcComponent.getPlayerType(), camp: npcComponent.GetCamp(), targetId: targetModel.id });
+            checkAddPeople(element.peopleList, { id: npcComponent.transform.id, type: npcComponent.getPlayerType(), camp: npcComponent.GetCamp(), targetId: targetModel.id });
             console.log(" 玩家加入战斗触发 npc加入战斗");
           }
           if (!hasPlayer) {
             targetModel.fireId = element.fireId;
-            checkAddPeople(element.peopleList, { id: targetModel.id,type:targetModel.getPlayerType(), camp: targetModel.GetCamp(), targetId: npcComponent.transform.id });
+            checkAddPeople(element.peopleList, { id: targetModel.id, type: targetModel.getPlayerType(), camp: targetModel.GetCamp(), targetId: npcComponent.transform.id });
             console.log(" 玩家加入战斗触发 玩家加入战斗");
           }
           return;
@@ -588,8 +576,10 @@ class YJFireManager {
           }
           npcComponent.fireId = fireId;
           checkAddPeople(element.peopleList,
-             { id: npcComponent.transform.id,type:npcComponent.getPlayerType(), camp: npcComponent.GetCamp(), 
-              targetId: targetId });
+            {
+              id: npcComponent.transform.id, type: npcComponent.getPlayerType(), camp: npcComponent.GetCamp(),
+              targetId: targetId
+            });
           // console.log("npc [" + npcComponent.npcName + "] 加入 附近的战斗 ", element);
         }
       }
@@ -601,20 +591,20 @@ class YJFireManager {
       for (let i = 0; i < fireGroup.length; i++) {
         const element = fireGroup[i];
         if (element.fireId == fireId) {
-          checkAddPeople(element.peopleList, { id: player.id,type:"玩家", camp: player.GetCamp(),targetId:null });
+          checkAddPeople(element.peopleList, { id: player.id, type: "玩家", camp: player.GetCamp(), targetId: null });
           console.log(" 玩家 加入战斗 22 ", element);
         }
       }
       _Global.DyncManager.SendSceneState("战斗状态");
-    } 
+    }
 
     this.RemoveNPCFireId = function (id, fireId) {
 
       let npcComponent = _Global._YJNPCManager.GetNpcComponentById(id);
-      if(npcComponent){
+      if (npcComponent) {
         // console.error(npcComponent.GetNickName() + " npc 死亡 请求离开战斗" ,id, fireId);
-      }else{
-        console.error(" 不该进入此判断 " +id + " 。 找不到npc ");
+      } else {
+        console.error(" 不该进入此判断 " + id + " 。 找不到npc ");
       }
 
       let has = false;
@@ -630,9 +620,9 @@ class YJFireManager {
             }
             if (people.targetId == id) {
               people.targetId = null;
-              if(people.type=="NPC"){ 
+              if (people.type == "NPC") {
                 let hasNext = SetNPCNextTarget(people);
-                if(!hasNext){
+                if (!hasNext) {
                   element.peopleList.splice(j, 1);
                   // let notargetNpc = _Global._YJNPCManager.GetNpcComponentById(people.id);
                   // console.error(" 从战斗中移除 ： " +notargetNpc.GetNickName() + " 找不到新目标" );
@@ -640,10 +630,10 @@ class YJFireManager {
                 }
               }
             }
-          } 
+          }
           // console.log(" 参与者数量 ",element.peopleList.length);
           if (element.peopleList.length <= 1) {
-            fireGroup.splice(i, 1); 
+            fireGroup.splice(i, 1);
             // console.error(" 结束战斗： " +fireId + " 。 剩余进行中的战斗 ", fireGroup);
             continue;
           }
@@ -654,9 +644,9 @@ class YJFireManager {
       for (let i = fireGroup.length - 1; i >= 0; i--) {
         CheckPeopleVaild(fireGroup[i].peopleList);
       }
-      
+
       if (!has) {
-        console.error(" 出错： " + npcComponent.GetNickName()+" "+id + "  死亡或离开战斗, 但未在战斗中",fireId, fireGroup);
+        console.error(" 出错： " + npcComponent.GetNickName() + " " + id + "  死亡或离开战斗, 但未在战斗中", fireId, fireGroup);
       }
       LoopCheckFireFn();
     }
@@ -672,19 +662,19 @@ class YJFireManager {
         FireOff(sameCamp);
         return;
       }
-      
+
       for (let i = fireGroup.length - 1; i >= 0; i--) {
         const element = fireGroup[i];
         if (CheckSameCamp(element.peopleList)) {
-          if(element.peopleList.length>0){
+          if (element.peopleList.length > 0) {
             sameCamp = element.peopleList[0].camp;
             for (let k = element.peopleList.length - 1; k >= 0; k--) {
               const people = element.peopleList[k];
-              if(people.type == "NPC"){
+              if (people.type == "NPC") {
                 let notargetNpc = _YJNPCManager.GetNpcComponentById(people.id);
                 notargetNpc.fireOff();
               }
-              if(people.type == "玩家"){
+              if (people.type == "玩家") {
                 _Global.DyncManager.SendSceneStateAll("玩家脱离战斗", people.id);
               }
             }
@@ -714,12 +704,12 @@ class YJFireManager {
                 continue;
               }
               let hasNext = SetNPCNextTarget(people);
-              if(!hasNext){
+              if (!hasNext) {
                 element.peopleList.splice(k, 1);
                 // let npcComponent = _Global._YJNPCManager.GetNpcComponentById(people.id);
                 // console.error(" 从战斗中移除 ： " +npcComponent.GetNickName()+ " 找不到新目标" );
               }
-              if(element.peopleList.length<=1){
+              if (element.peopleList.length <= 1) {
                 fireGroup.splice(i, 1);
               }
 
@@ -736,17 +726,17 @@ class YJFireManager {
         return;
       }
     }
-    this.SetNPCNextTarget = function(people){
+    this.SetNPCNextTarget = function (people) {
       return SetNPCNextTarget(people);
     }
-    function SetNPCNextTarget(people){
-      if(people.type == "玩家"){return true;}
+    function SetNPCNextTarget(people) {
+      if (people.type == "玩家") { return true; }
       let { id, camp, fireId } = people;
       let npcComponent = _Global._YJNPCManager.GetNpcComponentById(id);
       if (npcComponent == null) {
         console.error(" 不该进入此判断: npcId [" + id + "] 为空 ", people);
         return false;
-      } 
+      }
       // console.log(npcComponent.GetNickName()+" 请求查找下一个目标 00 ");
       if (npcComponent.isDead) {
         return false;
@@ -757,20 +747,20 @@ class YJFireManager {
       } else {
       }
       let dis = 10000;
-      if(vaildDis){
+      if (vaildDis) {
         dis = vaildDis;
       }
       let player = null;
-      let others = scope.GetNoSameCampInFire(camp, fireId);
+      let others = scope.GetNoSameCampInFire(camp, fireId,{
+        fromPos:npcComponent.GetWorldPos(),vaildAttackDis:vaildDis
+      });
       for (let i = 0; i < others.length; i++) {
-        const element = others[i]; 
-        let distance = npcComponent.GetWorldPos().distanceTo(element.GetWorldPos()); 
-        if (distance <= dis && element.id !=npcComponent.id) {
-          dis = distance;
-          player = (element); 
+        const element = others[i];
+        if (element.id != npcComponent.id) {
+          player = (element);
         }
       }
- 
+
       if (player) {
 
         if (people) {
@@ -778,12 +768,12 @@ class YJFireManager {
         }
         if (id == player.id) {
           console.error(" 不该进入此判断: [" + player.GetNickName() + "] 的目标是自身 ");
-        } 
+        }
         if (npcComponent.GetCamp() == player.GetCamp()) {
-          console.error(" 不该进入此判断: [" + npcComponent.GetCamp() + "] 的目标是同阵营 ",fireGroup);
+          console.error(" 不该进入此判断: [" + npcComponent.GetCamp() + "] 的目标是同阵营 ", fireGroup);
         }
         // console.log( " [" + npcComponent.GetNickName() + "] "," 设置目标 ",player.GetNickName());
-        
+
         npcComponent.SetNpcTargetToNoneDrict();
         npcComponent.SetNpcTarget(player, true, false);
         return true;
@@ -813,7 +803,7 @@ class YJFireManager {
 
     // 判断战斗中的角色是否同阵营
     function CheckSameCamp(peopleList) {
-      if(peopleList.length<=1){
+      if (peopleList.length <= 1) {
         return true;
       }
       // console.log("判断战斗中的角色是否同阵营 ",peopleList);
@@ -848,16 +838,16 @@ class YJFireManager {
         peopleList.push(people);
       }
 
-      
+
 
     }
-    function CheckPeopleVaild(peopleList){
+    function CheckPeopleVaild(peopleList) {
       // console.log("检查参与战斗的记录是否有效",peopleList);
-      for (let i = peopleList.length -1; i >= 0; i--) {
+      for (let i = peopleList.length - 1; i >= 0; i--) {
         const targetId = peopleList[i].targetId;
-        let has  =false;
+        let has = false;
         for (let j = 0; j < peopleList.length && !has; j++) {
-          if(peopleList[j].id == targetId){
+          if (peopleList[j].id == targetId) {
             has = true;
           }
         }
@@ -871,15 +861,15 @@ class YJFireManager {
         //   continue;
         // }
 
-        if (!has) { 
+        if (!has) {
           // let npcComponent = _Global._YJNPCManager.GetNpcComponentById(targetId);
           // console.error("不该进入此判断：", targetId,npcComponent.GetNickName() + " 不在",npcComponent.GetBaseData(),(peopleList));
-          peopleList[i].targetId = null; 
+          peopleList[i].targetId = null;
           let hasNext = SetNPCNextTarget(peopleList[i]);
-          if(!hasNext && peopleList[i].type == "NPC"){
+          if (!hasNext && peopleList[i].type == "NPC") {
             // let notargetNpc = _Global._YJNPCManager.GetNpcComponentById(peopleList[i].id);
             // console.error(" 从战斗中移除 ： " +notargetNpc.GetNickName() + " 找不到新目标"); 
-            peopleList.splice(i, 1); 
+            peopleList.splice(i, 1);
           }
         }
       }
@@ -887,7 +877,7 @@ class YJFireManager {
 
     // 由NPC触发
     this.NPCAddFire = function (npcComponent, targetModel) {
-      let hasGroup = false; 
+      let hasGroup = false;
       for (let i = 0; i < fireGroup.length; i++) {
         const element = fireGroup[i];
 
@@ -912,30 +902,30 @@ class YJFireManager {
         }
 
 
-        if(hasGroup){
+        if (hasGroup) {
           if (!hasNpc) {
             if (npcComponent.fireId == -1) {
               npcComponent.fireId = element.fireId;
             }
-            checkAddPeople(element.peopleList, { id: npcComponent.id,type:npcComponent.getPlayerType(), camp: npcComponent.GetCamp(), targetId: targetModel.id });
+            checkAddPeople(element.peopleList, { id: npcComponent.id, type: npcComponent.getPlayerType(), camp: npcComponent.GetCamp(), targetId: targetModel.id });
             // console.log(npcComponent.npcName + " npc 加入正在进行中的战斗 ", element);
           }
-  
+
           if (!cPlayer) {
             if (targetModel.fireId == -1) {
               targetModel.fireId = element.fireId;
             }
-            checkAddPeople(element.peopleList, { id: targetModel.id,type:targetModel.getPlayerType(), camp: targetModel.GetCamp(), targetId: npcComponent.id });
+            checkAddPeople(element.peopleList, { id: targetModel.id, type: targetModel.getPlayerType(), camp: targetModel.GetCamp(), targetId: npcComponent.id });
             // console.log(targetModel.GetNickName() + " npc 加入正在进行中的战斗 ", element);
-          } 
+          }
           return;
         }
       }
       if (hasGroup) {
         return;
       }
-      
-      if(targetModel.isDead || npcComponent.isDead){
+
+      if (targetModel.isDead || npcComponent.isDead) {
         console.error(" 新战队开启失败：双方有一方死亡 ");
         return;
       }
@@ -946,8 +936,8 @@ class YJFireManager {
       fireGroup.push({
         fireId: fireId,
         peopleList: [
-          { id: targetModel.id,type:targetModel.getPlayerType(), camp: targetModel.GetCamp(), targetId: npcId },
-          { id: npcId,type:npcComponent.getPlayerType(), camp: npcComponent.GetCamp(), targetId: targetModel.id }]
+          { id: targetModel.id, type: targetModel.getPlayerType(), camp: targetModel.GetCamp(), targetId: npcId },
+          { id: npcId, type: npcComponent.getPlayerType(), camp: npcComponent.GetCamp(), targetId: targetModel.id }]
       });
       targetModel.fireId = fireId;
       npcComponent.fireId = fireId;
@@ -962,31 +952,31 @@ class YJFireManager {
       for (let i = 0; i < fireGroup.length; i++) {
         const element = fireGroup[i];
         for (let j = 0; j < element.peopleList.length; j++) {
-          checkSameIdInPeopleList(element.peopleList[j],i); 
-        } 
+          checkSameIdInPeopleList(element.peopleList[j], i);
+        }
       }
-      
+
 
       // console.error(" 新战斗：开启第 "+ (fireGroup.length)+" 场战斗 ",fireId,(fireGroup) );
       // console.log(" 开始新的战斗 ", targetModel.GetNickName() + " " + npcComponent.GetNickName(), fireGroup[fireGroup.length - 1]);
       _Global.DyncManager.SendSceneStateAll("玩家加入战斗", { playerId: targetModel.id, targetId: npcId, fireId: fireId });
       _Global.DyncManager.SendSceneState("战斗状态");
     }
-    function checkSameIdInPeopleList(people,ingnorI){
+    function checkSameIdInPeopleList(people, ingnorI) {
       let num = 0;
       for (let i = 0; i < fireGroup.length; i++) {
         const element = fireGroup[i];
-        if(i!=ingnorI){
+        if (i != ingnorI) {
           for (let j = 0; j < element.peopleList.length; j++) {
             const player = element.peopleList[j];
             if (player.id == people.id) {
               num++;
             }
-          } 
+          }
         }
       }
-      if(num>1){
-        console.error(" ========= " + people.id+" 在多个战斗中 ");
+      if (num > 1) {
+        console.error(" ========= " + people.id + " 在多个战斗中 ");
       }
     }
 
@@ -1019,7 +1009,7 @@ class YJFireManager {
       modelData.id = npcId;
       _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().DuplicateModelNPC(modelData, (copy) => {
         // 测试显示指定名称id的NPC
-        _YJNPCManager.AddNpc(copy); 
+        _YJNPCManager.AddNpc(copy);
         let npc = copy.GetComponent("NPC");
         if (dmData) {
           let { uname, uface } = dmData;

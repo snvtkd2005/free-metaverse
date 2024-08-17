@@ -546,7 +546,8 @@ class YJRaycaster extends YJEvent {
       forcedLandscape = b;
     }
     this.onTouchEnd = function (event) {
-
+      // state = STATE.ROTATE;
+      state = STATE.PAN;
       mouseDown = false;
 
       var touch = event.changedTouches[0];

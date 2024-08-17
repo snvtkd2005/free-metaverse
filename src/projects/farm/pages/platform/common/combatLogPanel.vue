@@ -7,8 +7,8 @@
       class="absolute left-2 bottom-32 w-auto h-auto max-h-24 transform origin-bottom overflow-hidden overflow-y-hidden"
     >
       <div v-for="(item, i) in combatLog" :key="item" :index="i" class="w-full">
-        <div class="py-px text-white text-left">
-          <div class="ml-1 leading-5">{{ item }}</div>
+        <div class="py-px text-white text-left text-xs">
+          <div class="ml-1 leading-3">{{ item }}</div>
         </div>
       </div>
     </div>

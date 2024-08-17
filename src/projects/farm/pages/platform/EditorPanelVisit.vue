@@ -18,7 +18,7 @@
       </div>
       
     <!-- 视角远近滑块 -->
-    <input ref="viewFarCtrl" v-if="isMobile" class=" absolute  -right-10 bottom-32  outline-none  transform rotate-90" @input="viewFarFn"
+    <input ref="viewFarCtrl" v-if="isMobile" class=" touch-action-none absolute  -right-10 bottom-32  outline-none  transform rotate-90" @input="viewFarFn"
       v-model="viewFar" type="range" min="0" max="23" step="1">
       <!-- <JoystickLeftPanel class="" ref="JoystickLeftPanel" /> -->
 

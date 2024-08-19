@@ -3,7 +3,6 @@ import * as THREE from "three";
 
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 
 // meshRenderer组件
 
@@ -57,13 +56,8 @@ class YJLoadAnimation {
     }
     function loadGltf(modelPath, callback, errorback) {
 
-
       const loader = new GLTFLoader();
-      
-      let dracoLoader = new DRACOLoader();
-      dracoLoader.setDecoderPath('./public/threeJS/draco/gltf/');
-      dracoLoader.setDecoderConfig({ type: "js" });
-      dracoLoader.preload();
+      let dracoLoader = _Global.YJ3D._YJSceneManager.GetDracoLoader(); 
       loader.setDRACOLoader(dracoLoader);
 
       // + ("?time="+new Date().getTime())

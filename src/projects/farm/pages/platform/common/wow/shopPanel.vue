@@ -1,8 +1,8 @@
 <template>
   <div class="w-full h-full relative pointer-events-none">
     <!-- 动作条 -->
-    <div class="absolute left-0 top-20 md:top-20 flex">
-      <div class="relative transform md:scale-100 mx-auto flex">
+    <div class="absolute left-0 top-0 xl:top-20 flex">
+      <div class="relative transform scale-75 xl:scale-100 mx-auto flex">
         <div class="absolute left-0 top-0 w-full h-full -z-10">
           <div class="absolute left-1 top-1">
             <img class="w-16 h-16 rounded-full" :src="leftIcon" alt="" />
@@ -70,6 +70,7 @@
                     :src="this.$uploadUVAnimUrl + item.skill.icon"
                     alt=""
                     @contextmenu.prevent="onContextMenu($event, item)"
+                    @touchend="touchItem(item);outHover()"
                     @mouseover="LookSkill($event, item)"
                     @mouseleave="outHover()"
                   />
@@ -246,22 +247,27 @@ export default {
       }
     },
 
+    clickItemFn(item){
+      // 判断是否可以购买
+      let gold = _Global._YJPlayerFireCtrl.GetProperty().GetPropertyValue("gold");
+      if (gold < item.skill.gold) {
+        return;
+      }
+      // 购买商品
+      _Global.applyEvent("加金币", -item.skill.gold);
+      _Global.applyEvent("加道具", [item]);
+      this.checkGold();
+    },
     onContextMenu(ev, item) {
       // 阻止默认的上下文菜单显示
       ev.preventDefault();
       if (ev.button == 2) {
-        // 判断是否可以购买
-        let gold = _Global._YJPlayerFireCtrl.GetProperty().GetPropertyValue("gold");
-        if (gold < item.skill.gold) {
-          return;
-        }
-        // 购买商品
-        _Global.applyEvent("加金币", -item.skill.gold);
-        _Global.applyEvent("加道具", [item]);
-        this.checkGold();
-
+        this.clickItemFn(item); 
       }
-    },
+    }, 
+    touchItem(item){
+      this.clickItemFn(item);
+    }
   },
 };
 </script>

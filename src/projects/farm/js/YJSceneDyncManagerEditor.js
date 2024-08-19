@@ -796,7 +796,7 @@ class YJSceneDyncManagerEditor {
     }
     function shootTargetFn(startPos, target, speed, firePid, callback) {
       _YJSkillParticleManager.shootTargetFn(startPos.clone(), target, speed, firePid, callback);
-
+      
       // _YJSkillParticleManager.shootTargetFn(startPos.clone(), target, "1704443871265");
     }
     //#endregion

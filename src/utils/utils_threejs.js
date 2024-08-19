@@ -13,19 +13,32 @@ export const checkV3Equel = (v1, v2) => {
     || Math.abs(v1.x - v2.x) < 0.001
     || Math.abs(v1.y - v2.y) < 0.001;
 }
+export const CreateBoxMesh = (scene, w, h, d, color, pos, rota) => {
+  // cube
+  const cubeGeometry = new THREE.BoxGeometry(w, h, d);
+  const cubeMaterial = new THREE.MeshStandardMaterial({ color: color })
+  const cube = new THREE.Mesh(cubeGeometry, cubeMaterial)
+  cube.castShadow = cube.receiveShadow = true
+  cube.position.copy(pos);
+  cube.rotation.copy(rota);
+  // cube.position.set(1.2, 0.2, -0.2)
+  // cube.rotation.set(-Math.PI / 2, 0, 0)
+  scene.add(cube)
+  return cube;
+}
 
 export const CreateCapsuleCollider = (scene, height) => {
   // 坐标轴
   // let axes = new THREE.AxesHelper(20); // 坐标轴
   // scene.add(axes); // 场景添加坐标轴
 
-  const geometry = new THREE.CapsuleGeometry( height/2, 1, 4, 8 ); 
-  const material = new THREE.MeshBasicMaterial( {color: 0x00ff00,transparent:true,opacity:0.5 } ); 
-  let capsule = new THREE.Mesh( geometry, material ); 
+  const geometry = new THREE.CapsuleGeometry(height / 2, 1, 4, 8);
+  const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 });
+  let capsule = new THREE.Mesh(geometry, material);
   capsule.name = "hoverCollider";
-  scene.add( capsule ); 
+  scene.add(capsule);
   capsule.visible = false;
-  capsule.position.set(0,height/2,0);
+  capsule.position.set(0, height / 2, 0);
   return capsule;
 }
 
@@ -175,7 +188,7 @@ export const createAnimationClip_mmd2mixamo2 = (animName, _tracks, quat) => {
         // values[i + 3] = element.values[i + 3] * -1;
 
         let quat2 = new THREE.Quaternion(element.values[i], element.values[i + 1],
-        element.values[i + 2], element.values[i + 3]);
+          element.values[i + 2], element.values[i + 3]);
 
         // let quat2 = new THREE.Quaternion(-element.values[i], element.values[i + 1],
         // element.values[i + 2], -element.values[i + 3]);
@@ -188,20 +201,20 @@ export const createAnimationClip_mmd2mixamo2 = (animName, _tracks, quat) => {
         v.setFromQuaternion(quat2);
         // v.y -= Math.PI/2;
         // v.z *= -1;
-        
+
 
         for (let i = 0; i < quat.length; i++) {
           const q = quat[i];
-          if(element.name == (q.mmd + ".quaternion")){
+          if (element.name == (q.mmd + ".quaternion")) {
             v.x += q.rota.x;
             v.y += q.rota.y;
-            v.z += q.rota.z; 
+            v.z += q.rota.z;
 
             v.x *= q.scale.x;
             v.y *= q.scale.y;
-            v.z *= q.scale.z; 
+            v.z *= q.scale.z;
           }
-        } 
+        }
         quat2.setFromEuler(v);
 
         values[i] = quat2.x;

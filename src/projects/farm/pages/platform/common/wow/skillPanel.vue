@@ -1,8 +1,8 @@
 <template>
   <div class="w-full h-full relative pointer-events-none">
     <!-- 动作条 -->
-    <div class="absolute left-0 top-0 xl:top-20 flex">
-      <div class="relative transform scale-75 xl:scale-100 mx-auto flex">
+    <div class="absolute left-0 -top-10 md:top-10 xl:top-20 flex ">
+      <div class="relative transform scale-75 md:scale-100 xl:scale-100 mx-auto flex">
         <div class="absolute left-0 top-0 w-full h-full -z-10">
           <div class="absolute left-1 top-1">
             <img class="w-16 h-16 rounded-full" :src="leftIcon" alt="" />
@@ -60,22 +60,23 @@
             <div
               v-for="(item, i) in skillList"
               :key="i"
-              class="flex relative pointer-events-none"
+              class="flex w-9 h-9 relative cursor-auto pointer-events-auto"
+              @click="clickSkill($event,item)"
+                    @mouseover="LookSkill($event, item)"
+                    @mouseleave="outHover()"
+                    :draggable="item.level > 0"
+                    @dragstart="drag($event, item)"
             >
-              <div class="w-9 h-9 relative">
+              <div class="w-9 h-9 relative pointer-events-none">
                 <div>
                   <img
-                    class="w-9 h-9 cursor-auto pointer-events-auto"
+                    class="w-9 h-9 pointer-events-none "
                     :class="[
                       skillPoint > 0 || item.level > 0 ? '  ' : ' skill-img ',
                     ]"
                     :src="this.$uploadUVAnimUrl + item.icon"
                     alt=""
-                    @click="clickSkill($event,item)"
-                    @mouseover="LookSkill($event, item)"
-                    @mouseleave="outHover()"
-                    :draggable="item.level > 0"
-                    @dragstart="drag($event, item)"
+                   
                   />
 
                   <img
@@ -187,12 +188,15 @@ export default {
 
   methods: {
     drag(ev, item) {
+      // console.log(" in skill panel drag " ,item);
       if (ev) {
         ev.preventDefault();
       }
+      _Global.dragPart = item.hoverPart;
       _Global.inDragAction = true;
       item.isDeleled = false;
       this.$parent.dragStart(item);
+      // this.$parent.dragStartItem(item);
     },
     canUpSkill(item) {
       if (item.hasTargetLv) {

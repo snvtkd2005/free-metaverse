@@ -82,12 +82,7 @@ const router = createRouter({
           path: '/selfPanel', // 创作页
           name: 'selfPanel',
           component: () => import('../pages/platform/selfPanel.vue'),
-        },
-        {
-          path: '/selfPanel', // 创作页
-          name: 'selfPanel',
-          component: () => import('../pages/platform/selfPanel.vue'),
-        },
+        }, 
         {
           path: '/developPlan', // 开发计划
           name: 'developPlan',

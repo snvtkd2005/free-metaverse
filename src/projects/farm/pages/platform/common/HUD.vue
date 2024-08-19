@@ -15,7 +15,7 @@
 
     <fireStateUI ref="fireStateUI" />
 
-    <div class="absoluteleft-0 top-0 w-full h-full">
+    <div class="absolute left-0 top-0 w-full h-full">
       <DMPanel v-if="gameType == 'DMGame'" ref="DMPanel" />
       <DMrogue v-if="gameType == 'DMRoguelike'" ref="DMrogue" />
       <MMDpanel v-if="gameType == 'MMD'" ref="MMDpanel" />

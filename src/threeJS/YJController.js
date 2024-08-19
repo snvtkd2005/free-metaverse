@@ -3385,7 +3385,7 @@ class YJController {
       var raycaster_cameraLine = new THREE.Raycaster(fromPos, direction, 0, -wheelCurrentValue - 0.5);
       raycaster_cameraLine.camera = camera;
       //只检测pointParent物体的子物体
-      var intersects_collider = raycaster_cameraLine.intersectObjects(scene.children, true);
+      var intersects_collider = raycaster_cameraLine.intersectObjects(_this._YJSceneManager.GetAllCollider(), true);
 
       if (intersects_collider.length > 0) {
 

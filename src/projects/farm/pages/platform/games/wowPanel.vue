@@ -269,6 +269,9 @@ export default {
     setTimeout(() => {
       this.panelState = _Global.panelState;
 
+      if(_Global.isMobile){
+        this.hasCuror = false;
+      }
       _Global.addEventListener("界面开关", (e, b) => {
         this.panelState[e] = b;
       });
@@ -290,6 +293,10 @@ export default {
           document.body.style.cursor = "none";
         }
         // console.log("mousePos ",this.mouseX,this.mouseY);
+      });
+
+      window.addEventListener("touchend", (event) => { 
+        this.outHover(); 
       });
 
       _Global.addEventListener("keycodeUp", (keycode) => {
@@ -629,6 +636,12 @@ export default {
       }
     },
     LookSkill(parent, item) {
+
+      if(_Global.isMobile){
+        if(_Global.hoverPart.includes("action")){
+          return;
+        }
+      }
       // console.log(" hover ", item);
       this.hoverData = [];
       let line = {};

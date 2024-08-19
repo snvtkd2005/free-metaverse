@@ -424,6 +424,7 @@ class YJNPC {
       }
       return false;
     }
+
     function CheckTrainPos(fromPos, targetPos) {
       temp.position.copy(fromPos);
       temp2.position.copy(targetPos);
@@ -864,7 +865,7 @@ class YJNPC {
               task: eventData.taskList[index]
             } 
           ]
-        } 
+        }  
 
         _Global.applyEvent("openTalk", {
           textContent: eventData.textContent,
@@ -872,7 +873,7 @@ class YJNPC {
           fromId: scope.id,
           icon: _Global.url.uploadUrl + data.avatarData.id + "/" + "thumb.png",
           taskData: taskData
-        }); 
+        });  
       }
       if (eventData.npcType == "shop") {
         _Global.applyEvent("openShop", {
@@ -1135,12 +1136,17 @@ class YJNPC {
     let oldState = "";
     let inStateTimes = 0;
 
+    this.canAttack = true;
 
     this.CheckCanAttack = function () {
       return CheckCanAttack();
     }
     function CheckCanAttack() {
+      
+      scope.canAttack = true;
+      return true;
       if (targetModel == null) {
+        scope.canAttack = false;
         return false;
       }
       // return true;
@@ -1152,9 +1158,11 @@ class YJNPC {
       let b2 = CheckColliderBetween(npcPos, targetPos);
       if (b2) { 
         console.log( scope.GetNickName() + "  与目标之间有遮挡 " );
+        scope.canAttack = false;
         return false; 
       }
-      return true;
+        scope.canAttack = true;
+        return true;
     }
     function CheckVaildArea() {
       // console.log(" npc追击距离 ",targetPos.distanceTo(fireBeforePos));
@@ -1654,7 +1662,7 @@ class YJNPC {
         return;
       }
 
-      console.log(scope.GetNickName() + " receive skill fromModel ", fromModel);
+      // console.log(scope.GetNickName() + " receive skill fromModel ", fromModel);
       fromName = fromModel.GetNickName();
 
       let setT = false;
@@ -2287,7 +2295,6 @@ class YJNPC {
         }
 
         if (_YJSkill.GetinSkill()) {
-          console.log("in skill true ");
           return;
         }
         // console.log(scope.GetNickName() +"in CheckState ",targetModel,baseData.state,_YJSkill.GetinSkill());
@@ -2301,7 +2308,8 @@ class YJNPC {
         // console.log(GetNickName() + ' 距离目标 ',dis,vaildAttackDis);
         // console.log(GetNickName() + ' readyAttack_doonce ',readyAttack_doonce);
 
-        if (dis < vaildAttackDis && CheckCanAttack()) {
+        if (dis < vaildAttackDis && scope.canAttack) {
+          // return;
           SetNavPathToNone();
           parent.lookAt(targetPosRef.clone());
           if (readyAttack_doonce == 0) {
@@ -2338,8 +2346,6 @@ class YJNPC {
             } else {
               //跑向目标 
               GetNavpath(scope.GetWorldPos(), targetPos);
-              console.log(GetNickName() +" 跑向目标 ");
-
             }
             getnavPathTime = 0;
           }

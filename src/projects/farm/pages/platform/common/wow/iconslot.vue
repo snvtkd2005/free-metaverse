@@ -127,6 +127,8 @@ export default {
       if (ev) {
         ev.preventDefault();
       }
+      _Global.mobileDrag = true;
+
       // console.log(" in icon slot drag ", item);
       _Global.dragPart = item.hoverPart;
       if (item.hoverPart.includes("action") || item.skill.type == "skill") {
@@ -229,6 +231,10 @@ export default {
         return;
       }
       // console.log(" clickItem ev ", ev);
+      this.clickItemFn(item);
+
+    },
+    clickItemFn(item){
 
       if (item.skill == null) {
         if (this.parent.dragSkill == null) {
@@ -363,14 +369,16 @@ export default {
           return;
         }
       }
-
-      // 左键点击背包中的物品，可以拖拽
       if (item.hoverPart.includes("bag")) {
-        this.drag("", item);
-        return;
+        if(_Global.isMobile){
+          // 移动端点击背包中的物品，直接穿戴
+        }else{
+          // 鼠标左键点击背包中的物品，不拖拽也不执行任何操作
+          return;
+        }
       }
+        
       if (item.hoverPart.includes("playerPanel")) {
-        this.drag("", item);
         return;
       }
 
@@ -436,10 +444,13 @@ export default {
       }
       this.parent.UseItem(item);
     },
-    touchItem(item){ 
-      if( item.skill == null){return;} 
-
-      this.UseItem(item);
+    touchItem(item){  
+      if(_Global.mobileDrag){
+        _Global.mobileDrag = false;
+        return;
+      }
+      this.clickItemFn(item); 
+      _Global.mobileDrag = false;
     },
   },
 };

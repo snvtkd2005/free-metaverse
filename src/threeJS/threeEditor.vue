@@ -1,11 +1,11 @@
 <template>
-  <div tabindex="-1" id="contain" class="w-full h-full" ref="container"></div>
+  <div tabindex="-1" id="contain" class="  w-full h-full" ref="container"></div>
   <!-- :style="'height: ' + height + 'px' + ';'" -->
   <img
     v-if="customCursor"
     ref="cursor"
     :src="cursorUrl"
-    class="pointer-events-none w-10 h-10"
+    class="pointer-events-none hidden w-10 h-10"
     :style="
       '  position:absolute; z-index:999999; left: ' +
       cursorLeft +
@@ -18,7 +18,7 @@
   <!-- 视频  hidden-->
   <div
     id="videoParent"
-    class="w-1/2 h-1/2 absolute top-0 left-0 pointer-events-none"
+    class="w-1/2 h-1/2 hidden absolute top-0 left-0 pointer-events-none"
   >
     <div
       v-for="(item, i) in videoList"
@@ -33,6 +33,8 @@
     <div>drawcall: {{statsText.drawcall}}</div>
     <div>triangles: {{statsText.triangles}}</div>
   </div>
+
+  
 </template>
 
 
@@ -119,6 +121,12 @@ export default {
     this.nickName = "";
     this.pointerLock = false;
 
+    this.windowWidth = 0;
+    this.windowHeight = 0;
+    
+    // this.windowWidth = this.$refs.container.clientWidth;
+    // this.windowHeight = this.$refs.container.clientHeight;
+
     // this.windowWidth = window.innerWidth;
     // this.windowHeight = window.innerHeight;
 
@@ -130,8 +138,7 @@ export default {
     this.enableRenderer = true;
 
     this.userData = null;
-    this.pauseRender = false;
-    // console.log( this.windowWidth, this.windowHeight);
+    this.pauseRender = false; 
   },
 
   methods: {
@@ -352,7 +359,7 @@ export default {
     // 浏览器窗口变动触发的方法
     onWindowResize(w, h) {
       this.windowWidth = w;
-      this.windowHeight = h;
+      this.windowHeight = h; 
 
       if (this.camera == null) {
         return;
@@ -382,9 +389,9 @@ export default {
       }
 
       
-      // if (this.hasStats && stats) {   
-      //   stats.domElement.style.left =( this.windowWidth -80)+ "px"; 
-      // }
+      if (this.hasStats && stats) {   
+        stats.domElement.style.left =( this.windowWidth -80)+ "px"; 
+      }
 
     },
     SetCameraFov(f) {
@@ -706,6 +713,7 @@ export default {
 
       this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); // 渲染器
       this.renderer.setSize(this.windowWidth, this.windowHeight);
+
       this.renderer.shadowMap.enabled = true; // 开启阴影
       // this.renderer.shadowMap.width = 2048;
       // this.renderer.shadowMap.height = 2048;

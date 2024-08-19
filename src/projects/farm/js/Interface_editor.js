@@ -26,7 +26,7 @@ class Interface {
     _Global.mainPlayerIsDead = false;
     _Global.inDragProp = false;
     _Global.inDragAction = false;
-    _Global.isMobile = false;
+    // _Global.isMobile = false;
 
     _Global.user = {
       camp: 1000,
@@ -129,6 +129,8 @@ class Interface {
           console.log("_Global.GameSetting error ",error);
         }
       }
+
+
     }
     this.SaveGameSetting = function () {
       localStorage.setItem("GameSetting", JSON.stringify(_Global.GameSetting));
@@ -166,7 +168,64 @@ class Interface {
     }
     LoadLocalActionList();
     _Global.SaveActionList = this.SaveActionList;
+    
+    // 判断是否在移动端
+    function CheckInMobile() {
+      return;
 
+      let platform = _Global.platform.toLowerCase();
+      if(platform.includes('ios')
+      || platform.includes('android')
+      ){ 
+        setTimeout(() => {
+          _Global.CombatLog.log("_Global.isMobile " + _Global.isMobile);
+        }, 10000);
+      }
+      return;
+      var UserClient = navigator.userAgent.toLowerCase();
+      console.log(" 判断是否移动端 ", UserClient);
+      setTimeout(() => {
+        _Global.CombatLog.log(_Global.platform);
+        _Global.CombatLog.log(JSON.stringify( window.result));
+      }, 10000);
+      var IsHWIPad = UserClient.indexOf("huawei") > -1 || UserClient.indexOf("honor") > -1;
+      var IsIPad = UserClient.indexOf("ipad") > -1;
+      var IsIphoneOs = UserClient.indexOf("iphone") > -1;
+      var IsMidp = UserClient.indexOf("midp") > -1;
+      var IsUc7 = UserClient.indexOf("rv:1.2.3.4") > -1;
+      var IsUc = UserClient.indexOf("ucweb") > -1;
+      var IsAndroid = UserClient.indexOf("android") > -1;
+      var IsCE = UserClient.indexOf("windows ce") > -1;
+      var IsWM = UserClient.indexOf("windows mobile") > -1;
+      var IsM = UserClient.indexOf("mobile") > -1;
+      // console.log(IsIPad,IsIphoneOs,IsMidp,IsUc7,IsUc,IsAndroid,IsCE,IsWM,IsM,);
+      if (
+        IsHWIPad ||
+        IsIPad ||
+        IsIphoneOs ||
+        IsMidp ||
+        IsUc7 ||
+        IsUc ||
+        IsAndroid ||
+        IsCE ||
+        IsM ||
+        IsWM
+      ) {
+        _Global.isMobile = true; 
+        
+        // setTimeout(() => { 
+        //   _Global.applyEvent("是否启用虚拟摇杆", _Global.isMobile);
+        //   window.addEventListener("touchstart",()=>{
+        //     _Global.applyEvent("强制刷新");
+        //   });
+        // }, 2000);
+      } else {
+        _Global.isMobile = false;
+      }
+
+      //*/
+    }
+    CheckInMobile();
 
     this.GetHeaderModelByType = function(type){
       for (let i = 0; i < NPCheadUpModelItems.npcHeaderUpType.length; i++) {
@@ -596,6 +655,10 @@ class Interface {
     this.ReportTo3D = (type, msg) => {
 
       if (type == "切换光标") {
+        if(_Global.isMobile){
+          
+          return;
+        }
         ChangeCursor(msg);
         return;
       }

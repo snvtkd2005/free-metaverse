@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="absolute left-0 top-0 w-full h-full flex">
+  <div id="app" class="absolute left-0 top-0 w-full h-full flex overflow-hidden">
     <router-view />
   </div>
 </template>
@@ -18,7 +18,9 @@ export default {
 
 
 <style>
-
+.z-999{
+  z-index: 999;
+}
 .input-bg{
   background-color: #35444b;
   color: white;

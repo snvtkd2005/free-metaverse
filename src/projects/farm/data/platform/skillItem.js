@@ -22,6 +22,7 @@ export default {
       value: 10,
       time: 1,
       duration: 3,
+      directToTarget:false, //是否直接到达目标
       describe: "对目标造成100点伤害",
       icon: "",
     }, //describe技能描述，duration持续时间。perDamage、冻结、眩晕等状态效果才需要持续时间

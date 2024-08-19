@@ -2,7 +2,7 @@
 // 在线聊天室 聊天界面 3d形象 聊天
 <template>
   <div class=" w-full h-full " ref="container">
-    <ThreejsHumanChat tabindex="-1" class="w-full h-full" ref="ThreejsHumanChat" id="ThreejsHumanChat" />
+    <ThreejsHumanChat tabindex="-1" class="w-full h-full screen-full" ref="ThreejsHumanChat" id="ThreejsHumanChat" />
     
   <!-- 视频  hidden-->
   <div id="videoParent" class="   w-1/2 h-1/2 absolute top-0 left-0 pointer-events-none">
@@ -55,7 +55,7 @@ export default {
 
       pos: { x: -100, y: -100 },
 
-      isMobile: false,
+      isMobile: true,
 
       playerDefaultX: 0,
       playerDefaultY: 0,
@@ -83,8 +83,7 @@ export default {
     // console.log(this.$publicUrl);
   },
   mounted() {
-    this.CheckInMobile();
- 
+    this.isMobile = _Global.isMobile;
     this.ThreejsHumanChat = this.GetThreejsHumanChat();
 
     this.windowWidth = 0;
@@ -95,6 +94,12 @@ export default {
     // window.addEventListener('resize',this.UpdateCheckWindowResize,false);
     window.addEventListener("resize", this.onWindowResize);
 
+    setTimeout(() => { 
+      _Global.addEventListener("是否启用虚拟摇杆", (b) => {
+        this.isMobile = b; 
+        this.UpdateCheckWindowResize(); 
+      });
+    }, 2000);
 
     setInterval(() => {
       this.UpdateCheckWindowResize();
@@ -117,13 +122,15 @@ export default {
 
       // console.log(" resize 3d panel ",this.onlyLandscape,this.containerWidth, this.containerHeight);
 
-      if (this.$refs.container && !this.isMobile) {
+      if (_Global.setting.inEditor) {
         this.containerWidth = this.$refs.container.clientWidth;
         this.containerHeight = this.$refs.container.clientHeight;
       } else {
         this.containerWidth = window.innerWidth;
         this.containerHeight = window.innerHeight;
-      }
+        // this.containerWidth = this.$refs.container.clientWidth;
+        // this.containerHeight = this.$refs.container.clientHeight;
+      } 
 
       if (this.ThreejsHumanChat.YJRaycaster) {
         this.ThreejsHumanChat.YJRaycaster.SetContainerSize(this.containerWidth, this.containerHeight);
@@ -142,6 +149,7 @@ export default {
             return;
           }
           this.onWindowResizeFn(this.windowWidth, this.windowHeight, false);
+
         } else {
           this.onWindowResizeFn(this.windowWidth, this.windowHeight, false);
         }
@@ -168,18 +176,27 @@ export default {
       if (!this.isMobile) {
         return;
       }
-      if (this.isMobile && this.contrlState == 0) {
+
+      if (this.contrlState == 0) {
         if (this.$parent.SetforcedLandscape) {
           this.$parent.SetforcedLandscape(forcedLandscape);
         }
 
         if (this.$parent.$refs.JoystickLeftPanel) {
+          // _Global.CombatLog.log("改变窗口大小 111 "+ forcedLandscape+ "  " 
+          // + this.onlyLandscape + " windowWidth: "+ this.windowWidth + " windowHeight: " + this.windowHeight);
+
+          _Global.CombatLog.log("改变窗口大小 111 "+ forcedLandscape+ "  " 
+          + this.onlyLandscape + " windowWidth: "+ w + " windowHeight: " + h);
+
           if (this.$parent.$refs.JoystickLeftPanel.SetforcedLandscape) {
             this.$parent.$refs.JoystickLeftPanel.SetforcedLandscape(
               forcedLandscape
             );
           }
-          this.$parent.$refs.JoystickLeftPanel.ResizeJoystick();
+          setTimeout(() => {
+            this.$parent.$refs.JoystickLeftPanel.ResizeJoystick();
+          }, 100);
         }
 
         if (this.$parent.$refs.JoystickRightPanel) {
@@ -195,43 +212,6 @@ export default {
 
     GetThreejsHumanChat() {
       return this.$refs.ThreejsHumanChat;
-    },
-    // 判断是否在移动端
-    CheckInMobile() {
-      
-      var UserClient = navigator.userAgent.toLowerCase();
-      console.log(" 判断是否移动端 ", UserClient);
-      // setTimeout(() => {
-      //   _Global.CombatLog.log(JSON.stringify( window.result));
-      // }, 10000);
-      var IsHWIPad = UserClient.indexOf("huawei") > -1 || UserClient.indexOf("honor") > -1;
-      var IsIPad = UserClient.indexOf("ipad") > -1;
-      var IsIphoneOs = UserClient.indexOf("iphone") > -1;
-      var IsMidp = UserClient.indexOf("midp") > -1;
-      var IsUc7 = UserClient.indexOf("rv:1.2.3.4") > -1;
-      var IsUc = UserClient.indexOf("ucweb") > -1;
-      var IsAndroid = UserClient.indexOf("android") > -1;
-      var IsCE = UserClient.indexOf("windows ce") > -1;
-      var IsWM = UserClient.indexOf("windows mobile") > -1;
-      var IsM = UserClient.indexOf("mobile") > -1;
-      // console.log(IsIPad,IsIphoneOs,IsMidp,IsUc7,IsUc,IsAndroid,IsCE,IsWM,IsM,);
-      if (
-        IsHWIPad ||
-        IsIPad ||
-        IsIphoneOs ||
-        IsMidp ||
-        IsUc7 ||
-        IsUc ||
-        IsAndroid ||
-        IsCE ||
-        IsM ||
-        IsWM
-      ) {
-        this.isMobile = true;
-      } else {
-        this.isMobile = false;
-      }
-      //*/
     },
     GetPublicUrl() {
       return this.publicUrl;

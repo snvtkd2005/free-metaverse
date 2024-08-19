@@ -49,7 +49,14 @@ const parser = new UAParser();
 const result = parser.getResult();
 window.result = result;
 _Global.platform = window.result.os.name;
-console.log('设备型号信息', result);
+console.log('设备型号信息',_Global.platform, result);
+_Global.isMobile = false; 
+let platform = _Global.platform.toLowerCase();
+if(platform.includes('ios')
+|| platform.includes('android')
+){
+  _Global.isMobile = true;  
+}
 
 //隐藏所有log
 // console.log = function () {};

@@ -1,7 +1,7 @@
 <template>
   <div class="w-full h-full relative pointer-events-none">
-    <div class="absolute left-0 top-20 md:top-20 flex">
-      <div class="relative transform md:scale-100 mx-auto flex">
+    <div class="absolute left-0 top-0 xl:top-20 flex">
+      <div class="relative transform scale-75 xl:scale-100 mx-auto flex">
         <div class="absolute left-0 top-0 w-full h-full pointer-events-none -z-10">
           <div class="absolute left-1 top-1">
             <img class="w-16 h-16 rounded-full" :src="leftIcon" alt="" />
@@ -149,8 +149,22 @@ export default {
         this.from = talkData.from; 
         this.fromId = talkData.fromId; 
         this.taskData = talkData.taskData;
-
-        // console.log("  this.taskData ", this.taskData);
+        console.log(" this.taskData ", this.taskData);
+        if( this.taskData.length>0){
+          if(this.taskData.length == 1){
+            if(this.taskData[0].state == 0){
+              _Global.applyEvent("openTask",{
+                taskId: this.taskData[0].task.id,
+                from:this.from,
+                fromId:this.fromId,
+                icon:this.leftIcon,
+              });
+              _Global.applyEvent("界面开关", "talk", false);
+              return;
+            }
+          }
+        }
+        console.log("  this.taskData 22 ", this.taskData);
         this.$nextTick(() => {
           _Global.applyEvent("界面开关", "taskList", false);
           _Global.applyEvent("界面开关", "shop", false);

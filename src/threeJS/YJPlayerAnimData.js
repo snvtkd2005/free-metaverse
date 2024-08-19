@@ -109,104 +109,28 @@ class YJPlayerAnimData {
     this.PlayExtendAnim = function (avatarData, animName, callback) {
       // console.log(avatarData);
 
-      if (avatarData.animationsExtendData != undefined) {
-        for (let i = 0; i < avatarData.animationsExtendData.length; i++) {
-          const element = avatarData.animationsExtendData[i];
-          if (element.animName == animName) {
-
-            let path = (_this.$uploadUrl + avatarData.id + "/" + element.path);
-            console.log("加载扩展动作 ", path);
-            if (path.includes("json")) {
-              this.LoadAssset(path, (data) => {
-                // console.log(" 读取扩展动作 ", path, data);
-                if (callback) {
-                  callback(element.isLoop, createAnimationClip(animName, data));
-                }
-              });
-            } else {
-              //fbx动作直接加载模型，提前里面的动画
-              if (_YJLoadAnimation == null) {
-                _YJLoadAnimation = new YJLoadAnimation();
-              }
-              _YJLoadAnimation.load(path, (anim) => {
-
-                if (callback) {
-                  callback(element.isLoop, anim);
-                }
-              });
-            }
-            return;
-          }
-        }
-      }
-      if (avatarData.boneRefPlayer != undefined && avatarData.boneRefPlayer != ''
-        && avatarData.boneRefPlayerAnimationData != undefined
-        && avatarData.boneRefPlayerAnimationData.length > 0
-      ) {
-
-        for (let i = 0; i < avatarData.boneRefPlayerAnimationData.length; i++) {
-          const element = avatarData.boneRefPlayerAnimationData[i];
-          if (element.animName == animName) {
-
-            let path = (_this.$uploadUrl + avatarData.boneRefPlayer + "/" + element.path);
-            if (path.includes("json")) {
-              this.LoadAssset(path, (data) => {
-                console.log(" 读取扩展动作 ", path, data);
-                if (callback) {
-                  callback(element.isLoop, createAnimationClip(animName, data));
-                }
-              });
-            } else {
-              //fbx动作直接加载模型，提前里面的动画
-              if (_YJLoadAnimation == null) {
-                _YJLoadAnimation = new YJLoadAnimation();
-              }
-              _YJLoadAnimation.load(path, (anim) => {
-                if (callback) {
-                  if (Math.abs(avatarData.boneOffsetY) > 0.1) {
-                    // 骨骼高度相差太多时，缩小映射动作的骨骼Y轴偏移
-                    callback(element.isLoop, createAnimationClipScale(animName, avatarData.boneOffsetY, anim));
-                  } else {
-                    callback(element.isLoop, anim);
-                  }
-                }
-              });
-            }
-            return;
-          }
-        }
-      }
-
-      if (callback) {
-        callback("", null);
-      }
-    }
-    // 获取扩展动作。动作从unity转的json文本中解析得到
-    this.GetExtendAnim = function (id, animName, callback) {
-      let has = false;
-      let avatarData = null;
-      for (let i = 0; i < avatarDataList.length && !has; i++) {
-        if (avatarDataList[i].id == id) {
-          has = true;
-          avatarData = avatarDataList[i];
-        }
-      }
-      if (has) {
         // console.error(animName, avatarData);
+        let id = avatarData.id;
         // 本角色扩展动作
         if (avatarData.animationsExtendData != undefined) {
           for (let i = 0; i < avatarData.animationsExtendData.length; i++) {
             const element = avatarData.animationsExtendData[i];
             if (element.animName == animName) {
 
-              let path = (_this.$uploadUrl + avatarData.id + "/" + element.path);
+              let has = checkLoadAvatarAnim(id,animName,callback);
+              if(has){
+                return;
+              }
+              let path = (_this.$uploadUrl + id + "/" + element.path);
               // console.log("加载扩展动作 ",path);
               if (path.includes("json")) {
                 this.LoadAssset(path, (data) => {
                   // console.log(" 读取扩展动作 ", path, data);
-                  if (callback) {
-                    callback(element.isLoop, createAnimationClip(animName, data));
-                  }
+                  checkLoadAvatarAnimDone(id,animName,element.isLoop, createAnimationClip(animName, data));
+
+                  // if (callback) {
+                  //   callback(element.isLoop, createAnimationClip(animName, data));
+                  // }
                 });
               } else {
                 //fbx动作直接加载模型，提前里面的动画
@@ -214,10 +138,10 @@ class YJPlayerAnimData {
                   _YJLoadAnimation = new YJLoadAnimation();
                 }
                 _YJLoadAnimation.load(path, (anim) => {
-
-                  if (callback) {
-                    callback(element.isLoop, anim);
-                  }
+                  checkLoadAvatarAnimDone(id,animName,element.isLoop, anim);
+                  // if (callback) {
+                  //   callback(element.isLoop, anim);
+                  // }
                 });
               }
               return;
@@ -235,13 +159,21 @@ class YJPlayerAnimData {
             const element = avatarData.boneRefPlayerAnimationData[i];
             if (element.animName == animName) {
 
-              let path = (_this.$uploadUrl + avatarData.boneRefPlayer + "/" + element.path);
+              id = avatarData.boneRefPlayer;
+              let has = checkLoadAvatarAnim(id,animName,callback);
+              if(has){
+                return;
+              }
+
+              let path = (_this.$uploadUrl + id + "/" + element.path);
               if (path.includes("json")) {
                 this.LoadAssset(path, (data) => {
                   console.log(" 读取扩展动作 ", path, data);
-                  if (callback) {
-                    callback(element.isLoop, createAnimationClip(animName, data));
-                  }
+                  checkLoadAvatarAnimDone(id,animName,element.isLoop, createAnimationClip(animName, data));
+
+                  // if (callback) {
+                  //   callback(element.isLoop, createAnimationClip(animName, data));
+                  // }
                 });
               } else {
                 //fbx动作直接加载模型，提前里面的动画
@@ -249,14 +181,22 @@ class YJPlayerAnimData {
                   _YJLoadAnimation = new YJLoadAnimation();
                 }
                 _YJLoadAnimation.load(path, (anim) => {
-                  if (callback) {
-                    if (Math.abs(avatarData.boneOffsetY) > 0.1) {
-                      // 骨骼高度相差太多时，缩小映射动作的骨骼Y轴偏移
-                      callback(element.isLoop, createAnimationClipScale(animName, avatarData.boneOffsetY, anim));
-                    } else {
-                      callback(element.isLoop, anim);
-                    }
+                  if (Math.abs(avatarData.boneOffsetY) > 0.1) {
+                    // 骨骼高度相差太多时，缩小映射动作的骨骼Y轴偏移
+                  anim = createAnimationClipScale(animName, avatarData.boneOffsetY, anim);
+                  } else {
                   }
+
+                  checkLoadAvatarAnimDone(id,animName,element.isLoop, anim);
+
+                  // if (callback) {
+                  //   if (Math.abs(avatarData.boneOffsetY) > 0.1) {
+                  //     // 骨骼高度相差太多时，缩小映射动作的骨骼Y轴偏移
+                  //     callback(element.isLoop, createAnimationClipScale(animName, avatarData.boneOffsetY, anim));
+                  //   } else {
+                  //     callback(element.isLoop, anim);
+                  //   }
+                  // }
                 });
               }
               return;
@@ -264,12 +204,61 @@ class YJPlayerAnimData {
           }
         }
 
-        if (callback) {
-          callback("", null);
+      if (callback) {
+        callback("", null);
+      }
+    }
+    let allAvatarAnimData = [];
+    function checkLoadAvatarAnim(id,animName,callback){
+      let has = false;
+      for (let i = 0; i < allAvatarAnimData.length && !has; i++) {
+        const avanda = allAvatarAnimData[i];
+        if(avanda.id==id && avanda.animName == animName){
+          if(avanda.done){
+            callback(avanda.isLoop,avanda.anim);
+          }else{
+            avanda.callback.push(callback)
+          }
+          has = true;
         }
-        return;
-        //*/
-
+      }
+      if(!has){
+        let avanda = {
+          id,animName,done:false,isLoop:false,anim:null,callback:[callback]
+        }
+        allAvatarAnimData.push(avanda);
+      } 
+      return has;
+    }
+    function checkLoadAvatarAnimDone(id,animName,isLoop,anim){
+      for (let i = 0; i < allAvatarAnimData.length; i++) {
+        const avanda = allAvatarAnimData[i];
+        if(avanda.id==id && avanda.animName == animName){
+          avanda.isLoop = isLoop;
+          avanda.anim = anim;
+          avanda.done = true;
+          for (let j = avanda.callback.length-1; j >= 0; j--) {
+            avanda.callback[j](avanda.isLoop,avanda.anim);
+            avanda.callback.splice(j,1);
+          } 
+          return;
+        }
+      } 
+    }
+    // 获取扩展动作。动作从unity转的json文本中解析得到
+    this.GetExtendAnim = function (id, animName, callback) {
+      // return;
+      let has = false;
+      let avatarData = null;
+      for (let i = 0; i < avatarDataList.length && !has; i++) {
+        if (avatarDataList[i].id == id) {
+          has = true;
+          avatarData = avatarDataList[i];
+        }
+      }
+      if (has) { 
+        this.PlayExtendAnim(avatarData,animName, callback);
+        return; 
       }
 
 

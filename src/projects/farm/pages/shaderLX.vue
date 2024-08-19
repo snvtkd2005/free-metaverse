@@ -68,7 +68,7 @@ export default {
 
       initCompleted: false,
 
-      avatarName: "",
+      avatarName: "./public/",
       Interface: null,
     };
   },
@@ -76,7 +76,7 @@ export default {
   created() {
     this.avatarData = AvatarData;
 
-    this.publicUrl = this.$publicUrl + this.avatarData.setting.localPath;
+    this.publicUrl = "./public/" + this.avatarData.setting.localPath;
     // console.log(this.$publicUrl);
   },
   mounted() {

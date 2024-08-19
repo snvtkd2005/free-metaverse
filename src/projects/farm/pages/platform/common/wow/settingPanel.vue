@@ -275,6 +275,8 @@ export default {
     setTimeout(() => {
       this.clickTitle(this.lefMenuList[0].children[0]);
     }, 20);
+    setTimeout(() => {
+      
     _Global.addEventListener("连接弹幕服务器失败",(code)=>{
       this.errorTip = "正在连接，请稍后";
       this.tipCode = 0;
@@ -303,6 +305,7 @@ export default {
           msg: {title:"开启互动直播"}
       });
     });
+  }, 2000);
 
     
   },

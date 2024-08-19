@@ -450,22 +450,12 @@ class YJRaycaster extends YJEvent {
       // return;
 
       event.preventDefault();
+      
+      if(_Global.isMobile){return;}
+
       UpdateMousePos(event); 
       raycasterHover(mouse);
-
-      // if (mouseDown) {
-      //   raycasterHover(mouse);
-      // }
-      // if(laterCastHover != null){
-      //   clearTimeout(laterCastHover);
-      // }
-      // laterCastHover = setTimeout(() => {
-      //   raycasterHover(mouse);
-      // }, 100);
-
-      // console.log(" in event client    " +event.clientX + " " + event.clientY  );
-      // console.log(" in Mouse move  " +mouse.x + " " + mouse.y );
-      // console.log(" in Mouse move" ," x = " + mouse.x + " y = " +mouse.y );
+ 
 
     };
 

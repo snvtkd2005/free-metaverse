@@ -632,6 +632,8 @@ class YJLoadAvatar {
  
     let extendAnimData = [];
     this.LoadExtendAnim = function(avatarData, animName,animNameFullback){
+
+      
       _Global._YJPlayerAnimData.PlayExtendAnim(avatarData, animName, (isLoop, anim) => {
         
         // console.log(" 扩展动作返回 ",animName,anim);

@@ -212,7 +212,7 @@ class YJDMManager_GameBase {
           return targetCom;
         }
         //全部死亡
-        console.error(" 检测到所有友方死亡 ");
+        console.log(" 检测到所有友方死亡 ");
         _Global.applyEvent("战斗结束", 10000);
         _Global._YJFireManager.ClearFire();
         return null;
@@ -331,8 +331,7 @@ class YJDMManager_GameBase {
             if(element.fromId == _Global.user.id){
               // 根据伤害百分比来分配经验值
               let exp = Math.round( npc.GetExp() * element.per);
-              console.log("获得经验 ", npc.GetExp(),element.per,npc.GetExp() * element.per,exp);
-
+              // console.log("获得经验 ", npc.GetExp(),element.per,npc.GetExp() * element.per,exp);
               _GameRecord.addKill(exp );
               _YJGame_mainCtrl.createGold(npc.GetWorldPos().clone());
               _Global.applyEvent("杀死npc",npc.GetNickName());

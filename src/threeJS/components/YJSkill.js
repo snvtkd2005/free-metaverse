@@ -576,7 +576,7 @@ class YJSkill {
         }
         this.UseSkill = function (skillItem) {
 			let targetType = skillItem.target.type;
-            // console.log("主动使用技能 11 ",targetType,!owner.CheckCanAttack());
+            // console.log("主动使用技能 11 ",targetType);
 			if (targetType=='target' && !owner.CheckCanAttack()) {
 				return;
 			}
@@ -609,7 +609,7 @@ class YJSkill {
                 return false;
             }
             if (inSkill) { return false; }
-            // console.log(owner.GetNickName() +" 施放技能： ",skillItem);
+            // console.error(owner.GetNickName() +" 施放技能： ",skillItem);
             oldskillname = skillItem.skillName;
 
             inSkill = true;
@@ -1357,6 +1357,13 @@ class YJSkill {
         }
         // 向玩家发送技能特效
         function shootTarget(taget, skillItem, speed, callback) {
+
+            // 如果是瞬间到目标的技能则直接调用callback. 如魔爆术、月火术等
+            if(skillItem.effect.directToTarget){
+                callback();
+                return;
+            }
+
             let pos = owner.GetShootingStartPos();
             if (skillItem && skillItem.skillFirePart) {
                 //找对应骨骼所在的坐标

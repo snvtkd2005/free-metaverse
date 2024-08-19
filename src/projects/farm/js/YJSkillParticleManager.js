@@ -99,6 +99,9 @@ class YJSkillParticleManager {
     let particleList = [];
     let shootTargetList = [];
     this.shootTargetFn = async function (startPos, target, speed, particleId, callback) {
+
+      
+
       if (!particleId) {
         shootTargetFn2(startPos, target, speed, callback);
         return;

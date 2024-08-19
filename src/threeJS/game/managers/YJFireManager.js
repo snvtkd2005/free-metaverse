@@ -51,9 +51,10 @@ class YJFireManager {
           // 中立npc 不使用巡视范围找目标
           continue;
         }
-
         if (npcComponent.fireId != -1) {
           //已经在战斗中，不使用巡视范围找目标
+          // 检测npc与它的目标之间是否有障碍
+          // CheckCanAttack(npcComponent);
           continue;
         }
         CheckNpcLookatFn(npcComponent);
@@ -66,6 +67,58 @@ class YJFireManager {
         // }
       }
     }
+
+    let temp = new THREE.Group();
+    // _Global.YJ3D.scene.add(temp);
+    let temp2 = new THREE.Group();
+    // _Global.YJ3D.scene.add(temp2);
+
+    function CheckCanAttack(npc) {
+      
+      if (npc.GetTargetModel() == null) {
+        npc.canAttack = false;
+        return false;
+      }
+      // return true;
+      let targetPos = npc.GetTargetModel().GetWorldPos();
+      targetPos.y = 1;
+      let npcPos = scope.GetWorldPos();
+      npcPos.y = 1;
+      // 与目标之间有遮挡
+      let b2 = CheckColliderBetween(npcPos, targetPos);
+      if (b2) { 
+        console.log( scope.GetNickName() + "  与目标之间有遮挡 " );
+        npc.canAttack = false;
+        return false; 
+      }
+        npc.canAttack = true;
+        return true;
+    }
+    // 判断两点之间是否可以直接到达，即两点之间是否有障碍物，有障碍物表示不可直接到达
+    function CheckColliderBetween(fromPos, targetPos) {
+      // return false;
+
+      temp.position.copy(fromPos);
+      temp2.position.copy(targetPos);
+      temp.lookAt(temp2.position);
+      let direction = temp.getWorldDirection(new THREE.Vector3());
+      var raycaster_collider = new THREE.Raycaster(fromPos, direction, 0, 1 * fromPos.distanceTo(targetPos));
+      var hits = raycaster_collider.intersectObjects(_this._YJSceneManager.GetAllColliderAndLand(), true);
+
+
+      if (hits.length > 0) {
+        for (let i = 0; i < hits.length; i++) {
+          const hit = hits[i].object;
+          if (hit.name.indexOf("collider") > -1) {
+            return true;
+          }
+        }
+        return false;
+      }
+      return false;
+    }
+
+
     function CheckNpcLookatFn(npc) {
 
       let npcs = _Global._YJNPCManager.GetNearDirect(npc.id, npc.GetWorldPos());

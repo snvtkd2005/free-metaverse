@@ -1036,7 +1036,7 @@ class YJSceneManager {
     this.AddCollider = function (colliderMesh) {
       allCollider.push(colliderMesh);
       allAndLandCollider.push(colliderMesh); 
-      // console.error("添加模型碰撞体");
+      // console.error("添加模型碰撞体",allCollider);
     }
     this.AddLandCollider = function (colliderMesh) {
       allLandCollider.push(colliderMesh);

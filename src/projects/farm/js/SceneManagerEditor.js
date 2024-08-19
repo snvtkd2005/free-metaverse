@@ -21,8 +21,7 @@ import carData from "../data/carData.js";
 import { getSceneData } from "./sceneApi.js"
 
 import { YJSceneDyncManagerEditor } from "./YJSceneDyncManagerEditor.js";
-import { SceneManagerMetaworld } from "./SceneManagerMetaworld.js";
-import { YJAmmoRope } from "../../../threeJS/components/YJAmmoRope.js";
+import { SceneManagerMetaworld } from "./SceneManagerMetaworld.js"; 
 import { YJAmmoPlayerBody } from "../../../threeJS/components/YJAmmoPlayerBody.js";
 import { SpringManager } from "../../../threeJS/common/SpringManager.js";
 // import { YJController_roguelike } from "/@/threeJS/YJController_roguelike.js";
@@ -1196,24 +1195,7 @@ class SceneManager {
       }
       oldHoverObj = null;
       _Global.ReportTo3D("切换光标", "正常");
-
-      return;
-      if (hoverObject == null) {
-        // _this.SetCursor("default");
-        _Global.ReportTo3D("切换光标", "正常");
-        return;
-      }
-      let modelType = hoverObject.tag;
-      if (modelType == undefined) {
-        // _this.SetCursor("default");
-        _Global.ReportTo3D("切换光标", "正常");
-        return;
-      }
-      if (modelType.indexOf('交互物品') > -1) {
-        _this.SetCursor("pointer");
-      } else {
-        _this.SetCursor("default");
-      }
+ 
     }
     this.CreateHotContent = (modelData, owner) => {
       if (modelData.id.includes("chair")) {
@@ -1333,69 +1315,7 @@ class SceneManager {
       //   group.position.add(group.getWorldDirection(new THREE.Vector3()).multiplyScalar(-0.05));
       //   console.log(group.position);
       // }, 100);
-      return;
-      // const ball = new THREE.Mesh(new THREE.SphereGeometry(2, 20, 20), new THREE.MeshStandardMaterial({ color: 0xff0000 }));
-      // scene.add(ball);
-      console.log("renderer.sortObjects ", renderer.sortObjects);
-      renderer.sortObjects = false;
-      if (modelData.modelType == "角色模型") {
-        //给骨骼添加dummy显示
-        let bones = _Global.YJ3D._YJSceneManager
-          .GetSingleTransformComponent("MeshRenderer").GetAllBoneModel();
-        for (let i = 0; i < bones.length; i++) {
-          const item = bones[i];
-          if (
-            item.name == "node__0_1L_-467894"
-            || item.name == "袖_0_1_R"
-            || item.name == "袖_0_1_L"
-            || item.name == "后摆_1_0"
-            || item.name == "后摆_1_1"
-            || item.name == "后摆_1_2"
-            || item.name == "后摆_1_3"
-            || item.name == "后摆_1_4"
-            || item.name == "后摆_1_5"
-            || item.name == "后摆_1_6"
-            || item.name == "后摆_1_7"
-            || item.name == "后摆_1_8"
-            || item.name == "后摆_1_9"
-            || item.name == "后摆_1_10"
-            || item.name == "后摆_1_11"
-            || item.name == "侧髪_2_1_L"
-            || item.name == "侧髪_2_1_R"
-            || item.name == "后髪_0_1"
-
-          ) {
-            let _YJAmmoRope = new YJAmmoRope(_this, scene);
-            _YJAmmoRope.CreateRopeBone(item);
-            // _YJGlobal._YJAmmo.AddNeedUpdateJS(_YJAmmoRope);
-
-            console.log(" 添加袖子物理节点 ");
-          }
-          // scene.attach(ball);
-        }
-
-
-        let obj = _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
-        console.log("GetSingleModelTransform ", obj);
-        let _YJAmmoPlayerBody = new YJAmmoPlayerBody(_this, scene);
-        _YJAmmoPlayerBody.CreateRopeBone(obj.GetGroup());
-
-        // setInterval(() => {
-        //   obj.GetGroup().position.add(new THREE.Vector3(0.01,0,0));
-        // }, 20);
-
-        // bones.forEach(bone => {
-        //   console.log(bone);
-        //   const ball = new THREE.Mesh(new THREE.SphereGeometry(222.2, 20, 20), new THREE.MeshPhongMaterial({ color: 0x202020 }));
-        //   ball.castShadow = true;
-        //   ball.receiveShadow = true;
-        //   bone.add(ball);
-        // });
-
-
-      }
-
-
+      return; 
       console.log(" =======场景加载完成 ");
       return;
     }

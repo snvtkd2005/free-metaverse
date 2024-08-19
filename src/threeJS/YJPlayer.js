@@ -76,7 +76,7 @@ class YJPlayer {
       _YJPlayerDync = new YJPlayerDync(_this, scene, scope, playerGroup);
       _YJPlayerDync.DyncPlayerState({ type: "脚底光圈", msg: "生成" });
 
-      if (local) {
+      if (local && _Global.user && _Global.user.camp) {
         scope.camp = _Global.user.camp;
       }
     }

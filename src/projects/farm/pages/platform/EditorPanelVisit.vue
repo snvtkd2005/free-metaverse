@@ -1,11 +1,11 @@
+<!-- :class=" sceneData.setting.onlyLandscape?'main':''" -->
 
 <template>
   <div
-    class=" absolute left-0 top-0 z-999 w-full h-full flex flex-col overflow-hidden"
-    :class=" sceneData.setting.onlyLandscape?'main':''"
+    class="main absolute left-0 top-0 z-999 w-full h-full flex flex-col overflow-visible"
   >
     <!-- 中间3d画面 -->
-    <div class="absolute overflow-hidden " :style="panel3dStyle">
+    <div class="absolute left-0 top-0 w-full h-full ">
       <YJmetaBase ref="YJmetaBase" />
 
       <div class="hidden absolute top-0 left-0 cutimg overflow-hidden">
@@ -16,10 +16,19 @@
       <div v-if="isMobile && hasAvatar && contrlState == 0">
         <JoystickLeftPanel class="" ref="JoystickLeftPanel" />
       </div>
-      
-    <!-- 视角远近滑块 -->
-    <input ref="viewFarCtrl" v-if="isMobile" class=" touch-action-none absolute  -right-10 bottom-32  outline-none  transform rotate-90" @input="viewFarFn"
-      v-model="viewFar" type="range" min="0" max="23" step="1">
+
+      <!-- 视角远近滑块 -->
+      <input
+        ref="viewFarCtrl"
+        v-if="isMobile"
+        class="touch-action-none absolute right-20 bottom-32 outline-none transform rotate-90"
+        @input="viewFarFn"
+        v-model="viewFar"
+        type="range"
+        min="0"
+        max="23"
+        step="1"
+      />
       <!-- <JoystickLeftPanel class="" ref="JoystickLeftPanel" /> -->
 
       <!-- <JoystickRightPanel class=" " ref="JoystickRightPanel" /> -->
@@ -28,13 +37,13 @@
         class="absolute z-50 left-0 top-0 w-full h-full pointer-events-none"
         ref="loadingPanel"
       />
- 
+
       <!-- HUD -->
       <HUD v-if="hasHUD" ref="HUD" />
-      <div class=" absolute left-0 top-0 w-full h-full pointer-events-none">
+      <div class="absolute left-0 top-0 w-full h-full pointer-events-none">
         <systemLogPanel ref="systemLogPanel" />
       </div>
-      
+
       <!-- 鸟瞰2d点位 -->
       <div
         v-if="niaokanUI"
@@ -94,18 +103,16 @@
       ref="YJDync"
     />
 
-    <!-- 修改名称 -->
-    <div class="absolute left-2 top-2 flex">
-      <div class="w-auto h-6 mt-1">
-        {{ modelData.name }}
-      </div>
-    </div>
-
     <playVideo
       ref="playVideo"
       video_url="./public/farm/videos/movieSD.mp4"
       type="video/mp4"
     />
+
+    <!-- 修改名称 -->
+    <div class=" hidden absolute left-px top-px w-20 h-6 bg-red-600 text-white flex">
+      <div class="w-auto h-6">hahaha{{ oldFileName }}</div>
+    </div>
   </div>
 </template>
 
@@ -212,10 +219,10 @@ export default {
 
       pos: { x: -100, y: -100 },
 
-      isMobile: false,
+      isMobile: true,
 
       language: null,
-      isEn: false, 
+      isEn: false,
       contrlState: 0,
 
       windowWidth: 0,
@@ -258,19 +265,14 @@ export default {
       sceneModelListDataPath: "",
       isMultiGame: true,
       settingVersion: "",
-      panel3dStyle:`
-      position: absolute; 
-      left:0px;
-      top:0px;
-      width:100%;
-      height:100%;
-      `,
     };
   },
   created() {
     this.sceneLoadUrl = this.$uploadSceneUrl;
   },
   mounted() {
+    this.isMobile = _Global.isMobile;
+
     if (this.$route.params.folderBase != undefined) {
       this.folderBase = this.$route.params.folderBase;
       if (this.$route.params.version != undefined) {
@@ -305,6 +307,7 @@ export default {
     // }
 
     this.Interface = new Interface(this, false);
+
     this.loadingName = "loading.jpg";
     this.loadingUrl =
       this.$uploadSceneUrl +
@@ -332,9 +335,8 @@ export default {
       // console.log(" _Global.inFocus ", _Global.inFocus);
     });
     _Global.addEventListener("是否启用虚拟摇杆", (b) => {
-      this.isMobile = b; 
+      this.isMobile = b;
     });
-
   },
   methods: {
     PlayBGAudio() {
@@ -342,10 +344,10 @@ export default {
     },
     // 获取所有单品
     async RequestGetAllModel(callback) {
-      
       if (callback) {
-            callback();return;
-          }
+        callback();
+        return;
+      }
 
       GetAllModel().then((res) => {
         // console.log("获取所有单品模型 ", this.folderBase, res);
@@ -367,10 +369,10 @@ export default {
             let item = modelsList[i];
             if (item.modelType == "角色模型") {
               // 到角色数据中，模型路径、动画数据
-              if(item.message){
-              let data = item.message.data;
-              data.modelPath = this.$uploadUrl + item.modelPath;
-              _Global.CreateOrLoadPlayerAnimData().AddAvatarData(data);
+              if (item.message) {
+                let data = item.message.data;
+                data.modelPath = this.$uploadUrl + item.modelPath;
+                _Global.CreateOrLoadPlayerAnimData().AddAvatarData(data);
               }
             }
           }
@@ -464,22 +466,21 @@ export default {
       console.log(" 获取场景配置 ", this.sceneData);
       this.isMultiGame = this.sceneData.setting.multiGame;
 
-      
       this.isMMD = this.sceneData.setting.isMMD;
       _Global.isMMD = this.isMMD;
       // this.gameType = this.sceneData.setting.gameType;
       // _Global.gameType = this.gameType;
       this.hasHUD = this.sceneData.setting.hasHUD;
- 
+
       _Global.gameType = "WOW";
 
-      document.title = this.sceneData.setting.title; 
-
+      document.title = this.sceneData.setting.title;
+      this.oldFileName = this.sceneData.setting.title;
       _Global.skillList_scene = this.sceneData.skillList;
 
       // _Global.propList = this.sceneData.propList;
       _Global.hasAvatar = this.sceneData.setting.hasAvatar;
-      this.hasAvatar = this.sceneData.setting.hasAvatar; 
+      this.hasAvatar = this.sceneData.setting.hasAvatar;
 
       this.$refs.YJmetaBase.Reload();
       this.$forceUpdate();
@@ -745,7 +746,6 @@ export default {
         );
       }
       this.Interface.load3dComplete();
-
     },
 
     ClickHandler(t, msg) {
@@ -882,6 +882,12 @@ export default {
     height: 100vw;
     top: 0;
     left: 100vw;
+    /* -webkit-transform: rotate(89deg);
+    -moz-transform: rotate(89deg);
+    -ms-transform: rotate(89deg);
+    transform: rotate(89deg);
+    transform-origin: 0% 0%; */
+
     -webkit-transform: rotate(90deg);
     -moz-transform: rotate(90deg);
     -ms-transform: rotate(90deg);

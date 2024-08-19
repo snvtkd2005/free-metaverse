@@ -18,7 +18,7 @@ export default {
     useBloom:false,
     // useBloom:true,
     // 资源路径，资源的文件夹包裹。由此来区分不同的项目内容
-    localPath: "farm/",
+    localPath: "",
     // 自定义鼠标光标
     cursorUrl: "",
     title: "多人线上农场",

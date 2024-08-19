@@ -81,7 +81,8 @@ import * as YJTHREE from "/@/utils/utils_threejs.js";
 import Animation from "../../../threeJS/nothing/Animation.js";
 import Test from "../../../threeJS/nothing/Test.js";
 import { YJAnimator } from "../../../threeJS/components/YJAnimator";
-import { YJAmmoRope } from "../../../threeJS/components/YJAmmoRope.js";
+import { YJScanLight } from "../../../threeJS/YJScanLight.js";
+// import { YJAmmoRope } from "../../../threeJS/components/YJAmmoRope.js";
 
 class SceneManager {
   constructor(scene, renderer, camera, _this, modelParent, indexVue, callback) {
@@ -332,11 +333,13 @@ class SceneManager {
         YJTHREE.CreateFloorCollider(scene,"floor");
         YJTHREE.CreateFloorCollider(scene,"landcollider");
         
-        _YJshaderLX = new YJshaderLX(_this, scene,camera,renderer );
+        // _YJshaderLX = new YJshaderLX(_this, scene,camera,renderer );
+        let _YJScanLight = new YJScanLight(_this, scene,camera,renderer);
+
         //  _this._YJSceneManager.AddNeedUpdateJS(new YJAmmoRope(_this,scene));
-         _YJGlobal._YJAmmo.AddNeedUpdateJS(new YJAmmoRope(_this,scene));
+        //  _YJGlobal._YJAmmo.AddNeedUpdateJS(new YJAmmoRope(_this,scene));
         // let _YJTrailRenderer = new YJTrailRenderer(_this, scene, _this.YJController.GetAmmoPlayer() );
-        
+        return;
         let _YJLoadModel = new YJLoadModel(_this, scene);
         let modelPath = "models/TestScene/222.fbx";
         _YJLoadModel.load("222", _this.GetPublicUrl() + modelPath, new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0),

@@ -105,6 +105,101 @@ class YJPlayerAnimData {
       }
       FindBoneRefAnimationData(avatarData);
     }
+    this.LoadAllAnim = function (avatarData,actions, callback) {
+      // console.log(avatarData);
+        let id = avatarData.id;
+        // 本角色扩展动作
+        if (avatarData.animationsExtendData != undefined) {
+          for (let i = 0; i < avatarData.animationsExtendData.length; i++) {
+            const element = avatarData.animationsExtendData[i];
+            let animName = element.animName;
+            if(animName==""){
+              continue;
+            }
+            let has0 = false;
+            for (let j = 0; j < actions.length; j++) {
+              if (animName == actions[j].animName) {
+                has0 = true;
+              }
+            }
+            if (!has0) {
+              let has = checkLoadAvatarAnim(id,animName,callback);
+              if(has){ 
+                return;
+              }
+              let path = (_this.$uploadUrl + id + "/" + element.path);
+              if (path.includes("json")) {
+                this.LoadAssset(path, (data) => { 
+                  checkLoadAvatarAnimDone(id,animName,element.isLoop, createAnimationClip(animName, data)); 
+                });
+              } else {
+                //fbx动作直接加载模型，提前里面的动画
+                if (_YJLoadAnimation == null) {
+                  _YJLoadAnimation = new YJLoadAnimation();
+                }
+                _YJLoadAnimation.load(path, (anim) => {
+                  checkLoadAvatarAnimDone(id,animName,element.isLoop, anim); 
+                });
+              }
+              return;
+            } 
+          }
+        }
+        //*
+        // 映射到其他角色动作: 情况太复杂，实验失败。 跟进:只有相同骨骼才能映射成功
+        if (avatarData.boneRefPlayer != undefined && avatarData.boneRefPlayer != ''
+          && avatarData.boneRefPlayerAnimationData != undefined
+          && avatarData.boneRefPlayerAnimationData.length > 0
+        ) {
+
+          for (let i = 0; i < avatarData.boneRefPlayerAnimationData.length; i++) {
+            const element = avatarData.boneRefPlayerAnimationData[i];
+            let animName = element.animName;
+            if(animName==""){
+              continue;
+            }
+            let has0 = false;
+            for (let j = 0; j < actions.length; j++) {
+              if (animName == actions[j].animName) {
+                has0 = true;
+              }
+            }
+
+            if (!has0) {
+              id = avatarData.boneRefPlayer;
+              let has = checkLoadAvatarAnim(id,animName,callback);
+              if(has){ 
+                return; 
+              }
+
+              let path = (_this.$uploadUrl + id + "/" + element.path);
+              if (path.includes("json")) {
+                this.LoadAssset(path, (data) => {
+                  // console.log(" 读取扩展动作 ", path, data);
+                  checkLoadAvatarAnimDone(id,animName,element.isLoop, createAnimationClip(animName, data)); 
+                });
+              } else {
+                //fbx动作直接加载模型，提前里面的动画
+                if (_YJLoadAnimation == null) {
+                  _YJLoadAnimation = new YJLoadAnimation();
+                }
+                // console.log("加载映射角色动作 ",id,animName);
+                _YJLoadAnimation.load(path, (anim) => {
+
+                  if (Math.abs(avatarData.boneOffsetY) > 0.1) {
+                    // 骨骼高度相差太多时，缩小映射动作的骨骼Y轴偏移
+                  anim = createAnimationClipScale(animName, avatarData.boneOffsetY, anim);
+                  } else {
+                  } 
+                  checkLoadAvatarAnimDone(id,animName,element.isLoop, anim); 
+                });
+              }
+              return;
+            }
+          }
+        } 
+    }
+
 
     this.PlayExtendAnim = function (avatarData, animName, callback) {
       // console.log(avatarData);
@@ -180,7 +275,9 @@ class YJPlayerAnimData {
                 if (_YJLoadAnimation == null) {
                   _YJLoadAnimation = new YJLoadAnimation();
                 }
+                // console.log("加载映射角色动作 ",id,animName);
                 _YJLoadAnimation.load(path, (anim) => {
+
                   if (Math.abs(avatarData.boneOffsetY) > 0.1) {
                     // 骨骼高度相差太多时，缩小映射动作的骨骼Y轴偏移
                   anim = createAnimationClipScale(animName, avatarData.boneOffsetY, anim);
@@ -215,7 +312,7 @@ class YJPlayerAnimData {
         const avanda = allAvatarAnimData[i];
         if(avanda.id==id && avanda.animName == animName){
           if(avanda.done){
-            callback(avanda.isLoop,avanda.anim);
+            callback(avanda.isLoop,avanda.anim,animName);
           }else{
             avanda.callback.push(callback)
           }
@@ -238,7 +335,7 @@ class YJPlayerAnimData {
           avanda.anim = anim;
           avanda.done = true;
           for (let j = avanda.callback.length-1; j >= 0; j--) {
-            avanda.callback[j](avanda.isLoop,avanda.anim);
+            avanda.callback[j](avanda.isLoop,avanda.anim,animName);
             avanda.callback.splice(j,1);
           } 
           return;

@@ -1,8 +1,8 @@
 <template>
   <div class="w-full h-full absolute left-0 top-0 pointer-events-none">
     <!-- 背包 -->
-    <div class="absolute right-40 bottom-40 flex">
-      <div class="relative transform scale-125 mx-auto flex">
+    <div class="absolute right-40 bottom-12 md:bottom-40 flex">
+      <div class="relative transform scale-100 md:scale-125 xl:scale-125 mx-auto flex">
         <div class="absolute left-0 top-0 w-full h-full -z-10">
           <div class="absolute right-32 top-1">
             <img class="mr-5 w-10 h-10 rounded-full" :src="playerImg" alt="" />
@@ -196,6 +196,7 @@ export default {
           }
         }
       });
+
       // _Global.LoadEquipById("1709594878614", (equip) => {
       //   for (let i = 0; i < this.itemList.length; i++) {
       //     const element = this.itemList[i];
@@ -205,6 +206,17 @@ export default {
       //     }
       //   }
       // });
+      
+      // _Global.LoadEquipById("1709558796473", (equip) => {
+      //   for (let i = 0; i < this.itemList.length; i++) {
+      //     const element = this.itemList[i];
+      //     if (element.skill == null) {
+      //       element.skill = equip;
+      //       return;
+      //     }
+      //   }
+      // });
+      
       
       data = _Global.GetPropById("1720928724923");
       has = false;

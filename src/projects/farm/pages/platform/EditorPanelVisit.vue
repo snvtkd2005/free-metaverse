@@ -21,7 +21,7 @@
       <input
         ref="viewFarCtrl"
         v-if="isMobile"
-        class="touch-action-none absolute right-20 bottom-32 outline-none transform rotate-90"
+        class="touch-action-none absolute -left-10 bottom-32 outline-none transform rotate-90"
         @input="viewFarFn"
         v-model="viewFar"
         type="range"

@@ -400,7 +400,7 @@ class YJPlayer {
           if (hasName) {
             CreateNameTransFn();
           }
-
+          LoadAllAnim();
 
           if (loadAvatarMirrorCompleted) {
             loadAvatarMirrorCompleted(scope);
@@ -408,6 +408,11 @@ class YJPlayer {
         }
       );
 
+    }
+    function LoadAllAnim(){
+      setTimeout(() => {
+        avatar.LoadAllAnim(avatarData);
+      }, 1000);
     }
 
     this.GetAvatarName = function () {

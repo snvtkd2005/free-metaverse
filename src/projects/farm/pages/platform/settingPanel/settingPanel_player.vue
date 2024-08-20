@@ -1,5 +1,5 @@
 
-// 角色设置
+
 <template>
   <settingPanel_avatar ref="settingPanel_avatar" />
 
@@ -23,7 +23,7 @@
       </div>
       <YJinput_drop class=" self-center ml-2 w-32  " :value="animValue" :options="animList" :callback="ChangeAnim" />
     </div> -->
-
+    
     
       <!-- 动作播放进度滑块 -->
     <div class=" flex w-full   ">

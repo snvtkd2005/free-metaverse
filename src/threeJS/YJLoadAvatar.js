@@ -578,7 +578,7 @@ class YJLoadAvatar {
         }
       }
     }
-    this.ChangeAnimByAnimData = function (animName, isLoop, anim) {
+    this.ChangeAnimByAnimData = function (animName, isLoop, anim,play=true) {
       if (animName == "") {
         // console.error(" 找不到动作 ");
         return;
@@ -612,6 +612,9 @@ class YJLoadAvatar {
       // action.reset();
       // action.play();
       // activateAllActions(animName);
+      if(!play){
+        return;
+      }
       for (let i = 0; i < actions.length; i++) {
         const element = actions[i];
         setWeight(element.action, element.animName == animName ? element.weight : 0, element.timeScale);
@@ -629,7 +632,19 @@ class YJLoadAvatar {
       }
 
     }
- 
+    this.LoadAllAnim = function(avatarData){ 
+      _Global._YJPlayerAnimData.LoadAllAnim(avatarData,actions, (isLoop, anim,animName) => {
+        // console.log(" 角色全部数据 扩展动作返回 ",animName,anim);
+        if(anim != null){
+          extendAnimData.push({animName,hasExtend:true});
+          this.ChangeAnimByAnimData(animName, isLoop, anim,false);
+        }
+        setTimeout(() => {
+          //判断是否还有其他需要加载的动作
+          this.LoadAllAnim(avatarData);
+        }, 100);
+      });
+    }
     let extendAnimData = [];
     this.LoadExtendAnim = function(avatarData, animName,animNameFullback){
 

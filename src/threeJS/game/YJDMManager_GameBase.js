@@ -389,6 +389,9 @@ class YJDMManager_GameBase {
         _Global._YJNPCManager.GetNpcComponentById(npcId).LogFire();
       })
 
+      _Global._YJPlayerFireCtrl.addEventListener("更新装备",()=>{
+        _Global._YJPlayerFireCtrl.SetPlayerState("normal");
+      }) 
 
       // 给角色装备武器
       _Global._YJPlayerFireCtrl.GetEquip().addEquip({ assetId: 1692787200597 }, () => {
@@ -398,7 +401,7 @@ class YJDMManager_GameBase {
         // _Global._YJPlayerFireCtrl.GetEquip().addEquip({ assetId: 1709594878614 });
       });
       _Global._YJPlayerFireCtrl.SetState('canMoveAttack', true);
-  
+      _Global.YJ3D.YJController.ChangeAnimDirect("idle", "idle");
 
       // _Global.LogFireById(1711340121297)
 
@@ -414,6 +417,8 @@ class YJDMManager_GameBase {
         enemyCount = 0;
         _Global.createCompleted = false;
         _Global.inGame = true; 
+        // _GenerateEnemyNPC.gameLevelFire(gameLevel);
+
       });
     }
 

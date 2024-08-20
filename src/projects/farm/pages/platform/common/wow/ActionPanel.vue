@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full h-full absolute left-0 top-0 pointer-events-none">
+  <div v-if="!isMobile" class="w-full h-full absolute left-0 top-0 pointer-events-none">
     <!-- 主动作条 -->
     <div class="flex absolute z-10 w-full h-16 left-0 bottom-0">
       <div class="w-full mx-auto flex">
@@ -244,6 +244,114 @@
       </div>
     </div>
   </div>
+
+  
+  <div  v-if="isMobile" class="w-full h-full absolute left-0 top-0 pointer-events-none">
+    <!-- 技能动作条 -->
+    <div
+      class="absolute right-0 bottom-10 pl-1 w-64 h-32 flex flex-wrap bg-black bg-opacity-30"
+    >
+      <div
+        v-for="(item, i) in actionList.actionBar1"
+        :key="i"
+        class="flex w-9 h-9 border ml-1 mr-0.5 cursor-pointer pointer-events-auto"
+      >
+        <iconslotVue :item="item"></iconslotVue>
+      </div>
+    </div>
+
+    <!-- 主动作条 -->
+    <div class="flex absolute z-10 w-full h-20 left-0 bottom-0">
+      <div class="w-full mx-auto flex">
+        <div class="relative pl-6 transform origin-bottom md:scale-100 flex">
+          <div class="h-16 flex">
+            <div class=" ">
+              <div class="w-64  h-5 flex">
+                <div class="relative w-8 h-16">
+                  <img
+                    class="w-8 h-16 pointer-events-auto cursor-pointer"
+                    @click="clickMenu('player')"
+                    :src="playerHeaderUrl"
+                    alt=""
+                  />
+                  <div
+                    class="absolute left-1.5 bottom-2 w-5 h-6 overflow-hidden"
+                  >
+                    <img
+                      class="w-5 h-6 transform scale-150"
+                      :src="playerImg"
+                      alt=""
+                    />
+                  </div>
+                </div>
+                <!-- 技能 -->
+                <div class="relative">
+                  <img
+                    class="w-8 h-16 pointer-events-auto cursor-pointer"
+                    @click="clickMenu('skill')"
+                    :src="panelState.skill ? skillUrl_down : skillUrl_up"
+                    alt=""
+                  />
+                </div>
+
+                <!-- 任务 -->
+                <div class="relative">
+                  <img
+                    class="w-8 h-16 pointer-events-auto cursor-pointer"
+                    @click="clickMenu('taskList')"
+                    :src="panelState.task ? taskUrl_down : taskUrl_up"
+                    alt=""
+                  />
+                </div>
+
+                <div class="relative">
+                  <img
+                    class="w-8 h-16 pointer-events-auto cursor-pointer"
+                    @click="clickMenu('mainmenu')"
+                    :src="
+                      panelState.mainmenu ? mainmenuUrl_down : mainmenuUrl_up
+                    "
+                    alt=""
+                  />
+                </div>
+                <div class="relative w-8 h-16">
+                  <img
+                    class="w-9 h-9 absolute left-0 bottom-0 pointer-events-auto cursor-pointer"
+                    @click="clickMenu('bagBase')"
+                    :src="bagBaseUrl"
+                    alt=""
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 经验条 -->
+    <div
+      class="absolute left-0 bottom-16 w-full h-3 mx-auto transform origin-bottom md:scale-100 flex"
+    >
+      <div class="mx-auto flex w-1/2 h-3">
+        <div
+          class="w-5/6 transform mx-auto relative h-full border border-opacity-20"
+          style="width: 1024px"
+        >
+          <div
+            class="bg-red-800 h-full"
+            :style="'width: ' + (stats.exp / stats.needExp) * 100 + '%'"
+          ></div>
+          <!-- 经验条文字 -->
+          <div class="absolute left-0 top-0 w-full flex h-full">
+            <div class="pl-2 text-xs mx-auto truncate">
+              {{ stats.exp }}/{{ stats.needExp }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 
@@ -350,10 +458,17 @@ export default {
       btnHoverHilightUrl:
         "./public/images/cursorList/mainmenu/ui-chaticon-blinkhilight.png",
       hoverPart: "",
+      isMobile:false,
+
     };
   },
   created() {},
   mounted() {
+    this.isMobile = _Global.isMobile; 
+    _Global.addEventListener("是否启用虚拟摇杆", (b) => {
+      this.isMobile = b; 
+    });
+
     setTimeout(() => {
       for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
         const element = this.actionList.actionBar1[i];
@@ -625,7 +740,7 @@ export default {
     cancelDrag() {
       for (let i = 0; i < this.actionList.actionBar1.length; i++) {
         const element = this.actionList.actionBar1[i];
-        element.inDragAction = false;
+        element.displayKeytext = false;
       }
     },
     drag(item) {
@@ -636,8 +751,8 @@ export default {
 
       for (let i = 0; i < this.actionList.actionBar1.length; i++) {
         const element = this.actionList.actionBar1[i];
-        console.log(" 设置拖拽状态 ", element.inDragAction);
-        element.inDragAction = true;
+        // console.log(" 设置拖拽状态 ", element.displayKeytext);
+        element.displayKeytext = true;
         if (element.index == item.index) {
           element.skill = null;
         }
@@ -675,6 +790,17 @@ export default {
     },
 
     clickMenu(e) {
+      
+      if (e == "mainmenu") {
+        this.panelState.bagBase = false;
+        this.panelState.talk = false;
+        this.panelState.task = false;
+        this.panelState.player = false;
+        this.panelState.skill = false;
+        this.panelState.taskList = false;
+        this.panelState.mainmenu = !this.panelState.mainmenu;
+        return;
+      }
       if (this.panelState.mainmenu) {
         return;
       }
@@ -692,13 +818,6 @@ export default {
         this.panelState.taskList = false;
         this.panelState.skill = !this.panelState.skill;
 
-        return;
-      }
-      if (e == "mainmenu") {
-        this.panelState.player = false;
-        this.panelState.skill = false;
-        this.panelState.taskList = false;
-        this.panelState.mainmenu = !this.panelState.mainmenu;
         return;
       }
       if (e == "taskList") {

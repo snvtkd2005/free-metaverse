@@ -285,7 +285,7 @@ class YJEquip {
             // }
             this.addEquip({ assetId: item.folderBase });
         }
-        this.ChangeEquip = function (type, data) {
+        this.ChangeEquip = function (type, data,callback) {
             // console.error(" in equip changeequip ",data);
             type = data.message.pointType;
             if (type == "weapon") {
@@ -492,10 +492,13 @@ class YJEquip {
                     let pos = [0, 0, 1];
                     let rotaV3 = [Math.PI / 2, 0, 0];
                     // let scale =  [1,1,1];
-
-                    let scale = [0.5, 0.5, 0.5];
+                    let scaleV = 0.5;
+                    if(part.includes("shoulder")){
+                        scaleV = 0.25;
+                    }
+                    let scale = [scaleV, scaleV,scaleV];
                     if (mirror) {
-                        scale = [0.5, 0.5, -0.5];
+                        scale = [scaleV, scaleV, -scaleV];
                     }
                     // let pos = weaponData.position;
                     // let rotaV3 = weaponData.rotation;

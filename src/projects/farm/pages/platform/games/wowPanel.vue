@@ -68,7 +68,7 @@
 
       <div
         v-show="panelState.setting"
-        class="absolute left-0 top-0 w-full h-full"
+        class="absolute left-0 top-0 z-10 w-full h-full"
       >
         <settingPanelVue ref="settingPanelVue"></settingPanelVue>
       </div>
@@ -254,6 +254,15 @@ export default {
   created() {},
   mounted() {
     // new Interface(this, true);
+    if(_Global.isMobile){
+      this.hasCuror = false;
+    }
+    _Global.addEventListener("是否启用虚拟摇杆", (b) => {
+      if(_Global.isMobile){
+        this.hasCuror = false;
+      }
+    });
+
     if (this.newDiv == null) {
       this.newDiv = document.createElement("div");
     }
@@ -268,10 +277,6 @@ export default {
 
     setTimeout(() => {
       this.panelState = _Global.panelState;
-
-      if(_Global.isMobile){
-        this.hasCuror = false;
-      }
       _Global.addEventListener("界面开关", (e, b) => {
         this.panelState[e] = b;
       });
@@ -475,7 +480,7 @@ export default {
       this.dragSkill = null;
       this.dragItem = null;
       _Global.dragPart = "";
-      this.$refs.ActionPanelVue.saveActionList();
+      this.$refs.ActionPanelVue.saveActionList(); 
     },
 
     LookActionSkill(item) {

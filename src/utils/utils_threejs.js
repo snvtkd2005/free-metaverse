@@ -87,6 +87,37 @@ export const CreateGrid = (scene, size, divisions) => {
 // }
 
 
+
+export const AnimationDataToAnimationClip = (animName, data) => {
+  // console.log("获取动画data", data);
+  const tracks = [];
+  for (let i = 0; i < data.tracks.length; i++) {
+    const element = data.tracks[i];
+    const trackName = element.name;
+    if(trackName.includes(".position")){
+      const times = element.times;
+      const values = element.values;
+      const track = new THREE.VectorKeyframeTrack(trackName, times, values);
+      tracks.push(track);
+      continue;
+    }
+    if(trackName.includes(".quaternion")){
+      const times = element.times;
+      const values = element.values;
+      const track = new THREE.QuaternionKeyframeTrack(trackName, times, values);
+      tracks.push(track);
+      continue;
+    } 
+  } 
+
+  // 创建 AnimationClip
+  const animationClip = new THREE.AnimationClip(animName, -1, tracks);
+  animationClip.optimize();
+  return animationClip;
+}
+
+
+
 // unity导出的动画txt转成 AnimationClip
 /**
  * 
@@ -95,7 +126,7 @@ export const CreateGrid = (scene, size, divisions) => {
  * @returns 
  */
 export const createAnimationClip = (animName, data) => {
-  console.log("获取动画data", data);
+  // console.log("获取动画data", data);
   const tracks = [];
 
   let vectorKeyframeTrackList = data.vectorKeyframeTrackList;
@@ -125,7 +156,7 @@ export const createAnimationClip = (animName, data) => {
 }
 
 export const createAnimationClip_mmd2mixamo = (animName, data) => {
-  console.log("获取动画data", data);
+  // console.log("获取动画data", data);
   const tracks = [];
 
   let vectorKeyframeTrackList = data.vectorKeyframeTrackList;

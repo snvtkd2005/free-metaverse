@@ -91,7 +91,7 @@
     </div>
     <!-- 快捷键文字 -->
     <div
-      v-if="item.inDragAction || (item.skill != null && item.keytext)"
+      v-if="item.displayKeytext || (item.skill != null && item.keytext)"
       class="absolute right-px top-px w-4 h-4 rounded-full text-xs leading-4 p-px"
       :class="item.outVaildDis ? ' text-red-600' : ' text-gray-200 '"
     >
@@ -128,6 +128,7 @@ export default {
         ev.preventDefault();
       }
       _Global.mobileDrag = true;
+      this.parent.mousePos(ev.clientX, ev.clientY);
 
       // console.log(" in icon slot drag ", item);
       _Global.dragPart = item.hoverPart;
@@ -206,6 +207,7 @@ export default {
       if (fromSkill.type == "skill") {
         // 动作条技能往背包放
         if (toItem.hoverPart.includes("bag")) {
+          this.parent.dragEnd();
           return false;
         }
       }
@@ -230,7 +232,7 @@ export default {
       if(_Global.isMobile){
         return;
       }
-      // console.log(" clickItem ev ", ev);
+
       this.clickItemFn(item);
 
     },
@@ -267,6 +269,17 @@ export default {
           fromPart = "角色面板";
         }
 
+
+        console.log("从" + fromPart + "拖拽到" + toPart);
+
+        // 动作条拖到背包，删除拖拽图标
+        if(fromPart == "动作条" && toPart == "背包"){
+          this.parent.dragEnd();
+          return;
+        }
+
+
+
         // 背包内移动
         if (
           (this.parent.dragSkill.type == "prop" && toPart == "背包") ||
@@ -293,8 +306,7 @@ export default {
         }
 
         item.skill = this.parent.dragSkill;
-
-        // console.log("从" + fromPart + "拖拽到" + toPart);
+ 
         _Global.applyEvent("从" + fromPart + "拖拽到" + toPart);
 
         return;
@@ -331,6 +343,18 @@ export default {
             fromPart = "角色面板";
           }
 
+          // 动作条拖到背包，删除拖拽图标
+          if(fromPart == "动作条" && toPart == "背包"){
+            this.parent.dragEnd();
+            return;
+          }
+
+          if(fromPart == "背包" && toPart == "动作条"){
+            // 只有道具进入此判断
+            this.parent.dragItem.inDraging = false; 
+          }
+
+
           item.skill = this.parent.dragSkill;
 
           // 背包物品位置互换
@@ -346,10 +370,8 @@ export default {
           }
 
           
-          if ( 
-            (this.parent.dragSkill.type == "equip" && toPart == "角色面板")
-          ) {
-            //使用装备
+          //背包拖拽到角色面板/使用装备
+          if (  (this.parent.dragSkill.type == "equip" && toPart == "角色面板") ) {
             this.UseItem(this.parent.dragItem);
             this.parent.dragItem.inDraging = false;
             this.parent.dragEnd();
@@ -445,10 +467,13 @@ export default {
       this.parent.UseItem(item);
     },
     touchItem(item){  
-      if(_Global.mobileDrag){
+      console.log(" in touch end " + item.hoverPart + " " + _Global.mobileDrag);
+
+      if( item.hoverPart.includes('bag') && (_Global.inDragProp||_Global.inDragEquip) && _Global.mobileDrag){
         _Global.mobileDrag = false;
         return;
-      }
+      } 
+
       this.clickItemFn(item); 
       _Global.mobileDrag = false;
     },

@@ -13,7 +13,7 @@
       <div
         v-for="(item, i) in buffList"
         :key="i"
-        class=" w-9 h-9 transform scale-125 text-left "
+        class=" w-9 h-9 transform scale-75 md:scale-125 text-left "
       >
         <div class="relative flex flex-col">
           <div class="self-center mx-auto w-9 h-9 bg-white rounded-xl cursor-pointer pointer-events-auto"
@@ -42,7 +42,7 @@
       <div
         v-for="(item, i) in debuffList"
         :key="i"
-        class=" w-9 h-9 transform scale-125 text-left" 
+        class=" w-9 h-9 transform scale-75 md:scale-125 text-left" 
       >
         <div class="relative flex flex-col">
           <div class="self-center mx-auto w-9 h-9 bg-black  rounded-md  pointer-events-auto "

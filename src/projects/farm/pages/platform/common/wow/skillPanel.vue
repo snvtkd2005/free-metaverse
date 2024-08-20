@@ -196,6 +196,8 @@ export default {
       _Global.inDragAction = true;
       item.isDeleled = false;
       this.$parent.dragStart(item);
+      this.$parent.mousePos(ev.clientX, ev.clientY);
+
       // this.$parent.dragStartItem(item);
     },
     canUpSkill(item) {

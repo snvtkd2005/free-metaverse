@@ -1,6 +1,6 @@
 <template>
-  <div class="w-full h-full flex relative pointer-events-auto">
-    <div class=" w-11/12 xl:w-2/3 px-20 h-3/4 -mt-28 relative transform scale-75 xl:scale-100 mx-auto self-center">
+  <div class="w-full h-full flex relative pointer-events-auto bg-black bg-opacity-30">
+    <div class=" w-11/12 h-full -mt-8  xl:w-2/3 xl:px-20 xl:h-3/4 md:-mt-28 relative transform scale-75 xl:scale-100 mx-auto self-center">
       <div class="w-full relative bg-gray-600 mx-auto">
         <div class="w-full h-8 flex">
           <div class="w-full border-2 leading-8 text-yellow-400">设置选项</div>
@@ -47,9 +47,9 @@
           </div>
         </div>
       </div>
-      <div class="px-4 pb-10 w-full h-full flex border-2 bg-gray-600">
+      <div class=" px-1 md:px-4 pb-10 w-full h-full flex border-2 bg-gray-600">
         <!-- 左 -->
-        <div class="w-64 pt-4 text-left border bg-gray-800">
+        <div class=" w-32 md:w-64 pt-4 text-left border bg-gray-800">
           <div
             v-for="(item, i) in lefMenuList"
             :key="i"
@@ -78,7 +78,7 @@
           </div>
         </div>
         <!-- 右 -->
-        <div class=" flex-grow h-full px-6 pt-7 flex flex-col relative bg-gray-600">
+        <div class=" flex-grow h-full px-2 md:px-6 pt-7 flex flex-col relative bg-gray-600">
           <div class="text-left text-lg text-white">{{ childTitle }}</div>
           <div class="absolute right-10 top-7">
             <div>

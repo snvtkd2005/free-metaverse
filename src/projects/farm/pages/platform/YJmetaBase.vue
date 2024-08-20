@@ -186,8 +186,8 @@ export default {
           // _Global.CombatLog.log("改变窗口大小 111 "+ forcedLandscape+ "  " 
           // + this.onlyLandscape + " windowWidth: "+ this.windowWidth + " windowHeight: " + this.windowHeight);
 
-          _Global.CombatLog.log("改变窗口大小 111 "+ forcedLandscape+ "  " 
-          + this.onlyLandscape + " windowWidth: "+ w + " windowHeight: " + h);
+          // _Global.CombatLog.log("改变窗口大小 111 "+ forcedLandscape+ "  " 
+          // + this.onlyLandscape + " windowWidth: "+ w + " windowHeight: " + h);
 
           if (this.$parent.$refs.JoystickLeftPanel.SetforcedLandscape) {
             this.$parent.$refs.JoystickLeftPanel.SetforcedLandscape(

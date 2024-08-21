@@ -553,8 +553,7 @@ export default {
           if (this.gameLevel > this.gameLevelData.length) {
             this.gameLevel = this.gameLevelData.length;
           }
-
-          _Global.inGame = false;
+ 
           this.last = performance.now();
           this.deltaTime = 0;
           this.timeCurrent = 0;
@@ -752,8 +751,7 @@ export default {
           this.inGame = true;
           // 开始游戏
           _Global.applyEvent("战斗开始");
-
-          _Global.inGame = true;
+ 
         }
         this.timeCurrent = parseInt(this.timeCount - this.deltaTime);
         this.last = now;

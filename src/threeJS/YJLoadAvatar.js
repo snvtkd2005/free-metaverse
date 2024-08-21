@@ -1,6 +1,4 @@
 import * as THREE from "three";
-import { Camera, Uniform } from "three";
-import { FirstPersonControls } from "three/examples/jsm/controls/FirstPersonControls.js";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
@@ -645,12 +643,8 @@ class YJLoadAvatar {
     }
     let extendAnimData = [];
     this.LoadExtendAnim = function(avatarData, animName,animNameFullback){
-
-      
       _Global._YJPlayerAnimData.PlayExtendAnim(avatarData, animName, (isLoop, anim) => {
-        
         // console.log(" 扩展动作返回 ",animName,anim);
-        
         if(anim != null){
           extendAnimData.push({animName,hasExtend:true});
           this.ChangeAnimByAnimData(animName, isLoop, anim);
@@ -660,6 +654,7 @@ class YJLoadAvatar {
         }
       });
     }
+    
     function activateAllActions(animName) {
       // console.log(animName,actions);
       let has = false;

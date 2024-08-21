@@ -3,7 +3,7 @@
     <div class="absolute left-0 top-1 w-full h-auto flex">
       <div class="self-center mx-auto text-white text-2xl">
         <div>血色十字军-最后的防线</div>
-        <div class="text-xl">{{ gameLevelData[gameLevel - 1].title }}</div>
+        <div class="text-xl">{{ title }}</div>
       </div>
     </div>
     <div v-if="!inGame" class="absolute left-0 top-20 w-full h-10 flex">
@@ -329,28 +329,7 @@ export default {
         // },
       ],
       gameLevel: 1,
-      gameLevelData: [
-        {
-          level: 1,
-          title: "第一关 亡灵必须死",
-          describe: "",
-        },
-        {
-          level: 2,
-          title: "第二关 一个不留",
-          describe: "",
-        },
-        {
-          level: 3,
-          title: "第三关 血债血偿",
-          describe: "",
-        },
-        {
-          level: 4,
-          title: "第四关 冤有头，债有主",
-          describe: "怀特迈恩被莉莉安·沃斯用圣化长剑杀死",
-        },
-      ],
+      title: "",
     };
   },
   created() {},
@@ -359,120 +338,49 @@ export default {
       return;
     }
     _Global.addEventListener("3d加载完成", () => {
-      //弹幕管理器
-      this._YJDMManager = new YJDMManager_DMrogue(this);
-      // _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(_YJDMManager);
-      
-      this.last = performance.now();
-      this.deltaTime = 0;
-      this.animate();
-    });
-
-    setTimeout(() => {
-
-
-      setTimeout(() => {
-        _Global.addEventListener("战斗结束", (msg) => {
-          console.log(" 战斗结束 ", msg);
-
-          if (msg) {
-            if (msg == 10000) {
-              // this.gameLevel = 1;
-              this.winCamp = "亡灵";
-            } else {
-              if (!_Global.createCompleted) {
-                return;
-              }
-              this.winCamp = "血色十字军";
-              this.gameLevel++;
-            }
-          } else {
-            this.winCamp = "血色十字军";
-            this.gameLevel++;
-          }
-          // 临时-没有更多关卡
-          if (this.gameLevel > this.gameLevelData.length) {
-            this.gameLevel = this.gameLevelData.length;
-          }
-
-          _Global.inGame = false;
-          this.last = performance.now();
-          this.deltaTime = 0;
-          this.timeCurrent = 0;
-          this.inGame = false;
-
-          let damageStatistics = _Global._SceneManager.GetDamageStatistics();
-
-          for (let i = 0; i < damageStatistics.length; i++) {
-            const item = damageStatistics[i];
-            let has = false;
-            for (let j = 0; j < this.damageStatistics.length && !has; j++) {
-              const item2 = this.damageStatistics[j];
-              if (item.from == item2.from) {
-                item2.value += item.value;
-                has = true;
-              }
-            }
-            if (!has) {
-              this.damageStatistics.push({
-                from: item.from,
-                header: "",
-                value: item.value,
-              });
-            }
-          }
-          this.damageStatistics = _Global.DMManager.DMPlayerDamageStatistics(
-            this.damageStatistics
-          );
-          //按输出伤害量从高到底排序
-          this.damageStatistics.sort((a, b) => b.value - a.value);
-          // let dv = [];
-          // for (let j = 0; j < this.damageStatistics.length ; j++) {
-          //   const item = this.damageStatistics[j];
-          //   dv.push(item.value);
-          // }
-          // dv.sort();
-          // let newdamageStatistics = [];
-          // for (let i = 0; i < dv.length; i++) {
-          //   const v = dv[i];
-          //   let has = false;
-          //   for (let j = this.damageStatistics.length-1; j >=0 && !has ; j--) {
-          //     const item = this.damageStatistics[j];
-          //     if(item.value == v){
-          //       newdamageStatistics.push(item);
-          //       this.damageStatistics.splice(i,1);
-          //       has = true;
-          //     }
-          //   }
-          // }
-          // this.damageStatistics = newdamageStatistics;
-
-          //     let dv = [1180,550,684,994,520];
-          // dv = dv.sort((a, b) => b - a);
-
-          // console.log("dv.sort() = ",dv);
-
-          _Global._SceneManager.ResetDamageStatistics();
-
-          setTimeout(() => {
-            this.damageStatistics = [];
-          }, 10000);
-        });
-      }, 5000);
-      setTimeout(() => {
         _Global.addEventListener("敌方攻势", (num) => {
           this.waveNum = num;
         });
+
+        _Global.addEventListener("游戏关卡", (v) => {
+          this.gameLevel = v;
+        });
+        _Global.addEventListener("游戏title", (t) => {
+          this.title = t;
+        });
+
         _Global.addEventListener("战斗开始", () => {
           this.waveNum = 1;
           this.damageStatistics = []; 
         });
-      }, 5000);
+        _Global.addEventListener("倒计时", (v) => {
+          this.daojishi(v);
+        }); 
+        _Global.addEventListener("战斗结果", (msg) => {
+          this.winCamp = msg.winner;
+          this.damageStatistics = msg.data;
+          setTimeout(() => {
+            this.damageStatistics = [];
+          }, 10000);
+        });
+      //弹幕肉鸽游戏
+      this._YJDMManager = new YJDMManager_DMrogue(this);  
+    });
+
+    setTimeout(() => { 
     }, 5000);
   },
 
   methods: {
-    
+    daojishi(v){
+      if(v<=0){
+        this.waveNum = 1;
+        this.inGame = true;
+        return;
+      }
+      this.timeCurrent = v;
+      this.inGame = false;
+    },
     forceUpdate(){
       this.$refs.DMPlayerPanelVue.$forceUpdate();
     },
@@ -482,6 +390,7 @@ export default {
     changeDMPlayerSkillCD(npcId, skillIndex, cCD,CD) {
       this.$refs.DMPlayerPanelVue.changeDMPlayerSkillCD(npcId, skillIndex, cCD,CD); 
     },
+
     DMlog(text, type) {
       if (
         this.dmLogContent != "" &&
@@ -567,27 +476,7 @@ export default {
         }, 20);
       }
     },
-    //#endregion
-
-    animate() {
-      requestAnimationFrame(this.animate);
-
-      if (!this.inGame) {
-        const now = performance.now();
-        let delta = (now - this.last) / 1000;
-        this.deltaTime += delta * 1;
-        if (this.deltaTime >= this.timeCount) {
-          this.deltaTime = 0;
-          this.inGame = true;
-          // 开始游戏
-          _Global.applyEvent("战斗开始");
-
-          _Global.inGame = true;
-        }
-        this.timeCurrent = parseInt(this.timeCount - this.deltaTime);
-        this.last = now;
-      }
-    },
+    //#endregion 
   },
 };
 </script>

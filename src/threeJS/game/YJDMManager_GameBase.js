@@ -415,8 +415,7 @@ class YJDMManager_GameBase {
 
       _Global.addEventListener("战斗开始", () => {
         enemyCount = 0;
-        _Global.createCompleted = false;
-        _Global.inGame = true; 
+        _Global.createCompleted = false; 
         // _GenerateEnemyNPC.gameLevelFire(gameLevel);
 
       });

@@ -293,7 +293,7 @@ class YJSkill {
             
             if (baseSkillItem) {
                 baseSkillItem.auto = false;
-            }
+            } 
         }
         this.ReceiveControl = function (msg) {
             _YJSkillModel.ReceiveControl(msg,false); 
@@ -605,6 +605,8 @@ class YJSkill {
 
         }
         let skillCastTime = 0;
+        this.skillCastAnimDuration = 0;
+
         //施放技能
         function SkillGo(skillItem) {
             if (owner.isDead) {
@@ -1060,11 +1062,12 @@ class YJSkill {
                         if (e == "later") {
                             vaildAttackLater = setTimeout(() => {
                                 skillEnd(skillItem, "结束");
-                            }, skillCastTime * 100);
+                                // console.log(owner.GetNickName()+'施法成功 11 '+skillItem.skillName); 
+                            }, scope.skillCastAnimDuration * 0.7);
                         } else {
                             skillEnd(skillItem, "结束");
                         }
-                        // console.log(owner.GetNickName()+'施法成功'+skillItem.skillName); 
+                        // console.log(owner.GetNickName()+'施法成功 00 '+skillItem.skillName); 
                         // console.timeEnd(owner.GetNickName()+'施法成功'+skillItem.animName); 
                     }, skillCastTime * 1000);
                 }

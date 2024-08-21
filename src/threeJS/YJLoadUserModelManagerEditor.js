@@ -585,6 +585,8 @@ class YJLoadUserModelManager {
 
     let skillGroupList = [];
     this.LoadSkillGroup = function (folderBase, callback) {
+      console.error("加载组合 ",folderBase);
+
       for (let i = 0; i < skillGroupList.length; i++) {
         const element = skillGroupList[i];
         if (element.folderBase == folderBase) {
@@ -759,7 +761,7 @@ class YJLoadUserModelManager {
       );
 
       let data = res.data;
-      console.log(" 加载组合数据 ",data);
+      // console.log(" 加载组合数据 ",data);
       let sceneModelsData = [];
       for (let i = 0; i < data.length; i++) {
         const element = data[i];

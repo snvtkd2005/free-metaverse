@@ -5,7 +5,7 @@
 import * as THREE from "three";
 import { GameRecord } from "/@/threeJS/game/gameRecord";
 import { RandomInt } from "/@/utils/utils";
-
+ 
 import { GenerateEnemyNPC } from "./GenerateEnemyNPC";
 import { GenerateDMNPC } from "./GenerateDMNPC";
 import { ReceiveDMGift } from "./ReceiveDMGift";
@@ -41,7 +41,7 @@ class YJDMManager_DMrogue {
     let dmNpcList = []; //弹幕npc
     let selfNpcList = []; //自身召唤npc
     let posRefList = []; //敌方npc生成位置 
-
+ 
 
     let mainName = "[大检察官怀特迈恩]";
     this.addProp = function (element) {
@@ -177,10 +177,10 @@ class YJDMManager_DMrogue {
 
 
 
-    this.GetEnemyNPCManager = function () {
+    this.GetEnemyNPCManager  = function(){
       return _GenerateEnemyNPC;
     }
-    this.GetDMNPCManager = function () {
+    this.GetDMNPCManager  = function(){
       return _GenerateDMNPC;
     }
     //召唤友方NPC
@@ -194,9 +194,9 @@ class YJDMManager_DMrogue {
     let assetIdList = ["战士4", "弓箭手4", "战士3", "弓箭手3", "战士2", "弓箭手2", "战士1", "弓箭手1"];
     let posIdList = ["24", "14", "23", "13", "22", "12", "21", "11"];
     let camps = ["血色十字军", "亡灵"];
-    this.DMevent = function (e, msg) {
+    this.DMevent = function(e,msg){
 
-      if (e == "加入") {
+      if(e=="加入"){
         let dm = msg;
         let random = RandomInt(0, 1);
         let camp = "血色十字军";
@@ -210,7 +210,7 @@ class YJDMManager_DMrogue {
         _Global.CombatLog.DMlog(GetNameStr(dm.uname) + " 加入 " + camp);
 
         if (camp == "亡灵") {
-          _GenerateEnemyNPC.DuplicateModelNPC("", dm);
+          _GenerateEnemyNPC.DuplicateModelNPC("", dm); 
           return;
         } else {
           assetId = assetIdList[RandomInt(0, assetIdList.length - 1)];
@@ -222,23 +222,23 @@ class YJDMManager_DMrogue {
             }
           }
         }
-        _GenerateDMNPC.GanerateNPC(assetId, camp, dm);
+        _GenerateDMNPC.GanerateNPC(assetId, camp, dm); 
         return;
       }
 
-      if (e == "加入敌方角色") {
-        let { assetId, state } = msg;
+      if(e=="加入敌方角色"){
+        let {assetId, state} = msg;
         _GenerateEnemyNPC.DuplicateModelNPC(assetId, state);
         return;
       }
-      if (e == "加入友方角色") {
-        let { assetId, state } = msg;
+      if(e=="加入友方角色"){
+        let {assetId, state} = msg;
         _GenerateDMNPC.DuplicateSelfNPC(assetId, state);
         return;
       }
-
-      if (e == "加入小队角色") {
-        let { assetId, camp, state } = msg;
+      
+      if(e=="加入小队角色"){
+        let {assetId, camp, state} = msg;
         _GenerateDMNPC.GanerateNPC(assetId, camp, state);
         return;
       }
@@ -352,7 +352,7 @@ class YJDMManager_DMrogue {
 
       let npcComponent = _Global._YJNPCManager.GetNpcComponentById(modelId);
       if (npcComponent) {
-        // console.log(" 如果弹幕玩家死亡，则重新生成弹幕玩家 22 ",modelId);
+      // console.log(" 如果弹幕玩家死亡，则重新生成弹幕玩家 22 ",modelId);
 
         if (npcComponent.isDead) {
           npcComponent.Dync({ title: "重新生成" });
@@ -402,7 +402,7 @@ class YJDMManager_DMrogue {
       }
       if (targetCom == null || targetCom.isDead) {
 
-        if (!_Global.YJ3D.YJController.isInDead()) {
+        if(!_Global.YJ3D.YJController.isInDead()){
           targetCom = _Global.YJ3D.YJPlayer;
           return targetCom;
         }
@@ -478,8 +478,8 @@ class YJDMManager_DMrogue {
         // }
 
       }
-
-      if (_Global.createCompleted) {
+ 
+      if(_Global.createCompleted){
         enemyNpcTarget = GetEnemyTarget();
         _Global._YJFireManager.LoopCheckFire();
 
@@ -495,17 +495,17 @@ class YJDMManager_DMrogue {
       // }
     }
 
-    this.DMsocketState = function (b) {
-      if (b) {
+    this.DMsocketState = function(b){
+      if(b){
         //
         dmVue.inDMGame = true;
         _GenerateDMNPC.hiddenProjectionUI(true);
-      } else {
+      }else{
         //隐藏加入dm的按钮
         hiddenDM();
       }
     }
-    function hiddenDM() {
+    function hiddenDM(){
       dmVue.inDMGame = false;
       _GenerateDMNPC.hiddenProjectionUI(false);
     }
@@ -534,8 +534,8 @@ class YJDMManager_DMrogue {
         if (_Global.YJ3D.YJController.isInDead()) {
           return;
         }
-        if (_Global.pauseGame) { return; } 
-        if ( _Global.gameState != "going") {
+        if (_Global.pauseGame) { return; }
+        if (!_Global.inGame) {
           if (_Global._YJPlayerFireCtrl.GetTarget()) {
             _Global._YJPlayerFireCtrl.SetInteractiveNPC(null);
           }
@@ -549,7 +549,7 @@ class YJDMManager_DMrogue {
     this.DMPlayerDamageStatistics = function (damageStatistics) {
       return _GameRecord.DMPlayerDamageStatistics(damageStatistics, DMPlayer);
     }
-    this.hasPlayer = function (uname) {
+    this.hasPlayer = function(uname){
       if (DMPlayer.length == 0) {
         DMPlayer = _GenerateDMNPC.GetDMPlayer();
       }
@@ -562,7 +562,7 @@ class YJDMManager_DMrogue {
       return false;
     }
 
-    this.hasAssetId = function (assetId) {
+    this.hasAssetId = function(assetId){
       if (DMPlayer.length == 0) {
         DMPlayer = _GenerateDMNPC.GetDMPlayer();
       }
@@ -574,36 +574,14 @@ class YJDMManager_DMrogue {
       }
       return false;
     }
-
+    
 
 
     let _GameRecord = null;
     let gameLevel = 1;
 
-    let gameLevelData = [
-      {
-        level: 1,
-        title: "第一关 亡灵必须死",
-        describe: "",
-      },
-      {
-        level: 2,
-        title: "第二关 一个不留",
-        describe: "",
-      },
-      {
-        level: 3,
-        title: "第三关 血债血偿",
-        describe: "",
-      },
-      {
-        level: 4,
-        title: "第四关 冤有头，债有主",
-        describe: "怀特迈恩被莉莉安·沃斯用圣化长剑杀死",
-      },
-    ];
 
-    let timeCount = 15; //对战开始倒计时
+    let timeCount = 15;
     let time = 0;
 
     // 敌人的目标。从友方角色中随机选择一个角色作为敌方的目标
@@ -617,28 +595,32 @@ class YJDMManager_DMrogue {
       posRefList = _Global.YJ3D._YJSceneManager.GetPosRefList();
       setInterval(() => {
         if (_Global.pauseGame) { return; }
-        if (_Global.gameState != "going") {return;}
+        if (!_Global.inGame) {
+          return;
+        }
+
         CheckNpcLookat();
       }, 500);
       setInterval(() => {
         if (_Global.pauseGame) { return; }
-        if (_Global.gameState != "going") {return;}
+        if (!_Global.inGame) {
+          return;
+        }
         GetEnemyTarget();
       }, 2000);
 
 
-      function fn() {
-        if(_Global.isDead){return;}
+      function fn(){
         setTimeout(() => {
           let names = Object.getOwnPropertyNames(_Global.panelState);
           let has = false;
           for (let i = 0; i < names.length && !has; i++) {
-            if (_Global.panelState[names[i]]) {
+            if(_Global.panelState[names[i]]){
               has = true;
             }
-          }
+          }  
           console.log(_Global.panelState);
-          _Global.applyEvent(has ? "游戏暂停" : "游戏继续");
+          _Global.applyEvent(has?"游戏暂停":"游戏继续");
         }, 100);
       }
       // 监听界面被打开，打开时暂停游戏，关闭时游戏继续
@@ -648,25 +630,11 @@ class YJDMManager_DMrogue {
       _Global.addEventListener("界面开关状态变化", (e, b) => {
         fn();
       });
-
-
-      _Global.addEventListener("主角死亡", () => { 
-        console.log(" 主角死亡 ");
-      });
-
-      // _Global.addEventListener("投币成功", () => {
-      //   _Global.applyEvent("游戏继续");
-      // }); 
       
-      // _Global.addEventListener("道具复活", () => {
-      //   _Global.applyEvent("游戏继续");
-      // });
 
-      _Global.addEventListener('释放灵魂', () => {
-        _Global.gameState = "ready"; 
-      });
 
       let _YJGame_mainCtrl = new YJGame_mainCtrl();
+
 
       _GenerateEnemyNPC = new GenerateEnemyNPC((npcComponent) => {
 
@@ -684,13 +652,13 @@ class YJDMManager_DMrogue {
         npcComponent.SetNpcTarget(enemyNpcTarget, true, true);
         enemyCount++;
         // console.log(" 敌人数量 "+ enemyCount);
-      }, (npc, id, fireId) => {
-        if (_GameRecord) {
+      },(npc,id,fireId)=>{
+        if(_GameRecord){
           _GameRecord.addKill();
           _YJGame_mainCtrl.createGold(npc.GetWorldPos().clone());
-        }
+        } 
         // 从一场战斗中移除npc
-        _Global._YJFireManager.RemoveNPCFireId(id, fireId);
+        _Global._YJFireManager.RemoveNPCFireId(id,fireId);
         enemyCount--;
         // console.log(" 敌人数量 "+enemyCount);
       });
@@ -711,13 +679,14 @@ class YJDMManager_DMrogue {
       });
       _Global._YJPlayerFireCtrl.SetState('canMoveAttack', true);
       _Global.YJ3D.YJController.ChangeAnimDirect("idle", "idle");
-
+ 
       autoFire();
       _GameRecord = new GameRecord();
 
       // _Global.LogFireById(1711340121297)
 
       _Global.addEventListener("战斗结束", (msg) => {
+
         if (msg) {
           if (msg == 10000) {
             // gameLevel = 1;
@@ -728,10 +697,7 @@ class YJDMManager_DMrogue {
             gameLevel++;
           }
         }
-        
-        _Global.gameState = "end";
-        console.log(" 战斗结束 ");
-
+        _Global.inGame = false;
         if (DMPlayer.length == 0) {
           DMPlayer = _GenerateDMNPC.GetDMPlayer();
         }
@@ -756,7 +722,9 @@ class YJDMManager_DMrogue {
           }
         }
 
-        _GameRecord.resetKill(); 
+        console.log(" 战斗结束000 ");
+
+        _GameRecord.resetKill();
 
 
         for (let i = DMPlayer.length - 1; i >= 0; i--) {
@@ -774,7 +742,7 @@ class YJDMManager_DMrogue {
           for (let i = DMPlayer.length - 1; i >= 0; i--) {
             const element = DMPlayer[i];
             let npcComponent = _Global._YJNPCManager.GetNpcComponentById(element.npcId);
-            npcComponent.fireId = -1;
+            npcComponent.fireId = -1; 
             if (element.isDead) {
               resetLifeById(element.npcId);
               element.health = element.maxHealth;
@@ -798,72 +766,29 @@ class YJDMManager_DMrogue {
 
         }, 10000);
 
-
-        _Global.applyEvent("战斗结果", {
-          winner: msg == 10000 ? "亡灵" : "血色十字军",
-          data: damageStatisticsRecode(),
-        });
-
-
       });
+ 
+
 
       _Global.addEventListener("战斗开始", () => {
-        _Global.applyEvent("敌方攻势", 1);
         enemyCount = 0;
-        _Global.createCompleted = false; 
-        _Global.gameState = "going";
+        _Global.createCompleted = false;
+        _Global.inGame = true;
         _GenerateEnemyNPC.gameLevelFire(gameLevel);
 
       });
-
-      _Global.applyEvent("游戏关卡", gameLevel);
-      _Global.applyEvent("游戏title", gameLevelData[gameLevel - 1].title);
-      _Global.gameState = "ready";
-      _Global.applyEvent("倒计时", timeCount - time);
-      setInterval(() => {
-        if (_Global.gameState != "ready") { return; }
-        time++;
-        _Global.applyEvent("倒计时", timeCount - time);
-        if (time > timeCount) {
-          _Global.applyEvent("战斗开始");
-          time = 0;
-        }
-      }, 1000);
     }
 
     init();
-
-    function damageStatisticsRecode() {
-      let nosame_damageStatistics = [];
-      let damageStatistics = _Global._SceneManager.GetDamageStatistics();
-
-      for (let i = 0; i < damageStatistics.length; i++) {
-        const item = damageStatistics[i];
-        let has = false;
-        for (let j = 0; j < nosame_damageStatistics.length && !has; j++) {
-          const item2 = nosame_damageStatistics[j];
-          if (item.from == item2.from) {
-            item2.value += item.value;
-            has = true;
-          }
-        }
-        if (!has) {
-          nosame_damageStatistics.push({
-            from: item.from,
-            header: "",
-            value: item.value,
-          });
-        }
+    _Global.applyEvent("倒计时",timeCount-time);
+    setInterval(() => {
+      if(_Global.inGame){return;}
+      time++;
+      _Global.applyEvent("倒计时",timeCount-time);
+      if(time>timeCount){
+        _Global.applyEvent("战斗开始"); 
       }
-      nosame_damageStatistics = _Global.DMManager.DMPlayerDamageStatistics(
-        nosame_damageStatistics
-      );
-      //按输出伤害量从高到底排序
-      nosame_damageStatistics.sort((a, b) => b.value - a.value);
-      _Global._SceneManager.ResetDamageStatistics();
-
-      return nosame_damageStatistics;
-    }
+    }, 1000);
   }
 }
 

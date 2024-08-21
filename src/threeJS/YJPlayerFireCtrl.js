@@ -982,7 +982,7 @@ class YJPlayerFireCtrl {
 			}
 			// console.log(" 玩家动作 ",weaponData, e,animName);
 
-			console.log(" 玩家动作 ", animName);
+			// console.log(" 玩家动作 ", animName);
 			_this.YJController.SetPlayerAnimName(animName, animNameFullback);
 		}
 		this.ChangeAnim = function (v, vb) {
@@ -997,8 +997,12 @@ class YJPlayerFireCtrl {
 
 		}
 		this.fireOff = function () {
+			if(_YJPlayer.isDead){
+				return;
+			}
 			_YJPlayer.fireId = -1;
 			scope.applyEvent("离开战斗");
+			scope.ChangeAnimDirect("idle");
 		}
 		this.SetInControl = function (b) {
 			_this.YJController.SetEnabled(!b);

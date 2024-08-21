@@ -113,6 +113,7 @@ class YJMeshRenderer {
     this.EditorWeapon = function (msg) {
 
     }
+
     this.AddWeapon = function (weaponData, equipData, boneList, callback) {
       let data = weaponData.message.data;
       let realyBoneName = "";
@@ -377,46 +378,6 @@ class YJMeshRenderer {
 
         });
     }
-    this.load = function (modelPath, callback, errorback) {
-      if (modelPath == undefined) {
-        if (callback) {
-          callback(scope);
-        }
-        return;
-      }
-
-      let type = "fbx";
-      if (modelPath.indexOf(".gltf") > -1 || modelPath.indexOf(".glb") > -1) {
-        type = "gltf";
-      }
-      if (modelPath.indexOf(".obj") > -1) {
-        type = "obj";
-      }
-      
-      if (modelPath.indexOf(".pmx") > -1) {
-        type = "pmx";
-      }
-      if (type == "fbx") {
-        meshScale = 0.01;
-        loadFbx(modelPath, callback, errorback);
-        return;
-      }
-
-      if (type == "obj") {
-        // meshScale = 0.01;
-        loadObj(modelPath, callback, errorback);
-        return;
-      }
-      if (type == "gltf") {
-        loadGltf(modelPath, callback, errorback);
-        return;
-      }
-      if (type == "pmx") {
-        loadMMD(modelPath, callback, errorback);
-        return;
-      }
-
-    }
     // let mmdCtrl = null;
     function loadMMD(modelPath, callback, errorback) {
       LoadCompleted(callback);
@@ -511,6 +472,47 @@ class YJMeshRenderer {
         // LoadCompleted(callback);
 
       });
+
+    }
+
+    this.load = function (modelPath, callback, errorback) {
+      if (modelPath == undefined) {
+        if (callback) {
+          callback(scope);
+        }
+        return;
+      }
+
+      let type = "fbx";
+      if (modelPath.indexOf(".gltf") > -1 || modelPath.indexOf(".glb") > -1) {
+        type = "gltf";
+      }
+      if (modelPath.indexOf(".obj") > -1) {
+        type = "obj";
+      }
+      
+      if (modelPath.indexOf(".pmx") > -1) {
+        type = "pmx";
+      }
+      if (type == "fbx") {
+        meshScale = 0.01;
+        loadFbx(modelPath, callback, errorback);
+        return;
+      }
+
+      if (type == "obj") {
+        // meshScale = 0.01;
+        loadObj(modelPath, callback, errorback);
+        return;
+      }
+      if (type == "gltf") {
+        loadGltf(modelPath, callback, errorback);
+        return;
+      }
+      if (type == "pmx") {
+        loadMMD(modelPath, callback, errorback);
+        return;
+      }
 
     }
 
@@ -756,28 +758,7 @@ class YJMeshRenderer {
     }
 
     this.SetState = function (state) {
-    }
-
-    function Init() {
-      let type = "fbx";
-      if (modelPath.indexOf(".gltf") > -1 || modelPath.indexOf(".glb") > -1) {
-        type = "gltf";
-      }
-      if (modelPath.indexOf(".json") > -1) {
-        type = "json";
-      }
-      if (type == "fbx") {
-        loadFbx();
-      }
-      if (type == "gltf") {
-        loadGltf();
-      }
-      if (type == "json") {
-        loadJson();
-      }
-    }
-
-    // Init();
+    } 
 
     // // 坐标、旋转 也算在同步状态中
     // this.SetState = function (modelData) {

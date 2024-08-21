@@ -16,6 +16,7 @@
           :index="item.id"
           class="px-6 flex h-full text-center cursor-pointer hover:bg-546770"
           @click="ChangeTable(item)"
+          :class="item.display?' ':'hidden'"
         >
           <div class="self-center">
             {{ item.content }}
@@ -276,15 +277,15 @@ export default {
       _SceneManager: null,
       tableList: [
         // { id: 10000, content: "导入", },
-        { id: "save_thrumb", content: "截图（制作缩略图）", value: true },
+        { id: "save_thrumb", content: "截图（制作缩略图）", display: true, value: true  },
         // { id: 10000, content: "保存", },
-        { id: 10000, content: "保存场景配置" },
-        { id: "save_model", content: "保存场景模型", value: true },
-        { id: "create_geometry", content: "创建几何体", value: true },
-        { id: "single_collider", content: "显示碰撞体", value: false },
-        { id: "single_planeState", content: "隐藏地面", value: true },
-        { id: "save_view", content: "设置为访问视角" },
-        { id: "load_view", content: "还原到访问视角" },
+        { id: "save_setting", content: "保存场景配置", display: true, value: true },
+        { id: "save_model", content: "保存场景模型", display: true, value: true },
+        { id: "create_geometry", content: "创建几何体", display: true, display: true },
+        { id: "single_collider", content: "显示碰撞体", display: true, value: false },
+        { id: "single_planeState", content: "隐藏地面", display: true, value: true },
+        { id: "save_view", content: "设置为访问视角", display: true, display: true },
+        { id: "load_view", content: "还原到访问视角", display: true , display: true},
         // { id: 10000, content: "发布", },
       ],
       viewFar: 5,
@@ -547,6 +548,7 @@ export default {
       localStorage.setItem("modelType", "场景");
       this.sceneType = "scene";
       this.sceneLoadUrl = this.$uploadSceneUrl;
+      
     }
 
     if (this.$route.path.toLowerCase().includes("editorgroup")) {
@@ -554,6 +556,11 @@ export default {
       this.sceneType = "group";
       this.sceneLoadUrl = this.$uploadGroupUrl;
     }
+
+    this.setTableDisplay("save_setting",this.sceneType == "scene");
+    this.setTableDisplay("save_view",this.sceneType == "scene");
+    this.setTableDisplay("load_view",this.sceneType == "scene"); 
+
 
     if (this.$route.params.folderBase != undefined) {
       this.folderBase = this.$route.params.folderBase;
@@ -679,6 +686,14 @@ export default {
     this.$refs.hierarchyPanel.init();
   },
   methods: {
+    setTableDisplay(id,b){
+      for (let i = 0; i < this.tableList.length; i++) {
+        const element = this.tableList[i];
+        if(element.id == id){
+          element.display = b;
+        }
+      }
+    },
     setMaxMin(isMax) {
       if (isMax) {
         this.panelData.settingPanelStyle.width = 0;

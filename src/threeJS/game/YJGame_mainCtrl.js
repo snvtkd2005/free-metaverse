@@ -20,10 +20,8 @@ class YJGame_mainCtrl {
     function pauseGame() {
       _Global.pauseGame = true;
       _Global.YJ3D.pauseRender = true;
-      _Global.inGame = false; 
     }
     function playGame() {
-      _Global.inGame = true;
       _Global.pauseGame = false;
       _Global.YJ3D.pauseRender = false;
     }
@@ -57,7 +55,7 @@ class YJGame_mainCtrl {
         // 还原战斗记录
         _Global.applyEvent('激活技能栏');
 
-        // _Global.applyEvent('战斗开始');
+        _Global.applyEvent('游戏继续');
 
       });
       _Global.addEventListener('道具复活', () => {

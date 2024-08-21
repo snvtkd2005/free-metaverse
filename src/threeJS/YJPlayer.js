@@ -5,6 +5,9 @@
 import * as THREE from "three";
 import { createText } from 'three/examples/jsm/webxr/Text2D.js';
 
+import { YJMeshRenderer } from "./components/YJMeshRenderer";
+import { YJAnimator } from "./components/YJAnimator";
+ 
 import { YJLoadAvatar } from "./YJLoadAvatar.js";
 import { YJLoadModel } from "./YJLoadModel.js";
 import { YJPlayerDync } from "./YJPlayerDync.js";
@@ -33,6 +36,8 @@ class YJPlayer {
     var inSetDefaltPos = false;
     let _YJEquip = null;
     let _YJDMplayer = null;
+    let _YJMeshRenderer = null;
+    let _YJAnimator = null;
     var namePosTrans = null;
 
 
@@ -330,6 +335,22 @@ class YJPlayer {
       group.visible = false;
     }
 
+    let components = [];
+    this.AddComponent = function (type, js) {
+      js.transform = scope;
+      components.push({ type: type, js: js });
+      // this.components = components;
+    } 
+    this.GetComponent = function (type) {
+      for (let i = 0; i < components.length; i++) {
+        const element = components[i];
+        if (element.type == type) {
+          return element.js;
+        }
+      }
+      return null;
+    }
+
     function LoadAvatar(modelPath, height, animationsData) {
       playerHeight = height;
 
@@ -339,6 +360,21 @@ class YJPlayer {
       }
 
       console.log("加载角色0", modelPath, avatarData, animationsData);
+
+      _YJMeshRenderer = new YJMeshRenderer(_this, scope.GetGroup(), scope, false, false,"player");
+      scope.AddComponent("MeshRenderer", _YJMeshRenderer);
+      _YJMeshRenderer.load(modelPath, (_scope) => {
+        loadMeshCompleted(_scope.GetModel());
+        _YJAnimator = new YJAnimator(_scope.GetModel(), _scope.GetAnimations(),null,scope);
+        scope.AddComponent("Animator", _YJAnimator);
+        avatar = _YJAnimator;
+        // console.error("加载角色模型成功",_scope.GetModel());
+
+      }, (e) => {
+        // LoadError(uuid, callback, e);
+        console.error("加载角色模型失败",e);
+      });
+      return;
       avatar = new YJLoadAvatar(
         _this,
         _this.scene,
@@ -409,9 +445,74 @@ class YJPlayer {
       );
 
     }
+
+    function loadMeshCompleted(_playerObj){
+
+      if (playerObj != null) {
+        clearGroup(group);
+      }
+      playerObj = _playerObj;
+      // console.log("加载到的角色模型",playerObj); 
+      group.add(playerObj);
+
+      // console.log("avatarData = ",avatarData); 
+      // console.log("avatarData.rotaY = ",avatarData.rotaY); 
+
+      if (avatarData.rotaY != undefined) {
+        playerObj.rotation.set(0, avatarData.rotaY, 0); // 
+      }
+
+
+      playerObj.position.set(0, 0, 0); //原点位置
+      let size = modelScale;
+      playerObj.scale.set(size, size, size); //模型缩放
+      SetRotaArray(playerObj, rotation);
+      // console.log(" 加载模型完成 " + playerObj.name);
+      if (local) {
+        if (controllerCallback) {
+          controllerCallback(group, playerGroup);
+        }
+        console.log("创建 本地角色 == > " + playerName, playerHeight, avatarData.rotaY);
+        _this.YJController.SetTargetHeight(playerHeight);
+
+      } else {
+        console.log("创建角色镜像 == > " + playerName);
+      }
+
+      hasPlayer = true;
+      if (inSetDefaltPos) {
+        // scope.SetMountName(playerDyncData.defaultMountName);
+        // if (playerDyncData.parentName == "scene") {
+        //   scope.SetPlayerParent();
+        // } else {
+        //   if (_YJGlobal._SceneManager) {
+        //     scope.SetPlayerParent(_YJGlobal._SceneManager.GetSceneModel(playerDyncData.parentName));
+        //   }
+        // }
+        // oldparentName = playerDyncData.parentName;
+
+        // playerGroup.position.set(playerDyncData.defultPos.x, playerDyncData.defultPos.y, playerDyncData.defultPos.z);
+        // if (playerDyncData.defaultRotateEuler) {
+        //   group.rotation.set(playerDyncData.defaultRotateEuler.x, playerDyncData.defaultRotateEuler.y, playerDyncData.defaultRotateEuler.z);
+        // }
+        scope.SetUserData(oldUserData);
+      }
+
+
+      if (hasName) {
+        CreateNameTransFn();
+      }
+      LoadAllAnim();
+
+      if (loadAvatarMirrorCompleted) {
+        loadAvatarMirrorCompleted(scope);
+      }
+    }
+
+
     function LoadAllAnim(){
       setTimeout(() => {
-        avatar.LoadAllAnim(avatarData);
+        avatar.LoadAllAnim(avatarData); 
       }, 1000);
     }
 
@@ -1454,7 +1555,7 @@ class YJPlayer {
       if (!hasPlayer) { return; }
       if (avatar) {
         avatar._update();
-      }
+      } 
       let pos = this.GetWorldPos();
       if (oldPlayerPos.distanceTo(pos) > 0.1) {
         this.applyEvent("pos", pos);

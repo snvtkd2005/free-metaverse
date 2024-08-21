@@ -181,6 +181,10 @@ class YJSkillModel {
             }
 
             let { title, folderBase, id, pos, scale } = msg;
+
+            // if(title){
+
+            // }
             // if (title == "冰霜新星") {
             //     // 冰环特效
             //     _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillGroup(folderBase, (model) => {

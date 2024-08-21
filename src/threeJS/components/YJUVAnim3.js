@@ -29,7 +29,7 @@ class YJUVAnim3 {
       scaleX = 1 / row;
       scaleY = 1 / col;
       speed = data.speed;
-      if(data.speedY != undefined && data.speedY != 0){
+      if(data.speedY != undefined){
         speedY = data.speedY;
       }
       delay = data.delay;

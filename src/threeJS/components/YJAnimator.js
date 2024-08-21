@@ -8,7 +8,7 @@ import * as THREE from "three";
 import TWEEN from '@tweenjs/tween.js';
 
 class YJAnimator {
-  constructor(model, animations,parent) {
+  constructor(model, animations,parent,owner) {
 
     let scope = this;
     // 创建一个时钟对象Clock
@@ -49,61 +49,15 @@ class YJAnimator {
       }
     }
 
-    this.ChangeAnimDirect = function (animName) {
-      oldAnimName = "";
-      this.ChangeAnim(animName);
-    }
-    this.ChangeAnim = function (animName, _animNameFullback) {
-      // _animNameFullback 为回滚动作，当无animName动作，使用回滚动作
-      // console.error(" in change anim ", animName,oldAnimName,_animNameFullback); 
-      if (oldAnimName == animName) { return; }
-      animNameFullback = _animNameFullback;
-      oldAnimName = animName;
-      if (activateAllActions(animName)) {
-
-      } else {
-        let message = scope.transform.GetMessage();
-        if (message == null) {
-          return false;
-        }
-        // console.error(" in 加载扩展动作 ", animName,oldAnimName); 
-        let messageData = message.data;
-        if (messageData.avatarData) {
-          _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.avatarData.id, animName, (isLoop, anim) => {
-            if (anim != null) {
-              scope.ChangeAnimByAnimData(animName, isLoop, anim);
-            } else {
-              ChangeAnimFn(animNameFullback);
-            }
-          });
-        } else {
-          // console.log(" messageData ",messageData);
-          _Global.CreateOrLoadPlayerAnimData().PlayExtendAnim(messageData, animName, (isLoop, anim) => {
-            // console.error(" in 加载扩展动作 11 ",anim); 
-            if (anim != null) {
-              scope.ChangeAnimByAnimData(animName, isLoop, anim);
-            }else {
-              ChangeAnimFn(animNameFullback);
-            }
-          });
-
-
-          // _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.id, animName, (isLoop, anim) => {
-          //   if (anim != null) {
-          //     scope.ChangeAnimByAnimData(animName, isLoop, anim);
-          //   } else {
-          //     ChangeAnimFn(animNameFullback);
-          //   }
-          // });
-        }
-      }
-      //
-      return false;
-    }
 
     // 动作混合
     //animName上半身 ， animName0 下半身
     this.layerBlendPerbone = function (animName, animName0, boneName) {
+      return;
+      if(scope.transform == undefined){
+        return;
+      }
+
       for (let i = 0; i < actions.length; i++) {
         const e = actions[i];
         if (e.animName == (animName + animName0)) {
@@ -231,7 +185,171 @@ class YJAnimator {
       return tracks;
     }
 
+    let extendAnimData = [];
+    this.LoadAllAnim = function(avatarData){ 
+      _Global._YJPlayerAnimData.LoadAllAnim(avatarData,actions, (isLoop, anim,animName) => {
+        // console.log(" 角色全部数据 扩展动作返回 ",animName,anim);
+        if(anim != null){
+          extendAnimData.push({animName,hasExtend:true});
+          this.ChangeAnimByAnimData(animName, isLoop, anim,false);
+        }
+        //判断是否还有其他需要加载的动作
+        this.LoadAllAnim(avatarData); 
+      });
+    }
+    this.LoadExtendAnim = function(avatarData, animName,animNameFullback){
+      _Global._YJPlayerAnimData.PlayExtendAnim(avatarData, animName, (isLoop, anim) => {
+        // console.log(" 扩展动作返回 ",animName,animNameFullback,anim);
+        if(anim != null){
+          extendAnimData.push({animName,hasExtend:true});
+          this.ChangeAnimByAnimData(animName, isLoop, anim);
+        }else{
+          extendAnimData.push({animName,hasExtend:false,animNameFullback});
+          this.ChangeAnim(animNameFullback);
+        }
+      });
+    }
 
+
+
+    this.ChangeAnimDirect = function (animName,animNameFullback,callback) {
+      // console.error(" 直接设置玩家角色动作 22 " + animName);
+      oldAnimName = "";
+      if(animName == undefined){animName = 'idle';}
+      if(animNameFullback == undefined){animNameFullback = 'idle';}
+      ChangeAnimDirectFn(animName,animNameFullback,callback);
+    }
+    this.ChangeAnim = function (animName, animNameFullback, callback) {
+      if(animName == undefined || animName == ""){animName = 'idle';}
+      if(animNameFullback == undefined){animNameFullback = 'idle';}
+      if (oldAnimName == animName) { return; }
+      // if(owner){
+      //   console.error(" in change anim ", animName,oldAnimName,animNameFullback); 
+      // }
+ 
+      // if (mmdCtrl) {
+      //   mmdCtrl.ChangeAnim(animName);
+      // }
+      ChangeAnimDirectFn(animName,animNameFullback,callback);
+      return;
+
+
+      // _animNameFullback 为回滚动作，当无animName动作，使用回滚动作
+      // console.error(" in change anim ", animName,oldAnimName,_animNameFullback); 
+      if (oldAnimName == animName) { return; }
+      animNameFullback = animNameFullback;
+      oldAnimName = animName;
+      if (activateAllActions(animName)) {
+
+      } else {
+        let message = scope.transform.GetMessage();
+        if (message == null) {
+          return false;
+        }
+        // console.error(" in 加载扩展动作 ", animName,oldAnimName); 
+        let messageData = message.data;
+        if (messageData.avatarData) {
+          _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.avatarData.id, animName, (isLoop, anim) => {
+            if (anim != null) {
+              scope.ChangeAnimByAnimData(animName, isLoop, anim);
+            } else {
+              ChangeAnimFn(animNameFullback);
+            }
+          });
+        } else {
+          // console.log(" messageData ",messageData);
+          _Global.CreateOrLoadPlayerAnimData().PlayExtendAnim(messageData, animName, (isLoop, anim) => {
+            // console.error(" in 加载扩展动作 11 ",anim); 
+            if (anim != null) {
+              scope.ChangeAnimByAnimData(animName, isLoop, anim);
+            }else {
+              ChangeAnimFn(animNameFullback);
+            }
+          });
+
+
+          // _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.id, animName, (isLoop, anim) => {
+          //   if (anim != null) {
+          //     scope.ChangeAnimByAnimData(animName, isLoop, anim);
+          //   } else {
+          //     ChangeAnimFn(animNameFullback);
+          //   }
+          // });
+        }
+      }
+      //
+      return false;
+    }
+    
+    
+    function ChangeAnimDirectFn(animName,animNameFullback,callback) {
+      if (oldAnimName == animName) { return; }
+      // if(owner){
+
+      // }else{
+      //   console.error(" 设置玩家角色动作 00 " + animName + " backanim: "+ animNameFullback);
+      // }
+      
+      let has2 = false;
+      for (let i = 0; i < extendAnimData.length && !has2; i++) {
+        const element = extendAnimData[i];
+        if(element.animName == animName && !element.hasExtend){
+          has2 = true;
+          animName = element.animNameFullback;
+        }
+      }
+      if (oldAnimName == animName) { return; }
+
+      let has = false;
+      for (let i = 0; i < actions.length; i++) {
+        const element = actions[i];
+        if (element.animName == animName) {
+          has = true;
+        }
+      } 
+      if(!has){
+        if(!has2){
+          // console.error(" 设置玩家角色动作 准备添加扩展动作 " , animName,animNameFullback);
+          if(owner){
+            scope.LoadExtendAnim(owner.GetavatarData(),animName,animNameFullback);
+          }else{
+            let message = scope.transform.GetMessage();
+            if (message == null) {
+              return false;
+            }
+            // console.error(" in 加载扩展动作 ", animName,oldAnimName); 
+    
+            let messageData = message.data;
+            if (messageData.avatarData) {
+              _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.avatarData.id, animName, (isLoop, anim) => {
+                if (anim != null) {
+                  scope.ChangeAnimByAnimData(animName, isLoop, anim);
+                }
+              });
+            } else {
+              // console.log(" messageData ",messageData);
+              _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.id, animName, (isLoop, anim) => {
+                if (anim != null) {
+                  scope.ChangeAnimByAnimData(animName, isLoop, anim);
+                }
+              });
+            }
+            return;
+
+          }
+          return;
+        }
+      }else{
+
+      }
+
+      oldAnimName = animName;
+      activateAllActions(animName);
+      if(callback){
+        callback(animName);
+      }
+      return animName;
+    }
     function ChangeAnimFn(animName) {
       if (activateAllActions(animName)) {
 
@@ -301,10 +419,9 @@ class YJAnimator {
       action.setEffectiveTimeScale(1);
 
       action.reset();
-      action.play();//播放动画 
-      currentAction = action;
-      currentTime = 0;
-      currentDuration = currentAction._clip.duration;
+      action.play();//播放动画  
+      SetCurrentAction(action);
+
       console.log("切换动画",action);
       return true;
     }
@@ -327,9 +444,14 @@ class YJAnimator {
       oldAnimName = animName;
 
     }
+    let oldBlendAnim = "";
 
-    this.ChangeAnimByAnimData = function (animName, isLoop, anim) {
+    this.ChangeAnimByAnimData = function (animName, isLoop, anim,play=true) {
       if (animName == "") { return; }
+      if (anim == null) {
+        // console.error(" 找不到动作 ", animName);
+        return;
+      }
       // console.error("添加扩展动画 ", animName);
 
       for (let i = 0; i < actions.length; i++) {
@@ -348,17 +470,41 @@ class YJAnimator {
 
       actions.push({
         action: action,
-        targetIndex: animations.length - 1, animName: animName, timeScale: 1, weight: 1
-        , isLoop: isLoop
+        targetIndex: animations.length - 1, 
+        animName: animName, 
+        timeScale: 1, 
+        weight: 1, 
+        isLoop: isLoop
       });
-      activateAllActions(animName);
 
+      // activateAllActions(animName);
+
+      if(!play){
+        return;
+      }
+
+      for (let i = 0; i < actions.length; i++) {
+        const element = actions[i];
+        setWeight(element.action, element.animName == animName ? element.weight : 0, element.timeScale);
+        if (element.animName == animName) {
+          if (element.action != undefined) {
+            element.action.reset();
+            element.action.play();
+          }
+          SetCurrentAction(element.action);
+
+          oldAnimName = animName; 
+          oldBlendAnim = "";
+        }
+      }
       // console.log("添加扩展动画 完成 ", animName);
 
     }
 
     function activateAllActions(animName) {
-
+      // if(owner){
+      //   console.error(" 设置玩家角色动作 11 " + animName);
+      // }
       for (let j = 0; j < animations.length; j++) {
         mixer.clipAction(animations[j]).setEffectiveWeight(0);
       }
@@ -371,27 +517,25 @@ class YJAnimator {
       }
       if (has) {
 
-        if (currentAction) {
-          for (let i = 0; i < actions.length; i++) {
-            const element = actions[i];
-            if (currentAction != element.action) {
-              element.action.setEffectiveWeight(0);
-              element.action.setEffectiveTimeScale(0);
-            }
+        // if (currentAction) {
+        //   for (let i = 0; i < actions.length; i++) {
+        //     const element = actions[i];
+        //     if (currentAction != element.action) {
+        //       element.action.setEffectiveWeight(0);
+        //       element.action.setEffectiveTimeScale(0);
+        //     }
 
-            if (element.animName == animName) {
-              let action = element.action; 
-              action.reset();
-              action.play();
-              ClampAnim(currentAction, action, () => {
-                currentAction = action;
-                currentTime = 0;
-                currentDuration = currentAction._clip.duration;
-              })
-            }
-          }
-          return true;
-        }
+        //     if (element.animName == animName) {
+        //       let action = element.action; 
+        //       action.reset();
+        //       action.play();
+        //       ClampAnim(currentAction, action, () => {
+        //             SetCurrentAction(action);
+        //       })
+        //     }
+        //   }
+        //   return true;
+        // }
 
         for (let i = 0; i < actions.length; i++) {
           const element = actions[i];
@@ -402,9 +546,7 @@ class YJAnimator {
               element.action.play();
             }
             // console.log("播放动画 00 ", animName,element.action._clip.duration);
-            currentAction = element.action;
-            currentTime = 0;
-            currentDuration = currentAction._clip.duration;
+            SetCurrentAction(element.action);
           }
         }
 
@@ -412,9 +554,15 @@ class YJAnimator {
       }
       return false;
     }
-
-
-    function TweenAlpha(from, _to, duration, update, onComplete) {
+    function SetCurrentAction(action){
+      currentAction = action;
+      currentTime = 0;
+      currentDuration = currentAction._clip.duration;
+      // console.log("当前动作长度",currentDuration);
+      scope.applyEvent("当前动作长度",currentDuration * 1000);
+    }
+ 
+    function TweenAlpha(from, _to, duration, update, onComplete) { 
       let current = from.clone();
       let to = _to.clone();
       let movingTween = new TWEEN.Tween(current).to(to, duration).easing(TWEEN.Easing.Linear.None)
@@ -431,17 +579,32 @@ class YJAnimator {
         }
       });
     }
-
+    let clampAnimCompleted = true;
+    let clampAnimList = []; 
     function ClampAnim(oldAction, newAction, callback) {
 
+      // if(!clampAnimCompleted){
+      //   clampAnimList.push({oldAction, newAction, callback});
+      //   // console.log(" 添加进下一次动作 ",clampAnimList.length);
+      //   return;
+      // }
+      // clampAnimCompleted = false;
       let _from = new THREE.Vector3(1, 1, 1);
       let _to = new THREE.Vector3(0, 0, 0);
-      TweenAlpha(_from, _to, 0.21 * 1000, (f) => {
+      TweenAlpha(_from, _to, 0.11 * 1000, (f) => {
         oldAction.setEffectiveWeight(f);
         oldAction.setEffectiveTimeScale(f);
         newAction.setEffectiveWeight(1 - f);
         newAction.setEffectiveTimeScale(1 - f);
       }, () => {
+        // clampAnimCompleted = true;
+        // if(clampAnimList.length > 0){
+        //   let cml = clampAnimList[clampAnimList.length-1];
+        //   ClampAnim(cml.oldAction, cml.newAction, cml.callback); 
+        //   clampAnimList = [];
+        //   // console.log("清空下一个动作");
+        // }
+
         if (callback) {
           callback()
         }

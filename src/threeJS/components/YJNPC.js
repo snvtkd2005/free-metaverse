@@ -952,6 +952,13 @@ class YJNPC {
           scope.ChangeAnim(animName, animNameFullback);
         }
       });
+      _YJAnimator.addEventListener("当前动作长度", (duration) => {
+        if (!_YJSkill.GetinSkill()) {
+          _YJSkill.skillCastAnimDuration = duration;
+        } 
+        // _YJSkill.skillCastAnimDuration = duration;
+
+      }); 
 
 
       // console.log(scope.GetNickName() + " 技能 ", skillList);

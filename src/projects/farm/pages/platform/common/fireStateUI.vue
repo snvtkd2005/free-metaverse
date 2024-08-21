@@ -24,7 +24,7 @@
 
   <div
     v-if="fireState.inDead"
-    class="absolute w-full h-full flex left-0 top-0 pointer-events-none"
+    class=" hidden absolute w-full h-full flex left-0 top-0 pointer-events-none"
   >
     <div v-if="lifeCount > 0 " class=" self-center mx-auto text-white text-6xl">
       <div>投币倒计时</div>
@@ -33,6 +33,20 @@
       </div> 
     </div>
     <div v-if="lifeCount == 0 " class=" self-center mx-auto text-white text-xl md:text-6xl">
+      <div class=" pointer-events-auto cursor-pointer p-3  md:p-10 rounded-md bg-black bg-opacity-60"
+      @click="resoul()"
+      >重新开始</div>
+
+    </div>
+
+  </div>
+
+  
+  <div
+    v-if="fireState.inDead"
+    class="absolute w-full h-full flex left-0 top-0 pointer-events-none"
+  > 
+    <div class=" self-center mx-auto text-white text-xl md:text-6xl">
       <div class=" pointer-events-auto cursor-pointer p-3  md:p-10 rounded-md bg-black bg-opacity-60"
       @click="resoul()"
       >重新开始</div>
@@ -76,14 +90,16 @@ export default {
     setTimeout(() => {
       _Global.addEventListener("主角死亡", () => {
         this.SetState("inDead",true);
-        this.lifeCount = this.relifeTime;
+        // this.lifeCount = this.relifeTime;
       });
+
       _Global.addEventListener("主角重生", () => {
         this.SetState("inDead",false); 
       });
-      _Global.addEventListener("投币成功", () => {
-        this.relife();
-      });
+      // _Global.addEventListener("投币成功", () => {
+      //   this.relife();
+      // });
+
       _Global.addEventListener("提示", (type,value) => {
         this.Add(type,value);
       });
@@ -127,16 +143,16 @@ export default {
           this.textList.splice(i, 1);
         }
       }
-      if (this.fireState.inDead && this.lifeCount > 0) {
-        const now = performance.now();
-        let delta = (now - this.last) / 1000;
-        this.deltaTime += delta * 1;
-        if (this.deltaTime >= this.relifeTime) {
-          this.deltaTime = 0;
-        }
-        this.lifeCount = parseInt(this.relifeTime - this.deltaTime);
-        this.last = now;
-      }
+      // if (this.fireState.inDead && this.lifeCount > 0) {
+      //   const now = performance.now();
+      //   let delta = (now - this.last) / 1000;
+      //   this.deltaTime += delta * 1;
+      //   if (this.deltaTime >= this.relifeTime) {
+      //     this.deltaTime = 0;
+      //   }
+      //   this.lifeCount = parseInt(this.relifeTime - this.deltaTime);
+      //   this.last = now;
+      // }
     },
   },
 };

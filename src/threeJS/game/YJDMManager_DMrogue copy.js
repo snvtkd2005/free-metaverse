@@ -1005,22 +1005,6 @@ class YJDMManager_DMrogue {
 
       });
 
-
-
-      _Global.addEventListener("3d加载完成", () => {
-
-        // target.GetComponent("NPC").addEventListener("死亡", () => {
-        //   //主播角色死亡，立即结束战斗
-        //   _Global.createCompleted = true;
-        //   _Global.inGame = false;
-        //   _Global.applyEvent("战斗结束",10000);
-        // });
-        // target = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId("弓箭手1");
-        // target.GetComponent("NPC").canMove = false;
-
-      });
-
-
       _Global.addEventListener("战斗开始", () => {
         _Global.createCompleted = false;
         _GenerateEnemyNPC.gameLevelFire(gameLevel);

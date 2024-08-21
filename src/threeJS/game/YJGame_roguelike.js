@@ -161,8 +161,7 @@ class YJGame_roguelike {
         _Global._YJPlayerFireCtrl.SetState('canMoveAttack', true);
 
         autoFire();
-
-        _Global.inGame = true;
+ 
         _GameRecord = new GameRecord();
         let _YJGame_mainCtrl = new YJGame_mainCtrl();
         //
@@ -192,22 +191,6 @@ class YJGame_roguelike {
           }
           playGame();
         });
-
-        // _Global.addEventListener('释放灵魂', () => {
-        //   //清空技能
-        //   _Global._YJPlayerFireCtrl.ClearSkill();
-        //   _Global.applyEvent('主角重生');
-        //   _Global.applyEvent('战斗开始');
-
-        // });
-        // _Global.addEventListener('道具复活', () => {
-        //   _Global.applyEvent('主角重生');
-        //   // 还原战斗记录
-        //   _Global.applyEvent('激活技能栏');
-        //   _Global.applyEvent('战斗开始');
-
-        // });
-
 
         _Global.addEventListener('战斗开始', () => {
           setTimeout(() => {
@@ -265,12 +248,10 @@ class YJGame_roguelike {
     }
     function pauseGame() {
       _Global.pauseGame = true;
-      _Global.YJ3D.pauseRender = true;
-      _Global.inGame = false;
+      _Global.YJ3D.pauseRender = true; 
       _Global.applyEvent('游戏暂停');
     }
-    function playGame() {
-      _Global.inGame = true;
+    function playGame() { 
       _Global.pauseGame = false;
       _Global.YJ3D.pauseRender = false;
     }

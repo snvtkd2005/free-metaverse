@@ -141,6 +141,8 @@ class GenerateEnemyNPC {
     }
     // 关卡的怪物量
     this.gameLevelFire = function(lv) {
+
+
       if (lv == 1) {
         _Global.applyEvent("敌方攻势", 1);
         GenerateHot(npcList.level1, 1, 0.5, 5, () => {
@@ -276,12 +278,12 @@ class GenerateEnemyNPC {
         }
         createLaterList = [];
       });
-      _Global.addEventListener("3d加载完成", () => { });
-      _Global.addEventListener("战斗开始", () => {
-        _Global.createCompleted = false;
+      
+      // _Global.addEventListener("战斗开始", () => {
+        // _Global.createCompleted = false;
         // GenerateHot(["boss"], 1, 0.5);
-        GenerateHot(["boss", "食尸鬼", "食尸鬼2", "食尸鬼3"], 10, 0.5);
-      });
+        // GenerateHot(["boss", "食尸鬼", "食尸鬼2", "食尸鬼3"], 10, 0.5);
+      // });
       // _Global.applyEvent("战斗开始");
       // setTimeout(() => {
       //   _Global.applyEvent("战斗开始");

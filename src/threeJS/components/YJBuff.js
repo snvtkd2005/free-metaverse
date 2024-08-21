@@ -23,22 +23,7 @@ class YJBuff {
                 //每秒伤技能是debuff，显示在角色状态上
                 let id = new Date().getTime();
                 let count = parseInt(duration / time);
-                let num = 0;
-                for (let i = 0; i < count; i++) {
-                    fireLater.push({
-                        id: id,
-                        type: "timeout", fn:
-                            setTimeout(() => {
-                                baseData.health -= owner.GetProperty().RealyDamage(value);
-                                num++;
-                                if (num == count) {
-                                    scope.removeDebuffById(id);
-                                }
-                                owner.CheckHealth();
-                            }, time * 1000 * (i + 1))
-                    }
-                    );
-                }
+                let num = 0; 
                 let buff = JSON.parse(JSON.stringify(effect)) ;
                 buff.id = id;
                 baseData.debuffList.push(buff);
@@ -49,10 +34,20 @@ class YJBuff {
                     id: id,
                     type: "interval", fn:
                         setInterval(() => {
+                            if (_Global.pauseGame) { return; }
+
                             buff.duration -= 1;
                             if (buff.duration <= 0) {
                                 buff.duration = 0;
                             }
+                            
+                            baseData.health -= owner.GetProperty().RealyDamage(value);
+                            num++;
+                            if (num >= count) {
+                                scope.removeDebuffById(id);
+                            }
+                            owner.CheckHealth();
+
                             owner.applyEvent("debuffCD", buff);
                         }, 1000)
                 });
@@ -104,6 +99,8 @@ class YJBuff {
                 id: id,
                 type: "interval", fn:
                     setInterval(() => {
+            if (_Global.pauseGame) { return; }
+
                         buff.duration -= 1;
                         if (buff.duration <= 0) {
                             buff.duration = 0;

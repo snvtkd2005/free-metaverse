@@ -1,5 +1,8 @@
 <template>
-  <div v-if="!isMobile" class="w-full h-full absolute left-0 top-0 pointer-events-none">
+  <div
+    v-if="!isMobile"
+    class="w-full h-full absolute left-0 top-0 pointer-events-none"
+  >
     <!-- 主动作条 -->
     <div class="flex absolute z-10 w-full h-16 left-0 bottom-0">
       <div class="w-full mx-auto flex">
@@ -245,8 +248,10 @@
     </div>
   </div>
 
-  
-  <div  v-if="isMobile" class="w-full h-full absolute left-0 top-0 pointer-events-none">
+  <div
+    v-if="isMobile"
+    class="w-full h-full absolute left-0 top-0 pointer-events-none"
+  >
     <!-- 技能动作条 -->
     <div
       class="absolute right-0 bottom-10 pl-1 w-64 h-32 flex flex-wrap bg-black bg-opacity-30"
@@ -266,7 +271,7 @@
         <div class="relative pl-6 transform origin-bottom md:scale-100 flex">
           <div class="h-16 flex">
             <div class=" ">
-              <div class="w-64  h-5 flex">
+              <div class="w-64 h-5 flex">
                 <div class="relative w-8 h-16">
                   <img
                     class="w-8 h-16 pointer-events-auto cursor-pointer"
@@ -458,15 +463,14 @@ export default {
       btnHoverHilightUrl:
         "./public/images/cursorList/mainmenu/ui-chaticon-blinkhilight.png",
       hoverPart: "",
-      isMobile:false,
-
+      isMobile: false,
     };
   },
   created() {},
   mounted() {
-    this.isMobile = _Global.isMobile; 
+    this.isMobile = _Global.isMobile;
     _Global.addEventListener("是否启用虚拟摇杆", (b) => {
-      this.isMobile = b; 
+      this.isMobile = b;
     });
 
     setTimeout(() => {
@@ -610,7 +614,7 @@ export default {
         _Global.panelState[e] = false;
       });
 
-      _Global.addEventListener("在背包中调用prop", (id,allCount) => {
+      _Global.addEventListener("在背包中调用prop", (id, allCount) => {
         for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
           const element = this.actionList.actionBar1[i];
           if (
@@ -623,7 +627,7 @@ export default {
               element.skill.isDeleled = true;
               element.isDeleled = true;
             }
-            
+
             // element.skill.isDeleled = true;
             // element.isDeleled = true;
           }
@@ -638,7 +642,7 @@ export default {
             element.skill.type == "prop" &&
             element.skill.id == id
           ) {
-            if(element.skill.allCount<=0){
+            if (element.skill.allCount <= 0) {
               element.skill.isDeleled = true;
               element.isDeleled = true;
             }
@@ -646,7 +650,7 @@ export default {
         }
       });
 
-      _Global.addEventListener("替换动作条中prop的引用", (id,skill) => {
+      _Global.addEventListener("替换动作条中prop的引用", (id, skill) => {
         for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
           const element = this.actionList.actionBar1[i];
           if (
@@ -654,12 +658,12 @@ export default {
             element.skill.type == "prop" &&
             element.skill.id == id
           ) {
-            element.skill = skill; 
+            element.skill = skill;
           }
         }
       });
 
-      _Global.addEventListener("在背包中摧毁prop", (id,allCount) => {
+      _Global.addEventListener("在背包中摧毁prop", (id, allCount) => {
         for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
           const element = this.actionList.actionBar1[i];
           if (
@@ -667,17 +671,16 @@ export default {
             element.skill.type == "prop" &&
             element.skill.id == id
           ) {
-            if(allCount){
-              element.skill.allCount-=allCount;
+            if (allCount) {
+              element.skill.allCount -= allCount;
             }
-            if(element.skill.allCount<=0){
+            if (element.skill.allCount <= 0) {
               element.skill.isDeleled = true;
               element.isDeleled = true;
             }
           }
         }
       });
-
 
       _Global.addEventListener("在动作条中激活prop", (id, skill) => {
         for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
@@ -714,7 +717,7 @@ export default {
           if (this.newLevel) {
             this.newLevel = false;
           }
-          this.AddSkill(_skill); 
+          this.AddSkill(_skill);
         });
         _Global._YJPlayerFireCtrl.addEventListener("移除技能", (_skill) => {
           for (let i = this.actionList.actionBar1.length - 1; i >= 0; i--) {
@@ -790,7 +793,6 @@ export default {
     },
 
     clickMenu(e) {
-      
       if (e == "mainmenu") {
         this.panelState.bagBase = false;
         this.panelState.talk = false;
@@ -799,28 +801,22 @@ export default {
         this.panelState.skill = false;
         this.panelState.taskList = false;
         this.panelState.mainmenu = !this.panelState.mainmenu;
-        return;
-      }
-      if (this.panelState.mainmenu) {
-        return;
-      }
-      if (e == "player") {
+      } 
+      // else if (this.panelState.mainmenu) {
+      // } 
+      else if (e == "player") {
         this.panelState.taskList = false;
         this.panelState.player = !this.panelState.player;
-        return;
-      }
-      if (e == "bagBase") {
+      } 
+      else if (e == "bagBase") {
         this.panelState.bagBase = !this.panelState.bagBase;
-        return;
-      }
-      if (e == "skill") {
+      } 
+      else if (e == "skill") {
         this.newLevel = false;
         this.panelState.taskList = false;
         this.panelState.skill = !this.panelState.skill;
-
-        return;
-      }
-      if (e == "taskList") {
+      } 
+      else if (e == "taskList") {
         this.panelState.player = false;
         this.panelState.skill = false;
         this.panelState[e] = !this.panelState[e];
@@ -831,6 +827,7 @@ export default {
             : "1722064316964/iquestlogclosea.ogg"
         );
       }
+      _Global.applyEvent("界面开关状态变化");
     },
     SkillGoByActionBar(keycode) {
       for (let i = 0; i < this.actionList.actionBar1.length; i++) {
@@ -853,7 +850,7 @@ export default {
           console.log(" 使用药水 ", complted, skill);
           if (complted) {
             //药水数量减- 或 药水使用完
-            
+
             // 在动作条中使用时，通知在背包中物品减一
             _Global.applyEvent("在动作条中调用Prop", skill.id);
 
@@ -940,9 +937,7 @@ export default {
                 this.actionList.actionBar1[i].outVaildDis = msg.state;
                 // console.log(" 技能状态 "+msg.title,skillName, msg);
               });
-
-              break;
-
+              break; 
             default:
               break;
           }
@@ -956,10 +951,9 @@ export default {
 </script>
 
 <style scoped>
-
 .cursor-pointer {
-    /* cursor: pointer; */
-    cursor: none;
+  /* cursor: pointer; */
+  cursor: none;
 }
 .scalex {
   transform: translateX(-32px) scaleX(-1);

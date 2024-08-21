@@ -605,6 +605,31 @@ class YJDMManager_DMrogue {
         }
         GetEnemyTarget();
       }, 2000);
+
+
+      function fn(){
+        setTimeout(() => {
+          let names = Object.getOwnPropertyNames(_Global.panelState);
+          let has = false;
+          for (let i = 0; i < names.length && !has; i++) {
+            if(_Global.panelState[names[i]]){
+              has = true;
+            }
+          }  
+          console.log(_Global.panelState);
+          _Global.applyEvent(has?"游戏暂停":"游戏继续");
+        }, 100);
+      }
+      // 监听界面被打开，打开时暂停游戏，关闭时游戏继续
+      _Global.addEventListener("界面开关", (e, b) => {
+        fn();
+      });
+      _Global.addEventListener("界面开关状态变化", (e, b) => {
+        fn();
+      });
+      
+
+
       let _YJGame_mainCtrl = new YJGame_mainCtrl();
 
 
@@ -648,9 +673,9 @@ class YJDMManager_DMrogue {
 
 
       _Global._YJPlayerFireCtrl.GetEquip().addEquip({ assetId: 1692787200597 }, () => {
-        _Global._YJPlayerFireCtrl.SetPlayerState("normal");
       });
       _Global._YJPlayerFireCtrl.SetState('canMoveAttack', true);
+      _Global.YJ3D.YJController.ChangeAnimDirect("idle", "idle");
  
       autoFire();
       _GameRecord = new GameRecord();

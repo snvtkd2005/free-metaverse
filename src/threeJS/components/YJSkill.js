@@ -2,7 +2,7 @@
 
 
 import * as THREE from "three";
-import { RandomInt } from "../../utils/utils";
+import { RandomInt, SelectEnemyType } from "../../utils/utils";
 import { YJSkillModel } from "./YJSkillModel";
 
 class YJSkill {
@@ -587,8 +587,10 @@ class YJSkill {
                 if ("基础攻击" == oldskillname) {
                     inSkill = false;
                 }
-                if (baseSkillItem) {
-                    baseSkillItem.auto = true;
+                if(owner.GetFireId() != -1){
+                    if (baseSkillItem) {
+                        baseSkillItem.auto = true;
+                    }
                 }
             }
             // console.log(" 手动触发 ",skillItem);
@@ -633,22 +635,37 @@ class YJSkill {
             let checkCan = () => {
                 let targetType = skillItem.target.type;
                 if (targetType == "target" || targetType == "targetAndNear") {
-                    if (targetModel == null) {
-                        errorLog = "无目标";
-                        if (skillName != "基础攻击") {
-                            owner.MyFireState("我没有目标");
+                    if (targetModel == null || (targetModel && targetModel.isDead)) {
+                        targetModel = _Global._YJFireManager.GetNoSameCampInFireWithType(
+                            {
+                                camp:owner.GetCamp(),
+                                fireId:owner.GetFireId(),
+                                disData:{fromPos,vaildAttackDis},
+                            },SelectEnemyType.NEAREST);
+                        console.log(" 准备自动选择目标 ");
+                        
+                        if(targetModel==null){
+                            errorLog = "无目标";
+                            if (skillName != "基础攻击") {
+                                owner.MyFireState("我没有目标");
+                            }
+                            EventHandler("没有目标", skillItem);
+                            return false;
                         }
-                        EventHandler("没有目标", skillItem);
-                        return false;
-                    }
-                    if ((targetModel && targetModel.isDead)) {
-                        errorLog = "目标已死亡";
-                        if (skillName != "基础攻击") {
-                            owner.MyFireState("目标已死亡");
+                        // 自动找战斗中最近的敌方为目标
+                        if(owner.SetInteractiveNPC){
+                            console.log(" 自动选择目标 ");
+                            owner.SetInteractiveNPC(targetModel);
                         }
-                        EventHandler("目标死亡", skillItem);
-                        return false;
                     }
+                    // if ((targetModel && targetModel.isDead)) {
+                    //     errorLog = "目标已死亡";
+                    //     if (skillName != "基础攻击") {
+                    //         owner.MyFireState("目标已死亡");
+                    //     }
+                    //     EventHandler("目标死亡", skillItem);
+                    //     return false;
+                    // }
                     let distance = owner.GetWorldPos().distanceTo(targetModel.GetWorldPos());
                     if (distance > vaildAttackDis) {
                         errorLog = ("与目标距离过远 " + distance + '/' + vaildAttackDis);
@@ -675,11 +692,11 @@ class YJSkill {
                 if (targetType.includes("random")) {
                     if (targetType.includes("Friendly")) {
                         // 找友方目标 
-                        searchModel = _Global._YJFireManager.GetSameCampByRandomInFire(owner.GetCamp(), owner.fireId,{fromPos,vaildAttackDis});
+                        searchModel = _Global._YJFireManager.GetSameCampByRandomInFire(owner.GetCamp(), owner.GetFireId(),{fromPos,vaildAttackDis});
                     } else {
                         // 找敌对阵营的目标
-                        // console.log(" 查找 随机 敌对阵营的目标 ",owner.GetCamp(), owner.fireId);
-                        searchModel = _Global._YJFireManager.GetNoSameCampByRandomInFire(owner.GetCamp(), owner.fireId,{fromPos,vaildAttackDis});
+                        // console.log(" 查找 随机 敌对阵营的目标 ",owner.GetCamp(), owner.GetFireId());
+                        searchModel = _Global._YJFireManager.GetNoSameCampByRandomInFire(owner.GetCamp(), owner.GetFireId(),{fromPos,vaildAttackDis});
                     }
                     // 随机进没目标时，返回false 不施放技能
                     if (searchModel == null) {

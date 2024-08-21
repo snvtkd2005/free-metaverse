@@ -240,13 +240,16 @@ class Interface {
     
     //#endregion
 
-    setTimeout(() => {
-      console.log = (e)=>{
-        // if(!_Global.setting.inEditor){
-          _Global.CombatLog.log(e);
-        // }
-      };
-    }, 5000);
+    // setTimeout(() => {
+    //   console.log = (e)=>{
+    //     if(!_Global.setting.inEditor){
+
+    //     }
+    //     if(_Global.CombatLog){
+    //       _Global.CombatLog.log(e);
+    //     }
+    //   };
+    // }, 5000);
 
     let eventList = [];
     // 添加事件监听

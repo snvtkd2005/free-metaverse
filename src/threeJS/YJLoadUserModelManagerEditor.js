@@ -759,7 +759,7 @@ class YJLoadUserModelManager {
       );
 
       let data = res.data;
-      // console.log(" 加载组合数据 ",data);
+      console.log(" 加载组合数据 ",data);
       let sceneModelsData = [];
       for (let i = 0; i < data.length; i++) {
         const element = data[i];

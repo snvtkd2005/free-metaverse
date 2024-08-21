@@ -4,6 +4,11 @@ import { SaveImgGetFileName, SaveTxtGetFileName, SaveFileOSSAPI, DelFileAPI } fr
 // function radomNum(minNum, maxNum) {
 //   return parseInt(Math.random() * (maxNum - minNum + 1) + minNum, 10);
 // }
+// 在全局作用域中定义枚举  
+export const SelectEnemyType = {  
+  RANDOM: 'random',  
+  NEAREST: 'nearest',   
+};  
 
 // 数字转时分秒
 export const toTime = (num) => {

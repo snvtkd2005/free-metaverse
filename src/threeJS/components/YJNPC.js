@@ -1651,6 +1651,10 @@ class YJNPC {
       return scope.npcName;
       // return "[" + scope.npcName + "]";
     }
+    
+		this.GetFireId = function () {
+			return scope.fireId;
+		}
     this.ReceiveSkill = function (fromModel, skillName, effect, skillItem) {
       if (!_Global.mainUser) {
         console.error("不该进入：非主控");

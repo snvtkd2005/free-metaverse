@@ -255,7 +255,8 @@ class GenerateDMNPC {
       }
     }
     function DisplayProjectionUI(posId, b=true){
-      return;
+      // return;
+      // console.log("显示隐藏posid " + posId + b);
       _Global.YJ3D._YJSceneManager.DisplayProjectionUI(posId, b);
     }
     // 生成弹幕玩家

@@ -805,8 +805,8 @@ class YJPlayerFireCtrl {
 			_YJSkill.ClearSkill("基础攻击");
 		}
 		this.InFire = function () {
-			return true;
-			// return fireId != -1;
+			// return true;
+			return _YJPlayer.fireId != -1;
 			// return playerState == PLAYERSTATE.ATTACKING;
 		}
 		this.GetIsDead = function () {
@@ -982,7 +982,7 @@ class YJPlayerFireCtrl {
 			}
 			// console.log(" 玩家动作 ",weaponData, e,animName);
 
-			// console.log(" 玩家动作 ", state.canAttack, e, animName);
+			console.log(" 玩家动作 ", animName);
 			_this.YJController.SetPlayerAnimName(animName, animNameFullback);
 		}
 		this.ChangeAnim = function (v, vb) {
@@ -996,7 +996,10 @@ class YJPlayerFireCtrl {
 		this.SetValue = function (v, vb) {
 
 		}
-
+		this.fireOff = function () {
+			_YJPlayer.fireId = -1;
+			scope.applyEvent("离开战斗");
+		}
 		this.SetInControl = function (b) {
 			_this.YJController.SetEnabled(!b);
 			_this.YJController.SetAmmoEnabled(!b);

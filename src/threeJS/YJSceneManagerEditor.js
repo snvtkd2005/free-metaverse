@@ -625,7 +625,7 @@ class YJSceneManager {
       gridHelper.visible = b; 
     }
     function CreateGrid(size,divisions,y) {
-      if(!_Global.setting.inEditor){return;}
+      // if(!_Global.setting.inEditor){return;}
 
       gridHelper = new THREE.GridHelper(size, divisions);
       scene.add(gridHelper); 
@@ -667,6 +667,9 @@ class YJSceneManager {
       scene.add(modelParent);
 
 
+      if(sceneData.hasGrid){
+        CreateGrid(100,10,0);
+      }
 
       // 监听组合键
       addListenerCombKey();
@@ -726,6 +729,7 @@ class YJSceneManager {
         }
 
         CreateSkybox();
+
 
 
         if (sceneData.hasFloor == undefined || sceneData.hasFloor) {
@@ -1641,13 +1645,19 @@ class YJSceneManager {
       for (let i = 0; i < projectionUIDataList.length; i++) {
         const item = projectionUIDataList[i];
         if(item.tag==v || item.content == v){
-          item.display = b;
+          item.display = b; 
           return;
         }
       } 
     }
     this.AddProjectionUI = function (msg) {
       // console.error("添加映射 ",msg);
+      for (let i = 0; i < projectionUIList.length; i++) {
+        const element = projectionUIList[i];
+        if(element._hotPoint.GetUUID() ==  msg.transform.GetUUID() ){
+          return;
+        }
+      }
       projectionUIList.push({ id: msg.tag, _hotPoint: msg.transform });
       projectionUIDataList.push({ id:msg.tag,display:true,content:msg.content,event:msg.event, pos: { x: 0, y: 0 } });
       // console.log("添加3转2", projectionUIList);

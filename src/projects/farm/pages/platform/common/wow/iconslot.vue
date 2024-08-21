@@ -127,6 +127,11 @@ export default {
       if (ev) {
         ev.preventDefault();
       }
+
+      if (this.parent.dragSkill != null && (_Global.inDragEquip || _Global.inDragProp)) {
+        // 取消上一个正在拖拽的物品
+        this.parent.dragItem.inDraging = false;
+      }
       _Global.mobileDrag = true;
       this.parent.mousePos(ev.clientX, ev.clientY);
 

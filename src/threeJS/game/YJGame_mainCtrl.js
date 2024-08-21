@@ -17,11 +17,25 @@ class YJGame_mainCtrl {
     //#region 
     //#endregion 
 
+    function pauseGame() {
+      _Global.pauseGame = true;
+      _Global.YJ3D.pauseRender = true;
+      _Global.inGame = false; 
+    }
+    function playGame() {
+      _Global.inGame = true;
+      _Global.pauseGame = false;
+      _Global.YJ3D.pauseRender = false;
+    }
     function init() {
       // console.error(" in YJGame_mainCtrl "); 
 
       _Global._YJGame_mainCtrl = scope;
+      _Global.addEventListener('游戏暂停', () => {
+        pauseGame();
+      });
       _Global.addEventListener('游戏继续', () => {
+        playGame();
       });
       _Global.addEventListener('切换控制方式', (e) => {
         changeCtrlMode(e);
@@ -29,7 +43,11 @@ class YJGame_mainCtrl {
       _Global.addEventListener('主角生命值', (h, maxH) => {
 
       });
-
+      
+      _Global.addEventListener('战斗结束', () => {
+        _Global._YJPlayerFireCtrl.fireOff(); 
+      });
+      
       _Global.addEventListener('释放灵魂', () => {
         //清空技能
         _Global._YJPlayerFireCtrl.ClearSkill();

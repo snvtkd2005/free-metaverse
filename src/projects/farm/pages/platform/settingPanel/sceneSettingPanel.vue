@@ -210,6 +210,7 @@ export default {
         
         { property: "shadowData-resource", display: true, title: "阴影分辨率", type: "int", value: "256", callback: this.ChangeValue },
         
+        { property: "hasGrid", display: true, title: "启用grid", type: "toggle", value: true, callback: this.ChangeValue },
         { property: "hasFloor", display: true, title: "启用默认地面", type: "toggle", value: true, callback: this.ChangeValue },
         { property: "setting-hasCamRaycast", display: true, title: "启用摄像机遮挡", type: "toggle", value: true, callback: this.ChangeValue },
         { property: "setting-multiGame", display: true, title: "启用多人模式", type: "toggle", value: true, callback: this.ChangeValue },
@@ -220,9 +221,9 @@ export default {
         {
           property: "setting-gameType", display: true, title: "游戏类型", type: "drop", value: 'WOW', options: [
             // { value: 'Roguelike', label: '肉鸽' },
-            // { value: 'DMRoguelike', label: '弹幕肉鸽' },
+            { value: 'DMRoguelike', label: '弹幕肉鸽' },
             // { value: 'DMGame', label: '塔防' },
-            // { value: 'MMD', label: '数字人' }, 
+            { value: 'MMD', label: '数字人' }, 
             { value: 'WOW', label: 'MMORPG' }, 
           ], callback: this.ChangeValue,
         },
@@ -291,6 +292,11 @@ export default {
       if (this.sceneData.propList == undefined) {
         this.sceneData.propList = [];
       }
+
+      if (this.sceneData.hasGrid == undefined) {
+        this.sceneData.hasGrid = true;
+      }
+      
       this.propList = this.sceneData.propList;
       // _Global.propList = this.propList;
       

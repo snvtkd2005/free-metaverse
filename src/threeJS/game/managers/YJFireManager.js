@@ -3,7 +3,7 @@
 
 
 import * as THREE from "three";
-import { RandomInt } from "../../../utils/utils";
+import { RandomInt, SelectEnemyType } from "../../../utils/utils";
 import { YJNPCManager } from "./YJNPCManager.js";
 import { YJPlayerManager } from "./YJPlayerManager.js";
 // 战斗管理
@@ -74,7 +74,7 @@ class YJFireManager {
     // _Global.YJ3D.scene.add(temp2);
 
     function CheckCanAttack(npc) {
-      
+
       if (npc.GetTargetModel() == null) {
         npc.canAttack = false;
         return false;
@@ -86,13 +86,13 @@ class YJFireManager {
       npcPos.y = 1;
       // 与目标之间有遮挡
       let b2 = CheckColliderBetween(npcPos, targetPos);
-      if (b2) { 
-        console.log( scope.GetNickName() + "  与目标之间有遮挡 " );
+      if (b2) {
+        console.log(scope.GetNickName() + "  与目标之间有遮挡 ");
         npc.canAttack = false;
-        return false; 
+        return false;
       }
-        npc.canAttack = true;
-        return true;
+      npc.canAttack = true;
+      return true;
     }
     // 判断两点之间是否可以直接到达，即两点之间是否有障碍物，有障碍物表示不可直接到达
     function CheckColliderBetween(fromPos, targetPos) {
@@ -310,6 +310,68 @@ class YJFireManager {
         return null;
       }
       return npcs[RandomInt(0, npcs.length - 1)];
+    }
+
+    this.GetNoSameCampInFireWithType = function (data, type) {
+      let { camp, fireId, disData } = data;
+      if (type == SelectEnemyType.RANDOM) {
+        // console.log("查找随机目标", camp, fireId, fireGroup);
+        //随机目标，优先去同战斗id中找
+        if (fireId != undefined && fireId != -1) {
+          let other = this.GetNoSameCampInFire(camp, fireId, disData);
+          if (other.length == 0) { return null; }
+          return other[RandomInt(0, other.length - 1)];
+        }
+        let npcs = _YJNPCManager.GetNoSameCamp(camp, fireId, disData);
+        let players = _YJPlayerManager.GetNoSameCamp(camp, fireId, disData);
+        for (let j = 0; j < players.length; j++) {
+          npcs.push(players[j]);
+        }
+        if (npcs.length == 0) {
+          return null;
+        }
+        return npcs[RandomInt(0, npcs.length - 1)];
+      } else if (type == SelectEnemyType.NEAREST) {
+          console.log("查找最近的敌人" + type+ " " + fireId+ " " + camp);
+
+          let dis = 10000;
+          let npc = null;
+        //只在战斗中查找
+        if (fireId != undefined && fireId != -1) {
+          let other = this.GetNoSameCampInFire(camp, fireId, disData);
+          
+          console.log("查找战斗中的敌人" + other.length);
+          if (other.length == 0) { return null; }
+          for (let i = 0; i < other.length; i++) {
+            const npcComponent = other[i];
+            let npcPos = npcComponent.GetWorldPos();
+            let distance = disData.fromPos.distanceTo(npcPos);
+            if (distance <= dis) {
+              dis = distance;
+              npc = (npcComponent);
+            }
+          }
+          return npc;
+        }
+        // let npcs = _YJNPCManager.GetNoSameCamp(camp, fireId, disData);
+        // let players = _YJPlayerManager.GetNoSameCamp(camp, fireId, disData);
+        // for (let j = 0; j < players.length; j++) {
+        //   npcs.push(players[j]);
+        // }
+        // if (npcs.length == 0) {
+        //   return null;
+        // }
+        // for (let i = 0; i < npcs.length; i++) {
+        //   const npcComponent = npcs[i];
+        //   let npcPos = npcComponent.GetWorldPos();
+        //   let distance = disData.fromPos.distanceTo(npcPos);
+        //   if (distance <= dis) {
+        //     dis = distance;
+        //     npc = (npcComponent);
+        //   }
+        // }
+        return npc;
+      }
     }
 
 
@@ -804,8 +866,8 @@ class YJFireManager {
         dis = vaildDis;
       }
       let player = null;
-      let others = scope.GetNoSameCampInFire(camp, fireId,{
-        fromPos:npcComponent.GetWorldPos(),vaildAttackDis:vaildDis
+      let others = scope.GetNoSameCampInFire(camp, fireId, {
+        fromPos: npcComponent.GetWorldPos(), vaildAttackDis: vaildDis
       });
       for (let i = 0; i < others.length; i++) {
         const element = others[i];
@@ -870,7 +932,7 @@ class YJFireManager {
     }
     let sameCamp = 0;
     function FireOff() {
-      if (!_Global.createCompleted) {
+      if (_Global.createCompleted != undefined && !_Global.createCompleted) {
         return false;
       }
       console.error(" 战斗双方只剩一方 ");

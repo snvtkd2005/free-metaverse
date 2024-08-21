@@ -341,11 +341,6 @@ export default {
               }
             } else {
               this.$refs.ActionPanelVue.clickMenu(element.field);
-              // _Global.applyEvent(
-              //   "界面开关",
-              //   element.field,
-              //   !this.panelState[element.field]
-              // );
             }
           }
         }
@@ -406,9 +401,7 @@ export default {
 
       _Global.addEventListener("摧毁拖拽Prop", () => {
         this.cancelDrag("摧毁拖拽Prop"); 
-      });
-
-      // _Global.panelState.task = true;
+      }); 
     }, 2000);
 
     // if (_Global.setting.inEditor) {

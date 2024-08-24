@@ -217,7 +217,7 @@ class YJTransform {
       data.components.push(msg);
     } 
     this.UpdateComponents = function(index,msg){
-      data.components[index] = (msg);
+        data.components[index] = (msg);
       if(msg.type == "tween"){
         let tween = new YJTween(group);
         tween.SetMessage(msg.data);

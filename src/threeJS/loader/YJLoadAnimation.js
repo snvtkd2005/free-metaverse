@@ -12,11 +12,32 @@ class YJLoadAnimation {
       // console.log("in worker onmessage ",e.data);
       for (let i = allWorkerTask.length-1; i >=0; i--) {
         const element = allWorkerTask[i];
-        if(element.path == e.data.path){
-          element.callback(AnimationDataToAnimationClip("", JSON.parse(e.data.data) ));
-          allWorkerTask.splice(i,1);
+        if(element.type == e.data.type){
+          if(element.type == "animFile"){
+            if(element.path == e.data.path){
+              element.callback(AnimationDataToAnimationClip("", JSON.parse(e.data.data) ));
+              allWorkerTask.splice(i,1);
+            }
+          }
+
+          if(element.type == "txtFile"){
+            if(element.path == e.data.path){
+              element.callback(e.data.data);
+              allWorkerTask.splice(i,1);
+            }
+          }
+          
+          if(element.type == "meshFile"){
+            if(element.path == e.data.path){
+              element.callback((e.data.data));
+              allWorkerTask.splice(i,1);
+            }
+          }
+
+          
         }
       } 
+
     } 
     worker.onerror = (e)=>{
       console.error("in worker error ",e);
@@ -28,10 +49,29 @@ class YJLoadAnimation {
         }
         return;
       } 
-      allWorkerTask.push({path:modelPath,callback});
-      worker.postMessage({url:modelPath});
+      allWorkerTask.push({type:"animFile",path:modelPath,callback});
+      worker.postMessage({type:"animFile", url:modelPath});
     } 
-  
+    this.load_mesh = function (modelPath, callback, errorback) {
+      if(modelPath == undefined){
+        if (callback) {
+          callback(null);
+        }
+        return;
+      } 
+      allWorkerTask.push({type:"meshFile",path:modelPath,callback});
+      worker.postMessage({type:"meshFile", url:modelPath});
+    } 
+
+    this.loadAssset = function (url, callback, errorback) {
+      if(url == undefined){
+        console.error("未指定文本路径");
+        return;
+      } 
+      allWorkerTask.push({type:"txtFile",path:url,callback});
+      worker.postMessage({type:"txtFile", url:url});
+    } 
+
   }
 }
 

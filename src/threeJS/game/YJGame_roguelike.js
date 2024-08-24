@@ -60,7 +60,7 @@ class YJGame_roguelike {
       }
       npcTransform = npc.transform;
       if (npcTransform) {
-        _Global._YJPlayerFireCtrl.SetInteractiveNPC(npcTransform);
+        _Global._YJPlayerFireCtrl.SetInteractiveNPC(npcTransform.GetComponent("NPC"));
       } else {
         // _Global._YJPlayerFireCtrl.shootTargetPos(tagetPos.clone(), "time");
       }

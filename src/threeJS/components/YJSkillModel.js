@@ -42,7 +42,7 @@ class YJSkillModel {
                         controlModels.splice(i, 1);
                         continue;
                     }
-                    item.modelTransform.Destroy();
+                    item.modelTransform.SetActive(false);
                     controlModels.splice(i, 1);
                     let msg = {
                         title: "移除组合模型",
@@ -57,12 +57,11 @@ class YJSkillModel {
         this.RemoveSkill = function (skill) {
             // console.log(" 解除技能 Skill ", skill);
             let particleId = skill.particleId;
-
-            if (skill.type == "control") {
-
+            if (skill.type == "control") { 
+                owner.SetInControl(false);
             }
             if (skill.type == "shield") {
-
+                owner.GetBuff().removeBuffById(skill.id);
             }
 
             for (let i = controlModels.length - 1; i >= 0; i--) {
@@ -80,9 +79,7 @@ class YJSkillModel {
                         scope.ReceiveControl(msg, true);
                         controlModels.splice(i, 1);
                         continue;
-                    }
-                    item.modelTransform.Destroy();
-                    controlModels.splice(i, 1);
+                    } 
                     let msg = {
                         title: "移除组合模型",
                         folderBase: particleId,
@@ -149,12 +146,11 @@ class YJSkillModel {
                 return;
             }
             if (title == "移除组合模型") {
-                // 静态物体使用合批的方法做法
-                _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().RemoveSkillByFolderBase(folderBase, msg);
                 for (let i = controlModels.length - 1; i >= 0; i--) {
                     const item = controlModels[i];
                     if (item.type == folderBase) {
-                        item.modelTransform.Destroy();
+                        item.modelTransform.SetActive(false);
+                        // item.modelTransform.Destroy();
                         controlModels.splice(i, 1);
                     }
                 }
@@ -180,7 +176,7 @@ class YJSkillModel {
                 // console.log("接收 同步施放技能 ", msg);
             }
 
-            let { title, folderBase, id, pos, scale } = msg;
+            let { title, folderBase, id, pos, scale, autoHidden,delayV } = msg;
 
             // if(title){
 
@@ -193,16 +189,23 @@ class YJSkillModel {
             //     });
             // }
             if (title == "寒冰护体") {
+
                 if (HasControlModel(folderBase)) {
                     return false;
                 }
                 _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillGroup(folderBase, (model) => {
+                    _Global.YJ3D.scene.attach(model.GetGroup());
                     model.SetPos(owner.GetWorldPos());
                     let nameScale = owner.GetScale();
                     model.SetScale(new THREE.Vector3(nameScale, nameScale, nameScale));
                     owner.GetGroup().attach(model.GetGroup());
                     model.SetActive(true);
                     AddControlModel(folderBase, model);
+                    let children = model.GetChildren();
+                    for (let i = 0; i < children.length; i++) {
+                        children[i].UpdateAllComponents();
+                    }
+                    
                 });
                 return;
             }
@@ -210,6 +213,15 @@ class YJSkillModel {
             _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().LoadSkillGroup(folderBase, (model) => {
                 model.SetPos(owner.GetWorldPos());
                 model.SetActive(true);
+                if(autoHidden){
+                    setTimeout(() => {
+                        model.SetActive(false);
+                    },delayV * 1000);
+                }
+                let children = model.GetChildren();
+                for (let i = 0; i < children.length; i++) {
+                    children[i].UpdateAllComponents();
+                }
             });
 
         }

@@ -367,6 +367,26 @@ class YJSkill {
 
         }
 
+
+        function RemoveSkill(skill) { 
+            _YJSkillModel.RemoveSkill(skill); 
+        }
+        
+        let controlFnLater = null; 
+        let controlLaterEvent = []; 
+        function ClearControlModel() {
+            if(controlFnLater){clearTimeout(controlFnLater);controlFnLater = null;}
+            
+            for (let i = controlLaterEvent.length-1; i >=0 ; i--) {
+                const element = controlLaterEvent[i];
+                if(element.id.includes("control")){
+                    controlLaterEvent.splice(i,1);
+                }
+            }
+            controlLaterEvent = [];
+            _YJSkillModel.ClearControlModel(); 
+        }
+
         this.ReceiveSkill = function (fromModel, skillName, effect, skillItem) {
 
             // console.log(" 玩家接收技能 11 " ,fromModel, skillName, effect,skillItem);
@@ -444,32 +464,6 @@ class YJSkill {
 
         }
  
-        let controlFnLater = null; 
-        let controlLaterEvent = []; 
-
-        function RemoveSkill(skill) {
-            // console.log(" 解除技能 Skill ", skill);
-            let particleId = skill.particleId;
-
-            if (skill.type == "control") { 
-                owner.SetInControl(false);
-            }
-            if (skill.type == "shield") {
-                owner.GetBuff().removeBuffById(skill.id);
-            }
-            _YJSkillModel.RemoveSkill(skill); 
-        }
-        function ClearControlModel() {
-            
-            // for (let i = controlLaterEvent.length-1; i >=0 ; i--) {
-            //     const element = controlLaterEvent[i];
-            //     if(element.id.includes("control")){
-            //         controlLaterEvent.splice(i,1);
-            //     }
-            // }
-
-            _YJSkillModel.ClearControlModel(); 
-        }
 
         function Dync(msg) {
             if (msg.title == "npc技能") {
@@ -814,14 +808,18 @@ class YJSkill {
                     // if (owner.GetNickName().includes("居民")) {
                     //     console.error(owner.GetNickName() + " 范围攻击目标 ",skillItem, max, areaTargets);
                     // }
-                    let msg = {
-                        title: skillItem.skillName,
-                        folderBase: skillItem.skillFireParticleId,
-                        id: owner.id,
-                        pos: owner.GetWorldPos(),
-                        scale: null,
-                    } 
-                    _YJSkillModel.SendSkill(msg,true); 
+                    if(skillItem.skillFireParticleId){
+                        let msg = {
+                            title: skillItem.skillName,
+                            folderBase: skillItem.skillFireParticleId,
+                            id: owner.id,
+                            pos: owner.GetWorldPos(),
+                            scale: null,
+                            autoHidden:skillItem.skillFireAutoHidden,
+                            delayV:skillItem.skillFireDiplayValue,
+                        } 
+                        _YJSkillModel.SendSkill(msg,true); 
+                    }
 
                     // 范围内无目标，不施放技能
                     if (areaTargets.length == 0) {
@@ -869,7 +867,11 @@ class YJSkill {
                                 }
                                 if(target.isYJNPC){
                                     target.SetNpcTargetToNoneDrict();
-                                    target.SetNpcTarget(owner, true, false);
+                                    if(owner.isPlayerFire){
+                                        target.SetNpcTarget(owner.GetYJPlayer(), true, false);
+                                    }else{
+                                        target.SetNpcTarget(owner, true, false);
+                                    }
                                 }
                             }
                             return;

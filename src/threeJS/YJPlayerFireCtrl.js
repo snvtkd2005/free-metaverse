@@ -15,6 +15,7 @@ import skillItem from "/@/projects/farm/data/platform/skillItem";
 class YJPlayerFireCtrl {
 	constructor(_this, _YJPlayer) {
 		let scope = this;
+		this.isPlayerFire = true;
 
 
 		let animName = "";
@@ -473,6 +474,7 @@ class YJPlayerFireCtrl {
 			if (_targetModel == scope || _targetModel == _YJPlayer) {
 				return;
 			}
+			// 同阵营友善的npc，检查其交互事件
 			if (_targetModel.GetCamp() == scope.GetCamp() || _targetModel.GetCamp() == 10001) {
 				if (_targetModel.isYJNPC) {
 					let data = _targetModel.GetData();
@@ -507,15 +509,20 @@ class YJPlayerFireCtrl {
 			attackStepSpeed = a;
 			//距离目标超过技能有效距离时，回到默认动作
 			if (!CheckCanAttack()) {
-				vaildAttackLater = setTimeout(() => {
-					if (playerState == PLAYERSTATE.NORMAL) {
-						if (targetModel == null) {
-							return;
+				if (cantAttackType == CantAttackType.sameCamp) {
+
+				} else {
+
+					vaildAttackLater = setTimeout(() => {
+						if (playerState == PLAYERSTATE.NORMAL) {
+							if (targetModel == null) {
+								return;
+							}
+							ReadyFire();
 						}
-						ReadyFire();
-					}
-					// playerState = PLAYERSTATE.NORMAL;
-				}, 2000);
+						// playerState = PLAYERSTATE.NORMAL;
+					}, 2000);
+				}
 			} else {
 				if (targetModel == null) {
 					return;
@@ -603,16 +610,25 @@ class YJPlayerFireCtrl {
 		this.CheckCanAttack = function () {
 			return CheckCanAttack();
 		}
+		const CantAttackType = {
+			notarget: 0,
+			sameCamp: 1,
+			hasCollider: 2,
+			tofar: 3,
+		};
+		let cantAttackType = 0;
 		function CheckCanAttack() {
 			if (!targetModel) {
 				scope.MyFireState("我没有目标");
+				cantAttackType = CantAttackType.notarget;
 				return false;
 			}
 			//如果目标阵营不可攻击
 			let b0 = CheckCamp();
 			if (!b0) {
-				scope.MyFireState("不能攻击这个目标");
+				// scope.MyFireState("不能攻击这个目标");
 				state.canAttack = false;
+				cantAttackType = CantAttackType.sameCamp;
 				return false;
 			}
 			let playerPos = _this.YJController.GetPlayerWorldPos();
@@ -621,10 +637,20 @@ class YJPlayerFireCtrl {
 			npcPos.y += 1;
 			// 与目标之间有遮挡
 			let b2 = CheckColliderBetween(npcPos, playerPos);
-			if (b2) { scope.MyFireState("无法攻击目标"); state.canAttack = false; return false; }
+			if (b2) {
+				scope.MyFireState("无法攻击目标");
+				state.canAttack = false;
+				cantAttackType = CantAttackType.hasCollider;
+
+				return false;
+			}
 			// 不在攻击范围内
 			let b = inVaildArea(playerPos.distanceTo(npcPos));
-			if (!b) { scope.MyFireState("太远了"); state.canAttack = false; return false; }
+			if (!b) {
+				scope.MyFireState("太远了"); state.canAttack = false;
+				cantAttackType = CantAttackType.tofar;
+				return false;
+			}
 			return b && !b2;
 		}
 		this.MyFireState = function (e) {
@@ -997,7 +1023,7 @@ class YJPlayerFireCtrl {
 
 		}
 		this.fireOff = function () {
-			if(_YJPlayer.isDead){
+			if (_YJPlayer.isDead) {
 				return;
 			}
 			_YJPlayer.fireId = -1;
@@ -1057,6 +1083,10 @@ class YJPlayerFireCtrl {
 		}
 		this.GetProperty = function () {
 			return _YJPlayerProperty;
+		}
+		
+		this.GetYJPlayer = function () {
+			return _YJPlayer;
 		}
 		function Init() {
 			if (baseData == null) {
@@ -1158,8 +1188,8 @@ class YJPlayerFireCtrl {
 			}, 1000);
 			_Global.applyEvent("主角战斗控制初始化完成");
 			let avatarData = _Global.YJ3D.YJPlayer.GetavatarData();
-			if(avatarData){
-				_Global.applyEvent('主角头像', avatarData.id + "/thumb.png" );
+			if (avatarData) {
+				_Global.applyEvent('主角头像', avatarData.id + "/thumb.png");
 			}
 			UpdateData();
 		}

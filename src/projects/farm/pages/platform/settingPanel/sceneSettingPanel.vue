@@ -523,6 +523,12 @@ export default {
         this.sceneData.hasFloor = e;
         _Global.YJ3D._YJSceneManager.SetDisplayFloor(e);
       }
+      
+      if (property == "hasGrid") {
+        this.sceneData.hasGrid = e;
+        _Global.YJ3D._YJSceneManager.ToggleGrid(e);
+      }
+      
       if (property == "setting-hasEnvmap") {
         _Global.enableHDR(
           this.Utils.GetSettingItemValueByProperty(this.setting, 'setting-hasEnvmap'),  

@@ -314,13 +314,13 @@ class YJLoadUserModelManager {
       object.id = id;
       let uuid = object.GetUUID();
       if (parent == null || parent == scene) {
-        allTransform.push({ uuid: uuid, id: id, modelName: modelData.name, modelId: modelData.modelId, transform: object });
+        allTransform.push({ uuid: uuid, id: object.id, modelName: modelData.name, modelId: modelData.modelId, transform: object });
       }
 
       object.modelData = JSON.parse(JSON.stringify(modelData));
       object.SetPosRota(modelData.pos, modelData.rotaV3, modelData.scale);
       object.SetModelPath(modelData.modelPath);
-      object.SetData(modelData, id, mapId);
+      object.SetData(modelData, object.id, mapId);
       _this._YJSceneManager.AddNeedUpdateJS(object);
 
       let modelPath = modelData.modelPath;
@@ -571,7 +571,7 @@ class YJLoadUserModelManager {
       } else {
         MeshRenderer.load(modelPath, () => {
           object.SetMessage(modelData.message);
-          
+
           if (callback) {
             callback(object);
           }
@@ -582,14 +582,63 @@ class YJLoadUserModelManager {
 
     }
 
+    // 复制组合对象
+    function CopyGroupTransform(old) {
+      let modelData = JSON.parse(JSON.stringify(old.modelData));
+      modelData.active = true;
+      let object = new YJTransform(_this, scene, "", null, null, modelData.name);
+      object.id = old.id + new Date().getTime() + RandomInt(10000, 100000);
+      let uuid = object.GetUUID();
+      if (parent == null || parent == scene) {
+        allTransform.push({ uuid: uuid, id: object.id, modelName: modelData.name, modelId: modelData.modelId, transform: object });
+      }
+      object.modelData = modelData;
+
+      object.SetPosRota(modelData.pos, modelData.rotaV3, modelData.scale);
+      object.SetModelPath(modelData.modelPath);
+      object.SetData(modelData, object.id, 'mapId');
+      _this._YJSceneManager.AddNeedUpdateJS(object);
+
+
+      let children = old.GetChildren();
+      let num = 0;
+      for (let i = 0; i < children.length; i++) {
+        CreateTransform(object.GetGroup(), children[i].modelData, (_object) => {
+          object.AddChildren(_object);
+          num++;
+          if (num == children.length) {
+            resortTransformChildren(object);
+          }
+        });
+      }
+      console.log(" 复制transform ", object);
+
+      return object;
+
+
+    }
 
     let skillGroupList = [];
     this.LoadSkillGroup = function (folderBase, callback) {
-      console.error("加载组合 ",folderBase);
-
+      // console.error("加载组合 ",folderBase);
+      let has = false;
+      let old = null;
       for (let i = 0; i < skillGroupList.length; i++) {
         const element = skillGroupList[i];
         if (element.folderBase == folderBase) {
+          has = true;
+          if (!element.transform.GetActive()) {
+            if (callback) {
+              callback(element.transform);
+            }
+            return;
+          }
+          if (old == null) {
+            old = element.transform;
+          }
+          continue;
+
+
           let modelData = JSON.parse(JSON.stringify(element.transform.modelData));
           modelData.active = true;
           let npcId = new Date().getTime();
@@ -600,6 +649,15 @@ class YJLoadUserModelManager {
           }, npcId);
           return;
         }
+      }
+      if (has) {
+        let model = CopyGroupTransform(old);
+        skillGroupList.push({ folderBase: folderBase, transform: model });
+        if (callback) {
+          callback(model);
+        }
+        console.log(" 施放特效 复制 ");
+        return;
       }
       let modelData = {
         folderBase: folderBase,
@@ -649,18 +707,21 @@ class YJLoadUserModelManager {
           element.msg.push(msg);
           return;
         }
-      } 
+      }
       loadQueue.push({ folderBase, msg: [msg], callback: [] });
       // console.log("loadQueue ",loadQueue);
       let path = _Global.YJ3D.$uploadUrl + folderBase + "/" + "data.txt" + "?time=" + new Date().getTime();
+
+
       _Global.YJ3D._YJSceneManager.LoadAssset(path, (modelData) => {
         modelData.pos = { x: 0, y: 0, z: 0 };
         modelData.rotaV3 = { x: 0, y: 0, z: 0 };
         modelData.scale = { x: 1, y: 1, z: 1 };
-        this.LoadStaticModel2(modelData, (model) => { 
+        this.LoadStaticModel2(modelData, (model) => {
           AttachToPool(folderBase, modelData.modelType, model.GetGroup());
         });
       });
+
     }
     let modelPool = []; //静态模型
     function GetInPool(folderBase, modelType) {
@@ -692,7 +753,7 @@ class YJLoadUserModelManager {
                 scaleList.push(msg.scale);
               }
             }
-            _YJMeshMerged.ReMerged(idList, posList, scaleList); 
+            _YJMeshMerged.ReMerged(idList, posList, scaleList);
 
             continue;
           }
@@ -716,7 +777,7 @@ class YJLoadUserModelManager {
           }, npcId);
           return;
         }
-      } 
+      }
       let path = _Global.YJ3D.$uploadUrl + folderBase + "/" + "data.txt" + "?time=" + new Date().getTime();
       _Global.YJ3D._YJSceneManager.LoadAssset(path, (modelData) => {
         modelData.pos = { x: 0, y: 0, z: 0 };
@@ -754,39 +815,40 @@ class YJLoadUserModelManager {
 
 
     // 场景中加载组合
-    async function CreateGroup(tranform, folderBase) {
-
-      let res = await _this.$axios.get(
-        _this.$uploadGroupUrl + folderBase + "/" + "scene.txt" + "?time=" + new Date().getTime()
-      );
-
-      let data = res.data;
-      // console.log(" 加载组合数据 ",data);
-      let sceneModelsData = [];
-      for (let i = 0; i < data.length; i++) {
-        const element = data[i];
-        sceneModelsData.push((element));
-      }
-      LoadGroupModelByIndex(tranform, sceneModelsData);
+     function CreateGroup(tranform, folderBase) {
+      let url = _this.$uploadGroupUrl + folderBase + "/" + "scene.txt" + "?time=" + new Date().getTime();
+      _Global.YJ3D._YJSceneManager.LoadAssset(url, (data) => {
+        // console.log(" 加载组合数据 ",data);
+        let sceneModelsData = [];
+        for (let i = 0; i < data.length; i++) {
+          const element = data[i];
+          sceneModelsData.push((element));
+        }
+        LoadGroupModelByIndex(tranform, sceneModelsData);
+      }); 
     }
 
-    function LoadGroupModelByIndex(tranform, sceneModelsData) {
-      if (sceneModelsData.length == 0) {
-        tranform.SetMessage(null);
-        //组合加载完成
-        let children = tranform.GetChildren();
-        for (let i = 0; i < children.length; i++) {
-          const child = children[i];
-          let parentId = child.GetData().parent;
-          if (parentId) {
-            for (let j = 0; j < children.length; j++) {
-              const parent = children[j];
-              if (parentId == parent.GetData().id) {
-                child.SetParent(parent.GetGroup());
-              }
+    //场景或组合内所有对象加载完成后，重排其中的父子关系
+    function resortTransformChildren(tranform) {
+      let children = tranform.GetChildren();
+      for (let i = 0; i < children.length; i++) {
+        const child = children[i];
+        let parentId = child.GetData().parent;
+        if (parentId) {
+          for (let j = 0; j < children.length; j++) {
+            const parent = children[j];
+            if (parentId == parent.GetData().id) {
+              child.SetParent(parent.GetGroup());
             }
           }
         }
+      }
+    }
+    function LoadGroupModelByIndex(tranform, sceneModelsData) {
+      if (sceneModelsData.length == 0) {
+        tranform.SetMessage(null);
+        //组合加载完成后，还原里面的父子关系
+        resortTransformChildren(tranform);
         return;
       }
       let modelData = sceneModelsData[0];
@@ -866,12 +928,12 @@ class YJLoadUserModelManager {
             let transform = elment.transform;
             transform.SetPos(pos, rotaV3);
             transform.GetComponent("NPC").SetActionScale(actionScale);
-            transform.GetComponent("NPC").applyEvent("pos",pos);
+            transform.GetComponent("NPC").applyEvent("pos", pos);
           }
           // npc阵营
           if (title == "camp") {
             let camp = data;
-            let transform = elment.transform; 
+            let transform = elment.transform;
             transform.GetComponent("NPC").GetBaseData().camp = camp;
             transform.GetComponent("NPC").ResetNameColor();
           }
@@ -1097,6 +1159,7 @@ class YJLoadUserModelManager {
         }
       }
     }
+
     function LoadSceneModelByIndex() {
       if (loadIndex >= modelDataList.length) {
         setTimeout(() => {

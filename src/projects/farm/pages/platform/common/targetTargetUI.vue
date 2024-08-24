@@ -180,7 +180,10 @@ export default {
 
       this.targetName = nickName;
       this.baseData = npcData.baseData;
-
+      if(this.baseData == undefined){
+        console.error(" 目标的目标 数据错误",npcData);
+        return;
+      }
       if(this.baseData.camp != _Global.user.camp){
         this.selfCamp = 10000;
       }

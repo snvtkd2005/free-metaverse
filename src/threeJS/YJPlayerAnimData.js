@@ -11,6 +11,11 @@ class YJPlayerAnimData {
 
     let _YJLoadAnimation = null;
     function Init() {
+
+      if (_YJLoadAnimation == null) {
+        _YJLoadAnimation = new YJLoadAnimation();
+        _Global.Webworker = _YJLoadAnimation;
+      }
       return;
       if (_this.GetPlayerAnimData) {
         PlayerAnimData = _this.GetPlayerAnimData();
@@ -134,9 +139,6 @@ class YJPlayerAnimData {
                 });
               } else {
                 //fbx动作直接加载模型，提前里面的动画
-                if (_YJLoadAnimation == null) {
-                  _YJLoadAnimation = new YJLoadAnimation();
-                }
                 _YJLoadAnimation.load(path, (anim) => {
                   checkLoadAvatarAnimDone(id,animName,element.isLoop, anim); 
                 });
@@ -179,10 +181,7 @@ class YJPlayerAnimData {
                   checkLoadAvatarAnimDone(id,animName,element.isLoop, createAnimationClip(animName, data)); 
                 });
               } else {
-                //fbx动作直接加载模型，提前里面的动画
-                if (_YJLoadAnimation == null) {
-                  _YJLoadAnimation = new YJLoadAnimation();
-                }
+                //fbx动作直接加载模型，提前里面的动画 
                 // console.log("加载映射角色动作 ",id,animName);
                 _YJLoadAnimation.load(path, (anim) => {
 
@@ -228,10 +227,7 @@ class YJPlayerAnimData {
                   // }
                 });
               } else {
-                //fbx动作直接加载模型，提前里面的动画
-                if (_YJLoadAnimation == null) {
-                  _YJLoadAnimation = new YJLoadAnimation();
-                }
+                //fbx动作直接加载模型，提前里面的动画 
                 _YJLoadAnimation.load(path, (anim) => {
                   checkLoadAvatarAnimDone(id,animName,element.isLoop, anim);
                   // if (callback) {
@@ -271,10 +267,7 @@ class YJPlayerAnimData {
                   // }
                 });
               } else {
-                //fbx动作直接加载模型，提前里面的动画
-                if (_YJLoadAnimation == null) {
-                  _YJLoadAnimation = new YJLoadAnimation();
-                }
+                //fbx动作直接加载模型，提前里面的动画 
                 // console.log("加载映射角色动作 ",id,animName);
                 _YJLoadAnimation.load(path, (anim) => {
 

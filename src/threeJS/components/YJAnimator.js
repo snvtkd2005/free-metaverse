@@ -24,6 +24,40 @@ class YJAnimator {
     let oldAnimName = "";
 
     let currentAction = null;
+    this.GetCurrentAction = function () {
+      return currentAction;
+    }
+
+    
+    let walkAction;
+    this.SetWalkWeight = function (f) {
+      if (walkAction == undefined) {
+        return;
+      }
+      if (oldAnimName != "walk") { return; }
+      if (f == 0) {
+        walkAction.setEffectiveWeight(0);
+        return;
+      }
+      walkAction.setEffectiveWeight(f + 0.4);
+      // console.log(" 设置 行走动作 权重 " + f);
+    }
+    
+    this.GetBone = function (boneName, callback) {
+      model.traverse(function (item) {
+        if (item instanceof THREE.Bone) {
+          if (item.name == boneName && item.children.length > 0) {
+            if (callback) {
+              callback(item);
+            }
+            return;
+          }
+        }
+      });
+    }
+    this.GetPlayerObj = function () {
+      return model;
+    }
     let currentDuration = 100;
     let animNameFullback = "";
     this.GetCurrentTime = function () {

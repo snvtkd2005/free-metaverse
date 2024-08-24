@@ -101,10 +101,14 @@ export default {
         { property: "animNameReady", display: true, title: "吟唱动作", type: "drop", options: [], value: "", callback: this.ChangeValue },
         { property: "skillReadyParticleId", display: true, title: "吟唱特效", type: "file", filetype: "particle", value: "", callback: this.ChangeValue },
         { property: "skillReadyAudio", display: true, title: "吟唱音效", type: "file", filetype: "audio", value: "", callback: this.ChangeValue },
+        
         { property: "animName", display: true, title: "施放动作", type: "drop", options: [], value: "", callback: this.ChangeValue },
         { property: "skillFirePart", display: true, title: "施放部位", type: "drop", options: [], value: "", callback: this.ChangeValue },
         { property: "skillFireParticleId", display: true, title: "施放特效", type: "file", filetype: "particle", value: "", callback: this.ChangeValue },
         { property: "skillFireAudio", display: true, title: "施放音效", type: "file", filetype: "audio", value: "", callback: this.ChangeValue },
+        
+        { property: "skillFireAutoHidden", display: true, title: "施放自动消失", type: "toggle", value: false, callback: this.ChangeValue },
+        { property: "skillFireDiplayValue", display: false, title: "延迟时间（秒）", type: "num", step: 0.1, value: 0, callback: this.ChangeValue },
 
 
         { property: "effect-type", display: true, title: "技能效果", type: "drop", options: [], value: "", callback: this.ChangeValue },
@@ -177,8 +181,16 @@ export default {
           this.settingData.CD = 0;
         }
       }
-
-      // this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
+      
+      if (this.settingData.skillFireAutoHidden == undefined) {
+        this.settingData.skillFireAutoHidden = false;
+      }
+      if (this.settingData.skillFireDiplayValue == undefined) {
+        this.settingData.skillFireDiplayValue = 0;
+      }
+      
+      
+      this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "trigger-type", "options", this.triggerType);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "target-type", "options", this.targetType);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-type", "options", this.effectType);
@@ -211,6 +223,11 @@ export default {
     },
     ChangeUIState(property, e) {
       // 根据选择判断哪些属性不显示
+
+      if (property == "skillFireAutoHidden") {
+        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "skillFireDiplayValue", "display", e);
+      }
+
       if (property == "target-type") {
         this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "target-value", "display", e == "area" ||  e == 'targetAndNear');
       }

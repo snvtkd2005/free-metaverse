@@ -11,16 +11,16 @@
         class="mr-2 text-sm w-auto h-8 self-center cursor-pointer flex"
         :class="
           selectModelTable == item.name
-            ? 'bg-445760 text-white '
+            ? 'bg-445760 text-white border-t border-l border-r border-gray-400 '
             : ' text-gray-400 '
         "
         @click="SelectTable(item.name)"
       >
-        <div class="self-center mx-auto px-1">
+        <div class="self-center mx-auto px-1 ">
           {{ item.name }}
         </div>
       </div>
-      <div class="text-white cursor-pointer pt-1" @click="ClickHandler('刷新')">
+      <div class="text-white cursor-pointer text-sm pt-1" @click="ClickHandler('刷新')">
         刷新
       </div>
     </div>
@@ -41,7 +41,7 @@
         <div class="w-full h-16 rounded-md self-center mx-auto">
           <img class="w-full h-full p-1" :src="item.icon" alt="" />
         </div>
-        <div class="truncate px-1">
+        <div class="truncate px-1 text-xs">
           {{ item.name }}
         </div>
       </div>

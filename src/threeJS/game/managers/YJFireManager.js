@@ -128,30 +128,30 @@ class YJFireManager {
       }
       // console.log("",npc.GetNickName()," 附近的npc ",npcs);
       for (let i = 0; i < npcs.length; i++) {
-        const npcComponent = npcs[i];
-        if (npcComponent.isYJNPC && npcComponent.GetIsPlayer()) {
+        const other = npcs[i];
+        if (other.isYJNPC && other.GetIsPlayer()) {
           // 玩家的镜像或守护弹幕玩家 不使用巡视范围找目标
           continue;
         }
-        if (npcComponent.GetCamp() == npc.GetCamp()) {
+        if (other.GetCamp() == npc.GetCamp()) {
           // 忽略同阵营
           continue;
         }
-        if (npcComponent.GetCamp() != npc.GetCamp()) {
-          if (npcComponent.GetCamp() == 10002) {
+        if (other.GetCamp() != npc.GetCamp()) {
+          if (other.GetCamp() == 10002) {
             //忽略中立npc
             continue;
           }
-          if (npc.GetCamp() == 10001 && npcComponent.isPlayer) {
+          if (npc.GetCamp() == 10001 && other.isPlayer) {
             // 友善npc 对玩家忽略
             continue;
           }
 
           if (_Global.mainUser) {
-            npc.SetNpcTarget(npcComponent, true, true);
+            npc.SetNpcTarget(other, true, true);
           } else {
             if (_Global.DyncManager) {
-              _Global.DyncManager.SendSceneState("转发", { type: "npc发现玩家", state: { npcId: npcComponent.transform.id, playerId: _Global.YJ3D.YJPlayer.id } });
+              _Global.DyncManager.SendSceneState("转发", { type: "npc发现玩家", state: { npcId: npc.transform.id, playerId: _Global.YJ3D.YJPlayer.id } });
             }
           }
         } else {

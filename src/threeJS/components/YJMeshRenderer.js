@@ -62,25 +62,25 @@ class YJMeshRenderer {
       });
       return boneNode;
     }
-    this.GetAllBoneInParent = function(boneName){
+    this.GetAllBoneInParent = function (boneName) {
       let parentBone = null;
       model.traverse(function (item) {
         if (item instanceof THREE.Bone) {
-          if(item.name == boneName && item.children.length>0){
+          if (item.name == boneName && item.children.length > 0) {
             parentBone = item;
           }
         }
       });
-      let boneNode = []; 
+      let boneNode = [];
       boneNode.push(parentBone.name);
-      LoopFindChild2(parentBone,boneNode);
+      LoopFindChild2(parentBone, boneNode);
       return boneNode;
     }
-    function LoopFindChild2(parent,boneNode){
-      if(parent.children.length>0){
+    function LoopFindChild2(parent, boneNode) {
+      if (parent.children.length > 0) {
         for (let i = 0; i < parent.children.length; i++) {
           boneNode.push(parent.children[i].name);
-          LoopFindChild2(parent.children[i],boneNode);
+          LoopFindChild2(parent.children[i], boneNode);
         }
       }
     }
@@ -149,16 +149,16 @@ class YJMeshRenderer {
           // let _weaponModel = (meshAndMats.mesh).scene;
           // let weaponModel = (meshAndMats.mesh).scene;
           // console.log("weaponModel ",weaponModel);
-          
+
           let _weaponModel = (meshAndMats.mesh).scene;
           let model = new THREE.Group();
-          model.add(_weaponModel); 
-          _weaponModel.position.set(0,0,0);
-          _weaponModel.rotation.set(0,0,0);
-          if(weaponData.modelPath.includes(".fbx")){
-            _weaponModel.scale.set(0.01,0.01,0.01); 
-          }else{
-            _weaponModel.scale.set(1,1,1); 
+          model.add(_weaponModel);
+          _weaponModel.position.set(0, 0, 0);
+          _weaponModel.rotation.set(0, 0, 0);
+          if (weaponData.modelPath.includes(".fbx")) {
+            _weaponModel.scale.set(0.01, 0.01, 0.01);
+          } else {
+            _weaponModel.scale.set(1, 1, 1);
           }
 
           // console.log(" 找到骨骼并拾取武器",bone,weaponModel);
@@ -196,7 +196,7 @@ class YJMeshRenderer {
       }
       model.rotation.set(rota[0] / de2reg, rota[1] / de2reg, rota[2] / de2reg);
     }
-    
+
     this.SetPos = function (pos) {
       model.position.set(pos.x, pos.y, pos.z);
     }
@@ -221,26 +221,13 @@ class YJMeshRenderer {
       // const loader = new THREE.BufferGeometryLoader();
       console.log("正在加载json");
       // load a resource
-      loader.load(
-        // resource URL
-        _this.$publicUrl + 'models/json/CS15_E_pro_t10_Door_BB.json',
+      loader.load(_this.$publicUrl + 'models/WaltHeadLo_buffergeometry.json',
         // _this.$publicUrl+'models/json/jfc-ext.js',
-
-        // onLoad callback
-        function (geometry) {
-          const material = new THREE.MeshLambertMaterial({ color: 0xF5F5F5 });
-          const object = new THREE.Mesh(geometry, material);
-          scene.add(object);
-        },
-
-        // onProgress callback
-        function (xhr) {
-          console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-        },
-
-        // onError callback
-        function (err) {
-          console.log('An error happened');
+        (geometry) => {
+          console.log("正在加载json", geometry);
+          // const material = new THREE.MeshLambertMaterial({ color: 0xF5F5F5 });
+          // const object = new THREE.Mesh(geometry, material);
+          // scene.add(object);
         }
       );
     }
@@ -273,11 +260,11 @@ class YJMeshRenderer {
 
           model.scale.set(1 * meshScale, 1 * meshScale, 1 * meshScale);
 
- 
+
 
           model.traverse(function (item) {
             if (item instanceof THREE.Mesh) {
-              if(item.material.length>0 && item.material.length<4){
+              if (item.material.length > 0 && item.material.length < 4) {
                 // let mats = [];
                 // for (let i = item.material.length-1; i >=1 ; i--) {
                 //   let has = false;
@@ -300,7 +287,7 @@ class YJMeshRenderer {
                 //   item.material.splice(i,1);
                 // }
                 // item.material = cloneMat;
-              }else{ 
+              } else {
               }
             }
           });
@@ -403,7 +390,7 @@ class YJMeshRenderer {
 
         model = gltf.scene;
 
-        gltf.animations =[];
+        gltf.animations = [];
         animations = gltf.animations;
 
         model.transform = owner;
@@ -429,6 +416,7 @@ class YJMeshRenderer {
       });
 
     }
+ 
     function loadGltf(modelPath, callback, errorback) {
 
 
@@ -437,6 +425,31 @@ class YJMeshRenderer {
         LoadMesh(meshAndMats.mesh, callback);
         return;
       }
+
+      // _Global.Webworker.load_mesh(modelPath,  (json) => {
+      //   // console.log(" webworker 加载模型 33 ",json); 
+      //   const loader = new GLTFLoader(); 
+      //   loader.parse(json,"",(gltf)=>{
+      //     console.log(" webworker 加载模型 44 ",gltf); 
+      //     model = gltf.scene;
+
+      //     gltf.animations = [];
+      //     animations = gltf.animations;
+  
+      //     model.transform = owner;
+  
+      //     scene.add(model);
+      //     _this._YJSceneManager.addLoadMesh(modelPath, gltf);
+  
+      //     TraverseOwner(model);
+      //     if (hasCollider) {
+      //       CreateColliderFn(model);
+      //     }
+      //     LoadCompleted(callback);
+      //   }); 
+      // });
+      // return;
+
 
 
       const loader = new GLTFLoader();
@@ -448,7 +461,7 @@ class YJMeshRenderer {
 
         model = gltf.scene;
 
-        gltf.animations =[];
+        gltf.animations = [];
         animations = gltf.animations;
 
         model.transform = owner;
@@ -490,7 +503,7 @@ class YJMeshRenderer {
       if (modelPath.indexOf(".obj") > -1) {
         type = "obj";
       }
-      
+
       if (modelPath.indexOf(".pmx") > -1) {
         type = "pmx";
       }
@@ -590,9 +603,9 @@ class YJMeshRenderer {
     function TraverseOwner(model) {
       model.traverse(function (item) {
         if (item instanceof THREE.Mesh) {
-          
-          if(item.material.length>0){
-          }else{ 
+
+          if (item.material.length > 0) {
+          } else {
             let cloneMat = item.material.clone();
             item.material = cloneMat;
           }
@@ -758,7 +771,7 @@ class YJMeshRenderer {
     }
 
     this.SetState = function (state) {
-    } 
+    }
 
     // // 坐标、旋转 也算在同步状态中
     // this.SetState = function (modelData) {

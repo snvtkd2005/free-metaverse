@@ -51,6 +51,7 @@ import { YJUVAnim3 } from "./components/YJUVAnim3.js";
 import { YJStaticMeshMerged } from "./YJStaticMeshMerged.js";
 import { YJCar } from "./model/YJCar.js";
 import { YJPlayerNameManager } from "./YJPlayerNameManager.js";
+import { ObjectLoader } from "three";
 
 
 class YJSceneManager {
@@ -2677,11 +2678,17 @@ class YJSceneManager {
 
     }
 
-    async function loadAssset(path, callback) {
-      const res = await _this.$axios.get(path);
-      if (callback) {
-        callback(res.data);
-      }
+    function loadAssset(url, callback) {
+      _Global.Webworker.loadAssset(url,(data)=>{
+        if (callback) {
+          callback(data);
+        }
+      });
+      return;
+      // const res = await _this.$axios.get(url);
+      // if (callback) {
+      //   callback(res.data);
+      // }
     }
     this.LoadAssset = function (path, callback) {
       loadAssset(path, callback);
@@ -3121,6 +3128,13 @@ class YJSceneManager {
       }
       return dracoLoader;
     }
+    let objectLoader = null;
+    this.GetOracoLoader = function () {
+      if (objectLoader == null) {
+        objectLoader = new ObjectLoader(); 
+      }
+      return objectLoader;
+    } 
     //#endregion
 
 

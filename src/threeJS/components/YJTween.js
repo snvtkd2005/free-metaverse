@@ -47,7 +47,7 @@ class YJTween {
         TweenAlpha(_from, _to, duration * 1000, playStyle);
       }
 
-      // console.error(" in tween 组件");
+      // console.error(" in tween 组件",data);
     }
     this.GetData = function () {
 

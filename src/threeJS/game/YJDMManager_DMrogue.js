@@ -629,6 +629,7 @@ class YJDMManager_DMrogue {
 
       function fn() {
         if(_Global.isDead){return;}
+        return;
         setTimeout(() => {
           let names = Object.getOwnPropertyNames(_Global.panelState);
           let has = false;

@@ -638,7 +638,7 @@ class YJSkill {
                                 fireId:owner.GetFireId(),
                                 disData:{fromPos,vaildAttackDis},
                             },SelectEnemyType.NEAREST);
-                        console.log(" 准备自动选择目标 ");
+                        // console.log(" 准备自动选择目标 ");
                         
                         if(targetModel==null){
                             errorLog = "无目标";
@@ -648,9 +648,9 @@ class YJSkill {
                             EventHandler("没有目标", skillItem);
                             return false;
                         }
-                        // 自动找战斗中最近的敌方为目标
+                        // 玩家自动攻击时，自动找战斗中最近的敌方为目标
                         if(owner.SetInteractiveNPC){
-                            console.log(" 自动选择目标 ");
+                            // console.log(" 自动选择目标 ");
                             owner.SetInteractiveNPC(targetModel);
                         }
                     }
@@ -840,11 +840,7 @@ class YJSkill {
                             effect.value = 0;
                             // console.log(" 冰霜新星目标 ",areaTargets);
                             for (let i = 0; i < areaTargets.length; i++) {
-                                const target = areaTargets[i];
-                                if(target.isYJNPC){
-                                    target.ReceiveSkill(owner, skillName, effect, skillItem);
-                                }else{
-
+                                const target = areaTargets[i]; 
                                 //瞬发技能直接同步
                                 _Global.DyncManager.SendDataToServer(getSendTitle(target),
                                     { 
@@ -853,8 +849,7 @@ class YJSkill {
                                         targetType: target.getPlayerType(),
                                         targetId: target.id,
                                         skillItem: skillItem
-                                    });
-                                }
+                                    }); 
                             }
                             return;
                         }

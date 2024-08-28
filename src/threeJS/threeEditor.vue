@@ -364,12 +364,14 @@ export default {
       if (this.camera == null) {
         return;
       }
+      // 重新设置渲染器渲染范围
+      this.renderer.setSize(this.windowWidth, this.windowHeight);
+      this.renderer.render(this.scene, this.camera);
+ 
       // 重新设置相机宽高比例
       this.camera.aspect = this.windowWidth / this.windowHeight;
       // 更新相机投影矩阵
       this.camera.updateProjectionMatrix();
-      // 重新设置渲染器渲染范围
-      this.renderer.setSize(this.windowWidth, this.windowHeight);
 
       if (this._YJSceneManager != null) {
         this._YJSceneManager.onWindowResize(

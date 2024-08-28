@@ -5,7 +5,7 @@
 // 渲染线模型、给线模型赋予材质、实时改变线模型长度
 import * as THREE from "three";
 class YJTrailRenderer {
-    constructor(_this, scene, parent) {
+    constructor(_this,scene, parent) {
         let scope = this;
         this.used = false;
 
@@ -32,6 +32,8 @@ class YJTrailRenderer {
     #include <map_pars_fragment> 
      
     uniform float u_time;
+    uniform float u_direction;
+    
     uniform sampler2D mainTex;
     uniform vec3 color;
     uniform vec3 color2;
@@ -75,6 +77,7 @@ class YJTrailRenderer {
             'color2': { value: color2 },
             'mainTex': { value: map },
             'u_time': { value: 1.0 },
+            'u_direction': { value: 1.0 },
             'alignment': { value: 0 }, //0 view, 1 transformZ
         };
         let _ShaderMaterial = new THREE.MeshStandardMaterial({
@@ -82,7 +85,7 @@ class YJTrailRenderer {
             depthWrite: false, // 透明物体之间不相互遮挡
             side: THREE.DoubleSide, //双面材质占2个drawcall
             transparent: true,
-            // wireframe:true,
+            // wireframe:_Global.setting.inEditor,
 
         });
         _ShaderMaterial.onBeforeCompile = (shader) => {
@@ -156,8 +159,13 @@ class YJTrailRenderer {
                 `   
                 vec2 uv0=vUv ;
                 vec2 uv1=vUv ;
-                uv1.x += -u_time*1.5; 
-                uv0.x += -u_time*0.5;
+                // uv1.x += -u_time*1.5 ;
+                // uv0.x += -u_time*0.5 ;
+                uv1.x += -u_time*1.0 ;
+                uv0.x += -u_time*1.0 ;
+ 
+                uv1.x *= u_direction;
+                uv0.x *= u_direction;
 
                 // float noiseValue = (noise(uv0*10.)); 
                 
@@ -192,8 +200,11 @@ class YJTrailRenderer {
         let oldPos = new THREE.Vector3();
         let group = new THREE.Group();
         // group.add(new THREE.AxesHelper(1));
-        scene.add(group);
-        // parent.add(group);
+        if(scene){
+            scene.add(group);
+        }else{
+            parent.add(group);
+        }
         group.position.set(0, 0, 0);
         // oldPos = parent.position.clone();
         oldPos = parent.getWorldPosition(new THREE.Vector3());
@@ -207,7 +218,7 @@ class YJTrailRenderer {
                 plane.position.x = 0;
                 plane.position.y = 1;
                 plane.position.z = 0;
-                scene.add(plane); // 向该场景中添加物体
+                _Global.YJ3D.scene.add(plane); // 向该场景中添加物体
             }
 
             // // 起始位置光球
@@ -311,8 +322,10 @@ class YJTrailRenderer {
 
         }
         let lifeTime = 0.1;
-        let maxLength = 20;
-        let updateId = null;
+        let maxLength = 20; 
+        let anchorType = "center"; 
+        let isLoop =  true;  
+        let directionX = 1;
         let data = null;
         this.SetMessage = function (msg) {
 
@@ -326,16 +339,24 @@ class YJTrailRenderer {
             color.set(data.color);
             color2.set(data.color2);
 
-            oldPos = parent.getWorldPosition(new THREE.Vector3());
-            oldPos.y -= params.width / 2;
+            directionX = data.isMirrorX?-1:1;
+            if(data.anchorType != undefined){
+                anchorType = data.anchorType;
+            }
+            if(data.isLoop != undefined){
+                isLoop = data.isLoop;
+            } 
+            oldPos = anthorPos();
             
             map = new THREE.TextureLoader().load(_this.$uploadUVAnimUrl + data.imgPath);
             map.wrapS = map.wrapT = THREE.RepeatWrapping;
             map.matrixAutoUpdate = false; // set this to false to update texture.matrix manually
 
+            
+            
             uniforms["mainTex"].value = map;
             // material.color.set(data.color);
-            // console.error("in 拖尾 msg = ", scope.id, data);
+            console.error("in 拖尾 msg = ", scope.id, data);
             if (_Global.setting.inEditor && !scope.used) {
                 splinePath = [];
                 let pos = oldPos.clone();
@@ -343,20 +364,26 @@ class YJTrailRenderer {
                 splinePath.push(pos.clone());
                 pos.x = 0;
                 splinePath.push(pos.clone());
-                addTube();
-                update(); 
+                addTube(); 
             }
         }
         let interval_splice = null;
+        function anthorPos(){
+            let pos = parent.getWorldPosition(new THREE.Vector3());
+            if(anchorType == "bottom"){
+            }else{
+                pos.y -= params.width / 2;
+            }
+ 
+            return pos;
+        } 
         this.start = function () {
-            // console.log("复用 trail ");
+            console.log(" 开始 trail ");
 
             splinePath = [];
             addTube();
-            oldPos = parent.getWorldPosition(new THREE.Vector3());
-            oldPos.y -= params.width / 2;
-            scope.used = true;
-            animate();
+            oldPos = anthorPos(); 
+            scope.used = true; 
 
             interval_splice = setInterval(() => {
                 if (splinePath.length > 0) {
@@ -364,61 +391,67 @@ class YJTrailRenderer {
                     addTube();
                 } else {
                     // this.stop();
+                    
                 }
             }, lifeTime * 1000);
         }
         this.stop = function () {
-            // console.log(" 停止拖尾 =======");
-            cancelAnimationFrame(updateId);
+            // console.log(" 停止拖尾 ======="); 
             splinePath = [];
             addTube();
             clearInterval(interval_splice);
             scope.used = false;
         }
         let deltaTime = 1;
-        let last = performance.now();
-        function update(){
-            updateId = requestAnimationFrame(update);
-            animate();
-        }
+        let last = performance.now(); 
         this._update = function () {
             animate();
         }
         function animate() {
             if(!scope.used){
                 return;
-            }
-            // updateId = requestAnimationFrame(animate);
+            } 
             const now = performance.now();
-            let delta = (now - last) / 1000;
-            // console.log("delta ",delta,splinePath.length);
-            // console.log("delta ",delta,splinePath.length);
-            deltaTime -= delta * 1;
-            if (deltaTime <= -1) {
-                deltaTime = 1;
+            let delta = (now - last) / 1000; 
+
+            deltaTime -= delta ;
+            if(isLoop){
+                if (deltaTime <= -1) {
+                    deltaTime = 1;
+                }
+            }else{
+                if (deltaTime <= 0) {
+                    deltaTime = 0;
+                } 
             }
             last = now;
-            if (_ShaderMaterial) uniforms['u_time'].value = deltaTime;
+            if (_ShaderMaterial){
+                uniforms['u_time'].value = deltaTime;
+                uniforms['u_direction'].value = directionX;
+            } 
             // return;
+ 
+            let newPos = anthorPos();
 
-            // let newPos = parent.position.clone();
-            let newPos = parent.getWorldPosition(new THREE.Vector3());
-            newPos.y -= params.width / 2;
+            // console.log("newPos ",newPos.distanceTo(oldPos),splinePath.length); 
 
-            // console.log("newPos ",scope.id,newPos,newPos.distanceTo(oldPos),oldPos,splinePath.length);
-            // let newPos = _Global.YJ3D.YJController.GetPlayerWorldPos();
+            if (newPos.distanceTo(oldPos) > 0.021) { 
+                splinePath.push(newPos); 
 
-            if (newPos.distanceTo(oldPos) > 0.021) {
-                splinePath.push(newPos);
+                if(scene){
+
+                }else{
+                    group.position.copy(newPos.clone().multiplyScalar(-1)); 
+                }
+
                 if (splinePath.length > maxLength) {
                     splinePath.splice(0, 1);
                 }
                 addTube();
-                oldPos = newPos;
+                oldPos = newPos; 
 
             } else {
             }
-
 
         }
         Init();

@@ -12,7 +12,7 @@ class YJPlayerAnimData {
     let _YJLoadAnimation = null;
     function Init() {
 
-      if (_YJLoadAnimation == null) {
+      if (_YJLoadAnimation == null || _Global.Webworker == undefined) {
         _YJLoadAnimation = new YJLoadAnimation();
         _Global.Webworker = _YJLoadAnimation;
       }
@@ -55,12 +55,12 @@ class YJPlayerAnimData {
       console.error(" 角色信息未找到 ", playerName);
     }
     this.GetAvatarDataById = function (id, callback) {
-      // console.error(" 所有角色数据 ", avatarDataList);
 
       for (let i = 0; i < avatarDataList.length; i++) {
-        if (avatarDataList[i].id == id) {
+        if (avatarDataList[i].id+"" == id+"") {
           if (callback) {
-            callback(FindBoneRefAnimationData(avatarDataList[i]));
+            callback((avatarDataList[i]));
+            // callback(FindBoneRefAnimationData(avatarDataList[i]));
           }
           return;
         }
@@ -132,6 +132,8 @@ class YJPlayerAnimData {
               if(has){ 
                 return;
               }
+              if( element.path == ""){return;}
+
               let path = (_this.$uploadUrl + id + "/" + element.path);
               if (path.includes("json")) {
                 this.LoadAssset(path, (data) => { 
@@ -139,7 +141,7 @@ class YJPlayerAnimData {
                 });
               } else {
                 //fbx动作直接加载模型，提前里面的动画
-                _YJLoadAnimation.load(path, (anim) => {
+                _Global.Webworker.load(path, (anim) => {
                   checkLoadAvatarAnimDone(id,animName,element.isLoop, anim); 
                 });
               }
@@ -173,7 +175,7 @@ class YJPlayerAnimData {
               if(has){ 
                 return; 
               }
-
+              if( element.path == ""){return;}
               let path = (_this.$uploadUrl + id + "/" + element.path);
               if (path.includes("json")) {
                 this.LoadAssset(path, (data) => {
@@ -183,7 +185,7 @@ class YJPlayerAnimData {
               } else {
                 //fbx动作直接加载模型，提前里面的动画 
                 // console.log("加载映射角色动作 ",id,animName);
-                _YJLoadAnimation.load(path, (anim) => {
+                _Global.Webworker.load(path, (anim) => {
 
                   if (Math.abs(avatarData.boneOffsetY) > 0.1) {
                     // 骨骼高度相差太多时，缩小映射动作的骨骼Y轴偏移
@@ -215,6 +217,8 @@ class YJPlayerAnimData {
               if(has){
                 return;
               }
+              if( element.path == ""){return;}
+
               let path = (_this.$uploadUrl + id + "/" + element.path);
               // console.log("加载扩展动作 ",path);
               if (path.includes("json")) {
@@ -228,7 +232,8 @@ class YJPlayerAnimData {
                 });
               } else {
                 //fbx动作直接加载模型，提前里面的动画 
-                _YJLoadAnimation.load(path, (anim) => {
+                // console.log("加载 角色扩展动作 ",id,animName);
+                _Global.Webworker.load(path, (anim) => {
                   checkLoadAvatarAnimDone(id,animName,element.isLoop, anim);
                   // if (callback) {
                   //   callback(element.isLoop, anim);
@@ -255,6 +260,7 @@ class YJPlayerAnimData {
               if(has){
                 return;
               }
+              if( element.path == ""){return;}
 
               let path = (_this.$uploadUrl + id + "/" + element.path);
               if (path.includes("json")) {
@@ -269,14 +275,12 @@ class YJPlayerAnimData {
               } else {
                 //fbx动作直接加载模型，提前里面的动画 
                 // console.log("加载映射角色动作 ",id,animName);
-                _YJLoadAnimation.load(path, (anim) => {
-
+                _Global.Webworker.load(path, (anim) => {
                   if (Math.abs(avatarData.boneOffsetY) > 0.1) {
                     // 骨骼高度相差太多时，缩小映射动作的骨骼Y轴偏移
-                  anim = createAnimationClipScale(animName, avatarData.boneOffsetY, anim);
+                    anim = createAnimationClipScale(animName, avatarData.boneOffsetY, anim);
                   } else {
                   }
-
                   checkLoadAvatarAnimDone(id,animName,element.isLoop, anim);
 
                   // if (callback) {
@@ -391,9 +395,11 @@ class YJPlayerAnimData {
 
       let animList = [];
 
-      for (let i = 0; i < avatarData.animationsData.length; i++) {
-        const element = avatarData.animationsData[i];
-        animList.push(element.animName);
+      if(avatarData.animationsData){
+        for (let i = 0; i < avatarData.animationsData.length; i++) {
+          const element = avatarData.animationsData[i];
+          animList.push(element.animName);
+        }
       }
 
       //再查找其扩展动作
@@ -411,34 +417,14 @@ class YJPlayerAnimData {
           animList.push(element.animName);
         }
       }
-
       // console.error(" 查找角色动作  ", animList);
 
       if (callback) {
         callback(animList);
       }
-      //再查找其扩展动作
-      // LoadExtendData(playerName, (animationsExtendData) => {
-      //   if (animationsExtendData != undefined) {
-      //     for (let i = 0; i < animationsExtendData.length; i++) {
-      //       animList.push(animationsExtendData[i]);
-      //     }
-      //   }
-
-      //   console.error(" 查找角色动作  ", playerName, animList);
-
-      //   if (callback) {
-      //     callback(animList);
-      //   }
-      // });
-
-
-      // if (avatarData.animationsExtendData != undefined) {
-      //   for (let i = 0; i < avatarData.animationsExtendData.length; i++) {
-      //     const element = avatarData.animationsExtendData[i];
-      //     animList.push(element.animName);
-      //   }
-      // } 
+      
+      return animList;
+       
     }
 
     // 

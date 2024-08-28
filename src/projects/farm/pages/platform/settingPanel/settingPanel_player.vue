@@ -278,8 +278,9 @@ export default {
         this.download();
       }
       if (e == "动作列表") {
-        console.log(" 打开动作列表 ");
-        this.parent.$refs.animPanel.SetVisible(true, this.settingData.id);
+        let animList = this.PlayerAnimData().GetAllAnim(this.settingData);
+        console.log(" 打开动作列表 ",animList);
+        this.parent.$refs.animPanel.SetVisible(true, animList);
       }
       if (e == "骨骼映射面板") {
         let bones = _Global.YJ3D._YJSceneManager
@@ -333,6 +334,21 @@ export default {
       return _Global.CreateOrLoadPlayerAnimData();
     },
     initValue() { 
+      console.log(" in player init ",this.settingData);
+      let has = false;
+      for (let i = this.settingData.animationsExtendData.length-1; i >=0 ; i--) {
+        const element = this.settingData.animationsExtendData[i];
+        if(element.animName == "" || element.path == "" ){
+          this.settingData.animationsExtendData.splice(i,1);
+          has = true;
+        }  
+      } 
+      if(has){      
+        this.saveFn();
+      }
+
+
+
       this.animate();
     }, 
     // 改变控制器角色动作
@@ -710,21 +726,24 @@ export default {
       } 
       // 能保存的情况下，才显示保存按钮
       console.log("角色数据 ", this.settingData);
+      this.saveFn();
+      // 清空动作上传输入
+      // this.SetAnimName("");
+    },
+    saveFn(){
       // 单品中才有 updateModelTxtData
       if (this.parent.updateModelTxtData) {
         this.parent.modelData.message = this.getMessage();
         this.parent.updateModelTxtData();
         // let animList = this.PlayerAnimData().AddAllExtendAnimData(this.settingData.id, this.settingData.animationsExtendData);
-        let animList = this.PlayerAnimData().AddSingleExtendAnimData(this.getMessage() , this.settingData.animationsExtendData);
+        // let animList = this.PlayerAnimData().AddSingleExtendAnimData(this.getMessage() , this.settingData.animationsExtendData);
+        let animList = this.PlayerAnimData().GetAllAnim(this.settingData);
+        
         this.parent.$refs.animPanel.UpdateState(animList);
-
       } else {
         // 在场景编辑中的修改
         this.Update();
       }
-
-      // 清空动作上传输入
-      // this.SetAnimName("");
     },
 
     Update() {

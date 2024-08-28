@@ -151,7 +151,14 @@ class YJFireManager {
             npc.SetNpcTarget(other, true, true);
           } else {
             if (_Global.DyncManager) {
-              _Global.DyncManager.SendSceneState("转发", { type: "npc发现玩家", state: { npcId: npc.transform.id, playerId: _Global.YJ3D.YJPlayer.id } });
+              if(other.isPlayer){
+                _Global.DyncManager.SendSceneState("转发", { type: "npc发现玩家", state: { npcId: npc.transform.id, otherId: other.id } });
+                continue;
+              }
+              if(other.isYJNPC){
+                _Global.DyncManager.SendSceneState("转发", { type: "npc发现npc", state: { npcId: npc.transform.id, otherId: other.id } });
+                continue;
+              }
             }
           }
         } else {
@@ -332,7 +339,7 @@ class YJFireManager {
         }
         return npcs[RandomInt(0, npcs.length - 1)];
       } else if (type == SelectEnemyType.NEAREST) {
-          console.log("查找最近的敌人" + type+ " " + fireId+ " " + camp);
+          // console.log("查找最近的敌人" + type+ " " + fireId+ " " + camp);
 
           let dis = 10000;
           let npc = null;
@@ -340,10 +347,12 @@ class YJFireManager {
         if (fireId != undefined && fireId != -1) {
           let other = this.GetNoSameCampInFire(camp, fireId, disData);
           
-          console.log("查找战斗中的敌人" + other.length);
           if (other.length == 0) { return null; }
           for (let i = 0; i < other.length; i++) {
+
             const npcComponent = other[i];
+            // console.log("查找战斗中的敌人" + npcComponent.GetNickName());
+
             let npcPos = npcComponent.GetWorldPos();
             let distance = disData.fromPos.distanceTo(npcPos);
             if (distance <= dis) {

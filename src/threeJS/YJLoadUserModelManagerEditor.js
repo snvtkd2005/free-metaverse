@@ -297,7 +297,8 @@ class YJLoadUserModelManager {
     function CreateTransform(parent, modelData, callback, _Id, mapId) {
       // console.error(" load manager 加载模型 ",parent, modelData);
 
-      let object = new YJTransform(_this, parent == null ? scene : parent, "", null, null, modelData.name);
+      parent = parent == null ? scene : parent;
+      let object = new YJTransform(_this, parent , "", null, null, modelData.name);
       // let object = new YJTransform(_this, scene, "", null, null, modelData.name);
       let id = 0;
       if (_Id != undefined) {
@@ -326,7 +327,13 @@ class YJLoadUserModelManager {
       let modelPath = modelData.modelPath;
       let modelType = modelData.modelType;
       if (modelPath == undefined) {
-
+        if (modelType == "空物体"
+        ) {
+          if (callback) {
+            callback(object);
+          }
+          return;
+        }
         if (modelType == "NPC模型"
           || modelType == "交互模型"
           || modelType == "粒子特效"
@@ -345,7 +352,9 @@ class YJLoadUserModelManager {
 
 
           if (modelType == "拖尾模型") {
-            let component = new YJTrailRenderer(_this, _Global.YJ3D.scene, object.GetGroup(), object);
+            // let component = new YJTrailRenderer(_this,object.GetGroup());
+            // let component = new YJTrailRenderer(_this, _Global.YJ3D.scene);
+            let component = new YJTrailRenderer(_this, null, object.GetGroup());
             object.AddComponent("Trail", component);
           }
 
@@ -581,7 +590,25 @@ class YJLoadUserModelManager {
       }
 
     }
+    this.CreateEmpty = function(){
+      
+      let modelData = { 
+        modelType: "空物体",
+        name: "empty",
+        pos: { x: 0, y: 0, z: 0 },
+        rotaV3: { x: 0, y: 0, z: 0 },
+        scale: { x: 1, y: 1, z: 1 },
+      }
+      CreateTransform(null, modelData, (object) => {
+        _this._YJSceneManager._YJTransformManager.attach(object.GetGroup());
+        if (callback) {
+          callback(object);
+        }
+        _Global.applyEvent("modelList", scope.GetModelList());
 
+      });
+
+    }
     // 复制组合对象
     function CopyGroupTransform(old) {
       let modelData = JSON.parse(JSON.stringify(old.modelData));
@@ -1127,7 +1154,15 @@ class YJLoadUserModelManager {
     this.SetParent = function (uuid, parentId) {
       console.log("设置父物体 ", uuid, parentId);
       let transform = this.GetTransformByUUID(uuid);
-      transform.GetData().parent = parentId;
+
+      if(parentId){
+        transform.GetData().parent = parentId;
+        let parent = this.GetTransformByID(parentId);
+        transform.SetParentDirect(parent.GetGroup());
+      }else{
+        transform.GetData().parent = "";
+        transform.SetParentDirect(scene);
+      }
     }
     this.SetChildren = function (uuid, children) {
       let transform = this.GetTransformByUUID(uuid);
@@ -1158,6 +1193,7 @@ class YJLoadUserModelManager {
           }
         }
       }
+      console.log(" 根据父子关系重排模型完成 ========= ");
     }
 
     function LoadSceneModelByIndex() {
@@ -1409,6 +1445,9 @@ class YJLoadUserModelManager {
 
       InitAmmo();
       update();
+      _Global._SceneModelManager = scope;
+
+      _Global.tempModel = new THREE.Group();
     }
 
     Init();

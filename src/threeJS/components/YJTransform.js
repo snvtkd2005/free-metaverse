@@ -48,6 +48,11 @@ class YJTransform {
     this.GetChildren = function(){
       return children;
     }
+    
+    this.SetParentDirect = function(p){
+      p.attach(group); 
+      this.DragEnd();
+    }
     this.SetParent = function(p){
       p.add(group);
       this.ResetPosRota();

@@ -327,6 +327,7 @@ class YJPlayerNameManager {
 
 
       npc.addEventListener("pos", (pos) => {
+        pos = npc.GetWorldPos();
         pos.y +=  modelScale * (playerHeight + 0.3);
         group.position.set(pos.x, pos.y, pos.z);
       });

@@ -3,6 +3,8 @@
   <!-- 场景模型列表 -->
 
   <!-- 单品名:{{ folderBase }} 总模型数量： {{modelList.length}} -->
+  
+  <div class="font-bold bg-gray-600 text-gray-100">{{ title }}</div>
   <div
     class="relative w-full h-full pb-10 overflow-y-auto overscroll-auto bg-gray-600 text-gray-100"
   >
@@ -11,8 +13,8 @@
       @click="clickEvent('关闭复制粘贴')"
       @contextmenu.prevent="onContextMenu($event)"
     ></div>
-    <div class="font-bold">{{ title }}</div>
-    <div class="relative">
+
+    <div class="relative h-full flex flex-col">
       <div
         v-for="(item, i) in modelList"
         :key="i"
@@ -20,7 +22,14 @@
         :class="item.active ? '' : ' hidden '"
       >
         <div
-          class="flex justify-between h-6"
+          @mouseenter.stop="SetDragTop(item.uuid)"
+          @mouseleave="SetDragTopOut()"
+          class="w-full h-1"
+          :class="inDrag ? (dragOnTop ? ' hoverBorderTop ' : '') : ''"
+        ></div>
+
+        <div
+          class="flex justify-between h-5"
           :class="
             inDrag
               ? dragOnTop
@@ -47,7 +56,7 @@
           </div>
           <div
             class="w-11/12 flex justify-between cursor-pointer relative"
-            @click="SelectModel(item,i)"
+            @click="SelectModel(item, i)"
             :class="
               selectUUID == item.uuid
                 ? ' bg-black  hover:bg-black '
@@ -56,29 +65,23 @@
             @mousedown="clickBegin(item.uuid)"
             @contextmenu.prevent="onContextMenu($event, item)"
           >
-            <div
-              v-if="inDrag"
-              @mouseenter.stop="SetDragTop(item.uuid)"
-              @mouseleave="SetDragTopOut()"
-              class="absolute left-0 top-0 w-full h-1.5"
-            ></div>
-            <div
+            <!-- <div
               v-if="inDrag"
               @mouseenter.stop="SetDragDown(item.uuid)"
               @mouseleave="SetDragDownOut()"
-              class="absolute left-0 bottom-0 w-full h-1.5"
-            ></div>
+              class="absolute left-0 bottom-0 w-full h-2"
+            ></div> -->
             <div
               v-if="inDrag"
               @mouseenter.stop="SetDragCenter(item.uuid)"
-              class="absolute left-0 top-1 w-full h-3"
+              class="absolute left-0 top-1 w-full h-4"
             ></div>
 
             <div
               class="w-2/3 self-center truncate"
               :style="'padding-left:' + item.paddingLeft + 'px;'"
             >
-              {{ item.name + "-" + item.modelId }} 
+              {{ item.name + "-" + item.modelId }}
             </div>
             <div class="self-center text-left truncate w-12">
               {{ item.modelType }}
@@ -89,6 +92,14 @@
         </div> -->
         </div>
       </div>
+
+      <div
+        v-if="inDrag || true"
+        @mouseenter.stop="SetDragTop()"
+        @mouseleave="SetDragTopOut()"
+        class="w-full h-full flex-grow-0 "
+        :class="inDrag ? (dragOnTop ? ' hoverBorderTop ' : '') : ''"
+      ></div>
     </div>
 
     <!-- 悬浮信息的父物体 -->
@@ -96,11 +107,18 @@
       ref="hoverParentRef"
       class="absolute left-0 top-0 w-full h-full pointer-events-none"
     ></div>
+
     <div
       ref="hoverContent"
       v-show="inRightClick"
-      class="absolute transform origin-bottom-left left-0 top-0 bg-white text-black border pointer-events-auto"
+      class="absolute transform origin-bottom-left left-0 top-0 w-auto bg-white text-black border pointer-events-auto"
     >
+      <div 
+        class="hover:bg-gray-400 px-4 w-32 text-center cursor-pointer"
+        @click="clickEvent('创建空物体')"
+      >
+        创建空物体
+      </div>
       <div
         v-show="canCopy"
         class="hover:bg-gray-400 px-4 cursor-pointer"
@@ -153,32 +171,30 @@ export default {
       cancelAnimationFrame(this.updateId);
     });
 
-    window.addEventListener("mousemove", (event) => { 
-      _Global.mouseX = event.clientX ;
-      _Global.mouseY = event.clientY ;
+    window.addEventListener("mousemove", (event) => {
+      _Global.mouseX = event.clientX;
+      _Global.mouseY = event.clientY;
       // console.log( _Global.mouseX,_Global.mouseY);
     });
 
-
     setTimeout(() => {
-      _Global.addEventListener("改变modelId或名称", (type,data) => { 
-        this.upadteDataByUUID(data,type); 
+      _Global.addEventListener("改变modelId或名称", (type, data) => {
+        this.upadteDataByUUID(data, type);
       });
-      _Global.addEventListener("keycodeUp", (keycode) => { 
-        console.log("keycodeUp", (keycode));
-        if(_Global.infocus3d){
+      _Global.addEventListener("keycodeUp", (keycode) => {
+        console.log("keycodeUp", keycode);
+        if (_Global.infocus3d) {
           return;
         }
-        if(keycode == 'ArrowUp'){
+        if (keycode == "ArrowUp") {
           this.selectIndex--;
           this.SelectModelByIndex(this.selectIndex);
         }
-        if(keycode == 'ArrowDown'){
+        if (keycode == "ArrowDown") {
           this.selectIndex++;
           this.SelectModelByIndex(this.selectIndex);
         }
-      }); 
-
+      });
     }, 2000);
 
     if (this.newDiv == null) {
@@ -203,10 +219,10 @@ export default {
         this.canCopy = item && true;
         let top = 0;
         let left = 0;
-        
+
         this.newDiv.appendChild(this.$refs.hoverContent);
-          this.newDiv.style.display = "";
-          this.newDiv.style.opacity = 0;
+        this.newDiv.style.display = "";
+        this.newDiv.style.opacity = 0;
 
         if (this.canCopy) {
           var rect = ev.target.getBoundingClientRect();
@@ -221,16 +237,18 @@ export default {
             }
           });
 
-          this.rightClickItem = this.$parent.SetSelectTransformByUUID(item.uuid).GetData();
+          this.rightClickItem = this.$parent
+            .SetSelectTransformByUUID(item.uuid)
+            .GetData();
 
           top = parseInt(rect.top) + offsetY;
           left = parseInt(rect.left) + offsetX;
         } else {
-          left = 100 ;
-          top = _Global.mouseY-20;
+          left = 100;
+          top = _Global.mouseY - 20;
 
           let modelData = JSON.parse(localStorage.getItem("copy"));
-          if(modelData){
+          if (modelData) {
             this.canPaste = true;
           }
         }
@@ -249,16 +267,21 @@ export default {
     },
     clickEvent(e) {
       if (e == "复制") {
-        localStorage.setItem("copy", JSON.stringify(this.rightClickItem)); 
+        localStorage.setItem("copy", JSON.stringify(this.rightClickItem));
         this.inRightClick = false;
       }
       if (e == "粘贴") {
         let modelData = JSON.parse(localStorage.getItem("copy"));
         this.$parent.Paste(modelData);
-        this.inRightClick = false; 
+        this.inRightClick = false;
       }
-      if (e == "关闭复制粘贴") { 
-        this.inRightClick = false; 
+      if (e == "关闭复制粘贴") {
+        this.inRightClick = false;
+      }
+      
+      if (e == "创建空物体") {
+        _Global._SceneModelManager.CreateEmpty();
+        this.inRightClick = false;
       }
       
     },
@@ -270,6 +293,9 @@ export default {
         return;
       } //自身
 
+      if (!this.dragOnTop && !this.dragOnCenter && !this.dragOnDown) {
+        return;
+      }
       let fromIndex = 0;
       let toIndex = 0;
       for (let i = 0; i < this.modelList.length; i++) {
@@ -281,7 +307,10 @@ export default {
           toIndex = i;
         }
       }
-
+      // console.log(" 拖拽检视面板 ",fromIndex,toIndex);
+      // console.log(" this.dragOnTop ",this.dragOnTop);
+      // console.log(" this.dragOnCenter ",this.dragOnCenter);
+      // console.log(" this.dragOnDown ",this.dragOnDown);
       let childId = this.modelList[fromIndex].id;
       //如果是其他物体的子物体，则从其他物体那移除
       _Global.YJ3D._YJSceneManager
@@ -447,14 +476,14 @@ export default {
       this.dragOnTop = false;
     },
 
-    upadteDataByUUID(data,type){
+    upadteDataByUUID(data, type) {
       for (let i = 0; i < this.modelList.length; i++) {
         const element = this.modelList[i];
         if (element.uuid == data.uuid) {
-          if(type=="name"){
+          if (type == "name") {
             element.name = data.name;
           }
-          if(type=="modelId"){
+          if (type == "modelId") {
             element.modelId = data.modelId;
           }
         }
@@ -472,11 +501,11 @@ export default {
       }
     },
     SelectModelByIndex(i) {
-      if(i>=this.modelList.length){
-        i=0;
+      if (i >= this.modelList.length) {
+        i = 0;
       }
-      if(i<0){
-        i=this.modelList.length-1;
+      if (i < 0) {
+        i = this.modelList.length - 1;
       }
       let item = this.modelList[i];
       console.log(" 点击检视面板选中模型 ", item);
@@ -485,13 +514,12 @@ export default {
       this.$parent.SetSelectTransformByUUID(item.uuid);
     },
     // 点击检视面板选中模型
-    SelectModel(item,i) {
+    SelectModel(item, i) {
       console.log(" 点击检视面板选中模型 ", item);
       this.selectIndex = i;
       this.selectUUID = item.uuid;
       this.$parent.SetSelectTransformByUUID(item.uuid);
       _Global.YJ3D.removeEventListener();
-
     },
     animate() {
       if (!this.inDrag) {

@@ -136,9 +136,9 @@ class YJPlayer {
       // avatarData = _this.$parent.GetAvatarData(playerName);
       _this._YJSceneManager.CreateOrLoadPlayerAnimData().GetAvatarDataById(id, (_avatarData) => {
         avatarData = _avatarData;
+        // console.error(" 加载角色名 ", id, avatarData);
 
         playerName = avatarData.name;
-        // console.error(" 加载角色名 ", id, playerName, avatarData);
 
         modelPath = avatarData.modelPath;
         playerHeight = avatarData.height;
@@ -754,7 +754,11 @@ class YJPlayer {
         return _Global._YJPlayerFireCtrl.GetTargetModelDistance();
       }
     }
-
+    this.GetTargetModel = function () { 
+      return null;
+      return targetModel;
+    }
+     
     let eventList = [];
     // 添加事件监听
     this.addEventListener = function (e, fn) {
@@ -975,7 +979,9 @@ class YJPlayer {
     let animNameFullback = "";
     //切换动画
     this.ChangeAnim = function (animName, _animNameFullback, callback) {
-      // console.log("切换动画 ", animName);
+      // if(!local){
+      //   console.log("切换动画 ", animName);
+      // }
       animNameFullback = _animNameFullback;
       ChangeAnimFn(animName, callback);
     }
@@ -1219,6 +1225,7 @@ class YJPlayer {
       dyncPickModel(userData.weaponData);
 
       // console.log("获取角色镜像同步数据",userData,oldUserData);
+      // console.log("获取角色镜像同步动作",oldAnimName,userData.animName);
 
 
       if (userData.animName.includes("idle")) {
@@ -1269,7 +1276,7 @@ class YJPlayer {
       // console.log("接收动作和权重 "+userData.animName +"  "+ userData.animWeight );
       var newPos = new THREE.Vector3(pos.x, pos.y, pos.z);
       // console.log("接收 角色 坐标 ",newPos );
-      if (oldPos.x != newPos.x || oldPos.z != newPos.z) {
+      if (oldPos.x != newPos.x || oldPos.y != newPos.y || oldPos.z != newPos.z) {
         if (dyncTimes > 0) {
           targetPos.set(pos.x, pos.y, pos.z);
           b_lerpChangeView = true;

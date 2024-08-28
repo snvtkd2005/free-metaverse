@@ -85,7 +85,7 @@
       </div>
 
       <div
-        class="hidden md:flex absolute left-0 bottom-10 w-auto pointer-events-none"
+        class="hidden absolute left-0 bottom-10 w-auto pointer-events-none"
       >
         <div class="flex w-auto text-white text-md rounded-lg h-10">
           <div class="px-4 text-left mx-auto self-center">

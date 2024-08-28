@@ -52,6 +52,7 @@ import { YJStaticMeshMerged } from "./YJStaticMeshMerged.js";
 import { YJCar } from "./model/YJCar.js";
 import { YJPlayerNameManager } from "./YJPlayerNameManager.js";
 import { ObjectLoader } from "three";
+import { YJLoadAnimation } from "/@/threeJS/loader/YJLoadAnimation.js";
 
 
 class YJSceneManager {
@@ -275,10 +276,8 @@ class YJSceneManager {
         // scene.fog = new THREE.Fog(0xA7D0FF, 30, 300);
       }
 
-
-      playerPos = setting.playerPos;
-      playerSetting.rotaV3 = setting.playerRotaV3;
-
+ 
+      scope.SetPlayerPosData(setting.playerPos,setting.playerRotaV3);
       // 刚体高度
       playerHeight = setting.playerHeight;
       let playerRadius = 0.22;
@@ -608,6 +607,12 @@ class YJSceneManager {
     //#endregion
 
     function Init() {
+
+      
+      let _YJLoadAnimation = new YJLoadAnimation();
+      _Global.Webworker = _YJLoadAnimation;
+
+
       let routerPath = _this.$route.path.toLowerCase();
       // console.log("初始化场景 ",routerPath);
       if (routerPath.includes("visit")|| routerPath.includes("group") || routerPath.includes("scene")|| routerPath.includes("metaworld")) {
@@ -701,10 +706,9 @@ class YJSceneManager {
       }else{
         scene.fog = new THREE.Fog(0xA7D0FF,1000,10000);
       }
-
-      playerPos = setting.playerPos;
-      playerSetting.rotaV3 = setting.playerRotaV3;
-
+ 
+      scope.SetPlayerPosData(setting.playerPos,setting.playerRotaV3);
+      
       // 刚体高度
       playerHeight = setting.playerHeight;
 
@@ -2354,9 +2358,8 @@ class YJSceneManager {
       setting.playerRotaV3 = { x: rota.x, y: rota.y, z: rota.z };
       setting.cameraOffset.y = getWorldPosition(camera).y - playerPos.y;
       setting.cameraOffset.z = camera.position.x;
-      setting.wheelValue = _this.YJController.GetCameraWheel();
-      playerPos = setting.playerPos;
-      playerSetting.rotaV3 = setting.playerRotaV3; 
+      setting.wheelValue = _this.YJController.GetCameraWheel(); 
+      scope.SetPlayerPosData(setting.playerPos,setting.playerRotaV3);
 
     }
 

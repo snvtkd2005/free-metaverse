@@ -512,12 +512,18 @@ class YJSceneDyncManagerEditor {
 
       if (type == "npc发现玩家") {
         if (_Global.mainUser) {
-          let { npcId, playerId } = state;
-          _YJFireManager.GetNpcById(npcId).GetComponent("NPC").SetNpcTarget(_YJFireManager.GetPlayerById(playerId), true, true);
+          let { npcId, otherId } = state;
+          _YJFireManager.GetNpcById(npcId).GetComponent("NPC").SetNpcTarget(_YJFireManager.GetPlayerById(otherId), true, true);
         }
         return;
       }
-
+      if (type == "npc发现npc") {
+        if (_Global.mainUser) {
+          let { npcId, otherId } = state;
+          _YJFireManager.GetNpcById(npcId).GetComponent("NPC").SetNpcTarget(_YJFireManager.GetNpcById(otherId).GetComponent("NPC"), true, true);
+        }
+        return;
+      }
       if (type == "战斗状态") {
         if (_Global.mainUser) {
           return;

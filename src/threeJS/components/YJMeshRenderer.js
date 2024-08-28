@@ -289,6 +289,11 @@ class YJMeshRenderer {
                 // item.material = cloneMat;
               } else {
               }
+              item.material.alphaTest = 0.5; 
+              // item.material.transparent = true;
+              // item.renderOrder = 1;
+              // console.log(item.material);
+
             }
           });
 
@@ -416,7 +421,7 @@ class YJMeshRenderer {
       });
 
     }
- 
+
     function loadGltf(modelPath, callback, errorback) {
 
 
@@ -435,12 +440,12 @@ class YJMeshRenderer {
 
       //     gltf.animations = [];
       //     animations = gltf.animations;
-  
+
       //     model.transform = owner;
-  
+
       //     scene.add(model);
       //     _this._YJSceneManager.addLoadMesh(modelPath, gltf);
-  
+
       //     TraverseOwner(model);
       //     if (hasCollider) {
       //       CreateColliderFn(model);

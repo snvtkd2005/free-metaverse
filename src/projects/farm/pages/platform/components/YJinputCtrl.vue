@@ -60,7 +60,7 @@
         >
           <div
             @click="SelectItem('选择通用图片', item, i)"
-            class="w-10 h-10 bg-black cursor-pointer"
+            class="w-10 h-10 cursor-pointer"
           >
             <img
               v-if="item.value"

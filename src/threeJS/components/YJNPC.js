@@ -137,18 +137,8 @@ class YJNPC {
     //#region  固定
     function Init() {
       group = new THREE.Group();
-      parent.add(group);
-
-      // fromGroup = new THREE.Group();
-      // parent.add(fromGroup);
-      // fromGroup.rotation.set(Math.PI/2,0,0);
-      playerPosition = parent.position;
-      oldMovePos = playerPosition.clone();
-      group.rotation.y += Math.PI;
-
-      // group.add(new THREE.AxesHelper(5)); // 场景添加坐标轴
-      // return;
-      // update();
+      parent.add(group); 
+      group.rotation.y += Math.PI; 
     }
 
     let data = null;
@@ -329,7 +319,7 @@ class YJNPC {
         return;
       }
       let lookatPos = navpath[0].clone();
-      lookatPos.y = parent.position.y;
+      lookatPos.y = scope.GetWorldPos().y;
       parent.lookAt(lookatPos);
     }
     let oldAnimName = "";
@@ -456,7 +446,7 @@ class YJNPC {
         return;
       }
       if (data.inAreaRandom) {
-        let startPos = parent.position.clone();
+        let startPos = scope.GetWorldPos();
         let targetPos = fireBeforePos.clone();
         if (data.areaRadius == undefined) {
           data.areaRadius = 5;
@@ -481,7 +471,7 @@ class YJNPC {
           let navPosIndex = radomNum(0, movePos.length - 1);
           // console.log(" 巡逻点 ",movePos[navPosIndex]);
           let pos = movePos[navPosIndex];
-          GetNavpath(parent.position.clone(), new THREE.Vector3(pos.x, pos.y, pos.z));
+          GetNavpath(scope.GetWorldPos(), new THREE.Vector3(pos.x, pos.y, pos.z));
 
 
           // _Global.DyncManager.UpdateModel(scope.id, "navPosIndex",
@@ -502,7 +492,7 @@ class YJNPC {
     }
 
     this.SetNavPosByPosIndex = function (navPosIndex) {
-      GetNavpath(parent.position.clone(), movePos[navPosIndex]);
+      GetNavpath(scope.GetWorldPos(), movePos[navPosIndex]);
     }
     // 寻路网格准备完成调用 或 直接调用开始巡逻
     this.PathfindingCompleted = function () {
@@ -644,8 +634,7 @@ class YJNPC {
       scope.canMove = true;
       baseData.speed *= 5;
       lookAtTargetPos();
-      navpath = [targetModel.GetWorldPos()];
-      // GetNavpath(parent.position.clone(),  targetModel.GetWorldPos(),0);
+      navpath = [targetModel.GetWorldPos()]; 
     }
     let times = 0;
     // 获取寻路路径
@@ -685,7 +674,7 @@ class YJNPC {
             // 无法到达目标点时，1秒后直接设置到目标位置
             setTimeout(() => {
               if (targetModel != null) {
-                parent.position.copy(targetModel.GetWorldPos().clone());
+                SetLocalToWorldPos(targetModel.GetWorldPos().clone()); 
               }
               getnavpathTimes = 0;
               navpath = [];
@@ -696,13 +685,7 @@ class YJNPC {
           navpath.push(targetPos);
           lookAtTargetPos();
           getnavPathTime = 0;
-          getnavpathTimes = 0;
-          // setTimeout(() => {
-          //   // 直接回到起始点
-          //   parent.position.copy(fireBeforePos);
-          //   getnavPathTime = 0;
-          //   getnavpathTimes = 0;
-          // }, 3000);
+          getnavpathTimes = 0; 
         }
 
       } else {
@@ -897,6 +880,8 @@ class YJNPC {
       this.npcName = data.name;
       fireBeforePos = scope.GetWorldPos();
 
+      playerPosition = scope.GetWorldPos();
+      oldMovePos = playerPosition.clone();
       // console.log( scope.GetNickName() + "in NPC msg = ", scope.id, data);
 
 
@@ -1411,7 +1396,7 @@ class YJNPC {
         }
         // console.log(scope.GetNickName() + " 战斗结束， 回到战斗前位置  ",fireBeforePos);
         vaildAttackDis = 0;
-        GetNavpath(parent.position.clone(), fireBeforePos);
+        GetNavpath(scope.GetWorldPos(), fireBeforePos);
       }, 1000);
 
     }
@@ -1465,7 +1450,6 @@ class YJNPC {
         // console.log(GetNickName() + ' 距离目标 ',dis,vaildAttackDis + scope.transform.GetData().scale.x);
       }
       console.log("navpath.length = ", navpath.length);
-      // console.log(" npc追击距离 ",playerPosition.distanceTo(fireBeforePos));
       console.log(" state ", baseData.state);
       if (targetPos) {
         console.log(" 目标距离 ", targetPos.distanceTo(scope.GetWorldPos()));
@@ -1511,14 +1495,14 @@ class YJNPC {
         TargetDead();
         return;
       }
-      // console.log( GetNickName() + ' 获取到目标 ', targetModel, baseData.state);
+      // console.error( GetNickName() + ' 获取到目标 ', targetModel, baseData.state);
 
 
 
       clearLaterNav();
 
 
-      let npcPos = parent.position.clone();
+      let npcPos = scope.GetWorldPos();
       readyAttack = false;
       readyAttack_doonce = 0;
       targetPos = targetModel.GetWorldPos();
@@ -2273,7 +2257,7 @@ class YJNPC {
         return 10000;
       }
       targetPos = targetModel.GetWorldPos();
-      let npcPos = parent.position.clone();
+      let npcPos = scope.GetWorldPos(); 
       targetPosRef = targetPos.clone();
       targetPosRef.y = npcPos.y;
       return targetPosRef.distanceTo(npcPos);
@@ -2365,6 +2349,16 @@ class YJNPC {
       }
     }
     //#endregion
+    function SetLocalToWorldPos(pos){
+      if(scope.transform.GetData().parent){
+        _this.scene.attach(_Global.tempModel);
+        _Global.tempModel.position.copy(pos);
+        parent.parent.attach(_Global.tempModel); 
+        parent.position.copy(_Global.tempModel.position.clone());
+      }else{
+        parent.position.copy(pos);
+      }
+    }
     //寻路
     function tick(dt) {
       if (!(navpath || []).length) return;
@@ -2387,30 +2381,17 @@ class YJNPC {
 
         moveLength = pos.distanceTo(oldMovePos) * 5;
 
-        // if(targetModel){
-        //   console.log(scope.GetNickName() + " in tick moveLength = ", moveLength);
-        // }
-
-        // if (moveLength < 0.1) {
-        //   samePosTimes++;
-        //   if (samePosTimes > 30) {
-        //     navpath = [];
-        //     doonce = 0;
-        //     baseData.state = stateType.Normal;
-        //     scope.SetPlayerState("normal");
-        //     return;
-        //   }
-        // }
+        
         scope.SetActionScale(moveLength);
         scope.transform.UpdateDataByType("actionScale", moveLength);
-        // console.log(pos, oldMovePos);
+        
         if (oldMovePos != pos) {
           oldMovePos = pos.clone();
         }
+        
+        SetLocalToWorldPos(pos);
 
-        parent.position.copy(pos);
-
-        // console.error(" baseData.state ", baseData.state);
+        
 
         if (baseData.state == stateType.Normal) {
           scope.SetPlayerState("巡逻");

@@ -457,6 +457,7 @@ export default {
             oldSkill = element;
             has = true;
           }
+
         }
         if (has) {
           setTimeout(() => {

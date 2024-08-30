@@ -669,27 +669,6 @@
       </div>
     </div>
 
-    <div
-      class="mt-2 overflow-y-scroll h-96 flex flex-wrap"
-      v-if="selectTitle == '选择特效'"
-    >
-      <div
-        v-for="(item, i) in particleList"
-        :key="i"
-        class="v self-center w-40 h-auto relative"
-      >
-        <div
-          class="w-16 h-16 self-center mx-auto mt-2 cursor-pointer"
-          @click="ClickItem(selectTitle, i)"
-        >
-          <img
-            class="w-full h-full object-fill hover:opacity-70"
-            :src="$uploadGroupUrl + item.icon"
-          />
-          <div>{{ item.name }}</div>
-        </div>
-      </div>
-    </div>
 
     <YJinputCtrl_task v-if="selectTitle=='选择任务' " class="w-full h-20" />
     <YJinputCtrl_shop v-if="selectTitle=='选择商品' " class="w-full h-20" />
@@ -717,6 +696,28 @@
     </div>
     
 
+    <div
+      class="mt-2 overflow-y-scroll h-96 flex flex-wrap"
+      v-if="selectTitle == '选择特效'"
+    >
+      <div
+        v-for="(item, i) in particleList"
+        :key="i"
+        class="v self-center w-40 h-auto relative"
+      >
+        <div
+          class="w-16 h-16 self-center mx-auto mt-2 cursor-pointer"
+          @click="ClickItem(selectTitle, i)"
+        >
+          <img
+            class="w-full h-full object-fill hover:opacity-70"
+            :src="$uploadGroupUrl + item.icon"
+          />
+          <div>{{ item.name }}</div>
+        </div>
+      </div>
+    </div>
+    
     <div
       class="mt-2 overflow-y-scroll h-96 flex flex-wrap"
       v-if="

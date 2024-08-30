@@ -13,6 +13,7 @@ class YJPlayerAnimData {
     function Init() {
 
       if (_YJLoadAnimation == null || _Global.Webworker == undefined) {
+        // 默认在sceneManager或interface中初始化。在非场景编辑或场景访问中需要在这里初始化。需要统一
         _YJLoadAnimation = new YJLoadAnimation();
         _Global.Webworker = _YJLoadAnimation;
       }

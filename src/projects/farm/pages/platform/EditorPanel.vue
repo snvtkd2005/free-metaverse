@@ -1198,9 +1198,9 @@ export default {
     ChangeTable(item) {
       if (item.content.includes("截图")) {
         this.$refs.PanelCut.safeOrder = true;
-        _Global.SetEnableGravity(false);
+        // _Global.SetEnableGravity(false);
         // _Global.SetDisplayFloor(false);
-        _Global.SendMsgTo3D("单品", "隐藏角色");
+        // _Global.SendMsgTo3D("单品", "隐藏角色");
         // _Global.ChangeFirstThird(true);
         return;
       }

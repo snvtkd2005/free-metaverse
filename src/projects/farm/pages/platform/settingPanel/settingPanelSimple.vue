@@ -2,19 +2,34 @@
 <template>
   <!-- 右上角按钮 -->
   <div class="h-10 flex gap-x-1 text-gray-200">
+
+    <div class=" p-2 flex  h-10 text-center  cursor-pointer  bg-black bg-opacity-40  "
+      :class="panelState.grid ? ' bg-opacity-80 ' : 'bg-opacity-40'" @click=" ClickEvent('grid')">
+      <div class=" self-center">
+        grid
+      </div>
+    </div>
+
+    <div class=" p-2 flex  h-10 text-center  cursor-pointer  bg-black bg-opacity-40  "
+      :class="panelState.free ? ' bg-opacity-80 ' : 'bg-opacity-40'" @click=" ClickEvent('自由穿行')">
+      <div class=" self-center">
+        自由穿行
+      </div>
+    </div>
+
     <div
       class="p-2 flex h-10 text-center cursor-pointer bg-black bg-opacity-40"
       :class="
         sceneSetting.hasDirectionalLight ? ' bg-opacity-80 ' : 'bg-opacity-40 '
       "
-      @click="ChangeSetting('太阳光')"
+      @click="ClickEvent('太阳光')"
     >
       <div class="self-center">太阳光</div>
     </div>
 
     <div
       class="p-2 flex h-10 text-center cursor-pointer bg-black bg-opacity-40"
-      @click="ChangeSetting('环境光')"
+      @click="ClickEvent('环境光')"
     >
       <div class="self-center">环境光</div>
     </div>
@@ -32,12 +47,11 @@ export default {
         hasAmbientLight: true,
         hasDirectionalLight: true,
         displayCollider: false,
-      },
-      // openModelPanel: "",
-      openModelPanel: "设置",
+      },  
       panelState: {
-        setting: true,
-        model: true,
+        setting: true, 
+        free: false,
+        grid:false,
       },
       fullScreen: false, 
     };
@@ -53,36 +67,28 @@ export default {
       }
     }, 5000);
   },
-  methods: {
-    ChangePanel(e) {
-      if ("全屏" == e) {
-        this.fullScreen = !this.fullScreen;
-        this.parent.setMaxMin(this.fullScreen);
+  methods: { 
+    ClickEvent( e) {
+      
+      if ("grid" == e) {
+        this.panelState.grid = !this.panelState.grid;
+        _Global.YJ3D._YJSceneManager.ToggleGrid(this.panelState.grid);
         return;
       }
-      if ("导出" == e) {
-        // 由服务器把场景配置、场景模型数据、模型文件夹、程序文件夹等打包成zip压缩包下载
-        //
-        return;
-      }
-      if ("设置" == e) {
-        this.parent.ChangePanel("setting");
-        return;
-      }
+      if ("自由穿行" == e) {
+        this.panelState.free = !this.panelState.free;
+        if(this.panelState.free){
+          _Global.YJ3D.YJController.GetAmmo().SetGravityActive(false);
+          _Global.YJ3D.YJController.GetAmmo().SetRigidbodyEnable(false);
 
-      if ("模型" == e) {
-        this.panelState.model = !this.panelState.model;
-        this.parent.$refs.modelPanel.SetVisible(this.panelState.model);
+        }else{
+          _Global.YJ3D.YJController.GetAmmo().SetGravityActive(true);
+          _Global.YJ3D.YJController.GetAmmo().SetRigidbodyEnable(true);
+
+        }
         return;
       }
-      if (this.openModelPanel == e) {
-        this.openModelPanel = "";
-        return;
-      }
-      this.openModelPanel = e;
-    }, 
-    ChangeSetting(title, e) {
-      if (title == "太阳光") {
+      if (e == "太阳光") {
         this.sceneSetting.hasDirectionalLight =
           !this.sceneSetting.hasDirectionalLight;
         _Global.YJ3D._YJSceneManager.VisibleDirectionalLight(
@@ -90,26 +96,13 @@ export default {
         );
         return;
       }
-      if (title == "环境光") {
+      if (e == "环境光") {
         this.sceneSetting.hasAmbientLight = !this.sceneSetting.hasAmbientLight;
         _Global.YJ3D._YJSceneManager.SetAmbientIntensity(
           this.sceneSetting.hasAmbientLight ? 1 : 0
         );
         return;
-      }
-      if (title == "启动") {
-        let path = "/editorVisit";
-        // 新窗口 新标签
-        let href = this.$router.resolve({
-          name: path.replace("/", ""),
-          query: {
-            folderBase: this.parent.folderBase,
-            version: this.parent.settingVersion,
-          },
-        });
-        window.open(href.href, "_blank");
-        return;
-      }
+      } 
     },
   },
 };

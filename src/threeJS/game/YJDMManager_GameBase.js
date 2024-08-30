@@ -394,12 +394,11 @@ class YJDMManager_GameBase {
       }) 
 
       // 给角色装备武器
-      _Global._YJPlayerFireCtrl.GetEquip().addEquip({ assetId: 1692787200597 }, () => {
-        _Global._YJPlayerFireCtrl.SetPlayerState("normal");
-        //增加射击技能，触发攻击
-        // _Global._YJPlayerFireCtrl.GetEquip().addEquip({ assetId: 1709558796473 });
-        // _Global._YJPlayerFireCtrl.GetEquip().addEquip({ assetId: 1709594878614 });
-      });
+      _Global._YJPlayerFireCtrl.GetEquip().addEquip({ assetId: 1692787200597 });
+      // _Global._YJPlayerFireCtrl.GetEquip().addEquip({ assetId: 1709558796473 });
+      // _Global._YJPlayerFireCtrl.GetEquip().addEquip({ assetId: 1709594878614 });
+
+
       _Global._YJPlayerFireCtrl.SetState('canMoveAttack', true);
       _Global.YJ3D.YJController.ChangeAnimDirect("idle", "idle");
 

@@ -681,7 +681,9 @@ export default {
 
             line = {};
             line.text = strength + " 伤害";
-            line.text2 = "速度" + speed.toFixed(1);
+            if(speed){
+              line.text2 = "速度" + speed.toFixed(1);
+            }
             line.color = "#ffffff";
             this.hoverData.push(line);
           } else {

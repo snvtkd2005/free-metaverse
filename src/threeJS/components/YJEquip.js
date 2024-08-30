@@ -277,7 +277,7 @@ class YJEquip {
 
         }
         this.WearEquip = function (item) {
-            // console.log(" 右键穿戴装备 ", item, equipList);
+            console.log(" 右键穿戴装备 ", item, equipList);
             this.UnWearEquip(item.part);
             // if (item.pointType == "weapon") {
             //     this.initWeapon({ assetId: item.folderBase });
@@ -330,6 +330,9 @@ class YJEquip {
                     });
                 }
 
+
+                owner.applyEvent('更新武器');
+
                 //加载武器
                 _Global.YJ3D._YJSceneManager.DirectLoadMesh(_Global.YJ3D.$uploadUrl + data.modelPath, (meshAndMats) => {
 
@@ -371,6 +374,7 @@ class YJEquip {
                         model.scale.set(100 * scale[0], 100 * scale[1], 100 * scale[2]);
 
                         equipModelList.push({ part: part, bone: bone, model: weaponModel });
+
 
                         // 记录材质
                         // if (materials.length == 0) {

@@ -170,7 +170,7 @@ class YJSkillModel {
                         fromType: owner.getPlayerType(),
                         msg: msg
                     });
-                // console.log("发送 同步施放技能 ", msg);
+                console.log("发送 同步施放技能 ", msg);
 
             } else {
                 // console.log("接收 同步施放技能 ", msg);
@@ -222,6 +222,10 @@ class YJSkillModel {
                 for (let i = 0; i < children.length; i++) {
                     children[i].UpdateAllComponents();
                 }
+
+                //放到武器发射点下面
+                owner.GetFirePosRef().attach(model.GetGroup());
+                model.SetPos({x:0,y:0,z:0});
             });
 
         }

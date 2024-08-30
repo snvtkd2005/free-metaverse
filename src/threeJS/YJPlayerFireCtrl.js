@@ -121,6 +121,12 @@ class YJPlayerFireCtrl {
 					element.fn(v, v2, v3);
 				}
 			}
+			
+			if(e=="更新武器"){
+				setTimeout(() => {
+					updateWeapon();
+				}, 1000);
+			}
 		}
 		this.isInDead = function () {
 			return baseData.health == 0;
@@ -318,29 +324,45 @@ class YJPlayerFireCtrl {
 		this.GetShootingStartPos = function () {
 			return GetShootingStartPosFn();
 		}
-
-		function GetShootingStartPosFn() {
-			let pos = _this.YJController.GetPlayerWorldPos();
-			let weaponModel = _YJPlayer.getWeaponModel();
+		this.GetFirePosRef = function(){
+			return firePosRef;
+		}
+		function updateWeapon(){
+			let weaponModel = _YJEquip.getWeaponModel();
+			console.log("更新武器 ",weaponModel);
 			if (weaponModel) {
 				var { _fire } = GetSkillDataByWeapon(weaponData);
 				if (_fire.pos && _fire.pos.length == 3) {
-					weaponModel.parent.add(firePosRef);
-					firePosRef.position.copy(weaponModel.position);
+					weaponModel.add(firePosRef);
+					
+					firePosRef.rotation.set(0,0,0);
+					firePosRef.position.set(0,0,0);
+ 
 
-					// let pos1 = firePosRef.position.clone();
-					// pos1.x += _fire.pos[0] * 100;
-					// pos1.z += _fire.pos[1] * 100;
-					// pos1.y += _fire.pos[2] * 100;
-					// firePosRef.position.copy(pos1);
+					let pos1 = firePosRef.position.clone();
+					// console.log("更新武器 _fire.pos",_fire.pos); 
 
-					pos = firePosRef.getWorldPosition(new THREE.Vector3());
+					pos1.x += _fire.pos[0] * 1;
+					pos1.y += _fire.pos[1] * 1;
+					pos1.z += _fire.pos[2] * 1;
+					firePosRef.position.copy(pos1);
 
+					if(_fire.rotaV3){
+						firePosRef.rotation.set(_fire.rotaV3[0],_fire.rotaV3[1],_fire.rotaV3[2]);
+					}
+					// console.log("更新武器 pos1",pos1);
 
-					// let axse = new THREE.AxesHelper(10);
-					// firePosRef.add(axse);
-					// axse.position.set(0,0,0);
+					let axse = new THREE.AxesHelper(1);
+					firePosRef.add(axse);
+					axse.position.set(0,0,0);
 				}
+			}
+		}
+		function GetShootingStartPosFn() {
+			let pos = _this.YJController.GetPlayerWorldPos();
+			let weaponModel = _YJEquip.getWeaponModel();
+			if (weaponModel) {
+				pos = firePosRef.getWorldPosition(new THREE.Vector3());
 			}
 			return pos;
 		}
@@ -1113,6 +1135,7 @@ class YJPlayerFireCtrl {
 				if (_YJEquip == null) {
 					_YJEquip = new YJEquip(scope);
 				}
+				
 			}
 			scope.id = _Global.user.id;
 
@@ -1180,7 +1203,7 @@ class YJPlayerFireCtrl {
 					baseSkillItem.outVaildDis = true;
 					skillList.push(baseSkillItem);
 					_YJSkill.AddSkill(baseSkillItem);
-					// _YJSkill.SetSkill(skillList);
+					// _YJSkill.SetSkill(skillList); 
 
 				}
 

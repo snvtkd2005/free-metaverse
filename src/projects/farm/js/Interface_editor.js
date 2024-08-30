@@ -381,7 +381,7 @@ class Interface {
           // 品质
           qualityType: data.message.data.qualityType,
           // 部位，唯一
-          part: data.message.data.partType,
+          part: data.message.data.partType || data.message.data.pickType,
           // 武器或装备
           pointType: data.message.pointType,
           // 附加属性

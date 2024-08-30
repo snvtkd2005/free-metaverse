@@ -93,11 +93,13 @@ export default {
           particle: "",
           audio: "",
           pos: [],
+          rotaV3: [],
         },
         ready: {
           particle: "",
           audio: "",
           pos: [],
+          rotaV3: [],
         },
         // 依附的骨骼名称
         boneName: "",
@@ -223,6 +225,15 @@ export default {
           property: "fire-pos",
           display: true,
           title: "施放特效位置",
+          type: "vector3",
+          value: [0,0,0],
+          step:0.01,
+          callback: this.ChangeValue,
+        },
+        {
+          property: "fire-rotaV3",
+          display: true,
+          title: "施放特效旋转",
           type: "vector3",
           value: [0,0,0],
           step:0.01,
@@ -447,6 +458,9 @@ export default {
         ? this.settingData.strength
         : 20;
         
+        if(this.settingData.fire.rotaV3 == undefined){
+          this.settingData.fire.rotaV3 = [0,0,0];
+        }
         
  
 
@@ -588,21 +602,21 @@ export default {
       } else {
         this.settingData[sp[0]][sp[1]] = e;
       }
-      console.log(i + " ",this.setting[i].property,  this.setting[i].value);
+      console.log(i + " ",property,  this.setting[i].value);
 
       this.ChangeUIState(property, e);
       // console.log(i + " " + this.setting[i].value + " " + e);
-      if (this.setting[i].property.includes("animName")) {
+      if (property.includes("animName")) {
         _Global.SendMsgTo3D("切换角色动作", e);
         //改变角色武器
 
         return;
       }
-      if (this.setting[i].property == "boneName") {
+      if (property == "boneName") {
         _Global.SendMsgTo3D("单品放置在骨骼上", e);
         return;
       }
-      if (this.setting[i].property == "fire-pos") {
+      if (property == "fire-pos" || property == "fire-rotaV3" ) {
         
         let weapon = _Global.YJ3D._YJSceneManager
           .GetSingleTransformComponent("Weapon");

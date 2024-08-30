@@ -197,6 +197,17 @@ export default {
         }
       });
 
+      _Global.LoadEquipById("1693041232580", (equip) => {
+        // console.log();
+        for (let i = 0; i < this.itemList.length; i++) {
+          const element = this.itemList[i];
+          if (element.skill == null) {
+            element.skill = equip;
+            return;
+          }
+        }
+      });
+
       // _Global.LoadEquipById("1709594878614", (equip) => {
       //   for (let i = 0; i < this.itemList.length; i++) {
       //     const element = this.itemList[i];

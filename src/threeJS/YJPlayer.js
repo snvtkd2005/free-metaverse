@@ -38,6 +38,9 @@ class YJPlayer {
     let _YJDMplayer = null;
     let _YJMeshRenderer = null;
     let _YJAnimator = null;
+    this.GetAnimator = function(){
+      return _YJAnimator;
+    }
     var namePosTrans = null;
 
 

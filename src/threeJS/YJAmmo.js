@@ -1708,10 +1708,11 @@ class YJAmmo {
         }
 
         // 当在飞行模式且已经飞行后，碰到地面时，取消飞行模式（即启用重力）
-        if (!enableGravity && flyDoonce > 10) {
+        if (!enableGravity && flyDoonce > 10 && !_Global.setting.inEditor) {
           if (threeObject1.name.indexOf("land") > -1) {
             enableGravity = true;
             SetGravityActiveFn();
+            console.log("碰到地面");
           }
         }
 

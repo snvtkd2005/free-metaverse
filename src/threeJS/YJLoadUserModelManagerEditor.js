@@ -567,7 +567,7 @@ class YJLoadUserModelManager {
             data = (modelData.message.data);
           }
           // "particle"+uuid
-          let _YJParticle = new YJParticle(_this, object.GetGroup(), object);
+          let _YJParticle = new YJParticle(object.GetGroup(), object);
           object.AddComponent("Particle", _YJParticle);
           if (modelData.message != undefined) {
             object.SetMessage(modelData.message);

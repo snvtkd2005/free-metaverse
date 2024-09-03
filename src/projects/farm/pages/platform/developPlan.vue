@@ -79,7 +79,9 @@ export default {
         { isChild: false, title: " 关键帧动画模型  ", content: " 配置播放模式。播放模式如loop、pingpang、once、全部播放、播放单个、顺序播放  ", tip: "服装", date: "2023-4-23 18:02", isCompleted: false },
         { isChild: false, title: " uv动画模型  ", content: " uv动画模型，做UV偏移动画，支持横纵向移动、uv缩放比例、播放速度。如：特效、烟花、热点  ", tip: "服装", date: "2023-4-23 18:02", isCompleted: true },
         { isChild: false, title: " 角色模型上传且映射动作  ", content: " 角色模型上传且映射动作  ", tip: "服装", date: "2023-4-23 18:02", isCompleted: true },
-        { isChild: false, title: " 组合模型  ", content: " 组合单个模型，方便在场景中快速摆放  ", tip: "服装", date: "2023-4-23 18:02", isCompleted: false },
+        { isChild: false, title: " 组合模型  ", 
+        content: " 组合单个模型，方便在场景中快速摆放  ", 
+        tip: "服装", date: "2023-4-23 18:02", isCompleted: true },
         { isChild: false, title: " 摆放模型生成场景  ", content: " 编辑（移动、缩放、旋转、删除）模型、配置太阳光、初始视角、环境光hdr  ", tip: "服装", date: "2023-4-23 18:02", isCompleted: true },
         { isChild: false, title: " 编辑的场景设置密码  ", content: " 编辑好场景后，如果不希望公开，可设置密码，访问需要输入密码。   ", tip: "服装", date: "2023-4-23 18:02", isCompleted: false },
         { isChild: false, content: " 简易粒子特效 ", tip: "", date: "", isCompleted: true },
@@ -87,6 +89,11 @@ export default {
         {
           isChild: false, title: " 场景交互触发  ",
           content: " 制作场景交互：区域trigger、触发后执行事件、通过id控制模型是否显示、是否播放动画   ",
+          tip: "服装", date: "2023-4-23 18:02", isCompleted: false
+        },
+        {
+          isChild: false, title: " 场景和组合编辑模式下支持上传   ",
+          content: " 场景和组合编辑模式下支持上传，独立使用、也可发布到公共素材库   ",
           tip: "服装", date: "2023-4-23 18:02", isCompleted: false
         },
 

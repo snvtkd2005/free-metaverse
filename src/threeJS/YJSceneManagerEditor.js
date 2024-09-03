@@ -549,7 +549,7 @@ class YJSceneManager {
 
       // 角色掉入地下的回调
       _this.YJController.SetplayerPosDownCallback(() => {
-        scope.SetPlayerPos({ x: 0, y: 10, z: 0 });
+        // scope.SetPlayerPos({ x: 0, y: 10, z: 0 });
       });
 
       // 强制横屏 

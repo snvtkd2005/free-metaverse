@@ -3,137 +3,168 @@
   <!-- 场景模型列表 -->
 
   <!-- 单品名:{{ folderBase }} 总模型数量： {{modelList.length}} -->
-  
-  <div class="font-bold bg-gray-600 text-gray-100">{{ title }}</div>
-  <div
-    class="relative w-full h-full pb-10 overflow-y-auto overscroll-auto bg-gray-600 text-gray-100"
-  >
+  <div class="w-full h-full flex flex-col ">
+    
+
+    <div class="font-bold bg-gray-600 text-gray-100 h-6 text-right pr-16">{{ title }}</div>
     <div
-      class="absolute left-0 top-0 w-full h-full"
-      @click="clickEvent('关闭复制粘贴')"
-      @contextmenu.prevent="onContextMenu($event)"
-    ></div>
+      class="relative w-full h-full flex pb-10 overflow-y-auto overscroll-auto bg-gray-600 text-gray-100"
+    >
+    
+    <div
+        class=" absolute left-0 top-0 -z-10 w-full h-full"
+        @click="clickEvent('关闭复制粘贴')"
+        @contextmenu.prevent="onContextMenu($event)"
+      ></div>
 
-    <div class="relative h-full flex flex-col">
-      <div
-        v-for="(item, i) in modelList"
-        :key="i"
-        class="w-full pl-4 text-left text-xs px-1"
-        :class="item.active ? '' : ' hidden '"
-      >
+      <div class="w-32">
         <div
-          @mouseenter.stop="SetDragTop(item.uuid)"
-          @mouseleave="SetDragTopOut()"
-          class="w-full h-1"
-          :class="inDrag ? (dragOnTop ? ' hoverBorderTop ' : '') : ''"
-        ></div>
-
-        <div
-          class="flex justify-between h-5"
-          :class="
-            inDrag
-              ? dragOnTop
-                ? ' hoverBorderTop '
-                : dragOnDown
-                ? ' hoverBorderDown '
-                : dragOnCenter
-                ? 'hoverBorder'
-                : ''
-              : ''
-          "
+          v-for="(item, i) in modelTable"
+          :key="i"
+          :index="item.name"
+          class="mr-2 text-sm w-auto h-6 self-center cursor-pointer flex justify-between"
+          :class="[
+            selectModelTable == item.name
+              ? 'bg-445760 text-white border-t border-b border-l border-gray-400 '
+              : ' text-gray-400 ',
+            item.count > 0 ? '' : 'hidden',
+          ]"
+          @click="SelectTable(item.name)"
         >
-          <div
-            class="w-4 h-4 self-center flex"
-            :style="'margin-left:' + item.paddingLeft + 'px;'"
-          >
-            <div
-              v-if="item.children.length"
-              class="w-full h-full bg-black leading-4 mx-auto text-center text-xl"
-              @click="onoffFolder(item)"
-            >
-              {{ item.folder ? "-" : "+" }}
-            </div>
+          <div class="px-1">
+            {{ item.name }}
           </div>
-          <div
-            class="w-11/12 flex justify-between cursor-pointer relative"
-            @click="SelectModel(item, i)"
-            :class="
-              selectUUID == item.uuid
-                ? ' bg-black  hover:bg-black '
-                : ' hover:bg-gray-500 '
-            "
-            @mousedown="clickBegin(item.uuid)"
-            @contextmenu.prevent="onContextMenu($event, item)"
-          >
-            <!-- <div
+          <div class="px-1">
+            {{ item.count }}
+          </div>
+        </div>
+      </div>
+
+      <div class="relative flex-grow h-full flex flex-col">
+        <div
+          v-for="(item, i) in modelList"
+          :key="i"
+          class="w-full  text-left text-xs "
+          :class="item.active ? '' : ' hidden '"
+        >
+          <div v-if="item.modelType == selectModelTable">
+            <div
+              @mouseenter.stop="SetDragTop(item.uuid)"
+              @mouseleave="SetDragTopOut()"
+              class="w-full h-1"
+              :class="inDrag ? (dragOnTop ? ' hoverBorderTop ' : '') : ''"
+            ></div>
+
+            <div
+              class="flex justify-between h-5"
+              :class="
+                inDrag
+                  ? dragOnTop
+                    ? ' hoverBorderTop '
+                    : dragOnDown
+                    ? ' hoverBorderDown '
+                    : dragOnCenter
+                    ? 'hoverBorder'
+                    : ''
+                  : ''
+              "
+            >
+              <div
+                class="w-4 h-4 self-center flex"
+                :style="'margin-left:' + item.paddingLeft + 'px;'"
+              >
+                <div
+                  v-if="item.children.length"
+                  class="w-full h-full bg-black leading-4 mx-auto text-center text-xl"
+                  @click="onoffFolder(item)"
+                >
+                  {{ item.folder ? "-" : "+" }}
+                </div>
+              </div>
+              <div
+                class="w-11/12 flex justify-between cursor-pointer relative"
+                @click="SelectModel(item, i)"
+                :class="
+                  selectUUID == item.uuid
+                    ? ' bg-black  hover:bg-black '
+                    : ' hover:bg-gray-500 '
+                "
+                @mousedown="clickBegin(item.uuid)"
+                @contextmenu.prevent="onContextMenu($event, item)"
+              >
+                <!-- <div
               v-if="inDrag"
               @mouseenter.stop="SetDragDown(item.uuid)"
               @mouseleave="SetDragDownOut()"
               class="absolute left-0 bottom-0 w-full h-2"
             ></div> -->
-            <div
-              v-if="inDrag"
-              @mouseenter.stop="SetDragCenter(item.uuid)"
-              class="absolute left-0 top-1 w-full h-4"
-            ></div>
+                <div
+                  v-if="inDrag"
+                  @mouseenter.stop="SetDragCenter(item.uuid)"
+                  class="absolute left-0 top-1 w-full h-4"
+                ></div>
 
-            <div
-              class="w-2/3 self-center truncate"
-              :style="'padding-left:' + item.paddingLeft + 'px;'"
-            >
-              {{ item.name + "-" + item.modelId }}
-            </div>
-            <div class="self-center text-left truncate w-12">
-              {{ item.modelType }}
-            </div>
-          </div>
-          <!-- <div class=" ml-2 mt-1 w-8 "> 
+                <div
+                  class="w-2/3 self-center truncate"
+                  :style="'padding-left:' + item.paddingLeft + 'px;'"
+                >
+                  {{ item.name + "-" + item.modelId }}
+                </div>
+                <div class="self-center text-left truncate w-12">
+                  {{ item.modelType }}
+                </div>
+              </div>
+              <!-- <div class=" ml-2 mt-1 w-8 "> 
           <div>锁定</div>
         </div> -->
+            </div>
+          </div>
         </div>
+
+        <div
+          v-if="inDrag || true"
+          @mouseenter.stop="SetDragTop()"
+          @mouseleave="SetDragTopOut()"
+          class="w-full h-full flex-grow-0"
+          :class="inDrag ? (dragOnTop ? ' hoverBorderTop ' : '') : ''"
+        ></div>
       </div>
 
+      <!-- 悬浮信息的父物体 -->
       <div
-        v-if="inDrag || true"
-        @mouseenter.stop="SetDragTop()"
-        @mouseleave="SetDragTopOut()"
-        class="w-full h-full flex-grow-0 "
-        :class="inDrag ? (dragOnTop ? ' hoverBorderTop ' : '') : ''"
+        ref="hoverParentRef"
+        class="absolute left-0 top-0 w-full h-full pointer-events-none"
       ></div>
-    </div>
 
-    <!-- 悬浮信息的父物体 -->
-    <div
-      ref="hoverParentRef"
-      class="absolute left-0 top-0 w-full h-full pointer-events-none"
-    ></div>
-
-    <div
-      ref="hoverContent"
-      v-show="inRightClick"
-      class="absolute transform origin-bottom-left left-0 top-0 w-auto bg-white text-black border pointer-events-auto"
-    >
-      <div 
-        class="hover:bg-gray-400 px-4 w-32 text-center cursor-pointer"
-        @click="clickEvent('创建空物体')"
-      >
-        创建空物体
-      </div>
       <div
-        v-show="canCopy"
-        class="hover:bg-gray-400 px-4 cursor-pointer"
-        @click="clickEvent('复制')"
+        ref="hoverContent"
+        v-show="inRightClick"
+        class="absolute transform origin-bottom-left left-0 top-0 w-auto bg-white text-black border pointer-events-auto"
       >
-        复制
-      </div>
-      <div
-        class="hover:bg-gray-400 px-4"
-        :class="
-          canPaste ? ' cursor-pointer  ' : ' pointer-events-none text-gray-300'
-        "
-        @click="clickEvent('粘贴')"
-      >
-        粘贴
+        <div
+          class="hover:bg-gray-400 px-4 w-32 text-center cursor-pointer"
+          @click="clickEvent('创建空物体')"
+        >
+          创建空物体
+        </div>
+        <div
+          v-show="canCopy"
+          class="hover:bg-gray-400 px-4 cursor-pointer"
+          @click="clickEvent('复制')"
+        >
+          复制
+        </div>
+        <div
+          class="hover:bg-gray-400 px-4"
+          :class="
+            canPaste
+              ? ' cursor-pointer  '
+              : ' pointer-events-none text-gray-300'
+          "
+          @click="clickEvent('粘贴')"
+        >
+          粘贴
+        </div>
       </div>
     </div>
   </div>
@@ -146,6 +177,9 @@ export default {
   components: {},
   data() {
     return {
+      modelTable: [],
+      selectModelTable: "",
+
       inDrag: false,
       dragOnTop: false,
       dragOnDown: false,
@@ -163,6 +197,16 @@ export default {
   },
   created() {},
   mounted() {
+    if (this.title == "group") {
+      this.modelTable = this.UIData.customPanel.selectModel_group;
+    } else {
+      this.modelTable = this.UIData.customPanel.selectModel;
+    }
+    this.modelTable.push({ name: "几何体模型" });
+    for (let j = 0; j < this.modelTable.length; j++) {
+      this.modelTable[j].count = 0;
+    }
+
     window.addEventListener("mouseup", () => {
       if (this.inDrag) {
         this.chengeSiblingIndex();
@@ -210,6 +254,9 @@ export default {
       `;
   },
   methods: {
+    SelectTable(e) {
+      this.selectModelTable = e;
+    },
     onContextMenu(ev, item) {
       // 阻止默认的上下文菜单显示
       ev.preventDefault();
@@ -278,12 +325,11 @@ export default {
       if (e == "关闭复制粘贴") {
         this.inRightClick = false;
       }
-      
+
       if (e == "创建空物体") {
         _Global._SceneModelManager.CreateEmpty();
         this.inRightClick = false;
       }
-      
     },
 
     chengeSiblingIndex() {
@@ -424,11 +470,28 @@ export default {
             parent: e.parent,
             children: e.children,
             active: true,
-            paddingLeft: 0,
+            paddingLeft: 2,
           });
 
           if (e.children.length > 0) {
             this.addChildren(modelList, e.children, 1);
+          }
+        }
+      }
+
+      for (let j = 0; j < this.modelTable.length; j++) {
+        this.modelTable[j].count = 0;
+      }
+      for (let i = 0; i < this.modelList.length; i++) {
+        const model = this.modelList[i];
+        for (let j = 0; j < this.modelTable.length; j++) {
+          const element = this.modelTable[j];
+          if (model.modelType == element.name) {
+            element.count++;
+
+            if (this.selectModelTable == "") {
+              this.selectModelTable = element.name;
+            }
           }
         }
       }
@@ -501,6 +564,7 @@ export default {
       }
     },
     SelectModelByIndex(i) {
+      this.inRightClick = false;
       if (i >= this.modelList.length) {
         i = 0;
       }
@@ -515,6 +579,7 @@ export default {
     },
     // 点击检视面板选中模型
     SelectModel(item, i) {
+      this.inRightClick = false;
       console.log(" 点击检视面板选中模型 ", item);
       this.selectIndex = i;
       this.selectUUID = item.uuid;

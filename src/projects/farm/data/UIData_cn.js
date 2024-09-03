@@ -8,7 +8,7 @@ export default {
     { id: 10000, content: "虚拟形象", routerPath: "/selectPlayer", },
     // { id: 10000, content: "素材库", routerPath: "/store", },
     // { id: 10000, content: "模型需求", routerPath: "/witkey", },
-    { id: 10000, content: "创作/素材库", routerPath: "/selfPanel", },
+    { id: 10000, content: "共同创作/公共素材库", routerPath: "/selfPanel", },
     { id: 10000, content: "开发计划", routerPath: "/developPlan", },
     // { id: 10000, content: "意见反馈", routerPath: "/developPlan", },
   ],

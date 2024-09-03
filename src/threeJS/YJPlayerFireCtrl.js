@@ -1135,7 +1135,13 @@ class YJPlayerFireCtrl {
 				if (_YJEquip == null) {
 					_YJEquip = new YJEquip(scope);
 				}
-				
+
+				_YJPlayer.GetAnimator().addEventListener("动作结束", () => {
+					if (!_YJSkill.GetinSkill()) {
+						GetAnimNameByPlayStateAndWeapon("normal", weaponData);
+						scope.ChangeAnim(animName, animNameFullback);
+					}
+				});
 			}
 			scope.id = _Global.user.id;
 

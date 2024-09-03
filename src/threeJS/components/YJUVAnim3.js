@@ -2,7 +2,7 @@
 import * as THREE from "three";
 
 class YJUVAnim3 {
-  constructor(_this,model,parent) {
+  constructor(_this, model, parent) {
     var scope = this;
     let num = 0;
 
@@ -18,9 +18,9 @@ class YJUVAnim3 {
 
     let delay = 20;
 
-    let pointObj = []; 
+    let pointObj = [];
     function InitFn() {
-      
+
       pointObj.splice(0, pointObj.length);
       playing = false;
 
@@ -29,34 +29,35 @@ class YJUVAnim3 {
       scaleX = 1 / row;
       scaleY = 1 / col;
       speed = data.speed;
-      if(data.speedY != undefined){
+      if (data.speedY != undefined) {
         speedY = data.speedY;
       }
       delay = data.delay;
 
-      let material = null; 
+      let material = null;
 
 
       let map = null;
-      if(data.gifPath){
+      if (data.gifPath) {
         material = new THREE.MeshBasicMaterial({
           // alphaTest:0.5,
           transparent: true,
           // depthTest: false, //在所有模型最前端渲染
           depthWrite: false, // 透明物体之间不相互遮挡
+          
           // color: 0xffffff, 
-  
+
         }); // 材质
 
         map = new THREE.TextureLoader().load(_this.$uploadUVAnimUrl + data.gifPath);
         map.encoding = 3001;
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
         map.matrixAutoUpdate = false; // set this to false to update texture.matrix manually
-      }else{
+      } else {
         model.traverse(function (item) {
           if (item instanceof THREE.Mesh) {
-            material = item.material;
-            map = item.material.map ;
+            material = item.material; 
+            map = item.material.map;
             map.matrixAutoUpdate = false; // set this to false to update texture.matrix manually
           }
         });
@@ -75,39 +76,41 @@ class YJUVAnim3 {
       // 黑色背景的图片
       if (data.isBlack != undefined && data.isBlack) {
         material.blending = THREE.AdditiveBlending;
+      }else{
+        material.blending = THREE.NormalBlending;
       }
-      
+
       model.traverse(function (item) {
         if (item instanceof THREE.Mesh) {
-          item.material = material;
+          item.material = material; 
           item.castShadow = false;
           item.receiveShadow = false;
           pointObj.push(item);
         }
       });
       model.renderOrder = 1;
-      if(speed != 0 || speedY != 0){
+      if (speed != 0 || speedY != 0) {
         setTimeout(() => {
           playing = true;
         }, 20);
       }
-      if(speed == 0 && speedY == 0){
+      if (speed == 0 && speedY == 0) {
         playing = false;
       }
- 
+
       // if(data.isLookatCam){
       //   _this._YJSceneManager.AddLookatHotPoint(parent,data);
       // }
     }
     let data = null;
-    this.SetMessage = function ( msg) {
+    this.SetMessage = function (msg) {
       if (msg == null || msg == undefined || msg == "") { return; }
       // data = JSON.parse(msg);
       data = (msg);
       // console.log("in uvanim3 msg = ", data);
-      
+
       // _this._YJSceneManager.RemoveLookatHotPoint(parent);
-        
+
       InitFn();
     }
 
@@ -116,7 +119,7 @@ class YJUVAnim3 {
     }
 
     //删除模型
-    this.Destroy = function () { 
+    this.Destroy = function () {
       // _this._YJSceneManager.RemoveLookatHotPoint(parent);
     }
 
@@ -127,7 +130,7 @@ class YJUVAnim3 {
     let numX = 0;
     let oldNum = 0;
 
-    this._update = () => { 
+    this._update = () => {
 
       if (playing) {
         if (pointObj.length > 0) {
@@ -144,7 +147,7 @@ class YJUVAnim3 {
                 texture.matrix
                   .identity()
                   .scale(1, 1)        //sprite  序列分为17*1，所以缩放为x=1/17 , y=1
-                  .translate(speed==0?0:(time / speed * 0.01),speedY==0? 0:(time / speedY * 0.01));   //每次平移量为1/17 
+                  .translate(speed == 0 ? 0 : (time / speed * 0.01), speedY == 0 ? 0 : (time / speedY * 0.01));   //每次平移量为1/17 
               }
 
             } else {
@@ -213,18 +216,18 @@ class YJUVAnim3 {
 
         }
       }
- 
-      if(data.isLookatCam){
-        
-        var lookatPos = new THREE.Vector3();  
+
+      if (data.isLookatCam) {
+
+        var lookatPos = new THREE.Vector3();
         _Global.YJ3D.camera.getWorldPosition(lookatPos);
-        if(data.isLockY){
+        if (data.isLockY) {
           var nameWorlPos = new THREE.Vector3();
           parent.getWorldPosition(nameWorlPos);
-          lookatPos.y = nameWorlPos.y; 
+          lookatPos.y = nameWorlPos.y;
         }
         parent.lookAt(lookatPos);
-        
+
       }
 
 

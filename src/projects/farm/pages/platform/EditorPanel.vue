@@ -167,7 +167,7 @@
           panelData.hierarchyStyle.hover ? ' bg-gray-400 ' : ' bg-opacity-0'
         "
       ></div>
-      <hierarchy ref="hierarchyPanel" title="场景模型列表" />
+      <hierarchy class=" w-full h-full" ref="hierarchyPanel" title="场景模型列表" />
     </div>
 
     <loadingPanel

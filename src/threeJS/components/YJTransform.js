@@ -15,7 +15,7 @@ import { YJTween } from "./YJTween";
  */
 
 class YJTransform {
-  constructor(_this, scene, id, pos, rota, name, callback) {
+  constructor( scene, id, pos, rota, name, callback) {
     let scope = this;
     this.transform = scope;
     this.isYJTransform = true;
@@ -286,10 +286,10 @@ class YJTransform {
       data.active = b;
 
       if (b) {
-        _this._YJSceneManager.AddNeedUpdateJS(scope);
+        _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(scope);
         this.CreateCollider();
       } else {
-        _this._YJSceneManager.RemoveNeedUpdateJS(scope);
+        _Global.YJ3D._YJSceneManager.RemoveNeedUpdateJS(scope);
         this.DestroyCollider();
       }
 
@@ -320,6 +320,10 @@ class YJTransform {
         }
         if (this.GetComponent("Trail")) {
           this.GetComponent("Trail").start();
+        }
+        
+        if (this.GetComponent("Particle")) {
+          this.GetComponent("Particle").Reset();
         }
       } else {
         if (message.pointType == "interactive") {
@@ -584,7 +588,7 @@ class YJTransform {
     }
     //删除模型
     this.Destroy = function () {
-      _this._YJSceneManager.RemoveNeedUpdateJS(scope);
+      _Global.YJ3D._YJSceneManager.RemoveNeedUpdateJS(scope);
       for (let i = 0; i < components.length; i++) {
         const element = components[i];
         if (element.js.Destroy) {
@@ -592,7 +596,7 @@ class YJTransform {
         }
       }
       this.DestroyCollider();
-      _this._YJSceneManager.clearGroup(group);
+      _Global.YJ3D._YJSceneManager.clearGroup(group);
       scene.remove(group);
     }
 

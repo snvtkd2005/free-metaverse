@@ -1,5 +1,4 @@
 
-// 骨骼映射
 <template> 
   <div v-if="isOpen" class="
       absolute
@@ -74,6 +73,7 @@
 
 import YJinput_text from "../components/YJinput_text.vue";
 
+// 骨骼映射
 export default {
   name: "boneConvertPanel",
 

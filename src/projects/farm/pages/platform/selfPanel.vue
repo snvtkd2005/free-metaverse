@@ -105,6 +105,10 @@
               <div class="cursor-pointer" @click="Editor(item)">
                 {{ base.editor }}
               </div>
+              <div class="cursor-pointer" @click="Copy(item)">
+                {{ base.copy }}
+                 
+              </div>
               <div class="cursor-pointer" @click="Delete(item, i)">
                 {{ base.delete }}
               </div>
@@ -729,7 +733,9 @@ import {
   UploadGroupFile,
   GetAllAudio,
   UploadAudioFile,
+  CopyFolderBase,
 } from "../../js/uploadThreejs.js";
+import { RandomInt } from '../../../../utils/utils.js';
 
 export default {
   name: "selfPanel",
@@ -1153,7 +1159,11 @@ export default {
 
       GetAllModel().then((res) => {
         console.log("获取所有单品模型 ", res);
-        //先记录旧照片
+        //先记录旧照片 
+        let flag = false;
+        if (res.data.txtFolderBaseList) {
+          flag = true;
+        }
         if (res.data.txtDataList) {
           let txtDataList = res.data.txtDataList;
           let modelsList = [];
@@ -1168,8 +1178,10 @@ export default {
           }
           for (let i = 0; i < modelsList.length; i++) {
             const element = modelsList[i];
-
-            element.icon = element.folderBase + "/" + "thumb.png";
+            if(flag){
+              element.folderBase = res.data.txtFolderBaseList[i];
+            }
+            element.icon = element.folderBase + "/" + "thumb.png"; 
             this.modelsList.push(element);
           }
         }
@@ -1256,17 +1268,15 @@ export default {
 
       // 创建单品
       if (this.createForm.title == "单品") {
-        let folderBase = new Date().getTime();
-        let icon = folderBase + "/" + "thumb.png";
+        let folderBase = new Date().getTime(); 
         let modelData = {
-          name: this.createForm.modelName,
-          icon: icon,
-          modelType: this.createForm.template,
-          folderBase: folderBase,
+          name: this.createForm.modelName, 
+          modelType: this.createForm.template, 
+          folderBase:folderBase,
         };
 
         this.modelsList.push(modelData);
-        //保存到后台
+        //保存到服务器
         let s = JSON.stringify(modelData);
         let fromData = new FormData();
         //服务器中的本地地址
@@ -1348,7 +1358,22 @@ export default {
         path: "/editorScene",
       });
     },
-
+    Copy(item){
+      let path = "uploads/";
+      if (item.modelType == "组合") {
+        path = "uploadsGroup/"; 
+      }
+      let fromData = new FormData();
+      fromData.append("folderBase", item.folderBase);
+      fromData.append("newfolderBase", item.folderBase+"" + RandomInt(100000,999999)+"" + RandomInt(100000,999999));
+      fromData.append("type", path);
+      CopyFolderBase(fromData).then((res) => {
+        console.log(" 复制成功 ", res);
+        //刷新页面
+        this.modelsList = []; 
+        this.RequestGetAllModel();
+      });
+    },
     // 编辑
     Editor(item) {
       console.log(" 编辑 ", item);

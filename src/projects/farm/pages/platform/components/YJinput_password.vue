@@ -1,7 +1,5 @@
-
-// 场景设置
-<template>
-  <!-- 顶部 -->
+ 
+<template> 
   <input class=" w-full px-1 input-bg" ref="input" type="password" :value="value" @focus="focus" @blur="blur">
 </template>
 

@@ -8,50 +8,10 @@ import { checkV3Equel } from '/@/utils/utils_threejs.js';
 // 制作选中角色脚下的光圈
 
 class YJProjector {
-  constructor(_this, scene, modelParent, size) {
+  constructor( scene, modelParent, size) {
     var scope = this;
-
-    //初始化 
-    let camera = null;
-    let group = null;
-    var model = null;
-
-    function Init() {
-      group = new THREE.Group();
-      parent.add(group);
-      group.visible = false;
-
-      CreatePlane(); return;
-
-      let width = 300;
-      let height = 300;
-
-
-      const map = new THREE.TextureLoader().load(
-        _this.GetPublicUrl() + "checkPoint.png"
-      );
-
-      // let cubeRenderTarget = new THREE.WebGLRenderer(256);
-      // cubeRenderTarget.texture.type = THREE.HalfFloatType;
-      // camera = new THREE.OrthographicCamera(width / - 2, width / 2, height / 2, height / - 2, 1, 1000,cubeRenderTarget);
-
-      const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(1024);
-      camera = new THREE.CubeCamera(0.05, 50, cubeRenderTarget);
-
-      group.add(camera);
-      camera.position.set(0, 3, 0);
-      camera.rotation.set(-Math.PI / 2, 0, 0);
-      let projectMat = new THREE.MeshBasicMaterial({
-        // map:  cubeRenderTarget.texture,
-        map: map,
-        color: 0x00ffff,
-        transparent: true,
-        opacity: 0.5,
-      });
-
-      update();
-    }
-
+ 
+    let group = null; 
     let scaleByHeight = 0.8; //光圈大小随高度变化的比例
     // 在选中npc、其他玩家下，生成光圈
     this.Active = (parent, height, camp) => {
@@ -126,7 +86,7 @@ class YJProjector {
 
 
     const decalMaterial = new THREE.MeshBasicMaterial({
-      map: _this._YJSceneManager.checkLoadTexture(  "./public/images/checkPoint.png"),
+      map: _Global.YJ3D._YJSceneManager.checkLoadTexture(  "./public/images/checkPoint.png"),
       transparent: true,
       color: 0x00ffff,
       opacity: 0.5,
@@ -248,9 +208,9 @@ class YJProjector {
     // 当目标的位置改变时，刷新它底下的光圈
     function UpdateDecal() {
       // if (targetPlayer == null) { return; }
-      // let pos = _this._YJSceneManager.GetWorldPosition(targetPlayer);
-      // let pos = _this.YJPlayer.GetWorldPos();
-      let pos = _this._YJSceneManager.GetPlayerPos();
+      // let pos = _Global.YJ3D._YJSceneManager.GetWorldPosition(targetPlayer);
+       
+      let pos = _Global.YJ3D._YJSceneManager.GetPlayerPos();
 
       if (!checkV3Equel(targetPlayerOldPos, pos)) {
         targetPlayerOldPos = pos.clone();
@@ -269,53 +229,7 @@ class YJProjector {
       // times = 0;
       // UpdateDecal();
 
-    }
-    function onPointerDown(event) {
-      return;
-      // console.log(" player pos = >", pos);
-      if (targetPlayer == null) {
-        targetPlayer = _this.YJPlayer.GetPlayerGroup();
-        return;
-      }
-
-      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
-
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObjects(modelParent.children, true);
-      // console.log(found);
-      if (intersects.length > 0) {
-
-        let has = false;
-        let hitObj = null;
-        for (let i = 0; i < intersects.length && !has; i++) {
-          const element = intersects[i].object;
-          if (element.visible) {
-            hitObj = element;
-            has = true;
-          }
-        }
-        if (hitObj) {
-
-          const p = intersects[0].point;
-          mouseHelper.position.copy(p);
-          intersection.point.copy(p);
-
-          const n = intersects[0].face.normal.clone();
-          n.transformDirection(hitObj.matrixWorld);
-          n.multiplyScalar(10);
-          n.add(intersects[0].point);
-
-          intersection.normal.copy(intersects[0].face.normal);
-          mouseHelper.lookAt(n);
-          GenerateDecal(hitObj);
-
-          console.log(" 鼠标位置的模型 ", hitObj, intersects[0]);
-        }
-
-      }
-
-    }
+    } 
   }
 }
 

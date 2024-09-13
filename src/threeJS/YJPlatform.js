@@ -40,7 +40,7 @@ class YJPlatform {
 			// plane.position.copy(pos2);
 
 
-			_this._YJSceneManager.GetAmmo().CreateTriangeMeshTrigger(plane, plane.scale, id, "platform", scope);
+			_Global.YJ3D._YJSceneManager.GetAmmo().CreateTriangeMeshTrigger(plane, plane.scale, id, "platform", scope);
 
 			return plane;
 		}
@@ -83,7 +83,7 @@ class YJPlatform {
 			// group.add(plane);
 
 			// group.add(new THREE.AxesHelper(1));
-			// _this._YJSceneManager.GetAmmo().CreateTriangeMeshCollider(plane);
+			// _Global.YJ3D._YJSceneManager.GetAmmo().CreateTriangeMeshCollider(plane);
 
 			trigger = CreateTigger(plane);
 
@@ -414,12 +414,12 @@ class YJPlatform {
 				group.position.copy(pos);
 				// plane.position.copy(pos);
 
-				// _this._YJSceneManager.GetAmmo().SetColliderPos(plane,pos);
+				// _Global.YJ3D._YJSceneManager.GetAmmo().SetColliderPos(plane,pos);
 
 
 				// let pos2 = pos.clone();
 				// pos2.y += 0.5;
-				// _this._YJSceneManager.GetAmmo().SetColliderPos(trigger, pos2);
+				// _Global.YJ3D._YJSceneManager.GetAmmo().SetColliderPos(trigger, pos2);
 
 			} else {
 				// Remove node from the path we calculated

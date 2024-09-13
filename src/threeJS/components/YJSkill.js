@@ -707,7 +707,7 @@ class YJSkill {
                 }
 
 
-                if (targetType == "none" || targetType == "self" || targetType == "selfPos") {
+                if (targetType == "none" || targetType == "self" ) {
                     let { type, value, time, duration, describe, controlId } = effect;
 
                     if (type == "addHealth") {
@@ -915,7 +915,7 @@ class YJSkill {
                     }
 
                 }
-                if (targetType == "none" || targetType == "selfPos") {
+                if (targetType == "none" ) {
                     //有效攻击 && 
                     if (!SendSkill(effect, skillItem)) {
                         return false;
@@ -1012,7 +1012,7 @@ class YJSkill {
                 }
 
 
-                if (targetType == "none" || targetType == "self" || targetType == "selfPos") {
+                if (targetType == "none" || targetType == "self" ) {
 
 
                 }

@@ -1,8 +1,5 @@
  
-<template>
-  <!-- 组件列表 -->
-  
-        <!-- 单品名:{{ folderBase }} 总模型数量： {{modelList.length}} -->
+<template> 
   <div class=" mx-auto w-60 h-40 border-px border-gray-400 max-h-96  bg-445760 text-gray-100 ">
     <!-- <div>组件列表</div> -->
     <div v-for="(item, i) in components" :key="i" class=" w-full text-left hover:bg-black px-2 h-6 cursor-pointer   "
@@ -18,9 +15,6 @@
 </template>
 
 <script>
-
-
-
 export default {
   name: "AddComponentPanel", 
   components: {

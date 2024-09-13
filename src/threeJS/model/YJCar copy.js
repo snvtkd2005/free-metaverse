@@ -148,7 +148,7 @@ class YJCar {
       if (carData.wheelPath != "") {
         console.log("carData", carData);
         let modelPath = carData.wheelPath;
-        _YJLoadModel = new YJLoadModel(_this, scene);
+        _YJLoadModel = new YJLoadModel( scene);
         _YJLoadModel.load(id, _this.$uploadUrl + modelPath,
           pos, new THREE.Vector3(0, Math.PI / 2, 0), size, false, null, (scope) => {
             let model = scope.GetModel();
@@ -186,9 +186,9 @@ class YJCar {
 
     // 销毁
     this.Destroy = function () {
-      _this._YJSceneManager.ClearMesh(chassisMesh);
+      _Global.YJ3D._YJSceneManager.ClearMesh(chassisMesh);
       for (let index = wheelMeshes.length - 1; index >= 0; index--) {
-        _this._YJSceneManager.ClearMesh(wheelMeshes[index]);
+        _Global.YJ3D._YJSceneManager.ClearMesh(wheelMeshes[index]);
       }
     }
 
@@ -794,9 +794,9 @@ class YJCar {
       //   });
       // }
       //删除碰撞体
-      // _this._YJSceneManager.RemoveCollider(trigger);
-      // _this._YJSceneManager.RemoveCollider(bucket);
-      // _this._YJSceneManager.RemoveCollider(wjjPlane001);
+      // _Global.YJ3D._YJSceneManager.RemoveCollider(trigger);
+      // _Global.YJ3D._YJSceneManager.RemoveCollider(bucket);
+      // _Global.YJ3D._YJSceneManager.RemoveCollider(wjjPlane001);
     }
 
     //放下后，获取模型的坐标和旋转，记录到服务器，让其他客户端创建

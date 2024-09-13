@@ -1292,7 +1292,7 @@ class YJAmmo {
               SetMyCtrlRbParent(newItem.owner.GetModel(), newItem.modelId);
               continue;
             }
-            _this._YJSceneManager.ChangeJiaohuArea(true, newItem.modelId, newItem.triggerName, newItem);
+            _Global.YJ3D._YJSceneManager.ChangeJiaohuArea(true, newItem.modelId, newItem.triggerName, newItem);
 
           }
         }
@@ -1319,7 +1319,7 @@ class YJAmmo {
               SetMyCtrlRbParent(scene, "scene");
               continue;
             }
-            _this._YJSceneManager.ChangeJiaohuArea(false, newItem.modelId, newItem.triggerName, newItem);
+            _Global.YJ3D._YJSceneManager.ChangeJiaohuArea(false, newItem.modelId, newItem.triggerName, newItem);
 
           }
         }

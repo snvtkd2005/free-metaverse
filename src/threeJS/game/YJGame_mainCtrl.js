@@ -1,8 +1,7 @@
-import { YJSpriteMerged } from "../YJSpriteMerged";
 
 
-
-
+import { YJSpriteMerged } from "../common/YJSpriteMerged";
+import { YJPlayerFireCtrl } from "../common/YJPlayerFireCtrl.js"; //战斗控制
 
 /**
  * roguelike角色控制方式：
@@ -26,9 +25,14 @@ class YJGame_mainCtrl {
       _Global.YJ3D.pauseRender = false;
     }
     function init() {
-      // console.error(" in YJGame_mainCtrl "); 
+      console.error(" in YJGame_mainCtrl "); 
 
       _Global._YJGame_mainCtrl = scope;
+ 
+
+      new YJPlayerFireCtrl(_Global.YJ3D.YJController, _Global.YJ3D.YJPlayer);
+
+
       _Global.addEventListener('游戏暂停', () => {
         pauseGame();
       });

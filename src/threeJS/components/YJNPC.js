@@ -21,7 +21,7 @@ import { CreateCapsuleCollider } from "../../utils/utils_threejs";
 // 4，设置 交互内容，图、文、视频
 
 class YJNPC {
-  constructor(_this, parent, _YJAnimator) {
+  constructor( parent, _YJAnimator) {
     var scope = this;
     this.fireId = -1; //战斗组id  -1表示未在战斗中
     this.isDead = false;
@@ -387,9 +387,9 @@ class YJNPC {
     }
 
     let temp = new THREE.Group();
-    _this.scene.add(temp);
+    _Global.YJ3D.scene.add(temp);
     let temp2 = new THREE.Group();
-    _this.scene.add(temp2);
+    _Global.YJ3D.scene.add(temp2);
 
     // 判断两点之间是否可以直接到达，即两点之间是否有障碍物，有障碍物表示不可直接到达
     function CheckColliderBetween(fromPos, targetPos) {
@@ -400,7 +400,7 @@ class YJNPC {
       temp.lookAt(temp2.position);
       let direction = temp.getWorldDirection(new THREE.Vector3());
       var raycaster_collider = new THREE.Raycaster(fromPos, direction, 0, 1 * fromPos.distanceTo(targetPos));
-      var hits = raycaster_collider.intersectObjects(_this._YJSceneManager.GetAllColliderAndLand(), true);
+      var hits = raycaster_collider.intersectObjects(_Global.YJ3D._YJSceneManager.GetAllColliderAndLand(), true);
 
 
       if (hits.length > 0) {
@@ -421,7 +421,7 @@ class YJNPC {
       temp.lookAt(temp2.position);
       let direction = temp.getWorldDirection(new THREE.Vector3());
       var raycaster_collider = new THREE.Raycaster(fromPos, direction, 0, 1 * fromPos.distanceTo(targetPos));
-      var hits = raycaster_collider.intersectObjects(_this._YJSceneManager.GetAllColliderAndLand(), true);
+      var hits = raycaster_collider.intersectObjects(_Global.YJ3D._YJSceneManager.GetAllColliderAndLand(), true);
       if (hits.length > 0) {
         for (let i = 0; i < hits.length; i++) {
           const hit = hits[i].object;
@@ -2076,10 +2076,9 @@ class YJNPC {
       raytDricV3.z *= d;
 
       // dricGroup.position.copy(raytDricV3);
-      var raycaster = new THREE.Raycaster(pos, raytDricV3, 0, 100);
-      // var hits = raycaster.intersectObjects( _this.pointsParent, true);
+      var raycaster = new THREE.Raycaster(pos, raytDricV3, 0, 100); 
       // var hits = raycaster.intersectObjects(parent.children, true);
-      var hits = raycaster.intersectObjects(_this._YJSceneManager.GetAllLandCollider(), true);
+      var hits = raycaster.intersectObjects(_Global.YJ3D._YJSceneManager.GetAllLandCollider(), true);
 
       if (hits.length > 0) {
         for (let i = 0; i < hits.length; i++) {
@@ -2094,30 +2093,7 @@ class YJNPC {
       pos.y -= 5;
       return pos.clone();
     }
-
-    let lookAtObj = null;
-
-    // 姓名条始终朝向摄像机
-    function nameTransLookatCamera() {
-      if (namePosTrans != null) {
-        var lookatPos = new THREE.Vector3();
-        var camWorlPos = new THREE.Vector3();
-        _this.camera.getWorldPosition(camWorlPos);
-        lookatPos.x = camWorlPos.x;
-        lookatPos.z = camWorlPos.z;
-        var nameWorlPos = new THREE.Vector3();
-        namePosTrans.getWorldPosition(nameWorlPos);
-        // lookatPos.y = nameWorlPos.y ;
-        lookatPos.y = Math.max(nameWorlPos.y, camWorlPos.y);
-        namePosTrans.lookAt(lookatPos);
-      }
-
-      if (lookAtObj != null) {
-        var fromPos = new THREE.Vector3();
-        lookAtObj.getWorldPosition(fromPos);
-        group.lookAt(fromPos.x, fromPos.y, fromPos.z);
-      }
-    }
+ 
 
     this.InFire = function () {
       return baseData.state == stateType.Fire;
@@ -2351,7 +2327,7 @@ class YJNPC {
     //#endregion
     function SetLocalToWorldPos(pos){
       if(scope.transform.GetData().parent){
-        _this.scene.attach(_Global.tempModel);
+        _Global.YJ3D.scene.attach(_Global.tempModel);
         _Global.tempModel.position.copy(pos);
         parent.parent.attach(_Global.tempModel); 
         parent.position.copy(_Global.tempModel.position.clone());

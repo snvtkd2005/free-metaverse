@@ -87,7 +87,7 @@ export default {
 
     UpdateJoystick() {
       requestAnimationFrame(this.UpdateJoystick);
-      this.$parent.$refs.YJmetaBase.ThreejsHumanChat.JoystickAxis(
+      _Global.YJ3D.JoystickAxis(
         this.Joystick.axisX,
         this.Joystick.axisY
       );
@@ -97,10 +97,7 @@ export default {
         this.Joystick.axisY
       );
       }
-      // this.$parent.JoystickAxis(
-      //   this.Joystick.axisX,
-      //   this.Joystick.axisY
-      // ); 
+      
       if (this.Joystick.axisX != 0 || this.Joystick.axisY != 0) {
         // console.log(this.Joystick.axisX, this.Joystick.axisY);
 

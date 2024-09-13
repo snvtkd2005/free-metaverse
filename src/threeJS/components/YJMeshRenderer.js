@@ -2,23 +2,22 @@
 import * as THREE from "three";
 
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
-import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader.js";
-import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 
-import { MMDLoader } from 'three/examples/jsm/loaders/MMDLoader.js';
-import { MMDAnimationHelper } from 'three/examples/jsm/animation/MMDAnimationHelper.js';
+// import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader.js";
+// import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 
-
-import { ObjectLoader } from "three";
-import { YJLoadAvatarMMD } from "./YJLoadAvatarMMD";
+// import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
+// import { MMDLoader } from 'three/examples/jsm/loaders/MMDLoader.js';
+// import { MMDAnimationHelper } from 'three/examples/jsm/animation/MMDAnimationHelper.js';
+// import { ObjectLoader } from "three";
+// import { YJLoadAvatarMMD } from "./YJLoadAvatarMMD";
 
 // meshRenderer组件
 
 // 加载静态物体
 class YJMeshRenderer {
-  constructor(_this, scene, owner, hasCollider, noShadow, tag) {
+  constructor( scene, owner, hasCollider, noShadow, tag) {
     let scope = this;
 
     var model = null;
@@ -101,94 +100,93 @@ class YJMeshRenderer {
       });
     }
 
-    let equipList = [];
-    // 移除武器
-    this.RemoveWeapon = function () {
-      for (let i = equipList.length - 1; i >= 0; i--) {
-        const item = equipList[i];
-        item.equipModel.parent.remove(item.equipModel);
-        equipList.splice(i, 1);
-      }
-    }
-    this.EditorWeapon = function (msg) {
+    // let equipList = [];
+    // // 移除武器
+    // this.RemoveWeapon = function () {
+    //   for (let i = equipList.length - 1; i >= 0; i--) {
+    //     const item = equipList[i];
+    //     item.equipModel.parent.remove(item.equipModel);
+    //     equipList.splice(i, 1);
+    //   }
+    // }
+    // this.EditorWeapon = function (msg) {
 
-    }
+    // }
 
-    this.AddWeapon = function (weaponData, equipData, boneList, callback) {
-      let data = weaponData.message.data;
-      let realyBoneName = "";
-      let realyPos = equipData.position;
-      let realyRota = equipData.rotation;
-      let realyScale = equipData.scale;
+    // this.AddWeapon = function (weaponData, equipData, boneList, callback) {
+    //   let data = weaponData.message.data;
+    //   let realyBoneName = "";
+    //   let realyPos = equipData.position;
+    //   let realyRota = equipData.rotation;
+    //   let realyScale = equipData.scale;
 
-      for (let i = 0; i < boneList.length; i++) {
-        const item = boneList[i];
-        if (item.targetBone == equipData.targetBone) {
-          realyBoneName = item.boneName;
-        }
-      }
+    //   for (let i = 0; i < boneList.length; i++) {
+    //     const item = boneList[i];
+    //     if (item.targetBone == equipData.targetBone) {
+    //       realyBoneName = item.boneName;
+    //     }
+    //   }
 
-      for (let i = 0; i < equipList.length; i++) {
-        const item = equipList[i];
-        if (item.boneName == realyBoneName && item.weaponType == data.weaponType) {
-          let pos = realyPos;
-          let rotaV3 = realyRota;
-          let scale = realyScale;
-          item.equipModel.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
-          item.equipModel.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
-          item.equipModel.scale.set(100 * scale[0], 100 * scale[1], 100 * scale[2]);
-          return;
-        }
-      }
+    //   for (let i = 0; i < equipList.length; i++) {
+    //     const item = equipList[i];
+    //     if (item.boneName == realyBoneName && item.weaponType == data.weaponType) {
+    //       let pos = realyPos;
+    //       let rotaV3 = realyRota;
+    //       let scale = realyScale;
+    //       item.equipModel.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
+    //       item.equipModel.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
+    //       item.equipModel.scale.set(100 * scale[0], 100 * scale[1], 100 * scale[2]);
+    //       return;
+    //     }
+    //   }
 
-      // console.log(" 加载武器 ", realyBoneName, _this.$uploadUrl + weaponData.modelPath);
-      //加载武器
-      _Global.YJ3D._YJSceneManager.DirectLoadMesh(_this.$uploadUrl + weaponData.modelPath, (meshAndMats) => {
-        scope.GetBoneVague(realyBoneName, (bone) => {
+    //   //加载武器
+    //   _Global.YJ3D._YJSceneManager.DirectLoadMesh(_Global.url.uploadUrl + weaponData.modelPath, (meshAndMats) => {
+    //     scope.GetBoneVague(realyBoneName, (bone) => {
 
-          // let _weaponModel = (meshAndMats.mesh).scene;
-          // let weaponModel = (meshAndMats.mesh).scene;
-          // console.log("weaponModel ",weaponModel);
+    //       // let _weaponModel = (meshAndMats.mesh).scene;
+    //       // let weaponModel = (meshAndMats.mesh).scene;
+    //       // console.log("weaponModel ",weaponModel);
 
-          let _weaponModel = (meshAndMats.mesh).scene;
-          let model = new THREE.Group();
-          model.add(_weaponModel);
-          _weaponModel.position.set(0, 0, 0);
-          _weaponModel.rotation.set(0, 0, 0);
-          if (weaponData.modelPath.includes(".fbx")) {
-            _weaponModel.scale.set(0.01, 0.01, 0.01);
-          } else {
-            _weaponModel.scale.set(1, 1, 1);
-          }
+    //       let _weaponModel = (meshAndMats.mesh).scene;
+    //       let model = new THREE.Group();
+    //       model.add(_weaponModel);
+    //       _weaponModel.position.set(0, 0, 0);
+    //       _weaponModel.rotation.set(0, 0, 0);
+    //       if (weaponData.modelPath.includes(".fbx")) {
+    //         _weaponModel.scale.set(0.01, 0.01, 0.01);
+    //       } else {
+    //         _weaponModel.scale.set(1, 1, 1);
+    //       }
 
-          // console.log(" 找到骨骼并拾取武器",bone,weaponModel);
-          bone.attach(model);
-          bone.weaponModel = model;
-          let pos = realyPos;
-          let rotaV3 = realyRota;
-          let scale = realyScale;
-          model.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
-          model.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
-          model.scale.set(100 * scale[0], 100 * scale[1], 100 * scale[2]);
-          equipList.push({ boneName: realyBoneName, weaponType: data.weaponType, equipModel: model });
+    //       // console.log(" 找到骨骼并拾取武器",bone,weaponModel);
+    //       bone.attach(model);
+    //       bone.weaponModel = model;
+    //       let pos = realyPos;
+    //       let rotaV3 = realyRota;
+    //       let scale = realyScale;
+    //       model.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
+    //       model.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
+    //       model.scale.set(100 * scale[0], 100 * scale[1], 100 * scale[2]);
+    //       equipList.push({ boneName: realyBoneName, weaponType: data.weaponType, equipModel: model });
 
-          if (callback) {
-            callback(model);
-          }
+    //       if (callback) {
+    //         callback(model);
+    //       }
 
-        });
-      });
-    }
+    //     });
+    //   });
+    // }
 
 
-    this.SetSize = function (f) {
-      // console.log("设置模型缩放",f);
+    //#region 模型局部坐标系中的transform值
+    let de2reg = 57.3248407;
+    this.SetSize = function (f) { 
       model.scale.set(meshScale * f, meshScale * f, meshScale * f);
     }
     this.SetRota = function (rota) {
       model.rotation.set(rota.x, rota.y, rota.z);
     }
-    let de2reg = 57.3248407;
     this.SetRotaArray = function (rota) {
       if (!rota) {
         model.rotation.set(0, 0, 0);
@@ -196,7 +194,6 @@ class YJMeshRenderer {
       }
       model.rotation.set(rota[0] / de2reg, rota[1] / de2reg, rota[2] / de2reg);
     }
-
     this.SetPos = function (pos) {
       model.position.set(pos.x, pos.y, pos.z);
     }
@@ -207,35 +204,35 @@ class YJMeshRenderer {
       }
       model.position.set(pos[0], pos[1], pos[2]);
     }
+    //#endregion
 
-    this.RotaY = function (f) {
-      model.rotation.y += f;
-    }
-    this.GetPos = function () {
-      return model.position.clone();
-    }
+    // this.RotaY = function (f) {
+    //   model.rotation.y += f;
+    // }
+    // this.GetPos = function () {
+    //   return model.position.clone();
+    // }
 
     function loadJson() {
-      // const loader = new LegacyJSONLoader();
-      const loader = new ObjectLoader();
-      // const loader = new THREE.BufferGeometryLoader();
-      console.log("正在加载json");
-      // load a resource
-      loader.load(_this.$publicUrl + 'models/WaltHeadLo_buffergeometry.json',
-        // _this.$publicUrl+'models/json/jfc-ext.js',
-        (geometry) => {
-          console.log("正在加载json", geometry);
-          // const material = new THREE.MeshLambertMaterial({ color: 0xF5F5F5 });
-          // const object = new THREE.Mesh(geometry, material);
-          // scene.add(object);
-        }
-      );
+      
+      // const loader = new ObjectLoader();
+      // // const loader = new THREE.BufferGeometryLoader();
+      // console.log("正在加载json");
+      // // load a resource
+      // loader.load(_Global.url.local + 'models/WaltHeadLo_buffergeometry.json', 
+      //   (geometry) => {
+      //     console.log("正在加载json", geometry);
+      //     // const material = new THREE.MeshLambertMaterial({ color: 0xF5F5F5 });
+      //     // const object = new THREE.Mesh(geometry, material);
+      //     // scene.add(object);
+      //   }
+      // );
     }
     //加载热点的obj 模型
     function loadFbx(modelPath, callback, errorback) {
 
 
-      let mesh = _this._YJSceneManager.checkLoadMesh(modelPath);
+      let mesh = _Global.YJ3D._YJSceneManager.checkLoadMesh(modelPath);
       if (mesh != null) {
         LoadMesh(mesh.mesh, callback);
         return;
@@ -300,7 +297,7 @@ class YJMeshRenderer {
 
           scene.add(model);
           // console.log(" 加载模型完成 11 ", model);
-          _this._YJSceneManager.addLoadMesh(modelPath, model);
+          _Global.YJ3D._YJSceneManager.addLoadMesh(modelPath, model);
 
           TraverseOwner(model);
           if (hasCollider) {
@@ -308,7 +305,9 @@ class YJMeshRenderer {
           }
           LoadCompleted(callback);
 
-        }, undefined, function (e) {
+        }, (e)=>{
+          // console.log(" 加载进度 ",e.loaded/e.total);
+        }, function (e) {
 
           if (errorback) {
             errorback(e);
@@ -321,54 +320,54 @@ class YJMeshRenderer {
     function loadObj(modelPath, callback, errorback) {
 
 
-      let mesh = _this._YJSceneManager.checkLoadMesh(modelPath);
+      let mesh = _Global.YJ3D._YJSceneManager.checkLoadMesh(modelPath);
       if (mesh != null) {
         LoadMesh(mesh.mesh, callback);
         return;
       }
 
-      new MTLLoader()
-        .load(modelPath.replace('.obj', '.mtl'), function (materials) {
-          materials.preload();
+      // new MTLLoader()
+      //   .load(modelPath.replace('.obj', '.mtl'), function (materials) {
+      //     materials.preload();
 
-          new OBJLoader()
-            .setMaterials(materials)
-            .load(modelPath, function (object) {
-              model = object;
-              model.transform = owner;
+      //     new OBJLoader()
+      //       .setMaterials(materials)
+      //       .load(modelPath, function (object) {
+      //         model = object;
+      //         model.transform = owner;
 
-              animations = model.animations;
-              for (let i = animations.length - 1; i >= 0; i--) {
-                const element = animations[i];
-                if (element.tracks.length == 0) {
-                  animations.splice(i, 1);
-                }
-              }
-              model.animations = animations;
+      //         animations = model.animations;
+      //         for (let i = animations.length - 1; i >= 0; i--) {
+      //           const element = animations[i];
+      //           if (element.tracks.length == 0) {
+      //             animations.splice(i, 1);
+      //           }
+      //         }
+      //         model.animations = animations;
 
-              model.scale.set(1 * meshScale, 1 * meshScale, 1 * meshScale);
+      //         model.scale.set(1 * meshScale, 1 * meshScale, 1 * meshScale);
 
-              scene.add(model);
-              // console.log(" 加载模型完成 11 ", model);
-              _this._YJSceneManager.addLoadMesh(modelPath, model);
+      //         scene.add(model);
+      //         // console.log(" 加载模型完成 11 ", model);
+      //         _Global.YJ3D._YJSceneManager.addLoadMesh(modelPath, model);
 
-              TraverseOwner(model);
-              if (hasCollider) {
-                CreateColliderFn(model);
-              }
-              LoadCompleted(callback);
+      //         TraverseOwner(model);
+      //         if (hasCollider) {
+      //           CreateColliderFn(model);
+      //         }
+      //         LoadCompleted(callback);
 
-            }, undefined, function (e) {
+      //       }, undefined, function (e) {
 
-              if (errorback) {
-                errorback(e);
-              }
-              console.error("加载模型出错", e, modelPath);
-              LoadCompleted(callback);
+      //         if (errorback) {
+      //           errorback(e);
+      //         }
+      //         console.error("加载模型出错", e, modelPath);
+      //         LoadCompleted(callback);
 
-            });
+      //       });
 
-        });
+      //   });
     }
     // let mmdCtrl = null;
     function loadMMD(modelPath, callback, errorback) {
@@ -379,7 +378,7 @@ class YJMeshRenderer {
       //   LoadCompleted(callback);
       // });
       return;
-      let meshAndMats = _this._YJSceneManager.checkLoadMesh(modelPath);
+      let meshAndMats = _Global.YJ3D._YJSceneManager.checkLoadMesh(modelPath);
       if (meshAndMats != null) {
         LoadMesh(meshAndMats.mesh, callback);
         return;
@@ -387,7 +386,7 @@ class YJMeshRenderer {
 
 
       const loader = new GLTFLoader();
-      loader.setDRACOLoader(_this._YJSceneManager.GetDracoLoader());
+      loader.setDRACOLoader(_Global.YJ3D._YJSceneManager.GetDracoLoader());
 
       // + ("?time="+new Date().getTime())
       loader.load(modelPath, function (gltf) {
@@ -401,7 +400,7 @@ class YJMeshRenderer {
         model.transform = owner;
 
         scene.add(model);
-        _this._YJSceneManager.addLoadMesh(modelPath, gltf);
+        _Global.YJ3D._YJSceneManager.addLoadMesh(modelPath, gltf);
 
         TraverseOwner(model);
         if (hasCollider) {
@@ -425,7 +424,7 @@ class YJMeshRenderer {
     function loadGltf(modelPath, callback, errorback) {
 
 
-      let meshAndMats = _this._YJSceneManager.checkLoadMesh(modelPath);
+      let meshAndMats = _Global.YJ3D._YJSceneManager.checkLoadMesh(modelPath);
       if (meshAndMats != null) {
         LoadMesh(meshAndMats.mesh, callback);
         return;
@@ -444,7 +443,7 @@ class YJMeshRenderer {
       //     model.transform = owner;
 
       //     scene.add(model);
-      //     _this._YJSceneManager.addLoadMesh(modelPath, gltf);
+      //     _Global.YJ3D._YJSceneManager.addLoadMesh(modelPath, gltf);
 
       //     TraverseOwner(model);
       //     if (hasCollider) {
@@ -458,7 +457,8 @@ class YJMeshRenderer {
 
 
       const loader = new GLTFLoader();
-      loader.setDRACOLoader(_this._YJSceneManager.GetDracoLoader());
+      
+      loader.setDRACOLoader(_Global.YJ3D._YJSceneManager.GetDracoLoader());
 
       // + ("?time="+new Date().getTime())
       loader.load(modelPath, function (gltf) {
@@ -472,7 +472,7 @@ class YJMeshRenderer {
         model.transform = owner;
 
         scene.add(model);
-        _this._YJSceneManager.addLoadMesh(modelPath, gltf);
+        _Global.YJ3D._YJSceneManager.addLoadMesh(modelPath, gltf);
 
         TraverseOwner(model);
         if (hasCollider) {
@@ -649,12 +649,12 @@ class YJMeshRenderer {
             cSize.x = item.scale.x * size.x;
             cSize.y = item.scale.y * size.y;
             cSize.z = item.scale.z * size.z;
-            _this._YJSceneManager.CreateTriangeMeshCollider(item, cSize);
+            _Global.YJ3D._YJSceneManager.CreateTriangeMeshCollider(item, cSize);
             if (item.name.includes("land")) {
-              _this._YJSceneManager.AddLandCollider(item);
+              _Global.YJ3D._YJSceneManager.AddLandCollider(item);
               // console.error("添加地面collider");
             } else {
-              _this._YJSceneManager.AddCollider(item);
+              _Global.YJ3D._YJSceneManager.AddCollider(item);
             }
 
             // console.log(" 创建模型自身collider ",item.name);
@@ -665,7 +665,7 @@ class YJMeshRenderer {
               cSize.x = item.scale.x;
               cSize.y = item.scale.y;
               cSize.z = item.scale.z;
-              _this._YJSceneManager.CreateTriangeMeshTrigger(item, cSize,
+              _Global.YJ3D._YJSceneManager.CreateTriangeMeshTrigger(item, cSize,
                 model.modelId, "triggerArea", model.owner);
 
               // item.visible = false;
@@ -708,7 +708,7 @@ class YJMeshRenderer {
       plane.modelType = "userModel";
       this.modelItem.modelTag = "userModel";
       model.add(plane);
-      _this._YJSceneManager.CreateTriangeMeshTrigger(plane, size,
+      _Global.YJ3D._YJSceneManager.CreateTriangeMeshTrigger(plane, size,
         model.modelId, "triggerArea", model.owner);
 
       triggleObj = plane;
@@ -774,43 +774,7 @@ class YJMeshRenderer {
       }
       return null;
     }
-
-    this.SetState = function (state) {
-    }
-
-    // // 坐标、旋转 也算在同步状态中
-    // this.SetState = function (modelData) {
-    //   console.log("改变模型状态");
-    //   let _pos = modelData.pos;
-    //   let _rotaV3 = modelData.rotaV3;
-    //   let pos = new THREE.Vector3(_pos.x, _pos.y, _pos.z);
-    //   let rotaV3 = new THREE.Vector3(_rotaV3.x, _rotaV3.y, _rotaV3.z);
-    //   this.ResetSetPosRota(pos,rotaV3);
-    // }
-
-    this.ResetSetPosRota = function (pos, rota) {
-      if (model == null) { return; }
-      this.SetPosRota(pos, rota);
-      this.DestroyCollider();
-    }
-
-
-    //用户摆放自定义的模型，位置跟随鼠标悬浮的地面位置
-    this.SetPosRota = function (pos, rota) {
-      if (model == null) { return; }
-      model.position.set(pos.x, pos.y, pos.z); // 
-      if (rota != undefined) {
-        model.rotation.set(rota.x, rota.y, rota.z); // 
-      }
-    }
-    //放下后，获取模型的坐标和旋转，记录到服务器，让其他客户端创建
-    this.GetPosRota = function (callback) {
-      callback(model.position, model.rotation);
-    }
-    //可由用户创建的模型，放下是创建碰撞体
-    this.SetDown = function (pos, rota) {
-    }
-
+ 
     //删除模型
     this.Destroy = function () {
       if (model == null) { return; }
@@ -822,13 +786,7 @@ class YJMeshRenderer {
         //删除碰撞体 
         model.traverse(function (item) {
           if (item instanceof THREE.Mesh) {
-            _this._YJSceneManager.RemoveCollider(item);
-
-            // item.geometry.dispose();
-            // try {
-            //   item.material.dispose();
-            // } catch (error) {
-            // }
+            _Global.YJ3D._YJSceneManager.RemoveCollider(item); 
           }
         });
       }

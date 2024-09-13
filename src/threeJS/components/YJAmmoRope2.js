@@ -1,12 +1,11 @@
 import * as THREE from "three";
 
-
-import { YJTrigger } from "./YJTrigger.js";
+ 
 // 动力学软体做衣服物理模拟
 // 控制骨骼
 // 接入官方绳子案例完成备份
 class YJAmmoRope {
-	constructor(_this, scene, transform) {
+	constructor( scene, transform) {
 		var scope = this;
 
 		let Ammo = null;

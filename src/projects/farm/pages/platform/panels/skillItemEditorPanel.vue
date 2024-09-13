@@ -39,8 +39,7 @@ export default {
       //目标
       targetType: [
         { label: "无需目标", value: "none" },
-        { label: "自身", value: "self" },
-        { label: "自身瞬时位置", value: "selfPos" },
+        { label: "自身", value: "self" }, 
         { label: "随机友方", value: "randomFriendly" },
         { label: "随机敌方", value: "randomEnemy" },
         { label: "生命值最少的友方", value: "minHealthFriendly" },
@@ -74,6 +73,7 @@ export default {
       ],
       skillFirePart:[
         { label: "无", value: "" }, 
+        { label: "自身位置", value: "selfPos" }, 
         { label: "右掌心", value: "RightHand" }, 
         { label: "左掌心", value: "LeftHand" }, 
       ],

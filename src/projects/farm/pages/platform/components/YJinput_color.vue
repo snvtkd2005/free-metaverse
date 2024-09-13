@@ -1,10 +1,11 @@
-
-// 场景设置
-<template>
-  <!-- 顶部 -->
+ 
+<template> 
+<div>
 
   <input  ref="input" type="color" :value="value" >
   <div>{{ value }}</div>
+</div>
+
 </template>
 
 <script>

@@ -72,7 +72,7 @@ class YJShader {
           if (item instanceof THREE.Mesh) {
             // console.log(" item ",item);
             // console.log(" item.geometry ",item.geometry);
-            new YJWater(_this, parent, item, 
+            new YJWater( parent, item, 
               new THREE.Vector2(10*size.x, 10*size.z), 
               // new THREE.Vector2(12, 12), 
               0.1, 
@@ -86,7 +86,7 @@ class YJShader {
       }
 
       if(data.isLookatCam){
-        _this._YJSceneManager.AddLookatHotPoint(model);
+        _Global.YJ3D._YJSceneManager.AddLookatHotPoint(model);
       }
     }
     let data = null;
@@ -104,7 +104,7 @@ class YJShader {
 
     //删除模型
     this.Destroy = function () { 
-      _this._YJSceneManager.RemoveLookatHotPoint(model);
+      _Global.YJ3D._YJSceneManager.RemoveLookatHotPoint(model);
     }
 
     //#region 

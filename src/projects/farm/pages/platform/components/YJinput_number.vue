@@ -1,7 +1,5 @@
-
-// 场景设置
-<template>
-  <!-- 顶部 -->
+ 
+<template> 
   <input
     class="w-full border-gray-200 border  px-1 input-bg"
     ref="input"

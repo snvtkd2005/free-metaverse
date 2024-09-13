@@ -1,29 +1,74 @@
 
-// 在线聊天室 聊天界面 3d形象 聊天
 <template>
-  <div class=" w-full h-full " ref="container">
-    <ThreejsHumanChat tabindex="-1" class="w-full h-full screen-full" ref="ThreejsHumanChat" id="ThreejsHumanChat" />
-    
-  <!-- 视频  hidden-->
-  <div id="videoParent" class="   w-1/2 h-1/2 absolute top-0 left-0 pointer-events-none">
-    <div v-for="(item, i) in audioList" :key="i" class="video-box w-40 h-40 p-5 rounded-full">
-      <audio autoplay='autoplay' loop muted :ref="item.id" v-if="item.value" class="w-full h-full" :src="$uploadAudioUrl + item.value"></audio>
+  <div class="w-full h-full"> 
+    <div
+      tabindex="-1"
+      id="contain"
+      class="w-full h-full relative"
+      ref="container"
+    >
+      <div v-if="hasStatsDrawcall" class="absolute top-3 right-3 text-white">
+        <div>drawcall: {{ statsText.drawcall }}</div>
+        <div>triangles: {{ statsText.triangles }}</div>
+      </div>
     </div>
-  </div>
+
+    <!-- 音频  hidden-->
+    <div
+      id="audioParent"
+      class="w-1/2 h-1/2 absolute top-0 left-0 pointer-events-none"
+    >
+      <div
+        v-for="(item, i) in audioList"
+        :key="i"
+        class="video-box w-40 h-40 p-5 rounded-full"
+      >
+        <audio
+          autoplay="autoplay"
+          loop
+          muted
+          :ref="item.id"
+          v-if="item.value"
+          class="w-full h-full"
+          :src="$uploadAudioUrl + item.value"
+        ></audio>
+      </div>
+    </div>
+
+    <!-- 视频  hidden-->
+    <div
+      id="videoParent"
+      class="w-1/2 h-1/2 hidden absolute top-0 left-0 pointer-events-none"
+    >
+      <div
+        v-for="(item, i) in videoList"
+        :key="i"
+        class="video-box w-40 h-40 p-5 rounded-full"
+      >
+        <YJmedia :ref="item.id" :mediaType="item.type" :mediaId="item.id" />
+        <!-- <div>{{ item.id }}</div> -->
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-// 三维页
-import ThreejsHumanChat from "/@/threeJS/threeEditor.vue";
+// 三维页 
+import { YJThreejsBase } from "/@/threeJS/common/YJThreejsBase.js";
 
 export default {
   name: "YJmetaBase",
-  components: {
-    ThreejsHumanChat,
+  components: { 
   },
   data() {
-    return {
+    return { 
+      hasStats: true,
+      // hasStats: false,
+      hasStatsDrawcall: true,
+      statsText: {
+        drawcall: 0,
+        triangles: 0,
+      },
       isInsertPanel: false,
       // 是否显示姓名条
       displayUserNameUI: false,
@@ -46,7 +91,7 @@ export default {
         playerData: {},
         userData: {},
       },
-      audioList:[],
+      audioList: [],
       userName: "",
       userId: "",
       id: "",
@@ -72,8 +117,9 @@ export default {
 
       loadingPanel: null,
 
-      ThreejsHumanChat: null,
+      ThreejsPanel: null,
       publicUrl: "",
+      videoList: [],
     };
   },
 
@@ -84,7 +130,9 @@ export default {
   },
   mounted() {
     this.isMobile = _Global.isMobile;
-    this.ThreejsHumanChat = this.GetThreejsHumanChat();
+    // this.ThreejsPanel = this.GetThreejsPanel();
+
+    this.YJThreejsBase = new YJThreejsBase(this.$refs.container,document,this);
 
     this.windowWidth = 0;
     this.windowHeight = 0;
@@ -94,18 +142,109 @@ export default {
     // window.addEventListener('resize',this.UpdateCheckWindowResize,false);
     window.addEventListener("resize", this.onWindowResize);
 
-    setTimeout(() => { 
+    setTimeout(() => {
       _Global.addEventListener("是否启用虚拟摇杆", (b) => {
-        this.isMobile = b; 
-        this.UpdateCheckWindowResize(); 
+        this.isMobile = b;
+        this.UpdateCheckWindowResize();
+      });
+      
+      _Global.addEventListener("AddVideo",(id, type, callback)=>{
+        this.AddVideo(id, type, callback);
       });
     }, 2000);
 
     setInterval(() => {
       this.UpdateCheckWindowResize();
     }, 20);
+
   },
   methods: {
+    AddVideoListener() {
+      _Global.YJ3D.renderer.domElement.addEventListener("touchstart", (e) => {
+        this.PlayVideo();
+      });
+    },
+    AddVideo(id, type, callback) {
+      for (let i = 0; i < this.videoList.length; i++) {
+        const element = this.videoList[i];
+        if (element.id == id) {
+          callback(this.$refs[id]);
+          return;
+        }
+      }
+
+      this.videoList.push({ id: id, type: type });
+      setTimeout(() => {
+        callback(this.$refs[id]);
+      }, 200);
+      console.log("this.$refs ", this.$refs);
+
+      // return this.$refs[id];
+    },
+    PlayVideo() {
+      this.touchTime++;
+      if (this.touchTime >= 3) {
+        return;
+      }
+
+      if (this.$parent.$parent.PlayBGAudio) {
+        this.$parent.$parent.PlayBGAudio();
+      }
+
+      if (this.$parent.$parent.videoList != undefined) {
+        let videoList = this.$parent.$parent.videoList;
+        for (let i = 0; i < videoList.length; i++) {
+          const element = videoList[i];
+          const video = document.getElementById(element.videoId);
+          video.setAttribute("crossorigin", "anonymous");
+          video.loop = true;
+          video.play();
+        }
+      }
+
+      for (let i = 0; i < this.videoList.length; i++) {
+        const element = this.videoList[i];
+        const video = document.getElementById(element.id);
+        video.setAttribute("crossorigin", "anonymous");
+        video.loop = true;
+        video.play();
+      }
+      console.log("播放视频", this.videoList.length);
+    },
+
+    PlayVideoFn(ignoreId) {
+      for (let i = 0; i < this.videoList.length; i++) {
+        const element = this.videoList[i];
+        if (element.id != ignoreId) {
+          const video = document.getElementById(element.id);
+          video.setAttribute("crossorigin", "anonymous");
+
+          video.play();
+          console.log("激活播放视频", element.id);
+        }
+      }
+    },
+
+    PlayVideoById(id, loop) {
+      const video = document.getElementById(id);
+      video.setAttribute("crossorigin", "anonymous");
+      video.loop = loop;
+      video.play();
+    },
+    StopVideoById(id) {
+      const video = document.getElementById(id);
+      video.currentTime = 0;
+      video.pause();
+    },
+    //  在场景加载完成后，为移动端单独创建监听触摸事件，触摸后播放视频。
+    addEventForMobilePlayVideo() {
+      window.addEventListener("touchstart", (e) => {
+        this.PlayVideo();
+      });
+    },
+    load3dComplete() {
+      this.addEventForMobilePlayVideo();
+    },
     Reload() {
       this.sceneData = this.$parent.sceneData;
       this.contrlState = this.sceneData.setting.contrlState;
@@ -115,11 +254,14 @@ export default {
       // 强制横屏
       this.onlyLandscape = this.sceneData.setting.onlyLandscape;
 
-      this.publicUrl = this.$publicUrl + this.sceneData.setting.localPath;
-      this.$refs.ThreejsHumanChat.SetforcedLandscape(this.onlyLandscape);
+      this.publicUrl = this.$publicUrl + this.sceneData.setting.localPath; 
+      
+      if (!this.isMobile) {
+        return;
+      }
+      this.YJThreejsBase.SetforcedLandscape(this.onlyLandscape);
     },
     UpdateCheckWindowResize() {
-
       // console.log(" resize 3d panel ",this.onlyLandscape,this.containerWidth, this.containerHeight);
 
       if (_Global.setting.inEditor) {
@@ -130,10 +272,13 @@ export default {
         this.containerHeight = window.innerHeight;
         // this.containerWidth = this.$refs.container.clientWidth;
         // this.containerHeight = this.$refs.container.clientHeight;
-      } 
+      }
 
-      if (this.ThreejsHumanChat.YJRaycaster) {
-        this.ThreejsHumanChat.YJRaycaster.SetContainerSize(this.containerWidth, this.containerHeight);
+      if (_Global.YJ3D.YJRaycaster) {
+        _Global.YJ3D.YJRaycaster.SetContainerSize(
+          this.containerWidth,
+          this.containerHeight
+        );
       }
 
       if (
@@ -142,14 +287,13 @@ export default {
       ) {
       } else {
         this.windowWidth = this.containerWidth;
-        this.windowHeight = this.containerHeight; 
+        this.windowHeight = this.containerHeight;
         if (this.onlyLandscape) {
           if (this.windowWidth <= this.windowHeight) {
             this.onWindowResizeFn(this.windowHeight, this.windowWidth, true);
             return;
           }
           this.onWindowResizeFn(this.windowWidth, this.windowHeight, false);
-
         } else {
           this.onWindowResizeFn(this.windowWidth, this.windowHeight, false);
         }
@@ -170,8 +314,8 @@ export default {
     onWindowResizeFn(w, h, forcedLandscape) {
       // console.log("改变窗口大小 111 ", forcedLandscape);
 
-      this.$refs.ThreejsHumanChat.SetforcedLandscape(forcedLandscape);
-      this.$refs.ThreejsHumanChat.onWindowResize(w, h);
+      this.YJThreejsBase.SetforcedLandscape(forcedLandscape);
+      this.YJThreejsBase.onWindowResize(w, h);
 
       if (!this.isMobile) {
         return;
@@ -183,10 +327,10 @@ export default {
         }
 
         if (this.$parent.$refs.JoystickLeftPanel) {
-          // _Global.CombatLog.log("改变窗口大小 111 "+ forcedLandscape+ "  " 
+          // _Global.CombatLog.log("改变窗口大小 111 "+ forcedLandscape+ "  "
           // + this.onlyLandscape + " windowWidth: "+ this.windowWidth + " windowHeight: " + this.windowHeight);
 
-          // _Global.CombatLog.log("改变窗口大小 111 "+ forcedLandscape+ "  " 
+          // _Global.CombatLog.log("改变窗口大小 111 "+ forcedLandscape+ "  "
           // + this.onlyLandscape + " windowWidth: "+ w + " windowHeight: " + h);
 
           if (this.$parent.$refs.JoystickLeftPanel.SetforcedLandscape) {
@@ -210,8 +354,8 @@ export default {
       }
     },
 
-    GetThreejsHumanChat() {
-      return this.$refs.ThreejsHumanChat;
+    GetThreejsPanel() {
+      return this.$refs.ThreejsPanel;
     },
     GetPublicUrl() {
       return this.publicUrl;
@@ -243,32 +387,17 @@ export default {
     // 用鸟瞰参数设置鸟瞰的坐标
     GetNiaokanData() {
       // let niaokanData = this.sceneData.aerialViewData;
-      // this.$refs.ThreejsHumanChat.YJController.SetNiaokanPos(
+      // this.$refs.ThreejsPanel.YJController.SetNiaokanPos(
       //   niaokanData.niaokanCamPos,
       //   niaokanData.niaokanCamLookatPos
       // );
     },
     //#region
     //#endregion
-    ClickNiaokan() {
-      this.$refs.ThreejsHumanChat.YJController.ResetToNiaokanView();
-    },
 
     SetMinMap(sx, sy, ox, oy) {
       this.$parent.$refs.map2d.SetPlayerMapDefaultOffset(sx, sy, ox, oy);
       // this.$refs.map2d.SetPlayerMapDefaultOffset(sx, sy, ox, oy);
-      return;
-      this.$refs.ThreejsHumanChat._YJSceneManager.SetMinMap(sx, sy, ox, oy);
-    },
-    SetCamPos(x, y, z, lx, ly, lz) {
-      this.$refs.ThreejsHumanChat.YJController.SetCamNiaokanPos(
-        x,
-        y,
-        z,
-        lx,
-        ly,
-        lz
-      );
     },
 
     //threejs页面传入，碰到交互物体时显示提示文字
@@ -283,8 +412,9 @@ export default {
           continue;
         }
       }
-      if (this.user.playerData == undefined) {
-        this.$refs.ThreejsHumanChat.InitThreejs(this);
+      if (this.user.playerData == undefined) { 
+        
+        this.YJThreejsBase.InitThreejs(this);
       } else {
         var userData = {
           userName: this.userName,
@@ -292,34 +422,31 @@ export default {
           platform: this.user.playerData.platform,
           modelType: this.user.playerData.name,
         };
-        this.$refs.ThreejsHumanChat.InitThreejs(this, userData);
+        this.YJThreejsBase.InitThreejs(this, userData);
       }
     },
 
     ClickSelectPlayerOK(userData) {
-      this.$refs.ThreejsHumanChat.InitThreejs(this, userData);
+      this.YJThreejsBase.InitThreejs(this, userData);
     },
 
     SetloadingPanel(loadingPanel) {
       this.loadingPanel = loadingPanel;
     },
     LoadingState(state) {
-      this.loadingPanel.LoadingState(state);
-      // this.$refs.loadingPanel.LoadingState(state);
+      this.loadingPanel.LoadingState(state); 
     },
 
     LoadState(state) {
       // console.log("当前加载状态 " + state);
-      this.loadingPanel.LoadState(state);
-      // this.$refs.loadingPanel.LoadState(state);
+      this.loadingPanel.LoadState(state); 
     },
     LoadingProcess(process) {
-      this.loadingPanel.LoadingProcess(process);
-      // this.$refs.loadingPanel.LoadingProcess(process);
+      this.loadingPanel.LoadingProcess(process); 
     },
 
     OpenThreejs() {
-      this.$refs.ThreejsHumanChat._YJSceneManager.BeginEnter();
+      _Global.YJ3D._YJSceneManager.BeginEnter();
 
       // 改变鼠标光标图标
       let cursorUrl = this.sceneData.setting.cursorUrl;
@@ -332,30 +459,21 @@ export default {
         this.sceneData.setting.InfinityMouse != undefined &&
         this.sceneData.setting.InfinityMouse
       ) {
-        this.$refs.ThreejsHumanChat.SetPointerLock();
+        this.YJThreejsBase.SetPointerLock();
       }
     },
-
-    // 移动端点击跳跃按钮
-    ClickJump() {
-      this.$refs.ThreejsHumanChat.ClickJump();
-    },
-    //点击按钮 交互门
-    ClickInteractive() {
-      this.$refs.ThreejsHumanChat.ClickInteractive();
-    },
-
+ 
     //在输入聊天信息时，取消threejs的键盘监听。
     //在点击threeJS界面时，还原threejs的键盘监听。
     removeThreeJSfocus() {
-      this.$refs.ThreejsHumanChat.removeEventListener();
+      this.YJThreejsBase.removeEventListener();
     },
     addThreeJSfocus() {
-      this.$refs.ThreejsHumanChat.threeJSfocus();
+      this.YJThreejsBase.threeJSfocus();
     },
 
-    addAudio(id,url){
-      this.audioList.push({id:id,value:url});
+    addAudio(id, url) {
+      this.audioList.push({ id: id, value: url });
       // this.$nextTick(()=>{
       //   var audio = this.$refs[id];
       //   console.log(audio);
@@ -363,9 +481,9 @@ export default {
       //   // audio.loop = true;
       //   audio.play();
       // });
-    }, 
-    EventHandler(e){
-      if(e=="播放音乐"){
+    },
+    EventHandler(e) {
+      if (e == "播放音乐") {
         // console.log(" 播放音效 ",this.audioList);
 
         for (let i = 0; i < this.audioList.length; i++) {
@@ -373,57 +491,57 @@ export default {
           var audio = this.$refs[element.id];
           // console.log(audio);
           audio.muted = false;
-          audio.volume=0.2;
+          audio.volume = 0.2;
           audio.play();
-        } 
+        }
         return;
       }
-      if(e=="暂停音乐"){
+      if (e == "暂停音乐") {
         for (let i = 0; i < this.audioList.length; i++) {
           const element = this.audioList[i];
-          var audio = this.$refs[element.id]; 
-          audio.muted = true; 
+          var audio = this.$refs[element.id];
+          audio.muted = true;
           audio.pause();
-        } 
+        }
       }
     },
     //#region 用户音视频通话
     //用websocket 连接id 作为腾讯云音视频sdk的连接id
-    InitTRTC(userId) {
-      if (!this.hasTRTC) {
-        return;
-      }
-      //初始化sdk客户端
-      this.$refs.txTRTC.Init(userId);
-    },
-    SetUserVideo(video) {
-      if (!this.hasTRTC) {
-        return;
-      }
-      this.$refs.ThreejsHumanChat.YJPlayer.CreateVideo(video);
-    },
-    //接收到其他用户的音视频id
-    SetRemoteTRTCid(useId, id, video, audio) {
-      if (!this.hasTRTC) {
-        return;
-      }
-      //把音视频id添加到用户信息中
-      this.$refs.ThreejsHumanChat.UpdatePlayerTRTC(useId, id, video, audio);
-    },
-    //当前客户端关闭音视频
-    CloseTRTC() {
-      if (!this.hasTRTC) {
-        return;
-      }
-      this.$refs.ThreejsHumanChat._YJDyncManager.CloseTRTC();
-    },
-    //客户端掉线时，关闭音视频
-    CallCloseTRTC() {
-      if (!this.hasTRTC) {
-        return;
-      }
-      this.$refs.txTRTC.leaveRoom();
-    },
+    // InitTRTC(userId) {
+    //   if (!this.hasTRTC) {
+    //     return;
+    //   }
+    //   //初始化sdk客户端
+    //   this.$refs.txTRTC.Init(userId);
+    // },
+    // SetUserVideo(video) {
+    //   if (!this.hasTRTC) {
+    //     return;
+    //   }
+    //   _Global.YJ3D.YJPlayer.CreateVideo(video);
+    // },
+    // //接收到其他用户的音视频id
+    // SetRemoteTRTCid(useId, id, video, audio) {
+    //   if (!this.hasTRTC) {
+    //     return;
+    //   }
+    //   //把音视频id添加到用户信息中
+    //   this.$refs.ThreejsPanel.UpdatePlayerTRTC(useId, id, video, audio);
+    // },
+    // //当前客户端关闭音视频
+    // CloseTRTC() {
+    //   if (!this.hasTRTC) {
+    //     return;
+    //   }
+    //   this.$refs.ThreejsPanel._YJDyncManager.CloseTRTC();
+    // },
+    // //客户端掉线时，关闭音视频
+    // CallCloseTRTC() {
+    //   if (!this.hasTRTC) {
+    //     return;
+    //   }
+    //   this.$refs.txTRTC.leaveRoom();
+    // },
     //#endregion
   },
 };

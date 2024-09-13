@@ -16,6 +16,7 @@ export default {
   base: {
     editor: "编辑",
     delete: "删除",
+    copy: "复制",
     visite: "访问",
     good: "点赞",
     name: "名",

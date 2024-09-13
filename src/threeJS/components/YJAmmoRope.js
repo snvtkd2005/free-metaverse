@@ -6,7 +6,7 @@ import { YJTrigger } from "./YJTrigger.js";
 // 控制骨骼
 
 class YJAmmoRope {
-  constructor(_this, scene, transform) {
+  constructor( scene, transform) {
     var scope = this;
 
     let Ammo = null;

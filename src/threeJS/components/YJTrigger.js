@@ -5,7 +5,7 @@ import * as THREE from "three";
 
 // 
 class YJTrigger {
-  constructor(_this, parent, owner, triggerId,volume) {
+  constructor( parent, owner, triggerId,volume) {
     let scope = this;
 
     var model = null;
@@ -42,7 +42,7 @@ class YJTrigger {
       plane.name = "trigger";
       plane.modelType = "trigger"; 
       parent.add(plane);
-      _this._YJSceneManager.CreateTriangeMeshTrigger(plane, size,
+      _Global.YJ3D._YJSceneManager.CreateTriangeMeshTrigger(plane, size,
         triggerId, "triggerArea", owner); 
       triggleObj = plane;
       triggleObj.transform = owner;
@@ -60,8 +60,8 @@ class YJTrigger {
     this.DestroyCollider = function () {
       if (triggleObj != null) {
         //删除碰撞体 
-        _this._YJSceneManager.RemoveCollider(triggleObj);
-        _this._YJSceneManager.ClearMesh(triggleObj);
+        _Global.YJ3D._YJSceneManager.RemoveCollider(triggleObj);
+        _Global.YJ3D._YJSceneManager.ClearMesh(triggleObj);
         triggleObj = null;
       }
     }

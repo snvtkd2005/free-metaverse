@@ -85,9 +85,9 @@ class YJUserModel {
           // console.log("设置 hit 显示或隐藏 222 " , b?"显示":"隐藏");
 
           if (b) {
-            _this._YJSceneManager.AddCanHitModel(hitArea);
+            _Global.YJ3D._YJSceneManager.AddCanHitModel(hitArea);
           } else {
-            _this._YJSceneManager.RemoveCanHitModel(hitArea);
+            _Global.YJ3D._YJSceneManager.RemoveCanHitModel(hitArea);
           }
         }
       }
@@ -125,12 +125,12 @@ class YJUserModel {
           if (b) {
             // hitArea.visible = b ;
             group.visible = b;
-            _this._YJSceneManager.AddCanHitModel(hitArea);
+            _Global.YJ3D._YJSceneManager.AddCanHitModel(hitArea);
 
           } else {
             group.visible = b;
             // hitArea.visible = b;
-            _this._YJSceneManager.RemoveCanHitModel(hitArea);
+            _Global.YJ3D._YJSceneManager.RemoveCanHitModel(hitArea);
           }
         }
         return;
@@ -140,13 +140,13 @@ class YJUserModel {
           if (b) {
             pointObj.visible = b;
             group.visible = b;
-            _this._YJSceneManager.AddCanHitModel(pointObj);
+            _Global.YJ3D._YJSceneManager.AddCanHitModel(pointObj);
 
 
           } else {
             group.visible = b;
             pointObj.visible = b;
-            _this._YJSceneManager.RemoveCanHitModel(pointObj);
+            _Global.YJ3D._YJSceneManager.RemoveCanHitModel(pointObj);
           }
         }
         return;
@@ -157,12 +157,12 @@ class YJUserModel {
             pointObj.visible = b && inArea;
 
             if (inArea) {
-              _this._YJSceneManager.AddCanHitModel(pointObj);
+              _Global.YJ3D._YJSceneManager.AddCanHitModel(pointObj);
             }
 
           } else {
             pointObj.visible = b;
-            _this._YJSceneManager.RemoveCanHitModel(pointObj);
+            _Global.YJ3D._YJSceneManager.RemoveCanHitModel(pointObj);
           }
         }
       }
@@ -180,7 +180,7 @@ class YJUserModel {
             pointObj.children[1].visible = true;
           }
         }
-        _this._YJSceneManager.AddCanHitModel(hitArea);
+        _Global.YJ3D._YJSceneManager.AddCanHitModel(hitArea);
 
       } else {
         //隐藏
@@ -193,8 +193,8 @@ class YJUserModel {
           }
         }
 
-        _this._YJSceneManager.RemoveCanHitModel(hitArea);
-        _this._YJSceneManager.RemoveLookatHotPoint(hitArea);
+        _Global.YJ3D._YJSceneManager.RemoveCanHitModel(hitArea);
+        _Global.YJ3D._YJSceneManager.RemoveLookatHotPoint(hitArea);
         console.log(" 移除文字text icon 上的点击区域 ");
       }
 
@@ -205,11 +205,11 @@ class YJUserModel {
       if (hotPointData.pointType == "代码控制显示a点击a使用id") {
         if (msg == "显示点击") {
           hitArea.visible = true;
-          _this._YJSceneManager.AddCanHitModel(hitArea);
+          _Global.YJ3D._YJSceneManager.AddCanHitModel(hitArea);
         }
         if (msg == "隐藏点击") {
           hitArea.visible = false;
-          _this._YJSceneManager.RemoveCanHitModel(hitArea);
+          _Global.YJ3D._YJSceneManager.RemoveCanHitModel(hitArea);
 
         }
       }
@@ -220,7 +220,7 @@ class YJUserModel {
           // hitArea.visible = true;
           if (pointObj) {
             pointObj.visible = true;
-            _this._YJSceneManager.AddLookatHotPoint(pointObj);
+            _Global.YJ3D._YJSceneManager.AddLookatHotPoint(pointObj);
             console.log(" 显示3d文字 ", pointObj);
 
 
@@ -234,9 +234,9 @@ class YJUserModel {
 
 
           }
-          _this._YJSceneManager.AddCanHitModel(hitArea);
+          _Global.YJ3D._YJSceneManager.AddCanHitModel(hitArea);
 
-          _this._YJSceneManager.AddLookatHotPoint(hitArea);
+          _Global.YJ3D._YJSceneManager.AddLookatHotPoint(hitArea);
           //point下的物体加入自发光
         }
         if (msg == "隐藏点击") {
@@ -244,10 +244,10 @@ class YJUserModel {
           // hitArea.visible = false;
           if (pointObj) {
             pointObj.visible = false;
-            _this._YJSceneManager.RemoveLookatHotPoint(pointObj);
+            _Global.YJ3D._YJSceneManager.RemoveLookatHotPoint(pointObj);
           }
-          _this._YJSceneManager.RemoveCanHitModel(hitArea);
-          _this._YJSceneManager.RemoveLookatHotPoint(hitArea);
+          _Global.YJ3D._YJSceneManager.RemoveCanHitModel(hitArea);
+          _Global.YJ3D._YJSceneManager.RemoveLookatHotPoint(hitArea);
         }
       }
       console.log(msg + " " + modelName);
@@ -333,9 +333,9 @@ class YJUserModel {
       // }
       if (hotPointData.pointType == "鸟瞰时才显示a点击a设置角色位置") {
         if (e == "鸟瞰") {
-          _this._YJSceneManager.AddCanHitModel(hitArea);
+          _Global.YJ3D._YJSceneManager.AddCanHitModel(hitArea);
         } else {
-          _this._YJSceneManager.RemoveCanHitModel(hitArea);
+          _Global.YJ3D._YJSceneManager.RemoveCanHitModel(hitArea);
         }
       }
     }
@@ -369,7 +369,7 @@ class YJUserModel {
       // console.log(" modelpath = " + modelPath);
 
 
-      let _YJLoadModel = new YJLoadModel(_this, group, id, modelPath, pos, rotaV3, size, modelName,
+      let _YJLoadModel = new YJLoadModel( group, id, modelPath, pos, rotaV3, size, modelName,
         true, () => {
           setTimeout(() => {
             rotaObj = _YJLoadModel.GetModel();
@@ -387,7 +387,7 @@ class YJUserModel {
                   cSize.y = item.scale.y * size.y;
                   cSize.z = item.scale.z * size.z;
 
-                  _this._YJSceneManager.CreateTriangeMeshTrigger(item, cSize,
+                  _Global.YJ3D._YJSceneManager.CreateTriangeMeshTrigger(item, cSize,
                     hotPointData.id, "triggerArea", scope);
 
                   item.visible = false;
@@ -457,7 +457,7 @@ class YJUserModel {
                         hitArea.tag = "hotPoint";
                         let modelData = { id: hotPointData.id, type: hotPointData.pointType };
                         hitArea.modelData = modelData;
-                        _this._YJSceneManager.AddCanHitModel(hitArea);
+                        _Global.YJ3D._YJSceneManager.AddCanHitModel(hitArea);
                         return;
                       }
                     }
@@ -617,14 +617,14 @@ class YJUserModel {
       if (hotPointData.lookatZero) {
         plane.lookAt(new THREE.Vector3(0, 0, 0));
       } else {
-        _this._YJSceneManager.AddLookatHotPoint(plane);
+        _Global.YJ3D._YJSceneManager.AddLookatHotPoint(plane);
       }
 
 
       if (hotPointData.type && hotPointData.type == "anim") {
-        _this._YJSceneManager.AddAnimHotPoint(plane);
+        _Global.YJ3D._YJSceneManager.AddAnimHotPoint(plane);
         if (hotPointData.imgCount) {
-          _this._YJSceneManager.SetHotPointImgCount(hotPointData.imgCount, hotPointData.speed);
+          _Global.YJ3D._YJSceneManager.SetHotPointImgCount(hotPointData.imgCount, hotPointData.speed);
         }
 
       }
@@ -672,10 +672,10 @@ class YJUserModel {
       if (hotPointData.pointType.indexOf("进入区域才显示") > -1 || hotPointData.pointType.indexOf("鸟瞰时才显示") > -1) {
         plane.visible = false;
       } else {
-        _this._YJSceneManager.AddCanHitModel(pointObj);
+        _Global.YJ3D._YJSceneManager.AddCanHitModel(pointObj);
       }
 
-      _this._YJSceneManager.AddLookatHotPoint(pointObj);
+      _Global.YJ3D._YJSceneManager.AddLookatHotPoint(pointObj);
 
       // scene.attach(pointObj);
       // _this.pointsParent.attach(pointObj);
@@ -706,13 +706,13 @@ class YJUserModel {
         // console.log("进入 旋转放大 区域");
         if (!inArea) {
           if (hitArea != null) {
-            _this._YJSceneManager.RemoveCanHitModel(hitArea);
+            _Global.YJ3D._YJSceneManager.RemoveCanHitModel(hitArea);
           }
           b_lerp = true;
 
         } else {
           if (hitArea != null) {
-            _this._YJSceneManager.AddCanHitModel(hitArea);
+            _Global.YJ3D._YJSceneManager.AddCanHitModel(hitArea);
           }
           cRota = group.rotation.clone();
           oldRota = group.getWorldQuaternion(new THREE.Quaternion()).clone();
@@ -722,7 +722,7 @@ class YJUserModel {
       if (type == "变色") {
         if (inArea) {
           if (hitArea != null) {
-            _this._YJSceneManager.AddCanHitModel(hitArea);
+            _Global.YJ3D._YJSceneManager.AddCanHitModel(hitArea);
           }
           // console.log("进入变色");
           rotaObj.traverse(function (item) {
@@ -733,7 +733,7 @@ class YJUserModel {
 
         } else {
           if (hitArea != null) {
-            _this._YJSceneManager.RemoveCanHitModel(hitArea);
+            _Global.YJ3D._YJSceneManager.RemoveCanHitModel(hitArea);
           }
           // console.log("离开变色");
 
@@ -763,9 +763,9 @@ class YJUserModel {
             pointObj.visible = inArea;
           }
           if (inArea) {
-            _this._YJSceneManager.AddCanHitModel(pointObj);
+            _Global.YJ3D._YJSceneManager.AddCanHitModel(pointObj);
           } else {
-            _this._YJSceneManager.RemoveCanHitModel(pointObj);
+            _Global.YJ3D._YJSceneManager.RemoveCanHitModel(pointObj);
           }
         }
 
@@ -776,9 +776,9 @@ class YJUserModel {
           // console.log("进入trigger 11 ", hotPointData.pointType, inArea);
 
           if (inArea && hitArea) {
-            _this._YJSceneManager.AddCanHitModel(hitArea);
+            _Global.YJ3D._YJSceneManager.AddCanHitModel(hitArea);
           } else {
-            _this._YJSceneManager.RemoveCanHitModel(hitArea);
+            _Global.YJ3D._YJSceneManager.RemoveCanHitModel(hitArea);
           }
         }
       }
@@ -890,19 +890,19 @@ class YJUserModel {
 
       if (hotPointData.pointType.indexOf("鸟瞰时才显示") > -1) {
         // 把此脚本添加到管理器中，该脚本在视角（鸟瞰、人视）切换成功后，会执行对应事件；
-        _this._YJSceneManager.AddViewStateListener(scope);
+        _Global.YJ3D._YJSceneManager.AddViewStateListener(scope);
         group.visible = false;
         if (hotPointData.pointType.indexOf("投影UI") > -1) {
-          _this._YJSceneManager.AddProjectionUI(scope);
+          _Global.YJ3D._YJSceneManager.AddProjectionUI(scope);
         }
       }
 
       if (hotPointData.pointType.indexOf("设置角色位置") > -1) {
-        _this._YJSceneManager.AddPlayerPosPointList(scope);
+        _Global.YJ3D._YJSceneManager.AddPlayerPosPointList(scope);
       }
 
       if (hotPointData.pointType.indexOf("相机观察位") > -1) {
-        _this._YJSceneManager.AddCamPosLookatPos(scope);
+        _Global.YJ3D._YJSceneManager.AddCamPosLookatPos(scope);
         group.visible = false;
       }
       if (hotPointData.pointType.indexOf("代码控制显示") > -1) {
@@ -950,13 +950,13 @@ class YJUserModel {
 
       if (hotPointData.pointType.indexOf("直接显示") > -1) {
         if(hitArea){ 
-          _this._YJSceneManager.AddCanHitModel(hitArea);
+          _Global.YJ3D._YJSceneManager.AddCanHitModel(hitArea);
         } 
       }
 
       if (hotPointData.pointType.indexOf("lookat相机") > -1) {
         if (pointObj) {
-          _this._YJSceneManager.AddLookatHotPoint(pointObj);
+          _Global.YJ3D._YJSceneManager.AddLookatHotPoint(pointObj);
         }
       }
 
@@ -996,13 +996,13 @@ class YJUserModel {
             ppoint.material.map = map;
             let type2 = _this.$parent.avatarData.hotPointData.type2;
             if (type2 && type2 == "anim") {
-              _this._YJSceneManager.AddAnimHotPoint2(ppoint);
+              _Global.YJ3D._YJSceneManager.AddAnimHotPoint2(ppoint);
             }
 
 
             pointObj.children[0].layers.enable(0);
             pointObj.children[1].layers.enable(0);
-            _this._YJSceneManager.AddLookatHotPoint(pointObj);
+            _Global.YJ3D._YJSceneManager.AddLookatHotPoint(pointObj);
 
           }
         }
@@ -1029,7 +1029,7 @@ class YJUserModel {
     }
     //删除模型
     this.Destroy = function () {
-      _this._YJSceneManager.clearGroup(group);
+      _Global.YJ3D._YJSceneManager.clearGroup(group);
       scene.remove(group);
       cancelAnimationFrame(updateId);
     }

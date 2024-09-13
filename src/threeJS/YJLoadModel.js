@@ -11,7 +11,7 @@ import { ObjectLoader } from "three";
 
 // 加载静态物体
 class YJLoadModel {
-  constructor(_this, scene) {
+  constructor(scene) {
     let scope = this;
 
     var model = null;
@@ -41,8 +41,7 @@ class YJLoadModel {
       // load a resource
       loader.load(
         // resource URL
-        _this.$publicUrl + 'models/json/CS15_E_pro_t10_Door_BB.json',
-        // _this.$publicUrl+'models/json/jfc-ext.js',
+        _Global.url.local + 'models/json/CS15_E_pro_t10_Door_BB.json', 
 
         // onLoad callback
         function (geometry) {
@@ -67,7 +66,7 @@ class YJLoadModel {
     function loadFbx(name, modelPath, pos, rota, size, createCollider, modelItem, callback) {
       
        
-      let mesh = _this._YJSceneManager.checkLoadMesh(modelPath);
+      let mesh = _Global.YJ3D._YJSceneManager.checkLoadMesh(modelPath);
       if (mesh != null) {
         LoadMesh(mesh, name, pos, rota, size, createCollider, modelItem, callback);
         return;
@@ -87,7 +86,7 @@ class YJLoadModel {
 
           // scene.add(model);
           // console.log(" 加载模型完成 " ,model );
-          _this._YJSceneManager.addLoadMesh(modelPath, model);
+          _Global.YJ3D._YJSceneManager.addLoadMesh(modelPath, model);
 
 
           if (callback) {
@@ -124,7 +123,7 @@ class YJLoadModel {
 
               // scene.add(model);
               // console.log(" 加载模型完成 " ,model );
-              _this._YJSceneManager.addLoadMesh(modelPath, model);
+              _Global.YJ3D._YJSceneManager.addLoadMesh(modelPath, model);
 
               if (callback) {
                 callback(scope);
@@ -178,7 +177,7 @@ class YJLoadModel {
     function loadGltf(name, modelPath, pos, rota, size, createCollider, modelItem, callback) {
 
 
-      let mesh = _this._YJSceneManager.checkLoadMesh(modelPath);
+      let mesh = _Global.YJ3D._YJSceneManager.checkLoadMesh(modelPath);
       if (mesh != null) {
         LoadMesh(mesh, name, pos, rota, size, createCollider, modelItem, callback);
         return;
@@ -188,7 +187,7 @@ class YJLoadModel {
 
       const loader = new GLTFLoader();
 
-      loader.setDRACOLoader(_this._YJSceneManager.GetDracoLoader());
+      loader.setDRACOLoader(_Global.YJ3D._YJSceneManager.GetDracoLoader());
 
       loader.load(modelPath, function (gltf) {
 
@@ -227,7 +226,7 @@ class YJLoadModel {
 
 
         // scene.add(model);
-        _this._YJSceneManager.addLoadMesh(modelPath, gltf);
+        _Global.YJ3D._YJSceneManager.addLoadMesh(modelPath, gltf);
 
         // console.log(" 加载模型完成 " ,model );
         // console.log(" 加载模型完成 ", name);
@@ -286,11 +285,7 @@ class YJLoadModel {
           }
         }
       });
-
-      // if (name.indexOf("land") > -1) {
-      //   model.tag = "floor";
-      //   _this.pointsParent.add(model);
-      // }
+ 
       if (callback) {
         callback(scope);
       }
@@ -322,13 +317,13 @@ class YJLoadModel {
             cSize.x = item.scale.x * size.x;
             cSize.y = item.scale.y * size.y;
             cSize.z = item.scale.z * size.z;
-            _this._YJSceneManager.CreateTriangeMeshCollider(item, cSize);
+            _Global.YJ3D._YJSceneManager.CreateTriangeMeshCollider(item, cSize);
             item.visible = false;
 
             if (item.name.includes("land")) {
-              _this._YJSceneManager.AddLandCollider(item);
+              _Global.YJ3D._YJSceneManager.AddLandCollider(item);
 
-              _this.pointsParent.add(item);
+              scene.add(item);
             }
 
             // console.log(" 创建模型自身collider ");
@@ -342,7 +337,7 @@ class YJLoadModel {
               cSize.y = item.scale.y * size.y;
               cSize.z = item.scale.z * size.z;
 
-              _this._YJSceneManager.CreateTriangeMeshTrigger(item, cSize,
+              _Global.YJ3D._YJSceneManager.CreateTriangeMeshTrigger(item, cSize,
                 model.modelId, "triggerArea", model.owner);
 
               item.visible = false;
@@ -405,7 +400,7 @@ class YJLoadModel {
             cSize.y = item.scale.y * size.y;
             cSize.z = item.scale.z * size.z;
 
-            _this._YJSceneManager.CreateTriangeMeshCollider(item, cSize);
+            _Global.YJ3D._YJSceneManager.CreateTriangeMeshCollider(item, cSize);
           }
         });
 
@@ -427,7 +422,7 @@ class YJLoadModel {
       plane.modelType = "userModel";
       this.modelItem.modelTag = "userModel";
       model.add(plane);
-      _this._YJSceneManager.CreateTriangeMeshTrigger(plane, size,
+      _Global.YJ3D._YJSceneManager.CreateTriangeMeshTrigger(plane, size,
         model.modelId, "triggerArea", model.owner);
 
       triggleObj = plane;
@@ -563,7 +558,7 @@ class YJLoadModel {
         //删除碰撞体 
         model.traverse(function (item) {
           if (item instanceof THREE.Mesh) {
-            _this._YJSceneManager.RemoveCollider(item);
+            _Global.YJ3D._YJSceneManager.RemoveCollider(item);
 
             item.geometry.dispose();
             try {

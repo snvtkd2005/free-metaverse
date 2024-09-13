@@ -86,7 +86,7 @@ class YJEquip {
                 }
             }
             // console.error(" in 玩家装备 ", isLocal ? '' : " 玩家镜像 ", weapon);
-            let path = _Global.YJ3D.$uploadUrl + weapon.assetId + "/" + "data.txt" + "?time=" + new Date().getTime();
+            let path = _Global.url.uploadUrl + weapon.assetId + "/" + "data.txt" + "?time=" + new Date().getTime();
 
             _Global.YJ3D._YJSceneManager.LoadAssset(path, (data) => {
                 // console.log(path, data);
@@ -266,7 +266,7 @@ class YJEquip {
                 }
             }
 
-            let path = _Global.YJ3D.$uploadUrl + equip.assetId + "/" + "data.txt" + "?time=" + new Date().getTime();
+            let path = _Global.url.uploadUrl + equip.assetId + "/" + "data.txt" + "?time=" + new Date().getTime();
             _Global.YJ3D._YJSceneManager.LoadAssset(path, (data) => {
                 this.ChangeEquip("装备", data);
             });
@@ -334,7 +334,7 @@ class YJEquip {
                 owner.applyEvent('更新武器');
 
                 //加载武器
-                _Global.YJ3D._YJSceneManager.DirectLoadMesh(_Global.YJ3D.$uploadUrl + data.modelPath, (meshAndMats) => {
+                _Global.YJ3D._YJSceneManager.DirectLoadMesh(_Global.url.uploadUrl + data.modelPath, (meshAndMats) => {
 
                     owner.GetBoneVague(boneName, (bone) => {
 
@@ -472,7 +472,7 @@ class YJEquip {
             }
             let boneName = GetRealyBoneName(part);
             //加载模型
-            _Global.YJ3D._YJSceneManager.DirectLoadMesh(_Global.YJ3D.$uploadUrl + modelPath, (meshAndMats) => {
+            _Global.YJ3D._YJSceneManager.DirectLoadMesh(_Global.url.uploadUrl + modelPath, (meshAndMats) => {
                 // console.log(" 添加装备 ", boneName, modelPath);
 
                 owner.GetBoneVague(boneName, (bone) => {

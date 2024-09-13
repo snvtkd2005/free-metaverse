@@ -216,7 +216,7 @@ class YJMMD {
     Init();
 
     function LoadCompleted(){
-      _this._YJSceneManager.LoadSingleModelCompleted();
+      _Global.YJ3D._YJSceneManager.LoadSingleModelCompleted();
     }
     //删除模型
     this.Destroy = function () {

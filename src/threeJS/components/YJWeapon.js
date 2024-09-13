@@ -5,7 +5,7 @@ import { YJTrigger } from "./YJTrigger.js";
 // 武器
 
 class YJWeapon {
-  constructor(_this, parent, transform) {
+  constructor( parent, transform) {
     var scope = this;
 
     let group = null; 
@@ -27,7 +27,7 @@ class YJWeapon {
       if(meshTrigger != null){
         this.DestroyTrigger();
       }
-      meshTrigger = new YJTrigger(_this,parent, transform, "weapon");
+      meshTrigger = new YJTrigger(parent, transform, "weapon");
       if(data.fire && data.fire.pos && data.fire.pos.length == 3){
         if(_Global.setting.inEditor){
           if(group.firePosAxes){

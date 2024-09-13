@@ -1,7 +1,5 @@
-
-// 开关按钮
-<template>
-  <!-- 顶部 -->
+ 
+<template> 
   <div class=" w-full h-full rounded-sm  flex" >
     <el-upload class="bg-transparent w-full h-full " action="" :before-upload="handleBeforeUpload" :accept="accept"
       :show-file-list="false">

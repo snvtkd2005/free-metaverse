@@ -223,9 +223,11 @@ class YJSkillModel {
                     children[i].UpdateAllComponents();
                 }
 
-                //放到武器发射点下面
-                owner.GetFirePosRef().attach(model.GetGroup());
-                model.SetPos({x:0,y:0,z:0});
+                // console.log(" 生成技能特效 ",msg);
+
+                // //放到武器发射点下面
+                // owner.GetFirePosRef().attach(model.GetGroup());
+                // model.SetPos({x:0,y:0,z:0});
             });
 
         }

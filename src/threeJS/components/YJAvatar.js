@@ -9,7 +9,7 @@ import { createText } from 'three/examples/jsm/webxr/Text2D.js';
 // 控制 _YJAnimator  动画播放
 
 class YJAvatar {
-  constructor(_this, scene, _YJAnimator) {
+  constructor( scene, _YJAnimator) {
     var scope = this;
  
     let group = null;
@@ -170,7 +170,7 @@ class YJAvatar {
       if (namePosTrans != null) {
         var lookatPos = new THREE.Vector3();
         var camWorlPos = new THREE.Vector3();
-        _this.camera.getWorldPosition(camWorlPos);
+        _Global.YJ3D.camera.getWorldPosition(camWorlPos);
         lookatPos.x = camWorlPos.x;
         lookatPos.z = camWorlPos.z;
         var nameWorlPos = new THREE.Vector3();
@@ -309,10 +309,9 @@ class YJAvatar {
       raytDricV3.z *= d;
 
       // dricGroup.position.copy(raytDricV3);
-      var raycaster = new THREE.Raycaster(pos, raytDricV3, 0, 100);
-      // var hits = raycaster.intersectObjects( _this.pointsParent, true);
+      var raycaster = new THREE.Raycaster(pos, raytDricV3, 0, 100); 
       // var hits = raycaster.intersectObjects(scene.children, true);
-      var hits = raycaster.intersectObjects( _this._YJSceneManager.GetAllLandCollider(), true);
+      var hits = raycaster.intersectObjects( _Global.YJ3D._YJSceneManager.GetAllLandCollider(), true);
       
       if (hits.length > 0) {
         for (let i = 0; i < hits.length; i++) {

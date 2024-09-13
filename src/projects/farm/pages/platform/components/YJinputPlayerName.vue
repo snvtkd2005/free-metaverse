@@ -1,13 +1,10 @@
 
 
-<template>
-  <!-- 昵称输入框 -->
-  <div class="  ">
-    <!-- 输入昵称 -->
+<template> 
+  <div class="  "> 
     <div class=" w-full flex">
       <div class=" relative flex w-auto h-10  mx-auto ">
         <div class=" self-center mr-2 ">昵称:</div>
-        <!-- bg-transparent  -->
         <input ref="nickNameInput" class="  
                            rounded-lg shadow-sm
                             h-full

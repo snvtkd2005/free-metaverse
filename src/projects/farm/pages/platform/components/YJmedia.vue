@@ -1,7 +1,5 @@
 
-// 媒体：图片、视频、直播流
-<template>
-  <!-- 底部技能栏 -->
+<template> 
   <div class=" flex  absolute pointer-events-none text-white">
 
     <!-- 图片 -->
@@ -29,6 +27,7 @@ import playVideo from "./playVideo.vue";
 import playVideoHLS from "./playVideoHLS.vue";
 
 /**
+// 媒体：图片、视频、直播流
  * 视频使用 playVideo
  * 直播流 ios端使用playVideo 、  安卓端和pc端使用 playVideoHLS
  */

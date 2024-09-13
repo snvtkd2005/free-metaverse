@@ -1,11 +1,11 @@
 
 <template>
-  <!-- 左上角血条头像 -->
   <div v-if="display"
     class="  absolute left-2 top-2 h-20 flex text-white origin-top-left transform scale-50 xl:scale-100 "
     @mouseenter="hover = true" @mouseleave="hover = false">
 
     
+    <!-- 生命法术条 -->
     <div class=" absolute right-px bottom-0  w-28 h-12 mt-1   "> 
       <div class=" relative ">
         <div class=" h-2   relative ">
@@ -20,13 +20,19 @@
         </div>
       </div>
     </div>
+    <!-- 生命法术条文字 -->
+    <!-- 姓名栏背景 -->
 
+    <!-- 整个背景ui -->
     <img class=" absolute left-0 top-0    " style="width:189px;height:66px;"  :src="headerBGUrl" alt="">
     
     <div class=" w-16 h-16 relative   ">
+      <!-- 头像 -->
       <img class=" p-2 w-16 h-16 rounded-full " :src="icon" alt="">
+      <!-- 等级ui背景 -->
       <img class="  absolute left-0 bottom-0 w-6 h-6  " :src="levelBGUrl" alt="">
 
+      <!-- 等级文字 -->
       <div class=" absolute left-0 bottom-0 w-6 h-6 rounded-full text-center text-xs flex ">
         <div class=" text-yellow-500 self-center mx-auto">
           {{ baseData.level }}
@@ -34,7 +40,7 @@
       </div>
     </div>
 
-
+    <!-- npc名称 -->
     <div class="  w-28 h-16 mt-3   ">
       <div class="  h-4 text-xs transform scale-90 text-center truncate">{{ targetName }}</div> 
     </div>
@@ -46,8 +52,8 @@
 
 <script>
 
-// import { YJ3dScene_playerHeader } from "/@/threeJS/YJ3dScene_playerHeader.js";
 
+// <!-- 目标头像 -->
 
 export default {
   name: "headerUI",
@@ -121,15 +127,4 @@ export default {
   },
 };
 </script>
- 
-<style scoped>
-.bg-color {
-  background: #28cad9;
-}
-
-.mask {
-  /* -webkit-mask-image:url('/@/assets/headerimage.png');
-  mask-image: url('/@/assets/headerimage.png'); */
-
-}
-</style>
+  

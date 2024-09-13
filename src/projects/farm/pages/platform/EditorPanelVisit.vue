@@ -132,7 +132,7 @@ import settingPanel from "./settingPanel/settingPanel.vue";
 // 加载进度页
 import loadingPanel from "./loadingPanel2.vue";
 
-import { SceneManager } from "../../js/SceneManagerEditor.js";
+import { SceneManager } from "../../../../threeJS/game/managers/SceneManagerEditor.js";
 import { Interface } from "../../js/Interface_editor.js";
 
 import HUD from "./common/HUD.vue";
@@ -144,8 +144,7 @@ import {
   UploadSceneFile,
   GetAllScene,
   GetAllModel,
-} from "../../js/uploadThreejs.js";
-import { Timer } from "postprocessing";
+} from "../../js/uploadThreejs.js"; 
 
 export default {
   name: "EditorPanel",
@@ -428,14 +427,15 @@ export default {
       };
 
       this.$refs.YJmetaBase.ClickSelectPlayerOK(this.userData);
-      _Global.YJ3D.SetNickName(this.userName);
+      _Global.user.name = (this.userName);
+
 
       //场景设置
       this._SceneManager = new SceneManager(
         _Global.YJ3D.scene,
         _Global.YJ3D.renderer,
         _Global.YJ3D.camera,
-        _Global.YJ3D,
+        this.$refs.YJmetaBase,
         _Global.YJ3D._YJSceneManager.GetmodelParent(),
         this,
         () => {
@@ -475,6 +475,8 @@ export default {
       // _Global.gameType = "WOW";
 
       document.title = this.sceneData.setting.title;
+
+      
       this.oldFileName = this.sceneData.setting.title;
       _Global.skillList_scene = this.sceneData.skillList;
 
@@ -674,7 +676,7 @@ export default {
         _Global.YJ3D.scene,
         _Global.YJ3D.renderer,
         _Global.YJ3D.camera,
-        _Global.YJ3D,
+        this.$refs.YJmetaBase,
         _Global.YJ3D._YJSceneManager.GetmodelParent(),
         this,
         () => {
@@ -687,9 +689,8 @@ export default {
       // console.log(userData);
 
       this.$refs.YJmetaBase.ClickSelectPlayerOK(this.userData);
-
-      // 显示玩家姓名条
-      _Global.YJ3D.SetNickName(userName);
+ 
+      _Global.user.name = userName;
 
       console.log("场景加载完成------------");
 
@@ -711,7 +712,7 @@ export default {
       this.Interface.SetTriggerOverlap(b, id, name);
     },
     LoadingProcess(f) {
-      // console.log(" 加载场景进度 " ,f); // 3d加载进度   0-1
+      console.log(" 加载场景进度 " ,f); // 3d加载进度   0-1
       if (this.$refs.scenePanel) {
         this.$refs.scenePanel.LoadingProcess(f);
       }
@@ -720,8 +721,8 @@ export default {
     load3dComplete(callback) {
       console.log("场景加载完成------------");
       if (!this.initCompleted) {
-        _Global.YJ3D.PlayVideo();
-        _Global.YJ3D.AddVideoListener();
+        this.$refs.YJmetaBase.PlayVideo();
+        this.$refs.YJmetaBase.AddVideoListener();
         this.Interface.SelectPlayerCompleted(this.avatarId, this.userName);
         this._SceneManager.ChangeScene(this.sceneData);
         this.$nextTick(() => {

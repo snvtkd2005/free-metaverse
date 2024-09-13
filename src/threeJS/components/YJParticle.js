@@ -12,7 +12,7 @@ import { Color } from "three";
 class YJParticle {
     constructor( parent, transform) {
         let scope = this;
-        let dummy = new THREE.Object3D();
+        let dummy = new THREE.Object3D(); 
         let state = false;
 
         let reloadTimes = 0;
@@ -29,6 +29,8 @@ class YJParticle {
 
 
         let data = {
+        looping:true,
+        hasShape:false,
             shape: {
                 type: Shape.Box, // 发射形状
                 // 发射范围大小
@@ -37,7 +39,7 @@ class YJParticle {
                 scale: [1, 1, 1],
             },
 
-            startSpeed: 0.02,// 发射速度
+            startSpeed: 10,// 发射速度
             startLifetime: 1, // 粒子存活时长
             startSize: 1,// 粒子大小
 
@@ -50,6 +52,9 @@ class YJParticle {
 
             sizeOverLifetime: false,
             sizeOverLifetimeValue: [1, 0],
+
+            rotationOverLifetime: false,
+            rotationOverLifetimeValue: [0,0,0],
 
             colorOverLifetime: false,
             colorOverLifetimeStart: "#ffffff",
@@ -86,13 +91,16 @@ class YJParticle {
         //销毁组件
         this.Destroy = function () {
             console.log("删除特效");
-            _Global.YJ3D.scene.remove(instanceMesh);
+            instanceMesh.parent.remove(instanceMesh);
+            // _Global.YJ3D.scene
         }
         this.createMesh = function () {
-            // this.model.add(new THREE.AxesHelper(5));
+            
             let map = null;
             if (data.particlePath != "") {
                 map = new THREE.TextureLoader().load(_Global.url.uploadUVAnimUrl + data.particlePath);
+            }else{
+                map = new THREE.TextureLoader().load("./public/images/cirle001.png");
             }
             // console.log(map); MeshBasicMaterial  SpriteMaterial
             let material = new THREE.MeshBasicMaterial({
@@ -117,9 +125,8 @@ class YJParticle {
             mesh.tag = "particle";
             instanceMesh = mesh;
             instanceMesh.owner = scope.transform;
-            // model.add(mesh);
+             
             _Global.YJ3D.scene.add(mesh);
-
             // mesh.frustumCulled = false;  //解决物体在某个角度不显示的问题
             mesh.instanceMatrix.needsUpdate = true;
         }
@@ -166,6 +173,9 @@ class YJParticle {
 
 
         this.randomPos = function () {
+            if(!data.hasShape){
+                return [0,0,0];
+            }
             let size = data.shape.scale;
 
             switch (data.shape.type) {
@@ -192,6 +202,7 @@ class YJParticle {
                 pos[2]
             );
             dummy.position.add(parent.position);
+            dummy.scale.set(1, 1, 1);
 
             if (data.renderAlignment == 'view') {
                 dummy.lookAt(playerPos);
@@ -211,6 +222,9 @@ class YJParticle {
         }
 
         let color, color2, sizeStart, sizeEnd;
+        let rotaStart = [0,0,0];
+        let rotaEnd = [0,0,0];
+        let de2reg = 57.29578;
 
         this.move = function (index, startPos, _reloadTimes, cP) {
             let tween = new TWEEN.Tween({ y: 0 }).to({ y: 1 }, data.startLifetime * 1000);//.easing(TWEEN.Easing.Quadratic.In);
@@ -222,8 +236,14 @@ class YJParticle {
 
                 // console.log(" 粒子生命周期 ", index, v);
                 dummy.position.copy(startPos);
+
+                // console.log(" renderAlignment ", data.renderAlignment);
+
                 if (data.renderAlignment == 'view') {
                     dummy.lookAt(playerPos);
+                    
+                }else{
+                    dummy.rotation.copy(parent.rotation); 
                 }
 
                 // 生命周期内大小
@@ -231,6 +251,18 @@ class YJParticle {
                     let size = MathUtils.lerp(sizeStart, sizeEnd, (v / 1));
                     dummy.scale.set(size, size, size);
                 }
+
+                // 生命周期内旋转
+                if (data.rotationOverLifetime) {
+                    let x = MathUtils.lerp(0, rotaEnd[0] / de2reg, (v / 1));
+                    let y = MathUtils.lerp(0, rotaEnd[1] / de2reg, (v / 1));
+                    let z = MathUtils.lerp(0, rotaEnd[2] / de2reg, (v / 1));
+                    dummy.rotation.x += x; 
+                    dummy.rotation.y += y; 
+                    dummy.rotation.z += z; 
+                }
+                // console.log(" dummy.rotation ",dummy.rotation);
+                
 
                 dummy.updateMatrix();
                 instanceMesh.setMatrixAt(index, dummy.matrix);
@@ -250,6 +282,14 @@ class YJParticle {
                 if (index == 0) {
                     inLoop = true;
                 }  
+                if(data.looping){
+
+                }else{
+                    dummy.scale.set(0, 0, 0);
+                    dummy.updateMatrix();
+                    instanceMesh.setMatrixAt(index, dummy.matrix);
+                    instanceMesh.instanceMatrix.needsUpdate = true;
+                }
             });
             // tween.repeat(Infinity);
             tween.start();
@@ -257,25 +297,35 @@ class YJParticle {
         }
         let list = [];
         let inLoop = false;
-
+        this.Reset = function(){
+            this.SetMessage(data);
+        }
         this.SetMessage = function (_data) {
-            // console.log(" ========== in yj particle Load ", _data);
-            data = _data;
+            console.log(" ========== in yj particle Load ", _data);
+            if(_data){
+                data = _data;
+            }
             list = [];
             currentCount = 0;
             inLoop = false;
             reloadTimes++;
             // 获取数据后重新生成粒子特效
-            if (instanceMesh != null) {
-                // model.remove(instanceMesh);
-                _Global.YJ3D.scene.remove(instanceMesh);
+            if (instanceMesh != null) { 
+                instanceMesh.parent.remove(instanceMesh);
             }
 
             color = new THREE.Color(data.colorOverLifetimeStart);
             color2 = new THREE.Color(data.colorOverLifetimeEnd);
             sizeStart = data.sizeOverLifetimeValue[0];
             sizeEnd = data.sizeOverLifetimeValue[1];
-
+            rotaEnd = data.rotationOverLifetimeValue;
+            if(data.hasShape == undefined){
+                data.hasShape = true;
+            }
+            if(data.looping == undefined){
+                data.looping = true;
+            }
+            
             this.createMesh();
             return;
             if (_Global.setting.inEditor) {
@@ -305,7 +355,7 @@ class YJParticle {
                 }
 
                 if (areaMesh != null) {
-                    parent.remove(areaMesh);
+                    instanceMesh.parent.remove(areaMesh);
                 }
                 areaMesh = new THREE.Mesh(geo, mat);
                 areaMesh.position.y = offsetY;
@@ -316,18 +366,29 @@ class YJParticle {
         const clock = new THREE.Clock();
 
         this._update = function () {
-            playerPos = _Global.YJ3D._YJSceneManager.GetCameraWorldPoss();
+            if(instanceMesh==null){
+                return;
+            }
+            let delta = clock.getDelta();
+            if(delta>0.05){
+                return;
+            }
+            playerPos = _Global.YJ3D._YJSceneManager.GetCameraWorldPoss(); 
+
             // console.log(" in particle update ",playerPos); 
-            if (currentCount < data.maxParticles && !inLoop) {
-                time += clock.getDelta();
+            if (currentCount < data.maxParticles && !inLoop ) {
+                time += delta;
                 if (time > playbackSpeed) {
                     list.push({ index: currentCount, has: true });
                     this.generate(currentCount, list[list.length - 1]);
                     currentCount++;
                     time = 0;
                 }
-            } else { 
-                time += clock.getDelta(); 
+            } else {  
+                if(!data.looping){
+                    return;
+                }
+                time += delta; 
                 if (time > playbackSpeed) {
                     for (let i = 0; i < list.length; i++) {
                         const element = list[i];

@@ -50,7 +50,7 @@ class YJGIFPoint {
       Display(b);
     }
     this.Destroy = function () {
-      _this._YJSceneManager.clearGroup(group);
+      _Global.YJ3D._YJSceneManager.clearGroup(group);
       scene.remove(group);
     }
     // 设置热点隐藏，让其不可显示和不可被点击
@@ -85,7 +85,7 @@ class YJGIFPoint {
       group.position.set(pos.x, pos.y, pos.z);
       CreatePlane();
 
-      _this._YJSceneManager.addHotPointJS(scope);
+      _Global.YJ3D._YJSceneManager.addHotPointJS(scope);
 
     }
 
@@ -120,9 +120,9 @@ class YJGIFPoint {
       material.map = map;
       pointObj = new THREE.Mesh(planeGeometry, material);
       group.add(pointObj);
-      _this._YJSceneManager.AddLookatHotPoint(pointObj);
+      _Global.YJ3D._YJSceneManager.AddLookatHotPoint(pointObj);
 
-      _this._YJSceneManager.AddNeedUpdateJS(scope);
+      _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(scope);
 
       setTimeout(() => {
         playing = true;

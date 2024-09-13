@@ -3,6 +3,13 @@ import Fetch from "./Fetch";
 // let tag = "https://192.168.0.63:3335";
 let tag = "https://snvtkd2005.com:3335";
 
+export const CopyFolderBase = (data) => {
+    return Fetch({
+        method: "post",
+        url: `${tag}/copyFolderBase`,
+        data: data,
+    });
+}
 
 export const RemoveFolderBase = (data) => {
     return Fetch({

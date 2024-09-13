@@ -8,7 +8,7 @@ import { YJLoadModel } from "./YJLoadModel";
 // 3d模型上播放透明视频
 
 class YJVideo {
-  constructor(_this, id, pointObj,videoType) {
+  constructor( id, pointObj,videoType) {
     var scope = this;
 
     let color = new THREE.Color(0x0000ff);
@@ -46,7 +46,7 @@ class YJVideo {
       video.loop = b; 
     }
     function GetVideoPropty(){
-      let videoSrc = _this.GetPublicUrl() + "videos/" + videoId + ".mp4";
+      let videoSrc = _Global.url.local + "videos/" + videoId + ".mp4";
       const base = `<video id="${videoId
         }"  playsinline="true"
 				webkit-playsinline="true" x5-video-player-type="h5-page" x5-video-player-fullscreen="true" muted src="${videoSrc}" ></video>`;
@@ -83,9 +83,9 @@ class YJVideo {
     // 播放正常视频
     function CreateVideo() {
 
-      videoId = id;
-      _this.AddVideo(videoId,GetVideoPropty());
+      videoId = id; 
 
+      _Global.applyEvent("AddVideo",videoId,GetVideoPropty());
  
       setTimeout(() => {
         const video = document.getElementById(videoId); 
@@ -104,8 +104,7 @@ class YJVideo {
     // 左右合成透明视频。 左黑白，右彩色
     
     // 左右合成透明图片。 左黑白，右彩色
-    function CreateTransparentTexture(texPath) {
-      //_this.GetPublicUrl() +"lrIcon.png"
+    function CreateTransparentTexture(texPath) { 
 
       const map = new THREE.TextureLoader().load(texPath);
       map.minFilter = THREE.LinearFilter;
@@ -216,12 +215,10 @@ class YJVideo {
     function CreateTransparentVideo() {
 
       videoId = id;  
-      _this.AddVideo(videoId,GetVideoPropty());
+      // _this.AddVideo(videoId,GetVideoPropty());
       
-
-      // _this.$nextTick(function () {
-
-      // });
+      _Global.applyEvent("AddVideo",videoId,GetVideoPropty());
+ 
       setTimeout(() => {
         const video = document.getElementById(videoId);
         video.setAttribute('crossorigin', 'anonymous');
@@ -258,8 +255,9 @@ class YJVideo {
        videoId = id;
       console.log("加载视频"+videoId);  
 
-      _this.AddVideo(videoId,GetVideoPropty());
- 
+      
+      _Global.applyEvent("AddVideo",videoId,GetVideoPropty());
+
       setTimeout(() => {
         const video = document.getElementById(videoId);
         const videoTexture = new THREE.VideoTexture(video);

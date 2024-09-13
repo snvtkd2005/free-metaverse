@@ -1,6 +1,5 @@
 
 <template>
-  <!-- 技能进度条 -->
   <div v-if="display" class="h-20 flex text-white pointer-events-none">
     <div class="w-32 h-16 mt-3 mx-auto">
       <div class="relative">
@@ -24,6 +23,8 @@
 </template>
 
 <script>
+
+// <!-- 技能进度条 -->
 export default {
   name: "skillProgress",
   props: ["color"],

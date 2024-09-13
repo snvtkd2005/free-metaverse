@@ -4,7 +4,7 @@ import { Water } from 'three/examples/jsm/objects/Water2.js';
 import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
 // 反射效果
 class YJWater2 {
-	constructor(_this, scene,mesh,
+	constructor( scene,mesh,
 		planeSize,
 		waveSize,
 		offset,

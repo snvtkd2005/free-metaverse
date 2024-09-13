@@ -1,7 +1,5 @@
 
-
-
-import * as THREE from "three";
+ 
 
 // 主播玩家的守护弹幕玩家
 class YJDMPlayer {

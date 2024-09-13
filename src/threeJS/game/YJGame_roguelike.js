@@ -5,8 +5,7 @@
 
 import * as THREE from "three"; 
 import roguelikeGameData from "../../projects/farm/data/platform/roguelikeGameData";
-import { GameRecord } from "./gameRecord";
-import { YJGame_mainCtrl } from "./YJGame_mainCtrl";
+import { GameRecord } from "./gameRecord"; 
 
 
 /**
@@ -162,15 +161,14 @@ class YJGame_roguelike {
 
         autoFire();
  
-        _GameRecord = new GameRecord();
-        let _YJGame_mainCtrl = new YJGame_mainCtrl();
+        _GameRecord = new GameRecord(); 
         //
         let npcs = _Global._YJNPCManager.GetNPCs();
         for (let i = 0; i < npcs.length; i++) {
           const npc = npcs[i].transform.GetComponent("NPC");
           npc.addEventListener("死亡", () => {
             _GameRecord.addKill();
-            _YJGame_mainCtrl.createGold(npc.GetWorldPos().clone());
+            _Global._YJGame_mainCtrl.createGold(npc.GetWorldPos().clone());
           });
           npc.addEventListener("重生", () => {
             npc.SetNpcTarget(_Global.YJ3D.YJPlayer);//重生后立即攻击玩家   

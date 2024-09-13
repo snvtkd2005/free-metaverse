@@ -1,7 +1,5 @@
-
-// 场景设置
-<template>
-  <!-- 顶部 -->
+ 
+<template> 
   <input ref="input" type="range" :value="value" :step="step" :min="min" :max="max" @focus="focus" @blur="blur">
 </template>
 

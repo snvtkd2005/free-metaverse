@@ -1432,11 +1432,11 @@ class YJAmmo {
               SetMyCtrlRbParent(newItem.owner.GetModel(), newItem.modelId);
               continue;
             }
-            _this._YJSceneManager.ChangeJiaohuArea(true, newItem.modelId, newItem.triggerName, newItem);
+            _Global.YJ3D._YJSceneManager.ChangeJiaohuArea(true, newItem.modelId, newItem.triggerName, newItem);
           }
           if (tag == "car") {
             // console.log(" 进入 碰撞到 car, ", newItem.triggerName, newItem.modelId);
-            _this._YJSceneManager.ChangeJiaohuArea(true, tag, newItem.triggerName, newItem);
+            _Global.YJ3D._YJSceneManager.ChangeJiaohuArea(true, tag, newItem.triggerName, newItem);
           }
         }
       }
@@ -1463,13 +1463,13 @@ class YJAmmo {
               SetMyCtrlRbParent(scene, "scene");
               continue;
             }
-            _this._YJSceneManager.ChangeJiaohuArea(false, newItem.modelId, newItem.triggerName, newItem);
+            _Global.YJ3D._YJSceneManager.ChangeJiaohuArea(false, newItem.modelId, newItem.triggerName, newItem);
 
           }
 
           if (tag == "car") {
             // console.log("  离开 碰撞到 car, ", newItem.triggerName, newItem.modelId);
-            _this._YJSceneManager.ChangeJiaohuArea(false, tag, newItem.triggerName, newItem);
+            _Global.YJ3D._YJSceneManager.ChangeJiaohuArea(false, tag, newItem.triggerName, newItem);
 
           }
         }

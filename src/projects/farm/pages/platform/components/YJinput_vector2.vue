@@ -1,7 +1,5 @@
-
-// 场景设置
-<template>
-  <!-- 顶部 -->
+ 
+<template> 
   <div class=" flex space-x-2">
     <div class=" text-white leading-6">x:</div>
     <input class=" w-12 pl-0.5 input-bg" ref="inputX" type="number" :step="step" :value="value[0]"

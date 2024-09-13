@@ -1,8 +1,7 @@
 
 
 
-
-import * as THREE from "three";
+ 
 import { GameRecord } from "/@/threeJS/game/gameRecord";
 import { RandomInt } from "/@/utils/utils";
 

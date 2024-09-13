@@ -538,8 +538,8 @@ class YJAmmoOld {
 
         let wutai = LoopFindChild("Capsule", model);
         //创建 舞台 的 collider
-        // _this._YJSceneManager.CreateModelMeshCollider(wutai, wutai.scale);
-        // _this._YJSceneManager.CreateTriangeMeshCollider(wutai, wutai.scale);
+        // _Global.YJ3D._YJSceneManager.CreateModelMeshCollider(wutai, wutai.scale);
+        // _Global.YJ3D._YJSceneManager.CreateTriangeMeshCollider(wutai, wutai.scale);
 
         let vertices = wutai.geometry.getAttribute('position').array;
         let triangles = [];

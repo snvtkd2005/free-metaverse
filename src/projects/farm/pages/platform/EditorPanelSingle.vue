@@ -144,7 +144,7 @@ import skillProgressUI from "./common/skillProgressUI.vue";
 
 import addComponent from "./components/addComponent.vue";
 
-import { SceneManager } from "../../js/SceneManagerEditor.js";
+import { SceneManager } from "../../../../threeJS/game/managers/SceneManagerEditor.js";
 import { Interface } from "../../js/Interface_editor.js";
 
 import { UploadFile, GetAllModel } from "../../js/uploadThreejs.js";
@@ -496,7 +496,7 @@ export default {
 
       this.$refs.YJmetaBase.ClickSelectPlayerOK(this.userData);
 
-      _Global.YJ3D.SetNickName(this.userName);
+      _Global.user.name = (this.userName);
       // 初始化截图
       this.$refs.PanelCut.Init(_Global.YJ3D);
     },
@@ -1150,7 +1150,7 @@ export default {
       this.$refs.YJmetaBase.ClickSelectPlayerOK(this.userData);
 
       // 显示玩家姓名条
-      _Global.YJ3D.SetNickName(userName);
+      _Global.user.name = (userName);
 
       console.log("场景加载完成------------");
     },
@@ -1176,8 +1176,8 @@ export default {
       console.log(" modelData ", modelData);
 
       if (!this.initCompleted) {
-        _Global.YJ3D.PlayVideo();
-        _Global.YJ3D.AddVideoListener();
+        this.$refs.YJmetaBase.PlayVideo();
+        this.$refs.YJmetaBase.AddVideoListener();
 
         this.hasGameUI = true;
 
@@ -1199,7 +1199,7 @@ export default {
           _Global.YJ3D.scene,
           _Global.YJ3D.renderer,
           _Global.YJ3D.camera,
-          _Global.YJ3D,
+        this.$refs.YJmetaBase,
           _Global.YJ3D._YJSceneManager.GetmodelParent(),
           this,
           () => {
@@ -1222,13 +1222,7 @@ export default {
       this.$refs.YJmetaBase.OpenThreejs();
       setTimeout(() => {
         this.OpenThreejs();
-      }, 1000);
-      // new SceneManager_MaterialSetting(
-      // _Global.YJ3D.scene,
-      // _Global.YJ3D.renderer,
-      // _Global.YJ3D.camera,
-      // _Global.YJ3D
-      // );
+      }, 1000); 
     },
 
     OpenThreejs() {

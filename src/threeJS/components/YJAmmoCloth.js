@@ -6,7 +6,7 @@ import { YJTrigger } from "./YJTrigger.js";
 // 控制骨骼
 
 class YJAmmoCloth {
-  constructor(_this, parent, transform) {
+  constructor( parent, transform) {
     var scope = this;
 
     let group = null;
@@ -71,7 +71,7 @@ class YJAmmoCloth {
 
       scope.transform.isIgnoreRaycast = true;
       
-      meshTrigger = new YJTrigger(_this,parent, transform, "weapon");
+      meshTrigger = new YJTrigger(parent, transform, "weapon");
       // object.AddComponent("Trigger", meshTrigger);
     }
  

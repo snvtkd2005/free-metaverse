@@ -5,7 +5,7 @@ import { YJTrigger } from "./YJTrigger.js";
 // 交互模型、道具
 
 class YJInteractive {
-  constructor(_this, parent, transform) {
+  constructor( parent, transform) {
     var scope = this;
 
     let group = null;
@@ -31,7 +31,7 @@ class YJInteractive {
 
       scope.transform.isIgnoreRaycast = true;
       if(meshTrigger == null){
-        meshTrigger = new YJTrigger(_this, parent, transform, "interactive",data.volume); 
+        meshTrigger = new YJTrigger( parent, transform, "interactive",data.volume); 
       }
 
       // 默认延迟显示sprite.如果需要不显示sprite,则在生成时，立即调用DestroySprite函数
@@ -39,7 +39,7 @@ class YJInteractive {
         if(sprite != null){
           group.remove(sprite);
         }
-        let map = _this._YJSceneManager.checkLoadTexture(_this.$uploadUVAnimUrl + data.imgPath);
+        let map = _Global.YJ3D._YJSceneManager.checkLoadTexture(_Global.url.uploadUVAnimUrl + data.imgPath);
         const material = new THREE.SpriteMaterial({ map: map, color: 0xffffff });
         setTimeout(() => { 
           sprite = new THREE.Sprite(material);

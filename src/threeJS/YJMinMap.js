@@ -1,11 +1,4 @@
 import * as THREE from "three";
-
-import { createText } from 'three/examples/jsm/webxr/Text2D.js';
-
-import { YJLoadAvatar } from "./YJLoadAvatar.js";
-
-import { GetPathFolders, LoadFile } from "/@/utils/api.js";
-
 // 小地图
 
 class YJMinMap {

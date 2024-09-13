@@ -67,7 +67,7 @@ import settingPanel from "./settingPanel/settingPanel.vue";
 // 加载进度页
 import loadingPanel from "./loadingPanel2.vue";
 
-import { SceneManager } from "../../js/SceneManagerEditor.js";
+import { SceneManager } from "../../../../threeJS/game/managers/SceneManagerEditor.js";
 import { Interface } from "../../js/Interface_editor.js";
  
 

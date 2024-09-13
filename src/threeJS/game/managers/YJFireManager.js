@@ -103,7 +103,7 @@ class YJFireManager {
       temp.lookAt(temp2.position);
       let direction = temp.getWorldDirection(new THREE.Vector3());
       var raycaster_collider = new THREE.Raycaster(fromPos, direction, 0, 1 * fromPos.distanceTo(targetPos));
-      var hits = raycaster_collider.intersectObjects(_this._YJSceneManager.GetAllColliderAndLand(), true);
+      var hits = raycaster_collider.intersectObjects(_Global.YJ3D._YJSceneManager.GetAllColliderAndLand(), true);
 
 
       if (hits.length > 0) {

@@ -231,7 +231,7 @@ class YJDoor {
         // console.log("刷新门的碰撞体");
         pos = new THREE.Vector3(0, 0, 0);
         //创建门的 collider
-        _this._YJSceneManager.CreateModelMeshCollider(doorCollider, doorCollider.scale,
+        _Global.YJ3D._YJSceneManager.CreateModelMeshCollider(doorCollider, doorCollider.scale,
           pos, null
         );
       }, 1000);
@@ -273,7 +273,7 @@ class YJDoor {
         // console.log("刷新门的碰撞体");
         pos = new THREE.Vector3(0, 0, 0);
         //创建门的 collider
-        _this._YJSceneManager.CreateModelMeshCollider(doorCollider, doorCollider.scale,
+        _Global.YJ3D._YJSceneManager.CreateModelMeshCollider(doorCollider, doorCollider.scale,
           pos, null
         );
       }, 1000);
@@ -310,7 +310,7 @@ class YJDoor {
       CreateCollider();
     }
     function LoadCompleted(){
-      _this._YJSceneManager.LoadSingleModelCompleted();
+      _Global.YJ3D._YJSceneManager.LoadSingleModelCompleted();
     }
     //删除模型
     this.Destroy = function () {
@@ -323,8 +323,8 @@ class YJDoor {
     }
     this.DestroyCollider = function(){
       //删除碰撞体
-      _this._YJSceneManager.RemoveCollider(trigger);
-      _this._YJSceneManager.RemoveCollider(doorCollider); 
+      _Global.YJ3D._YJSceneManager.RemoveCollider(trigger);
+      _Global.YJ3D._YJSceneManager.RemoveCollider(doorCollider); 
     }
 
     //放下后，获取模型的坐标和旋转，记录到服务器，让其他客户端创建
@@ -339,13 +339,13 @@ class YJDoor {
 
       pos.y = 1;
       //创建门的trigger
-      trigger = _this._YJSceneManager.CreateModelTrigger(new THREE.Vector3(1, 2, 1),
+      trigger = _Global.YJ3D._YJSceneManager.CreateModelTrigger(new THREE.Vector3(1, 2, 1),
       model.position, model.quaternion, id, "door"
       );
 
       pos = new THREE.Vector3(0, 0, 0);
       //创建门的 collider
-      _this._YJSceneManager.CreateModelMeshCollider(doorCollider, doorCollider.scale);
+      _Global.YJ3D._YJSceneManager.CreateModelMeshCollider(doorCollider, doorCollider.scale);
     }
     //-------添加删除 开始------------
 

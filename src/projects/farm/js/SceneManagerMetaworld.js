@@ -21,10 +21,10 @@ class SceneManagerMetaworld {
       if (callback) {
         callback();
       }
-      _this._YJSceneManager.AddNeedUpdateJS(scope);
+      _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(scope);
 
       _YJMapManager = new YJMapManager(_this, modelParent, _this.YJController.GetPlayer(), scope);
-      _this._YJSceneManager.AddNeedUpdateJS(_YJMapManager);
+      _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(_YJMapManager);
       console.log("初始化九宫格 ========");
     }
 
@@ -109,14 +109,14 @@ class SceneManagerMetaworld {
       }
 
       let path = _this.$uploadSceneUrl + mapData.folderBase + "/" + "scene.txt" + "?time=" + new Date().getTime()
-      _this._YJSceneManager.LoadAssset(path, (data) => {
+      _Global.YJ3D._YJSceneManager.LoadAssset(path, (data) => {
         let modelList = [];
         console.log(" 获取地图中模型数据 ", mapData, data);
         for (let i = 0; i < data.length; i++) {
           const element = data[i];
           modelList.push(element);
         }
-        // _this._YJSceneManager.CreateSceneByMapid(mapData.id, modelList);
+        // _Global.YJ3D._YJSceneManager.CreateSceneByMapid(mapData.id, modelList);
         _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().AddLoadMetaWorldSceneModel(mapData.id, modelList);
       });
     }
@@ -127,7 +127,7 @@ class SceneManagerMetaworld {
     // 获取folderBase场景中的场景配置，从中提取起始坐标和旋转
     this.CallLoadSceneDataByFolderBase = (folderBase, callback) => {
       let path = _this.$uploadSceneUrl + folderBase + "/" + "setting.txt" + "?time=" + new Date().getTime()
-      _this._YJSceneManager.LoadAssset(path, (data) => {
+      _Global.YJ3D._YJSceneManager.LoadAssset(path, (data) => {
         console.log("获取场景配置", data);
         if (callback) {
           callback(data.setting.playerPos, data.setting.playerRotaV3);
@@ -139,7 +139,7 @@ class SceneManagerMetaworld {
       _Global.GetYJPathfindingCtrl().RemoveNavMeshByMapId(id);
       _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().RemoveMetaWorldSceneModel(id);
 
-      // _this._YJSceneManager.RmoveSceneByMapid(id);
+      // _Global.YJ3D._YJSceneManager.RmoveSceneByMapid(id);
     }
 
     this.ChangeScene = function (e) {

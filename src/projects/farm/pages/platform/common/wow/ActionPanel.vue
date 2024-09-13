@@ -356,6 +356,14 @@
         </div>
       </div>
     </div>
+
+    <!-- 跳跃键 -->
+    <div class=" absolute right-6 bottom-48 w-12 h-12 bg-black bg-opacity-30 rounded-full flex  pointer-events-auto"
+    @mouseup="Jump()"
+    @touchend="Jump()"
+    >
+      <div class=" self-center mx-auto text-white">跳</div>
+    </div>
   </div>
 </template>
 
@@ -736,6 +744,9 @@ export default {
   },
 
   methods: {
+    Jump(){
+      _Global.YJ3D.YJController.ClickJump();
+    },
     saveActionList() {
       _Global.SaveActionList(this.actionList);
       // console.log("SaveActionList  ",this.actionList);

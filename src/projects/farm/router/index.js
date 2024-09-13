@@ -25,13 +25,7 @@ const router = createRouter({
       // redirect: '/chatGPTsingle',  //重定向  
       // component: () => import('../pages/platform/settingPanel_screen.vue'),
 
-    },
-
-    {
-      path: '/shader',   // 着色器练习场景
-      name: 'shader',
-      component: () => import('../pages/shaderLX.vue')
-    },
+    }, 
     {
       path: '/uitest',   // 访问编辑后保存在本地的场景
       name: 'uitest',
@@ -44,14 +38,7 @@ const router = createRouter({
       name: 'visitLocal',
       component: () => import('../pages/platform/VisitLocal.vue')
     },
-
-    {
-      path: '/directOpen', //布局页
-      name: 'directOpen',
-      component: () => import('../pages/indexDirect3d.vue'),
-      children: [
-      ]
-    },
+ 
     {
       path: '/indexHome', //元宇宙平台
       name: 'indexHome',
@@ -125,94 +112,14 @@ const router = createRouter({
       path: '/editorVisit/:folderBase',   // 角色选择页
       name: 'editorVisitfolderBase',
       component: () => import('../pages/platform/EditorPanelVisit.vue')
-    },
-    {
-      path: '/login',   // 角色选择页
-      name: 'login',
-      component: () => import('../pages/login/login.vue')
-    },
-    {
-      path: '/chatGPTsingle',   // 角色选择页
-      name: 'chatGPTsingle',
-      component: () => import('../pages/chatPanelSingle.vue')
-    },
-    {
-      path: '/chatGPT',   // 角色选择页
-      name: 'chatGPT',
-      component: () => import('../pages/chatPanel.vue')
-    },
+    }, 
     
     {
       path: '/selectPlayerSingle', // 虚拟形象
       name: 'selectPlayerSingle',
       component: () => import('../pages/platform/SelectPlayerPanel.vue'),
-    },
-    {
-      path: '/playerSelect',   // 角色选择页
-      name: 'playerSelect',
-      component: () => import('../pages/playerSelectPanel.vue')
-    },
-    {
-      path: '/playerSelectAndSkinPanel',   // 角色选择页 换装
-      name: 'playerSelectAndSkinPanel',
-      component: () => import('../pages/playerSelectAndSkinPanel.vue')
-    },
-    {
-      path: '/playerSelectSkin',   // 角色选择页 换装
-      name: 'playerSelectSkin',
-      component: () => import('../pages/playerSelectSkinPanel.vue')
-    },
-    {
-      path: '/margeTexture',   // 合并图片
-      name: 'margeTexture',
-      component: () => import('../pages/margeTexture3DPanel.vue')
-    },
-    {
-      path: '/uploadScene',   //接入 上传各个项目的场景文件
-      name: 'uploadScene',
-      component: () => import('../../../views/chat/uploadScene.vue')
-    },
-    
-    {
-      path: '/3dsimpleScene', //布局页
-      name: '3dsimpleScene',
-      component: () => import('../../../threeJS/threeSimple.vue'),
-      children: [
-      ]
-    },
-
-
-    {
-      path: '/multifarm', //布局页
-      name: 'multifarm',
-      redirect: '/multifarm/aaa',  //重定向
-      component: () => import('../pages/index.vue'),
-      children: [
-      ]
-    },
-    {
-      path: '/farm/:userName', //布局页
-      name: 'farmid',
-      redirect: '/multifarm/aaa',  //重定向
-      component: () => import('../pages/index.vue'),
-      children: [
-      ]
     }, 
-    {
-      path: '/multifarm/:userName', //布局页
-      name: 'multifarmid',
-      component: () => import('../pages/index.vue'),
-      children: [
-      ]
-    },
-
-    {
-      path: '/photo', //布局页
-      name: 'photo',
-      component: () => import('../pages/photo2.vue'),
-      children: [
-      ]
-    },
+ 
   ]
 })
 

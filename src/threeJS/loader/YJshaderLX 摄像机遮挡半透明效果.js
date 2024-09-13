@@ -62,7 +62,7 @@ class YJshaderLX {
 
       // let modelPath = _this.GetPublicUrl() + "models/TestScene/quad.gltf";
       // let texPath = _this.GetPublicUrl() + "models/TestScene/box_UV1_UV1.exr";
-      // let _YJLoadModel = new YJLoadModel(_this, scene);
+      // let _YJLoadModel = new YJLoadModel( scene);
 
       // _YJLoadModel.load("yj_cavalry", modelPath, new THREE.Vector3(2, 0, 2), new THREE.Vector3(0, 0, 0),
       //   new THREE.Vector3(1, 1, 1), false, null, (scope) => {

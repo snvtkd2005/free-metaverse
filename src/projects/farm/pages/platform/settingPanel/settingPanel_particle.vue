@@ -1,7 +1,5 @@
 
-// 特效设置
 <template>
-  <!-- 设置面板 -->
   <div class="
               w-full 
                p-2
@@ -15,12 +13,12 @@
     </div>
  
 
-    <div class=" mt-10 w-80 h-10 text-white cursor-pointer " @click="load()">
-      <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">{{ loadContent }}</div>
+    <div class=" mt-10 w-80 h-10 text-white  " >
+      <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 cursor-pointer " @click="load()">{{ loadContent }}</div>
     </div>
 
-    <div class=" mt-2 w-80 h-10 text-white cursor-pointer " @click="save()">
-      <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1 ">保存</div>
+    <div class=" mt-2 w-80 h-10 text-white ">
+      <div class=" mt-2 bg-445760 rounded-md inline-block px-14 py-1  cursor-pointer"  @click="save()">保存</div>
     </div>
 
 
@@ -47,7 +45,10 @@ export default {
       pointType: "particle",
 
       settingData: {
-        id: "",
+        id: "",        
+        looping:true,
+
+        hasShape:true,
         shape:{
           type:"box", // 发射形状
           // 发射范围大小
@@ -56,7 +57,7 @@ export default {
           rotation:[0,0,0],
           scale:[1,1,1],
         },
-        startSpeed: 0.02,// 发射速度
+        startSpeed: 10,// 发射速度
         startLifetime: 1, // 粒子存活时长
         startSize: 1,// 粒子大小
 
@@ -71,12 +72,16 @@ export default {
         sizeOverLifetime:false,
         sizeOverLifetimeValue:[1,0],
         
+        rotationOverLifetime: false,
+        rotationOverLifetimeValue: [0,0,0],
+
         colorOverLifetime:false,
         colorOverLifetimeStart:"#ffffff",
         colorOverLifetimeEnd:"#ffffff",
 
       },
       setting: [
+        { property: "looping", display: true, title: "是否循环", type: "toggle", value: true, callback: this.ChangeValue },
         { property: "startSpeed", display: true, title: "发射速度", type: "num", step:0.1, value: 1, callback: this.ChangeValue },
         { property: "startLifetime", display: true, title: "粒子存活时长", type: "num", step:0.1, value: 1, callback: this.ChangeValue },
         { property: "startSize", display: true, title: "粒子大小", type: "num", step:0.1, value: 1, callback: this.ChangeValue },
@@ -89,32 +94,39 @@ export default {
             // { label: "模型", value: "model" },
           ], callback: this.ChangeValue
         },
+
+        { property: "hasShape", display: true, title: "应用范围", type: "toggle", value: true, callback: this.ChangeValue },
         {
-          property: "shape-type", display: true, title: "范围类型", type: "drop", value: "立方体", options: [
+          property: "shape-type", display: false, title: "范围类型", type: "drop", value: "立方体", options: [
             { label: "立方体", value: "box" },
             { label: "圆柱体", value: "cone" },
           ], callback: this.ChangeValue
         },
-        { property: "shape-scale", display: true, title: "发射范围大小", type: "vector3", value: [1,1, 1], step: 0.01, callback: this.ChangeValue },
+        { property: "shape-scale", display: false, title: "发射范围大小", type: "vector3", value: [1,1, 1], step: 0.01, callback: this.ChangeValue },
 
         { property: "sizeOverLifetime", display: true, title: "生命周期内大小", type: "toggle", value: false, callback: this.ChangeValue },
-        { property: "sizeOverLifetimeValue", display: true, title: "生命周期内大小值", type: "vector2", value: [1,1], callback: this.ChangeValue },
+        { property: "sizeOverLifetimeValue", display: false, title: "大小值", type: "vector2", value: [1,1], callback: this.ChangeValue },
         
+        { property: "rotationOverLifetime", display: true, title: "生命周期内旋转", type: "toggle", value: false, callback: this.ChangeValue },
+        { property: "rotationOverLifetimeValue", display: false, title: "旋转值", type: "vector3", value: [0,0,0], callback: this.ChangeValue },
+        
+
         { property: "colorOverLifetime", display: true, title: "生命周期内颜色", type: "toggle", value: false, callback: this.ChangeValue },
-        { property: "colorOverLifetimeStart", display: true, title: "渐变起始色", type: "color", value: "#ffffff", callback: this.ChangeValue },
-        { property: "colorOverLifetimeEnd", display: true, title: "渐变结束色", type: "color", value: "#ffffff", callback: this.ChangeValue },
+        { property: "colorOverLifetimeStart", display: false, title: "渐变起始色", type: "color", value: "#ffffff", callback: this.ChangeValue },
+        { property: "colorOverLifetimeEnd", display: false, title: "渐变结束色", type: "color", value: "#ffffff", callback: this.ChangeValue },
         
 
         {
           property: "renderAlignment", display: true, title: "渲染对齐模式", type: "drop", value: "视图", options: [
             { label: "视图", value: "view" },
+            { label: "局部", value: "local" },
             // { label: "世界", value: "world" },
           ], callback: this.ChangeValue
         },
         { property: "isBlack", display: true, title: "是否黑底", type: "toggle", value: false, callback: this.ChangeValue },
 
       ],
-      loadContent: "加载", 
+      loadContent: "重新播放", 
     };
   },
   created() {
@@ -153,10 +165,20 @@ export default {
     addThreeJSfocus() { 
     }, 
     initValue() {
+
+      if(this.settingData.rotationOverLifetimeValue == undefined){
+        this.settingData.rotationOverLifetimeValue = [0,0,0];
+      }
+      if(this.settingData.hasShape == undefined){
+        this.settingData.hasShape = true;
+      }
+
       this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
 
       this.Utils.SetSettingItemByProperty(this.setting, "sizeOverLifetimeValue", this.settingData.sizeOverLifetimeValue);
+      this.Utils.SetSettingItemByProperty(this.setting, "rotationOverLifetimeValue", this.settingData.rotationOverLifetimeValue);
 
+      this.ChangeUIState();
       // for (let i = 0; i < this.setting.length; i++) {
       //   const element = this.setting[i];
       //   if(this.settingData[element.property] != undefined){
@@ -170,6 +192,24 @@ export default {
       this.initValue();
       console.log(" particle setting data ", _settingData);
     },
+    
+    ChangeUIState() {
+      // 根据选择判断哪些属性不显示 
+      let colorOverLifetime = this.Utils.GetSettingItemValueByProperty(this.setting, 'colorOverLifetime');
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "colorOverLifetimeStart", "display",colorOverLifetime);
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "colorOverLifetimeEnd", "display",colorOverLifetime);
+
+      let sizeOverLifetime = this.Utils.GetSettingItemValueByProperty(this.setting, 'sizeOverLifetime');
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "sizeOverLifetimeValue", "display",sizeOverLifetime);
+        
+      let hasShape = this.Utils.GetSettingItemValueByProperty(this.setting, 'hasShape');
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "shape-type", "display",hasShape);
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "shape-scale", "display",hasShape);
+      
+      let rotationOverLifetime = this.Utils.GetSettingItemValueByProperty(this.setting, 'rotationOverLifetime');
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "rotationOverLifetimeValue", "display",rotationOverLifetime);
+
+    },
     ChangeValue(i, e) {
       // return;
       this.setting[i].value = e;
@@ -181,6 +221,7 @@ export default {
       }
 
       this.load();
+      this.ChangeUIState();
       // console.log(i + " ",this.setting[i].property, this.settingData[this.setting[i].property],e);
     },
     save() {

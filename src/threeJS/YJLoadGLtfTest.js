@@ -112,7 +112,7 @@ class YJLoadGLtfTest {
 
         pos.y = 1;
         //创建门的 collider
-        _this._YJSceneManager.CreateModelMeshCollider(body,body.scale,
+        _Global.YJ3D._YJSceneManager.CreateModelMeshCollider(body,body.scale,
         pos ,  body.quaternion 
         );
 

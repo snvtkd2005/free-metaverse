@@ -10,8 +10,7 @@ import { MMDAnimationHelper } from 'three/examples/jsm/animation/MMDAnimationHel
 import TWEEN from '@tweenjs/tween.js';
 import { FaceBone } from "./FaceBone.js";
 import { Tonemapping } from "./tonemapping.js";
-import { YJLoadAnimation } from "/@/threeJS/loader/YJLoadAnimation.js";
-import { YJPlayerAnimData } from "../YJPlayerAnimData.js";
+import { YJLoadAnimation } from "/@/threeJS/common/YJLoadAnimation.js";
 import { createAnimationClip, createAnimationClip_mmd2mixamo2, createAnimationClip2, createAnimationClipScale } from "/@/utils/utils_threejs.js";
 
 class SpringManager {
@@ -1654,8 +1653,7 @@ class SpringManager {
             }
         }
 
-        let _YJLoadAnimation = null;
-        let _YJPlayerAnimData = null;
+        let _YJLoadAnimation = null; 
         let animwalk_mixamo;
         let animwalk_mmd;
         let mmdtemp = new THREE.Group();

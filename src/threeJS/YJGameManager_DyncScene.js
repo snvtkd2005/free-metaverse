@@ -1,14 +1,5 @@
 import * as THREE from "three";
-
-import { createText } from 'three/examples/jsm/webxr/Text2D.js';
-import { YJKeyboard } from "./YJKeyboard.js";
-
-import { YJLoadAvatar } from "./YJLoadAvatar.js"; 
-
-import { GetPathFolders, LoadFile } from "/@/utils/api.js";
-import TWEEN from '@tweenjs/tween.js';
-import { YJLoadModel } from "./YJLoadModel.js";
-import { YJParabola } from "./YJParabola.js";
+ 
 
 // 同步场景物体
 

@@ -81,8 +81,8 @@ class YJLoadAvatar {
 
       let mesh = null;
 
-      if (_this._YJSceneManager) {
-        mesh = _this._YJSceneManager.checkLoadMesh_needCheck(modelPath, () => {
+      if (_Global.YJ3D._YJSceneManager) {
+        mesh = _Global.YJ3D._YJSceneManager.checkLoadMesh_needCheck(modelPath, () => {
           // console.log("========= 基础角色完成 开始 copy =======");
           loadFbxFn(animData, callback, false);
           console.log("========= 加载角色 copy =======");
@@ -97,8 +97,8 @@ class YJLoadAvatar {
         return;
       }
 
-      if (_this._YJSceneManager) {
-        _this._YJSceneManager.addLoadMesh_needCheck_begin(modelPath);
+      if (_Global.YJ3D._YJSceneManager) {
+        _Global.YJ3D._YJSceneManager.addLoadMesh_needCheck_begin(modelPath);
       }
       loadFbxFn(animData, callback, true);
       // console.log("=========加载角色 基础 =======");
@@ -123,8 +123,8 @@ class YJLoadAvatar {
           // console.log("=========加载角色  object =======",object);
           // console.log("=========加载角色  group =======",cloneFbx(object));
           if (needCheck) {
-            if (_this._YJSceneManager) {
-              _this._YJSceneManager.addLoadMesh_needCheck_done(modelPath);
+            if (_Global.YJ3D._YJSceneManager) {
+              _Global.YJ3D._YJSceneManager.addLoadMesh_needCheck_done(modelPath);
             }
           }
 
@@ -204,8 +204,8 @@ class YJLoadAvatar {
     const loadGltf = (animData, callback) => {
       // 同时加载多个相同路径的模型时，先加载第一个，等第一个加载完成后，再加载其他的
       let mesh = null;
-      if (_this._YJSceneManager) {
-        mesh = _this._YJSceneManager.checkLoadMesh_needCheck(modelPath, () => {
+      if (_Global.YJ3D._YJSceneManager) {
+        mesh = _Global.YJ3D._YJSceneManager.checkLoadMesh_needCheck(modelPath, () => {
           loadGltfFn(animData, callback, false);
           console.log("=========加载角色 COPY =======");
         });
@@ -213,8 +213,8 @@ class YJLoadAvatar {
       if (mesh != null) {
         return;
       }
-      if (_this._YJSceneManager) {
-        _this._YJSceneManager.addLoadMesh_needCheck_begin(modelPath);
+      if (_Global.YJ3D._YJSceneManager) {
+        _Global.YJ3D._YJSceneManager.addLoadMesh_needCheck_begin(modelPath);
       }
       loadGltfFn(animData, callback, true);
       // console.log("=========加载角色 基础 =======");
@@ -227,8 +227,8 @@ class YJLoadAvatar {
         function (gltf) {
 
           if (needCheck) {
-            if (_this._YJSceneManager) {
-              _this._YJSceneManager.addLoadMesh_needCheck_done(modelPath);
+            if (_Global.YJ3D._YJSceneManager) {
+              _Global.YJ3D._YJSceneManager.addLoadMesh_needCheck_done(modelPath);
             }
           }
 

@@ -1,6 +1,6 @@
 <template>
   <div class="absolute z-10 left-0 top-32 w-full h-full flex pointer-events-none">
-    <!-- 游戏菜单 -->
+    <!-- 删除物品对话框 -->
     <div class="w-1/3 h-24  mx-auto flex  relative">
       <div
         class=" absolute left-0 top-0 -z-10 flex w-full h-full mx-auto"

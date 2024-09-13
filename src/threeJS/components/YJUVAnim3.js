@@ -2,7 +2,7 @@
 import * as THREE from "three";
 
 class YJUVAnim3 {
-  constructor(_this, model, parent) {
+  constructor( model, parent) {
     var scope = this;
     let num = 0;
 
@@ -49,7 +49,7 @@ class YJUVAnim3 {
 
         }); // 材质
 
-        map = new THREE.TextureLoader().load(_this.$uploadUVAnimUrl + data.gifPath);
+        map = new THREE.TextureLoader().load(_Global.url.uploadUVAnimUrl + data.gifPath);
         map.encoding = 3001;
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
         map.matrixAutoUpdate = false; // set this to false to update texture.matrix manually
@@ -99,7 +99,7 @@ class YJUVAnim3 {
       }
 
       // if(data.isLookatCam){
-      //   _this._YJSceneManager.AddLookatHotPoint(parent,data);
+      //   _Global.YJ3D._YJSceneManager.AddLookatHotPoint(parent,data);
       // }
     }
     let data = null;
@@ -109,7 +109,7 @@ class YJUVAnim3 {
       data = (msg);
       // console.log("in uvanim3 msg = ", data);
 
-      // _this._YJSceneManager.RemoveLookatHotPoint(parent);
+      // _Global.YJ3D._YJSceneManager.RemoveLookatHotPoint(parent);
 
       InitFn();
     }
@@ -120,7 +120,7 @@ class YJUVAnim3 {
 
     //删除模型
     this.Destroy = function () {
-      // _this._YJSceneManager.RemoveLookatHotPoint(parent);
+      // _Global.YJ3D._YJSceneManager.RemoveLookatHotPoint(parent);
     }
 
     //#region 

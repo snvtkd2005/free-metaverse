@@ -7,7 +7,7 @@ import { MMDLoader } from 'three/examples/jsm/loaders/MMDLoader.js';
 import { MMDAnimationHelper } from 'three/examples/jsm/animation/MMDAnimationHelper.js';
 import TWEEN from '@tweenjs/tween.js';
 import { FaceBone } from "../common/FaceBone.js";
-import { YJLoadAnimation } from "/@/threeJS/loader/YJLoadAnimation.js";
+import { YJLoadAnimation } from "/@/threeJS/common/YJLoadAnimation.js";
 
 class YJLoadAvatarMMD {
     constructor(group) {
@@ -1647,8 +1647,7 @@ class YJLoadAvatarMMD {
             }
         }
 
-        let _YJLoadAnimation = null;
-        let _YJPlayerAnimData = null;
+        let _YJLoadAnimation = null; 
         let animwalk_mixamo;
         let animwalk_mmd;
         let mmdtemp = new THREE.Group();

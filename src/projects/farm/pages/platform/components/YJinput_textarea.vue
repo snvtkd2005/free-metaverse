@@ -1,5 +1,4 @@
-
-// 场景设置
+ 
 <template>
    <textarea name=""  class=" w-full  px-1 border" id="" ref="input" :value="value"  cols="10" rows="10"
            @focus="focus"

@@ -104,7 +104,7 @@ class YJParabola {
         navpath.shift(); 
         if (navpath.length == 0) {
           model.parent.remove(model);
-          _this._YJSceneManager.clearGroup(model);
+          _Global.YJ3D._YJSceneManager.clearGroup(model);
         }
         // console.log("已移动到指定位置");
       }
@@ -143,7 +143,7 @@ class YJParabola {
         // doonce = 0;
         if (navpath.length == 0) {
           model.parent.remove(model);
-          _this._YJSceneManager.clearGroup(model);
+          _Global.YJ3D._YJSceneManager.clearGroup(model);
         }
 
       }

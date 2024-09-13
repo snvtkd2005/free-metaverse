@@ -1,6 +1,5 @@
 
-<template>
-  <!-- 模型库 模型列表选择 -->
+<template> 
   <div v-if="isOpen" class="w-full h-full bg-445760 flex flex-col">
     <!-- 分类table -->
     <div class="flex bg-546770 h-8">
@@ -53,7 +52,7 @@
 import { GetAllModel, GetAllGroup } from "../../../js/uploadThreejs.js";
 
 export default {
-  name: "index",
+  name: "modelPanel",
   props: ["title"],
   components: {},
   data() {

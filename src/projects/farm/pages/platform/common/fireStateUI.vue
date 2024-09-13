@@ -1,6 +1,7 @@
 
 <template>
-  <!-- 游戏或角色状态提示 -->
+  <div>
+
   <div
     v-if="true"
     class="absolute w-full  flex left-0 top-20 pointer-events-none"
@@ -54,11 +55,13 @@
     </div>
 
   </div>
+  </div>
 </template>
 
 <script>
 // 战斗状态页面
 
+// <!-- 游戏状态提示 -->
 export default {
   name: "fireStateUI",
   components: {},

@@ -77,7 +77,7 @@ class YJMapManager {
         return;
       }
       oldPos = pos.clone();
-      _this._YJSceneManager.UpdatePlayerPos(oldPos);
+      _Global.YJ3D._YJSceneManager.UpdatePlayerPos(oldPos);
 
       // console.log("地图管理 = 角色坐标 ",pos);
 
@@ -133,7 +133,7 @@ class YJMapManager {
         return;
       }
       // console.log("角色中心所在地图 ", newMapId);
-      _this._YJSceneManager.SetCenterPlaneId(newMapId);
+      _Global.YJ3D._YJSceneManager.SetCenterPlaneId(newMapId);
 
       let x1 = (x - 10000);
       let z1 = (z - 10000);
@@ -211,7 +211,7 @@ class YJMapManager {
             // console.log("移除九宫格",oldItem.id);
             // mapGroup.remove(oldItem.model);
 
-            _this._YJSceneManager.RemoveAmmoPlane(oldItem.id);
+            _Global.YJ3D._YJSceneManager.RemoveAmmoPlane(oldItem.id);
             _SceneManager.RemoveAmmoPlane(oldItem.id);
             out.splice(ii, 1);
             mapData.splice(i, 1);
@@ -242,11 +242,11 @@ class YJMapManager {
         const newItem = addArray[ii];
         // CreatePlane(newItem.x, newItem.y, newItem.z, newItem.id);
         mapData.push(newItem);
-        _this._YJSceneManager.AddAmmoPlane(newItem.id);
+        _Global.YJ3D._YJSceneManager.AddAmmoPlane(newItem.id);
         _SceneManager.AddAmmoPlane(newItem.id);
       }
 
-      _this._YJSceneManager.GetPlayerInMap(mapData);
+      _Global.YJ3D._YJSceneManager.GetPlayerInMap(mapData);
 
       // console.log("  mapData.length 22 = " + mapData.length);
 

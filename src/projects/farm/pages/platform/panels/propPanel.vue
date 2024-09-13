@@ -1,36 +1,37 @@
  
 <template>
-  <div
-    class="text-left w-6 h-6 mb-1 bg-white flex text-black leading-6 cursor-pointer"
-    @click="ClickEvent('新建')"
-  >
-    <div class="mx-auto">+</div>
-  </div>
-  <div
-    class="relative w-full text-white overflow-hidden overflow-y-auto overscroll-auto h-5/6"
-  >
-    <el-table :data="propList" style="width: 100%">
-      <!-- <el-table-column type="selection" width="40" /> -->
-      <el-table-column type="index" label="序号" width="60" />
-      <el-table-column prop="id" label="ID" width="130" />
-      <el-table-column prop="name" label="道具名" width="140" />
-      <el-table-column label="图标" width="80">
-        <template #default="scope">
-          <img
-            class="w-full h-full object-fill hover:opacity-70"
-            :src="$uploadUVAnimUrl + scope.row.icon"
-          />
-        </template>
-      </el-table-column>
-      <el-table-column label="道具类型" width="100">
-        <template #default="scope">
-          <div>
-            {{ scope.row && getItemsPropType(scope.row.propType) }}
-          </div>
-        </template>
-      </el-table-column>
+  <div>
+    <div
+      class="text-left w-6 h-6 mb-1 bg-white flex text-black leading-6 cursor-pointer"
+      @click="ClickEvent('新建')"
+    >
+      <div class="mx-auto">+</div>
+    </div>
+    <div
+      class="relative w-full text-white overflow-hidden overflow-y-auto overscroll-auto h-5/6"
+    >
+      <el-table :data="propList" style="width: 100%">
+        <!-- <el-table-column type="selection" width="40" /> -->
+        <el-table-column type="index" label="序号" width="60" />
+        <el-table-column prop="id" label="ID" width="130" />
+        <el-table-column prop="name" label="道具名" width="140" />
+        <el-table-column label="图标" width="80">
+          <template #default="scope">
+            <img
+              class="w-full h-full object-fill hover:opacity-70"
+              :src="$uploadUVAnimUrl + scope.row.icon"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column label="道具类型" width="100">
+          <template #default="scope">
+            <div>
+              {{ scope.row && getItemsPropType(scope.row.propType) }}
+            </div>
+          </template>
+        </el-table-column>
 
-      <!-- <el-table-column label="显示方式" width="100">
+        <!-- <el-table-column label="显示方式" width="100">
         <template #default="scope">
           <div>
             {{ scope.row && getItemsDisplayLabel(scope.row.displayType) }}
@@ -38,30 +39,31 @@
         </template>
       </el-table-column> -->
 
-      <el-table-column prop="value" label="效果值" width="100" />
+        <el-table-column prop="value" label="效果值" width="100" />
 
-      <el-table-column label="描述" width="200">
-        <template #default="scope">
-          <div>
-            {{ scope.row && scope.row.describe }}
-          </div>
-        </template>
-      </el-table-column>
+        <el-table-column label="描述" width="200">
+          <template #default="scope">
+            <div>
+              {{ scope.row && scope.row.describe }}
+            </div>
+          </template>
+        </el-table-column>
 
-      <el-table-column label="操作" width="100">
-        <template #default="scope">
-          <el-button
-            size="small"
-            @click="ClickEvent('编辑', scope.row, scope.$index)"
-            >编辑</el-button
-          >
-          <!-- <el-button size="small" type="danger" @click="ClickEvent('删除', scope.row,scope.$index)">删除</el-button> -->
-        </template>
-      </el-table-column>
-    </el-table>
+        <el-table-column label="操作" width="100">
+          <template #default="scope">
+            <el-button
+              size="small"
+              @click="ClickEvent('编辑', scope.row, scope.$index)"
+              >编辑</el-button
+            >
+            <!-- <el-button size="small" type="danger" @click="ClickEvent('删除', scope.row,scope.$index)">删除</el-button> -->
+          </template>
+        </el-table-column>
+      </el-table>
 
-    <!-- 道具添加弹窗 -->
-    <propItemEditorPanel ref="editorPanel"></propItemEditorPanel>
+      <!-- 道具添加弹窗 -->
+      <propItemEditorPanel ref="editorPanel"></propItemEditorPanel>
+    </div>
   </div>
 </template>
 
@@ -85,8 +87,8 @@ export default {
   created() {},
   mounted() {
     if (_Global.propList) {
-        this.propList = _Global.propList;
-    }else{
+      this.propList = _Global.propList;
+    } else {
       setTimeout(() => {
         this.propList = _Global.propList || [];
         this.initValue();
@@ -133,7 +135,7 @@ export default {
         }
       }
     },
-    initValue() { 
+    initValue() {
       for (let i = this.propList.length - 1; i >= 0; i--) {
         const element = this.propList[i];
         if (element == null) {

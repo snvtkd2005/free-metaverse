@@ -4,7 +4,7 @@ import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 class YJAnimModel {
-  constructor(_this, scene, id, name, modelPath, pos, rota, size, msg) {
+  constructor( scene, id, name, modelPath, pos, rota, size, msg) {
 
 
     // 创建一个时钟对象Clock
@@ -200,14 +200,10 @@ class YJAnimModel {
         loadFbx();
         return;
       }
-      // const whitemap = new THREE.TextureLoader().load(
-      //   _this.GetPublicUrl() + "img/white.jpg"
-      // );
-
-      // SetMessageFn(msg);
+      
 
       const loader = new GLTFLoader();
-      loader.setDRACOLoader(_this._YJSceneManager.GetDracoLoader());
+      loader.setDRACOLoader(_Global.YJ3D._YJSceneManager.GetDracoLoader());
       loader.load(modelPath, function (gltf) {
 
         model = gltf.scene;
@@ -467,11 +463,11 @@ class YJAnimModel {
 
 
     function LoadCompleted() {
-      if (_this._YJSceneManager == undefined) {
+      if (_Global.YJ3D._YJSceneManager == undefined) {
         console.log("！！！注意，不应该进入此判断 。 加载动画模型 ");
         return;
       }
-      _this._YJSceneManager.AddProcess();
+      _Global.YJ3D._YJSceneManager.AddProcess();
 
       // mixer.addEventListener('loop', function (e) {
       //   console.log(" ===== 到达模型动画 loop 点 ===== ",e); 

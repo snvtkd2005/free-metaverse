@@ -1,14 +1,12 @@
-<!-- 1， -->
-<!-- npm 安装插件 -->
-<!-- npm i vue3-video-play -S    -->
-<!-- 更新vue到3.2.4
-npm install vue@3.2.4   -->
+
 
 <!-- // 播放直播流 -->
 <template>
   <!--   v-bind="options" -->
   <!-- :src="video_url" 
       :poster="poster" -->
+      <div>
+
   <div class="vue3VideoPlayPanel w-full h-full bg-opacity-95 bg-black" ref="vue3VideoPlayPanel"
     style="z-index: 10000">
     <vue3VideoPlay :id="videoId" class="   " ref="videoPlayer" x5-video-orientation="landscape" v-bind="options"
@@ -39,13 +37,21 @@ npm install vue@3.2.4   -->
     ">
     取消全屏
   </div>
+</div>
+
 </template>
 
 <script>
 // 播放器-导入组件（在要用组件的页面导入组件,并声明）
 // import "vue3-video-play/dist/style.css";
 import vue3VideoPlay from "vue3-video-play";
-
+/**
+ * <!-- 1， -->
+<!-- npm 安装插件 -->
+<!-- npm i vue3-video-play -S    -->
+<!-- 更新vue到3.2.4
+npm install vue@3.2.4   -->
+ */
 export default {
   components: {
     vue3VideoPlay,

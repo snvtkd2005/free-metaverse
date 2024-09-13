@@ -1,5 +1,5 @@
 
-<!-- // 场景编辑UI -->
+
 <template>
   <div class="  flex-grow flex-col p-20">
 

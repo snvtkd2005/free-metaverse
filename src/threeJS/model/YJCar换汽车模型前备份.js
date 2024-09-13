@@ -97,7 +97,7 @@ class YJCar {
       });
       return;
 
-      let _YJLoadModel = new YJLoadModel(_this, scene);
+      let _YJLoadModel = new YJLoadModel( scene);
       _YJLoadModel.load(id, modelPath, pos, rotaV3, size, false, null, (scope) => {
         let model = scope.GetModel();
         console.log("加载汽车模型 ", model);
@@ -464,7 +464,7 @@ class YJCar {
 
 
       //更新铲斗的 collider
-      _this._YJSceneManager.CreateTriangeMeshCollider(bucket, bucket.scale);
+      _Global.YJ3D._YJSceneManager.CreateTriangeMeshCollider(bucket, bucket.scale);
     }
     //本地操作 并向服务器发送
     this.SendState = function (nodeName, rota) {
@@ -528,7 +528,7 @@ class YJCar {
     }
 
     function LoadCompleted() {
-      _this._YJSceneManager.LoadSingleModelCompleted();
+      _Global.YJ3D._YJSceneManager.LoadSingleModelCompleted();
     }
     //删除模型
     this.Destroy = function () {
@@ -551,9 +551,9 @@ class YJCar {
         });
       }
       //删除碰撞体
-      _this._YJSceneManager.RemoveCollider(trigger);
-      _this._YJSceneManager.RemoveCollider(bucket);
-      _this._YJSceneManager.RemoveCollider(wjjPlane001);
+      _Global.YJ3D._YJSceneManager.RemoveCollider(trigger);
+      _Global.YJ3D._YJSceneManager.RemoveCollider(bucket);
+      _Global.YJ3D._YJSceneManager.RemoveCollider(wjjPlane001);
     }
 
     //放下后，获取模型的坐标和旋转，记录到服务器，让其他客户端创建
@@ -565,16 +565,16 @@ class YJCar {
     let trigger = null;
     //创建碰撞体
     function CreateCollider() {
-      trigger = _this._YJSceneManager.CreateModelTrigger(new THREE.Vector3(6, 5, 6),
+      trigger = _Global.YJ3D._YJSceneManager.CreateModelTrigger(new THREE.Vector3(6, 5, 6),
         model.position, model.quaternion, id, "digger"
       );
 
 
       //创建铲斗的 collider
-      _this._YJSceneManager.CreateTriangeMeshCollider(bucket, bucket.scale);
+      _Global.YJ3D._YJSceneManager.CreateTriangeMeshCollider(bucket, bucket.scale);
 
       wjjPlane001 = LoopFindChild("wjjPlane001", model);
-      _this._YJSceneManager.CreateTriangeMeshCollider(wjjPlane001, wjjPlane001.scale);
+      _Global.YJ3D._YJSceneManager.CreateTriangeMeshCollider(wjjPlane001, wjjPlane001.scale);
 
     }
 

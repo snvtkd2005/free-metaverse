@@ -1,7 +1,6 @@
 
 
 <template>
-  <!-- 动作库 -->
   <div
     v-if="isOpen"
     class="absolute w-full h-full flex text-white overflow-hidden pointer-events-none"
@@ -130,8 +129,9 @@
 import YJinput_text from "../components/YJinput_text.vue";
 import { GetAllModel, UploadPlayerFile } from "../../../js/uploadThreejs.js";
 
+//  动作库 
 export default {
-  name: "index",
+  name: "animPanel",
 
   components: {
     YJinput_text,

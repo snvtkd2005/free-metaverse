@@ -1,7 +1,5 @@
-
-// UV动画设置
-<template>
-  <!-- avatar设置 -->
+ 
+<template> 
   <div class="w-full max-w-md p-2 text-white rounded-lg overflow-hidden">
     <div class=" flex justify-between">
       <div class="text-left">自带动作映射</div>

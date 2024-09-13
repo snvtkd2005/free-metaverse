@@ -1,6 +1,7 @@
 
 
 <template>
+   <div>
   <settingPanel_localOffset ref="settingPanel_localOffset" />
 
   <div class="w-full max-w-md p-2 text-white rounded-lg overflow-hidden">
@@ -58,7 +59,7 @@
       保存
     </div>
   </div>
-  <div></div>
+ </div>
 </template>
 
 <script>

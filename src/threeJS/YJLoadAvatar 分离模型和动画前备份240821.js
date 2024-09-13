@@ -89,8 +89,8 @@ class YJLoadAvatar {
 
       let mesh = null;
 
-      if (_this._YJSceneManager) {
-        mesh = _this._YJSceneManager.checkLoadAvatar_needCheck(modelPath, (mesh) => {
+      if (_Global.YJ3D._YJSceneManager) {
+        mesh = _Global.YJ3D._YJSceneManager.checkLoadAvatar_needCheck(modelPath, (mesh) => {
           // loadFbxFn(animData, callback, false);
 
           if (playerObj != undefined && playerObj != null) { return; }
@@ -107,8 +107,8 @@ class YJLoadAvatar {
         return;
       }
 
-      if (_this._YJSceneManager) {
-        _this._YJSceneManager.addLoadAvatar_needCheck_begin(modelPath);
+      if (_Global.YJ3D._YJSceneManager) {
+        _Global.YJ3D._YJSceneManager.addLoadAvatar_needCheck_begin(modelPath);
       }
       loadFbxFn(animData, callback, true);
       // console.log("=========加载角色 基础 =======");
@@ -144,8 +144,8 @@ class YJLoadAvatar {
           // console.log("加载到的 角色模型", modelPath, playerObj);
 
           if (needCheck) {
-            if (_this._YJSceneManager) {
-              _this._YJSceneManager.addLoadAvatar_needCheck_done(modelPath, object);
+            if (_Global.YJ3D._YJSceneManager) {
+              _Global.YJ3D._YJSceneManager.addLoadAvatar_needCheck_done(modelPath, object);
             }
           }
 
@@ -333,8 +333,8 @@ class YJLoadAvatar {
     const loadGltf = (animData, callback) => {
       // 同时加载多个相同路径的模型时，先加载第一个，等第一个加载完成后，再加载其他的
       let mesh = null;
-      if (_this._YJSceneManager) {
-        mesh = _this._YJSceneManager.checkLoadAvatar_needCheck(modelPath, (mesh) => {
+      if (_Global.YJ3D._YJSceneManager) {
+        mesh = _Global.YJ3D._YJSceneManager.checkLoadAvatar_needCheck(modelPath, (mesh) => {
           // console.log("=========加载角色 COPY =======", mesh);
           if (playerObj != undefined && playerObj != null) { return; }
           // console.log("=========加载角色 COPY 加载 =======", mesh);
@@ -344,8 +344,8 @@ class YJLoadAvatar {
       if (mesh != null) {
         return;
       }
-      if (_this._YJSceneManager) {
-        _this._YJSceneManager.addLoadAvatar_needCheck_begin(modelPath);
+      if (_Global.YJ3D._YJSceneManager) {
+        _Global.YJ3D._YJSceneManager.addLoadAvatar_needCheck_begin(modelPath);
       }
       loadGltfFn(animData, callback, true);
 
@@ -357,8 +357,8 @@ class YJLoadAvatar {
         function (gltf) {
 
           if (needCheck) {
-            if (_this._YJSceneManager) {
-              _this._YJSceneManager.addLoadAvatar_needCheck_done(modelPath, gltf);
+            if (_Global.YJ3D._YJSceneManager) {
+              _Global.YJ3D._YJSceneManager.addLoadAvatar_needCheck_done(modelPath, gltf);
             }
           }
 
@@ -1083,8 +1083,8 @@ class YJLoadAvatar {
       }
 
       delAllAction(); //重要，必须. 卸载前必须清空引用
-      if (_this._YJSceneManager) {
-        _this._YJSceneManager.clearGroup(playerObj);
+      if (_Global.YJ3D._YJSceneManager) {
+        _Global.YJ3D._YJSceneManager.clearGroup(playerObj);
       } else {
         clearGroupFn(playerObj);
       }
@@ -1353,8 +1353,8 @@ class YJLoadAvatar {
 
           } else {
 
-            if (_this._YJSceneManager) {
-              _this._YJSceneManager.copyTextureToTexture(faceTex, faceAddTex, (canvas) => {
+            if (_Global.YJ3D._YJSceneManager) {
+              _Global.YJ3D._YJSceneManager.copyTextureToTexture(faceTex, faceAddTex, (canvas) => {
                 const texture = new THREE.Texture(canvas);
                 texture.needsUpdate = true;
                 texture.encoding = THREE.sRGBEncoding;

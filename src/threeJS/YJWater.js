@@ -4,7 +4,7 @@ import { Water } from 'three/examples/jsm/objects/Water.js';
 import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min.js';
 // 反射效果
 class YJWater {
-	constructor(_this, scene,mesh,
+	constructor( scene,mesh,
 		planeSize,
 		waveSize,
 		offset,
@@ -30,7 +30,7 @@ class YJWater {
 				{
 					textureWidth: 512,
 					textureHeight: 512,
-					waterNormals: new THREE.TextureLoader().load(_this.$publicUrl + 'images/waternormals.jpg', function (texture) {
+					waterNormals: new THREE.TextureLoader().load(_Global.url.local + 'images/waternormals.jpg', function (texture) {
 						texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 					}),
 					sunDirection: new THREE.Vector3(),

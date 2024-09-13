@@ -1,7 +1,5 @@
-
-// UV动画设置
-<template>
-  <!-- 场景设置面板 -->
+ 
+<template> 
   <div class=" w-full max-w-md p-2  text-white  rounded-lg overflow-hidden  ">
     <div class=" text-left ">交互模型设置</div>
     <div class=" w-full">

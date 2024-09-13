@@ -1,26 +1,6 @@
 import * as THREE from "three";
-
-
-import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
-import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js';
-import { XRHandModelFactory } from 'three/examples/jsm/webxr/XRHandModelFactory.js';
-import { Reflector } from 'three/examples/jsm/objects/Reflector.js';
-
-import TWEEN, { update } from '@tweenjs/tween.js';
-import { BoxBufferGeometry } from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
-import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader.js";
-
-
-import { YJLoadGLtfTest } from "./YJLoadGLtfTest.js";
-
 import { YJLoadModel } from "./YJLoadModel.js";
-
-import { YJMapManager } from "./YJMapManager.js";
-
-import { YJAmmo } from "./YJAmmo.js";
-import { YJAmmoKinematic } from "./YJAmmoKinematic.js";
+import { YJAmmo } from "./YJAmmo.js"; 
 import { YJLoadAvatar } from "./YJLoadAvatar.js";
 import { YJController } from "./YJController.js";
 import { createText } from 'three/examples/jsm/webxr/Text2D.js';

@@ -2,13 +2,12 @@
 import * as THREE from "three";
 
 
-import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js';
 import { CSS3DRenderer, CSS3DObject } from 'three/examples/jsm/renderers/CSS3DRenderer.js';
 // YJScreen 组件 。 图片、视频、直播流容器
 
 // 
 class YJScreen {
-  constructor(_this, model, screenId) {
+  constructor( model, screenId) {
     let scope = this;
 
     const blackMat = new THREE.MeshBasicMaterial({
@@ -85,7 +84,7 @@ class YJScreen {
         type = "m3u8";
       }
       if (type == "image") {
-        let map = _this._YJSceneManager.checkLoadTexture(path);
+        let map = _Global.YJ3D._YJSceneManager.checkLoadTexture(path);
 
 
         model.traverse(function (item) {
@@ -111,7 +110,7 @@ class YJScreen {
       }
       if (type == "mp4" || type == "m3u8") {
 
-        _this.AddVideo(screenId, type, (yjmedia) => {
+        _Global.applyEvent("AddVideo",screenId, type, (yjmedia) => {
           console.log(" yjmedia ", yjmedia);
           yjmedia.PlayVideoStream(path, true);
           const _video = document.getElementById(screenId);

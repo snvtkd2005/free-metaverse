@@ -5,8 +5,7 @@ import { YJKeyboard } from "./YJKeyboard.js";
 
 import { YJLoadAvatar } from "./YJLoadAvatar.js";
 import { YJProjector } from "./YJProjector.js";
-
-import { GetPathFolders, LoadFile } from "/@/utils/api.js";
+ 
 import TWEEN from '@tweenjs/tween.js';
 import { YJLoadModel } from "./YJLoadModel.js";
 import { YJParabola } from "./YJParabola.js";
@@ -86,10 +85,10 @@ class YJGameManager {
     // 设置角色坐到椅子上
     function SetSittingModel(model){
         // 设置角色坐到椅子上
-        let modelPos = _this._YJSceneManager.GetWorldPosition(model);
+        let modelPos = _Global.YJ3D._YJSceneManager.GetWorldPosition(model);
 
-        _this._YJSceneManager.GetAmmo().SetEnabled(false); 
-        _this._YJSceneManager.SetPlayerPosDirect(modelPos);
+        _Global.YJ3D._YJSceneManager.GetAmmo().SetEnabled(false); 
+        _Global.YJ3D._YJSceneManager.SetPlayerPosDirect(modelPos);
         _this.YJController.SetOnlyRotaView(true);
         _this.YJController.SetPlayerState("sitting", "sitting");
 
@@ -118,12 +117,12 @@ class YJGameManager {
       // 拾取物品
       if (modelType.indexOf('交互物品') > -1) {
 
-        let modelPos = _this._YJSceneManager.GetWorldPosition(hitObject);
+        let modelPos = _Global.YJ3D._YJSceneManager.GetWorldPosition(hitObject);
         //让角色朝向模型位置
         _this.YJController.PlayerLookatPos(modelPos);
 
         //判断角色与物品的距离，超过1米，则不交互
-        let distance = modelPos.distanceTo(_this._YJSceneManager.GetPlayerPos());
+        let distance = modelPos.distanceTo(_Global.YJ3D._YJSceneManager.GetPlayerPos());
         console.log("物品与角色的距离 ", distance);
         if (distance >= 1.7) { return; }
 
@@ -135,10 +134,10 @@ class YJGameManager {
         }
         pickTimeout = setTimeout(() => {
           // console.log("删除物品 " + hitObject.modelName);
-          _this._YJSceneManager.clearGroup(hitObject);
+          _Global.YJ3D._YJSceneManager.clearGroup(hitObject);
 
           //在模型位置相对于界面2d坐标，生成图标。 
-          // parentUI.CreateIconTo(hitObject.modelName,_this._YJSceneManager.WorldPosToScreenPos(modelPos));
+          // parentUI.CreateIconTo(hitObject.modelName,_Global.YJ3D._YJSceneManager.WorldPosToScreenPos(modelPos));
           // moveModels.push({ model: CreateObj(modelPos),currentTargetPos:modelPos, target: posRef_huluobu, lerpLength: 0 });
           // b_lerpMoving = true;
 
@@ -192,7 +191,7 @@ class YJGameManager {
             }
 
             throwObj.parent.remove(throwObj);
-            _this._YJSceneManager.clearGroup(throwObj);
+            _Global.YJ3D._YJSceneManager.clearGroup(throwObj);
             throwObj = null;
             if (throwTimeout != null) {
               clearTimeout(throwTimeout);
@@ -227,16 +226,16 @@ class YJGameManager {
 
 
             throwTimeout = setTimeout(() => {
-              _this.scene.attach(throwObj);
+              _Global.YJ3D.scene.attach(throwObj);
               let parabola = new THREE.Group();
-              _this.scene.add(parabola);
+              _Global.YJ3D.scene.add(parabola);
               parabola.position.copy(throwObj.position.clone());
 
               // parabola.add(new THREE.AxesHelper(1));
 
               let target = new THREE.Group();
               // target.add(new THREE.AxesHelper(1));
-              _this.scene.add(target);
+              _Global.YJ3D.scene.add(target);
 
               let targetPos = oldTarget.GetWorldPos();
               if (oldTarget != null) {
@@ -297,7 +296,7 @@ class YJGameManager {
       if(oldStateId != stateId){
         if (otherthrowObj != null) {
           otherthrowObj.parent.remove(otherthrowObj);
-          _this._YJSceneManager.clearGroup(otherthrowObj);
+          _Global.YJ3D._YJSceneManager.clearGroup(otherthrowObj);
           otherthrowObj = null;
         }
       }
@@ -314,16 +313,16 @@ class YJGameManager {
 
       if(targetPos){
 
-        _this.scene.attach(otherthrowObj);
+        _Global.YJ3D.scene.attach(otherthrowObj);
         let parabola = new THREE.Group();
-        _this.scene.add(parabola);
+        _Global.YJ3D.scene.add(parabola);
         parabola.position.copy(otherthrowObj.position.clone());
 
         // parabola.add(new THREE.AxesHelper(1));
 
         let target = new THREE.Group();
         // target.add(new THREE.AxesHelper(1));
-        _this.scene.add(target);
+        _Global.YJ3D.scene.add(target);
         
         target.position.set(targetPos.x,targetPos.y,targetPos.z);
 
@@ -396,7 +395,7 @@ class YJGameManager {
 
         if (throwObj != null) {
           throwObj.parent.remove(throwObj);
-          _this._YJSceneManager.clearGroup(throwObj);
+          _Global.YJ3D._YJSceneManager.clearGroup(throwObj);
           throwObj = null;
           parentUI.$refs.YJDync._YJDyncManager.SetPlayerState({
             stateId:10000
@@ -441,14 +440,14 @@ class YJGameManager {
         color: 0x808080,
       });
       let cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
-      _this.scene.add(cube);
+      _Global.YJ3D.scene.add(cube);
       modelPos.y += 1;
       cube.position.copy(modelPos);
       _this.camera.attach(cube);
       cube.name = modelName;
 
 
-      parentUI.CreateIconTo(cube.name, _this._YJSceneManager.GetObjectPosToScreenPos(cube));
+      parentUI.CreateIconTo(cube.name, _Global.YJ3D._YJSceneManager.GetObjectPosToScreenPos(cube));
 
 
       return cube;
@@ -457,7 +456,7 @@ class YJGameManager {
     function CreateThrowObj(parent, modelName) {
 
 
-      let mesh = _this._YJSceneManager.checkLoadMesh(_this.GetPublicModelUrl() + _this._YJSceneManager.GetModelPath(modelName));
+      let mesh = _Global.YJ3D._YJSceneManager.checkLoadMesh(_this.GetPublicModelUrl() + _Global.YJ3D._YJSceneManager.GetModelPath(modelName));
       let cube = LoadMesh(mesh);
       cube.scale.set(100, 100, 100);
       // //在2d物品栏对应的3d位置生成模型
@@ -489,7 +488,7 @@ class YJGameManager {
       let targetPos = targetObj.position.clone();
       MoveToPosTween(model, fromPos, 1000, () => {
         MoveToPosTween(model, targetPos, 2000, () => {
-          _this._YJSceneManager.clearGroup(model);
+          _Global.YJ3D._YJSceneManager.clearGroup(model);
           _this.camera.remove(model);
           parentUI.DelIconTo(model.name);
 
@@ -503,7 +502,7 @@ class YJGameManager {
       let movingTween = new TWEEN.Tween(fromPos).to(targetPos, length).easing(TWEEN.Easing.Cubic.InOut)
       let updateTargetPos = () => {
         model.position.copy(fromPos);
-        parentUI.UpdateIconTo(model.name, _this._YJSceneManager.GetObjectPosToScreenPos(model));
+        parentUI.UpdateIconTo(model.name, _Global.YJ3D._YJSceneManager.GetObjectPosToScreenPos(model));
       }
       movingTween.onUpdate(updateTargetPos);
       movingTween.start() // 启动动画
@@ -524,8 +523,8 @@ class YJGameManager {
           const moveModelData = moveModels[i];
 
 
-          // let targetPos = _this._YJSceneManager.GetWorldPosition(moveModelData.target);
-          // let targetPos = _this._YJSceneManager.GetWorldPosition(moveModelData.target);
+          // let targetPos = _Global.YJ3D._YJSceneManager.GetWorldPosition(moveModelData.target);
+          // let targetPos = _Global.YJ3D._YJSceneManager.GetWorldPosition(moveModelData.target);
 
           moveModelData.lerpLength += 0.001;
           moveModelData.currentTargetPos.lerp(moveModelData.targetPos, moveModelData.lerpLength);

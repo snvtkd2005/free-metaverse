@@ -1,5 +1,4 @@
-<template>
-    <!-- -->
+<template> 
 
   <div
     class="relative w-full h-full"
@@ -101,10 +100,11 @@
 </template>
 
 
-<!-- @mouseup="clickItem($event, item)"  -->
 
  
 <script >
+// <!-- @mouseup="clickItem($event, item)"  -->
+
 export default {
   props: ["item"],
   components: {},

@@ -4,13 +4,12 @@
 
 import { createApp } from 'vue'
 import App from '/@/App.vue'
+import '/@/index.css'
 // import './tailwind.css'
 // import 'tailwindcss/tailwind.css'
 // import './assets/css/tailwind.min.css'
 import '/@/assets/css/tailwind.css'
 // import '/@/assets/css/tailwindAll.css'
-
-import './index.css'
 
 //引入 饿了么UI
 import ElementPlus from 'element-plus';
@@ -34,8 +33,7 @@ import { createStore } from 'vuex';
 import { UploadFile,UploadSceneFile } from "./js/uploadThreejs.js";
 
 import { FormatDate, GetDateYM, ContentReplace, dataURLtoBlob, stringtoBlob } from "/@/utils/utils.js";
-
-import { GPTURL } from "/@/utils/chatGPT.js";
+ 
 
 // import Confirm from '/@/utils/yjDialog'; 
 
@@ -77,8 +75,7 @@ app.config.globalProperties.$axios = axios;
 // app.config.globalProperties.$confirm = Confirm;
 
 //上传文件
-
-app.config.globalProperties.$GPTURL = GPTURL;
+ 
 app.config.globalProperties.UIData = UIData;
 app.config.globalProperties.Utils = Utils;
 app.config.globalProperties.mathf = mathf;
@@ -115,3 +112,5 @@ app.config.globalProperties.$uploadHDRUrl = serverPath + "uploadsHDR/";
 app.config.globalProperties.$uploadUVAnimUrl = serverPath + "uploadsUVAnim/";
 app.config.globalProperties.$uploadPlayerUrl = serverPath + "uploadsPlayer/";
 app.config.globalProperties.$uploadSkillUrl = serverPath + "uploadsSkill/";  
+
+// https://snvtkd2005.com/socketIoServer/socketIoServer/uploads/1697256224763/Robot KyleNew2@T-Pose.fbx

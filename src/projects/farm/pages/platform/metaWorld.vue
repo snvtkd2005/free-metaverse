@@ -1,5 +1,5 @@
 
-<!-- // 场景编辑UI -->
+
 <template>
   <div class="main absolute left-0 top-0 z-999 w-full h-full flex flex-col">
     <!-- 摆放模型 -->
@@ -103,7 +103,7 @@ import YJmetaBase from "./YJmetaBase.vue";
 // 加载进度页
 import loadingPanel from "./loadingPanel2.vue";
 
-import { SceneManager } from "../../js/SceneManagerEditor.js";
+import { SceneManager } from "../../../../threeJS/game/managers/SceneManagerEditor.js";
 // import { SceneManager } from "../../js/SceneManagerMetaworld.js";
 import { Interface } from "../../js/Interface_editor.js";
 

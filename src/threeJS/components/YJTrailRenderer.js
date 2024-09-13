@@ -5,11 +5,11 @@
 // 渲染线模型、给线模型赋予材质、实时改变线模型长度
 import * as THREE from "three";
 class YJTrailRenderer {
-    constructor(_this,scene, parent) {
+    constructor(scene, parent) {
         let scope = this;
         this.used = false;
 
-        let map = new THREE.TextureLoader().load(_this.$publicUrl + "images/smoke001.png");
+        let map = new THREE.TextureLoader().load(_Global.url.local + "images/smoke001.png");
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
         map.matrixAutoUpdate = false;
         let material = new THREE.MeshBasicMaterial(
@@ -222,7 +222,7 @@ class YJTrailRenderer {
             }
 
             // // 起始位置光球
-            // let map = new THREE.TextureLoader().load(_this.$publicUrl + "images/cirle001.png");
+            // let map = new THREE.TextureLoader().load(_Global.url.local + "images/cirle001.png");
             // map.wrapS = map.wrapT = THREE.RepeatWrapping;
             // map.matrixAutoUpdate = false; // set this to false to update texture.matrix manually
             // const material = new THREE.SpriteMaterial({ 
@@ -348,7 +348,7 @@ class YJTrailRenderer {
             } 
             oldPos = anthorPos();
             
-            map = new THREE.TextureLoader().load(_this.$uploadUVAnimUrl + data.imgPath);
+            map = new THREE.TextureLoader().load(_Global.url.uploadUVAnimUrl + data.imgPath);
             map.wrapS = map.wrapT = THREE.RepeatWrapping;
             map.matrixAutoUpdate = false; // set this to false to update texture.matrix manually
 

@@ -8,7 +8,7 @@ import * as THREE from "three";
 import { YJAnimator } from "./YJAnimator";
 import { MMDLoader } from 'three/examples/jsm/loaders/MMDLoader.js';
 import { MMDAnimationHelper } from 'three/examples/jsm/animation/MMDAnimationHelper.js';
-import { YJLoadAnimation } from "/@/threeJS/loader/YJLoadAnimation.js";
+import { YJLoadAnimation } from "/@/threeJS/common/YJLoadAnimation.js";
 import TWEEN from '@tweenjs/tween.js';
 
 class YJAnimatorMMD extends YJAnimator {
@@ -2084,8 +2084,7 @@ class YJAnimatorMMD extends YJAnimator {
       }
     }
 
-    let _YJLoadAnimation = null;
-    let _YJPlayerAnimData = null;
+    let _YJLoadAnimation = null; 
     let animwalk_mixamo;
     let animwalk_mmd;
     let mmdtemp = new THREE.Group();

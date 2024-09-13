@@ -15,8 +15,7 @@
         left-10
         xl:left-20
         z-60
-        w-64
-        xl:w-auto
+        w-auto
         h-full
       ">
       <!-- 角色选择 -->
@@ -26,8 +25,7 @@
             mb-2
             xl:mb-5
             origin-top-left
-            w-32
-            xl:w-auto
+            w-auto
             text-3xl
             font-bold
           ">
@@ -36,12 +34,12 @@
 
         <!-- 列表 -->
         <div class="
-            w-full
-            max-w-2xl
-            h-16
+            w-auto
+            max-w-2xl 
             px-2
-            gap-3
-            xl:gap-14 xl:h-3/4
+            gap-5
+            xl:gap-14  
+            h-3/4
             justify-items-start
             grid grid-cols-4 overflow-y-scroll overflow-scroll
           ">
@@ -95,8 +93,6 @@
     </div>
 
     <div class="
-        hidden
-        xl:flex
         absolute
         z-20
         right-4
@@ -107,7 +103,9 @@
       <YJinput_drop class="w-32 h-16" :value="animValue" :options="animList" :callback="ChangeAnim" />
 
       <!--  -->
-      <div v-if="this.selectPlayerId != 'litleUnityChain2'" class="mt-2 w-32 h-10 text-white cursor-pointer" @click="editorPlayer()">
+      <div v-if="this.selectPlayerId != 'litleUnityChain2'" class=" 
+        hidden
+        xl:flex mt-2 w-32 h-10 text-white cursor-pointer" @click="editorPlayer()">
         <div class="mt-2 bg-445760 rounded-md inline-block px-6 py-1">编辑</div>
       </div>
     </div>
@@ -118,8 +116,8 @@
 //角色动作数据
 import PlayerAnimData from "../../data/platform/playerAnimSetting.js";
 
-import playerSelect3DPanel from "../playerSelect3DPanel.vue";
-import SkinPanel from "../SkinPanel2.vue";
+import playerSelect3DPanel from "./playerSelect3DPanel.vue";
+import SkinPanel from "./SkinPanel.vue";
 
 import YJinput_drop from "./components/YJinput_drop.vue";
 import YJinputPlayerName from "./components/YJinputPlayerName.vue";

@@ -1,6 +1,6 @@
  
 
-// 小地图
+
 <template >
   <div v-if="display" class="absolute w-full h-full hidden md:flex">
     <div class="

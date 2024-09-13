@@ -1,10 +1,11 @@
-import * as THREE from "three";
 
-
-import { YJPlayerAnimData } from "/@/threeJS/YJPlayerAnimData.js";
+import { YJPlayerAnimData } from "/@/threeJS/common/YJPlayerAnimData.js";
 import { GetAllModel, RemoveFolderBase } from "./uploadThreejs.js";
 import { YJPathfindingCtrl } from "/@/threeJS/pathfinding/YJPathfindingCtrl.js";
 import { YJAudioManager } from "./YJAudioManager.js";
+import { YJGame_mainCtrl } from "/@/threeJS/game/YJGame_mainCtrl.js";
+
+
 
 import IconData from "../data/iconData.js";
 import GameSetting from "../data/platform/GameSetting.js";
@@ -37,8 +38,17 @@ class Interface {
       completedTaskList:[],
     }
     _Global.url = {
+      local:"./public/",
       uploadUrl: _this.$uploadUrl,
+      uploadHDRUrl:_this.$uploadHDRUrl,
+      uploadGroupUrl: _this.$uploadGroupUrl,
       uploadUVAnimUrl: _this.$uploadUVAnimUrl,
+    } 
+    // 每秒同步次数
+    _Global.dyncUpdateFrame = 25;
+    _Global.setting = {
+      inEditor: inEditor, //是否编辑模式 
+      DMGame: !inEditor,
     }
     _Global.inFocus = true;
     _Global.infocus3d = true;
@@ -288,18 +298,12 @@ class Interface {
     _Global.addEventListener("主角重生", () => {
       _Global.mainPlayerIsDead = false;
       _Global.YJ3D.YJController.resetLife();
+      setTimeout(() => { 
+        _Global._YJPlayerFireCtrl.SetPlayerEvent("重生"); 
+      }, 200);
     });
 
-
-
-    // npc巡逻点模型
-    let spare = new THREE.SphereGeometry(0.1, 10);
-    const material = new THREE.MeshLambertMaterial({ color: 0xff0000 });
-    _Global.setting = {
-      inEditor: inEditor, //是否编辑模式
-      navPointMesh: new THREE.Mesh(spare, material),
-      DMGame: !inEditor,
-    }
+ 
 
     let cursorUrl = null;
     // 切换光标
@@ -315,7 +319,6 @@ class Interface {
         // console.log(element.content, content, element.content == content);
         if (element.content == content) {
           let path = element.path == '' ? '' : "./public/images/cursorList" + element.path;
-          // _Global.YJ3D.SetCursor(path);
           _Global.applyEvent("切换光标",path);
           return;
         }
@@ -369,7 +372,7 @@ class Interface {
     _Global.PickWeapon = this.PickWeapon;
 
     this.LoadEquipById = function (assetId, callback) {
-      let path = _Global.YJ3D.$uploadUrl + assetId + "/" + "data.txt" + "?time=" + new Date().getTime();
+      let path = _Global.url.uploadUrl + assetId + "/" + "data.txt" + "?time=" + new Date().getTime();
       _Global.YJ3D._YJSceneManager.LoadAssset(path, (data) => {
         let equipData = {
           type:"equip",
@@ -393,10 +396,6 @@ class Interface {
       });
     }
     _Global.LoadEquipById = this.LoadEquipById;
-
-
-
-
 
     async function RequestGetAllModel() {
       // return;
@@ -502,7 +501,7 @@ class Interface {
       if (_YJPlayerAnimData != null) {
         return _YJPlayerAnimData;
       }
-      _YJPlayerAnimData = new YJPlayerAnimData(_this);
+      _YJPlayerAnimData = new YJPlayerAnimData();
       _Global._YJPlayerAnimData = _YJPlayerAnimData;
 
       return _YJPlayerAnimData;
@@ -520,14 +519,6 @@ class Interface {
 
 
     init();
-
-    this.YJ3D = function () {
-      if (_this.$refs.YJmetaBase) {
-        return _this.$refs.YJmetaBase.ThreejsHumanChat;
-      }
-    }
-    _Global.YJ3D = this.YJ3D();
-
 
     // 向3d页发送
     this.SendMsgTo3D = (type, msg) => {
@@ -796,9 +787,7 @@ class Interface {
 
 
 
-
-    let posList = ["door", "zyzbsj", "zycx", "zygy", "zbds", "wbds", "xzzj", "dfshub", "vote", "game", "collect"];
-
+ 
     // 传入装置id，视角跳转到装置正前方
     this.ChangeViewById = function (id) {
       _Global.YJ3D._YJSceneManager.ChangeViewByIdDirect(id);
@@ -806,22 +795,7 @@ class Interface {
 
     this.ChangeViewByName = function (name) {
       let id = name;
-
-      let hasView = false;
-      for (let i = 0; i < posList.length; i++) {
-        if (posList[i] == name || name.indexOf(posList[i]) > -1) {
-          id = posList[i];
-          hasView = true;
-          continue;
-        }
-      }
-      if (!hasView) {
-        console.log("未查找跳转id " + id);
-        return;
-      }
       _Global.YJ3D._YJSceneManager.ChangeViewByIdDirect(id);
-
-
       _Global.YJ3D.SetCanAddControllerListner(true);
       _this.$refs.YJmetaBase.addThreeJSfocus();
       _Global.YJ3D.YJController.ChangeCtrlState();
@@ -955,6 +929,7 @@ class Interface {
     this.load3dComplete = function () {
       console.log(" 如果3d加载好了能点击跳转时候 执行 ");
       InitWEBGL_lose_context();
+      let _YJGame_mainCtrl = new YJGame_mainCtrl();
 
       if (_YJPathfindingCtrl == null) {
         _YJPathfindingCtrl = new YJPathfindingCtrl(_Global.YJ3D.scene, () => {
@@ -976,28 +951,7 @@ class Interface {
       _Global.applyEvent("3d加载完成");
 
     }
-
-    // 再次开始游戏，跳转到游戏装置前
-    this.BeginAgineGame = function () {
-      // 隐藏热点
-      _Global.YJ3D._YJSceneManager.SetPointObjDisplay(
-        "game",
-        false
-      );
-
-      _Global.YJ3D.YJController.SetCamPosAndRota(
-        _Global.YJ3D._YJSceneManager.GetCamPosAndRota(
-          "game"
-        ), () => {
-          this.BeginGame();
-        }
-      );
-
-
-      //显示地面热点
-      _this.SetFootHotPointDisplay(false);
-    }
-
+ 
     //设置渲染分辨率，默认1，有锯齿但流畅。提高分辨率可能会卡顿
     this.SetPixelRatio = function (f) {
       _Global.YJ3D.SetPixelRatio(f);
@@ -1032,12 +986,7 @@ class Interface {
 
     // 跳转到 指定位置名的位置  如  _Global.ChangeViewByName("door")
     _Global.ChangeViewByName = this.ChangeViewByName;
-
-    // 点击游戏开始按钮
-    _Global.BeginGame = this.BeginGame;
-
-    //再次游戏
-    _Global.BeginAgineGame = this.BeginAgineGame;
+ 
 
     //设置渲染分辨率，默认1，有锯齿但流畅。提高分辨率可能会卡顿
     _Global.SetPixelRatio = this.SetPixelRatio;
@@ -1070,9 +1019,6 @@ class Interface {
     }
     _Global.PlayVideoById = this.PlayVideoById;
 
-
-    // 每秒同步次数
-    _Global.dyncUpdateFrame = 25;
 
 
     let WEBGL_lose_context = null;

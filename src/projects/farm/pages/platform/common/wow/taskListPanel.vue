@@ -347,7 +347,7 @@ export default {
           const element = taskData.rewardItems[i];
           if (element.type == "equip") {
             let path =
-              _Global.YJ3D.$uploadUrl +
+              _Global.url.uploadUrl +
               element.id +
               "/" +
               "data.txt" +

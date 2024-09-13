@@ -1,5 +1,4 @@
 
-// 技能添加弹窗
 <template>
   <el-dialog :title="dialogTitle" class="   bg-546770 text-white  create-card" center v-model="inAdd" :modal-append-to-body="false"
     width="35%">
@@ -20,6 +19,7 @@
 
 import YJinputCtrl from "../components/YJinputCtrl.vue";
 
+// 技能添加弹窗
 export default {
   name: "levelItemEditorPanel",
   props: ['isOpen'],

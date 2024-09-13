@@ -1,6 +1,7 @@
 
 
 <template>
+  <div>
   <div class="w-full gap-y-0.5 flex flex-col">
     <div
       v-for="(item, i) in setting"
@@ -745,6 +746,7 @@
       </div>
     </div>
   </el-dialog>
+</div>
 </template>
 
 <script>

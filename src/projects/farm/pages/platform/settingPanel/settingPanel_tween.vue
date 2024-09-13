@@ -1,7 +1,5 @@
 
-// 特效设置
 <template>
-  <!-- 设置面板 -->
   <div class="
               w-full 
                p-2

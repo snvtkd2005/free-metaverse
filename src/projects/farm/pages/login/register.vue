@@ -1,5 +1,6 @@
 <template>
-
+<div>
+  
 <!-- 移动端 -->
 <div class=" md:hidden h-full w-full z-0"> 
  
@@ -188,6 +189,7 @@
 
 
 
+</div>
  
 
 </template>

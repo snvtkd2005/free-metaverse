@@ -12,7 +12,7 @@ messge.data:{
  */
 // 
 class YJGeometry {
-  constructor(_this, parent, owner) {
+  constructor( parent, owner) {
     let scope = this;
 
     var mesh = null;
@@ -22,7 +22,7 @@ class YJGeometry {
 
       if (mesh) {
         parent.remove(mesh);
-        _this._YJSceneManager.RemoveCollider(mesh);
+        _Global.YJ3D._YJSceneManager.RemoveCollider(mesh);
       }
       owner.GetData().name = data.name;
 
@@ -56,12 +56,12 @@ class YJGeometry {
       if (data.isCollider) {
         mesh.name = "geometry";
         // if(item.name.indexOf("land")){
-        //   _this._YJSceneManager.AddLandCollider(item);
+        //   _Global.YJ3D._YJSceneManager.AddLandCollider(item);
         // }else{
-        //   _this._YJSceneManager.AddCollider(item);
+        //   _Global.YJ3D._YJSceneManager.AddCollider(item);
         // }
         // console.log(" 创建碰撞体 ", size);
-        _this._YJSceneManager.CreateTriangeMeshCollider(mesh, size);
+        _Global.YJ3D._YJSceneManager.CreateTriangeMeshCollider(mesh, size);
       }
       if (data.isTrigger) {
         // mesh.name = "trigger";
@@ -74,12 +74,12 @@ class YJGeometry {
             color: 0x0000ff, 
           });
         }
-        _this._YJSceneManager.CreateTriangeMeshTrigger(mesh, size,
+        _Global.YJ3D._YJSceneManager.CreateTriangeMeshTrigger(mesh, size,
           data.tiggerTag, "triggerArea", owner);
       }
 
       if (data.isProjection) {
-        _this._YJSceneManager.AddProjectionUI(
+        _Global.YJ3D._YJSceneManager.AddProjectionUI(
           {
             content: data.name,
             tag: data.tiggerTag,
@@ -89,7 +89,7 @@ class YJGeometry {
       }
       if (data.isPosRef) {
         //位置参考物体
-        _this._YJSceneManager.AddPosRef(
+        _Global.YJ3D._YJSceneManager.AddPosRef(
           {
             content: data.name,
             tag: data.tiggerTag,
@@ -121,8 +121,8 @@ class YJGeometry {
 
       if (mesh != null) {
         //删除碰撞体 
-        _this._YJSceneManager.RemoveCollider(mesh);
-        _this._YJSceneManager.ClearMesh(mesh);
+        _Global.YJ3D._YJSceneManager.RemoveCollider(mesh);
+        _Global.YJ3D._YJSceneManager.ClearMesh(mesh);
         mesh = null;
       }
 

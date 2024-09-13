@@ -1,6 +1,5 @@
 
-<template>
-  <!-- 左上角血条头像 -->
+<template> 
   <div
     v-if="display"
     class="absolute left-4 top-4 h-20 pointer-events-auto flex text-white origin-top-left transform scale-50 xl:scale-100"
@@ -125,11 +124,7 @@ export default {
       _Global.addEventListener("主角头像", (s) => {
         // console.log("主角头像", s);
         this.baseData.playerImg = this.$uploadUrl + s;
-      });
-
-      _Global.addEventListener("设置技能进度条", (msg) => {
-        // this.$refs.skillProgressUI.SetProgress(msg);
-      });
+      }); 
     }, 2000);
   },
   methods: {

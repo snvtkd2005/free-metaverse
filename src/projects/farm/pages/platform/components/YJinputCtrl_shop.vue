@@ -26,7 +26,7 @@
 
 <script>
 export default {
-  name: "YJinputCtrl_task",
+  name: "YJinputCtrl_shop",
   props: [],
   components: {},
   data() {

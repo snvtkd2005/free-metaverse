@@ -1,5 +1,7 @@
 <!-- // 播放HLS  m3u8直播流 -->
 <template>
+  <div>
+
   <div class="vue3VideoPlayPanel w-full h-full bg-black" ref="vue3VideoPlayPanel">
     <div class="d-player-wrap">
       <div class="d-player-video">
@@ -29,6 +31,8 @@
     ">
     取消全屏
   </div>
+</div>
+
 </template>
 
 <script>

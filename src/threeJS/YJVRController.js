@@ -962,7 +962,7 @@ class YJVRController {
       // updateBodyPos();
 
       //刷新其他脚本的动作
-      _this._YJSceneManager.update();
+      _Global.YJ3D._YJSceneManager.update();
 
     }
 

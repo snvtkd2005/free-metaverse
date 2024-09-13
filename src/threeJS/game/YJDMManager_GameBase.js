@@ -1,15 +1,13 @@
 
 
 
-
-import * as THREE from "three";
+ 
 import { GameRecord } from "/@/threeJS/game/gameRecord";
 import { RandomInt } from "/@/utils/utils";
  
 import { GenerateEnemyNPC } from "./GenerateEnemyNPC";
 import { GenerateDMNPC } from "./GenerateDMNPC";
 import { ReceiveDMGift } from "./ReceiveDMGift";
-import { YJGame_mainCtrl } from "./YJGame_mainCtrl";
 
 
 /**
@@ -318,7 +316,6 @@ class YJDMManager_GameBase {
         GetEnemyTarget();
       }, 2000);
       _GameRecord = new GameRecord();
-      let _YJGame_mainCtrl = new YJGame_mainCtrl();
 
       // let npcs = _Global._YJNPCManager.GetNoSameCampNPCInFire(1000);
       let npcs = _Global._YJNPCManager.GetAllVaildNPC();
@@ -333,7 +330,7 @@ class YJDMManager_GameBase {
               let exp = Math.round( npc.GetExp() * element.per);
               // console.log("获得经验 ", npc.GetExp(),element.per,npc.GetExp() * element.per,exp);
               _GameRecord.addKill(exp );
-              _YJGame_mainCtrl.createGold(npc.GetWorldPos().clone());
+              _Global._YJGame_mainCtrl.createGold(npc.GetWorldPos().clone());
               _Global.applyEvent("杀死npc",npc.GetNickName());
             }
           }

@@ -1,9 +1,8 @@
+ 
+<template> 
+  <div>
 
-// 场景设置
-<template>
-  <!-- 顶部 -->
-  <div class=" w-full p-2 text-white ">
-    <!-- 顶部工具栏 -->
+  <div class=" w-full p-2 text-white "> 
     <!-- table -->
     <div class=" flex flex-col gap-3  ">
 
@@ -156,6 +155,8 @@
 
   <skillItemEditorPanel ref="skillItemEditorPanel" />
   <propItemEditorPanel ref="propItemEditorPanel" />
+</div>
+
 </template>
 
 <script>

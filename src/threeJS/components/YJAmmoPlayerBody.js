@@ -1,13 +1,10 @@
-import * as THREE from "three";
-import { YJAmmoRope } from "./YJAmmoRope2.js";
-
-
-import { YJTrigger } from "./YJTrigger.js";
+import * as THREE from "three"; 
+ 
 // 动力学软体做衣服物理模拟
 // 控制骨骼
 
 class YJAmmoPlayerBody {
-  constructor(_this, scene) {
+  constructor( scene) {
     var scope = this;
 
     let Ammo = null;
@@ -28,8 +25,7 @@ class YJAmmoPlayerBody {
       rigidBodies = _YJAmmo.GetRigidBodies();
       moveForce = new Ammo.btVector3(0, 0, 0);
 
-
-      // _YJGlobal._YJAmmo.AddNeedUpdateJS(new YJAmmoRope(_this, scene));
+ 
 
       _Global.YJAmmoPlayerBody = scope;
       // setInterval(() => {

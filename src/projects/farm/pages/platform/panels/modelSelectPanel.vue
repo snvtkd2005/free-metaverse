@@ -1,7 +1,5 @@
-
-// 模型库
-<template>
-  <!-- 模型库 模型列表选择 -->
+ 
+<template> 
   <div
     v-if="isOpen"
     class="
@@ -91,7 +89,7 @@
 import { GetAllModel } from "../../../js/uploadThreejs.js";
 
 export default {
-  name: "index",
+  name: "modelSelectPanel",
 
   components: {},
   data() {

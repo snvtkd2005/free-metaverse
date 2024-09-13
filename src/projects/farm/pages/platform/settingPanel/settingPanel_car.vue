@@ -1,7 +1,5 @@
-
-// UV动画设置
-<template>
-  <!-- 场景设置面板 -->
+ 
+<template> 
   <div class="
               w-full
               max-w-md

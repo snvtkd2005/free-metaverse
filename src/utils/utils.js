@@ -1,4 +1,3 @@
-import { SaveImgGetFileName, SaveTxtGetFileName, SaveFileOSSAPI, DelFileAPI } from "./api.js";
 
 
 // function radomNum(minNum, maxNum) {

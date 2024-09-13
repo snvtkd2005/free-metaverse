@@ -1,5 +1,7 @@
 
 <template>
+  
+  <div>
   <!-- 技能面板 -->
   <div class="
               w-full
@@ -42,7 +44,6 @@
   <skillItemEditorPanel ref="skillItemEditorPanel"></skillItemEditorPanel>
 
 
-  <div>
 
   </div>
 </template>

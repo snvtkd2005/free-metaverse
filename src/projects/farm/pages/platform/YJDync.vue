@@ -1,328 +1,358 @@
 <template>
-  <!-- <div class=" absolute z-50 left-0 top-0 pointer-events-auto "> -->
+  <div class="absolute left-0 top-0 w-full h-full pointer-events-none">
+    <!-- 在线列表 -->
+    <div
+      id="userListPanel"
+      class="xl:block w-32 h-48 absolute right-0 top-10 xl:top-60 origin-top-right transform scale-50 xl:scale-100"
+    >
+      <!-- 透明度背景 -->
+      <div class="absolute left-0 top-0 z-0 w-full h-full">
+        <!-- <img :src="publicUrl + 'images/gameUI/zaixianrensu.png'" alt=""> -->
+      </div>
 
-  <!-- 在线列表 -->
-  <div id="userListPanel"
-    class=" xl:block w-32 h-48 absolute right-0 top-10 xl:top-60  origin-top-right transform scale-50 xl:scale-100 ">
+      <div class="text-center w-20 text-white">
+        {{ language.content.onlineList }} {{ otherUser.length }}
+      </div>
 
-    <!-- 透明度背景 -->
-    <div class="absolute left-0 top-0 z-0 w-full h-full ">
-      <!-- <img :src="publicUrl + 'images/gameUI/zaixianrensu.png'" alt=""> -->
-    </div>
-
-    <div class=" text-center w-20  text-white  ">
-      {{ language.content.onlineList }} {{ otherUser.length }}
-    </div>
-
-    <div class=" mt-1 text-left h-auto max-h-96 overflow-y-auto overscroll-auto text-white">
-      <div v-for="(item, i) in otherUser" :key="i" :index="item.userName" class=" relative w-11/12  pl-2   "
-        :id="item.id">
-        <div class=" flex ">
-
-          <div class=" w-auto  whitespace-nowrap  truncate "
-            :class="[item.id == id ? ' pointer-events-none ' : 'cursor-pointer', (isMainUser && item.id == id) ? ' text-green-400 ' : '']"
-            @click="ClickOtherUser('select', item)">
-            <div>
-              {{ item.userName + (item.id == id ? ' (自己)' : '') }}
+      <div
+        class="mt-1 text-left h-auto max-h-96 overflow-y-auto overscroll-auto text-white"
+      >
+        <div
+          v-for="(item, i) in otherUser"
+          :key="i"
+          :index="item.userName"
+          class="relative w-11/12 pl-2"
+          :id="item.id"
+        >
+          <div class="flex">
+            <div
+              class="w-auto whitespace-nowrap truncate"
+              :class="[
+                item.id == id ? ' pointer-events-none ' : 'cursor-pointer',
+                isMainUser && item.id == id ? ' text-green-400 ' : '',
+              ]"
+              @click="ClickOtherUser('select', item)"
+            >
+              <div>
+                {{ item.userName + (item.id == id ? " (自己)" : "") }}
+              </div>
             </div>
+
+            <div
+              class="hidden absolute right-0 z-auto"
+              :class="[
+                isMainUser && item.id != id
+                  ? 'pointer-events-auto cursor-pointer '
+                  : 'pointer-events-none',
+                item.audio ? ' opacity-1 ' : ' opacity-0 ',
+              ]"
+              @click.stop="ToggleAudio(item)"
+            >
+              <div class="w-6 h-6 p-px">
+                <!-- <img class=" w-full h-full " :src="publicUrl + 'images/' + (item.mute ? 'mute' : '') + 'mico.png'" alt=""> -->
+              </div>
+            </div>
+
+            <!-- <div v-if="item.video">{{ (item.video ? ' 有视频 ' : '') }}</div> -->
+            <!-- 新消息 -->
+            <div
+              v-if="item.hasNew"
+              class="absolute top-0 -left-2 w-2 h-2 rounded-full bg-purple-700"
+            ></div>
           </div>
 
-          <div class=" hidden absolute right-0 z-auto " 
-          :class="[(isMainUser && item.id != id) ? 'pointer-events-auto cursor-pointer ' : 'pointer-events-none',
-            item.audio ? ' opacity-1 ' : ' opacity-0 ']
-            " @click.stop="ToggleAudio(item)">
-            <div class=" w-6 h-6 p-px ">
-              <!-- <img class=" w-full h-full " :src="publicUrl + 'images/' + (item.mute ? 'mute' : '') + 'mico.png'" alt=""> -->
+          <!-- 生命条 -->
+          <div
+            v-if="item.user.userData.baseData"
+            class="mb-1 w-full h-auto relative"
+          >
+            <div class="w-full border relative h-3">
+              <div
+                class="bg-green-500 h-full"
+                :style="
+                  'width: ' +
+                  (item.user.userData.baseData.health /
+                    item.user.userData.baseData.maxHealth) *
+                    100 +
+                  '%'
+                "
+              ></div>
+              <!-- 生命条文字 -->
+              <div class="absolute left-0 top-0 w-full flex h-full">
+                <div class="self-center mx-auto text-xs truncate">
+                  {{ item.user.userData.baseData.health }}/{{
+                    item.user.userData.baseData.maxHealth
+                  }}
+                </div>
+              </div>
             </div>
-          </div>
 
-          <!-- <div v-if="item.video">{{ (item.video ? ' 有视频 ' : '') }}</div> -->
-          <!-- 新消息 -->
-          <div v-if="item.hasNew" class="absolute top-0 -left-2 w-2 h-2 rounded-full  bg-purple-700"></div>
-        </div>
-
-        <!-- 生命条 -->
-        <div v-if="item.user.userData.baseData" class=" mb-1 w-full h-auto   relative ">
-          <div class=" w-full border relative h-3  ">
-            <div class="  bg-green-500  h-full "
-              :style="'width: ' + (item.user.userData.baseData.health / item.user.userData.baseData.maxHealth) * 100 + '%'">
+            <div class="flex">
+              <div v-if="item.user.userData.baseData.armor > 0" class="  ">
+                护甲+{{ item.user.userData.baseData.armor }}
+              </div>
+              <div v-if="item.user.userData.baseData.energy > 0" class="  ">
+                能量+{{ item.user.userData.baseData.energy }}
+              </div>
             </div>
-            <!-- 生命条文字 -->
-            <div class=" absolute left-0 top-0 w-full flex h-full  ">
-              <div class=" self-center mx-auto text-xs truncate ">
-                {{ item.user.userData.baseData.health }}/{{ item.user.userData.baseData.maxHealth }}</div>
-            </div>
-          </div>
 
-          <div class=" flex ">
-            <div v-if="item.user.userData.baseData.armor > 0" class="  ">护甲+{{ item.user.userData.baseData.armor }}</div>
-            <div v-if="item.user.userData.baseData.energy > 0" class="  ">能量+{{ item.user.userData.baseData.energy }}
-            </div>
-          </div>
-
-          <div v-if="item.user.userData.baseData.debuffList && item.user.userData.baseData.debuffList.length"
-            class=" flex ">
-            <div v-for="(debuff, i) in item.user.userData.baseData.debuffList " :key="i" class=" flex mr-1 ">
-              <div class=" w-5 h-5 bg-gray-500"
-                @mouseenter="HoverDebuff(item); debuffHover = true; debuffDescribe = debuff.describe;"
-                @mouseleave="debuffHover = false">
-                <img class=" w-full h-full" :src="debuff.icon" alt="">
+            <div
+              v-if="
+                item.user.userData.baseData.debuffList &&
+                item.user.userData.baseData.debuffList.length
+              "
+              class="flex"
+            >
+              <div
+                v-for="(debuff, i) in item.user.userData.baseData.debuffList"
+                :key="i"
+                class="flex mr-1"
+              >
+                <div
+                  class="w-5 h-5 bg-gray-500"
+                  @mouseenter="
+                    HoverDebuff(item);
+                    debuffHover = true;
+                    debuffDescribe = debuff.describe;
+                  "
+                  @mouseleave="debuffHover = false"
+                >
+                  <img class="w-full h-full" :src="debuff.icon" alt="" />
+                </div>
               </div>
             </div>
           </div>
-
         </div>
-
-
-
       </div>
     </div>
 
-  </div>
-
-  <!-- 鼠标悬浮debuff上 -->
-  <div v-if="debuffHover" class="absolute left-0 top-0 w-32 h-auto text-sm bg-gray-100" :style="otherUserPanelStyle">
-    <div class="cursor-pointer border pl-2 ">
-      {{ debuffDescribe }}
+    <!-- 鼠标悬浮debuff上 -->
+    <div
+      v-if="debuffHover"
+      class="absolute left-0 top-0 w-32 h-auto text-sm bg-gray-100"
+      :style="otherUserPanelStyle"
+    >
+      <div class="cursor-pointer border pl-2">
+        {{ debuffDescribe }}
+      </div>
     </div>
-  </div>
 
-
-  <!-- 点击用户名：显示悄悄话 和 传送 -->
-  <div v-if="otherUserItem != null" class="absolute left-0 top-0 w-32 h-auto text-sm bg-gray-100"
-    :style="otherUserPanelStyle">
-    <div class="cursor-pointer border pl-2 " @click="ClickOtherUser('悄悄话')">
-      {{ language.content.secretSpeak }}
-    </div>
-    <div class="cursor-pointer border pl-2 " @click="ClickOtherUser('传送')">
-      {{ language.content.jump }}
-    </div>
-    <!-- <div class="cursor-pointer border pl-2 " @click="ClickOtherUser('发送会议邀请')">
+    <!-- 点击用户名：显示悄悄话 和 传送 -->
+    <div
+      v-if="otherUserItem != null"
+      class="absolute left-0 top-0 w-32 h-auto text-sm bg-gray-100"
+      :style="otherUserPanelStyle"
+    >
+      <div class="cursor-pointer border pl-2" @click="ClickOtherUser('悄悄话')">
+        {{ language.content.secretSpeak }}
+      </div>
+      <div class="cursor-pointer border pl-2" @click="ClickOtherUser('传送')">
+        {{ language.content.jump }}
+      </div>
+      <!-- <div class="cursor-pointer border pl-2 " @click="ClickOtherUser('发送会议邀请')">
       {{ language.content.meeting }}
     </div> -->
-  </div>
+    </div>
 
-  <!-- 聊天记录 -->
-  <div class="
-                        xl:flex
-                        xl:w-96
-                        w-72
-                        h-auto
-                        absolute
-                        left-5
-                        bottom-20
-                        flex-col
-                        justify-between
-                        text-white
-                        bg-gray-400 bg-opacity-60
-                        rounded-lg
-                        text-sm
-                       origin-bottom-left transform scale-75 xl:scale-100 
-                      ">
+    <!-- 聊天记录 -->
+    <div
+      class="xl:flex xl:w-96 w-72 h-auto absolute left-5 bottom-20 flex-col justify-between text-white bg-gray-400 bg-opacity-60 rounded-lg text-sm origin-bottom-left transform scale-75 xl:scale-100"
+    >
+      <div
+        class="w-full h-auto max-h-80 flex flex-col justify-between relative"
+      >
+        <div
+          ref="roomChateRecode"
+          class="w-72 xl:w-full h-auto max-h-72 overflow-y-auto"
+        >
+          <div
+            v-for="(item, i) in currentChatRecode"
+            :key="i"
+            :index="item.fromId"
+            class="h-auto chatContent px-1 text-left break-all"
+            :class="id == item.fromId ? ' ' : ' cursor-pointer '"
+            @click="ShowChat(item)"
+          >
+            <!-- 在大厅中说话 -->
+            <div v-if="item.targetUser == ''" class="flex leading-5">
+              <div class="whitespace-nowrap truncate w-32 h-5">
+                [{{ item.fromUser + (item.fromId == id ? "(自己)" : "") }}
+              </div>
+              <div class="pr-1 flex-grow">]：{{ item.message }}</div>
+            </div>
 
-    <div class="w-full h-auto max-h-80 flex flex-col justify-between relative">
-      <div ref="roomChateRecode" class=" w-72  xl:w-full h-auto max-h-72 overflow-y-auto  ">
-        <div v-for="(item, i) in currentChatRecode" :key="i" :index="item.fromId"
-          class="h-auto chatContent px-1 text-left break-all " :class="id == item.fromId
-            ? ' '
-            : ' cursor-pointer '
-            " @click="ShowChat(item)">
-          <!-- 在大厅中说话 -->
-          <div v-if="item.targetUser == ''" class="flex leading-5">
-            <div class=" whitespace-nowrap truncate w-32  h-5 ">[{{ item.fromUser + (item.fromId == id ? '(自己)' : '') }}
+            <!-- 悄悄话 你对其他人说 -->
+            <div
+              v-if="item.targetUser != '' && item.fromId == id"
+              class="text-purple-700 flex"
+            >
+              <div>
+                {{ language.content.speakTo }} [{{ item.targetUser }}]
+                {{ language.content.speak }}: {{ item.message }}
+              </div>
             </div>
-            <div class=" pr-1 flex-grow ">
-              ]：{{ item.message }}
+            <!-- 悄悄话 其他人对你说 -->
+            <div
+              v-if="
+                item.targetUser != '' &&
+                item.fromUser != '' &&
+                item.targetId == id
+              "
+              class="text-purple-700 flex"
+            >
+              <div>
+                [{{ item.fromUser }}] {{ language.content.toSpeak }}:
+                {{ item.message }}
+              </div>
             </div>
+
+            <!-- {{ item.fromUser }}: {{ item.message }} -->
           </div>
-
-          <!-- 悄悄话 你对其他人说 -->
-          <div v-if="item.targetUser != '' && item.fromId == id" class="text-purple-700 flex">
-            <div>
-              {{ language.content.speakTo }} [{{ item.targetUser }}]
-              {{ language.content.speak }}: {{ item.message }}
-            </div>
+        </div>
+        <!-- 悄悄话 私聊提示 -->
+        <div
+          v-if="chatTargetUser != ''"
+          class="text-left pl-2 text-purple-700 flex justify-between"
+        >
+          <div>
+            {{ language.content.speakTo }} [{{ chatTargetUser }}]
+            {{ language.content.speak }}:
           </div>
-          <!-- 悄悄话 其他人对你说 -->
-          <div v-if="item.targetUser != '' &&
-            item.fromUser != '' &&
-            item.targetId == id
-            " class="text-purple-700 flex">
-            <div>
-              [{{ item.fromUser }}] {{ language.content.toSpeak }}:
-              {{ item.message }}
-            </div>
-          </div>
-
-          <!-- {{ item.fromUser }}: {{ item.message }} -->
+          <div @click="chatTargetUser = ''" class="pr-5 cursor-pointer">X</div>
         </div>
       </div>
-      <!-- 悄悄话 私聊提示 -->
-      <div v-if="chatTargetUser != ''" class="text-left pl-2 text-purple-700 flex justify-between">
-        <div>
-          {{ language.content.speakTo }} [{{ chatTargetUser }}]
-          {{ language.content.speak }}:
-        </div>
-        <div @click="chatTargetUser = ''" class="pr-5 cursor-pointer">X</div>
+    </div>
+
+    <!-- 输入框激活按钮 -->
+    <div
+      class="absolute z-50 left-4 bottom-10 xl:bottom-4 origin-bottom-left transform scale-50 xl:scale-75"
+    >
+      <div
+        class="absolute left-0 top-0 w-20 h-20"
+        @click="canInputChar = !canInputChar"
+      ></div>
+      <div class="origin-left">
+        <img
+          :src="
+            $publicUrl +
+            'images/gameUI/' +
+            (canInputChar ? 'xx_laing' : 'xx_an') +
+            '.png'
+          "
+          alt=""
+        />
       </div>
-
-    </div>
-  </div>
-
-  <!-- 输入框激活按钮 -->
-  <div class=" absolute z-50 left-4 bottom-10 xl:bottom-4 origin-bottom-left transform scale-50 xl:scale-75 ">
-    <div class=" absolute left-0 top-0 w-20 h-20 " @click="canInputChar = !canInputChar">
-    </div>
-    <div class=" origin-left ">
-      <img :src="$publicUrl + 'images/gameUI/' + (canInputChar ? 'xx_laing' : 'xx_an') + '.png'" alt="">
-    </div>
 
       <!-- 输入区域 -->
-      <div v-if="canInputChar" class=" absolute left-24 top-6 w-auto h-10 flex">
+      <div v-if="canInputChar" class="absolute left-24 top-6 w-auto h-10 flex">
+        <!-- 输入框 -->
+        <div class="w-full h-10">
+          <input
+            ref="roomInput"
+            class="w-72 xl:w-64 text-left align-top outline-none bg-transparent placeholder-gray-400 h-full resize-none"
+            type="text"
+            placeholder="请输入聊天内容"
+            v-model="currentChatStr"
+            @focus="removeThreeJSfocus"
+            @blur="addThreeJSfocus"
+          />
+        </div>
+
+        <div
+          class="opacity-0 ml-8 w-16 h-full bg-gray-400 cursor-pointer flex rounded-full text-white text-sm"
+          @click="SendChat()"
+        >
+          <p class="self-center mx-auto">{{ language.content.sendMsg }}</p>
+        </div>
+
+        <div
+          class="opacity-0 ml-2 w-16 h-full bg-gray-400 cursor-pointer flex rounded-full text-white text-sm"
+          @click="ClearChat()"
+        >
+          <p class="self-center mx-auto">{{ language.content.clearMsg }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 输入区域 -->
+    <div
+      class="hidden absolute left-2 bottom-2 bg-gray-300 bg-opacity-70 rounded-lg text-white w-auto h-10 flex"
+    >
       <!-- 输入框 -->
-      <div class="w-full h-10 ">
-        <input ref="roomInput" class="
-                          w-72 xl:w-64
-                                text-left
-                                align-top
-                                outline-none
-                                bg-transparent 
-                                placeholder-gray-400
-                                h-full 
-                                resize-none
-                              " type="text" placeholder="请输入聊天内容" v-model="currentChatStr" @focus="removeThreeJSfocus"
-          @blur="addThreeJSfocus" />
+      <div class="w-full h-10">
+        <input
+          ref="roomInput"
+          class="w-72 xl:w-64 text-left align-top outline-none bg-transparent placeholder-gray-400 h-full resize-none"
+          type="text"
+          placeholder="请输入聊天内容"
+          v-model="currentChatStr"
+          @focus="removeThreeJSfocus"
+          @blur="addThreeJSfocus"
+          @keyup.enter="SendChat"
+        />
       </div>
 
-      <div class=" opacity-0
-                              ml-8
-                              w-16
-                              h-full
-                              bg-gray-400
-                              cursor-pointer
-                              flex
-                              rounded-full
-                              text-white text-sm
-                            " @click="SendChat()">
+      <div
+        class="ml-8 w-16 h-full bg-gray-400 cursor-pointer flex rounded-sm text-white text-sm"
+        @click="SendChat()"
+      >
         <p class="self-center mx-auto">{{ language.content.sendMsg }}</p>
       </div>
 
-      <div class=" opacity-0
-                              ml-2
-                              w-16
-                              h-full
-                              bg-gray-400
-                              cursor-pointer
-                              flex
-                              rounded-full
-                              text-white text-sm
-                            " @click="ClearChat()">
+      <div
+        class="ml-2 w-16 h-full bg-gray-400 cursor-pointer flex rounded-sm text-white text-sm"
+        @click="ClearChat()"
+      >
         <p class="self-center mx-auto">{{ language.content.clearMsg }}</p>
       </div>
     </div>
-  </div>
 
-  <!-- 输入区域 -->
-  <div class=" hidden absolute left-2 bottom-2 bg-gray-300 bg-opacity-70 rounded-lg text-white w-auto h-10 flex">
-    <!-- 输入框 -->
-    <div class="w-full h-10 ">
-      <input ref="roomInput" class="
-                          w-72 xl:w-64
-                                text-left
-                                align-top
-                                outline-none
-                                bg-transparent 
-                                placeholder-gray-400
-                                h-full 
-                                resize-none
-                              " type="text" placeholder="请输入聊天内容" v-model="currentChatStr" @focus="removeThreeJSfocus"
-        @blur="addThreeJSfocus" @keyup.enter="SendChat" />
-    </div>
-
-    <div class="
-                              ml-8
-                              w-16
-                              h-full
-                              bg-gray-400
-                              cursor-pointer
-                              flex
-                              rounded-sm
-                              text-white text-sm
-                            " @click="SendChat()">
-      <p class="self-center mx-auto">{{ language.content.sendMsg }}</p>
-    </div>
-
-    <div class=" 
-                              ml-2
-                              w-16
-                              h-full
-                              bg-gray-400
-                              cursor-pointer
-                              flex
-                              rounded-sm
-                              text-white text-sm
-                            " @click="ClearChat()">
-      <p class="self-center mx-auto">{{ language.content.clearMsg }}</p>
-    </div>
-  </div>
-
-
-
-  <!-- 连接websocket 提示文字 -->
-  <div v-if="!connected" class="absolute z-60 w-full h-full top-0 left-0 flex pointer-events-none">
-    <div class=" w-full flex">
-
-      <div class="
-                    mx-auto
-                    h-8
-                    leading-8
-                    text-xl
-                    bg-blue-300
-                    rounded-md
-                    shadow-md
-                    cursor-pointer
-                    w-auto
-                  inline-block
-                  ">
-        <div class="  px-3  self-center mx-auto   ">
-          正在连接服务器，请稍候。。。
+    <!-- 连接websocket 提示文字 -->
+    <div
+      v-if="!connected"
+      class="absolute z-60 w-full h-full top-0 left-0 flex pointer-events-none"
+    >
+      <div class="w-full flex">
+        <div
+          class="mx-auto h-8 leading-8 text-xl bg-blue-300 rounded-md shadow-md cursor-pointer w-auto inline-block"
+        >
+          <div class="px-3 self-center mx-auto">
+            正在连接服务器，请稍候。。。
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-
-  <!-- 音视频 -->
-  <!-- <div v-if="hasTRTC">
+    <!-- 音视频 -->
+    <!-- <div v-if="hasTRTC">
     <txTRTC :mainUser="isMainUser" class="absolute z-50 left-0 top-0" ref="txTRTC" />
   </div> -->
 
-
-  <!-- </div> -->
+    <!-- </div> -->
+  </div>
 </template>
 
 
  
 <script >
-
-import { YJClient } from "/@/threejs/YJClient.js";
+import { YJClient } from "/@/threejs/common/YJClient.js";
 
 // 音视频
-// import txTRTC from "/@/views/chat/txTRTC.vue";
+// import txTRTC from "./txTRTC.vue";
 export default {
-  // 是否开启音视频 
+  // 是否开启音视频
   props: [],
   components: {
     // txTRTC,
   },
   data() {
     return {
-
-      hasTRTC:false,
+      hasTRTC: false,
       debuffHover: false,
       debuffDescribe: "",
       // 会议邀请对话框
-      meetingInvitation: false, meetingData: { fromUser: 'haha' },
+      meetingInvitation: false,
+      meetingData: { fromUser: "haha" },
       language: {
         content: {
           sendMsg: "发送",
@@ -335,7 +365,7 @@ export default {
           skin: "皮肤",
           onlineList: "在线用户",
           meeting: "发送会议邀请",
-        }
+        },
       },
 
       //是否正在聊天
@@ -352,10 +382,10 @@ export default {
                 health: 0,
                 maxHealth: 0,
                 debuffList: [],
-              }
-            }
-          }
-        }
+              },
+            },
+          },
+        },
       ],
       //系统消息
       systemMsg: [],
@@ -372,14 +402,13 @@ export default {
       currentChatStr: "",
       connected: false,
       inputing: false,
-      publicUrl: '',
+      publicUrl: "",
       isMainUser: false,
       //session id
-      id: "", 
+      id: "",
     };
   },
   created() {
-
     // this.language = this.$parent.language;
     // this.language.content.meeting = "发送会议邀请";
 
@@ -388,7 +417,7 @@ export default {
   },
   mounted() {
     this.inSend = false;
-    this.connected = false; 
+    this.connected = false;
     this.stopDync = false;
 
     document.addEventListener("visibilitychange", () => {
@@ -405,7 +434,6 @@ export default {
       //   }
       // }
       if (document.hidden) {
-
       } else {
         if (this._YJClient) {
           this._YJClient.needMainUser();
@@ -425,15 +453,12 @@ export default {
     },
     // 初始化同步
     InitDync(userData) {
-      this._YJClient = new YJClient(
-        this,
-        userData
-      );
+      this._YJClient = new YJClient(this, userData);
       _Global.YJClient = this._YJClient;
-      window.addEventListener('keyup', (event) => {
+      window.addEventListener("keyup", (event) => {
         // console.log(event);
         switch (event.code) {
-          case 'Enter':
+          case "Enter":
             this.EnterKey();
             break;
         }
@@ -465,7 +490,9 @@ export default {
       this.currentChatRecode = [];
     },
     EnterKey() {
-      if (!this.canInputChar) { return; }
+      if (!this.canInputChar) {
+        return;
+      }
 
       if (this.inputing) {
         if (this.currentChatStr == "") {
@@ -534,9 +561,7 @@ export default {
         return;
       }
       if (type == "传送") {
-        this._YJClient.SetLocalPlayerToOtherUserPos(
-          this.otherUserItem.id
-        );
+        this._YJClient.SetLocalPlayerToOtherUserPos(this.otherUserItem.id);
         this.otherUserItem = null;
         return;
       }
@@ -555,11 +580,7 @@ export default {
         chatrecode.message = "邀请";
         fromData.message = chatrecode;
         //向单个用户发送邀请
-        this._YJClient.BoardMsg(
-          "receiveMsg",
-          "all",
-          JSON.stringify(fromData)
-        );
+        this._YJClient.BoardMsg("receiveMsg", "all", JSON.stringify(fromData));
 
         this.otherUserItem = null;
         return;
@@ -582,37 +603,37 @@ export default {
       chatrecode.message = e;
       fromData.message = chatrecode;
       //向单个用户发送邀请
-      this._YJClient.BoardMsg(
-        "receiveMsg",
-        "all",
-        JSON.stringify(fromData)
+      this._YJClient.BoardMsg("receiveMsg", "all", JSON.stringify(fromData));
+      console.log(
+        "this.meetingData.fromUser  111 = " + this.meetingData.fromUser
       );
-      console.log("this.meetingData.fromUser  111 = " + this.meetingData.fromUser);
 
       setTimeout(() => {
-
         if (e == "接受") {
           //切换到会议场景 跳转到会议房间
           //跳到以发送者id命名的房间中
-          console.log("this.meetingData.fromUser  222 = " + this.meetingData.fromUser);
-          this.$parent.ChangeToMeetingRoom(this.meetingData.fromId, this.meetingData.fromUser);
+          console.log(
+            "this.meetingData.fromUser  222 = " + this.meetingData.fromUser
+          );
+          this.$parent.ChangeToMeetingRoom(
+            this.meetingData.fromId,
+            this.meetingData.fromUser
+          );
         }
         if (e == "拒绝") {
-
         }
       }, 1000);
-
     },
 
     //封装聊天数据
     SendChat() {
       if (this.currentChatStr == "") {
         return;
-      } 
-      if(this.currentChatStr[0] == '/'){
+      }
+      if (this.currentChatStr[0] == "/") {
         _Global.SetPlayerEmote(this.currentChatStr);
         this.currentChatStr = "";
-        
+
         return;
       }
 
@@ -622,7 +643,7 @@ export default {
       fromData.type = "聊天";
       let chatrecode = {};
       chatrecode.fromId = this.id;
-      let {roomName,userName} = this._YJClient.GetUserData();
+      let { roomName, userName } = this._YJClient.GetUserData();
       chatrecode.fromUser = userName;
       chatrecode.roomName = roomName;
       chatrecode.targetId = this.chatTargetId;
@@ -632,11 +653,7 @@ export default {
       fromData.message = chatrecode;
 
       // this.callRPCFn("receiveMsg", "all", JSON.stringify(fromData));
-      this._YJClient.BoardMsg(
-        "receiveMsg",
-        "all",
-        JSON.stringify(fromData)
-      );
+      this._YJClient.BoardMsg("receiveMsg", "all", JSON.stringify(fromData));
 
       let ss = this.currentChatStr;
 
@@ -655,8 +672,6 @@ export default {
       // }
 
       // console.log("发送聊天");
-
-
     },
     //接收信息
     receiveMsg(_this, msg) {
@@ -698,9 +713,6 @@ export default {
               continue;
             }
           }
-
-
-
         } else {
           //其他人发送后接收
           //房间聊天
@@ -726,12 +738,10 @@ export default {
             for (let i = 0; i < _this.otherUser.length; i++) {
               let item = _this.otherUser[i];
               if (item.id == chatrecode.fromId) {
-                this._YJClient.CreateChatTransToId(item.id,chatrecode.message);
+                this._YJClient.CreateChatTransToId(item.id, chatrecode.message);
                 continue;
               }
             }
-
-
           } else {
             //悄悄话/私聊
             _this.currentChatRecode.push(chatrecode);
@@ -764,14 +774,15 @@ export default {
               ) {
                 for (let i = 0; i < this.allPlayer.length; i++) {
                   if (this.allPlayer[i].id == item.id) {
-                    this.allPlayer[i].player.CreateChatTrans(chatrecode.message);
+                    this.allPlayer[i].player.CreateChatTrans(
+                      chatrecode.message
+                    );
                   }
                 }
                 continue;
               }
             }
           }
-
         }
 
         // 聊天区滑块滑到最低端
@@ -785,7 +796,6 @@ export default {
           return;
         }
 
-
         // console.log("正在 相同房间聊天");
         if (chatrecode.fromId == _this.id) {
           //自身发送后接收
@@ -795,20 +805,22 @@ export default {
           if (chatrecode.message == "接受") {
             console.log(chatrecode.targetUser + " 接受了你的邀请");
             //跳转到会议房间  跳到以发送者id命名的房间中
-            console.log("this.meetingData.fromUser  333 = " + chatrecode.fromUser);
+            console.log(
+              "this.meetingData.fromUser  333 = " + chatrecode.fromUser
+            );
             if (this.roomName != this.id) {
               setTimeout(() => {
-                console.log("this.meetingData.fromUser  444 = " + chatrecode.fromUser);
+                console.log(
+                  "this.meetingData.fromUser  444 = " + chatrecode.fromUser
+                );
                 this.$parent.ChangeToMeetingRoom(this.id, this.userName);
               }, 1000);
             }
-
           }
           if (chatrecode.message == "拒绝") {
             console.log(chatrecode.targetUser + " 拒绝了你的邀请");
           }
         } else {
-
           //接收其他人发送的信息
           if (_this.id == chatrecode.targetId) {
             if (chatrecode.message == "邀请") {
@@ -886,16 +898,12 @@ export default {
       }
     },
     //#endregion
-
-
-
   },
 };
 </script>
 
 <style scoped>
 .chatContent {
-
   /* vue中如何将双击选中文字的默认事件取消 */
   -moz-user-select: text;
   /*火狐*/

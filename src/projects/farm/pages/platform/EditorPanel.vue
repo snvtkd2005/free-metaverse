@@ -209,7 +209,7 @@ import hierarchy from "./Hierarchy.vue";
 // 加载进度页
 import loadingPanel from "./loadingPanel2.vue";
 
-import { SceneManager } from "../../js/SceneManagerEditor.js";
+import { SceneManager } from "../../../../threeJS/game/managers/SceneManagerEditor.js";
 
 import { Interface } from "../../js/Interface_editor.js";
 import { DragDivArea } from "/@/threeJS/common/DragDivArea.js";
@@ -938,20 +938,17 @@ export default {
       };
 
       this.$refs.YJmetaBase.ClickSelectPlayerOK(this.userData);
-      _Global.YJ3D.SetNickName(this.userName);
+      _Global.user.name = (this.userName);
 
       //场景设置
       this._SceneManager = new SceneManager(
         _Global.YJ3D.scene,
         _Global.YJ3D.renderer,
         _Global.YJ3D.camera,
-        _Global.YJ3D,
+        this.$refs.YJmetaBase,
         _Global.YJ3D._YJSceneManager.GetmodelParent(),
         this,
-        () => {
-          // if (callback) {
-          //   callback();
-          // }
+        () => { 
         }
       );
       this.$refs.modelPanel.Init();
@@ -1422,7 +1419,7 @@ export default {
       this.$refs.YJmetaBase.ClickSelectPlayerOK(this.userData);
 
       // 显示玩家姓名条
-      _Global.YJ3D.SetNickName(userName);
+      _Global.user.name = (userName);
 
       console.log("场景加载完成------------");
 
@@ -1503,8 +1500,8 @@ export default {
       console.log("场景加载完成------------");
 
       if (!this.initCompleted) {
-        _Global.YJ3D.PlayVideo();
-        _Global.YJ3D.AddVideoListener();
+        this.$refs.YJmetaBase.PlayVideo();
+        this.$refs.YJmetaBase.AddVideoListener();
 
         this.hasGameUI = true;
         this.$nextTick(() => {
@@ -1731,6 +1728,7 @@ export default {
       if (component != null) {
         this.ChangePanel("particle");
         let msg = this.clickModelJS.GetMessage();
+        console.log(" particle msg ",msg);
         this.$nextTick(() => {
           this.$refs.settingPanelCtrl.$refs.settingPanel_particle.Init(
             msg.data

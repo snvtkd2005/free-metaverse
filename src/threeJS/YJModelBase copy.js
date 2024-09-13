@@ -141,10 +141,10 @@ class YJModelBase {
     }
 
     function LoadCompleted(){
-      if(_this._YJSceneManager == undefined){
+      if(_Global.YJ3D._YJSceneManager == undefined){
         console.log("！！！注意，不应该进入此判断 。 加载静态模型 ",modelPath);
         return;}
-      _this._YJSceneManager.LoadSingleModelCompleted();
+      _Global.YJ3D._YJSceneManager.LoadSingleModelCompleted();
     }
 
 
@@ -267,19 +267,19 @@ class YJModelBase {
       if (wutai != null) {
         if (meshType == "Triange") {
           //凹包碰撞体
-          _this._YJSceneManager.CreateTriangeMeshCollider(wutai, wutai.scale);
+          _Global.YJ3D._YJSceneManager.CreateTriangeMeshCollider(wutai, wutai.scale);
 
         } else {
           //凸包碰撞体
-          _this._YJSceneManager.CreateModelMeshCollider(wutai, wutai.scale);
+          _Global.YJ3D._YJSceneManager.CreateModelMeshCollider(wutai, wutai.scale);
         }
       } else {
         // let collider = LoopFindColliderChild(model);
         // if (collider != undefined) {
-        //   _this._YJSceneManager.CreateTriangeMeshCollider(collider, collider.scale);
+        //   _Global.YJ3D._YJSceneManager.CreateTriangeMeshCollider(collider, collider.scale);
         // } else {
         //   collider = LoopFindMeshChild(model);
-        //   _this._YJSceneManager.CreateTriangeMeshCollider(collider, collider.scale);
+        //   _Global.YJ3D._YJSceneManager.CreateTriangeMeshCollider(collider, collider.scale);
         // }
 
 
@@ -290,7 +290,7 @@ class YJModelBase {
             // console.log("创建碰撞体 "+ item.name + " " , item.scale);
             if(item.name.indexOf("collider")>-1){
               hasCollider = true;
-              // _this._YJSceneManager.CreateTriangeMeshCollider(item, item.scale );
+              // _Global.YJ3D._YJSceneManager.CreateTriangeMeshCollider(item, item.scale );
               // item.visible = false;
             }else{
               item.castShadow = true;
@@ -306,7 +306,7 @@ class YJModelBase {
               // console.log("创建碰撞体 "+ item.name + " " , item.scale);
               if(item.name.indexOf("collider")>-1){
                 // 凹包碰撞体
-                _this._YJSceneManager.CreateTriangeMeshCollider(item, item.scale );
+                _Global.YJ3D._YJSceneManager.CreateTriangeMeshCollider(item, item.scale );
                 item.visible = false;
               }
             }
@@ -315,7 +315,7 @@ class YJModelBase {
           // 如果没有自定义碰撞体，则为不生成碰撞。 注释生成碰撞代码
           // model.traverse(function (item) {
           //   if (item instanceof THREE.Mesh) {
-          //     _this._YJSceneManager.CreateTriangeMeshCollider(item, item.scale );
+          //     _Global.YJ3D._YJSceneManager.CreateTriangeMeshCollider(item, item.scale );
           //   }
           // });
         }
@@ -335,7 +335,7 @@ class YJModelBase {
         //删除碰撞体 
         model.traverse(function (item) {
           if (item instanceof THREE.Mesh) { 
-            _this._YJSceneManager.RemoveCollider(item);
+            _Global.YJ3D._YJSceneManager.RemoveCollider(item);
 
             // item.geometry.dispose();
             // item.material.dispose();

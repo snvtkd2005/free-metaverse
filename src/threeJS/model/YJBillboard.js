@@ -178,7 +178,7 @@ class YJBillboard {
       _this.pointsParent.add(hotPlane);
 
       setTimeout(() => {
-        _this._YJSceneManager.AddHotPoint(hotPlane);
+        _Global.YJ3D._YJSceneManager.AddHotPoint(hotPlane);
       }, 1000);
       LoadCompleted();
 
@@ -260,14 +260,14 @@ class YJBillboard {
     }
 
     function LoadCompleted() {
-      _this._YJSceneManager.LoadSingleModelCompleted();
+      _Global.YJ3D._YJSceneManager.LoadSingleModelCompleted();
     }
     this.Destroy = function () {
       LoadCompleted();
 
       if (model == null) { return; }
       this.DestroyCollider();
-      _this._YJSceneManager.RemoveHotPoint(hotPlane);
+      _Global.YJ3D._YJSceneManager.RemoveHotPoint(hotPlane);
       _this.pointsParent.remove(hotPlane);
       scene.remove(model);
     }

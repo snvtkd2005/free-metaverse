@@ -1,15 +1,13 @@
 
 
 
-
-import * as THREE from "three";
+ 
 import { GameRecord } from "/@/threeJS/game/gameRecord";
 import { RandomInt } from "/@/utils/utils";
  
 import { GenerateEnemyNPC } from "./GenerateEnemyNPC";
 import { GenerateDMNPC } from "./GenerateDMNPC";
-import { ReceiveDMGift } from "./ReceiveDMGift";
-import { YJGame_mainCtrl } from "./YJGame_mainCtrl";
+import { ReceiveDMGift } from "./ReceiveDMGift"; 
 
 
 /**
@@ -632,10 +630,6 @@ class YJDMManager_DMrogue {
       });
       
 
-
-      let _YJGame_mainCtrl = new YJGame_mainCtrl();
-
-
       _GenerateEnemyNPC = new GenerateEnemyNPC((npcComponent) => {
 
         let enemyNpcTarget = GetEnemyTarget();
@@ -655,7 +649,7 @@ class YJDMManager_DMrogue {
       },(npc,id,fireId)=>{
         if(_GameRecord){
           _GameRecord.addKill();
-          _YJGame_mainCtrl.createGold(npc.GetWorldPos().clone());
+          _Global._YJGame_mainCtrl.createGold(npc.GetWorldPos().clone());
         } 
         // 从一场战斗中移除npc
         _Global._YJFireManager.RemoveNPCFireId(id,fireId);

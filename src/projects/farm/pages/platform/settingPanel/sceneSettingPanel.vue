@@ -6,7 +6,7 @@
     <!-- table -->
     <div class=" flex flex-col gap-3  ">
 
-      <div class=" text-left ">环境配置</div>
+      <div class=" text-left ">配置</div>
       <div>
         <YJinputCtrl :setting="setting"/>
       </div> 
@@ -109,8 +109,6 @@
           </div>
         </div>
       </div>
-
-      
 
       <!-- icon和启动画面 -->
       <div class=" mt-4  ">

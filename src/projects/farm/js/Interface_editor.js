@@ -373,7 +373,7 @@ class Interface {
 
     this.LoadEquipById = function (assetId, callback) {
       let path = _Global.url.uploadUrl + assetId + "/" + "data.txt" + "?time=" + new Date().getTime();
-      _Global.YJ3D._YJSceneManager.LoadAssset(path, (data) => {
+      loadAssset(path, (data) => {
         let equipData = {
           type:"equip",
           // 唯一id
@@ -395,6 +395,19 @@ class Interface {
         }
       });
     }
+    async function loadAssset(url, callback) {
+      // _Global.Webworker.loadAssset(url,(data)=>{
+      //   if (callback) {
+      //     callback(data);
+      //   }
+      // });
+      // return;
+      const res = await _this.$axios.get(url);
+      if (callback) {
+        callback(res.data);
+      }
+    } 
+
     _Global.LoadEquipById = this.LoadEquipById;
 
     async function RequestGetAllModel() {
@@ -469,6 +482,11 @@ class Interface {
       );
       _Global.levelList = res.data;
 
+      res = await _this.$axios.get(
+        _this.$uploadPlayerUrl + "img_tags_data.txt" + "?time=" + new Date().getTime()
+      );
+      _Global.imgTagsList = res.data;
+
       // console.log("_Global.animList = ", _Global.animList);
       // console.log("_Global.propList = ", _Global.propList);
       // console.log("_Global.skillList = ", _Global.skillList);
@@ -507,7 +525,7 @@ class Interface {
       return _YJPlayerAnimData;
     }
     _Global.CreateOrLoadPlayerAnimData = this.CreateOrLoadPlayerAnimData;
-
+    _Global.CreateOrLoadPlayerAnimData();
 
     this.DyncManager = function () {
       return _this._SceneManager.GetDyncManager();

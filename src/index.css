@@ -6,6 +6,9 @@
   /* color: #2c3e50; */
   /* margin-top: 60px; */
 }
+.max-h-5\/6 {
+  max-height: 83.333333%;
+}
 .scale-10{
   --tw-scale-x: 0.1 ;
   --tw-scale-y: 0.1 ;

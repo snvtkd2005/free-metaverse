@@ -3,7 +3,7 @@
 <template>
   <div class="  flex-grow flex-col p-20">
 
-    <div class=" w-auto h-20  text-left text-3xl text-black font-bold ">开发计划/平台功能</div>
+    <div class=" w-auto h-20  text-left text-3xl text-black font-bold ">使用手册</div>
 
     <div class=" flex ">
 
@@ -11,7 +11,7 @@
       <div class=" ml-4">
 
         <div class=" grid grid-cols-2 ">
-          <div v-for="(item, i) in witkeyList" :key="i" class="
+          <div v-for="(item, i) in manualList" :key="i" class="
             self-center  mx-auto h-auto text-left mb-4 w-2/3  flex relative
             ">
             <div :class="item.isChild ? ' ml-20' : ''" class=" bg-gray-200 p-2 rounded-lg shadow-sm  ">
@@ -36,13 +36,14 @@
 
 
 export default {
-  name: "developPlan",
+  name: "UserManual",
   components: {
 
   },
   data() {
     return { 
-      witkeyList: [
+
+      manualList: [
         { isChild: false, content: " npc攻击、受伤、死亡 ", tip: "", date: "", isCompleted: true },
         { isChild: false, content: " npc寻路功能、巡逻路径设置 ", tip: "", date: "", isCompleted: true },
         { isChild: false, content: " 多人模式场景漫游 ", tip: "", date: "", isCompleted: true },
@@ -72,9 +73,7 @@ export default {
           isChild: false, title: " 场景和组合编辑模式下支持上传   ",
           content: " 场景和组合编辑模式下支持上传，独立使用、也可发布到公共素材库   ",
           tip: "服装", date: "2023-4-23 18:02", isCompleted: false
-        },
-
-
+        }, 
       ], 
     };
   },

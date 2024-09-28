@@ -1,7 +1,7 @@
 
 <template>
   <div class="w-full max-w-md p-2 h-full   text-white rounded-lg ">
-    <div class="text-left">npc 设置</div>
+    <div class="text-left">NPC设置</div>
     <div class=" w-full">
       <YJinputCtrl :setting="setting" />
     </div> 

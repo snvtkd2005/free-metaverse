@@ -1,6 +1,6 @@
  
 <template>
-  <div>
+  <div class="w-full h-full">
     <div
       class="text-left w-6 h-6 mb-1 bg-white flex text-black leading-6 cursor-pointer"
       @click="EditorEvent('新建')"
@@ -26,7 +26,11 @@
             >
               <div v-for="(item, i) in scope.row.rewardItems" :key="i">
                 <div v-if="item.skill" class="w-full h-full relative flex">
-                  <div class="relative">
+                  <div
+                    class="relative"
+                    @mouseenter="LookSkill('道具或装备', item)"
+                    @mouseleave="outHover('道具或装备')"
+                  >
                     <img
                       v-if="item.skill.icon"
                       class="w-9 h-9 rounded-md"
@@ -74,12 +78,18 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="操作" width="100">
+        <el-table-column label="操作" width="160">
           <template #default="scope">
             <el-button
               size="small"
               @click="EditorEvent('编辑', scope.row, scope.$index)"
               >编辑</el-button
+            >
+            <el-button
+              size="small"
+              @mouseenter="LookSkill('任务', scope.row)"
+              @mouseleave="outHover('任务')"
+              >预览</el-button
             >
             <!-- <el-button size="small" type="danger" @click="EditorEvent('删除', scope.row,scope.$index)">删除</el-button> -->
           </template>
@@ -88,6 +98,9 @@
 
       <!-- 任务添加弹窗 -->
       <taskItemEditorPanel ref="taskItemEditorPanel"></taskItemEditorPanel>
+    </div>
+    <div class="text-left">
+      <div>玩家昵称占位符 ${name}</div>
     </div>
   </div>
 </template>
@@ -106,6 +119,7 @@ export default {
     return {
       taskList: [],
       editorIndex: -1,
+      hoverTask: false,
     };
   },
   created() {},
@@ -119,6 +133,24 @@ export default {
     }
   },
   methods: {
+    LookSkill(e, item) {
+      if (e == "道具或装备") {
+        if (item.type == "equip") {
+          _Global.LoadEquipById(item.id, (equip) => {
+            item.skill = equip;
+            _Global.applyEvent("预览打开", e, item.skill);
+
+          });
+          return;
+        }
+        _Global.applyEvent("预览打开", e, item.skill);
+        return;
+      }
+      _Global.applyEvent("预览打开", e, item);
+    },
+    outHover(e) {
+      _Global.applyEvent("预览关闭", e);
+    },
     EditorEvent(e, item, i) {
       console.log(e, item, i);
       if (e == "新建") {
@@ -127,6 +159,14 @@ export default {
         this.$refs.taskItemEditorPanel.createNew();
       }
       if (e == "编辑") {
+        this.editorIndex = i;
+        this.$refs.taskItemEditorPanel.dialogTitle = "新建任务";
+        this.$refs.taskItemEditorPanel.initValue(
+          JSON.parse(JSON.stringify(item))
+        );
+      }
+
+      if (e == "预览") {
         this.editorIndex = i;
         this.$refs.taskItemEditorPanel.dialogTitle = "新建任务";
         this.$refs.taskItemEditorPanel.initValue(

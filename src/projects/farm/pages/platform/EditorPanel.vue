@@ -974,17 +974,13 @@ export default {
       document.title = this.oldFileName;
 
       _Global.skillList_scene = this.sceneData.skillList;
-      
-      // this.isDMGame = this.sceneData.setting.isDMGame;
-      // _Global.isDMGame = this.isDMGame;
+       
 
-      this.isMMD = this.sceneData.setting.isMMD;
-      _Global.isMMD = this.isMMD;
-      // this.gameType = this.sceneData.setting.gameType;
-      // _Global.gameType = this.gameType; 
+      this.gameType = this.sceneData.setting.gameType;
+      _Global.gameType = this.gameType; 
       this.hasHUD = this.sceneData.setting.hasHUD;
  
-      _Global.gameType = "WOW";
+      // _Global.gameType = "WOW";
 
       _Global.hasAvatar = this.sceneData.setting.hasAvatar;
       this.hasAvatar = this.sceneData.setting.hasAvatar; 

@@ -685,7 +685,7 @@ class YJDMManager_DMrogue {
       }, (npc, id, fireId) => {
         if (_GameRecord) {
           _GameRecord.addKill();
-          _Global_YJGame_mainCtrl.createGold(npc.GetWorldPos().clone());
+          _Global._YJGame_mainCtrl.createGold(npc.GetWorldPos().clone());
         }
         // 从一场战斗中移除npc
         _Global._YJFireManager.RemoveNPCFireId(id, fireId);

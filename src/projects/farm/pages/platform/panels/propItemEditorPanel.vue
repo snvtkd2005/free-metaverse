@@ -173,6 +173,13 @@ export default {
       inAdd: false,
     };
   },
+  watch:{
+    inAdd(v){
+      if(!v){
+        _Global.applyEvent("预览关闭",'道具或装备');
+      }
+    }
+  },
   created() {},
   mounted() {},
   methods: {
@@ -254,6 +261,9 @@ export default {
       for (let i = 0; i < this.setting.length; i++) {
         this.ChangeUIState(this.setting[i].property, this.setting[i].value);
       }
+
+      _Global.applyEvent("预览打开",'道具或装备',this.settingData);
+
     },
     ChangeUIState(property, e) {
       // 根据选择判断哪些属性不显示

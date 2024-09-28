@@ -115,6 +115,8 @@ class YJGame_mainCtrl {
       });
 
 
+      // 是否启用倒计时
+
     }
     function changeCtrlMode(e) {
       if (e == 'wow') {
@@ -202,6 +204,7 @@ class YJGame_mainCtrl {
       modelPool.push({ folderBase: folderBase, transform: model });
     }
 
+    
     init();
   }
 }

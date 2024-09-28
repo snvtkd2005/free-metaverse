@@ -75,6 +75,11 @@ const router = createRouter({
           name: 'developPlan',
           component: () => import('../pages/platform/developPlan.vue'),
         },
+        {
+          path: '/UserManual', // 使用手册
+          name: 'UserManual',
+          component: () => import('../pages/platform/UserManual.vue'),
+        },
       ]
     },
 

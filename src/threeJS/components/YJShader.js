@@ -5,7 +5,7 @@ import { YJWater } from "/@/threeJS/YJWater.js";
 import { YJWater2 } from "/@/threeJS/YJWater2.js";
 
 class YJShader {
-  constructor(_this,parent,model) {
+  constructor(parent,model) {
     var scope = this; 
 
     let col = 4;

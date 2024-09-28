@@ -11,7 +11,7 @@
       <div v-if="item.display" class="self-center w-2/3 truncate ">
         {{ item.title }}
       </div>
-      <div v-if="item.display" class="self-center">
+      <div v-if="item.display" class="self-center w-auto">
         <div v-if="item.type == 'color'" class="flex gap-2">
           <YJinput_color
             :index="i"
@@ -29,6 +29,7 @@
           ></YJinput_toggle>
         </div>
 
+        <!-- 选择HDR -->
         <div
           v-if="item.type == 'file' && item.filetype == 'hdr'"
           class="flex gap-2"
@@ -55,6 +56,7 @@
           </div>
         </div>
 
+        <!-- 选择通用图片 -->
         <div
           v-if="item.type == 'file' && item.filetype == 'image'"
           class="flex gap-2"
@@ -524,7 +526,7 @@
           />
         </div>
 
-        <div v-if="item.type == 'textarea'" class="w-32 h-auto text-black">
+        <div v-if="item.type == 'textarea'" class="w-64 h-auto text-black">
           <YJinput_textarea
             class="w-full h-20"
             :value="item.value"
@@ -810,30 +812,10 @@ export default {
   },
   created() {},
   mounted() {},
-  methods: {
-    SelectUVAnim(item, i) {
-      this.selectTitle = "选择通用图片";
-      this.RequestGetAll(this.selectTitle);
-      this.isOpen = true;
-      this.settingIndex = i;
-    },
-    SelectHDR(item, i) {
-      this.selectTitle = "选择HDR";
-      this.RequestGetAll(this.selectTitle);
-
-      this.isOpen = true;
-      this.settingIndex = i;
-    },
-    SelectAudio(item, i) {
-      this.selectTitle = "选择音效";
-      this.RequestGetAll(this.selectTitle);
-
-      this.isOpen = true;
-      this.settingIndex = i;
-    },
-
+  methods: { 
     SelectItem(e, item, i) {
       this.settingIndex = i;
+      this.settingItem = item;
       this.selectTitle = e;
       if (e == "选择特效") {
         this.selectTitle = e;
@@ -959,6 +941,7 @@ export default {
       //   , this.$parent.$parent.$parent.$parent
       // );
 
+      _Global.applyEvent("选择通用图片",(this.settingIndex,this.settingItem,item));
       if (this.$parent.ClickUVAnim) {
         this.$parent.ClickUVAnim(this.settingIndex, item);
       } else if (this.$parent.$parent.ClickUVAnim) {

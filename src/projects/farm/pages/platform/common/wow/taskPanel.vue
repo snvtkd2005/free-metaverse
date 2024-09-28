@@ -166,7 +166,8 @@ export default {
   components: {},
   data() {
     return {
-      taskData: {},
+      taskData: { 
+      },
       goldUrl: "./public/images/cursorList/containerframe/ui-goldicon.png",
 
       closeUrl:
@@ -193,15 +194,15 @@ export default {
              this.resetTaskData(element);
            }
          }
-      });
-
+      }); 
     }, 1000);
   },
 
   methods: {
-
+    directTaskData(taskData){
+      this.taskData = taskData;
+    },
     resetTaskData(taskData) {
-
       // console.log("触发任务 ",taskData);
       this.taskData = taskData;
       taskData.describe = taskData.describe.replace(
@@ -219,12 +220,8 @@ export default {
         }
       }
       if (taskData.rewardItems && taskData.rewardItems.length > 0) {
-        
         for (let i = 0; i < taskData.rewardItems.length; i++) {
-          const element = taskData.rewardItems[i];
-
-
-
+          const element = taskData.rewardItems[i]; 
           if (element.type == "equip") {
             let path =
               _Global.url.uploadUrl +
@@ -273,11 +270,15 @@ export default {
       // console.log(e);
       this.hoverPart = item.hoverPart; 
       let parent = ev.target;
-      this.$parent.LookSkill(parent, item.skill);
+      if(this.$parent.LookSkill){
+        this.$parent.LookSkill(parent, item.skill);
+      }
     },
     outHover() {
       this.hoverPart = "";
-      this.$parent.outHover();
+      if(this.$parent.outHover){
+        this.$parent.outHover();
+      }
     },
     clickEvent(e) {
       if (e == "关闭窗口") {
@@ -286,11 +287,12 @@ export default {
       if (e == "接受") {
         //接受任务
         _Global.applyEvent("界面开关", "task", false);
-        this.$parent.$refs.taskListPanel.addTask(this.taskData);
-        _Global._YJAudioManager.playAudio('1722064234835/iquestactivate.ogg');
-       _Global.user.currentTaskList.push({fromId:this.fromId,taskId:this.taskData.id});
-       //
-       _Global._YJNPCManager.GetNpcComponentById(this.fromId).SetNPCHeaderUp("task_1");
+        if(this.$parent.$refs.taskListPanel){
+          this.$parent.$refs.taskListPanel.addTask(this.taskData);
+          _Global._YJAudioManager.playAudio('1722064234835/iquestactivate.ogg');
+          _Global.user.currentTaskList.push({fromId:this.fromId,taskId:this.taskData.id});
+         _Global._YJNPCManager.GetNpcComponentById(this.fromId).SetNPCHeaderUp("task_1");
+        }
       }
     },
   },

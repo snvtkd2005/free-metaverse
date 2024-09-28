@@ -199,7 +199,7 @@ class YJTrailRenderer {
         };
         let oldPos = new THREE.Vector3();
         let group = new THREE.Group();
-        group.add(new THREE.AxesHelper(1));
+        // group.add(new THREE.AxesHelper(1));
         if(scene){
             scene.add(group);
         }else{

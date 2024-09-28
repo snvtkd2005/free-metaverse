@@ -4,6 +4,13 @@
     <div class="text-left">武器设置</div>
     <div class="w-full">
       <YJinputCtrl :setting="setting" />
+
+      <div class="self-center w-full text-base border-t flex "
+       >
+        <div >11</div>
+        <div class="  truncate " @click="folderFn(2)">武器属性</div>
+      </div> 
+      <YJinputCtrl :setting="setting2" />
     </div>
 
     <!-- 动作播放进度滑块 -->
@@ -107,6 +114,7 @@ export default {
         attackSpeed: 1,
         // 有效距离
         vaildDis: 1, 
+        strength:20,
         qualityType:"normal",
         hasPropertyList: false,
         // 装备属性
@@ -116,18 +124,11 @@ export default {
           //   intelligence: 10, //
           // },
         ],
+
       },
 
       setting: [
-        {
-          property: "pickType",
-          display: true,
-          title: "手持类型",
-          type: "drop",
-          value: "twoHand",
-          options: [],
-          callback: this.ChangeValue,
-        },
+        {property: "pickType",display: true,title: "手持类型",type: "drop",value: "twoHand",options: [],callback: this.ChangeValue,},
         {
           property: "weaponType",
           display: true,
@@ -249,6 +250,9 @@ export default {
           callback: this.ChangeValue,
         },
 
+        // {property: "group",display: true,title: "武器属性",type: "folder",value:false ,folderFn:this.folderFn},
+      ],
+        setting2: [
         {
           property: "vaildDis",
           display: true,
@@ -256,7 +260,7 @@ export default {
           type: "int",
           step: 1,
           value: 1,
-          callback: this.ChangeValue,
+          callback: this.ChangeValue2,
         },
         {
           property: "attackSpeed",
@@ -265,7 +269,7 @@ export default {
           type: "num",
           step: 1,
           value: 1,
-          callback: this.ChangeValue,
+          callback: this.ChangeValue2,
         },
         {
           property: "strength",
@@ -274,9 +278,9 @@ export default {
           type: "num",
           step: 1,
           value: 1,
-          callback: this.ChangeValue,
+          callback: this.ChangeValue2,
         },
-        { property: "qualityType", display: true,title: "品质", type: "drop", value: "none", options: [], callback: this.ChangeValue },
+        { property: "qualityType", display: true,title: "品质", type: "drop", value: "none", options: [], callback: this.ChangeValue2 },
 
         {
           property: "hasPropertyList",
@@ -284,7 +288,7 @@ export default {
           title: "是否增加属性",
           type: "toggle",
           value: false,
-          callback: this.ChangeValue,
+          callback: this.ChangeValue2,
         },
         {
           property: "propertyList",
@@ -294,7 +298,7 @@ export default {
           step: 1,
           options: [],
           value: [],
-          callback: this.ChangeValue,
+          callback: this.ChangeValue2,
         },
         // { property: "animName", title: "交互动作", type: "drop", value: "none", options: [], callback: this.ChangeValue },
         // { property: "position", display: true, title: "拾取后偏移", type: "vector3", value: [0, 0, 0], step: 0.01, callback: this.ChangeValue },
@@ -335,6 +339,7 @@ export default {
     let modelData = JSON.parse(localStorage.getItem("modelData"));
 
     if (modelData.message == undefined) {
+      console.error(" 右侧面板数据为空，不该进入此判断");
       return;
     }
 
@@ -349,6 +354,9 @@ export default {
     }
     this.settingData.weaponId = modelData.folderBase;
     this.initValue();
+    _Global.addEventListener("选择通用图片",(i,settingItem,item)=>{
+      
+    });
   },
   methods: {
     sliderChangeFn(e) {
@@ -414,7 +422,7 @@ export default {
 
     animate() {
       requestAnimationFrame(this.animate);
-      if (_Global.YJ3D.YJPlayer) {
+      if (_Global.YJ3D.YJPlayer && _Global.YJ3D.YJPlayer.GetAvatar()) {
         let { time, duration } =
           _Global.YJ3D.YJPlayer.GetAvatar().GetCurrentTime();
         time = parseInt(time * 24);
@@ -447,17 +455,18 @@ export default {
       this.settingData.animNameAttack = this.settingData.animNameAttack
         ? this.settingData.animNameAttack
         : "fight attack";
+
       this.settingData.attackSpeed = this.settingData.attackSpeed
         ? this.settingData.attackSpeed
         : 1;
       this.settingData.vaildDis = this.settingData.vaildDis
         ? this.settingData.vaildDis
         : 1;
-
         this.settingData.strength = this.settingData.strength
         ? this.settingData.strength
         : 20;
         
+
         if(this.settingData.fire.rotaV3 == undefined){
           this.settingData.fire.rotaV3 = [0,0,0];
         }
@@ -465,16 +474,17 @@ export default {
  
 
       this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
+      this.Utils.SetSettingItemByPropertyAll(this.setting2, this.settingData);
 
       this.Utils.SetSettingItemPropertyValueByProperty(
-        this.setting,
+        this.setting2,
         "propertyList",
         "options",
         equipItem.propertyType
       );
 
       this.Utils.SetSettingItemPropertyValueByProperty(
-        this.setting,
+        this.setting2,
         "qualityType",
         "options",
         equipItem.qualityType
@@ -566,7 +576,7 @@ export default {
     ChangeUIState(property, e) {
       if (property == "hasPropertyList") {
         this.Utils.SetSettingItemPropertyValueByProperty(
-          this.setting,
+          this.setting2,
           "propertyList",
           "display",
           e
@@ -583,7 +593,7 @@ export default {
             this.settingData.propertyList = a;
           }
           this.Utils.SetSettingItemPropertyValueByProperty(
-            this.setting,
+            this.setting2,
             "propertyList",
             "value",
             a
@@ -626,6 +636,19 @@ export default {
       // this.Update();
     },
 
+    ChangeValue2(i, e) { 
+      this.setting2[i].value = e;
+      let property = this.setting2[i].property;
+      let sp = property.split('-');
+      if (sp.length == 1) {
+        this.settingData[sp[0]] = e;
+      } else {
+        this.settingData[sp[0]][sp[1]] = e;
+      }
+      console.log(i + " ",property,  this.setting2[i].value);
+
+      this.ChangeUIState(property, e); 
+    },
     ClickUVAnim(i, e) {
       this.Utils.SetSettingItemByProperty(
         this.setting,
@@ -639,6 +662,9 @@ export default {
       } else {
         this.settingData[sp[0]][sp[1]] = e;
       }
+    },
+    folderFn(item){
+
     },
     getMessage() {
       return {

@@ -1265,7 +1265,7 @@ class SceneManager {
       console.log("renderer.sortObjects ", renderer.sortObjects);
       let modelData = JSON.parse(localStorage.getItem("modelData"));
       console.log("modelData ", modelData);
-      if (_Global.isMMD) {
+      if (_Global.gameType == "MMD") {
         //给骨骼添加dummy显示
         let _SpringManager = new SpringManager();
         _Global.YJ3D._YJSceneManager.AddNeedUpdateJS(_SpringManager);

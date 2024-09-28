@@ -1,6 +1,6 @@
  
 <template>
-  <div>
+  <div class=" w-full h-full">
     <div
       class="text-left w-6 h-6 mb-1 bg-white flex text-black leading-6 cursor-pointer"
       @click="EditorEvent('新建')"

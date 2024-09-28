@@ -465,9 +465,7 @@ export default {
         this.sceneData.setting.playerHeight / 2;
       console.log(" 获取场景配置 ", this.sceneData);
       this.isMultiGame = this.sceneData.setting.multiGame;
-
-      this.isMMD = this.sceneData.setting.isMMD;
-      _Global.isMMD = this.isMMD;
+ 
       this.gameType = this.sceneData.setting.gameType;
       _Global.gameType = this.gameType;
       this.hasHUD = this.sceneData.setting.hasHUD;
@@ -712,7 +710,7 @@ export default {
       this.Interface.SetTriggerOverlap(b, id, name);
     },
     LoadingProcess(f) {
-      console.log(" 加载场景进度 " ,f); // 3d加载进度   0-1
+      // console.log(" 加载场景进度 " ,f); // 3d加载进度   0-1
       if (this.$refs.scenePanel) {
         this.$refs.scenePanel.LoadingProcess(f);
       }

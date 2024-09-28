@@ -214,7 +214,7 @@
 <script >
 import { YJDMManager_DMrogue } from "/@/threeJS/game/YJDMManager_DMrogue.js";
 import CombatPanelVue from '../common/combatLogPanel.vue';
-import DMPlayerPanelVue from './DMPlayerPanel.vue';
+import DMPlayerPanelVue from '../components/DMPlayerPanel.vue';
 import wowPanelVue from "./wowPanel.vue";
 
 export default {

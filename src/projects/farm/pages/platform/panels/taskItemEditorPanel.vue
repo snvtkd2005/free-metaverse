@@ -1,5 +1,5 @@
 
-// 技能添加弹窗
+
 <template>
   <el-dialog
     :title="dialogTitle"
@@ -9,10 +9,11 @@
     :modal-append-to-body="false"
     width="35%"
   >
-    <div class="w-full">
-      <YJinputCtrl :setting="setting" />
+    <div class="flex">
+      <div class="w-full">
+        <YJinputCtrl :setting="setting" />
+      </div> 
     </div>
-
     <div class="w-full flex">
       <span slot="footer" class="dialog-footer mx-auto">
         <el-button class="   " type="primary" @click="FloatEvent('保存')"
@@ -26,19 +27,19 @@
 <script>
 import YJinputCtrl from "../components/YJinputCtrl.vue";
 
-import taskItem from "../../../data/platform/taskItem.js";
+import taskItem from "../../../data/platform/taskItem.js"; 
 
 export default {
   name: "taskItemEditorPanel",
   props: ["isOpen"],
   components: {
-    YJinputCtrl,
+    YJinputCtrl, 
   },
   data() {
     return {
       dialogTitle: "添加任务",
       settingData: {},
-      setting: [ 
+      setting: [
         {
           property: "taskTitle",
           display: true,
@@ -108,6 +109,13 @@ export default {
       inAdd: false,
     };
   },
+  watch:{
+    inAdd(v){
+      if(!v){
+        _Global.applyEvent("预览关闭",'任务');
+      }
+    }
+  },
   created() {},
   mounted() {},
   methods: {
@@ -152,10 +160,12 @@ export default {
 
       for (let i = 0; i < this.setting.length; i++) {
         this.ChangeUIState(this.setting[i].property, this.setting[i].value);
-      }
+      } 
+      _Global.applyEvent("预览打开",'任务',this.settingData);
+
     },
     ChangeUIState(property, e) {
-      // 根据选择判断哪些属性不显示 
+      // 根据选择判断哪些属性不显示
     },
     ChangeValue(i, e) {
       this.setting[i].value = e;
@@ -197,9 +207,9 @@ export default {
         for (let j = 0; j < taskData.targetList.length; j++) {
           const target = taskData.targetList[j];
           if (target.type == "kill") {
-            describe += "消灭 "+target.need + " 个"+target.name;
+            describe += "消灭 " + target.need + " 个" + target.name;
           }
-          describe += (j == taskData.targetList.length-1)?'':'和';
+          describe += j == taskData.targetList.length - 1 ? "" : "和";
         }
       }
       return describe;
@@ -226,7 +236,7 @@ export default {
         this.settingData.rewardItems[i].skill = equip;
       }
       if (type == "prop") {
-        console.log("选择道具",data);
+        console.log("选择道具", data);
         this.settingData.rewardItems[i].id = data.id;
         this.settingData.rewardItems[i].skill = data;
       }

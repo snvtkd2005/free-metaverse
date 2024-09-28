@@ -1,6 +1,6 @@
  
 <template>
-  <div>
+  <div class=" w-full h-full">
     <div
       class="text-left w-6 h-6 mb-1 bg-white flex text-black leading-6 cursor-pointer"
       @click="EditorEvent('新建')"
@@ -19,6 +19,8 @@
             <img
               class="w-full h-full object-fill hover:opacity-70"
               :src="$uploadUVAnimUrl + scope.row.icon"
+                    @mouseenter="LookSkill('道具或装备', scope.row)"
+                    @mouseleave="outHover('道具或装备')"
             />
           </template>
         </el-table-column>
@@ -130,6 +132,12 @@ export default {
     }
   },
   methods: {
+    LookSkill(e, item) { 
+      _Global.applyEvent("预览打开", e, item);
+    },
+    outHover(e) {
+      _Global.applyEvent("预览关闭", e);
+    },
     EditorEvent(e, item, i) {
       console.log(e, item, i);
       if (e == "新建") {

@@ -1,6 +1,6 @@
  
 <template>
-  <div>
+  <div class=" w-full h-full">
     <div
       class="text-left w-6 h-6 mb-1 bg-white flex text-black leading-6 cursor-pointer"
       @click="ClickEvent('新建')"
@@ -20,6 +20,8 @@
             <img
               class="w-full h-full object-fill hover:opacity-70"
               :src="$uploadUVAnimUrl + scope.row.icon"
+              @mouseenter="LookSkill('道具或装备',scope.row)"
+              @mouseleave="outHover('道具或装备')"
             />
           </template>
         </el-table-column>
@@ -49,12 +51,19 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="操作" width="100">
+        <el-table-column label="操作" width="160">
           <template #default="scope">
             <el-button
               size="small"
               @click="ClickEvent('编辑', scope.row, scope.$index)"
               >编辑</el-button
+            >
+            
+            <el-button
+              size="small" 
+              @mouseenter="LookSkill('道具或装备',scope.row)"
+              @mouseleave="outHover('道具或装备')"
+              >预览</el-button
             >
             <!-- <el-button size="small" type="danger" @click="ClickEvent('删除', scope.row,scope.$index)">删除</el-button> -->
           </template>
@@ -96,6 +105,18 @@ export default {
     }
   },
   methods: {
+    
+    LookSkill(e, item) {
+      if (e == "道具或装备") {
+        _Global.applyEvent("预览打开", e, item);
+        return;
+      }
+      _Global.applyEvent("预览打开", e, item);
+    },
+    outHover(e) {
+      _Global.applyEvent("预览关闭", e);
+    },
+
     getItemsPropType(propType) {
       this.propType = propType;
       for (let i = 0; i < GameItems.propType.length; i++) {

@@ -280,54 +280,6 @@
           </div>
         </div>
 
-        <!-- 通用图片 -->
-        <div
-          v-if="currentTable == '通用图片'"
-          class="gap-6 w-full flex flex-wrap h-auto max-h-5/6 overflow-y-auto overscroll-auto"
-        >
-          <!-- 新建按钮 -->
-          <div class="w-32 h-32 relative border-2">
-            <div
-              class="w-full h-full self-center mx-auto cursor-pointer"
-              @click="CreateNew('UVAnim')"
-            >
-            </div>
-            <div
-              class="absolute left-0 top-0 w-full h-full flex pointer-events-none"
-            >
-              <div class="self-center mx-auto">
-                {{ customPanel.createNewUVanim }}
-              </div>
-            </div>
-          </div>
-          <!-- 选择列表 -->
-          <div
-            v-for="(item, i) in uvAnimList"
-            :key="i"
-            class="self-center w-24 h-auto relative"
-          >
-            <div
-              class="w-16 h-16 self-center mx-auto overflow-hidden cursor-pointer"
-            >
-              <img
-                class="w-full h-full object-fill hover:opacity-70 transform"
-                :src="this.$uploadUVAnimUrl + item"
-              />
-            </div>
-            <div class="mt-2 w-28 truncate px-2 flex text-sm justify-between">
-              <text>{{ item }}</text>
-            </div>
-            <div class="hidden mt-2 px-2 flex text-xs justify-between">
-              <div>{{ base.good }} 158</div>
-              <div>{{ base.visite }} 177</div>
-            </div>
-            <div class="mt-2 px-2 flex text-xs justify-between">
-              <div class="cursor-pointer">{{ base.editor }}</div>
-              <div class="cursor-pointer">{{ base.delete }}</div>
-            </div>
-          </div>
-        </div>
-
         <!-- 通用音效 -->
         <div
           v-if="currentTable == '通用音效'"
@@ -396,6 +348,11 @@
               <div class="cursor-pointer">{{ base.delete }}</div>
             </div>
           </div>
+        </div>
+
+        <!-- 通用图片 -->
+        <div v-show="currentTable == '通用图片'" class="gap-6 w-full mx-auto h-full">
+          <tongyImgPanel ></tongyImgPanel>
         </div>
 
         <!-- 技能 -->
@@ -589,40 +546,6 @@
 
       <div
         class="self-center mx-auto bg-white rounded-xl flex flex-col justify-between p-5"
-        v-if="dialogTitle == '上传图片'"
-      >
-        <el-upload
-          class="bg-transparent w-48 mt-2"
-          action=""
-          :before-upload="handleBeforeUploadUVAnim"
-          :accept="accept2"
-          :show-file-list="false"
-        >
-          <div class="bg-gray-100 rounded-lg p-2 w-auto cursor-pointer">
-            {{ customPanel.uvAnimTip }}
-          </div>
-        </el-upload>
-
-        <div v-if="uvAnimUrl != ''">
-          <img
-            class="w-48 h-48"
-            :src="this.$uploadUVAnimUrl + uvAnimUrl"
-            alt=""
-          />
-        </div>
-        <div class="h-full"></div>
-        <div class="w-full h-12 text-xl flex">
-          <div
-            class="self-center mx-auto inline-block p-3 bg-gray-300 rounded-lg shadow-lg cursor-pointer pointer-events-auto"
-            @click="uploadOk('UVAnim')"
-          >
-            {{ base.ok }}
-          </div>
-        </div>
-      </div>
-
-      <div
-        class="self-center mx-auto bg-white rounded-xl flex flex-col justify-between p-5"
         v-if="dialogTitle == '上传音频' || dialogTitle == '编辑音频'"
       >
         <el-upload
@@ -703,16 +626,24 @@
         </div>
       </div>
     </el-dialog>
+
+    <div class="w-full h-full absolute left-0 top-0 pointer-events-none">
+      <wowHoverPanel ref="wowHoverPanel"></wowHoverPanel>
+    </div>
+
   </div>
 </template>
 
 <script>
 import PlayerAnimData from "../../data/playerAnimSetting.js";
 
+import tongyImgPanel from "./panels/tongyImgPanel.vue";
 import skillPanel from "./panels/skillPanel.vue";
 import propPanel from "./panels/propPanel.vue";
 import taskPanel from "./panels/taskPanel.vue";
 import levelPanel from "./panels/levelPanel.vue";
+
+import wowHoverPanel from "./games/wowHoverPanel.vue";
 
 import { Interface } from "../../js/Interface_editor.js";
 import SceneData from "../../data/sceneData.js";
@@ -744,6 +675,8 @@ export default {
     propPanel,
     taskPanel,
     levelPanel,
+    tongyImgPanel,
+    wowHoverPanel,
   },
   data() {
     return {
@@ -780,8 +713,7 @@ export default {
       groupList: [],
       sceneList: [],
       hdrList: [],
-      jpgList: [],
-      uvAnimList: [],
+      jpgList: [], 
       audioList: [],
 
       selectSceneName: "scene1",
@@ -831,8 +763,7 @@ export default {
 
     this.RequestGetAllModel();
     this.RequestGetAllScene();
-    this.RequestGetAllHDR();
-    this.RequestGetAllUVAnim();
+    this.RequestGetAllHDR(); 
   },
   methods: {
     clickEvent(e,v){
@@ -883,12 +814,7 @@ export default {
       this.createForm.template = item.name;
       this.createForm.content = item.content;
     },
-    uploadOk(e) {
-      if (e == "UVAnim") {
-        this.dialogVisible = false;
-        this.uvAnimUrl = "";
-        this.RequestGetAllUVAnim();
-      }
+    uploadOk(e) { 
       if (e == "audio") {
         this.dialogVisible = false;
 
@@ -945,54 +871,6 @@ export default {
             if (res.data == "SUCCESS") {
             }
           });
-        }
-      });
-    },
-
-    handleBeforeUploadUVAnim(file) {
-      this.fileList.push(file);
-      console.log(file);
-      if (this.loading) {
-        return;
-      }
-      this.UploadFilesUVAnim(this.fileList[0]);
-    },
-
-    async UploadFilesUVAnim(file) {
-      if (this.loading) {
-        return;
-      }
-      this.loading = true;
-
-      let fromData = new FormData();
-      //服务器中的本地地址
-      fromData.append("fileToUpload", file);
-      // 单个文件上传，可多选。上传后放在根目录
-      //模型或场景文件夹的根目录在创建时由服务器返回
-      fromData.append("folderBase", this.folderBase);
-
-      // const res = await this.$axios.post(
-      //   '/upload',
-      //   fromData
-      // );
-
-      // console.log("res", res);
-      // this.fileList.shift();
-      // this.loading = false;
-      // if (this.fileList.length > 0) {
-      //   this.UploadFiles(this.fileList[0]);
-      // }
-      // return;
-
-      this.modelName = file.name;
-
-      //上传到本地 或 0SS
-      UploadUVAnimFile(fromData).then((res) => {
-        console.log(" 上传文件 ", res);
-        if (res.data == "SUCCESS") {
-          this.fileList.shift();
-          this.loading = false;
-          this.uvAnimUrl = this.folderBase + "/" + this.modelName;
         }
       });
     },
@@ -1065,21 +943,7 @@ export default {
         // //先记录旧照片
         // console.log("上传文件后的返回值", url);
       });
-    },
-
-    async RequestGetAllUVAnim() {
-      this.uvAnimList.splice(0, this.uvAnimList.length);
-      GetAllUVAnim().then((res) => {
-        //先记录旧照片
-        if (res.data.txtDataList) {
-          let txtDataList = res.data.txtDataList;
-          for (let i = 0; i < txtDataList.length; i++) {
-            const element = txtDataList[i];
-            this.uvAnimList.push(element);
-          }
-        }
-      });
-    },
+    }, 
 
     async RequestGetAllHDR() {
       GetAllHDR().then((res) => {

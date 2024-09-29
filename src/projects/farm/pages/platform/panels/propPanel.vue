@@ -8,9 +8,9 @@
       <div class="mx-auto">+</div>
     </div>
     <div
-      class="relative w-full text-white overflow-hidden overflow-y-auto overscroll-auto h-5/6"
+      class="relative w-full text-white overflow-hidden overflow-y-auto overscroll-auto "
     >
-      <el-table :data="propList" style="width: 100%">
+      <el-table :data="propList" style="width: 100%" height='700'>
         <!-- <el-table-column type="selection" width="40" /> -->
         <el-table-column type="index" label="序号" width="60" />
         <el-table-column prop="id" label="ID" width="130" />
@@ -43,7 +43,7 @@
 
         <el-table-column prop="value" label="效果值" width="100" />
 
-        <el-table-column label="描述" width="200">
+        <el-table-column label="描述" width="400">
           <template #default="scope">
             <div>
               {{ scope.row && scope.row.describe }}

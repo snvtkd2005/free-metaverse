@@ -1,8 +1,10 @@
 <template>
   <div class="w-full h-full relative pointer-events-none">
     <!-- 动作条 -->
-    <div class="absolute left-0 -top-10 md:top-10 xl:top-20 flex ">
-      <div class="relative transform scale-75 md:scale-100 xl:scale-100 mx-auto flex">
+    <div class="absolute left-0 -top-10 md:top-10 xl:top-20 flex">
+      <div
+        class="relative transform scale-75 md:scale-100 xl:scale-100 mx-auto flex"
+      >
         <div class="absolute left-0 top-0 w-full h-full -z-10">
           <div class="absolute left-1 top-1">
             <img class="w-16 h-16 rounded-full" :src="leftIcon" alt="" />
@@ -61,22 +63,21 @@
               v-for="(item, i) in skillList"
               :key="i"
               class="flex w-9 h-9 relative cursor-auto pointer-events-auto"
-              @click="clickSkill($event,item)"
-                    @mouseover="LookSkill($event, item)"
-                    @mouseleave="outHover()"
-                    :draggable="item.level > 0"
-                    @dragstart="drag($event, item)"
+              @click="clickSkill($event, item)"
+              @mouseover="LookSkill($event, item)"
+              @mouseleave="outHover()"
+              :draggable="item.level > 0"
+              @dragstart="drag($event, item)"
             >
               <div class="w-9 h-9 relative pointer-events-none">
                 <div>
                   <img
-                    class="w-9 h-9 pointer-events-none "
+                    class="w-9 h-9 pointer-events-none"
                     :class="[
                       skillPoint > 0 || item.level > 0 ? '  ' : ' skill-img ',
                     ]"
                     :src="this.$uploadUVAnimUrl + item.icon"
                     alt=""
-                   
                   />
 
                   <img
@@ -95,10 +96,10 @@
                 </div>
                 <div
                   v-if="skillPoint > 0 || item.level > 0"
-                  class="absolute -right-2 -bottom-2 w-4 h-4  rounded-full text-xs leading-4 p-px"
-                  :class="canUpSkill(item)
-                        ? '  text-green-400 '
-                        : ' text-white ' "
+                  class="absolute -right-2 -bottom-2 w-4 h-4 rounded-full text-xs leading-4 p-px"
+                  :class="
+                    canUpSkill(item) ? '  text-green-400 ' : ' text-white '
+                  "
                 >
                   {{ item.level }}
                 </div>
@@ -163,17 +164,18 @@ export default {
     setTimeout(() => {
       _Global.addEventListener("升级", (level) => {
         this.skillPoint += 1;
-        _Global.applyEvent("获取道具记录","技能点");
+        _Global.applyEvent("获取道具记录", "技能点");
       });
 
       let skills = _Global.skillList_scene;
-      for (let i = 0; i < skills.length; i++) {
-        const skill = skills[i];
-        skill.level = 0;
-        skill.hoverPart = "skillPanel" + i;
-        this.skillList.push(skill);
+      if (skills) {
+        for (let i = 0; i < skills.length; i++) {
+          const skill = skills[i];
+          skill.level = 0;
+          skill.hoverPart = "skillPanel" + i;
+          this.skillList.push(skill);
+        }
       }
-
       _Global.addEventListener("主角死亡", () => {});
 
       _Global.addEventListener("释放灵魂", () => {
@@ -225,7 +227,7 @@ export default {
       this.$parent.LookSkill(parent, item);
     },
     outHover() {
-      this.hoverPart = ""; 
+      this.hoverPart = "";
       this.$parent.outHover();
     },
     clickEvent(e) {
@@ -233,12 +235,12 @@ export default {
         _Global.applyEvent("界面开关", "skill", false);
       }
     },
-    clickSkill(ev,item) {
+    clickSkill(ev, item) {
       // 学习技能
       if (this.skillPoint == 0 || _Global._YJPlayerFireCtrl.GetIsDead()) {
         return;
       }
-      if(! this.canUpSkill(item)){
+      if (!this.canUpSkill(item)) {
         return;
       }
       this.skillPoint--;
@@ -248,17 +250,15 @@ export default {
 
       let parent = ev.target;
       this.$parent.LookSkill(parent, item);
-
     },
   },
 };
 </script>
 
 <style scoped>
-
 .cursor-pointer {
-    /* cursor: pointer; */
-    cursor: none;
+  /* cursor: pointer; */
+  cursor: none;
 }
 .scalex {
   transform: translateX(-32px) scaleX(-1);

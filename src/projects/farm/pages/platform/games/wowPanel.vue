@@ -191,6 +191,7 @@ import settingPanelVue from "../common/wow/settingPanel.vue";
 
 import GameSetting from "../../../data/platform/GameSetting";
 import equipItems from "../../../data/platform/EquipItems";
+import * as GameUtils from '/@/utils/utils_game.js';
 
 export default {
   props: [],
@@ -500,140 +501,7 @@ export default {
         }
       }
     },
-
-    GetDescribe(item, level) {
-      let describe = "";
-
-      if (item.trigger.type == "health") {
-        // describe += "自动攻击时，当生命达到" + item.trigger.value + "%时，";
-      }
-      if (item.trigger.type == "perSecond") {
-        // describe += "自动攻击时，每" + item.trigger.value + "秒，";
-      }
-
-      if (this.inPlayerSkillEditor) {
-        // 玩家技能都是点击技能图标触发的
-        describe = "";
-      }
-      let targetCamp = "友方";
-      if (item.effect.type.toLowerCase().includes("damage")) {
-        targetCamp = "敌方";
-      }
-
-      let targetValue = item.target.value;
-      if (item.hasTargetLv && item.targetLv && item.targetLv.length > 1) {
-        targetValue = item.targetLv[level];
-      }
-
-      if (item.target.type == "none" || item.target.type == "self") {
-        describe += "自身";
-      }
-      if (item.target.type == "random") {
-        describe += "对随机最多" + targetValue + "个" + targetCamp + "目标";
-      }
-
-      if (item.target.type == "target") {
-        describe += "对当前目标";
-      }
-      if (item.target.type == "area") {
-        describe += "对半径" + item.vaildDis + "米范围内"
-        if(item.target.value==0){
-          describe += "所有目标";
-        }else{
-          describe +=  "最多" + item.target.value + "个目标";
-        }
-      }
-
-      if (item.target.type == "minHealthFriendly") {
-        describe += "对生命值最少的友方";
-      }
-
-      if (item.effect.type == "evolution") {
-        describe += ",所有技能造成的伤害提高" + item.effect.value + "%";
-      }
-      if (item.effect.type == "hyperplasia") {
-        describe += ",生成" + item.effect.value + "个镜像";
-      }
-
-      if (item.effect.type == "contDamage") {
-        describe +=
-          ",每" +
-          item.effect.time +
-          "秒造成" +
-          item.effect.value +
-          "点伤害，持续" +
-          item.castTime +
-          "秒";
-      }
-
-      if (item.effect.type == "damage") {
-        describe += ",造成" + item.effect.value + "点伤害";
-      }
-      if (item.effect.type == "addHealth") {
-        describe += ",恢复" + item.effect.value + "点生命值";
-      }
-
-      if (item.effect.type == "perDamage") {
-        let effectdes =
-          "每" +
-          item.effect.time +
-          "秒造成" +
-          item.effect.value +
-          "点伤害，持续" +
-          item.effect.duration +
-          "秒";
-        item.effect.describe = effectdes;
-        describe += "," + effectdes;
-      }
-      if (item.effect.type == "control") {
-        describe += "施放控制" + item.effect.controlId;
-      }
-
-      if (item.effect.type == "shield") {
-        let effectdes = "吸收" + item.effect.value + "点伤害";
-        describe +=
-          "施放" +
-          item.effect.controlId +
-          "。" +
-          effectdes +
-          "，持续" +
-          item.effect.duration +
-          "秒";
-        item.effect.describe = effectdes;
-      }
-      return describe;
-    },
-
-    GetColor(qualityType) {
-      switch (qualityType) {
-        case "none":
-          return "#666666";
-
-          break;
-        case "normal":
-          return "#ffffff";
-          break;
-        case "unnormal":
-          return "#1eff00";
-
-          break;
-        case "rare":
-          return "#0070dd";
-
-          break;
-        case "epic":
-          return "#a335ee";
-
-          break;
-        case "legendary":
-          return "#a335ee";
-
-          break;
-
-        default:
-          break;
-      }
-    },
+ 
     LookSkill(parent, item) {
 
       if(_Global.isMobile){
@@ -669,7 +537,7 @@ export default {
           } = item;
           // console.log(" hover equip ", item);
           line.text = name;
-          line.color = this.GetColor(qualityType);
+          line.color = GameUtils.GetColor(qualityType);
           this.hoverData.push(line);
 
           if (pointType == "weapon") {
@@ -765,7 +633,7 @@ export default {
         line.text =
           item.level <= 1
             ? item.describe
-            : this.GetDescribe(item, item.level - 1);
+            : GameUtils.GetDescribe(item, item.level - 1);
         line.color = "#ffff00";
 
         if (
@@ -784,7 +652,7 @@ export default {
           this.hoverData.push(line);
 
           line = {};
-          line.text = this.GetDescribe(item, item.level);
+          line.text = GameUtils.GetDescribe(item, item.level);
           line.color = "#ffff00";
         }
       }

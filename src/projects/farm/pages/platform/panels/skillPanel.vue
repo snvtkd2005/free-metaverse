@@ -8,9 +8,10 @@
       <div class="mx-auto">+</div>
     </div>
     <div
-      class="relative w-full text-white overflow-hidden overflow-y-auto overscroll-auto h-5/6"
+      class="relative w-full text-white overflow-hidden overflow-y-auto overscroll-auto "
     >
-      <el-table :data="skillList" style="width: 100%">
+      <el-table :data="skillList" style="width: 100%;" 
+     height='700'>
         <!-- <el-table-column type="selection" width="40" /> -->
         <el-table-column type="index" label="序号" width="60" />
         <el-table-column prop="skillName" label="技能名" width="100" />
@@ -32,7 +33,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="触发值" width="80">
+        <el-table-column label="触发值/CD" width="100">
           <template #default="scope">
             <div>
               {{ scope.row && scope.row.trigger && scope.row.trigger.value }}

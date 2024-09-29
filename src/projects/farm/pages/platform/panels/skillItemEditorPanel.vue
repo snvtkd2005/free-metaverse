@@ -20,6 +20,7 @@
 
 import YJinputCtrl from "../components/YJinputCtrl.vue";
 
+import * as GameUtils from '/@/utils/utils_game.js';
 
 
 export default {
@@ -61,12 +62,13 @@ export default {
 
       modelType: [
         { label: "静态模型", value: "静态模型" },  
-      ],
+      ], 
       // 控制id
       controlId: [
         { label: "冰霜新星", value: "冰霜新星" }, 
-        { label: "嘲讽", value: "嘲讽" }, 
-        { label: "冲锋", value: "冲锋" }, 
+        { label: "被嘲讽", value: "被嘲讽" }, 
+        { label: "眩晕", value: "眩晕" }, 
+        { label: "减速", value: "减速" }, 
       ],
       shieldId: [
         { label: "寒冰护体", value: "寒冰护体" }, 
@@ -96,6 +98,10 @@ export default {
         { property: "receiveEffect-modelType", display: false, title: "生成模型类型", type: "drop", options: [], value: "", callback: this.ChangeValue },
         { property: "receiveEffect-particleId", display: false, title: "生成模型", type: "file", filetype: "particle", value: "", callback: this.ChangeValue },
 
+        { property: "selfAction", display: true, title: "自身额外行为", type: "drop", options: [
+          { label: "none", value: "none" }, 
+          { label: "冲锋", value: "冲锋" }, 
+        ], value: "none", callback: this.ChangeValue },
 
         { property: "castTime", display: true, title: "吟唱时间(0表示瞬发)", type: "num", step: 1, value: 0, callback: this.ChangeValue },
         { property: "animNameReady", display: true, title: "吟唱动作", type: "drop", options: [], value: "", callback: this.ChangeValue },
@@ -118,7 +124,7 @@ export default {
         { property: "effect-duration", display: true, title: "持续时间", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
         { property: "effect-describe", display: true, title: "效果描述", type: "text", value: "", callback: this.ChangeValue, },
         { property: "effect-icon", display: true, title: "debuff图标", type: "file", filetype: "image", accept: "", value: "", callback: this.ChangeValue },
-        { property: "effect-controlId", display: true, title: "控制id", type: "drop", options: [], value: "", callback: this.ChangeValue },
+        { property: "effect-controlId", display: true, title: "目标行为", type: "drop", options: [], value: "", callback: this.ChangeValue },
 
         { property: "describe", display: true, title: "效果描述", type: "textarea", value: "", callback: this.ChangeValue, },
 
@@ -142,7 +148,7 @@ export default {
       // this.inPlayerSkillEditor = true;
       // this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "trigger-type", "display", false);
       // this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "trigger-value", "display", false);
-      // this.settingData.describe = this.GetDescribe(this.settingData);
+      // this.settingData.describe = GameUtils.GetDescribe(this.settingData);
       // this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "describe", "value", this.settingData.describe);
       
     },
@@ -187,6 +193,9 @@ export default {
       }
       if (this.settingData.skillFireDiplayValue == undefined) {
         this.settingData.skillFireDiplayValue = 0;
+      }
+      if (this.settingData.selfAction == undefined) {
+        this.settingData.selfAction = 'none';
       }
       
       
@@ -339,7 +348,7 @@ export default {
         this.settingData[sp[0]][sp[1]] = e;
       }
       this.ChangeUIState(property, e);
-      this.settingData.describe = this.GetDescribe(this.settingData);
+      this.settingData.describe = GameUtils.GetDescribe(this.settingData);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "describe", "value", this.settingData.describe);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "value", this.settingData.effect.describe);
 
@@ -347,91 +356,13 @@ export default {
 
     ClickEvent(e) {
       if (e == "保存") {
-        this.settingData.describe = this.GetDescribe(this.settingData);
+        this.settingData.describe = GameUtils.GetDescribe(this.settingData);
         this.$parent.saveSkill(this.settingData);
         this.inAdd = false;
 
         console.log(this.settingData);
       } 
-    },
-    GetDescribe(item) {
-      let describe = "";
-
-      if (item.trigger.type == "health") {
-        // describe += "自动攻击时，当生命达到" + item.trigger.value + "%时，";
-      }
-      if (item.trigger.type == "perSecond") {
-        // describe += "自动攻击时，每" + item.trigger.value + "秒，";
-      }
-
-      if(this.inPlayerSkillEditor){
-        // 玩家技能都是点击技能图标触发的
-        describe = "";
-      }
-      let targetCamp = "友方"
-      if (item.effect.type.toLowerCase().includes("damage") ) {
-        targetCamp = "敌方";
-      }
-
-
-      if (item.target.type == "none" || item.target.type == "self") {
-        describe += "自身";
-      }
-      if (item.target.type == "random") {
-        describe += "对随机最多" + item.target.value + "个"+targetCamp +"目标";
-      }
-
-      if (item.target.type == "target") {
-        describe += "对当前目标";
-      }
-      if (item.target.type == "area") {
-        describe += "对半径" + item.vaildDis + "米范围内"
-        if(item.target.value==0){
-          describe += "所有目标";
-        }else{
-          describe +=  "最多" + item.target.value + "个目标";
-        }
-      }
-
-      if (item.target.type == "minHealthFriendly") {
-        describe += "对生命值最少的友方";
-      }
-
-      if (item.effect.type == "evolution") {
-        describe += ",所有技能造成的伤害提高" + item.effect.value + "%";
-      }
-      if (item.effect.type == "hyperplasia") {
-        describe += ",生成" + item.effect.value + "个镜像";
-      }
-
-      if (item.effect.type == "contDamage") {
-        describe += ",每" + item.effect.time + "秒造成" + item.effect.value + "点伤害，持续" + (item.castTime) + "秒";
-      }
-
-      if (item.effect.type == "damage") {
-        describe += ",造成" + item.effect.value + "点伤害";
-      }
-      if (item.effect.type == "addHealth") {
-        describe += ",恢复" + item.effect.value + "点生命值";
-      }
-      
-      if (item.effect.type == "perDamage") {
-        let effectdes =  "每" + item.effect.time + "秒造成" + item.effect.value + "点伤害，持续" + item.effect.duration + "秒";
-        item.effect.describe = effectdes;
-        describe += "," + effectdes;
-        
-      }
-      if (item.effect.type == "control") {
-        describe += "施放控制" + item.effect.controlId   ;
-      }
-      
-      if (item.effect.type == "shield") {
-        let effectdes = "吸收" + item.effect.value + "点伤害";
-        describe += "施放"+ item.effect.controlId+  "。" + effectdes + "，持续" + item.effect.duration + "秒";
-        item.effect.describe = effectdes ;
-      }
-      return describe;
-    },
+    }, 
     ClickParticle(i, e) {
 
       this.ClickUVAnim(i, e);

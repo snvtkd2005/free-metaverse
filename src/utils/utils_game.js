@@ -38,11 +38,7 @@ function GetDescribe(item, level = 0){
   if (item.trigger.type == "perSecond") {
     // describe += "自动攻击时，每" + item.trigger.value + "秒，";
   }
-
-  if (this.inPlayerSkillEditor) {
-    // 玩家技能都是点击技能图标触发的
-    describe = "";
-  }
+ 
   let targetCamp = "友方";
   if (item.effect.type.toLowerCase().includes("damage")) {
     targetCamp = "敌方";

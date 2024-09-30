@@ -144,8 +144,7 @@ export default {
         this.initValue(_settingData);
       }
     },
-    displayTriggerType(){
-      // this.inPlayerSkillEditor = true;
+    displayTriggerType(){ 
       // this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "trigger-type", "display", false);
       // this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "trigger-value", "display", false);
       // this.settingData.describe = GameUtils.GetDescribe(this.settingData);

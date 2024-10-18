@@ -132,7 +132,13 @@ class YJTransform {
         let com = this.GetComponent("Animator");
         message.data.pointType = message.pointType;
         com.SetMessage(message.data);
-        // com.SetMessage(message.data);
+        if(message.data.localOffset == undefined){
+          message.data.localOffset = {
+            modelScale:1,
+            rotation:[0,0,0],
+            offsetPos:[0,0,0],
+          };
+        }
         this.GetComponent("MeshRenderer").SetSize(message.data.localOffset.modelScale);
         this.GetComponent("MeshRenderer").SetRotaArray(message.data.localOffset.rotation);
         this.GetComponent("MeshRenderer").SetPosArray(message.data.localOffset.offsetPos);

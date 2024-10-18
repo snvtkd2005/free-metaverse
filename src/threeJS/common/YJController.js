@@ -4,7 +4,7 @@
 
 /**
  结构
- --_YJAmmoPlayer 刚体
+ --_YJAmmoPlayer 刚体，用于移动控制
    --camBaseParent 摄像机旋转父物体，用于左右旋转
       --camTarget 摄像机父物体，用于上下旋转
         --camera 摄像机

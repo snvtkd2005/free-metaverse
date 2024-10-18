@@ -196,7 +196,7 @@ export default {
         { property: "setting-BGMurl", display: true, title: "背景音乐", type: "file",filetype:"audio", value: "" },
         { property: "setting-useBloom", display: true, title: "启用辉光", type: "toggle", value: false, callback: this.ChangeValue },
         { property: "bloomData-bloomTexStrength", display: false, title: "辉光贴图强度", type: "num",step:0.1, value: "0.1", callback: this.ChangeValue },
-        { property: "setting-enabledGravity", display: true, title: "启用重力", type: "toggle", value: false, callback: this.ChangeValue },
+        { property: "setting-enabledGravity", display: true, title: "启用重力", type: "toggle", value: true, callback: this.ChangeValue },
         
         { property: "AmbientLightData-backgroundColor", display: true, title: "画布背景色", type: "color", value: "#A7D0FF", callback: this.ChangeValue },
         // { property: "AmbientLightData-ambientColor", display: true, title: "环境光颜色", type: "color", value: "#ffffff", callback: this.ChangeValue },
@@ -212,7 +212,7 @@ export default {
         { property: "hasGrid", display: true, title: "启用grid", type: "toggle", value: true, callback: this.ChangeValue },
         { property: "hasFloor", display: true, title: "启用默认地面", type: "toggle", value: true, callback: this.ChangeValue },
         { property: "setting-hasCamRaycast", display: true, title: "启用摄像机遮挡", type: "toggle", value: true, callback: this.ChangeValue },
-        { property: "setting-multiGame", display: true, title: "启用多人模式", type: "toggle", value: true, callback: this.ChangeValue },
+        { property: "setting-multiGame", display: true, title: "启用多人模式", type: "toggle", value: false, callback: this.ChangeValue },
         { property: "setting-hasAvatar", display: true, title: "启用第三人称角色", type: "toggle", value: true, callback: this.ChangeValue },
         { property: "setting-hasHUD", display: true, title: "是否有界面", type: "toggle", value: true, callback: this.ChangeValue },
         { property: "setting-targetRota", display: true, title: "上下角度限制", type: "vector2xy", step:0.01, value: true, callback: this.ChangeValue },

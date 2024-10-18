@@ -11,7 +11,7 @@
             ? 'bg-445760 text-white '
             : ' text-gray-400 '
         "
-        @click="selecttypeTable = 'all'"
+        @click="clickEvent('切换table','all')"
       >
         <div class="self-center mx-auto px-1">
           all
@@ -28,7 +28,7 @@
             ? 'bg-445760 text-white '
             : ' text-gray-400 '
         "
-        @click="selecttypeTable = item.name"
+        @click="clickEvent('切换table',item.name)"
       >
         <div class="self-center mx-auto px-1">
           {{ item.name }}
@@ -222,12 +222,25 @@ export default {
   },
   created() {},
   mounted() {
+
+    if(this.$route.query.model){
+      this.selecttypeTable = this.$route.query.model;
+    }
     setTimeout(() => {
       this.imgTagsList = _Global.imgTagsList || [];
       this.RequestGetAllUVAnim();
     }, 2000);
   },
   methods: {
+    update(){
+      this.$router.replace({ query: { panel: '通用图片',model: this.selecttypeTable} });
+    },
+    clickEvent(e,v){
+      if(e=='切换table'){
+        this.selecttypeTable = v;
+        this.$router.replace({ query: { panel: '通用图片',model: this.selecttypeTable} });
+      }  
+    },
     handleBeforeUploadUVAnim(file) {
       this.fileList.push(file);
       console.log(file);
@@ -307,7 +320,11 @@ export default {
         this.uvAnimUrl = "";
         for (let j = 0; j < this.typeTable.length; j++) {
           this.typeTable[j].select = false;
+          if(this.typeTable[j].name == this.selecttypeTable){
+            this.typeTable[j].select = true;
+          }
         }
+        
         this.folderBase = new Date().getTime();
       }
       if (e == "删除") {

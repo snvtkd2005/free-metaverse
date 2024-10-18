@@ -614,6 +614,14 @@ class YJMeshRenderer {
             let cloneMat = item.material.clone();
             item.material = cloneMat;
           }
+          
+          if (noShadow) {
+
+          } else {
+            item.castShadow = true;
+            item.receiveShadow = true;
+          }
+
           // console.log(" item ",item);
           item.transform = owner;
           item.tag = tag;
@@ -673,13 +681,6 @@ class YJMeshRenderer {
               return;
             }
 
-
-            if (noShadow) {
-
-            } else {
-              item.castShadow = true;
-              item.receiveShadow = true;
-            }
 
 
             item.transform = owner;

@@ -615,9 +615,7 @@ class YJThreejsBase {
     // },
     //#endregion
     function init(){
-      _Global.YJ3D = scope;
-
-
+      _Global.YJ3D = scope; 
     }
     init();
   }

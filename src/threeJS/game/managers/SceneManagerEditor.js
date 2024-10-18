@@ -416,8 +416,7 @@ class SceneManager {
               "playerPos_002"
             );
           }
-
-          _Global.YJ3D._YJSceneManager.UpdateLightPos();
+ 
 
           _Global.YJ3D.YJController.SetTransmit(true);
           if (this.$refs.YJDync) {

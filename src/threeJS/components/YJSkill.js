@@ -65,9 +65,9 @@ class YJSkill {
             owner.addEventListener("基础攻击目标", (_targetModel) => {
                 targetModel = _targetModel;
 
-                if (owner.GetNickName().includes('落地水') && targetModel.GetCamp() == owner.GetCamp()) {
-                    console.error(owner.GetNickName() + "000设置目标为同阵营角色: ", targetModel);
-                }
+                // if (owner.GetNickName().includes('普通步兵')) {
+                //     console.error(owner.GetNickName() + "000设置目标为同阵营角色: ", targetModel);
+                // }
             });
             owner.addEventListener("设置目标", (_targetModel) => {
                 // if(_targetModel.isYJTransform){
@@ -139,6 +139,9 @@ class YJSkill {
             }
 
         }
+        this.GetBaseSkill = function () {
+            return baseSkillItem;
+        }
         this.SetSkill = function (_skillList, _baseData) {
             skillList = _skillList;
             if (_baseData) {
@@ -149,7 +152,9 @@ class YJSkill {
                 const skillItem = skillList[i];
                 if (skillItem.trigger.type == "perSecond") {
                     initSkill(skillItem);
-
+                }
+                if (skillItem.skillName == "基础攻击") {
+                    baseSkillItem = skillItem;
                 }
             }
         }
@@ -291,9 +296,9 @@ class YJSkill {
             }
             EventHandler("中断技能");
 
-            if (baseSkillItem) {
-                baseSkillItem.auto = false;
-            }
+            // if (baseSkillItem) {
+            //     baseSkillItem.auto = false;
+            // }
         }
         this.ReceiveControl = function (msg) {
             _YJSkillModel.ReceiveControl(msg, false);
@@ -841,7 +846,7 @@ class YJSkill {
                     }
                     else if (effect.type == "control") {
                         if (effect.controlId == "冰霜新星") {
-                            effect.value = 0; 
+                            effect.value = 0;
                             for (let i = 0; i < areaTargets.length; i++) {
                                 const target = areaTargets[i];
                                 //瞬发技能直接同步
@@ -943,12 +948,12 @@ class YJSkill {
                 }
             }
             let contDamageFn = () => {
-
+                skillCastTime = effect.duration;
                 let targetType = skillItem.target.type;
+                let { type, skillName, value, time, duration, describe, controlId } = effect;
                 if (targetType == "target") {
-                    let { type, skillName, value, time, duration, describe, controlId } = effect;
                     let num = 0;
-                    let count = parseInt(skillItem.castTime / effect.time);
+                    let count = parseInt(duration / time);
                     for (let k = 0; k < count; k++) {
                         castSkillList.push(setTimeout(() => {
                             // 目标攻击
@@ -971,7 +976,7 @@ class YJSkill {
                             if (num == count) {
                                 skillEnd(skillItem, "结束");
                             }
-                        }, effect.time * k * 1000));
+                        }, time * k * 1000));
                     }
                     //面向目标
                     owner.LookatTarget(targetModel);
@@ -981,7 +986,7 @@ class YJSkill {
 
                     // 持续伤害
                     let num = 0;
-                    let count = parseInt(skillItem.castTime / effect.time);
+                    let count = parseInt(duration / time);
                     for (let k = 0; k < count; k++) {
                         castSkillList.push(setTimeout(() => {
                             if (!checkCan()) {
@@ -1004,7 +1009,7 @@ class YJSkill {
                             if (num == count) {
                                 skillEnd(skillItem, "结束");
                             }
-                        }, effect.time * k * 1000));
+                        }, time * k * 1000));
                     }
 
                 }
@@ -1157,14 +1162,14 @@ class YJSkill {
             }
         }
         this._update = function (dt) {
-
+            if( owner.isDead){return;}
             for (let i = 0; i < skillList.length; i++) {
                 const skillItem = skillList[i];
-                // if(owner.GetNickName().includes("aa")){
-                //     console.log(owner.GetNickName()+" 技能CD ", skillItem.cCD,skillItem.CD);
-                // }
 
                 if (skillItem.trigger.type == "perSecond") {
+                    // if (owner.GetNickName().includes("普通步兵")) {
+                    //     console.log(owner.GetNickName() + " 技能CD 00 ",inSkill,owner.InFire(),skillItem.auto, skillItem.cCD, skillItem.CD, skillItem);
+                    // }
                     if (skillItem.cCD == skillItem.CD) {
 
                         if (!owner.InFire()) { continue; }
@@ -1204,7 +1209,9 @@ class YJSkill {
                     }
 
                     owner.applyEvent("技能CD", skillItem.skillName, skillItem.cCD);
-                    // console.log(owner.GetNickName()+" 技能CD ", skillItem.skillName, skillItem.cCD,skillItem.CD);
+                    // if (owner.GetNickName().includes("普通步兵")) {
+                    //     console.log(owner.GetNickName() + " 技能CD ", skillItem.skillName, skillItem.cCD, skillItem.CD);
+                    // }
                     // console.log(" detatime " ,dt);
                 }
 
@@ -1334,14 +1341,14 @@ class YJSkill {
             }
             if (e == "目标死亡" || e == "没有目标") {
                 owner.TargetDead();
-                if (baseSkillItem) {
-                    baseSkillItem.auto = false;
-                }
+                // if (baseSkillItem) {
+                //     baseSkillItem.auto = false;
+                // }
             }
             if (e == "距离太远") {
-                if (baseSkillItem) {
-                    baseSkillItem.auto = false;
-                }
+                // if (baseSkillItem) {
+                //     baseSkillItem.auto = false;
+                // }
             }
 
             if (e == "中断技能" || e == "目标死亡") {
@@ -1378,7 +1385,7 @@ class YJSkill {
         function shootTarget(taget, skillItem, speed, callback) {
 
             // 如果是瞬间到目标的技能则直接调用callback. 如魔爆术、月火术等
-            if (skillItem.effect.directToTarget) {
+            if (skillItem.directToTarget) {
                 callback();
                 return;
             }

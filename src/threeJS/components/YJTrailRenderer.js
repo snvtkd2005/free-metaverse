@@ -378,7 +378,7 @@ class YJTrailRenderer {
             return pos;
         } 
         this.start = function () {
-            console.log(" 开始 trail ");
+            // console.log(" 开始 trail ");
 
             splinePath = [];
             addTube();

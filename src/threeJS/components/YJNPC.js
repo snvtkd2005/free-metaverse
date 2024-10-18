@@ -21,7 +21,7 @@ import { CreateCapsuleCollider } from "../../utils/utils_threejs";
 // 4，设置 交互内容，图、文、视频
 
 class YJNPC {
-  constructor( parent, _YJAnimator) {
+  constructor(parent, _YJAnimator) {
     var scope = this;
     this.fireId = -1; //战斗组id  -1表示未在战斗中
     this.isDead = false;
@@ -137,8 +137,8 @@ class YJNPC {
     //#region  固定
     function Init() {
       group = new THREE.Group();
-      parent.add(group); 
-      group.rotation.y += Math.PI; 
+      parent.add(group);
+      group.rotation.y += Math.PI;
     }
 
     let data = null;
@@ -149,6 +149,31 @@ class YJNPC {
     }
     this.SetWeaponData = function (_weaponData) {
       weaponData = _weaponData;
+      if (_Global.setting.inEditor) {
+        return;
+      }
+      let baseSkillItem = _YJSkill.GetBaseSkill();
+      //从武器中获取动作
+      var { s, v, a, _ready, _fire } = GetSkillDataByWeapon(weaponData);
+      setVaildAttackDis(v);
+      if (_ready) {
+        baseSkillItem.skillReadyAudio = _ready.audio;
+        baseSkillItem.skillReadyParticleId = _ready.particle;
+      }
+      if (_fire) {
+        baseSkillItem.skillFireAudio = _fire.audio;
+        baseSkillItem.skillFireParticleId = _fire.particle;
+      }
+      let ready = _Global.CreateOrLoadPlayerAnimData().GetAnimNameByPlayStateAndWeapon("准备战斗", weaponData);
+      let fire = _Global.CreateOrLoadPlayerAnimData().GetAnimNameByPlayStateAndWeapon("普通攻击", weaponData);
+      baseSkillItem.animNameReady = ready.animName;
+      baseSkillItem.animName = fire.animName;
+      baseSkillItem.vaildDis = v;
+      baseSkillItem.trigger.value = a;
+
+      baseSkillItem.cCD = weaponData.attackSpeed; 
+      baseSkillItem.CD = weaponData.attackSpeed; 
+
       // if (onlyLog()) {
       //   console.error(scope.GetNickName() + " 武器数据 ", weaponData);
       // }
@@ -342,11 +367,13 @@ class YJNPC {
       if (_YJEquip) {
         _YJEquip.ChangeAnim(v);
       }
+      // console.log(scope.GetNickName()+" 播放动作 ",v);
     }
 
 
     this.ChangeAnimDirect = function (animName) {
       _YJAnimator.ChangeAnimDirect(animName);
+      // console.log(scope.GetNickName()+" 播放动作 2 ",animName);
     }
 
 
@@ -634,7 +661,7 @@ class YJNPC {
       scope.canMove = true;
       baseData.speed *= 5;
       lookAtTargetPos();
-      navpath = [targetModel.GetWorldPos()]; 
+      navpath = [targetModel.GetWorldPos()];
     }
     let times = 0;
     // 获取寻路路径
@@ -674,7 +701,7 @@ class YJNPC {
             // 无法到达目标点时，1秒后直接设置到目标位置
             setTimeout(() => {
               if (targetModel != null) {
-                SetLocalToWorldPos(targetModel.GetWorldPos().clone()); 
+                SetLocalToWorldPos(targetModel.GetWorldPos().clone());
               }
               getnavpathTimes = 0;
               navpath = [];
@@ -685,7 +712,7 @@ class YJNPC {
           navpath.push(targetPos);
           lookAtTargetPos();
           getnavPathTime = 0;
-          getnavpathTimes = 0; 
+          getnavpathTimes = 0;
         }
 
       } else {
@@ -724,34 +751,34 @@ class YJNPC {
     this.GetData = function () {
       return data;
     }
-    this.SetNPCHeaderUp =function(type){
+    this.SetNPCHeaderUp = function (type) {
       _YJSkill.GetSkillModel().SetNPCHeaderUp(type);
     }
-    this.CheckNextTask = function(){
+    this.CheckNextTask = function () {
 
-      let {npcType,state} =  scope.GetEventState();
-      if (npcType == "task") { 
+      let { npcType, state } = scope.GetEventState();
+      if (npcType == "task") {
         scope.SetNPCHeaderUp(npcType + "_" + state);
-      }else{
+      } else {
         scope.SetNPCHeaderUp(npcType);
       }
     }
-    this.GetNPCType = function(){
+    this.GetNPCType = function () {
       let eventData = data.eventData;
-      if(eventData==undefined){
+      if (eventData == undefined) {
         return null;
       }
       return eventData.npcType
     }
     //鼠标悬浮在npc上，获取其交互状态，以改变光标样式
-    this.GetEventState = function(){
+    this.GetEventState = function () {
       let eventData = data.eventData;
-      if(eventData==undefined){
-        return {npcType:null};
+      if (eventData == undefined) {
+        return { npcType: null };
       }
       let state = 0; //0未接受、1正在进行、2可完成
       if (eventData.npcType == "task") {
-        
+
         let c = 0;
         let index = 0;
         let taskData = [];
@@ -766,46 +793,46 @@ class YJNPC {
         }
         if (c == eventData.taskList.length) {
           // 任务已全部完成 
-          return {npcType:null};
-        }else{
+          return { npcType: null };
+        } else {
 
           let ing = false; //是否正在进行，状态包含1或2 
           let taskid = eventData.taskList[index].id;
-          console.log(" _Global.user.canCompletedTaskList ",_Global.user.canCompletedTaskList);
+          console.log(" _Global.user.canCompletedTaskList ", _Global.user.canCompletedTaskList);
           for (let i = _Global.user.canCompletedTaskList.length - 1; i >= 0 && !ing; i--) {
             const element = _Global.user.canCompletedTaskList[i].taskId;
             if (element == taskid) {
               state = 2; //任务为可完成状态 
-              ing = true; 
-            }
-          } 
-          for (let i = _Global.user.currentTaskList.length - 1 ; i >= 0 && !ing; i--) {
-            const element = _Global.user.currentTaskList[i].taskId;
-            if (element == taskid) { 
-              state = 1, //正在进行状态
-              ing = true; 
+              ing = true;
             }
           }
-          if(!ing){
+          for (let i = _Global.user.currentTaskList.length - 1; i >= 0 && !ing; i--) {
+            const element = _Global.user.currentTaskList[i].taskId;
+            if (element == taskid) {
+              state = 1, //正在进行状态
+                ing = true;
+            }
+          }
+          if (!ing) {
             state = 0;
           }
           taskData = [
             {
               state: state, //0未接受、1正在进行、2可完成
               task: eventData.taskList[index]
-            } 
+            }
           ]
-        }  
+        }
       }
-      if (eventData.npcType == "shop"){
-        
+      if (eventData.npcType == "shop") {
+
       }
-      return {npcType:eventData.npcType,state:state}
+      return { npcType: eventData.npcType, state: state }
     }
     this.CallEvent = function () {
       let eventData = data.eventData;
       if (eventData.npcType == "task") {
-        
+
         let c = 0;
         let index = 0;
         let taskData = [];
@@ -820,35 +847,35 @@ class YJNPC {
         }
         if (c == eventData.taskList.length) {
           // 任务已全部完成 
-        }else{
+        } else {
 
           let ing = false; //是否正在进行，状态包含1或2 
           let taskid = eventData.taskList[index].id;
           let state = 0; //0未接受、1正在进行、2可完成
-          for (let i = _Global.user.canCompletedTaskList.length - 1 ; i >= 0 && !ing; i--) {
+          for (let i = _Global.user.canCompletedTaskList.length - 1; i >= 0 && !ing; i--) {
             const element = _Global.user.canCompletedTaskList[i].taskId;
             if (element == taskid) {
               state = 2; //任务为可完成状态 
-              ing = true; 
-            }
-          } 
-          for (let i = _Global.user.currentTaskList.length - 1 ; i >= 0 && !ing; i--) {
-            const element = _Global.user.currentTaskList[i].taskId;
-            if (element == taskid) { 
-              state = 1, //正在进行状态
-              ing = true; 
+              ing = true;
             }
           }
-          if(!ing){
+          for (let i = _Global.user.currentTaskList.length - 1; i >= 0 && !ing; i--) {
+            const element = _Global.user.currentTaskList[i].taskId;
+            if (element == taskid) {
+              state = 1, //正在进行状态
+                ing = true;
+            }
+          }
+          if (!ing) {
             state = 0;
           }
           taskData = [
             {
               state: state, //0未接受、1正在进行、2可完成
               task: eventData.taskList[index]
-            } 
+            }
           ]
-        }  
+        }
 
         _Global.applyEvent("openTalk", {
           textContent: eventData.textContent,
@@ -856,19 +883,19 @@ class YJNPC {
           fromId: scope.id,
           icon: _Global.url.uploadUrl + data.avatarData.id + "/" + "thumb.png",
           taskData: taskData
-        });  
+        });
       }
       if (eventData.npcType == "shop") {
         _Global.applyEvent("openShop", {
           from: scope.GetNickName(),
           icon: _Global.url.uploadUrl + data.avatarData.id + "/" + "thumb.png",
           goodsList: eventData.goodsList
-        }); 
+        });
       }
     }
-    function addSimpleCollider(){
-      if(_Global.setting.inEditor){return;}
-      let mesh = CreateCapsuleCollider(scope.transform.GetGroup(),playerHeight);
+    function addSimpleCollider() {
+      if (_Global.setting.inEditor) { return; }
+      let mesh = CreateCapsuleCollider(scope.transform.GetGroup(), playerHeight);
       mesh.transform = scope.transform;
       _Global.YJ3D._YJSceneManager.AddHoverCollider(mesh);
     }
@@ -884,21 +911,22 @@ class YJNPC {
       oldMovePos = playerPosition.clone();
       // console.log( scope.GetNickName() + "in NPC msg = ", scope.id, data);
 
-
       baseData = data.baseData;
       baseData.state = "normal";
-      // console.log( scope.GetNickName() + "in NPC 00 baseData = ", JSON.stringify(baseData));
       // console.error( scope.GetNickName() + "in NPC state = ",  baseData.state);
-
+      // return;
       if (baseData.basicProperty == undefined) {
         let basicProperty = {
-          armor: 10,
+          armor: baseData.armor,
           strength: baseData.strength,
         };
         baseData.basicProperty = basicProperty;
         CONST_BASEDATA.strength = baseData.strength;
-
+      } else {
+        baseData.basicProperty.armor = baseData.armor;
+        baseData.basicProperty.strength = baseData.strength;
       }
+      // console.log( scope.GetNickName() + "in NPC 00 baseData = ", JSON.stringify(baseData));
 
       CONST_BASEDATA.armor = baseData.armor;
       CONST_BASEDATA.maxHealth = baseData.maxHealth;
@@ -909,13 +937,30 @@ class YJNPC {
       playerHeight = data.avatarData.height;
 
       _YJPlayerProperty = new YJPlayerProperty(scope);
-      _YJEquip = new YJEquip(scope);
 
       if (data.skillList == undefined) {
         data.skillList = [];
       }
 
       _YJSkill = new YJSkill(scope);
+
+      skillList = data.skillList;
+
+      if (!_Global.setting.inEditor) {
+        let baseSkillItem = JSON.parse(JSON.stringify(skillItem.skill));
+        baseSkillItem.level = 1;
+
+        baseSkillItem.cCD = baseSkillItem.trigger.value;
+        baseSkillItem.CD = baseSkillItem.trigger.value;
+        baseSkillItem.canUse = false;
+        baseSkillItem.effect.value = baseData.strength;
+        skillList.push(baseSkillItem);
+        // if (onlyLog()) {
+        //   console.error(scope.GetNickName() + " 初始化基础攻击 ", JSON.stringify(weaponData));
+        // }
+      }
+      _YJSkill.SetSkill(skillList, baseData);
+      _YJEquip = new YJEquip(scope);
 
       _YJBuff = new YJBuff(scope);
 
@@ -940,10 +985,10 @@ class YJNPC {
       _YJAnimator.addEventListener("当前动作长度", (duration) => {
         if (!_YJSkill.GetinSkill()) {
           _YJSkill.skillCastAnimDuration = duration;
-        } 
+        }
         // _YJSkill.skillCastAnimDuration = duration;
 
-      }); 
+      });
 
 
       // console.log(scope.GetNickName() + " 技能 ", skillList);
@@ -958,42 +1003,7 @@ class YJNPC {
         }
       }
 
-      setTimeout(() => {
 
-        skillList = data.skillList;
-
-        if (!_Global.setting.inEditor) {
-          let baseSkillItem = JSON.parse(JSON.stringify(skillItem.skill));
-          baseSkillItem.level = 1;
-          //从武器中获取动作
-          var { s, v, a, _ready, _fire } = GetSkillDataByWeapon(weaponData);
-          setVaildAttackDis(v);
-          if (_ready) {
-            baseSkillItem.skillReadyAudio = _ready.audio;
-            baseSkillItem.skillReadyParticleId = _ready.particle;
-          }
-          if (_fire) {
-            baseSkillItem.skillFireAudio = _fire.audio;
-            baseSkillItem.skillFireParticleId = _fire.particle;
-          }
-          let ready = _Global.CreateOrLoadPlayerAnimData().GetAnimNameByPlayStateAndWeapon("准备战斗", weaponData);
-          let fire = _Global.CreateOrLoadPlayerAnimData().GetAnimNameByPlayStateAndWeapon("普通攻击", weaponData);
-
-          baseSkillItem.animNameReady = ready.animName;
-          baseSkillItem.animName = fire.animName;
-          baseSkillItem.vaildDis = v;
-          baseSkillItem.trigger.value = a;
-          baseSkillItem.cCD = baseSkillItem.trigger.value;
-          baseSkillItem.CD = baseSkillItem.trigger.value;
-          baseSkillItem.canUse = false;
-          baseSkillItem.effect.value = baseData.strength;
-          skillList.push(baseSkillItem);
-          // if (onlyLog()) {
-          //   console.error(scope.GetNickName() + " 初始化基础攻击 ", JSON.stringify(weaponData));
-          // }
-        }
-        _YJSkill.SetSkill(skillList, baseData);
-      }, 1000);
 
       if (weaponData == null) {
         scope.SetPlayerState("normal");
@@ -1009,11 +1019,11 @@ class YJNPC {
         skillList = [];
         ClearFireLater();
       }
-      let {npcType,state} =  scope.GetEventState();
-      if (npcType == "task") { 
+      let { npcType, state } = scope.GetEventState();
+      if (npcType == "task") {
         scope.SetNPCHeaderUp(npcType + "_" + state);
       }
-      
+
       // console.log( scope.GetNickName() + "in NPC msg = ", baseData);
 
     }
@@ -1048,7 +1058,7 @@ class YJNPC {
       let weaponModel = _YJEquip.getWeaponModel();
       if (weaponModel) {
         var { _fire } = GetSkillDataByWeapon(weaponData);
-        if (_fire.pos && _fire.pos.length == 3) {
+        if (_fire && _fire.pos && _fire.pos.length == 3) {
           pos = weaponModel.getWorldPosition(new THREE.Vector3());
           pos.x += _fire.pos[0];
           pos.y += _fire.pos[1];
@@ -1134,7 +1144,7 @@ class YJNPC {
       return CheckCanAttack();
     }
     function CheckCanAttack() {
-      
+
       scope.canAttack = true;
       return true;
       if (targetModel == null) {
@@ -1148,13 +1158,13 @@ class YJNPC {
       npcPos.y = 1;
       // 与目标之间有遮挡
       let b2 = CheckColliderBetween(npcPos, targetPos);
-      if (b2) { 
-        console.log( scope.GetNickName() + "  与目标之间有遮挡 " );
+      if (b2) {
+        console.log(scope.GetNickName() + "  与目标之间有遮挡 ");
         scope.canAttack = false;
-        return false; 
+        return false;
       }
-        scope.canAttack = true;
-        return true;
+      scope.canAttack = true;
+      return true;
     }
     function CheckVaildArea() {
       // console.log(" npc追击距离 ",targetPos.distanceTo(fireBeforePos));
@@ -1395,7 +1405,6 @@ class YJNPC {
           baseData.speed = MISSSPEED;
         }
         // console.log(scope.GetNickName() + " 战斗结束， 回到战斗前位置  ",fireBeforePos);
-        vaildAttackDis = 0;
         GetNavpath(scope.GetWorldPos(), fireBeforePos);
       }, 1000);
 
@@ -1552,10 +1561,10 @@ class YJNPC {
       pos.y += playerHeight * nameScale / 2;
       return pos;
     }
-    
+
     this.GetHeaderUpPos = function () {
       let pos = scope.GetWorldPos().clone();
-      pos.y +=  (playerHeight * 1 + 0.3) ;
+      pos.y += (playerHeight * 1 + 0.3);
       return pos;
     }
     function RealyDamage(strength, fromId, fromName) {
@@ -1642,10 +1651,10 @@ class YJNPC {
       return scope.npcName;
       // return "[" + scope.npcName + "]";
     }
-    
-		this.GetFireId = function () {
-			return scope.fireId;
-		}
+
+    this.GetFireId = function () {
+      return scope.fireId;
+    }
     this.ReceiveSkill = function (fromModel, skillName, effect, skillItem) {
       if (!_Global.mainUser) {
         console.error("不该进入：非主控");
@@ -2000,17 +2009,16 @@ class YJNPC {
       baseData.health = baseData.maxHealth;
       baseData.state = stateType.Normal;
       scope.SetPlayerState("normal");
-      scope.RadomNavPos();
       fireBeforePos = scope.GetWorldPos();
+      playerPosition = scope.GetWorldPos();
 
       damageFromData = [];
-      // if (_YJPlayerNameTrans != null) {
-      //   _YJPlayerNameTrans.resetLife();
-      // }
-      // _Global._YJPlayerNameManager.resetLifeByPlayerId(scope.id);
 
-      scope.applyEvent("healthChange", baseData.health, baseData.maxHealth);
-      scope.applyEvent("重生");
+      setTimeout(() => {
+        scope.applyEvent("healthChange", baseData.health, baseData.maxHealth);
+        scope.applyEvent("重生");
+        scope.RadomNavPos();
+      }, 100);
 
     }
     //#endregion
@@ -2076,7 +2084,7 @@ class YJNPC {
       raytDricV3.z *= d;
 
       // dricGroup.position.copy(raytDricV3);
-      var raycaster = new THREE.Raycaster(pos, raytDricV3, 0, 100); 
+      var raycaster = new THREE.Raycaster(pos, raytDricV3, 0, 100);
       // var hits = raycaster.intersectObjects(parent.children, true);
       var hits = raycaster.intersectObjects(_Global.YJ3D._YJSceneManager.GetAllLandCollider(), true);
 
@@ -2093,7 +2101,7 @@ class YJNPC {
       pos.y -= 5;
       return pos.clone();
     }
- 
+
 
     this.InFire = function () {
       return baseData.state == stateType.Fire;
@@ -2233,7 +2241,7 @@ class YJNPC {
         return 10000;
       }
       targetPos = targetModel.GetWorldPos();
-      let npcPos = scope.GetWorldPos(); 
+      let npcPos = scope.GetWorldPos();
       targetPosRef = targetPos.clone();
       targetPosRef.y = npcPos.y;
       return targetPosRef.distanceTo(npcPos);
@@ -2325,13 +2333,13 @@ class YJNPC {
       }
     }
     //#endregion
-    function SetLocalToWorldPos(pos){
-      if(scope.transform.GetData().parent){
+    function SetLocalToWorldPos(pos) {
+      if (scope.transform.GetData().parent) {
         _Global.YJ3D.scene.attach(_Global.tempModel);
         _Global.tempModel.position.copy(pos);
-        parent.parent.attach(_Global.tempModel); 
+        parent.parent.attach(_Global.tempModel);
         parent.position.copy(_Global.tempModel.position.clone());
-      }else{
+      } else {
         parent.position.copy(pos);
       }
     }
@@ -2355,19 +2363,19 @@ class YJNPC {
 
         // 在同一位置停留时间超过1秒，则取消移动
 
-        moveLength = pos.distanceTo(oldMovePos) * 5;
+        moveLength = pos.distanceTo(oldMovePos) * (baseData.state == stateType.Normal ? 15 : 6);
 
-        
+        // console.log( scope.GetNickName()+" 移动速度转动作播放速度 " + moveLength);
         scope.SetActionScale(moveLength);
         scope.transform.UpdateDataByType("actionScale", moveLength);
-        
+
         if (oldMovePos != pos) {
           oldMovePos = pos.clone();
         }
-        
+
         SetLocalToWorldPos(pos);
 
-        
+
 
         if (baseData.state == stateType.Normal) {
           scope.SetPlayerState("巡逻");

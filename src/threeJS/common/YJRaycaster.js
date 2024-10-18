@@ -283,7 +283,7 @@ class YJRaycaster  {
         
         //只检测pointsParent物体的子物体
         intersects = raycaster.intersectObjects(
-          _Global.YJ3D.canHitModelList,
+          _Global.YJ3D._YJSceneManager.GetCanHitModelList(),
           true
         );
       } catch (error) {

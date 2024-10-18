@@ -2283,12 +2283,7 @@ class YJSceneManager {
       }
 
     }
-
-    //让灯光跟着角色走
-    this.UpdateLightPos = function () {
-      UpdateDirectionalLight(GetCameraWorldPos());
-    }
-
+ 
     // 只在初始场景或跳转场景时，重新设置方向光target坐标
     function UpdateDirectionalLight(pos, intensity) {
       if (lightTarget == null) {

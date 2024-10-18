@@ -80,6 +80,12 @@ const router = createRouter({
           name: 'UserManual',
           component: () => import('../pages/platform/UserManual.vue'),
         },
+        {
+          path: '/GameIntroduction', // 玩法介绍
+          name: 'GameIntroduction',
+          component: () => import('../pages/platform/GameIntroduction.vue'),
+        },
+        
       ]
     },
 

@@ -30,8 +30,8 @@ YJinputCtrl,
     return {
       settingData: {
         modelScale:1,
-        rotation:[],
-        offsetPos:[],
+        rotation:[0,0,0],
+        offsetPos:[0,0,0],
       },
       fold: false, 
       setting: [

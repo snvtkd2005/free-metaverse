@@ -1441,7 +1441,7 @@ class YJPlayer {
       } 
       let pos = this.GetWorldPos();
       if (oldPlayerPos.distanceTo(pos) > 0.1) {
-        this.applyEvent("pos", pos);
+        this.applyEvent("pos", pos.clone());
         oldPlayerPos = pos.clone();
       }
       // this.applyEvent("pos", this.GetPlayerWorldPos());

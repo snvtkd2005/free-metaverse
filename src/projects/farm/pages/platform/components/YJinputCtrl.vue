@@ -8,10 +8,10 @@
       :key="i"
       class="text-xs mx-auto text-left flex w-full px-1 mb-1 justify-between"
     >
-      <div v-if="item.display" class="self-center w-2/3 truncate ">
+      <div v-if="item.display" class="self-center w-1/3 truncate ">
         {{ item.title }}
       </div>
-      <div v-if="item.display" class="self-center w-auto">
+      <div v-if="item.display" class="self-center w-2/3">
         <div v-if="item.type == 'color'" class="flex gap-2">
           <YJinput_color
             :index="i"
@@ -292,6 +292,51 @@
             />
             <div class=" border text-white w-8 h-full self-center cursor-pointer text-center " @click="item.value.push({property:item2.property,value:item2.value})">+</div>
             <div class=" border text-white w-8 h-full self-center cursor-pointer text-center " @click="item.value.splice(j,1)">-</div>
+          </div> 
+        </div>
+
+        <!-- buff组 -->
+        <div v-if="item.type == 'effectArrayVariable'" class=" gap-2 text-black">
+          <div>
+            <div class="w-auto h-6 rounded-sm flex">
+              <div
+                class="text-xs pl-1 self-center mx-auto w-10 h-6 leading-6 bg-gray-50 rounded-sm text-black cursor-pointer"
+                @click="SelectItem2('选择buff')"
+              >
+                浏览...
+              </div>
+            </div>
+          </div>
+
+          <div
+            v-for="(item2, j) in item.value"
+            :key="j"
+            class="self-center w-auto h-auto relative gap-x-3 flex pointer-events-auto cursor-auto "
+            > 
+            <!-- <div class=" w-10">{{item2.name}}</div>  -->
+            <div class=" w-16">效果{{j+1}}：</div> 
+            <div  class=" w-2/3" 
+            @click="SelectItem2('编辑buff',item2,j)"
+            >{{item2.describe}}</div> 
+            <div class="w-10 h-10 relative flex"
+            @click="SelectItem2('编辑buff',item2,j)"
+            >
+              <div>
+                    <img
+                      v-if="item2.icon"
+                      class="w-9 h-9 rounded-md "
+                      :src="
+                        item2.icon.includes('http') ||
+                        item2.icon.includes('./public')
+                          ? item2.icon
+                          : this.$uploadUVAnimUrl + item2.icon
+                      "
+                      alt=""
+                      
+                    />
+                  </div>
+            </div> 
+            <div class=" border text-black w-8 h-full self-center cursor-pointer text-center " @click="item.value.splice(j,1)">-</div>
           </div> 
         </div>
 
@@ -675,6 +720,7 @@
 
     <YJinputCtrl_task v-if="selectTitle=='选择任务' " class="w-full h-20" />
     <YJinputCtrl_shop v-if="selectTitle=='选择商品' " class="w-full h-20" />
+    <YJinputCtrl_buff v-if="selectTitle=='选择buff' " class="w-full h-20" />
     
     <div
       class="mt-2 overflow-y-scroll h-96 flex flex-wrap"
@@ -767,6 +813,7 @@ import YJinput_vector3xyz from "./YJinput_vector3.vue";
 
 import YJinputCtrl_task from "./YJinputCtrl_task.vue";
 import YJinputCtrl_shop from "./YJinputCtrl_shop.vue";
+import YJinputCtrl_buff from "./YJinputCtrl_buff.vue";
 
 import {
   GetAllHDR,
@@ -793,7 +840,7 @@ export default {
     YJinput_vector2xy,
     YJinput_vector3xyz,
     YJinputCtrl_task,
-    YJinputCtrl_shop,
+    YJinputCtrl_shop,YJinputCtrl_buff,
   },
   data() {
     return {
@@ -854,7 +901,9 @@ export default {
       this.isOpen = true;
     },
     SelectItem2(e,type,j){
-      this.selectSecondIndex = j;
+      if(j!=undefined){
+        this.selectSecondIndex = j;
+      }
       if (e == "选择装备或道具") {
         if(type=='equip'){
           this.selectTitle = "选择equip";
@@ -868,6 +917,13 @@ export default {
       }
       if (e == "选择商品") {
         this.selectTitle = e;
+      }
+      if (e == "选择buff") {
+        this.selectTitle = e;
+      }
+      if (e == "编辑buff") {
+        _Global.applyEvent("buffeditor",type,j);
+        return;
       }
       
       this.RequestGetAll(this.selectTitle);

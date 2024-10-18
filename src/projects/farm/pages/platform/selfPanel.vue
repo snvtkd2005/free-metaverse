@@ -36,7 +36,7 @@
                 ? 'bg-445760 text-white '
                 : ' text-gray-400 '
             "
-            @click="selectModelTable = item.name"
+            @click="clickEvent('切换单品model',item.name)"
           >
             <div class="self-center mx-auto px-1">
               {{ item.name }}
@@ -352,12 +352,16 @@
 
         <!-- 通用图片 -->
         <div v-show="currentTable == '通用图片'" class="gap-6 w-full mx-auto h-full">
-          <tongyImgPanel ></tongyImgPanel>
+          <tongyImgPanel ref="tongyImgPanel" ></tongyImgPanel>
         </div>
 
         <!-- 技能 -->
         <div v-if="currentTable == '技能'" class="gap-6 w-full mx-auto h-full">
           <skillPanel></skillPanel>
+        </div>
+        
+        <div v-if="currentTable == 'buff'" class="gap-6 w-full mx-auto h-full">
+          <buffPanel></buffPanel>
         </div>
         <div v-if="currentTable == '道具'" class="gap-6 w-full mx-auto h-full">
           <propPanel></propPanel>
@@ -639,6 +643,7 @@ import PlayerAnimData from "../../data/playerAnimSetting.js";
 
 import tongyImgPanel from "./panels/tongyImgPanel.vue";
 import skillPanel from "./panels/skillPanel.vue";
+import buffPanel from "./panels/buffPanel.vue";
 import propPanel from "./panels/propPanel.vue";
 import taskPanel from "./panels/taskPanel.vue";
 import levelPanel from "./panels/levelPanel.vue";
@@ -672,6 +677,7 @@ export default {
   name: "selfPanel",
   components: {
     skillPanel,
+    buffPanel,
     propPanel,
     taskPanel,
     levelPanel,
@@ -744,6 +750,13 @@ export default {
     }else{
       this.currentTable =  this.UIData.customPanel.currentTable;
     }
+    if(this.$route.query.panel){
+      this.currentTable = this.$route.query.panel;
+    }
+    if(this.$route.query.model){
+      this.selectModelTable = this.$route.query.model;
+    }
+    
 
     this.title = this.UIData.customPanel.title;
     this.customPanel = this.UIData.customPanel;
@@ -770,7 +783,21 @@ export default {
       if(e=='切换table'){
         this.currentTable = v;
         localStorage.setItem("currentTable", this.currentTable );
+        this.$router.replace({ query: { panel: v } });
+        if(v=='单品'){
+          this.$router.replace({ query: { panel: v,model: this.selectModelTable} });
+        }
+        if(v=='通用图片'){
+          this.$nextTick(()=>{
+            this.$refs.tongyImgPanel.update();
+          });
+        }
       }
+      if(e=='切换单品model'){
+        this.selectModelTable = v;
+        this.$router.replace({ query: { panel: '单品',model: this.selectModelTable} });
+      }
+      
     },
     onblurInputTag() {
       console.log(this.addTagStr);

@@ -7,7 +7,9 @@
     </div> 
 
     <settingPanel_npcSkill ref="settingPanel_npcSkill" />
-    <settingPanel_npcType ref="settingPanel_npcType" />
+    <div v-show="settingData.baseData.camp == 10001">
+      <settingPanel_npcType ref="settingPanel_npcType" />
+    </div>
 
     <div v-if="!isMoving" class=" mt-4 flex">
       <div class=" text-left ">巡逻点</div>
@@ -87,22 +89,21 @@ export default {
   data() {
     return {
       pointType: "npc",
-      movePos: [
-        { x: 0, y: 0, z: 0 },
-      ], //巡逻坐标点，随机顺序
+      movePos: [{ x: 0, y: 0, z: 0 },], //巡逻坐标点，随机顺序
       baseData: {
-        camp: "bl",
+        camp: 10000,//
         state: 'normal', //状态
         speed: 8, //移动速度
         level: 1, //等级
         health: 100, //生命值
         maxHealth: 100, //生命值 
         strength: 20, //力量
+        armor: 0, //护甲值
       },
       settingData: {
         name: "",
         baseData: {
-          camp: "bl",
+          camp: 10000,
           type: "normal", //类型：普通无边框、稀有、精英，normal\rare\elite
           state: 'normal', //状态
           speed: 8, //移动速度
@@ -110,6 +111,7 @@ export default {
           health: 100, //生命值
           maxHealth: 100, //生命值
           strength: 20, //力量
+          armor: 0, //护甲值
         },
         defaultAnim: "idle", //默认动作
         relifeTime: 0,//重新生成间隔时间 秒
@@ -143,19 +145,19 @@ export default {
             { value: 10000, label: '敌对' },
             { value: 10001, label: '友善' },
             { value: 10002, label: '中立' },
-            { value: 1000, label: '阵营1000' },
-            { value: 1001, label: '阵营1001' },
-            { value: 1002, label: '阵营1002' },
-            { value: 1003, label: '阵营1003' },
-            { value: 1004, label: '阵营1004' },
-            { value: 1005, label: '阵营1005' },
-            { value: 1006, label: '阵营1006' },
-            { value: 1007, label: '阵营1007' },
-            { value: 1008, label: '阵营1008' },
+            // { value: 1000, label: '阵营1000' },
+            // { value: 1001, label: '阵营1001' },
+            // { value: 1002, label: '阵营1002' },
+            // { value: 1003, label: '阵营1003' },
+            // { value: 1004, label: '阵营1004' },
+            // { value: 1005, label: '阵营1005' },
+            // { value: 1006, label: '阵营1006' },
+            // { value: 1007, label: '阵营1007' },
+            // { value: 1008, label: '阵营1008' },
           ], callback: this.ChangeValue,
         },
         {
-          property: "baseData-type", display: true, title: "难度", type: "drop", value: "普通", options: [
+          property: "baseData-type", display: true, title: "标记", type: "drop", value: "普通", options: [
             { value: 'normal', label: '普通' },
             { value: 'rare', label: '稀有' },
             { value: 'elite', label: '精英' },
@@ -163,6 +165,7 @@ export default {
         },
         { property: "baseData-maxHealth", display: true, title: "生命值", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
         { property: "baseData-strength", display: true, title: "攻击力", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
+        { property: "baseData-armor", display: true, title: "护甲值", type: "int", step: 1, value: 0, callback: this.ChangeValue, },
         { property: "baseData-level", display: true, title: "等级", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
         
         { property: "avatar", display: true, title: "角色", type: "file", filetype: "avatar", value: "", callback: this.ClickHandler, },
@@ -377,7 +380,7 @@ export default {
     Init(_settingData) {
 
       this.transformJS = _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
-
+      // console.log(" this.transformJS", this.transformJS);
       this.settingData = _settingData;
       this.settingData.canEquip = false;
       if (this.settingData.equipList == undefined) {
@@ -393,6 +396,9 @@ export default {
         this.settingData.relifeTime = 0;
       } 
       
+      if (this.settingData.baseData.armor == undefined) {
+        this.settingData.baseData.armor = 0;
+      } 
       
       this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
 

@@ -15,12 +15,12 @@
         <!-- <el-table-column type="index" label="序号" width="60" /> -->
         <el-table-column prop="level" label="等级" width="100" />
         <el-table-column prop="exp" label="升级所需经验值" width="200" />
-        <el-table-column prop="maxHealth" label="基础生命值" width="100" />
+        <!-- <el-table-column prop="maxHealth" label="基础生命值" width="100" />
         <el-table-column prop="intelligence" label="智力" width="80" />
         <el-table-column prop="endurance" label="耐力" width="80" />
         <el-table-column prop="agile" label="敏捷" width="80" />
         <el-table-column prop="strength" label="力量" width="80" />
-        <el-table-column prop="spirit" label="精神" width="80" />
+        <el-table-column prop="spirit" label="精神" width="80" /> -->
 
         <el-table-column label="操作" width="100">
           <template #default="scope">

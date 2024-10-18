@@ -16,13 +16,26 @@ export default {
     hasTargetLv:false,
     targetLv:[],
     //效果 damage直接伤害、perDamage每秒伤害、contDamage持续伤害、冻结、眩晕等状态
+    effects : [
+      {
+        name: "直接伤害",
+        runType: "immediately", //执行类型
+        type: "basicProperty",
+        controlId: "health", //控制id 1=冰霜新星
+        value: -100,
+        time: 0,
+        duration: 0, 
+        describe: "生命值减少100点",
+        icon: "",
+      }
+    ],
+    directToTarget:false, //是否直接到达目标
     effect: {
       type: "damage",
       controlId:-1, //控制id 1=冰霜新星
       value: 10,
       time: 1,
-      duration: 3,
-      directToTarget:false, //是否直接到达目标
+      duration: 3, 
       describe: "对目标造成100点伤害",
       icon: "",
     }, //describe技能描述，duration持续时间。perDamage、冻结、眩晕等状态效果才需要持续时间

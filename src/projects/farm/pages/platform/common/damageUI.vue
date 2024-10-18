@@ -27,8 +27,11 @@
          item.addredius == 'redius' ? (item.isSelf ? ' text-red-400': ' text-yellow-400 ') : ' text-green-400 '
         "
       >
-        <div class="self-center mx-auto text-4xl">
+        <div v-if="item.value>0" class="self-center mx-auto text-4xl">
           {{ item.addredius == "redius" ? "-" : "+" }} {{ item.value }}
+        </div>
+        <div v-if="item.value==0" class="self-center mx-auto text-4xl">
+          吸收
         </div>
       </div>
     </div>
@@ -83,13 +86,22 @@ export default {
           this.damageList.splice(i, 1);
         }
       }
+      let size = 2;
+      let isBaoji = value>0;
+      if(isBaoji){
+        size = 2;
+      }else{
+        size = 1;
+      }
       // console.log(" add ", pos3d);
+      // console.log(" AddDamage(msg) ", msg);
 
       this.damageList.push({
         owner: owner,
         type: type,
-        scale: 2,
-        value: value,
+        scale: size,
+        isBaoji:isBaoji,
+        value: value, 
         pos3d: pos3d,
         pos: pos,
         isSelf: isSelf,
@@ -104,9 +116,11 @@ export default {
         const item = this.damageList[i];
         item.time += this.speed;
         item.pos.y -= 0.51;
-        item.scale -= 0.1;
-        if (item.scale <= 1) {
-          item.scale = 1;
+        if(item.isBaoji){
+          item.scale -= 0.1;
+          if (item.scale <= 1) {
+            item.scale = 1;
+          }
         }
         if (item.time >= 0.51) {
           item.opacity -= this.speed;

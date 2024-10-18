@@ -136,7 +136,7 @@
                 </div>
               </div>
               <div class="w-1/2 h-auto border">
-                <div class="pl-2 border">法术</div>
+                <div class="pl-2 border">装备加成</div>
                 <div
                   v-for="(item, i) in spellProperty"
                   :key="i"
@@ -353,7 +353,7 @@ export default {
         { title: "护甲", value: 0 },
       ],
       spellProperty: [
-        { title: "伤害加成", value: 0 },
+        { title: "攻击力加成", value: 0 },
         { title: "治疗加成", value: 0 },
         { title: "命中等级", value: 0 },
         { title: "暴击率", value: 0 },

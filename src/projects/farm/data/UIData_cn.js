@@ -10,7 +10,8 @@ export default {
     // { id: 10000, content: "模型需求", routerPath: "/witkey", },
     { id: 10000, content: "共同创作/公共素材库", routerPath: "/selfPanel", },
     // { id: 10000, content: "开发计划", routerPath: "/developPlan", },
-    { id: 10000, content: "使用手册", routerPath: "/UserManual", },
+    // { id: 10000, content: "使用手册", routerPath: "/UserManual", },
+    { id: 10000, content: "玩法介绍", routerPath: "/GameIntroduction", },
     // { id: 10000, content: "意见反馈", routerPath: "/developPlan", },
   ],
 
@@ -44,6 +45,7 @@ export default {
       { content: "通用图片" },
       { content: "通用音效" },
       { content: "技能" },
+      { content: "buff" },
       { content: "道具" },
       { content: "任务" },
       { content: "角色等级属性" },

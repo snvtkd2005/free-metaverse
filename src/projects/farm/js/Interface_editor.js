@@ -283,6 +283,7 @@ class Interface {
 
     _Global.addEventListener = this.addEventListener;
     _Global.removeEventListener = this.removeEventListener;
+    _Global.removeEventListenerById = this.removeEventListenerById;
     // 执行事件
     this.applyEvent = function (e, v, v2, v3) {
       for (let i = 0; i < eventList.length; i++) {
@@ -465,6 +466,11 @@ class Interface {
         _this.$uploadPlayerUrl + "skill_data.txt" + "?time=" + new Date().getTime()
       );
       _Global.skillList = res.data;
+
+      res = await _this.$axios.get(
+        _this.$uploadPlayerUrl + "buff_data.txt" + "?time=" + new Date().getTime()
+      );
+      _Global.buffList = res.data;
 
       res = await _this.$axios.get(
         _this.$uploadPlayerUrl + "prop_data.txt" + "?time=" + new Date().getTime()

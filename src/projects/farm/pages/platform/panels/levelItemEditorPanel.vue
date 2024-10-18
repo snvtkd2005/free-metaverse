@@ -33,12 +33,12 @@ export default {
       setting: [
         { property: "level", display: true, title: "等级", type: "int", value: 1, callback: this.ChangeValue },
         { property: "exp", display: true, title: "升级所需经验值", type: "int", value: 30, callback: this.ChangeValue },
-        { property: "maxHealth", display: true, title: "生命值", type: "int", value: 100, callback: this.ChangeValue },
-        { property: "intelligence", display: true, title: "智力", type: "int", value: 0, callback: this.ChangeValue },
-        { property: "endurance", display: true, title: "耐力", type: "int", value: 0, callback: this.ChangeValue },
-        { property: "agile", display: true, title: "敏捷", type: "int", value: 0, callback: this.ChangeValue },
-        { property: "strength", display: true, title: "力量", type: "int", value: 0, callback: this.ChangeValue },
-        { property: "spirit", display: true, title: "精神", type: "int", value: 0, callback: this.ChangeValue },
+        // { property: "maxHealth", display: true, title: "生命值", type: "int", value: 100, callback: this.ChangeValue },
+        // { property: "intelligence", display: true, title: "智力", type: "int", value: 0, callback: this.ChangeValue },
+        // { property: "endurance", display: true, title: "耐力", type: "int", value: 0, callback: this.ChangeValue },
+        // { property: "agile", display: true, title: "敏捷", type: "int", value: 0, callback: this.ChangeValue },
+        // { property: "strength", display: true, title: "力量", type: "int", value: 0, callback: this.ChangeValue },
+        // { property: "spirit", display: true, title: "精神", type: "int", value: 0, callback: this.ChangeValue },
       ], 
       inAdd: false,
     };

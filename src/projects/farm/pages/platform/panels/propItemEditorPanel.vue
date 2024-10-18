@@ -37,27 +37,12 @@ export default {
     return {
       settingData: {},
       setting: [
-        {
-          property: "name",
-          display: true,
-          title: "道具名",
-          type: "text",
-          value: "",
-          callback: this.ChangeValue,
-        },
-        {
-          property: "icon",
-          display: true,
-          title: "图标",
-          type: "file",
-          filetype: "image",
-          value: "",
-          callback: this.ChangeValue,
-        },
+        { property: "name",display: true,title: "道具名",type: "text",value: "",callback: this.ChangeValue},
+        { property: "icon", display: true, title: "图标",  type: "file", filetype: "image", value: "", callback: this.ChangeValue},
 
         {
           property: "gold",
-          display: true,
+          display: false,
           title: "售价",
           type: "num",
           value: 0,
@@ -66,7 +51,7 @@ export default {
 
         {
           property: "useType",
-          display: true,
+          display: false,
           title: "使用类型",
           type: "drop",
           options: [],
@@ -115,11 +100,12 @@ export default {
           title: "冷却时间",
           type: "num",
           value: 0,
+          unit:'秒',
           callback: this.ChangeValue,
         },
         {
           property: "qualityType",
-          display: true,
+          display: false,
           title: "品质",
           type: "drop",
           options: [],
@@ -128,7 +114,7 @@ export default {
         },
         {
           property: "bindingType",
-          display: true,
+          display: false,
           title: "绑定状态",
           type: "drop",
           options: [],
@@ -137,7 +123,7 @@ export default {
         },
         {
           property: "countType",
-          display: true,
+          display: false,
           title: "数量状态",
           type: "drop",
           options: [],
@@ -173,12 +159,12 @@ export default {
       inAdd: false,
     };
   },
-  watch:{
-    inAdd(v){
-      if(!v){
-        _Global.applyEvent("预览关闭",'道具或装备');
+  watch: {
+    inAdd(v) {
+      if (!v) {
+        _Global.applyEvent("预览关闭", "道具或装备");
       }
-    }
+    },
   },
   created() {},
   mounted() {},
@@ -195,11 +181,11 @@ export default {
       if (this.settingData.effectType == undefined) {
         this.settingData.effectType = "";
       }
-      
-      if(this.settingData.countType == undefined){
+
+      if (this.settingData.countType == undefined) {
         this.settingData.countType = GameItems.countType[0].value;
       }
-      if(this.settingData.gold == undefined){
+      if (this.settingData.gold == undefined) {
         this.settingData.gold = 0;
       }
       this.Utils.SetSettingItemPropertyValueByProperty(
@@ -262,8 +248,7 @@ export default {
         this.ChangeUIState(this.setting[i].property, this.setting[i].value);
       }
 
-      _Global.applyEvent("预览打开",'道具或装备',this.settingData);
-
+      _Global.applyEvent("预览打开", "道具或装备", this.settingData);
     },
     ChangeUIState(property, e) {
       // 根据选择判断哪些属性不显示
@@ -272,15 +257,11 @@ export default {
         let effectType =
           e == "potion" ? GameItems.potionType : GameItems.stuffType;
         this.Utils.SetSettingItemPropertyValueByProperty(
-          this.setting,
-          "effectType",
-          "options",
-          effectType
+          this.setting,"effectType","options",effectType
         );
-        let effectTypeV = effectType[0].value;
-        if(this.settingData.effectType){
-          effectTypeV = this.settingData.effectType;
-        } 
+
+        let effectTypeV = effectType[0].value; 
+        // console.log("effectTypeV ",effectTypeV,effectType);
         this.Utils.SetSettingItemPropertyValueByProperty(
           this.setting,
           "effectType",
@@ -314,8 +295,8 @@ export default {
         );
       }
 
-      if(property == "autoDescribe"){ 
-        if(e){
+      if (property == "autoDescribe") {
+        if (e) {
           this.settingData.describe = this.GetDescribe(this.settingData);
           this.Utils.SetSettingItemPropertyValueByProperty(
             this.setting,
@@ -324,9 +305,7 @@ export default {
             this.settingData.describe
           );
         }
-
       }
-
     },
     ChangeValue(i, e) {
       this.setting[i].value = e;
@@ -365,7 +344,7 @@ export default {
     },
     GetDescribe(item) {
       if (!item.autoDescribe) {
-        return  this.settingData.describe;
+        return this.settingData.describe;
       }
       let describe = "";
       // for (let i = 0; i < GameItems.propType.length; i++) {

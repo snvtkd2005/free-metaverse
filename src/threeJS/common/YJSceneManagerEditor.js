@@ -1959,7 +1959,7 @@ class YJSceneManager {
     let colliderMat = null;
     function addListenerCombKey() {
       _Global.addEventListener("keycodeDown",(key) => {
-        // console.log("按下按键 ",key);
+        console.log("按下按键 ",key);
         if (key == "ShiftLeft+T") {
           hotPointTriggerVisible = !hotPointTriggerVisible;
           for (let i = hotPointJS.length - 1; i >= 0; i--) {
@@ -1973,23 +1973,17 @@ class YJSceneManager {
           return;
         }
 
-        if (key == "ControlLeft+D") {
-          if (_this.$parent.$parent.DuplicateModel) {
-            _this.$parent.$parent.DuplicateModel();
-          }
+        if (key == "ControlLeft+D") { 
+          _Global.applyEvent("复制模型");
           return;
         }
         // 删除选中的模型
-        if (key == "Delete") {
-          if (_this.$parent.$parent.DelModel) {
-            _this.$parent.$parent.DelModel();
-          }
+        if (key == "Delete") { 
+          _Global.applyEvent("删除模型");
         }
         // 取消选中
-        if (key == "Escape") {
-          if (_this.$parent.$parent.ClickFloor) {
-            _this.$parent.$parent.ClickFloor();
-          }
+        if (key == "Escape") { 
+          _Global.applyEvent("取消选中");
         }
 
         // 打开小地图
@@ -2277,42 +2271,24 @@ class YJSceneManager {
         }
         light.shadow.mapSize.x = resourceSize * 4;
         light.shadow.mapSize.y = resourceSize * 4;
+ 
+        setTimeout(() => { 
 
+          _Global.YJ3D.YJPlayer.addEventListener("pos",(playerPos) => { 
+            UpdateDirectionalLight(playerPos, intensity);
+            // console.log("角色移动", playerPos);
+          });
 
-
-        // console.log(light.shadow.camera);
-
-        // UpdateDirectionalLight(GetCameraWorldPos());
-
-        // _Global.YJ3D.YJController.SetPlayerPosHandler((playerPos) => { 
-        //   _DirectionalLight.position.copy(playerPos.clone().add(pos)); 
-        //   console.log("角色移动", playerPos);
-        // });
-
-        //创建辅助工具
-        // let lightHelper = new THREE.DirectionalLightHelper(_DirectionalLight);
-        // scene.add(lightHelper);
-        // let shadowCameraHelper = new THREE.CameraHelper(_DirectionalLight.shadow.camera);
-        // scene.add(shadowCameraHelper); 
-        return;
-
-
-        //显示光照区域
-        // var helper = new THREE.CameraHelper(light.shadow.camera );
-        // scene.add(helper);
-        // scene.add( new THREE.DirectionalLightHelper(light, 0.2) );
-        // console.log("创建方向光");
+        }, 3000);
+        //创建辅助工具 
+        // scene.add(new THREE.DirectionalLightHelper(_DirectionalLight));
+        // scene.add(new THREE.CameraHelper(_DirectionalLight.shadow.camera));  
 
       } else {
         UpdateDirectionalLight(pos, intensity);
       }
 
-    }
-
-    //让灯光跟着角色走
-    this.UpdateLightPos = function () {
-      UpdateDirectionalLight(GetCameraWorldPos());
-    }
+    } 
 
     // 只在初始场景或跳转场景时，重新设置方向光target坐标
     function UpdateDirectionalLight(pos, intensity) {
@@ -2445,7 +2421,10 @@ class YJSceneManager {
     }
     //#region 在其他脚本中添加的热点，添加到此脚本的lookatList中，让热点始终面向摄像机
  
-
+    let canHitModelList = [];
+    this.GetCanHitModelList = function(){
+      return canHitModelList;
+    }
     // 添加/删除可点击的模型
     this.AddCanHitModel = function (obj) {
       if (obj == null) {
@@ -2453,18 +2432,18 @@ class YJSceneManager {
         return;
       }
       // 防止添加两次
-      for (let i = _this.canHitModelList.length - 1; i >= 0; i--) {
-        if (_this.canHitModelList[i] == obj) {
+      for (let i = canHitModelList.length - 1; i >= 0; i--) {
+        if (canHitModelList[i] == obj) {
           // console.error(" 重复添加 hit ",obj.name);
           return;
         }
       }
-      _this.canHitModelList.push(obj);
+      canHitModelList.push(obj);
     }
     this.RemoveCanHitModel = function (obj) {
-      for (let i = _this.canHitModelList.length - 1; i >= 0; i--) {
-        if (_this.canHitModelList[i] == obj) {
-          _this.canHitModelList.splice(i, 1);
+      for (let i = canHitModelList.length - 1; i >= 0; i--) {
+        if (canHitModelList[i] == obj) {
+          canHitModelList.splice(i, 1);
           return;
         }
       }

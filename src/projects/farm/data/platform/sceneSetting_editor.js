@@ -143,7 +143,7 @@ export default {
     hasPathfinding: false,
 
     // 重力开关
-    enabledGravity: false,
+    enabledGravity: true,
     // 玩家刚体半径
     playerRadius: 0.2,
   },

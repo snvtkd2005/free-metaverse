@@ -467,6 +467,9 @@ export default {
         : 20;
         
 
+        this.settingData.fire = this.settingData.fire
+        ? this.settingData.fire
+        : {};
         if(this.settingData.fire.rotaV3 == undefined){
           this.settingData.fire.rotaV3 = [0,0,0];
         }

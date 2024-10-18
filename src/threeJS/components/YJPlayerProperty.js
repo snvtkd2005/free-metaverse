@@ -25,16 +25,43 @@ class YJPlayerProperty {
 			debuffList: [],//debuff列表
 			basicProperty: {},
 		};
+		let equipData = {
+			armor:0,//装备护甲,
+			intelligence: 0,//智力 提高法术伤害
+			endurance: 0,//耐力 提高最大生命值
+			agile: 0, //敏捷 提升攻击速度和闪避
+			strength: 0,//力量 提升武器伤害和基础伤害
+			spirit: 0,//精神 提高恢复率
+		}
+		let basicProperty = {
+			armor: 0, //自身护甲
+			intelligence: 0,//智力 提高法术伤害
+			endurance: 0,//耐力 提高最大生命值
+			agile: 0, //敏捷 提升攻击速度和闪避
+			strength: 0,//力量 提升武器伤害和基础伤害
+			spirit: 0,//精神 提高恢复率
+
+			energy: 0, //能量
+
+			speedScale: 1, //急速等级/攻击速度百分比
+ 
+			attackSpeed: 1, //攻击速度
+			attackPower: 0, //攻击强度
+			hasteLevel: 0, //急速等级 最大值1
+			moveSpeed: 1, //移动速度百分比
+			CriticalHitRate: 0,//暴击率百分比
+			CriticalHitLevel: 0,//暴击等级
+			CriticalHit: 1.5,//暴击伤害百分比
+			armorRate: 0,//物理防御力百分比
+			CDRate: 0,//技能冷却时长百分比 最大值1
+		}
 		this.GetBaseData = function () {
 			return baseData;
 		}
 		let buffList = [];
 		let debuffList = [];
 		function resetBasicProperty(level) {
-			basicProperty.armor = 0;
-
 			if (_Global.user.id == owner.id) {
-
 				for (let i = 0; i < _Global.levelList.length; i++) {
 					const element = _Global.levelList[i];
 					if (element.level == level) {
@@ -59,35 +86,19 @@ class YJPlayerProperty {
 				if (element.propertyList && element.propertyList.length > 0) {
 					for (let j = 0; j < element.propertyList.length; j++) {
 						const property = element.propertyList[j];
-						basicProperty[property.property] += property.value;
+						equipData[property.property] += property.value;
 					}
 				}
 			}
+ 
+			// basicProperty.intelligence += equipData.intelligence;
+			// basicProperty.endurance += equipData.endurance;
+			// basicProperty.agile += equipData.agile;
+			// basicProperty.strength += equipData.strength;
+			// basicProperty.spirit += equipData.spirit;
 
 			baseData.maxHealth = baseData.baseHealth + basicProperty.endurance * 10;
 
-		}
-		let basicProperty = {
-			armor: 0, //护甲
-			intelligence: 0,//智力 提高法术伤害
-			endurance: 0,//耐力 提高最大生命值
-			agile: 0, //敏捷 提升攻击速度和闪避
-			strength: 0,//力量 提升武器伤害和基础伤害
-			spirit: 0,//精神 提高恢复率
-
-			energy: 0, //能量
-
-			speedScale: 1, //急速等级/攻击速度百分比
-
-			attackSpeed: 1, //攻击速度
-			attackPower: 0, //攻击强度
-			hasteLevel: 0, //急速等级 最大值1
-			moveSpeed: 1, //移动速度百分比
-			CriticalHitRate: 0,//暴击率百分比
-			CriticalHitLevel: 0,//暴击等级
-			CriticalHit: 1.5,//暴击伤害百分比
-			armorRate: 0,//物理防御力百分比
-			CDRate: 0,//技能冷却时长百分比 最大值1
 		}
 
 		// 属性
@@ -123,6 +134,9 @@ class YJPlayerProperty {
 		}
 		// 计算受到的伤害。受到的攻击力-护甲值
 		this.RealyDamage = function (strength) {
+
+			// console.log( owner.GetNickName() + " 受到伤害 00 "+ strength);
+
 			// let v = 0;
 			// 有护盾，先使用护盾减伤
 			for (let i = baseData.buffList.length - 1; i >= 0; i--) {
@@ -139,10 +153,16 @@ class YJPlayerProperty {
 			}
 
 
-			basicProperty.armorRate = basicProperty.armor * 0.06 / (1 + 0.06 * basicProperty.armor);
+			// basicProperty.armorRate = basicProperty.armor * 0.06 / (1 + 0.06 * basicProperty.armor);
+			basicProperty.armorRate = (basicProperty.armor+equipData.armor) * 0.02;
+			
+			// console.log( owner.GetNickName() + " 护甲比例 "+ basicProperty.armor + "  "+ basicProperty.armorRate);
 
 			// 攻击力*物理防御  
 			strength *= (1 - basicProperty.armorRate);
+
+
+
 			strength = parseInt(strength);
 
 
@@ -161,13 +181,17 @@ class YJPlayerProperty {
 			// 	scope.applyEvent("解除技能");
 			// 	v = v > 0 ? v : 1;
 			// }
+			// console.log( owner.GetNickName() + " 受到伤害 "+ strength);
 			return strength;
 		}
 
 		function Init() {
 
 			baseData = owner.GetBaseData();
-
+			// console.log( owner.GetNickName() + "in NPC 11 baseData = ", JSON.stringify(baseData));
+			if (baseData.equipData == undefined) {
+				baseData.equipData = equipData;
+			}
 			if (baseData.basicProperty == undefined) {
 				baseData.basicProperty = basicProperty;
 			} else {
@@ -176,6 +200,8 @@ class YJPlayerProperty {
 					const name = names[i];
 					if (baseData.basicProperty[name] == undefined) {
 						baseData.basicProperty[name] = basicProperty[name];
+						// console.log( owner.GetNickName() + " 改变属性值 = ",name, basicProperty[name]);
+
 					}
 				}
 			}
@@ -188,6 +214,7 @@ class YJPlayerProperty {
 			baseData.baseHealth = baseData.maxHealth;
 
 			basicProperty = baseData.basicProperty;
+			equipData = baseData.equipData;
 			// console.log(owner.GetNickName() + " 的属性 ",baseData);
 			owner.applyEvent("属性改变", baseData);
 			owner.addEventListener("更新装备", (equipList) => {
@@ -256,7 +283,7 @@ class YJPlayerProperty {
 				baseData.health = baseData.maxHealth;
 			}
 
-			owner.applyEvent("属性改变", baseData);
+			owner.applyEvent("属性改变", baseData); 
 		}
 
 		var updateId = null;

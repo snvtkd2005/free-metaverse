@@ -1030,15 +1030,17 @@ class YJPlayerFireCtrl {
 			}
 			// console.log(" 玩家动作 ",weaponData, e,animName);
 
-			// console.log(" 玩家动作 ", animName);
 			YJController.SetPlayerAnimName(animName, animNameFullback);
+			// console.log(" 玩家动作 ", animName);
 		}
 		this.ChangeAnim = function (v, vb) {
 			YJController.SetPlayerAnimName(v, vb);
+			// console.log(" 玩家动作1 ", v);
 		}
 
 		this.ChangeAnimDirect = function (animName) {
 			YJController.ChangeAnimDirect(animName, "idle");
+			// console.log(" 玩家动作2 ", animName);
 		}
 
 		this.SetValue = function (v, vb) {
@@ -1051,6 +1053,7 @@ class YJPlayerFireCtrl {
 			_YJPlayer.fireId = -1;
 			scope.applyEvent("离开战斗");
 			scope.ChangeAnimDirect("idle");
+			// console.log(" 玩家动作3 ", "idle");
 		}
 		this.SetInControl = function (b) {
 			YJController.SetEnabled(!b);
@@ -1141,8 +1144,9 @@ class YJPlayerFireCtrl {
 
 				_YJPlayer.GetAnimator().addEventListener("动作结束", () => {
 					if (!_YJSkill.GetinSkill()) {
-						GetAnimNameByPlayStateAndWeapon("normal", weaponData);
-						scope.ChangeAnim(animName, animNameFullback);
+						// GetAnimNameByPlayStateAndWeapon("normal", weaponData);
+						// scope.ChangeAnim(animName, animNameFullback);
+						// console.log(" 玩家动作3 ", animName);
 					}
 				});
 			}

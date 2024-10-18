@@ -235,6 +235,14 @@ export default {
       if(this.settingData.isLockY == undefined){
         this.settingData.isLockY = false;
       }
+      if(this.settingData.localOffset == undefined){
+        this.settingData.localOffset = {
+          modelScale:1,
+          rotation:[0,0,0],
+          offsetPos:[0,0,0],
+        };
+      }
+      
       this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
 
       // 如果有动作，播放第一个动作

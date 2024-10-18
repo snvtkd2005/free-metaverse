@@ -684,8 +684,22 @@ export default {
     );
 
     this.$refs.hierarchyPanel.init();
+
+
+    this.addEventListener();
   },
   methods: {
+    addEventListener(){
+      _Global.addEventListener("复制模型",()=>{
+        this.DuplicateModel();
+      });
+      _Global.addEventListener("删除模型",()=>{
+        this.DelModel();
+      }); 
+      _Global.addEventListener("取消选中",()=>{
+        this.ClickFloor();
+      });
+    },
     setTableDisplay(id,b){
       for (let i = 0; i < this.tableList.length; i++) {
         const element = this.tableList[i];
@@ -1444,8 +1458,7 @@ export default {
           if (id == "portal_002") {
             _Global.YJ3D._YJSceneManager.ChangeViewByIdDirect("playerPos_002");
           }
-
-          _Global.YJ3D._YJSceneManager.UpdateLightPos();
+ 
 
           _Global.YJ3D.YJController.SetTransmit(true);
           if (this.$refs.YJDync) {
@@ -1821,6 +1834,7 @@ export default {
       }
     },
     DuplicateModel() {
+      console.log('复制模型');
       if (this.clickModelJS != null) {
         let modelData = this.clickModelJS.GetData();
         _Global.YJ3D._YJSceneManager

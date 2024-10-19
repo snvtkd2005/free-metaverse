@@ -4,6 +4,7 @@
 import * as THREE from "three";
 
 // 增益效果和减溢效果
+// 被动技能
 class YJBuff {
     constructor(owner) {
         let scope = this;
@@ -16,9 +17,9 @@ class YJBuff {
             baseData = owner.GetBaseData();
         }
         this.addDebuff = function (effect) {
-            let { type, value, time, duration, describe, icon } = effect;
+            let { type,runType,controlId, value, time, duration, describe, icon } = effect;
             // 每n秒伤害，持续m秒
-            if (type == "perDamage") {
+            if (runType == "perSecond" && type == "basicProperty") {
 
                 //每秒伤技能是debuff，显示在角色状态上
                 let id = new Date().getTime();
@@ -41,7 +42,7 @@ class YJBuff {
                                 buff.duration = 0;
                             }
                             
-                            baseData.health -= owner.GetProperty().RealyDamage(value);
+                            baseData.health -= owner.GetProperty().RealyDamage(Math.abs(value) );
                             num++;
                             if (num >= count) {
                                 scope.removeDebuffById(id);

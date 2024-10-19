@@ -616,6 +616,7 @@ export default {
           }
         }
         this.$forceUpdate();
+        console.log(" 激活技能栏 ");
       });
 
       _Global.addEventListener("关闭窗口", (e) => {
@@ -703,6 +704,7 @@ export default {
             element.skill = skill;
           }
         }
+
       });
 
       _Global.addEventListener("3d加载完成", () => {
@@ -892,7 +894,7 @@ export default {
           skill.cCD = skill.CD;
           skill.perCD = 0;
           has = true;
-          // console.log("替换skill");
+          // console.log("替换skill",skill.skillName);
           this.actionList.actionBar1[i].skill = _skill;
         }
       }

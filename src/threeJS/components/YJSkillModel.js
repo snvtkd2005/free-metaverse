@@ -176,7 +176,7 @@ class YJSkillModel {
                 // console.log("接收 同步施放技能 ", msg);
             }
 
-            let { title, folderBase, id, pos, scale, autoHidden,delayV } = msg;
+            let { title,type, folderBase, id, pos, scale, autoHidden,delayV } = msg;
 
             // if(title){
 
@@ -188,7 +188,7 @@ class YJSkillModel {
             //         model.SetActive(true);
             //     });
             // }
-            if (title == "寒冰护体") {
+            if (title == "寒冰护体" || type == "shield") {
 
                 if (HasControlModel(folderBase)) {
                     return false;

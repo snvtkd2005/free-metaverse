@@ -1206,7 +1206,7 @@ class YJPlayerFireCtrl {
 					baseSkillItem.animNameReady = ready.animName;
 					baseSkillItem.animName = fire.animName;
 					baseSkillItem.vaildDis = v;
-					baseSkillItem.effect.value = strength;
+					baseSkillItem.effects[0].value = -strength; 
 					baseSkillItem.trigger.value = a;
 					baseSkillItem.cCD = baseSkillItem.trigger.value;
 					baseSkillItem.CD = baseSkillItem.trigger.value;

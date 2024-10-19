@@ -30,6 +30,7 @@ function GetColor(qualityType){
   }
 }
 
+
 let controlId =  [
   { label: "冰霜新星", value: "冰霜新星" }, 
   { label: "被嘲讽", value: "被嘲讽" }, 
@@ -52,31 +53,24 @@ function GetControlidLabel(value){
   }
 }
 
+// buff描述
 function GetDescribe_buff(item, level = 0){
   let describe = "";
   // 进化
   if (item.type == "evolution") {
-    describe += ",所有技能造成的伤害提高" + item.value + "%";
+    describe += "所有技能造成的伤害提高" + item.value + "%";
   }
   // 增生/镜像
   if (item.type == "hyperplasia") {
-    describe += ",生成" + item.value + "个镜像";
+    describe += "生成" + item.value + "个镜像";
   }
 
   if (item.runType == "perSecond") {
     describe += "每" +item.time + "秒" ;
   }
   // dubuff持续伤害
-  if (item.type == "contDamage") {
-    describe +=
-      ",每" +
-      item.time +
-      "秒造成" +
-      item.value +
-      "点伤害，持续" +
-      item.duration +
-      // item.castTime +
-      "秒";
+  if (item.runType == "keep") {
+    describe += "持续"+"每" +item.time + "秒" ;
   }
 
   if (item.type == "basicProperty") {
@@ -100,9 +94,7 @@ function GetDescribe_buff(item, level = 0){
       item.time +
       "秒造成" +
       item.value +
-      "点伤害，持续" +
-      item.duration +
-      "秒";
+      "点伤害" ;
     item.describe = effectdes;
     describe += "," + effectdes;
   }
@@ -114,16 +106,7 @@ function GetDescribe_buff(item, level = 0){
   }
 
   if (item.type == "shield") {
-    let effectdes = "吸收" + item.value + "点伤害";
-    describe +=
-      "施放" +
-      item.controlId +
-      "。" +
-      effectdes +
-      "，持续" +
-      item.duration +
-      "秒";
-    item.describe = effectdes;
+    describe += "吸收" + item.value + "点伤害"; 
   }
   
   if(item.duration>0){
@@ -131,6 +114,7 @@ function GetDescribe_buff(item, level = 0){
   }
   return describe;
 }
+// 技能描述
 function GetDescribe(item, level = 0){
   let describe = "";
 
@@ -183,76 +167,83 @@ function GetDescribe(item, level = 0){
     describe += "对生命值最少的友方";
   }
 
-  // 进化
-  if (item.effect.type == "evolution") {
-    describe += ",所有技能造成的伤害提高" + item.effect.value + "%";
-  }
-  // 增生/镜像
-  if (item.effect.type == "hyperplasia") {
-    describe += ",生成" + item.effect.value + "个镜像";
-  }
 
-  if (item.effect.runType == "perSecond") {
-    describe += "每" +item.effect.time + "秒" ;
-  }
-  // dubuff持续伤害
-  if (item.effect.type == "contDamage") {
-    describe +=
-      ",每" +
-      item.effect.time +
-      "秒造成" +
-      item.effect.value +
-      "点伤害，持续" +
-      item.effect.duration +
-      // item.castTime +
-      "秒";
-  }
+  // // 进化
+  // if (item.effect.type == "evolution") {
+  //   describe += ",所有技能造成的伤害提高" + item.effect.value + "%";
+  // }
+  // // 增生/镜像
+  // if (item.effect.type == "hyperplasia") {
+  //   describe += ",生成" + item.effect.value + "个镜像";
+  // }
 
-  if (item.effect.type == "basicProperty") {
-    describe +=
-      GetControlidLabel(item.effect.controlId)  +
-      (item.effect.value>0 ?"增加":"减少") +
-     Math.abs( item.effect.value) +"点" 
-  }
+  // if (item.effect.runType == "perSecond") {
+  //   describe += "每" +item.effect.time + "秒" ;
+  // }
+  // // dubuff持续伤害
+  // if (item.effect.type == "contDamage") {
+  //   describe +=
+  //     ",每" +
+  //     item.effect.time +
+  //     "秒造成" +
+  //     item.effect.value +
+  //     "点伤害，持续" +
+  //     item.effect.duration +
+  //     // item.castTime +
+  //     "秒";
+  // }
 
-  if (item.effect.runType == "perSecond") {
-    describe += "，持续"+item.effect.duration +"秒"; 
-  }
+  // if (item.effect.type == "basicProperty") {
+  //   describe +=
+  //     GetControlidLabel(item.effect.controlId)  +
+  //     (item.effect.value>0 ?"增加":"减少") +
+  //    Math.abs( item.effect.value) +"点" 
+  // }
 
-  if (item.effect.type == "damage") {
-    describe += ",造成" + item.effect.value + "点伤害";
-  }
-  if (item.effect.type == "addHealth") {
-    describe += ",恢复" + item.effect.value + "点生命值";
-  }
+  // if (item.effect.runType == "perSecond") {
+  //   describe += "，持续"+item.effect.duration +"秒"; 
+  // }
 
-  if (item.effect.type == "perDamage") {
-    let effectdes =
-      "每" +
-      item.effect.time +
-      "秒造成" +
-      item.effect.value +
-      "点伤害，持续" +
-      item.effect.duration +
-      "秒";
-    item.effect.describe = effectdes;
-    describe += "," + effectdes;
-  }
-  if (item.effect.type == "control") {
-    describe += "施放控制" + item.effect.controlId;
-  }
+  // if (item.effect.type == "damage") {
+  //   describe += ",造成" + item.effect.value + "点伤害";
+  // }
+  // if (item.effect.type == "addHealth") {
+  //   describe += ",恢复" + item.effect.value + "点生命值";
+  // }
 
-  if (item.effect.type == "shield") {
-    let effectdes = "吸收" + item.effect.value + "点伤害";
-    describe +=
-      "施放" +
-      item.effect.controlId +
-      "。" +
-      effectdes +
-      "，持续" +
-      item.effect.duration +
-      "秒";
-    item.effect.describe = effectdes;
+  // if (item.effect.type == "perDamage") {
+  //   let effectdes =
+  //     "每" +
+  //     item.effect.time +
+  //     "秒造成" +
+  //     item.effect.value +
+  //     "点伤害，持续" +
+  //     item.effect.duration +
+  //     "秒";
+  //   item.effect.describe = effectdes;
+  //   describe += "," + effectdes;
+  // }
+  // if (item.effect.type == "control") {
+  //   describe += "施放控制" + item.effect.controlId;
+  // }
+
+  // if (item.effect.type == "shield") {
+  //   let effectdes = "吸收" + item.effect.value + "点伤害";
+  //   describe +=
+  //     "施放" +
+  //     item.effect.controlId +
+  //     "。" +
+  //     effectdes +
+  //     "，持续" +
+  //     item.effect.duration +
+  //     "秒";
+  //   item.effect.describe = effectdes;
+  // }
+  if(item.effects){
+    for (let i = 0; i < item.effects.length; i++) {
+      describe += (item.effects[i].describe);
+      // describe += GetDescribe_buff(item.effects[i],level);
+    }
   }
   return describe;
 } 

@@ -36,27 +36,13 @@ export default {
   },
   data() {
     return {
-      
-      effectsetting: [
-        { property: "name", display: true, title: "buff名", type: "text", value: "", callback: this.ChangeValue },
-        { property: "icon", display: true, title: "效果图标", type: "file", filetype: "image", accept: "", value: "", callback: this.ChangeValue },
-        { property: "runType", display: true, title: "执行类型", type: "drop", options: [
-          { label: "每秒执行", value: "perSecond" }, 
-          { label: "立即执行", value: "immediately" }, 
-        ], value: "immediately", callback: this.ChangeValue },
-        { property: "type", display: true, title: "技能效果", type: "drop", options: [], value: "", callback: this.ChangeValue },
-        { property: "controlId", display: true, title: "具体属性", type: "drop", options: [], value: "", callback: this.ChangeValue },
-        { property: "value", display: true, title: "效果值", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
-        { property: "time", display: true, title: "间隔", type: "num",unit:"秒", step: 0.1, value: 1, callback: this.ChangeValue, },
-        { property: "duration", display: true, title: "持续时间(0表示始终有效)", type: "int",unit:"秒", step: 1, value: 1, callback: this.ChangeValue, },
-        { property: "describe", display: true, title: "效果描述", type: "textarea", value: "", callback: this.ChangeValue, },
-      ],
+     
       dialogTitle: "添加技能",
       // 触发时机
       triggerType: [
         { label: "血量达到百分比时执行", value: "health" },
         { label: "每n秒执行", value: "perSecond" },
-        { label: "被动技能（buff）", value: "buff" },
+        // { label: "被动技能（buff）", value: "buff" },
       ],
       //目标
       targetType: [
@@ -109,11 +95,12 @@ export default {
       settingData: {},
       setting: [
         { property: "skillName", display: true, title: "技能名", type: "text", value: "", callback: this.ChangeValue },
+        { property: "isPassive", display: true, title: "是被动技能", type: "toggle", value: false, callback: this.ChangeValue },
         { property: "icon", display: true, title: "技能图标", type: "file", filetype: "image", value: "", callback: this.ChangeValue },
-
+        
         { property: "trigger-type", display: true, title: "触发时机", type: "drop", options: [], value: "", callback: this.ChangeValue },
-        { property: "trigger-value", display: true, title: "自动触发值", type: "num", step: 1, value: 1, callback: this.ChangeValue, },
-        { property: "CD", display: true, title: "冷却时间", type: "num", step: 1, value: 0, callback: this.ChangeValue },
+        { property: "trigger-value", display: true, title: "自动触发值/冷却时间", type: "num", step: 1, value: 1, callback: this.ChangeValue, },
+        // { property: "CD", display: true, title: "冷却时间", type: "num", step: 1, value: 0, callback: this.ChangeValue },
         { property: "target-type", display: true, title: "目标类型", type: "drop", options: [], value: "", callback: this.ChangeValue },
         { property: "vaildDis", display: true, title: "技能施放的有效范围", type: "num", step: 1, value: 0, callback: this.ChangeValue },
         { property: "target-value", display: true, title: "目标数量(0表示所有)", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
@@ -226,6 +213,10 @@ export default {
       if (this.settingData.type == undefined) {
         this.settingData.type = "skill";
       } 
+      if (this.settingData.isPassive == undefined) {
+        this.settingData.isPassive = false;
+      } 
+      
       if (!this.settingData.receiveEffect) {
         this.settingData.receiveEffect = {modelType:"",particleId:""};
       }
@@ -252,7 +243,9 @@ export default {
       if (this.settingData.selfAction == undefined) {
         this.settingData.selfAction = 'none';
       }
-      
+      if (this.settingData.directToTarget == undefined) {
+        this.settingData.directToTarget = false;
+      }
       
       if (this.settingData.effects == undefined) {
         this.settingData.effects = [
@@ -261,10 +254,10 @@ export default {
             runType: "immediately", //执行类型
             type: "basicProperty",
             controlId: "health", //控制id 1=冰霜新星
-            value: -100,
+            value: -10,
             time: 0,
             duration: 0, 
-            describe: "生命值减少100点",
+            describe: "生命值减少10点",
             icon: "",
           }
         ];
@@ -490,7 +483,7 @@ export default {
       this.ChangeUIState(property, e);
       this.settingData.describe = GameUtils.GetDescribe(this.settingData);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "describe", "value", this.settingData.describe);
-      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "value", this.settingData.effect.describe);
+      // this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "value", this.settingData.effect.describe);
 
     },
 
@@ -527,14 +520,16 @@ export default {
           const vv = v[i];
           this.settingData.effects.push(vv)
         }
-        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effects", "value",this.settingData.effects);
-
       } 
       if(e=="编辑buff"){
         console.log("in 编辑buff ", v);
         this.settingData.effects[this.buffIndex] = v; 
-        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effects", "value",this.settingData.effects);
       } 
+      
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effects", "value",this.settingData.effects);
+      this.settingData.describe = GameUtils.GetDescribe(this.settingData);
+      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "describe", "value", this.settingData.describe);
+
     }, 
   },
 };

@@ -35,9 +35,9 @@ export default {
       
       // 执行属性
       effectType: [ 
-        { label: "debuff/每秒伤害", value: "perDamage" },
-        { label: "直接伤害", value: "damage" },
-        { label: "恢复生命", value: "addHealth" },
+        // { label: "debuff/每秒伤害", value: "perDamage" },
+        // { label: "直接伤害", value: "damage" },
+        // { label: "恢复生命", value: "addHealth" },
         { label: "吐息/持续伤害", value: "contDamage" },
         { label: "增生/镜像-生成n个复制", value: "hyperplasia" },
         { label: "进化-伤害提高百分比", value: "evolution" },
@@ -76,12 +76,13 @@ export default {
         { property: "runType", display: true, title: "执行类型", type: "drop", options: [
           { label: "每秒执行", value: "perSecond" }, 
           { label: "立即执行", value: "immediately" }, 
+          { label: "持续执行(持续时间同技能施法时间)", value: "keep" }, 
         ], value: "immediately", callback: this.ChangeValue },
         { property: "type", display: true, title: "技能效果", type: "drop", options: [], value: "", callback: this.ChangeValue },
         { property: "controlId", display: true, title: "具体属性", type: "drop", options: [], value: "", callback: this.ChangeValue },
         { property: "value", display: true, title: "效果值", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
         { property: "time", display: true, title: "间隔", type: "num",unit:"秒", step: 0.1, value: 1, callback: this.ChangeValue, },
-        { property: "duration", display: true, title: "持续时间(0表示始终有效)", type: "int",unit:"秒", step: 1, value: 1, callback: this.ChangeValue, },
+        { property: "duration", display: true, title: "持续时间(0表示一次有效)", type: "int",unit:"秒", step: 1, value: 1, callback: this.ChangeValue, },
         { property: "describe", display: true, title: "效果描述", type: "textarea", value: "", callback: this.ChangeValue, },
       ], 
       inAdd: false,
@@ -126,30 +127,38 @@ export default {
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "time", "display", false);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "duration", "display", true);
         }
+        if (e == "keep") {
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "value", "display", true);
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "time", "display", true);
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "duration", "value", 0);
+          this.settingData.duration =  0;
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "duration", "display", false);
+
+        }
       }
       // 根据选择判断哪些属性不显示
       if (property == "type") {
-        if (e == "damage") {
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "duration", "display", false);
-        }
-        if (e == "evolution") {
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "duration", "display", false);
-        }
+        // if (e == "damage") {
+        //   this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "duration", "display", false);
+        // }
+        // if (e == "evolution") {
+        //   this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "duration", "display", false);
+        // }
 
-        if (e == "contDamage") {
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "duration", "display", false);
-        }
+        // if (e == "contDamage") {
+        //   this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "duration", "display", false);
+        // }
 
-        if (e == "perDamage") {
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "duration", "display", true);
-        }
+        // if (e == "perDamage") {
+        //   this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "duration", "display", true);
+        // }
 
         if (e == "hyperplasia") {
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "duration", "display", false);
         }
         if (e == "control") {
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "value", "display", true);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "time", "value", 0);
+          this.settingData.time =  0;
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "time", "display", false);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "duration", "display", true);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "controlId", "options", this.controlId);

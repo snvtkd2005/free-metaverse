@@ -66,13 +66,13 @@
         <el-table-column prop="castTime" label="吟唱时间" width="80" />
         <el-table-column prop="animNameReady" label="吟唱动作" width="100" />
         <el-table-column prop="animName" label="施放动作" width="100" />
-        <el-table-column label="效果类型" width="100">
+        <!-- <el-table-column label="效果类型" width="100">
           <template #default="scope">
             <div>
               {{ scope.row && scope.row.effect && scope.row.effect.type }}
             </div>
           </template>
-        </el-table-column>
+        </el-table-column> -->
 
         <el-table-column label="描述" width="200">
           <template #default="scope">

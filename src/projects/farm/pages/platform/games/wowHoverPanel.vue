@@ -251,7 +251,7 @@ export default {
           return;
         }
       }
-      // console.log(" hover ", item);
+      console.log(" hover ", item);
       this.hoverData = [];
       let line = {}; 
       if (item.type == "equip") {
@@ -350,17 +350,26 @@ export default {
         line.color = "#ffffff";
         this.hoverData.push(line);
 
-        line = {};
-        line.text = "0-" + item.vaildDis + "米距离";
-        line.color = "#ffffff";
-        this.hoverData.push(line);
+        if(item.isPassive){
+          line = {};
+          line.text = "被动";
+          line.color = "#aaaaaa";
+          this.hoverData.push(line);
+        }else{
 
-        line = {};
-        line.text =
-          item.castTime == 0 ? "瞬发法术" : item.castTime + "秒施法时间";
-        line.text2 = item.CD + "秒冷却时间";
-        line.color = "#ffffff";
-        this.hoverData.push(line);
+          line = {};
+          line.text = "0-" + item.vaildDis + "米距离";
+          line.color = "#ffffff";
+          this.hoverData.push(line);
+
+          line = {};
+          line.text =
+            item.castTime == 0 ? "瞬发法术" : item.castTime + "秒施法时间";
+          line.text2 = item.CD + "秒冷却时间";
+          line.color = "#ffffff";
+          this.hoverData.push(line);
+        }
+
 
         line = {};
         line.text =

@@ -135,7 +135,7 @@ class YJPlayerProperty {
 		// 计算受到的伤害。受到的攻击力-护甲值
 		this.RealyDamage = function (strength) {
 
-			// console.log( owner.GetNickName() + " 受到伤害 00 "+ strength);
+			console.log( owner.GetNickName() + " 受到伤害 00 "+ strength);
 
 			// let v = 0;
 			// 有护盾，先使用护盾减伤

@@ -38,15 +38,16 @@ export default {
         // { label: "debuff/每秒伤害", value: "perDamage" },
         // { label: "直接伤害", value: "damage" },
         // { label: "恢复生命", value: "addHealth" },
-        { label: "吐息/持续伤害", value: "contDamage" },
+        // { label: "吐息/持续伤害", value: "contDamage" },
         { label: "增生/镜像-生成n个复制", value: "hyperplasia" },
-        { label: "进化-伤害提高百分比", value: "evolution" },
+        // { label: "进化-伤害提高百分比", value: "evolution" },
         { label: "护盾", value: "shield" },
         { label: "控制", value: "control" },
         { label: "基础属性", value: "basicProperty" },
       ],
       basicProperty:[
         { label: "生命值", value: "health" }, 
+        { label: "最大生命值百分比", value: "maxHealth" }, 
         { label: "护甲", value: "armor" }, 
         { label: "耐力", value: "endurance" }, 
         { label: "力量", value: "strength" }, 
@@ -76,7 +77,7 @@ export default {
         { property: "runType", display: true, title: "执行类型", type: "drop", options: [
           { label: "每秒执行", value: "perSecond" }, 
           { label: "立即执行", value: "immediately" }, 
-          { label: "持续执行(持续时间同技能施法时间)", value: "keep" }, 
+          // { label: "持续执行(持续时间同技能施法时间)", value: "keep" }, 
         ], value: "immediately", callback: this.ChangeValue },
         { property: "type", display: true, title: "技能效果", type: "drop", options: [], value: "", callback: this.ChangeValue },
         { property: "controlId", display: true, title: "具体属性", type: "drop", options: [], value: "", callback: this.ChangeValue },
@@ -124,7 +125,7 @@ export default {
         }
         if (e == "immediately") {
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "value", "display", true);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "time", "display", false);
+          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "time", "display", true);
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "duration", "display", true);
         }
         if (e == "keep") {

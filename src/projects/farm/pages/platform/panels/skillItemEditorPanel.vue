@@ -133,6 +133,9 @@ export default {
         // { property: "effect-describe", display: true, title: "效果描述", type: "text", value: "", callback: this.ChangeValue, },
 
         
+        { property: "canMovingCast", display: true, title: "是否能移动中施法", type: "toggle", value: false, callback: this.ChangeValue },
+        { property: "isKeeping", display: true, title: "是否为保持", type: "toggle", value: false, callback: this.ChangeValue },
+        { property: "isChannelling", display: true, title: "是否为引导", type: "toggle", value: false, callback: this.ChangeValue },
         { property: "castTime", display: true, title: "吟唱时间(0表示瞬发)", type: "num",unit:"秒", step: 1, value: 0, callback: this.ChangeValue },
         { property: "animNameReady", display: true, title: "吟唱动作", type: "drop", options: [], value: "", callback: this.ChangeValue },
         { property: "skillReadyParticleId", display: true, title: "吟唱特效", type: "file", filetype: "particle", value: "", callback: this.ChangeValue },
@@ -216,6 +219,12 @@ export default {
       if (this.settingData.isPassive == undefined) {
         this.settingData.isPassive = false;
       } 
+      if (this.settingData.isKeeping == undefined) {
+        this.settingData.isKeeping = false;
+      } 
+      if (this.settingData.canMovingCast == undefined) {
+        this.settingData.canMovingCast = false;
+      } 
       
       if (!this.settingData.receiveEffect) {
         this.settingData.receiveEffect = {modelType:"",particleId:""};
@@ -233,6 +242,8 @@ export default {
           this.settingData.CD = 0;
         }
       }
+      this.settingData.CD = this.settingData.trigger.value;
+
       
       if (this.settingData.skillFireAutoHidden == undefined) {
         this.settingData.skillFireAutoHidden = false;

@@ -211,6 +211,7 @@ class YJPlayerFireCtrl {
 			_Global.applyEvent("设置技能进度条", skillCastTime, skillName, reverse);
 		}
 		this.LookatTarget = function (targetModel) {
+			if(targetModel==null){return;}
 			YJController.PlayerLookatPos(targetModel.GetWorldPos());
 		}
 		this.UseSkill = function (skillItem) {
@@ -329,28 +330,26 @@ class YJPlayerFireCtrl {
 		}
 		function updateWeapon(){
 			let weaponModel = _YJEquip.getWeaponModel();
-			console.log("更新武器 ",weaponModel);
+			// console.log("更新武器 ",weaponModel);
 			if (weaponModel) {
-				var { _fire } = GetSkillDataByWeapon(weaponData);
+
+				var { _fire,_weaponData } = GetSkillDataByWeapon(weaponData);
+				// 基础攻击攻击力等于武器攻击力
+				let baseSkillItem = _YJSkill.GetBaseSkill();
+				baseSkillItem.effects[0].value = -_weaponData.strength;
 				if (_fire.pos && _fire.pos.length == 3) {
+					// 特效发射的起始位置在武器上设置
 					weaponModel.add(firePosRef);
-					
 					firePosRef.rotation.set(0,0,0);
 					firePosRef.position.set(0,0,0);
- 
-
 					let pos1 = firePosRef.position.clone();
-					// console.log("更新武器 _fire.pos",_fire.pos); 
-
 					pos1.x += _fire.pos[0] * 1;
 					pos1.y += _fire.pos[1] * 1;
 					pos1.z += _fire.pos[2] * 1;
 					firePosRef.position.copy(pos1);
-
 					if(_fire.rotaV3){
 						firePosRef.rotation.set(_fire.rotaV3[0],_fire.rotaV3[1],_fire.rotaV3[2]);
 					}
-					// console.log("更新武器 pos1",pos1);
 
 					// let axse = new THREE.AxesHelper(1);
 					// firePosRef.add(axse);
@@ -620,6 +619,9 @@ class YJPlayerFireCtrl {
 		this.SetState = function (e, v) {
 			state[e] = v;
 		}
+		this.GetIsMoving = function(){
+			return state.isMoving;
+		}
 		// 是否有效攻击距离
 		function inVaildArea(dis) {
 			return dis < vaildAttackDis + targetModel.GetModelScale();
@@ -811,6 +813,14 @@ class YJPlayerFireCtrl {
 				}
 
 			}
+			if(e=="施法移动中断"){
+				if (!_YJSkill.GetSkillCanMovingCast()) {
+					_Global.ReportTo3D("设置技能进度条", "中断");
+					_Global._YJAudioManager.stopAudio(readyskillAudioName);
+				}
+				scope.applyEvent("施法移动中断");
+			}
+			
 			if (e == "进入战斗" || e == "设置目标") {
 
 				// if (hyperplasiaTrans.length > 0) {
@@ -975,6 +985,7 @@ class YJPlayerFireCtrl {
 					break;
 				case "移动":
 					state.isMoving = true;
+					console.log(" 移动 000000000000000 ",state.canMoveAttack);
 					if (state.canMoveAttack) {
 						GetAnimNameByPlayStateAndWeapon("普通攻击", weaponData);
 						// GetAnimNameByPlayStateAndWeapon("准备战斗", weaponData); 
@@ -985,7 +996,7 @@ class YJPlayerFireCtrl {
 						GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					} else {
 						state.canAttack = false;
-						EventHandler("中断技能");
+						EventHandler("施法移动中断");
 						GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					}
 					break;
@@ -1173,6 +1184,8 @@ class YJPlayerFireCtrl {
 						}
 					}
 				}
+				 
+
 			});
 			setTimeout(() => {
 				let skillList = [];

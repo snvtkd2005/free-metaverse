@@ -19,12 +19,11 @@ class YJSkill {
             owner.addEventListener("首次进入战斗", () => {
                 // CheckSkill();
             });
-            owner.addEventListener("施法中断", () => {
-                if (inSkill) {
-                    skillEnd(null, "施法中断");
-                }
-            });
+            
 
+            owner.addEventListener("施法移动中断", () => {
+                EventHandler("施法移动中断");
+            });
             owner.addEventListener("同步技能", (msg) => {
                 Dync(msg);
             });
@@ -167,11 +166,7 @@ class YJSkill {
             }
         }
         function initSkill(skillItem) {
-            if (skillItem.CD == undefined) {
-                skillItem.CD = skillItem.trigger.value;
-                // skillItem.CD = 0;
-            } else {
-            }
+            skillItem.CD = skillItem.trigger.value;
 
             if (skillItem.CD == 0) {
                 skillItem.CD = 0.5;
@@ -203,7 +198,11 @@ class YJSkill {
             if (skillItem.isPassive) {
                 skillItem.auto = true;
             }
-            console.log("添加技能并初始化", skillItem);
+            
+            if(skillItem.canMovingCast == undefined){
+                skillItem.canMovingCast = false;
+            }
+            // console.log("添加技能并初始化", skillItem);
         }
 
         let baseSkillItem = null;
@@ -291,6 +290,10 @@ class YJSkill {
         this.GetinSkill = function () {
             return inSkill;
         }
+        
+        this.GetSkillCanMovingCast = function () {
+            return canMovingCast;
+        }
         // 死亡或离开战斗时，清除延迟执行事件
         function ClearFireLater() {
             for (let i = 0; i < fireLater.length; i++) {
@@ -329,7 +332,7 @@ class YJSkill {
                     fromId: owner.id,
                     skillItem: skillItem
                 });
-            console.log("受到技能", skillItem);
+            // console.log("受到技能", skillItem);
             if (type == "control") {
 
                 let controlId = effect.controlId;
@@ -406,9 +409,12 @@ class YJSkill {
             _YJSkillModel.ClearControlModel();
         }
 
+        let keepingSkillList = [];
+
+
         this.ReceiveSkill = function (fromModel, skillName, effect, skillItem) {
 
-            console.log(owner.GetNickName() + " 接收技能 11 ", fromModel, skillName, effect, skillItem);
+            // console.log(owner.GetNickName() + " 接收技能 11 ", fromModel, skillName, effect, skillItem);
 
             let { type, runType, controlId, time, duration, describe, icon } = effect;
             effect.skillName = skillName || skillItem.skillName;
@@ -424,18 +430,72 @@ class YJSkill {
                 owner.CombatLog(fromModel.GetNickName(), owner.GetNickName(), "技能攻击", skillName);
                 return;
             }
-            if (type == "perDamage") {
-                owner.GetBuff().addDebuff(effect);
-                owner.CombatLog(fromModel.GetNickName(), owner.GetNickName(), "技能攻击", skillName);
-                return;
-            }
+
             let addredius = "redius";
             let value = effect.value;
-            if (type == "addHealth") {
-                // owner.updateByCard({ type: "basicProperty", property: "health", value: value });
-            }
+
             // 直接伤害 或 持续伤害
             if (type == "damage" || type == "contDamage" || type == "basicProperty") {
+                if (skillItem.isKeeping) {
+
+                    if (controlId == "armor") {
+                        for (let i = 0; i < keepingSkillList.length; i++) {
+                            const element = keepingSkillList[i];
+                            if (element.type == type
+                                && element.controlId == controlId
+                                && element.skillName == skillName
+                            ) {
+                                return;
+                            }
+                        }
+                        baseData.basicProperty.armor += value;
+                        setTimeout(() => {
+                            baseData.basicProperty.armor -= value;
+                            for (let i = keepingSkillList.length - 1; i >= 0; i--) {
+                                const element = keepingSkillList[i];
+                                if (element.type == type
+                                    && element.controlId == controlId
+                                    && element.skillName == skillName
+                                ) {
+                                    keepingSkillList.splice(i, 1);
+                                }
+                            }
+                        }, skillItem.CD * 900);
+                    }
+
+                    keepingSkillList.push({ type, controlId, value, skillName });
+                }
+                if (controlId == "maxHealth") {
+                    if (value > 0) {
+                        value = value * baseData.maxHealth * 0.01;
+                        baseData.health += value;
+                        if (baseData.health > baseData.maxHealth) {
+                            baseData.health = baseData.maxHealth;
+                        }
+                        addredius = "add";
+                        owner.CombatLog(fromModel.GetNickName() + " 治疗 " + owner.GetNickName() + " 恢复 " + (value) + " 点生命 ");
+
+                    } else {
+
+                        value = owner.GetProperty().RealyDamage(Math.abs(value) * baseData.maxHealth * 0.01);
+                        let d = value;
+                        if (value > baseData.health) {
+                            d = baseData.health;
+                        }
+
+                        baseData.health -= value;
+                        owner.CombatLog(fromModel.GetNickName() + " 攻击 " + owner.GetNickName() + " 造成 " + value + " 点伤害 ");
+                        owner.CheckMaxDamage(fromModel.id, value);
+                        // owner.GetProperty().updateBasedata({ type: "basicProperty", property: controlId, value: baseData.health });
+
+                        owner.addDamageFrom(fromModel.id, d / baseData.maxHealth);
+                        if (baseSkillItem) {
+                            // 被攻击时，自动反击
+                            baseSkillItem.auto = true;
+                        }
+                    }
+
+                }
                 if (controlId == "health") {
                     if (value > 0) {
 
@@ -576,21 +636,21 @@ class YJSkill {
 
             }
             if (e == "结束") {
-                if (_Global.CombatLog && skillItem.effect.skillName != "基础攻击"
-                    && owner.GetNickName().includes('落地水')
+                if (_Global.CombatLog && skillItem.skillName != "基础攻击"
+                    // && owner.GetNickName().includes('落地水')
                 ) {
-                    _Global.CombatLog.log(owner.GetNickName() + " 11 ", "", "技能", skillItem.effect.skillName);
+                    _Global.CombatLog.log(owner.GetNickName() + " 结束 ", "", "技能", skillItem.skillName);
 
                 }
                 // owner.EventHandler("技能施放成功");
             }
-            // if (e.includes( "中断")) {
-            //     if (_Global.CombatLog 
-            //         && owner.GetNickName().includes('落地水')
-            //     ) {
-            //         console.log(owner.GetNickName() + " 11  "+ e);
-            //     }
-            // }
+            if (e.includes("中断")) {
+                if (_Global.CombatLog
+                    // && owner.GetNickName().includes('落地水')
+                ) {
+                    console.log(owner.GetNickName() + " 11  " + e);
+                }
+            }
 
             owner.SetValue("readyAttack_doonce", 0);
             inSkill = false;
@@ -636,6 +696,29 @@ class YJSkill {
         let skillCastTime = 0;
         this.skillCastAnimDuration = 0;
 
+        function getTargetsByTargetType(targetType, vaildAttackDis, max) {
+            let areaTargets = [];
+            if (targetType == "target") {
+                areaTargets.push(targetModel);
+            }
+            if (targetType == "targetAndNear") {
+                areaTargets = _Global._YJFireManager.GetNearNPCByNPC(targetModel, 10, max);
+            }
+            if (targetType == "area") {
+                areaTargets = _Global._YJFireManager.GetOtherNoSameCampInArea(owner.GetCamp(), vaildAttackDis, max, owner.GetWorldPos());
+            }
+
+            if (targetType == "areaFriendly") {
+                areaTargets = _Global._YJFireManager.GetOtherSameCampInArea(owner.GetCamp(), vaildAttackDis, max, owner.GetWorldPos());
+            }
+            if (targetType.includes("random")) {
+                areaTargets.push(searchModel);
+            }
+            if (targetType.includes("minHealth")) {
+                areaTargets.push(searchModel);
+            }
+            return areaTargets;
+        }
         function skillFn(skillItem, index = 0) {
 
             let targetType = skillItem.target.type;
@@ -644,25 +727,9 @@ class YJSkill {
                 skillFn(index + 1);
             }
             skillItem.effect = effect;
-            let areaTargets = [];
             let errorLog = "";
-            if (targetType == "target") {
-                areaTargets.push(targetModel);
-            }
-            if (targetType == "targetAndNear") {
-                let max = skillItem.target.value;
-                areaTargets = _Global._YJFireManager.GetNearNPCByNPC(targetModel, 10, max);
-            }
-            if (targetType == "area") {
-                let max = skillItem.target.value;
-                areaTargets = _Global._YJFireManager.GetOtherNoSameCampInArea(owner.GetCamp(), vaildAttackDis, max, owner.GetWorldPos());
-            }
-            if (targetType.includes("random")) {
-                areaTargets.push(searchModel);
-            }
-            if (targetType.includes("minHealth")) {
-                areaTargets.push(searchModel);
-            }
+            let areaTargets = getTargetsByTargetType(targetType, vaildAttackDis, skillItem.target.value);
+
             let { selfAction } = skillItem;
             if (selfAction == "冲锋") {
                 //移动速度提高，冲向目标
@@ -691,6 +758,48 @@ class YJSkill {
                 }
                 _YJSkillModel.SendSkill(msg, true);
             }
+
+            
+            if (targetType == "self") {
+                // console.log(" 施放自身法术 ",owner.owerType('技能攻击'),effect,skillItem);
+                if (effect.type == "shield") {
+                    if (effect.controlId == "寒冰护体" || true) {
+                        effect.particleId = skillItem.skillFireParticleId;
+                        owner.GetBuff().addBuff(effect);
+                        let nameScale = owner.GetScale();
+                        let msg = {
+                            title: "寒冰护体",
+                            type: "shield",
+                            folderBase: skillItem.skillFireParticleId,
+                            id: owner.id,
+                            pos: owner.GetWorldPos(),
+                            scale: new THREE.Vector3(nameScale, nameScale, nameScale),
+                        }
+                        _YJSkillModel.SendSkill(msg, true);
+                    }
+                    return;
+                }
+                if (!SendSkillToSelf(effect, skillItem)) {
+                    return false;
+                }
+
+            }
+            if (targetType == "none") {
+                //有效攻击 && 
+                if (!SendSkillToSelf(effect, skillItem)) {
+                    return false;
+                }
+                _Global.DyncManager.SendDataToServer(owner.owerType('技能攻击'),
+                    {
+                        fromId: owner.id,
+                        fromType: owner.getPlayerType(),
+                        targetType: owner.getPlayerType(),
+                        targetId: owner.id,
+                        skillItem: skillItem
+                    });
+
+            }
+
             if (effect.type == "control") {
                 if (controlId == "无法移动") {
                     effect.value = 0;
@@ -725,6 +834,7 @@ class YJSkill {
                     }
                     return;
                 }
+                
             }
             else if (effect.type == "basicProperty") {
                 vaildAttackLater2 = setTimeout(() => {
@@ -738,64 +848,23 @@ class YJSkill {
                     }
                 }, skillCastTime * 100);
                 return "later";
-            }
-
-
-            if (targetType == "self") {
-                // console.log(" 施放自身法术 ",owner.owerType('技能攻击'),effect,skillItem);
-                if (effect.type == "shield") {
-                    if (effect.controlId == "寒冰护体" || true) {
-                        effect.particleId = skillItem.skillFireParticleId;
-                        owner.GetBuff().addBuff(effect);
-                        let nameScale = owner.GetScale();
-                        let msg = {
-                            title: "寒冰护体",
-                            type: "shield",
-                            folderBase: skillItem.skillFireParticleId,
-                            id: owner.id,
-                            pos: owner.GetWorldPos(),
-                            scale: new THREE.Vector3(nameScale, nameScale, nameScale),
-                        }
-                        _YJSkillModel.SendSkill(msg, true);
-                    }
-                    return;
-                }
-                if (!SendSkill(effect, skillItem)) {
-                    return false;
-                }
-
-            }
-            if (targetType == "none") {
-                //有效攻击 && 
-                if (!SendSkill(effect, skillItem)) {
-                    return false;
-                }
-                _Global.DyncManager.SendDataToServer(owner.owerType('技能攻击'),
-                    {
-                        fromId: owner.id,
-                        fromType: owner.getPlayerType(),
-                        targetType: owner.getPlayerType(),
-                        targetId: owner.id,
-                        skillItem: skillItem
-                    });
-            }
-
-            if (targetType.includes("minHealth")) {
-                if (targetType.includes("Friendly")) {
-
-                } else {
-                }
-
-                //有效攻击 && 
-                SendDamageToTarget(searchModel, effect, skillItem);
-            }
+            } 
         }
+        let canMovingCast = false;
         //施放技能
         function SkillGo(skillItem) {
-            if (owner.isDead) {
+            if (owner.GetIsDead()) {
                 return false;
             }
             if (inSkill) { return false; }
+            if (skillItem.castTime > 0 && owner.GetIsMoving()) {
+                if(skillItem.canMovingCast){
+
+                }else{
+                    return;
+                }
+            }
+            canMovingCast = skillItem.canMovingCast;
             // console.error(owner.GetNickName() +" 施放技能： ",skillItem);
             oldskillname = skillItem.skillName;
 
@@ -937,204 +1006,41 @@ class YJSkill {
             // if (owner.GetNickName().includes("l老a")) {
             // console.error(owner.GetNickName() + "施放技能", skillItem.cCD, skillItem.CD, skillItem);
             // }
-
-            let fn = () => {
+ 
+            let contDamageFn = () => {
 
                 let targetType = skillItem.target.type;
-                if (targetType == "target") {
-                    let { selfAction } = skillItem;
-                    let { type, skillName, value, time, duration, describe, controlId } = effect;
-                    if (selfAction == "冲锋") {
-                        //移动速度提高，冲向目标
-                        owner.MoveToTargetFast();
-                    }
-                    if (effect.type == "control") {
-                        if (controlId == "眩晕") {
+                let effect = skillItem.effects[0];
+                let { type, skillName, value, time, duration, describe, controlId } = effect;
+                if(time==0){time = 1;}
+                // 持续伤害
+                let num = 0;
+                let count = parseInt(skillCastTime / time);
+                for (let k = 0; k < count; k++) {
+                    castSkillList.push(setTimeout(() => {
+                        if (!checkCan()) {
+                            skillEnd(skillItem, "中断");
+                            EventHandler("中断施法");
+                            return;
                         }
-                    }
-                    else if (effect.type == "damage") {
-                        vaildAttackLater2 = setTimeout(() => {
-                            if (targetModel == null || targetModel.isDead) {
-                                EventHandler("目标死亡");
-                                return;
-                            }
-                            SendDamageToTarget(targetModel, effect, skillItem);
-                        }, skillCastTime * 100);
-                        return "later";
-                    }
-                }
-                if (targetType == "targetAndNear") {
-                    let { selfAction } = skillItem;
-                    let { type, skillName, value, time, duration, describe, controlId } = effect;
-                    if (selfAction == "冲锋") {
-                        //移动速度提高，冲向目标
-                        owner.MoveToTargetFast();
-                    }
-                    if (effect.type == "control") {
-                        if (controlId == "眩晕") {
-                        }
-                    }
-                    else if (effect.type == "damage") {
-                        vaildAttackLater2 = setTimeout(() => {
-                            if (targetModel == null || targetModel.isDead) {
-                                EventHandler("目标死亡");
-                                return;
-                            }
-                            //找到目标附近的敌人
-                            SendDamageToTarget(targetModel, effect, skillItem);
-                            let max = skillItem.target.value;
-                            areaTargets = _Global._YJFireManager.GetNearNPCByNPC(targetModel, 10, max);
-                            for (let l = 0; l < areaTargets.length; l++) {
-                                if (areaTargets[l].isDead) {
-                                    continue;
-                                }
-                                SendDamageToTarget(areaTargets[l], effect, skillItem);
-                            }
-                        }, skillCastTime * 100);
-                        return "later";
-                    }
-                }
-                // 范围攻击
-                if (targetType == "area") {
-                    let max = skillItem.target.value;
-                    areaTargets = _Global._YJFireManager.GetOtherNoSameCampInArea(owner.GetCamp(), vaildAttackDis, max, owner.GetWorldPos());
-                    // if (owner.GetNickName().includes("居民")) {
-                    //     console.error(owner.GetNickName() + " 范围攻击目标 ",skillItem, max, areaTargets);
-                    // }
-                    if (skillItem.skillFireParticleId) {
-                        let msg = {
-                            title: skillItem.skillName,
-                            folderBase: skillItem.skillFireParticleId,
-                            id: owner.id,
-                            pos: owner.GetWorldPos(),
-                            scale: null,
-                            autoHidden: skillItem.skillFireAutoHidden,
-                            delayV: skillItem.skillFireDiplayValue,
-                        }
-                        _YJSkillModel.SendSkill(msg, true);
-                    }
+                        let areaTargets = getTargetsByTargetType(targetType, vaildAttackDis, skillItem.target.value);
 
-                    // 范围内无目标，不施放技能
-                    if (areaTargets.length == 0) {
-                        errorLog = "有效范围内无目标";
-                        return;
-                    }
-
-                    if (effect.type == "damage") {
                         for (let l = 0; l < areaTargets.length; l++) {
                             if (areaTargets[l].isDead) {
                                 continue;
                             }
                             SendDamageToTarget(areaTargets[l], effect, skillItem);
+                            // console.error(owner.GetNickName() + " 范围攻击目标 持续伤害 ", effect, skillItem);
                         }
-                    }
-                    else if (effect.type == "control") {
-                        if (effect.controlId == "冰霜新星") {
-                            effect.value = 0;
-                            for (let i = 0; i < areaTargets.length; i++) {
-                                const target = areaTargets[i];
-                                //瞬发技能直接同步
-                                _Global.DyncManager.SendDataToServer(getSendTitle(target),
-                                    {
-                                        fromId: owner.id,
-                                        fromType: owner.getPlayerType(),
-                                        targetType: target.getPlayerType(),
-                                        targetId: target.id,
-                                        skillItem: skillItem
-                                    });
-                            }
-                            return;
+                        skillItem.cCD = 0;
+                        num++;
+                        if (num == count) {
+                            skillEnd(skillItem, "结束");
                         }
-                        if (effect.controlId == "被嘲讽") {
-                            for (let i = 0; i < areaTargets.length; i++) {
-                                const target = areaTargets[i];
-                                if (target.isDead) {
-                                    continue;
-                                }
-                                if (target.isYJNPC) {
-                                    target.SetNpcTargetToNoneDrict();
-                                    if (owner.isPlayerFire) {
-                                        target.SetNpcTarget(owner.GetYJPlayer(), true, false);
-                                    } else {
-                                        target.SetNpcTarget(owner, true, false);
-                                    }
-                                }
-                            }
-                            return;
-                        }
-
-                    }
-
+                    }, time * k * 1000));
                 }
-
-                if (targetType.includes("random")) {
-                    vaildAttackLater2 = setTimeout(() => {
-                        if (searchModel == null || (searchModel != null && searchModel.isDead)) {
-                            EventHandler("中断技能");
-                            // console.log(" 中断 目标：",searchModel);
-                            return;
-                        }
-                        //有效攻击 && 
-                        SendDamageToTarget(searchModel, skillItem.effect, skillItem);
-                    }, skillCastTime * 100);
-                    return "later";
-
-                }
-
-                if (targetType == "self") {
-
-                    // console.log(" 施放自身法术 ",owner.owerType('技能攻击'),effect,skillItem);
-
-                    if (effect.type == "shield") {
-                        if (effect.controlId == "寒冰护体") {
-                            effect.particleId = skillItem.skillFireParticleId;
-                            owner.GetBuff().addBuff(effect);
-                            let nameScale = owner.GetScale();
-                            let msg = {
-                                title: "寒冰护体",
-                                folderBase: skillItem.skillFireParticleId,
-                                id: owner.id,
-                                pos: owner.GetWorldPos(),
-                                scale: new THREE.Vector3(nameScale, nameScale, nameScale),
-                            }
-                            _YJSkillModel.SendSkill(msg, true);
-                        }
-                        return;
-                    }
-                    if (!SendSkill(effect, skillItem)) {
-                        return false;
-                    }
-
-                }
-                if (targetType == "none") {
-                    //有效攻击 && 
-                    if (!SendSkill(effect, skillItem)) {
-                        return false;
-                    }
-                    _Global.DyncManager.SendDataToServer(owner.owerType('技能攻击'),
-                        {
-                            fromId: owner.id,
-                            fromType: owner.getPlayerType(),
-                            targetType: owner.getPlayerType(),
-                            targetId: owner.id,
-                            skillItem: skillItem
-                        });
-                }
-
-                if (targetType.includes("minHealth")) {
-                    if (targetType.includes("Friendly")) {
-
-                    } else {
-                    }
-
-                    //有效攻击 && 
-                    SendDamageToTarget(searchModel, effect, skillItem);
-                }
-            }
-            let contDamageFn = () => {
-                skillCastTime = effect.duration;
-                let targetType = skillItem.target.type;
-                let { type, skillName, value, time, duration, describe, controlId } = effect;
+                owner.LookatTarget(targetModel);
+                return;
                 if (targetType == "target") {
                     let num = 0;
                     let count = parseInt(duration / time);
@@ -1197,20 +1103,6 @@ class YJSkill {
                     }
 
                 }
-
-                if (targetType.includes("random")) {
-
-                }
-
-
-                if (targetType == "none" || targetType == "self") {
-
-
-                }
-
-                if (targetType.includes("minHealth")) {
-
-                }
             }
 
 
@@ -1227,7 +1119,7 @@ class YJSkill {
                 // }
 
                 //contDamage 技能需要边施法边执行，所以要单独判断
-                if ((effect.type == "contDamage")) {
+                if ((skillItem.isChannelling)) {
                     owner.skillProgress(skillCastTime, skillName, true);
                     contDamageFn();
                 } else {
@@ -1252,7 +1144,10 @@ class YJSkill {
                             vaildAttackLater = setTimeout(() => {
                                 skillEnd(skillItem, "结束");
                                 // console.log(owner.GetNickName()+'施法成功 11 '+skillItem.skillName); 
-                            }, scope.skillCastAnimDuration * 0.7);
+                            }, 
+                            // scope.skillCastAnimDuration * 0.7
+                            skillCastTime * 200
+                            );
                         } else {
                             skillEnd(skillItem, "结束");
                         }
@@ -1273,11 +1168,11 @@ class YJSkill {
 
         }
         function BuffGo(skillItem) {
-            if (owner.isDead) {
+            if (owner.GetIsDead()) {
                 return false;
             }
 
-            console.error(owner.GetNickName() + " 施放 被动技能： ", skillItem.skillName);
+            // console.log(owner.GetNickName() + " 施放 被动技能： ", skillItem.skillName);
             // oldskillname = skillItem.skillName; 
             // inSkill = true;
             // EventHandler("中断延迟施法");
@@ -1414,206 +1309,6 @@ class YJSkill {
             // console.error(owner.GetNickName() + "施放技能", skillItem.cCD, skillItem.CD, skillItem);
             // }
 
-            let fn = () => {
-
-                let targetType = skillItem.target.type;
-                if (targetType == "target") {
-                    let { selfAction } = skillItem;
-                    let { type, skillName, value, time, duration, describe, controlId } = effect;
-                    if (selfAction == "冲锋") {
-                        //移动速度提高，冲向目标
-                        owner.MoveToTargetFast();
-                    }
-                    if (effect.type == "control") {
-                        if (controlId == "眩晕") {
-                        }
-                    }
-                    else if (effect.type == "damage") {
-                        vaildAttackLater2 = setTimeout(() => {
-                            if (targetModel == null || targetModel.isDead) {
-                                EventHandler("目标死亡");
-                                return;
-                            }
-                            SendDamageToTarget(targetModel, effect, skillItem);
-                        }, skillCastTime * 100);
-                        return "later";
-                    }
-                }
-                if (targetType == "targetAndNear") {
-                    let { selfAction } = skillItem;
-                    let { type, skillName, value, time, duration, describe, controlId } = effect;
-                    if (selfAction == "冲锋") {
-                        //移动速度提高，冲向目标
-                        owner.MoveToTargetFast();
-                    }
-                    if (effect.type == "control") {
-                        if (controlId == "眩晕") {
-                        }
-                    }
-                    else if (effect.type == "damage") {
-                        vaildAttackLater2 = setTimeout(() => {
-                            if (targetModel == null || targetModel.isDead) {
-                                EventHandler("目标死亡");
-                                return;
-                            }
-                            //找到目标附近的敌人
-                            SendDamageToTarget(targetModel, effect, skillItem);
-                            let max = skillItem.target.value;
-                            areaTargets = _Global._YJFireManager.GetNearNPCByNPC(targetModel, 10, max);
-                            for (let l = 0; l < areaTargets.length; l++) {
-                                if (areaTargets[l].isDead) {
-                                    continue;
-                                }
-                                SendDamageToTarget(areaTargets[l], effect, skillItem);
-                            }
-                        }, skillCastTime * 100);
-                        return "later";
-                    }
-                }
-                // 范围攻击
-                if (targetType == "area") {
-                    let max = skillItem.target.value;
-                    areaTargets = _Global._YJFireManager.GetOtherNoSameCampInArea(owner.GetCamp(), vaildAttackDis, max, owner.GetWorldPos());
-                    // if (owner.GetNickName().includes("居民")) {
-                    //     console.error(owner.GetNickName() + " 范围攻击目标 ",skillItem, max, areaTargets);
-                    // }
-                    if (skillItem.skillFireParticleId) {
-                        let msg = {
-                            title: skillItem.skillName,
-                            folderBase: skillItem.skillFireParticleId,
-                            id: owner.id,
-                            pos: owner.GetWorldPos(),
-                            scale: null,
-                            autoHidden: skillItem.skillFireAutoHidden,
-                            delayV: skillItem.skillFireDiplayValue,
-                        }
-                        _YJSkillModel.SendSkill(msg, true);
-                    }
-
-                    // 范围内无目标，不施放技能
-                    if (areaTargets.length == 0) {
-                        errorLog = "有效范围内无目标";
-                        return;
-                    }
-
-                    if (effect.type == "damage") {
-                        for (let l = 0; l < areaTargets.length; l++) {
-                            if (areaTargets[l].isDead) {
-                                continue;
-                            }
-                            SendDamageToTarget(areaTargets[l], effect, skillItem);
-                        }
-                    }
-                    else if (effect.type == "control") {
-                        if (effect.controlId == "冰霜新星") {
-                            effect.value = 0;
-                            for (let i = 0; i < areaTargets.length; i++) {
-                                const target = areaTargets[i];
-                                //瞬发技能直接同步
-                                _Global.DyncManager.SendDataToServer(getSendTitle(target),
-                                    {
-                                        fromId: owner.id,
-                                        fromType: owner.getPlayerType(),
-                                        targetType: target.getPlayerType(),
-                                        targetId: target.id,
-                                        skillItem: skillItem
-                                    });
-                            }
-                            return;
-                        }
-                        if (effect.controlId == "被嘲讽") {
-                            for (let i = 0; i < areaTargets.length; i++) {
-                                const target = areaTargets[i];
-                                if (target.isDead) {
-                                    continue;
-                                }
-                                if (target.isYJNPC) {
-                                    target.SetNpcTargetToNoneDrict();
-                                    if (owner.isPlayerFire) {
-                                        target.SetNpcTarget(owner.GetYJPlayer(), true, false);
-                                    } else {
-                                        target.SetNpcTarget(owner, true, false);
-                                    }
-                                }
-                            }
-                            return;
-                        }
-
-                    }
-
-                }
-
-                if (targetType.includes("random")) {
-                    vaildAttackLater2 = setTimeout(() => {
-                        if (searchModel == null || (searchModel != null && searchModel.isDead)) {
-                            EventHandler("中断技能");
-                            // console.log(" 中断 目标：",searchModel);
-                            return;
-                        }
-                        //有效攻击 && 
-                        SendDamageToTarget(searchModel, skillItem.effect, skillItem);
-                    }, skillCastTime * 100);
-                    return "later";
-
-                }
-
-                if (targetType == "self") {
-
-                    // console.log(" 施放自身法术 ",owner.owerType('技能攻击'),effect,skillItem);
-                    if (effect.runType == "immediately") {
-
-                        if (effect.type == "basicProperty") {
-                            //增加属性值
-                            owner.GetProperty().updateBasedata({ type: "basicProperty", property: effect.controlId, value: effect.value });
-                            return;
-                        }
-                    }
-                    if (effect.type == "shield") {
-                        if (effect.controlId == "寒冰护体") {
-                            effect.particleId = skillItem.skillFireParticleId;
-                            owner.GetBuff().addBuff(effect);
-                            let nameScale = owner.GetScale();
-                            let msg = {
-                                title: "寒冰护体",
-                                folderBase: skillItem.skillFireParticleId,
-                                id: owner.id,
-                                pos: owner.GetWorldPos(),
-                                scale: new THREE.Vector3(nameScale, nameScale, nameScale),
-                            }
-                            _YJSkillModel.SendSkill(msg, true);
-                        }
-                        return;
-                    }
-                    if (!SendSkill(effect, skillItem)) {
-                        return false;
-                    }
-
-                }
-                if (targetType == "none") {
-                    //有效攻击 && 
-                    if (!SendSkill(effect, skillItem)) {
-                        return false;
-                    }
-                    _Global.DyncManager.SendDataToServer(owner.owerType('技能攻击'),
-                        {
-                            fromId: owner.id,
-                            fromType: owner.getPlayerType(),
-                            targetType: owner.getPlayerType(),
-                            targetId: owner.id,
-                            skillItem: skillItem
-                        });
-                }
-
-                if (targetType.includes("minHealth")) {
-                    if (targetType.includes("Friendly")) {
-
-                    } else {
-                    }
-
-                    //有效攻击 && 
-                    SendDamageToTarget(searchModel, effect, skillItem);
-                }
-            }
             let contDamageFn = () => {
                 skillCastTime = effect.duration;
                 let targetType = skillItem.target.type;
@@ -1695,19 +1390,9 @@ class YJSkill {
 
                 }
             }
-
-
             if (skillCastTime > 0) {
 
-
                 owner.playAudio(skillItem.skillReadyAudio, readyskillAudioName);
-                // owner.SetPlayerState("吟唱", skillItem.animNameReady);
-                // //取消寻路，让npc站住施法
-                // owner.SetNavPathToNone();
-                // console.time('施法成功===');
-                // if(owner.getPlayerType().includes('玩家')){
-                //     console.log(" 吟唱 音效 ",skillItem.skillReadyAudio);
-                // }
 
                 //contDamage 技能需要边施法边执行，所以要单独判断
                 if ((effect.type == "contDamage")) {
@@ -1729,7 +1414,8 @@ class YJSkill {
                         // if(owner.getPlayerType().includes('玩家')){
                         //     console.log(" 施放 音效 ",skillItem.skillFireAudio);
                         // }
-                        let e = fn();
+                        let e = skillFn(skillItem);
+
                         if (e == "later") {
                             vaildAttackLater = setTimeout(() => {
                                 skillEnd(skillItem, "结束");
@@ -1743,9 +1429,10 @@ class YJSkill {
                     }, skillCastTime * 1000);
                 }
             } else {
-                // owner.SetPlayerState("施法", skillItem.animName);
-                owner.playAudio(skillItem.skillFireAudio, readyskillAudioName);
-                fn();
+                console.log(owner.GetNickName() + " 施放 22 被动技能： ", 
+                skillItem.skillName,skillItem.effects[0],skillItem);
+                
+                skillFn(skillItem);
                 if (skillItem.cCD == skillItem.CD) {
                     skillItem.cCD = 0;
                 }
@@ -1757,26 +1444,9 @@ class YJSkill {
 
 
         // 施放不需要目标或目标是自身的技能 如 增生
-        function SendSkill(effect, skillItem) {
-            /**
-            // //进化
-            // if (type == "evolution") {
-            // 	oldSkillList = JSON.parse(JSON.stringify(skillList));
-
-            // 	// 所有技能伤害增加v%
-            // 	for (let i = 0; i < skillList.length; i++) {
-            // 		const skillItem = skillList[i];
-            // 		// 触发方式 每间隔n秒触发。在进入战斗时调用
-            // 		if (skillItem.target.type != "none") {
-            // 			skillItem.effect.value += skillItem.effect.value * value * 0.01;
-            // 		}
-            // 	}
-            // }
-             * 
-             */
-
+        function SendSkillToSelf(effect, skillItem) {
             let { type, skillName, value, time, duration, describe, controlId } = effect;
-            // console.log("施放不需要目标或目标是自身的技能 00 ", effect, skillItem);
+            console.log("施放不需要目标或目标是自身的技能 00 ", effect, skillItem);
             if (type == "shield" || type == "control") {
                 //
                 // console.log("施放不需要目标或目标是自身的技能 ", controlId);
@@ -1784,10 +1454,13 @@ class YJSkill {
                     ReceiveControl(owner, skillName, effect, skillItem);
                     return true;
                 }
+                return true;
             }
             //
-            if (type == "addHealth") {
-                owner.GetProperty().updateBasedata({ type: "basicProperty", property: "health", value: value });
+            if (type == "basicProperty") {
+                scope.ReceiveSkill(owner,skillName,effect,skillItem);
+                
+                return true;
             }
             //增生
             if (type == "hyperplasia") {
@@ -1797,6 +1470,8 @@ class YJSkill {
                 for (let i = 0; i < count; i++) {
                     hyperplasia(modelData);
                 }
+                
+                return true;
             }
             //进化
             if (type == "evolution") {
@@ -1827,7 +1502,7 @@ class YJSkill {
             }
         }
         this._update = function (dt) {
-            if (owner.isDead) { return; }
+            if (owner.GetIsDead()) { return; }
             for (let i = 0; i < skillList.length; i++) {
                 const skillItem = skillList[i];
 
@@ -1881,24 +1556,11 @@ class YJSkill {
                 }
 
                 if (skillItem.isPassive && skillItem.trigger.type == "perSecond") {
-                    // if (owner.GetNickName().includes("普通步兵")) {
-                    //     console.log(owner.GetNickName() + " 技能CD 00 ",inSkill,owner.InFire(),skillItem.auto, skillItem.cCD, skillItem.CD, skillItem);
-                    // }
                     if (skillItem.cCD == skillItem.CD) {
                         if (skillItem.cCD < skillItem.trigger.value) {
                             skillItem.cCD += 0.1;
                             continue;
-                        }
-
-                        // if (inSkill) {
-                        //     // return;
-                        //     if (skillItem.effect.type == "control" || skillItem.effect.type == "shield") {
-                        //         // EventHandler("中断技能", true);
-                        //     } else {
-                        //         // return;
-                        //     }
-                        //     continue; 
-                        // }
+                        } 
                         BuffGo(skillItem);
                         continue;
                     }
@@ -1906,13 +1568,8 @@ class YJSkill {
                     skillItem.cCD += 0.033;
                     if (skillItem.cCD > skillItem.CD) {
                         skillItem.cCD = skillItem.CD;
-                    }
-
-                    owner.applyEvent("技能CD", skillItem.skillName, skillItem.cCD);
-                    // if (owner.GetNickName().includes("普通步兵")) {
-                    //     console.log(owner.GetNickName() + " 技能CD ", skillItem.skillName, skillItem.cCD, skillItem.CD);
-                    // }
-                    // console.log(" detatime " ,dt);
+                    } 
+                    owner.applyEvent("技能CD", skillItem.skillName, skillItem.cCD); 
                 }
             }
         }
@@ -1973,7 +1630,7 @@ class YJSkill {
         let healthTrigger = [];
 
         function CheckSkill_Health() {
-            if (owner.isDead) {
+            if (owner.GetIsDead()) {
                 return;
             }
 
@@ -2050,17 +1707,26 @@ class YJSkill {
                 // }
             }
 
-            if (e == "中断技能" || e == "目标死亡") {
+            
+            if (e == "施法移动中断" || e == "中断技能" || e == "目标死亡") {
+                if (e == "施法移动中断") {
+                    if(canMovingCast){
+                        return;
+                    }
+                }
+
+
                 if (vaildAttackLater != null || vaildAttackLater2 != null) {
                     clearTimeout(vaildAttackLater);
                     clearTimeout(vaildAttackLater2);
                     vaildAttackLater = null;
                     vaildAttackLater2 = null;
                     // console.log(" 记录中断的时间 ",cutStartTime);
-                }
+                } 
 
                 clearCastSkill();
                 if (inSkill) {
+                    
                     _Global.DyncManager.SendDataToServer("npc技能",
                         { npcId: owner.id, skillItem: "中断" });
                     skillEnd(null, "中断技能");
@@ -2136,7 +1802,7 @@ class YJSkill {
                 }
                 owner.AddExp(20);
                 effect.fromName = owner.GetNickName();
-
+                skillItem.effect = effect;
                 _Global.DyncManager.SendSceneStateAll(getSendTitle(target),
                     {
                         fromId: owner.id,
@@ -2145,8 +1811,8 @@ class YJSkill {
                         targetId: target.id,
                         targetType: target.getPlayerType(),
                         targetName: target.GetNickName(),
-                        skillName: skillName,
-                        effect: effect,
+                        // skillName: skillName,
+                        // effect: effect,
                         skillItem: skillItem,
                     });
             });

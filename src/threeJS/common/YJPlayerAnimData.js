@@ -757,9 +757,10 @@ class YJPlayerAnimData {
         let { attackSpeed, vaildDis } = weaponData;
         if (attackSpeed != undefined) {
           return {
-            dis: vaildDis, speed: attackSpeed,
+            dis: vaildDis, 
+            speed: attackSpeed,
             ready: weaponData.ready,
-            fire: weaponData.fire,
+            fire: weaponData.fire, 
           };
         }
       }
@@ -785,7 +786,8 @@ class YJPlayerAnimData {
       return {
         s: skillName, v: vaildAttackDis, a: attackStepSpeed,
         _ready: ready,
-        _fire: fire
+        _fire: fire,
+        _weaponData:weaponData
       };
     }
     //#endregion

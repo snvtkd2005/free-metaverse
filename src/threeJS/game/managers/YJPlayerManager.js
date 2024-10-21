@@ -8,31 +8,31 @@ class YJPlayerManager {
   constructor() {
     let scope = this;
     let playerList = [];
-    
+
     function Init() {
       _Global._YJPlayerManager = scope;
       if (!_Global.YJClient) {
-        playerList.push(_Global.YJ3D.YJPlayer); 
-      }else{
+        playerList.push(_Global.YJ3D.YJPlayer);
+      } else {
         playerList = _Global.YJClient.GetAllPlayer();
       }
-      console.log(" 所有玩家 ",playerList);
+      console.log(" 所有玩家 ", playerList);
 
     }
 
     this.GetAllVaildPlayer = function () {
       let playerList = [];
       if (!_Global.YJClient) {
-        playerList.push(_Global.YJ3D.YJPlayer); 
-      }else{
+        playerList.push(_Global.YJ3D.YJPlayer);
+      } else {
         playerList = _Global.YJClient.GetAllPlayer();
       }
 
       let npcs = [];
       for (let i = 0; i < playerList.length; i++) {
-        const element = playerList[i]; 
-        if(!element.isDead){
-          npcs.push(element); 
+        const element = playerList[i];
+        if (!element.isDead) {
+          npcs.push(element);
         }
       }
       return npcs;
@@ -45,13 +45,13 @@ class YJPlayerManager {
     }
 
 
-    this.GetNPCs = function(){
+    this.GetNPCs = function () {
       return playerList;
     }
-    this.GetOtherNoSameCampInArea = function (camp,vaildDistance, max, centerPos, ingoreNpcId) {
+    this.GetOtherNoSameCampInArea = function (camp, vaildDistance, max, centerPos, ingoreNpcId) {
       let num = 0;
       let npcs = [];
-      
+
       let playerList = this.GetAllVaildPlayer();
 
       // console.log(" 范围查找玩家 ",camp,vaildDistance, max,playerList);
@@ -82,6 +82,37 @@ class YJPlayerManager {
       return npcs;
     }
 
+    this.GetOtherSameCampInArea = function (camp, vaildDistance, max, centerPos, ingoreNpcId) {
+      let num = 0;
+      let npcs = [];
+
+      let playerList = this.GetAllVaildPlayer();
+
+      // console.log(" 范围查找玩家 ",camp,vaildDistance, max,playerList);
+      for (let i = 0; i < playerList.length; i++) {
+        const element = playerList[i];
+        if (element.id == ingoreNpcId) {
+          // console.log(" 范围查找玩家 忽略指定玩家 ");
+          continue;
+        }
+        if (element.GetCamp() == camp) {
+          // 未判断npc是否在玩家前方
+          let distance = centerPos.distanceTo(element.GetWorldPos());
+
+          // console.log(" 范围查找玩家 ",distance,element);
+          // console.log(" 范围查找玩家 ",distance,vaildDistance);
+
+          if (distance <= vaildDistance) {
+            num++;
+            npcs.push(element);
+            if (num >= max) {
+              return npcs;
+            }
+          }
+        }
+      }
+      return npcs;
+    }
     // 在一场战斗中，获取玩家前方技能有效范围内的npc
     this.CheckNpcInPlayerForward = function (vaildDistance, npcId, playerPos) {
       for (let i = 0; i < playerList.length; i++) {
@@ -140,13 +171,13 @@ class YJPlayerManager {
       for (let i = 0; i < playerList.length; i++) {
         const player = playerList[i];
         let distance = player.GetWorldPos().distanceTo(playerPos);
-        if(distance <= 12 && !player.isDead){
-          players.push(player); 
-        } 
+        if (distance <= 12 && !player.isDead) {
+          players.push(player);
+        }
       }
       return players;
-    } 
-     
+    }
+
     this.GetSameCampNPCInFire = function (camp) {
       let npcs = [];
       let playerList = this.GetAllVaildPlayer();
@@ -156,13 +187,13 @@ class YJPlayerManager {
         let npcComponent = element.GetComponent("NPC");
         // 相同阵营 
         if (npcComponent.GetCamp() == camp) {
-          npcs.push(npcComponent); 
+          npcs.push(npcComponent);
         }
       }
       return npcs;
-    } 
+    }
     // 有效距离内的所有
-    this.GetNoSameCampNPCInFireInVailDis = function (fromPos,camp,dis) {
+    this.GetNoSameCampNPCInFireInVailDis = function (fromPos, camp, dis) {
       let npcs = [];
       let playerList = this.GetAllVaildPlayer();
       // console.log(" 所有有效npc ",playerList);
@@ -174,19 +205,19 @@ class YJPlayerManager {
           continue;
         }
         let npcPos = element.GetWorldPos();
-        let distance = fromPos.distanceTo(npcPos); 
+        let distance = fromPos.distanceTo(npcPos);
         if (distance <= dis) {
-          npcs.push(npcComponent); 
-        } 
+          npcs.push(npcComponent);
+        }
       }
       return npcs;
     }
     //获取最近的单个目标
-    this.GetNoSameCampNPCInFireByNearestDis = function (fromPos,camp,vaildDis) {
+    this.GetNoSameCampNPCInFireByNearestDis = function (fromPos, camp, vaildDis) {
       let npc = null;
       let playerList = this.GetAllVaildPlayer();
       let dis = 10000;
-      if(vaildDis){
+      if (vaildDis) {
         dis = vaildDis;
       }
       // console.log(" 所有有效npc ",playerList);
@@ -198,10 +229,10 @@ class YJPlayerManager {
           continue;
         }
         let npcPos = element.GetWorldPos();
-        let distance = fromPos.distanceTo(npcPos); 
+        let distance = fromPos.distanceTo(npcPos);
         if (distance <= dis) {
           dis = distance;
-          npc = (npcComponent); 
+          npc = (npcComponent);
         }
       }
       return npc;
@@ -213,8 +244,8 @@ class YJPlayerManager {
         const element = playerList[i];
         let npcComponent = element.GetComponent("NPC");
         // 相同阵营 
-        if (npcComponent.GetCamp() == camp) { 
-          npcs.push(npcComponent); 
+        if (npcComponent.GetCamp() == camp) {
+          npcs.push(npcComponent);
         }
       }
       return npcs;
@@ -225,39 +256,39 @@ class YJPlayerManager {
     }
     this.GetSameCamp = function (camp) {
       let playerList = this.GetAllVaildPlayer();
-      let players = []; 
+      let players = [];
       for (let i = 0; i < playerList.length; i++) {
         const element = playerList[i];
-        if(element.GetCamp() == camp){
+        if (element.GetCamp() == camp) {
           players.push(element);
         }
       }
       return players;
     }
-    
-    this.GetSameCampInFire = function (camp,fireId) {
+
+    this.GetSameCampInFire = function (camp, fireId) {
       let playerList = this.GetSameCamp(camp);
-      let players = []; 
+      let players = [];
       for (let i = 0; i < playerList.length; i++) {
         const element = playerList[i];
-        if(element.fireId == fireId){
+        if (element.fireId == fireId) {
           players.push(element);
         }
       }
       return players;
     }
-    
-    this.GetNoSameCamp = function (camp,fireId) { 
+
+    this.GetNoSameCamp = function (camp, fireId) {
       let playerList = this.GetAllVaildPlayer();
-      let players = []; 
+      let players = [];
       for (let i = 0; i < playerList.length; i++) {
         const element = playerList[i];
-        if(element.GetCamp() != camp){
-          if(fireId){
-            if(element.fireId == fireId){
+        if (element.GetCamp() != camp) {
+          if (fireId) {
+            if (element.fireId == fireId) {
               players.push(element);
             }
-          }else{
+          } else {
             players.push(element);
           }
         }
@@ -297,7 +328,7 @@ class YJPlayerManager {
 
     this.GetForwardNoSameCampNPC = function (playerPos) {
       let npcs = [];
-      
+
       let playerList = this.GetAllVaildPlayer();
       for (let i = 0; i < playerList.length; i++) {
         const element = playerList[i];
@@ -308,9 +339,9 @@ class YJPlayerManager {
         }
         if (npcComponent.isCanSetTarget()) {
           let npcPos = element.GetWorldPos();
-          let distance = playerPos.distanceTo(npcPos); 
+          let distance = playerPos.distanceTo(npcPos);
           if (distance <= 20 && _Global.YJ3D._YJSceneManager.checkPlayerForward(npcPos)) {
-            npcs.push(npcComponent.transform); 
+            npcs.push(npcComponent.transform);
           }
         }
       }
@@ -323,35 +354,35 @@ class YJPlayerManager {
         if (playerList[i].id == id) {
           let transform = playerList[i].transform;
           let npc = transform.GetComponent("NPC");
-          npc.SetNpcTargetToNone(); 
+          npc.SetNpcTargetToNone();
           transform.Destroy();
-          playerList.splice(i,1);
+          playerList.splice(i, 1);
           return;
         }
       }
     }
-    this.RemoveNpcById = function (npcId) { 
-      for (let i = playerList.length -1; i >=0; i--) {
+    this.RemoveNpcById = function (npcId) {
+      for (let i = playerList.length - 1; i >= 0; i--) {
         const element = playerList[i].transform;
         if (element.id == npcId) {
           element.Destroy();
-          playerList.splice(i,1);
+          playerList.splice(i, 1);
           return;
         }
-      } 
+      }
     }
-    this.HiddenNpcById = function (npcId) { 
-      for (let i = playerList.length -1; i >=0; i--) {
+    this.HiddenNpcById = function (npcId) {
+      for (let i = playerList.length - 1; i >= 0; i--) {
         const element = playerList[i].transform;
         if (element.id == npcId) {
           let npc = element.GetComponent("NPC");
-          if(!npc.isDead){
-            npc.SetNpcTargetToNone(); 
-          } 
+          if (!npc.isDead) {
+            npc.SetNpcTargetToNone();
+          }
           element.SetActive(false);
           return;
         }
-      } 
+      }
     }
     this.DestoryById = function (npcId) {
       for (let i = playerList.length - 1; i >= 0; i--) {
@@ -378,11 +409,11 @@ class YJPlayerManager {
 
     //#region 
     //#endregion
-    
+
     //#region 同步生成npc
-    this.DuplicateNPC = function(modelId,npcId,cb) {
+    this.DuplicateNPC = function (modelId, npcId, cb) {
       let npcTransform = _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().GetTransformByModelId(modelId);
-      if(npcTransform == null){
+      if (npcTransform == null) {
         console.error("不该进入此判断：", modelId + " 不存在");
         return;
       }
@@ -391,22 +422,22 @@ class YJPlayerManager {
       modelData.id = npcId;
       _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().DuplicateModelNPC(modelData, (copy) => {
         // 测试显示指定名称id的NPC
-        copy.SetActive(true);  
+        copy.SetActive(true);
         scope.AddNpc(copy);
-        if(cb){
+        if (cb) {
           cb(copy);
         }
       }, npcId);
     }
 
-    this.DuplicateNPCByModelData = function(modelData,npcId,cb) {
+    this.DuplicateNPCByModelData = function (modelData, npcId, cb) {
       modelData.id = npcId;
       modelData.active = true;
       _Global.YJ3D._YJSceneManager.Create_LoadUserModelManager().DuplicateModelNPC(modelData, (copy) => {
         // 测试显示指定名称id的NPC
-        copy.SetActive(true);  
+        copy.SetActive(true);
         scope.AddNpc(copy);
-        if(cb){
+        if (cb) {
           cb(copy);
         }
       }, npcId);

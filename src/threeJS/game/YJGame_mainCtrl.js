@@ -89,6 +89,7 @@ class YJGame_mainCtrl {
       _Global._YJPlayerFireCtrl.addEventListener("重生", (skillName, cCD) => {
         _Global._YJPlayerFireCtrl.applyEvent("首次进入战斗");
       });
+      _Global._YJPlayerFireCtrl.SetState('canMoveAttack', false);
 
       _Global._YJPlayerFireCtrl.addEventListener("属性改变", (baseData) => {
         _Global.applyEvent("属性改变", baseData);

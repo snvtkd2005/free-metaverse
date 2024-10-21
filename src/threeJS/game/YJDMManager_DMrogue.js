@@ -706,8 +706,7 @@ class YJDMManager_DMrogue {
 
 
       _Global._YJPlayerFireCtrl.GetEquip().addEquip({ assetId: 1692787200597 }, () => {
-      });
-      _Global._YJPlayerFireCtrl.SetState('canMoveAttack', true);
+      }); 
       _Global.YJ3D.YJController.ChangeAnimDirect("idle", "idle");
 
       autoFire();

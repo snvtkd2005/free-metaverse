@@ -1324,6 +1324,10 @@ class YJNPC {
     this.GetIsPlayer = function () {
       return data.isPlayer || ownerPlayerMirror || ownerPlayer;
     }
+    
+		this.GetIsMoving = function(){
+			return isMoving;
+		}
     // 玩家生成的镜像或宠物，在玩家移动后，跟随玩家
     this.FollowPlayer = function () {
       if (baseData.state == stateType.Fire) {
@@ -1448,28 +1452,30 @@ class YJNPC {
 
 
     this.LogFire = function () {
-      // return;
-      console.log("fireid = ", scope.fireId);
-      console.log("inskill = ", _YJSkill.GetinSkill());
-      console.log("targetmodel = ", targetModel);
-      console.log("canmove = ", scope.canMove);
-      console.log("inControl = ", scope.inControl);
+      // return; 
+      console.error(
+        GetNickName() + " baseData ", baseData,
+       "\r\n"+ "fireid = ", scope.fireId,
+       "\r\n"+ "inskill = ", _YJSkill.GetinSkill(),
+     "\r\n"+  "targetmodel = ", targetModel,
+     "\r\n"+  "canmove = ", scope.canMove,
+     "\r\n"+  "inControl = ", scope.inControl,
+     "\r\n"+  "navpath.length = ", navpath.length,
+     "\r\n"+  "state ", baseData.state,
+     "\r\n"+  "是否在有效距离 ", CheckVaildArea(),
+     "\r\n"+  "是否可以攻击（与目标之间有遮挡则不能攻击） ", CheckCanAttack(),
+     "\r\n"+  "readyAttack_doonce ", readyAttack_doonce,
+     "\r\n"+  "readyAttack ", readyAttack,
+      ); 
       if (targetModel) {
         console.log("targetModel.isDead = ", targetModel.isDead);
-        // console.log(GetNickName() + ' 距离目标 ',dis,vaildAttackDis + scope.transform.GetData().scale.x);
-      }
-      console.log("navpath.length = ", navpath.length);
-      console.log(" state ", baseData.state);
+      } 
       if (targetPos) {
-        console.log(" 目标距离 ", targetPos.distanceTo(scope.GetWorldPos()));
+        console.log(" 目标距离 ",dis, targetPos.distanceTo(scope.GetWorldPos()));
       }
       if (oldTargetPos && targetPos) {
         console.log(" 上个距离目标 ", targetPos.distanceTo(oldTargetPos));
-      }
-      console.log(" 是否在有效距离 ", CheckVaildArea());
-      console.log(" 是否可以攻击（与目标之间有遮挡则不能攻击） ", CheckCanAttack());
-      console.log(" readyAttack_doonce ", readyAttack_doonce);
-      console.log(" readyAttack ", readyAttack);
+      } 
 
     }
     // 设置NPC的战斗目标
@@ -2311,7 +2317,9 @@ class YJNPC {
           }
 
 
-          scope.applyEvent("施法中断");
+          if(readyAttack_doonce>0){
+            scope.applyEvent("施法中断");
+          }
           readyAttack_doonce = 0;
           if (!CheckVaildArea()) {
             return;

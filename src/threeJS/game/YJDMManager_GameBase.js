@@ -396,7 +396,6 @@ class YJDMManager_GameBase {
       // _Global._YJPlayerFireCtrl.GetEquip().addEquip({ assetId: 1709594878614 });
 
 
-      _Global._YJPlayerFireCtrl.SetState('canMoveAttack', true);
       _Global.YJ3D.YJController.ChangeAnimDirect("idle", "idle");
 
       // _Global.LogFireById(1711340121297)

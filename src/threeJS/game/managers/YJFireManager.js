@@ -203,6 +203,14 @@ class YJFireManager {
     this.GetNPCs = function () {
       return playerList;
     }
+    this.GetOtherSameCampInArea = function (camp, vaildDistance, max, centerPos, ingoreNpcId) {
+      let npcs = _YJNPCManager.GetOtherSameCampInArea(camp, vaildDistance, max, centerPos, ingoreNpcId);
+      let players = _YJPlayerManager.GetOtherSameCampInArea(camp, vaildDistance, max, centerPos, ingoreNpcId);
+      for (let j = 0; j < players.length; j++) {
+        npcs.push(players[j]);
+      }
+      return npcs;
+    }
     this.GetOtherNoSameCampInArea = function (camp, vaildDistance, max, centerPos, ingoreNpcId) {
       let npcs = _YJNPCManager.GetOtherNoSameCampInArea(camp, vaildDistance, max, centerPos, ingoreNpcId);
       let players = _YJPlayerManager.GetOtherNoSameCampInArea(camp, vaildDistance, max, centerPos, ingoreNpcId);

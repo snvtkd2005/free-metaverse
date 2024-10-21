@@ -49,6 +49,40 @@ class YJNPCManager {
       } 
       return nnpcs;
     }
+    
+    this.GetOtherSameCampInArea = function (camp,vaildDistance, max, centerPos, ingoreNpcId) {
+      let npcs = [];
+      if(max<=0){
+        max = 100000;
+      }
+      let npcModelList = this.GetAllVaildNPC();
+      for (let i = 0; i < npcModelList.length; i++) {
+        const npcComponent = npcModelList[i]; 
+        if (npcComponent.id == ingoreNpcId) {
+          continue;
+        }
+        if (npcComponent.GetCamp() == camp) {
+          // 未判断npc是否在玩家前方
+          let distance = centerPos.distanceTo(npcComponent.GetWorldPos());
+          if (distance <= vaildDistance) {
+            npcs.push({distance:distance,npc:npcComponent});
+          }
+          continue;
+        }
+      }
+      if(npcs.length<=max){
+        max = npcs.length;
+      }else{
+        npcs.sort((a, b) => a.distance - b.distance);
+      }
+      //取距离最近的 
+      let nnpcs = [];
+      for (let i = 0; i < max; i++) {
+        nnpcs.push(npcs[i].npc);
+      } 
+      return nnpcs;
+    }
+    
 
     // 在一场战斗中，获取玩家前方技能有效范围内的npc
     this.CheckNpcInPlayerForward = function (vaildDistance, npcId, playerPos) {

@@ -4,6 +4,8 @@ export default {
   skill: {
     type: "skill",
     isPassive: false, //是否为被动技能
+    isKeeping: false, //是否为保持技能，效果不叠加
+    canMovingCast: false, //是否可移动施法
     level: 0,
     skillName: "基础攻击",
     // auto: true, //自动攻击

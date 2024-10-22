@@ -17,19 +17,20 @@ class YJBuff {
             baseData = owner.GetBaseData();
         }
         this.addDebuff = function (effect) {
-            let { type,runType,controlId, value, time, duration, describe, icon } = effect;
+            console.log(owner.GetNickName() + "添加debuff", effect);
+            let { type, runType, controlId, value, time, duration, describe, icon } = effect;
             // 每n秒伤害，持续m秒
             if (runType == "perSecond" && type == "basicProperty") {
 
                 //每秒伤技能是debuff，显示在角色状态上
                 let id = new Date().getTime();
                 let count = parseInt(duration / time);
-                let num = 0; 
-                let buff = JSON.parse(JSON.stringify(effect)) ;
+                let num = 0;
+                let buff = JSON.parse(JSON.stringify(effect));
                 buff.id = id;
                 baseData.debuffList.push(buff);
                 // console.error(" add Debuff ",id,JSON.parse(JSON.stringify(buff)));
-                owner.applyEvent("添加debuff",buff);
+                owner.applyEvent("添加debuff", buff);
 
                 fireLater.push({
                     id: id,
@@ -41,8 +42,8 @@ class YJBuff {
                             if (buff.duration <= 0) {
                                 buff.duration = 0;
                             }
-                            
-                            baseData.health -= owner.GetProperty().RealyDamage(Math.abs(value) );
+
+                            baseData.health -= owner.GetProperty().RealyDamage(Math.abs(value));
                             num++;
                             if (num >= count) {
                                 scope.removeDebuffById(id);
@@ -53,6 +54,40 @@ class YJBuff {
                         }, 1000)
                 });
                 return;
+            }
+            if (controlId == "移动速度") {
+                for (let i = 0; i < fireLater.length; i++) {
+                    const element = fireLater[i];
+                    if(element.controlId == controlId){
+                        element.buff.duration = duration;
+                        return;
+                    }
+                }
+                //每秒伤技能是debuff，显示在角色状态上
+                let id = new Date().getTime();
+                let buff = JSON.parse(JSON.stringify(effect));
+                buff.id = id;
+                baseData.debuffList.push(buff);
+                // console.error(" add Debuff ",id,JSON.parse(JSON.stringify(buff)));
+                owner.applyEvent("添加debuff", buff);
+                owner.SetMoveSpeedRate((100+value) * 0.01);
+
+                fireLater.push({
+                    id: id,
+                    controlId:controlId,
+                    buff:buff,
+                    type: "interval", fn:
+                        setInterval(() => {
+                            if (_Global.pauseGame) { return; }
+                            buff.duration -= 1;
+                            if (buff.duration <= 0) {
+                                buff.duration = 0; 
+                                owner.SetMoveSpeedRate(1);
+                                scope.removeDebuffById(id);
+                            }
+                            owner.applyEvent("debuffCD", buff);
+                        }, 1000)
+                });
             }
         }
         this.removeDebuffById = function (id) {
@@ -82,7 +117,7 @@ class YJBuff {
 
             for (let i = 0; i < baseData.buffList.length; i++) {
                 const element = baseData.buffList[i];
-                if(element.skillName == effect.skillName){
+                if (element.skillName == effect.skillName) {
                     element.duration = effect.duration;
                     return;
                 }
@@ -90,7 +125,7 @@ class YJBuff {
             let id = new Date().getTime();
             let { type, value, time, duration, describe, icon } = effect;
 
-            let buff = JSON.parse(JSON.stringify(effect)) ;
+            let buff = JSON.parse(JSON.stringify(effect));
             buff.id = id;
             baseData.buffList.push(buff);
             owner.applyEvent("添加buff", buff);
@@ -100,7 +135,7 @@ class YJBuff {
                 id: id,
                 type: "interval", fn:
                     setInterval(() => {
-            if (_Global.pauseGame) { return; }
+                        if (_Global.pauseGame) { return; }
 
                         buff.duration -= 1;
                         if (buff.duration <= 0) {
@@ -111,7 +146,7 @@ class YJBuff {
                                 if (element.id == id) {
                                     if (element.type == "shield") {
                                         owner.applyEvent("解除技能", element);
-                                    } 
+                                    }
                                 }
                             }
 

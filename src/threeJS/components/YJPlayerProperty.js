@@ -48,7 +48,7 @@ class YJPlayerProperty {
 			attackSpeed: 1, //攻击速度
 			attackPower: 0, //攻击强度
 			hasteLevel: 0, //急速等级 最大值1
-			moveSpeed: 1, //移动速度百分比
+			moveSpeedRate: 1, //移动速度百分比
 			CriticalHitRate: 0,//暴击率百分比
 			CriticalHitLevel: 0,//暴击等级
 			CriticalHit: 1.5,//暴击伤害百分比
@@ -263,7 +263,7 @@ class YJPlayerProperty {
 			}
 
 			if (property == "moveSpeed") {
-				owner.SetMoveSpeed(basicProperty.moveSpeed);
+				owner.SetMoveSpeedRate(basicProperty.moveSpeedRate);
 			}
 			if (property == "CDRate") {
 				owner.GetSkill().SetSkillCDRate(basicProperty[property]);

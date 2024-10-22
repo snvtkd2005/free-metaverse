@@ -577,7 +577,7 @@ class YJPlayerFireCtrl {
 			_YJPlayer.GetAvatar().SetActionScale(1 + baseData.basicProperty.speedScale * 0.3);
 			return attackStepSpeed / baseData.basicProperty.speedScale;
 		}
-		this.SetMoveSpeed = function (f) {
+		this.SetMoveSpeedRate = function (f) {
 			_Global.YJ3D.YJController.SetMoveSpeedScale(f);
 			_Global.YJ3D.YJPlayer.GetAvatar().SetActionScale(1 + f);
 		}
@@ -669,9 +669,12 @@ class YJPlayerFireCtrl {
 				return false;
 			}
 			// 不在攻击范围内
-			let b = inVaildArea(playerPos.distanceTo(npcPos));
+			let dis = playerPos.distanceTo(npcPos);
+			let b = inVaildArea(dis);
 			if (!b) {
-				scope.MyFireState("太远了"); state.canAttack = false;
+				scope.MyFireState("太远了"); 
+				// console.log("dis ",dis," vaildAttackDis ",vaildAttackDis);
+				state.canAttack = false;
 				cantAttackType = CantAttackType.tofar;
 				return false;
 			}
@@ -691,7 +694,20 @@ class YJPlayerFireCtrl {
 			//有效攻击
 			_YJSkill.SendDamageToTarget(targetModel, { skillName: s, type: "damage", value: baseData.basicProperty.strength });
 		}
+
+		let targetModelOldPos = new THREE.Vector3(0);
 		function CheckState() {
+
+
+			if(targetModel != null){
+				let pos = targetModel.GetWorldPos();
+				if(pos.distanceTo(targetModelOldPos)>=0.1){
+					if (_YJSkill) {
+						_YJSkill.CheckSkillInVaildDis(scope.GetWorldPos());
+					}
+					targetModelOldPos = pos.clone();
+				} 
+			}
 			return;
 			if (playerState == PLAYERSTATE.ATTACK) {
 
@@ -892,7 +908,6 @@ class YJPlayerFireCtrl {
 		}
 
 		this.SetPlayerState = function (e, _animName) {
-
 			// weaponData = YJController.GetUserData().weaponData;
 			weaponData = scope.GetEquip().GetWeaponData();
 
@@ -978,14 +993,17 @@ class YJPlayerFireCtrl {
 					state.canAttack = false;
 					GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					EventHandler("中断技能");
+					if(!canMove){return;}
 
 					break;
 				case "取消跳跃":
 					GetAnimNameByPlayStateAndWeapon("停止移动", weaponData);
 					break;
 				case "移动":
+					if(!canMove){return;}
+
 					state.isMoving = true;
-					console.log(" 移动 000000000000000 ",state.canMoveAttack);
+					// console.log(" 移动 000000000000000 ",state.canMoveAttack);
 					if (state.canMoveAttack) {
 						GetAnimNameByPlayStateAndWeapon("普通攻击", weaponData);
 						// GetAnimNameByPlayStateAndWeapon("准备战斗", weaponData); 
@@ -1066,8 +1084,10 @@ class YJPlayerFireCtrl {
 			scope.ChangeAnimDirect("idle");
 			// console.log(" 玩家动作3 ", "idle");
 		}
+		let canMove = true;
 		this.SetInControl = function (b) {
-			YJController.SetEnabled(!b);
+			canMove = !b;
+			// YJController.SetEnabled(!b);
 			YJController.SetAmmoEnabled(!b);
 		}
 		this.GetTargetModelDistance = function () {

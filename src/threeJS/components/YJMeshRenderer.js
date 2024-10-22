@@ -458,15 +458,13 @@ class YJMeshRenderer {
 
       const loader = new GLTFLoader();
       
-      loader.setDRACOLoader(_Global.YJ3D._YJSceneManager.GetDracoLoader());
+      // loader.setDRACOLoader(_Global.YJ3D._YJSceneManager.GetDracoLoader());
 
       // + ("?time="+new Date().getTime())
       loader.load(modelPath, function (gltf) {
-        // console.log("加载模型 00 ",modelPath);
+        // console.log("加载 gltf 模型 00 ",modelPath,gltf);
 
         model = gltf.scene;
-
-        gltf.animations = [];
         animations = gltf.animations;
 
         model.transform = owner;

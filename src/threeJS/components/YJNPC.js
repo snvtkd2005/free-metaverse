@@ -1094,8 +1094,8 @@ class YJNPC {
       scope.applyEvent("设置目标技能进度条", skillCastTime, skillName, reverse);
 
     }
-    this.SetMoveSpeed = function (f) {
-
+    this.SetMoveSpeedRate = function (f) {
+      baseData.basicProperty.moveSpeedRate = f ;
     }
 
     this.RemoveHandle = function () {
@@ -1471,7 +1471,7 @@ class YJNPC {
         console.log("targetModel.isDead = ", targetModel.isDead);
       } 
       if (targetPos) {
-        console.log(" 目标距离 ",dis, targetPos.distanceTo(scope.GetWorldPos()));
+        console.log(" 目标距离 ", targetPos.distanceTo(scope.GetWorldPos()));
       }
       if (oldTargetPos && targetPos) {
         console.log(" 上个距离目标 ", targetPos.distanceTo(oldTargetPos));
@@ -2360,10 +2360,10 @@ class YJNPC {
       let targetPosition = navpath[0];
       const velocity = targetPosition.clone().sub(playerPosition);
 
-      if (velocity.lengthSq() > 0.00075 * baseData.speed) {
+      if (velocity.lengthSq() > 0.00075 * baseData.speed * baseData.basicProperty.moveSpeedRate) {
         velocity.normalize();
         // Move player to target  
-        playerPosition.add(velocity.multiplyScalar(0.022 * baseData.speed));
+        playerPosition.add(velocity.multiplyScalar(0.022 * baseData.speed * baseData.basicProperty.moveSpeedRate));
         // playerPosition.add(velocity.multiplyScalar(0.015 * baseData.speed));
 
         // let pos = raycasterDownPos(playerPosition.clone());

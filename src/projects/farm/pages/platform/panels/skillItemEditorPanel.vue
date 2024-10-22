@@ -42,7 +42,6 @@ export default {
       triggerType: [
         { label: "血量达到百分比时执行", value: "health" },
         { label: "每n秒执行", value: "perSecond" },
-        // { label: "被动技能（buff）", value: "buff" },
       ],
       //目标
       targetType: [
@@ -55,37 +54,10 @@ export default {
         { label: "当前目标及其附近", value: "targetAndNear" },
         { label: "半径范围内敌方", value: "area" },
         { label: "半径范围内友方", value: "areaFriendly" },
-      ], 
-      // 执行属性
-      effectType: [ 
-        { label: "debuff/每秒伤害", value: "perDamage" },
-        { label: "直接伤害", value: "damage" },
-        { label: "恢复生命", value: "addHealth" },
-        { label: "吐息/持续伤害", value: "contDamage" },
-        { label: "增生/镜像-生成n个复制", value: "hyperplasia" },
-        { label: "进化-伤害提高百分比", value: "evolution" },
-        { label: "护盾", value: "shield" },
-        { label: "控制", value: "control" },
-        { label: "基础属性", value: "basicProperty" },
-      ],
-
-      basicProperty:[
-        { label: "生命值", value: "health" }, 
-        { label: "护甲", value: "armor" }, 
-        { label: "耐力", value: "endurance" }, 
-        { label: "力量", value: "strength" }, 
-        { label: "精神", value: "spirit" }, 
-      ],
+      ],  
       modelType: [
         { label: "静态模型", value: "静态模型" },  
-      ], 
-      // 控制id
-      controlId: [
-        { label: "冰霜新星", value: "冰霜新星" }, 
-        { label: "被嘲讽", value: "被嘲讽" }, 
-        { label: "眩晕", value: "眩晕" }, 
-        { label: "减速", value: "减速" }, 
-      ], 
+      ],  
       skillFirePart:[
         { label: "无", value: "" }, 
         { label: "自身位置", value: "selfPos" }, 
@@ -119,19 +91,6 @@ export default {
 
 
         { property: "effects", display: true, title: "效果组", type: "effectArrayVariable", value: [], callback: this.ChangeValue, },
-
-        // { property: "effect-icon", display: true, title: "效果图标", type: "file", filetype: "image", accept: "", value: "", callback: this.ChangeValue },
-        // { property: "effect-runType", display: true, title: "执行类型", type: "drop", options: [
-        //   { label: "每秒执行", value: "perSecond" }, 
-        //   { label: "立即执行", value: "immediately" }, 
-        // ], value: "immediately", callback: this.ChangeValue },
-        // { property: "effect-type", display: true, title: "技能效果", type: "drop", options: [], value: "", callback: this.ChangeValue },
-        // { property: "effect-controlId", display: true, title: "具体属性", type: "drop", options: [], value: "", callback: this.ChangeValue },
-        // { property: "effect-value", display: true, title: "效果值", type: "int", step: 1, value: 1, callback: this.ChangeValue, },
-        // { property: "effect-time", display: true, title: "间隔", type: "num",unit:"秒", step: 0.1, value: 1, callback: this.ChangeValue, },
-        // { property: "effect-duration", display: true, title: "持续时间", type: "int",unit:"秒", step: 1, value: 1, callback: this.ChangeValue, },
-        // { property: "effect-describe", display: true, title: "效果描述", type: "text", value: "", callback: this.ChangeValue, },
-
         
         { property: "canMovingCast", display: true, title: "是否能移动中施法", type: "toggle", value: false, callback: this.ChangeValue },
         { property: "isKeeping", display: true, title: "是否为保持", type: "toggle", value: false, callback: this.ChangeValue },
@@ -276,14 +235,7 @@ export default {
       this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "trigger-type", "options", this.triggerType);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "target-type", "options", this.targetType);
-      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-type", "options", this.effectType);
-      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-controlId", "options", this.controlId);
-      if(this.settingData.effect.type == "control"){
-
-      }
-      if(this.settingData.effect.type == "basicProperty"){
-        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-controlId", "options", this.basicProperty);
-      }
+ 
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "skillFirePart", "options", this.skillFirePart);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "receiveEffect-modelType", "options", this.modelType);
       
@@ -302,7 +254,6 @@ export default {
 
       this.Utils.SetSettingItemByPropertyAll(this.setting, this.settingData);
 
-      this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-value", "value", this.settingData.effect.value);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effects", "value", this.settingData.effects);
 
       for (let i = 0; i < this.setting.length; i++) {
@@ -318,27 +269,7 @@ export default {
       if (property == "skillFireAutoHidden") {
         this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "skillFireDiplayValue", "display", e);
       }
-      if (property == "trigger-type") {
-        if(e=="buff"){ 
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "castTime", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "animNameReady", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "skillReadyParticleId", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "skillReadyAudio", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "animName", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "skillFirePart", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "skillFirePart", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "skillFireParticleId", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "skillFireAutoHidden", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "skillFireDiplayValue", "display", false);
-          // this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-directToTarget", "display", false);
-          // this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-value", "display", true);
-          // this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-time", "display", false);
-          // this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "display", false);
-          // this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-duration", "display", false);
-          // this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-icon", "display", false);
-
-
-        }
+      if (property == "trigger-type") { 
       }
       if (property == "target-type") {
         this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "vaildDis", "display", !(e.includes("self")  ||  e == 'none'));
@@ -365,103 +296,7 @@ export default {
           this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "targetLv", "value", a );
         }
       }
-       
-      if (property == "effect-runType") {
-        if (e == "perSecond") {
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-value", "display", true);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-time", "display", true);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "display", true);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-duration", "display", true);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-icon", "display", true);
-        }
-        if (e == "immediately") {
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-value", "display", true);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-time", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-duration", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-icon", "display", false);
-        }
-      }
-      if (property == "effect-type") {
-        if (e == "damage") {
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-value", "display", true);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-time", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-duration", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-icon", "display", false);
-        }
-        if (e == "evolution") {
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-time", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-duration", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-icon", "display", false);
-        }
-
-        if (e == "contDamage") {
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-value", "display", true);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-time", "display", true);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-duration", "display", true);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-icon", "display", false);
-        }
-
-        if (e == "perDamage") {
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-value", "display", true);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-time", "display", true);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "display", true);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-duration", "display", true);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-icon", "display", true);
-        }
-
-        if (e == "hyperplasia") {
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-value", "display", true);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-time", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-duration", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-icon", "display", false);
-        }
-        if (e == "control") {
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-value", "display", true);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-time", "display", true);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-duration", "display", true);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-icon", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-controlId", "options", this.controlId);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-controlId", "value", this.controlId[0].value);
-          this.settingData.effect.controlId =  this.controlId[0].value;
-          
-        }
         
-        if (e == "basicProperty") {
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-value", "display", true);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-time", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-duration", "display", true);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-icon", "display", true);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-controlId", "options", this.basicProperty);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-controlId", "value", this.basicProperty[0].value);
-          this.settingData.effect.controlId =  this.basicProperty[0].value;
-        }
-        
-        if (e == "shield") {
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-value", "display", true);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-time", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-duration", "display", true);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-icon", "display", true);
-        }
-        if (e == "addHealth") {
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-value", "display", true);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-time", "display", true);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "display", false);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-duration", "display", true);
-          this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-icon", "display", true);
-        }
-        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-controlId", "display", e == "control"||e == "basicProperty" ); 
-        this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "castTime", "display",  e != "contDamage");
-
-      }
-
       // 吟唱时间
       if (property == "castTime") {
         if(e>0){
@@ -494,7 +329,6 @@ export default {
       this.ChangeUIState(property, e);
       this.settingData.describe = GameUtils.GetDescribe(this.settingData);
       this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "describe", "value", this.settingData.describe);
-      // this.Utils.SetSettingItemPropertyValueByProperty(this.setting, "effect-describe", "value", this.settingData.effect.describe);
 
     },
 

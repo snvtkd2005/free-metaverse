@@ -120,6 +120,7 @@ export default {
       ThreejsPanel: null,
       publicUrl: "",
       videoList: [],
+      touchTime:0,
     };
   },
 

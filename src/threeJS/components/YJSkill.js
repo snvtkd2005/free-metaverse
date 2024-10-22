@@ -336,6 +336,10 @@ class YJSkill {
             if (type == "control") {
 
                 let controlId = effect.controlId;
+
+                if (controlId == "移动速度") {                
+                    owner.GetBuff().addDebuff(effect);
+                }
                 if (controlId == "无法移动") {
                     owner.SetInControl(true);
                     owner.SetPlayerState("停止移动");
@@ -720,11 +724,10 @@ class YJSkill {
             return areaTargets;
         }
         function skillFn(skillItem, index = 0) {
-
             let targetType = skillItem.target.type;
             let effect = skillItem.effects[index];
             if (skillItem.effects.length > (index + 1)) {
-                skillFn(index + 1);
+                skillFn(skillItem,index + 1);
             }
             skillItem.effect = effect;
             let errorLog = "";
@@ -801,6 +804,21 @@ class YJSkill {
             }
 
             if (effect.type == "control") {
+                if (controlId == "移动速度") {
+                    for (let i = 0; i < areaTargets.length; i++) {
+                        const target = areaTargets[i];
+                        //瞬发技能直接同步
+                        _Global.DyncManager.SendDataToServer(getSendTitle(target),
+                            {
+                                fromId: owner.id,
+                                fromType: owner.getPlayerType(),
+                                targetType: target.getPlayerType(),
+                                targetId: target.id,
+                                skillItem: skillItem
+                            });
+                    }
+                    return;
+                }
                 if (controlId == "无法移动") {
                     effect.value = 0;
                     for (let i = 0; i < areaTargets.length; i++) {
@@ -1429,8 +1447,8 @@ class YJSkill {
                     }, skillCastTime * 1000);
                 }
             } else {
-                console.log(owner.GetNickName() + " 施放 22 被动技能： ", 
-                skillItem.skillName,skillItem.effects[0],skillItem);
+                // console.log(owner.GetNickName() + " 施放 22 被动技能： ", 
+                // skillItem.skillName,skillItem.effects[0],skillItem);
                 
                 skillFn(skillItem);
                 if (skillItem.cCD == skillItem.CD) {
@@ -1446,7 +1464,7 @@ class YJSkill {
         // 施放不需要目标或目标是自身的技能 如 增生
         function SendSkillToSelf(effect, skillItem) {
             let { type, skillName, value, time, duration, describe, controlId } = effect;
-            console.log("施放不需要目标或目标是自身的技能 00 ", effect, skillItem);
+            // console.log("施放不需要目标或目标是自身的技能 00 ", effect, skillItem);
             if (type == "shield" || type == "control") {
                 //
                 // console.log("施放不需要目标或目标是自身的技能 ", controlId);

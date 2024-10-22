@@ -294,17 +294,20 @@ YJinputCtrl,
       this.animationsData[i].targetIndex =
         this.animations[this.selectCurrentIndex].clipIndex;
     },
-    SetAvatar(avatar) {
+    SetAvatar(avatar) { 
       if (avatar == null) {
         return;
       }
-      this.avatar = avatar.GetComponent("Animator");
+      this.avatar = avatar.GetComponent("Animator"); 
       if (this.avatar == null) {
         return;
       }
 
       let animations = this.avatar.GetAnimation();
       this.hasModelAnim = animations.length > 0;
+
+      console.log(" this.hasModelAnim   ", this.hasModelAnim  );
+
       if (animations.length > 0) {
         let temp = [];
         for (let i = 0; i < animations.length; i++) {

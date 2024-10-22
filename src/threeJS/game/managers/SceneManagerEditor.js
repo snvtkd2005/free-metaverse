@@ -908,7 +908,7 @@ class SceneManager {
         ClearTarget();
         return;
       }
-      if (hitObject.transform && hitObject.transform.GetActive()) {
+      if (hitObject.transform && hitObject.transform.GetActive && hitObject.transform.GetActive()) {
         // 点击NPC
         let message = hitObject.transform.GetData().message;
         // console.log(" 右键点击 transform ", message);
@@ -1063,7 +1063,7 @@ class SceneManager {
         return;
       }
       // console.log("点击模型.transform ", hitObject.transform);
-      if (hitObject.transform && hitObject.transform.GetActive()) {
+      if (hitObject.transform && hitObject.transform.GetActive && hitObject.transform.GetActive()) {
         this.ClickModelTransform(hitObject.transform);
         return;
       } 
@@ -1074,8 +1074,8 @@ class SceneManager {
       }
       console.log("点击物体 ", modelType);      
       if (modelType == "player") {
-        this.SetTargetModel(hitObject.owner);
-        _Global._YJPlayerFireCtrl.SetPlayerEvent("选中npc", hitObject.owner);
+        this.SetTargetModel(hitObject.transform);
+        _Global._YJPlayerFireCtrl.SetPlayerEvent("选中npc", hitObject.transform);
         return;
       }
       if (modelType == "bonedummy") {

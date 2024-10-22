@@ -3244,7 +3244,10 @@ class YJController {
         if (_YJPlayer) {
           _YJPlayer.SetFlyMountDisplay(false);
         }
-        scope.SetPlayerState("取消跳跃");
+        if (inMoving) {
+        }else{
+          scope.SetPlayerState("取消跳跃");
+        }
         if (playerState != PLAYERSTATE.NORMAL) {
           playerState = PLAYERSTATE.NORMAL;
         }

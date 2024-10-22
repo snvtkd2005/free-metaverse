@@ -1031,8 +1031,6 @@ class YJPlayer {
       } else {
       }
       oldUserData = userData;
-
-
       if (!hasPlayer) {
         //在角色没创建完成前，就接收到位置，则先把位置记录下来
         playerDyncData.defultPos = pos;
@@ -1157,7 +1155,7 @@ class YJPlayer {
         if (dyncTimes > 0) {
           targetPos.set(pos.x, pos.y, pos.z);
           b_lerpChangeView = true;
-          lerpLength = 0.5;
+          lerpLength = 0.3;
         } else {
           currentTargetPos.lerp(newPos, 1);
           playerGroup.position.set(currentTargetPos.x, currentTargetPos.y, currentTargetPos.z);
@@ -1392,8 +1390,7 @@ class YJPlayer {
     var lerpLength = 0;  //平滑过渡值，取值范围 0 - 1
     var currentTargetPos = new THREE.Vector3();  //平滑过渡时使用的变量
 
-    var targetPos = new THREE.Vector3(0, 0, 0);
-    let needAnimName = "";
+    var targetPos = new THREE.Vector3(0, 0, 0); 
  
     function LerpMovePlayer() {
 

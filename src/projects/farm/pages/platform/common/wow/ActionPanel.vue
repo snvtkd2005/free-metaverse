@@ -903,16 +903,13 @@ export default {
       }
       // 自动添加时，从左到右，第一个没有使用的动作框
       let index = -1;
-      for (
-        let i = 0;
-        i < this.actionList.actionBar1.length && index == -1;
-        i++
-      ) {
+      for (let i = 0;i < this.actionList.actionBar1.length && index == -1;i++) {
         const element = this.actionList.actionBar1[i].skill;
         if (element == null) {
           index = i;
         }
       }
+      if(index==-1){return;}
 
       _skill.level = 1;
       _skill.auto = false;

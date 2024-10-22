@@ -267,7 +267,7 @@ class YJDyncManager {
       this.userId = id;
       //连接成功
       this.connected = true;
-      this.needMainUser();
+      // this.needMainUser();
       // console.log("YJDync = " , YJDync);
 
       //用websocket 连接id 作为腾讯云音视频sdk的连接id

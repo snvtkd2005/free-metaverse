@@ -36,8 +36,7 @@ class YJThreejsBase {
     // windowHeight = window.innerHeight;
 
     let canAddListner = true;
-
-    let touchTime = 0;
+ 
     let infocus = true;
 
     let enableRenderer = true;

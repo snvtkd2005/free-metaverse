@@ -2256,7 +2256,7 @@ class YJSceneManager {
         scene.add(light);
 
         const dLight = 100;
-        const sLight = dLight * 0.25;
+        const sLight = dLight * 0.5; //0.5 越大阴影范围越大
         light.shadow.camera.left = - sLight;
         light.shadow.camera.right = sLight;
         light.shadow.camera.top = sLight;
@@ -2272,14 +2272,6 @@ class YJSceneManager {
         light.shadow.mapSize.x = resourceSize * 4;
         light.shadow.mapSize.y = resourceSize * 4;
  
-        setTimeout(() => { 
-
-          _Global.YJ3D.YJPlayer.addEventListener("pos",(playerPos) => { 
-            UpdateDirectionalLight(playerPos, intensity);
-            // console.log("角色移动", playerPos);
-          });
-
-        }, 3000);
         //创建辅助工具 
         // scene.add(new THREE.DirectionalLightHelper(_DirectionalLight));
         // scene.add(new THREE.CameraHelper(_DirectionalLight.shadow.camera));  
@@ -2296,10 +2288,10 @@ class YJSceneManager {
         lightTarget = new THREE.Group();
         scene.add(lightTarget);
         //必须给方向光设置target，并设置target坐标为角色坐标，才能让方向光始终照射角色产生正确引用
-        _DirectionalLight.target = lightTarget;
       }
 
       if (_DirectionalLight != null) {
+        _DirectionalLight.target = lightTarget;
         lightTarget.position.copy(pos);
         pos.y += 30
         _DirectionalLight.position.copy(pos);
@@ -2398,7 +2390,13 @@ class YJSceneManager {
       _this.LoadingProcess(100);
 
       _Global.YJ3D.GeneratePlayer(() => {
+        
+        _Global.YJ3D.YJPlayer.addEventListener("pos",(playerPos) => { 
+          UpdateDirectionalLight(playerPos);
+          // console.log("角色移动", playerPos);
+        });
         CreateSingleScene();
+         
       });
     }
 

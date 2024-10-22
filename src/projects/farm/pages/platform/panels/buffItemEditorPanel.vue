@@ -49,9 +49,9 @@ export default {
         { label: "生命值", value: "health" }, 
         { label: "最大生命值百分比", value: "maxHealth" }, 
         { label: "护甲", value: "armor" }, 
-        { label: "耐力", value: "endurance" }, 
-        { label: "力量", value: "strength" }, 
-        { label: "精神", value: "spirit" }, 
+        // { label: "耐力", value: "endurance" }, 
+        // { label: "力量", value: "strength" }, 
+        // { label: "精神", value: "spirit" }, 
       ],
       // 控制id
       controlId: [

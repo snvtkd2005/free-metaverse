@@ -12,7 +12,7 @@ import * as THREE from "three";
 // 3，再放logo、水印图模型放在最前面
 
 class YJ3dCanvasCut {
-  constructor(_this,cutWidth,cutHeight, scene, renderer, camera) {
+  constructor(_this, cutWidth, cutHeight, scene, renderer, camera) {
 
 
     this.Photo = function (callback) {
@@ -23,7 +23,7 @@ class YJ3dCanvasCut {
       }
 
       let canvas = renderer.domElement;
-      renderer.setPixelRatio(2); //推荐
+      renderer.setPixelRatio(1); //推荐
       renderer.render(scene, camera);
       let dataBase64 = canvas.toDataURL("image/png");	//将canvas转成image类型 
 
@@ -34,22 +34,25 @@ class YJ3dCanvasCut {
 
         var nowcanvas = document.getElementById("cutcanvas");
         var nowcontext = nowcanvas.getContext("2d");
-        let sourceWidth = window.innerWidth;
-        let sourceHeight = window.innerHeight;
+        let { w, h } = _this.GetWidthHeight();
+        let sourceWidth = w;
+        let sourceHeight = h;
+        // let sourceWidth = window.innerWidth;
+        // let sourceHeight = window.innerHeight;
         // let cutWidth = parseInt(sourceWidth / 2);
         // let cutHeight = parseInt(sourceHeight / 2);
-
+        cutWidth = w * 3 / 5;
+        cutHeight = h * 5 / 6;
         let offsetX = parseInt(sourceWidth / 2 - cutWidth / 2);
         let offsetY = parseInt(sourceHeight / 2 - cutHeight / 2);
 
 
         let dataUrl = imgCut(nowcanvas, image, sourceWidth, sourceHeight, offsetX, offsetY, cutWidth, cutHeight);
 
-        
         // let a = document.createElement("a");
         // // a.href = nowcanvas.toDataURL("image/jpeg");
         // // a.href =  image.src ;
-        // a.href =  dataUrl ;
+        // a.href = dataUrl;
         // a.download = "sdf";
         // a.click();
         // a.remove();
@@ -57,8 +60,7 @@ class YJ3dCanvasCut {
           callback(dataUrl);
         }
       }, 200);
-    }
-
+    } 
     function imgCut(nowcanvas, image, imgElementW, imgElementH, imageStartX, imageStartY, cutWidth, cutHeight) {
       //清理画布，便于重新绘制
       // context.clearRect(0, 0, imgElementW, imgElementH);
@@ -89,13 +91,15 @@ class YJ3dCanvasCut {
 
 
 
-      var canvasWidth = cutWidth;
-      var canvasHeight = cutHeight;
+      // var canvasWidth = cutWidth;
+      // var canvasHeight = cutHeight;
+      
+      var canvasWidth = 200;
+      var canvasHeight = (cutHeight / cutWidth) * canvasWidth;
       console.log("画布大小为：" + canvasWidth + " " + canvasHeight);
 
-      nowcanvas.width = cutWidth;
-      nowcanvas.height = cutHeight;
-
+      nowcanvas.width = canvasWidth;
+      nowcanvas.height = canvasHeight;
 
       nowcanvas.getContext("2d").drawImage(
         image,

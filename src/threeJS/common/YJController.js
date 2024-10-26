@@ -1073,8 +1073,7 @@ class YJController {
       // console.log("_YJAmmoPlayer.rotation.y = ", _YJAmmoPlayer.rotation.y);
 
       y *= rotaDirection;
-
-      // console.log("水平旋转"+_YJAmmoPlayer.rotation.y );
+ 
       if (camTarget.rotation.z + y < scope.minY) {
         camTarget.rotation.z = scope.minY;
       } else if (camTarget.rotation.z + y > scope.maxY) {
@@ -1593,7 +1592,8 @@ class YJController {
         return;
       }
       _YJAmmo.MoveByJoystickAxis(x, y);
-      _YJAmmo.SetShiftLeft(inRun);
+      // 摇杆持续时间长，且值>0.5，自动变为加速速度
+      // _YJAmmo.SetShiftLeft(inRun);
       CancelOnlyRotaView();
     }
 
@@ -1945,17 +1945,18 @@ class YJController {
       listener.rotation.y = 3.14;
     }
     //角色引用
-    var _player = null;
+    var _player = null; 
     var _playerY = 0;
     //把第三人称角色，添加到摄像机目标中，即摄像机中心
     this.SetPlayerToCamTarget = (player) => {
       console.log(" 添加角色到控制器 ");
       _player = player;
-      // playerParent.add(player);
+      // playerParent.add(player); 
 
       player.position.set(0, -0.0, 0);
       _playerY = pai / 2;
       _player.rotation.set(0, _playerY, 0);
+      
     }
 
 
@@ -2062,7 +2063,9 @@ class YJController {
     this.GetCamTargetWorldDire = function () {
       return camTargetDirection.getWorldDirection(new THREE.Vector3());
     }
-
+    this.GetPlayerWorldDire = function () {
+      return _player.getWorldDirection(new THREE.Vector3());
+    } 
     //设置摄像机的视角距离
     this.GetCameraWheel = function () {
       return wheelCurrentValue;
@@ -3541,15 +3544,16 @@ class YJController {
     }
     // 插值旋转角色
     function lerpRotaPlayer() {
-
+      if(playerMoveDirection.x>1){
+        playerMoveDirection.x=1;
+      }
       oldplayerMoveDirection.lerp(playerMoveDirection, 0.5);
-
 
       // if (playerMoveDirection.y > 0) {
       //   _playerY = 2 * pai + (playerMoveDirection.x - 1) * pai / 2;
       // } else {
       //   _playerY = 2 * pai - (playerMoveDirection.x - 1) * pai / 2;
-      // }
+      // } 
 
       if (oldplayerMoveDirection.y > 0) {
         _playerY = 2 * pai + (oldplayerMoveDirection.x - 1) * pai / 2;

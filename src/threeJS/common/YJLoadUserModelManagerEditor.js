@@ -365,10 +365,11 @@ class YJLoadUserModelManager {
 
       // console.error("添加更新 AddNeedUpdateJS ",object);
 
-      if (!_Global.setting.inEditor) {
+      if (!_Global.setting.inEditor || false) {
         // 测试模型合批
         let hasSame = _Global.YJ3D._YJSceneManager.CheckTransform(modelData.modelPath, modelData, object);
-        if (hasSame && modelType == "静态模型" && modelData.modelId == "") {
+          // console.error(" 有相同的静态模型 00 ",hasSame,modelType,modelData.modelId);
+          if (hasSame && modelType == "静态模型") {
           allTransform.push({ uuid: object.GetUUID(), transform: object });
           if (callback) {
             callback();

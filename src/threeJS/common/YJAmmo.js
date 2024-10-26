@@ -1950,8 +1950,11 @@ class YJAmmo {
 
       if (enableGravity) {
 
-        myCtrlRb.getWorldDirection(dir);
-        myCtrlRbChild.getWorldDirection(dirChild);
+        // myCtrlRb.getWorldDirection(dir);
+        // myCtrlRbChild.getWorldDirection(dirChild);
+
+
+        dir = _Global.YJ3D.YJController.GetPlayerWorldDire(); 
 
         // if (inJumping) {
         //   downForce -= 0.8;
@@ -2003,27 +2006,47 @@ class YJAmmo {
       }
 
 
-      let dx = x;
-      let dz = y;
+      let dx = Math.abs(x);
+      let dz = Math.abs(y);
+      if(dx>1){
+        dx=1;
+      }
+      if(dz>1){
+        dz=1;
+      }
+      // let dx = x;
+      // let dz = y;
 
       let moveForceX = 0;
       let moveForceZ = 0;
       if (fb) {
         moveForceX = (dir.x * dz * moveSpeed);
-        moveForceZ = (dir.z * dz * moveSpeed);
+        moveForceZ = (dir.z * dz* moveSpeed);
       }
       if (lr) {
-        moveForceX = (dirChild.x * dx * moveSpeed);
-        moveForceZ = (dirChild.z * dx * moveSpeed);
+        moveForceX = (dir.x * dx * moveSpeed);
+        moveForceZ = (dir.z * dx * moveSpeed);
       }
       if (fb && lr) {
-        moveForceX = (((dir.x * dz) + (dirChild.x * dx)) * 0.7 * moveSpeed);
-        moveForceZ = (((dir.z * dz) + (dirChild.z * dx)) * 0.7 * moveSpeed);
+        moveForceX = ((dir.x * (dz + dx)/2)  * moveSpeed);
+        moveForceZ = ((dir.z * (dz + dx)/2) * moveSpeed);
       }
+      // if (fb) {
+      //   moveForceX = (dir.x * dz * moveSpeed);
+      //   moveForceZ = (dir.z * dz * moveSpeed);
+      // }
+      // if (lr) {
+      //   moveForceX = (dirChild.x * dx * moveSpeed);
+      //   moveForceZ = (dirChild.z * dx * moveSpeed);
+      // }
+      // if (fb && lr) {
+      //   moveForceX = (((dir.x * dz) + (dirChild.x * dx)) * 0.7 * moveSpeed);
+      //   moveForceZ = (((dir.z * dz) + (dirChild.z * dx)) * 0.7 * moveSpeed);
+      // }
 
       // console.log(" 移动速度 moveSpeed = " + moveSpeed);
       // console.log(" 力值 ",moveForceX,moveForceZ);
-      // console.log("执行移动刚体", moveForceX, moveForceZ);
+      // console.log("执行移动刚体",moveSpeed, moveForceX, moveForceZ);
 
       moveForce.setX(moveForceX * forceScale);
       moveForce.setZ(moveForceZ * forceScale);
@@ -2093,8 +2116,7 @@ class YJAmmo {
       flySpeed = speedData.flySpeed;
 
       minSpeed = speedData.minSpeed;
-      maxSpeed = speedData.maxSpeed;
-
+      maxSpeed = speedData.maxSpeed; 
     }
     this.GetMoveSpeed = function () {
       return moveSpeed * 1.0 / maxSpeed;

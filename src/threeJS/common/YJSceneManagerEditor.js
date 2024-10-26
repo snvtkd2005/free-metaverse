@@ -133,9 +133,7 @@ class YJSceneManager {
     let MargeStaticModelList = [];
     this.CheckTransform = (modelPath, modelData, _YJTransform) => {
       let has = false;
-
-
-      if (modelData.modelType != "静态模型") { return; }
+      if (modelData.modelType != "静态模型") { return false; }
 
       if (MargeStaticModelList.length == 0) {
         let tranformList = [];
@@ -419,7 +417,9 @@ class YJSceneManager {
 
       // 角色掉入地下的回调
       _Global.YJ3D.YJController.SetplayerPosDownCallback(() => {
-        // scope.SetPlayerPos({ x: 0, y: 10, z: 0 });
+        if(_Global.setting.inEditor){
+          scope.SetPlayerPos({ x: 0, y: 10, z: 0 });
+        }
       });
 
       // 强制横屏 

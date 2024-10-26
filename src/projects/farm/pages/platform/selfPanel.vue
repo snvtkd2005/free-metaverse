@@ -1351,7 +1351,7 @@ export default {
       this.deleteItemIndex = i;
     },
     DeleteOK() {
-      return;
+      // return;
       this.dialogTitle = "";
       this.dialogVisible = false;
       let path = "uploads/";

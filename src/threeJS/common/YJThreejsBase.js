@@ -6,6 +6,8 @@ import { YJController } from "./YJController.js";
 import { YJPlayer } from "./YJPlayer.js";
 import { YJSceneManager } from "./YJSceneManagerEditor.js";
 
+// import { YJshader_grass } from "../loader/YJshader_grass.js";
+ 
 class YJThreejsBase {
   constructor(container, document, _this) {
     let scope = this;
@@ -97,6 +99,8 @@ class YJThreejsBase {
       _Global.YJ3D.scene = scene; 
       _Global.YJ3D.renderer = renderer; 
       _Global.YJ3D.camera = camera; 
+
+      // new YJshader_grass(scene);
     }
 
     //生成角色
@@ -536,8 +540,7 @@ class YJThreejsBase {
         _this.statsText.triangles = renderer.info.render.triangles;
       }
     }
-
-
+ 
     this.GetContainer = function() {
       return container;
     },

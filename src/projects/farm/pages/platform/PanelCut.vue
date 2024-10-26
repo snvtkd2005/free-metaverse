@@ -1,7 +1,7 @@
 
 <!-- // 场景编辑UI -->
 <template>
-  <div class="absolute left-0 top-0 z-999 w-full h-full flex flex-col pointer-events-none">
+  <div class=" w-full h-full flex flex-col pointer-events-none">
 
     <!-- 截图区域安全区域 -->
     <div v-if="safeOrder" class="
@@ -17,12 +17,11 @@
       <div class="
           mx-auto
           self-center
-          w-96
-          h-72
+          w-3/5
+          h-5/6
           transform
           border-2 border-green-400
-          flex
-          scale-150
+          flex 
           pointer-events-none
           relative
         ">
@@ -75,21 +74,15 @@ export default {
   mounted() {
   },
   methods: {
-    Init(ThreejsHumanChat) {
+    Init(YJ3D) {
       this._YJ3dCanvasCut = new YJ3dCanvasCut(
-        ThreejsHumanChat,
-        Math.ceil(384 * 1.5),
-        Math.ceil(288 * 1.5)
+        YJ3D
       );
     },
     // 保存模型缩略图，并上传
     updateModelIconPic() {
 
-      this._YJ3dCanvasCut.Photo((dataurl) => {
-        // let dataurl = _Global.YJ3D.getCanvasImg(
-        //   400,
-        //   300
-        // );
+      this._YJ3dCanvasCut.Photo((dataurl) => { 
         this.$parent.updateModelIconPic(dataurl,()=>{
 
         });

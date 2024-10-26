@@ -130,6 +130,7 @@ class YJStaticMeshMerged {
       }
       scene.add(mesh);
       mesh.owner = scope;
+      mesh.castShadow = true;
       allInstancedMesh.push(mesh);
     }
 
@@ -190,11 +191,14 @@ class YJStaticMeshMerged {
       scaleList = _scaleList;
       count = posList.length;
       // makeMerged();
+      console.log(" ReMerged allMesh ",allMesh);
       for (let i = 0; i < allMesh.length; i++) {
         const element = allMesh[i];
         makeInstanced(element.geometry, element.material, element.pos, element.scale);
       }
 
+      // const element = allMesh[1];
+      // makeInstanced(element.geometry, element.material, element.pos, element.scale);
       makeMergedCollider();
 
     }

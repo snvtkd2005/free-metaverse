@@ -37,8 +37,8 @@
               解绑
             </div>
             <!-- 速度 input -->
-            <div class="mr-2 w-5 h-full text-black">
-              <input class="w-full h-full px-1" v-model="item.timeScale" type="text" />
+            <div class="mr-2 w-12 h-full text-black flex justify-between">
+              <input class="w-5 h-5 px-1" v-model="item.timeScale" type="text" />
             </div>
 
             <!-- <YJinput_drop class=" w-32 h-16 " :value="animOptions[i].value" :options="animOptions" :index="i"
@@ -52,17 +52,25 @@
         </div>
 
         <!-- 右侧标准动作名称 -->
-        <div class="w-24 px-4">
+        <div class="w-24 px-2">
           <div>标准动作名称</div>
           <div>
             <div v-for="(item, i) in animationsData" :key="i" :index="item.clipIndex"
-              class="w-full h-8 self-center mx-auto flex mt-1" @click="SelectBaseAnim(item.clipIndex)" :class="item.connected
+              class="w-full h-8 self-center mx-auto flex justify-between mt-2" >
+              <div class=" w-12  self-center mx-auto p-2"
+              @click="SelectBaseAnim(item.clipIndex)" 
+              :class="item.connected
                 ? ' bg-gray-500  pointer-events-none  '
                 : ' bg-blue-200 cursor-pointer  pointer-events-auto '
                 ">
-              <div class="self-center mx-auto">
                 {{ item.animName }}
               </div>
+              <!-- <YJinput_toggle
+                class="w-4 h-4" 
+                :index="i"
+                :value="item.isLoop" 
+                :callback="changeToggle"
+              ></YJinput_toggle> -->
             </div>
           </div>
         </div>
@@ -80,11 +88,13 @@
 
 
 import YJinputCtrl from "../components/YJinputCtrl.vue"; 
+import YJinput_toggle from "../components/YJinput_toggle.vue";
 
 export default {
   name: "settingpanel_avatar",
   components: {
 YJinputCtrl,
+YJinput_toggle,
   },
   data() {
     return {
@@ -102,34 +112,13 @@ YJinputCtrl,
 
       // 标准动作模板，无需改变
       animationsData: [
-        {
-          clipIndex: 0,
-          animName: "idle",
-          timeScale: 1,
-          connected: false,
-          targetIndex: 0,
-        },
-        {
-          clipIndex: 1,
-          animName: "walk",
-          timeScale: 1,
-          connected: false,
-          targetIndex: 1,
-        },
-        {
-          clipIndex: 2,
-          animName: "jump",
-          timeScale: 1,
-          connected: false,
-          targetIndex: 2,
-        },
-        {
-          clipIndex: 3,
-          animName: "run",
-          timeScale: 1,
-          connected: false,
-          targetIndex: 3,
-        },
+        {clipIndex: 0,animName: "idle",cn:"待机",isLoop:true, timeScale: 1,connected: false,targetIndex: -1,},
+        {clipIndex: 1,animName: "walk",cn:"行走",isLoop:true,timeScale: 1,connected: false,targetIndex: -1,},
+        {clipIndex: 2,animName: "jump",cn:"跳",isLoop:false,timeScale: 1,connected: false,targetIndex: -1,},
+        {clipIndex: 3,animName: "run",cn:"跑",isLoop:true,timeScale: 1,connected: false,targetIndex: -1,},
+        {clipIndex: 4,animName: "death",cn:"死亡",isLoop:false,timeScale: 1,connected: false,targetIndex: -1,},
+        {clipIndex: 5,animName: "fight idle",cn:"默认战斗待机",isLoop:true,timeScale: 1,connected: false,targetIndex: -1,},
+        {clipIndex: 6,animName: "fight attack",cn:"默认战斗攻击001",isLoop:false,timeScale: 1,connected: false,targetIndex: -1,},
       ],
 
       setting: [
@@ -147,7 +136,9 @@ YJinputCtrl,
   mounted() {
   },
   methods: {
-
+    changeToggle(i,v){
+      this.animationsData[i].isLoop = v;
+    },
     removeThreeJSfocus() {
       this.parent.removeThreeJSfocus();
     },
@@ -167,7 +158,7 @@ YJinputCtrl,
       this.Utils.SetSettingItemByProperty(this.setting, "offsetPos", this.settingData.offsetPos);
 
       this.animations = this.settingData.animationsData;
-      if(this.animations || this.animations.length == 0){
+      if(this.animations && this.animations.length == 0){
         this.hasModelAnim = false;
         return;
       }
@@ -178,9 +169,11 @@ YJinputCtrl,
           const element = this.animations[j];
           if (item.animName == element.animName) {
             item.connected = true;
+            item.targetIndex = j;
+            element.isLoop = item.isLoop;
           }
-        }
-      }
+        } 
+      }  
 
     },
     ChangeValue(i, e) {
@@ -234,6 +227,7 @@ YJinputCtrl,
           animName: element.connectAnim,
           localAnimName: element.animName,
           timeScale: element.timeScale,
+          isLoop: element.isLoop,
         });
       }
       this.parent.settingData.animationsData = this.settingData.animationsData;
@@ -331,6 +325,7 @@ YJinputCtrl,
                 element.connected = true;
                 element.targetIndex = item.targetIndex;
                 element.timeScale = item.timeScale;
+                element.isLoop = item.isLoop;
               }
             }
           }

@@ -351,7 +351,7 @@ class YJPlayer {
       scope.AddComponent("MeshRenderer", _YJMeshRenderer);
       _YJMeshRenderer.load(modelPath, (_scope) => {
         loadMeshCompleted(_scope.GetModel());
-        _YJAnimator = new YJAnimator(_scope.GetModel(), _scope.GetAnimations(),null,scope);
+        _YJAnimator = new YJAnimator(_scope.GetModel(), _scope.GetAnimations(),null,scope,animationsData);
         scope.AddComponent("Animator", _YJAnimator);
         avatar = _YJAnimator;
         // console.error("加载角色模型成功",_scope.GetModel());
@@ -384,7 +384,8 @@ class YJPlayer {
         if (controllerCallback) {
           controllerCallback(group, playerGroup);
         }
-        console.log("创建 本地角色 == > " + playerName, playerHeight, group);
+        console.log("创建 本地角色 == > " + playerName, playerHeight, group,
+        avatarData.animationsData);
         _Global.YJ3D.YJController.SetTargetHeight(playerHeight);
 
       } else {

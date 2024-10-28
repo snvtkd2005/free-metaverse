@@ -121,6 +121,7 @@ import SkinPanel from "./SkinPanel.vue";
 
 import YJinput_drop from "./components/YJinput_drop.vue";
 import YJinputPlayerName from "./components/YJinputPlayerName.vue";
+import { Interface } from "../../js/Interface_editor.js";
 
 import { GetAllModel } from "../../js/uploadThreejs.js";
 
@@ -194,6 +195,8 @@ export default {
       this.SelectAvatarFn();
 
     });
+    new Interface(this, false);
+
   },
   methods: {
     GetServerAvatar(callback) {
@@ -474,6 +477,7 @@ export default {
       //加载3d模型
       this.$refs.playerSelect3DPanel.SelectAvatar(this.selectPlayerId,(avatar)=>{
         this.updateAnimList();
+        this.$refs.playerSelect3DPanel.ChangeSkinCompleted(); 
       });
     },
     ClickeSelectOK() {

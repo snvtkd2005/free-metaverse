@@ -121,9 +121,10 @@ class YJThreejsBase {
           }
         }
       );
+      _Global.YJ3D.YJPlayer = _YJPlayer; 
  
       _YJPlayer.CreateNameTrans(_Global.user.name);
-
+      // userData.avatarId = 1709553546790;
       if (userData != null) {
         _YJPlayer.LoadPlayer(userData.avatarId,()=>{
           _YJPlayer.ChangeAnimDirect("idle");
@@ -131,7 +132,6 @@ class YJThreejsBase {
       } else {
         _YJPlayer.LoadPlayer("none");
       }
-      _Global.YJ3D.YJPlayer = _YJPlayer; 
 
       _YJController.SetPlayer(_YJPlayer);
     }
@@ -146,26 +146,12 @@ class YJThreejsBase {
         (hitObject, hitPoint) => {
           if (hitObject == null) {
             this.ClickModel(hitObject);
-            selected = false;
-            // console.log(" 未点击到任何模型 ");
+            // _Global.applyEvent("左键点击模型",hitObject,hitPoint);
+            selected = false; 
             return;
-          }
-          // console.log(
-          //   "点击模型 ",
-          //   hitObject,
-          //   hitObject.tag +
-          //     " " +
-          //     hitObject.name +
-          //     " 点击坐标 " +
-          //     hitPoint.x +
-          //     " " +
-          //     hitPoint.y +
-          //     " " +
-          //     hitPoint.z +
-          //     " "
-          // ); 
-
+          }  
           this.ClickModel(hitObject);
+          // _Global.applyEvent("左键点击模型",hitObject,hitPoint);
         },
         (hoverObject, hoverPoint) => {
           this.HoverObject(hoverObject, hoverPoint);
@@ -178,21 +164,7 @@ class YJThreejsBase {
           }
           if (tag == "hotPoint") {
             this.ClickHotPoint(hotPoint.modelData, hotPoint.owner);
-          }
-
-          // console.log(
-          //   " 点击热点模型 " +
-          //   hotPoint.tag +
-          //     " " +
-          //     hotPoint.name +
-          //     " 点击坐标 " +
-          //     hotPointHitPoint.x +
-          //     " " +
-          //     hotPointHitPoint.y +
-          //     " " +
-          //     hotPointHitPoint.z +
-          //     " "
-          // );
+          } 
         },
         (hit, point) => {
           // 右键点击空白位置

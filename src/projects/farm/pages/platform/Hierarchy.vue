@@ -17,12 +17,12 @@
         @contextmenu.prevent="onContextMenu($event)"
       ></div>
 
-      <div class="w-32">
+      <div class="w-24">
         <div
           v-for="(item, i) in modelTable"
           :key="i"
           :index="item.name"
-          class="mr-2 text-sm w-auto h-6 self-center cursor-pointer flex justify-between"
+          class="mr-2 text-xs w-auto h-6 self-center cursor-pointer flex "
           :class="[
             selectModelTable == item.name
               ? 'bg-445760 text-white border-t border-b border-l border-gray-400 '
@@ -31,7 +31,7 @@
           ]"
           @click="SelectTable(item.name)"
         >
-          <div class="px-1">
+          <div class="  px-1">
             {{ item.name }}
           </div>
           <div class="px-1">
@@ -226,7 +226,7 @@ export default {
         this.upadteDataByUUID(data, type);
       });
       _Global.addEventListener("keycodeUp", (keycode) => {
-        console.log("keycodeUp", keycode);
+        // console.log("keycodeUp", keycode);
         if (_Global.infocus3d) {
           return;
         }

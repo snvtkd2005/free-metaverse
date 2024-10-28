@@ -953,7 +953,8 @@ export default {
 
       this.$refs.YJmetaBase.ClickSelectPlayerOK(this.userData);
       _Global.user.name = (this.userName);
-
+      _Global.user.avatarId = (this.avatarId);
+      
       //场景设置
       this._SceneManager = new SceneManager(
         _Global.YJ3D.scene,
@@ -1565,19 +1566,44 @@ export default {
       }
       this.Interface.load3dComplete();
 
-      setTimeout(() => {
-        this.OpenThreejs();
-      }, 1000);
+      // setTimeout(() => {
+      //   this.OpenThreejs();
+      // }, 1000);
+
     },
     OpenThreejs() {
       this.inThreejs = true;
       if (this.$refs.loadingPanel) {
         this.$refs.loadingPanel.DisplayLoading(false);
       }
+      for (let i = 0; i < this.sceneData.avatarList.length; i++) {
+        const element = this.sceneData.avatarList[i];
+        if(element.folderBase == _Global.user.avatarId){
+          //角色装备
+          let equipList = element.equipList;
+          for (let i = 0; equipList && i < equipList.length; i++) {
+            _Global._YJPlayerFireCtrl.GetEquip().addEquip({ assetId:  equipList[i] });
+          } 
+        }
+      }
 
-      // setTimeout(() => {
-      //   this.ChangeViewById(10004);
-      // }, 2000);
+      setTimeout(() => {
+        
+        _Global._YJPlayerFireCtrl.addEventListener("更新装备",(equipList)=>{
+          console.log("equipList ",equipList); 
+          let _equipList = [];
+          for (let i = 0; i < equipList.length; i++) {
+            const element = equipList[i];
+            _equipList.push(element.folderBase);
+          }
+          for (let i = 0; i < this.sceneData.avatarList.length; i++) {
+            const element = this.sceneData.avatarList[i];
+            if(element.folderBase == _Global.user.avatarId){
+              element.equipList = _equipList;
+            }
+          } 
+        })
+      }, 2000);
     },
     ClickHandler(t, msg) {
       if (t == "点击投影2d") {
@@ -1647,8 +1673,6 @@ export default {
       if (this._SceneManager) {
         this._SceneManager.ClickModel(hitObject);
       }
-
-      console.log(" 点击模型 ", hitObject);
       // if (this.$refs.modelPanel) {
       //   this.$refs.modelPanel.SetModel(hitObject.owner);
       // }
@@ -1963,14 +1987,4 @@ export default {
     },
   },
 };
-</script>
- 
-<style scoped>
-.z-999 {
-  z-index: 999;
-}
-
-.bg-color {
-  background: #28cad9;
-}
-</style>
+</script> 

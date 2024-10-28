@@ -125,6 +125,7 @@ export default {
       
       if ("自由穿行" == e) {
         this.panelState.free = !this.panelState.free;
+        _Global.freeView = this.panelState.free;
         if(this.panelState.free){
           _Global.YJ3D.YJController.GetAmmo().SetGravityActive(false);
           _Global.YJ3D.YJController.GetAmmo().SetRigidbodyEnable(false);

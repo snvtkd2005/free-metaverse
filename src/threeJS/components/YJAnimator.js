@@ -257,7 +257,7 @@ class YJAnimator {
       if (animNameFullback == undefined) { animNameFullback = 'idle'; }
       if (oldAnimName == animName) { return; }
 
-      // console.log("切换动画 ", animName,oldAnimName);
+      // console.log("切换动画 ", animName,oldAnimName, animNameFullback);
 
       // if(owner){
       //   console.error(" in change anim ", animName,oldAnimName,animNameFullback); 
@@ -407,11 +407,12 @@ class YJAnimator {
         if (message == null) {
           return false;
         }
-        // console.error(" in 加载扩展动作 ", animName,oldAnimName); 
+        // console.error(" in 加载扩展动作 ", animName, oldAnimName);
 
         let messageData = message.data;
         if (messageData.avatarData) {
           _Global.CreateOrLoadPlayerAnimData().GetExtendAnim(messageData.avatarData.id, animName, (isLoop, anim) => {
+            // console.error(" in 加载扩展动作 ", animName,oldAnimName); 
             if (anim != null) {
               scope.ChangeAnimByAnimData(animName, isLoop, anim);
             }
@@ -428,6 +429,19 @@ class YJAnimator {
       //
       return false;
     }
+    function loadExtendAnimByName(animName){
+      let message = scope.transform.GetMessage();
+      if (message == null) {
+        return false;
+      }
+      // console.error(" in 加载扩展动作 00 ", animName);
+      let messageData = message.data;
+      if (messageData.avatarData) {
+        scope.LoadExtendAnim(messageData.avatarData, animName, "idle");
+      } else {
+        scope.LoadExtendAnim(messageData, animName, "idle");
+      }
+    }
 
 
 
@@ -443,7 +457,7 @@ class YJAnimator {
         if (messageData.animationsExtendData) {
           let animName = messageData.animationsExtendData[i].animName;
           _Global.CreateOrLoadPlayerAnimData().PlayExtendAnim(messageData, animName, (isLoop, anim) => {
-            console.error(" in 加载扩展动作 11 ", animName, anim);
+            // console.error(" in 加载扩展动作 11 ", animName, anim);
             if (anim != null) {
               scope.ChangeAnimByAnimData(animName, isLoop, anim);
             }
@@ -556,8 +570,8 @@ class YJAnimator {
     function activateAllActions(animName) {
       oldAnimName = animName;
 
-      // if(owner){
-      //   console.error(" 设置玩家角色动作 11 " + animName,actions);
+      // if (owner) {
+      //   console.error(" 设置玩家角色动作 11 " + animName, actions);
       // }
 
       let has = false;
@@ -593,6 +607,7 @@ class YJAnimator {
 
         return true;
       }
+      loadExtendAnimByName(animName);
       return false;
     }
 
@@ -601,7 +616,7 @@ class YJAnimator {
       currentAction = action;
       currentTime = 0;
       currentDuration = currentAction._clip.duration;
-      // console.log("当前动作长度",currentDuration);
+      // console.log("当前动作长度", currentDuration);
       scope.applyEvent("当前动作长度", currentDuration * 1000);
     }
 
@@ -625,7 +640,7 @@ class YJAnimator {
     let clampAnimCompleted = true;
     let clampAnimList = [];
     function ClampAnim(oldAction, newAction, callback) {
-      // console.log(" 插值切换动作 ",oldAction, newAction);
+      // console.log(" 插值切换动作 ", oldAction, newAction);
       if (!clampAnimCompleted) {
         clampAnimList.push({ oldAction, newAction, callback });
         // console.log(" 添加进下一次动作 ",clampAnimList.length);
@@ -744,10 +759,13 @@ class YJAnimator {
       }
     }
 
-    this.UpdateModel = function (model, _animations) {
-      mixer = new THREE.AnimationMixer(model);
+    this.UpdateModel = function (_model, _animations) {
+      mixer.stopAllAction();
+      // mixer = new THREE.AnimationMixer(_model);
+      model = _model;
       animations = _animations;
       actions = [];
+      Init();
     }
     function Init() {
 
@@ -787,7 +805,7 @@ class YJAnimator {
               } else {
                 action.action.loop = THREE.LoopOnce;
                 action.action.clampWhenFinished = true;//暂停在最后一帧播放的状态
-              }  
+              }
             }
           }
         }
@@ -796,7 +814,7 @@ class YJAnimator {
         console.log("加载动画物体 出错 ", error);
         return;
       }
-      // console.log(" 模型原生动作初始化后 ",actions);
+      // console.log(" 模型原生动作初始化后 ", actions);
 
       scope.ChangeAnimByIndex(0, 1);
 
@@ -1006,7 +1024,7 @@ class YJAnimator {
         mixer.update(clock.getDelta());
         if (currentAction) {
           currentTime = currentAction.time;
-          // console.log("执行模型动画 中 ",currentTime);
+          // console.log("执行模型动画 中 ",currentTime,oldAnimName);
         }
         // currentTime = mixer.time; 
         // console.log("执行模型动画 中 ",currentTime);

@@ -4,19 +4,19 @@
 
 import * as THREE from "three";
 import TWEEN from '@tweenjs/tween.js';
- 
+
 import { YJ3dPhotoPlane } from "../../../projects/farm/js/YJ3dPhotoPlane.js";
 
 import { YJProjector } from "/@/threeJS/components/YJProjector.js";
 import { ReflectorMesh } from "/@/js/ReflectorMesh.js";
- 
+
 import { YJKeyboard } from "/@/threeJS/common/YJKeyboard.js";
- 
+
 
 import { YJSceneDyncManagerEditor } from "./YJSceneDyncManagerEditor.js";
-import { SceneManagerMetaworld } from "../../../projects/farm/js/SceneManagerMetaworld.js"; 
+import { SceneManagerMetaworld } from "../../../projects/farm/js/SceneManagerMetaworld.js";
 import { YJAmmoPlayerBody } from "../../components/YJAmmoPlayerBody.js";
-import { SpringManager } from "../../common/SpringManager.js"; 
+import { SpringManager } from "../../common/SpringManager.js";
 
 class SceneManager {
   constructor(scene, renderer, camera, _this, modelParent, indexVue, callback) {
@@ -96,11 +96,11 @@ class SceneManager {
 
       _YJGlobal._SceneManager = scope;
 
-      _YJProjector = new YJProjector( scene);
+      _YJProjector = new YJProjector(scene);
       // AddTestMat();
       // window.addEventListener('mousemove', onPointerDown);
 
-      _Global.addEventListener("主角死亡",()=>{
+      _Global.addEventListener("主角死亡", () => {
         ClearTarget();
       });
 
@@ -114,13 +114,13 @@ class SceneManager {
         inJoystick = false;
         if (_YJCar != null) {
           _YJCar.SetKeyboard(key);
-        } 
+        }
 
         if (key == "Tab") {
           // tab切换目标
           TabChangeTarget();
           return;
-        } 
+        }
 
         if (key == "KeyM") {
           //   //  开关地图
@@ -142,7 +142,7 @@ class SceneManager {
               scope.OutCar();
               InDriving = false;
             }
-          } 
+          }
         }
 
 
@@ -229,6 +229,9 @@ class SceneManager {
       });
 
 
+      // _Global.addEventListener("左键点击模型",(hitObject,hitPoint)=>{
+      //   _this.ClickModel(hitObject,hitPoint);
+      // });
 
       // posRef_huluobu = CreatePosRef(0.33, -0.953);
       // posRef_nangua = CreatePosRef(0.20, -0.953);
@@ -244,7 +247,7 @@ class SceneManager {
       }
       let playerPos = _Global.YJ3D.YJController.GetPlayerWorldPos();
       let canSelectNpc = _Global._YJFireManager.GetForwardNoSameCampNPC(playerPos);
-      if(canSelectNpc.length==0){
+      if (canSelectNpc.length == 0) {
         return;
       }
       if (tabSelectIndex >= canSelectNpc.length) {
@@ -252,7 +255,7 @@ class SceneManager {
       }
       // console.log("tab 切换目标 ",canSelectNpc[tabSelectIndex],canSelectNpc);
       scope.ClickModelTransform(canSelectNpc[tabSelectIndex].transform);
-      tabSelectIndex++; 
+      tabSelectIndex++;
     }
 
     let boneAttachList = [];
@@ -374,7 +377,7 @@ class SceneManager {
             //收集道具
             // 碰到就隐藏、发送其事件
             owner.SetActive(false);
-            _Global.applyEvent("overlapinteractive",owner.GetData().message.data.buff,owner.GetWorldPos());
+            _Global.applyEvent("overlapinteractive", owner.GetData().message.data.buff, owner.GetWorldPos());
             if (_Global.YJDync) {
               _SceneDyncManager.SendModel({ id: owner.GetData().id, modelType: "交互模型", state: { display: false } });
               _SceneDyncManager.SendModel({ id: data.type, modelType: "交互模型", state: { type: "add", value: data.buffValue } });
@@ -387,14 +390,14 @@ class SceneManager {
         if (msg.pointType == "geometry") {
           if (!b) { return; }
           let data = msg.data;
-          if(data.isTrigger){
-            let {title,content } = data.event;
-            if(title =="openTask"){
+          if (data.isTrigger) {
+            let { title, content } = data.event;
+            if (title == "openTask") {
               //碰到任务触发器
-              _Global.applyEvent("openTask",content);
+              _Global.applyEvent("openTask", content);
               owner.SetActive(false);
             }
-            if(title =="jump"){
+            if (title == "jump") {
               //
             }
           }
@@ -416,7 +419,7 @@ class SceneManager {
               "playerPos_002"
             );
           }
- 
+
 
           _Global.YJ3D.YJController.SetTransmit(true);
           if (this.$refs.YJDync) {
@@ -615,38 +618,38 @@ class SceneManager {
         // 角色死亡后不接收道具效果
         return;
       }
-      
+
       if (model.buff == "addGold") {
-        _Global._YJPlayerFireCtrl.GetProperty().updateBasedata({value:1,property:"gold"});
+        _Global._YJPlayerFireCtrl.GetProperty().updateBasedata({ value: 1, property: "gold" });
         return;
       }
 
       let propItem = {
-        id:'',
-        type:"prop",
+        id: '',
+        type: "prop",
         name: "",
         useType: 'consumables', //道具效果类型
         propType: 'potion', //道具效果类型
         effectType: "playerProperty", //效果类型：增加角色属性
         property: '',// 角色属性字段
-        displayType:"none",//显示方式
+        displayType: "none",//显示方式
         qualityType: "normal",
         bindingType: "bindinged",
         countType: "group",
-        count:1, //当前数量
-        groupCount:20, //可堆叠物体一组最多堆叠数量
+        count: 1, //当前数量
+        groupCount: 20, //可堆叠物体一组最多堆叠数量
         value: 0, //效果值
         icon: "", //图标
-        CD:0,// 冷却时间
+        CD: 0,// 冷却时间
         describe: "使用：", //描述
-      }; 
-      propItem.id =  model.type;
-      propItem.value =  model.buffValue;
-      propItem.icon =  model.imgPath;
-      propItem.name =  model.name;
+      };
+      propItem.id = model.type;
+      propItem.value = model.buffValue;
+      propItem.icon = model.imgPath;
+      propItem.name = model.name;
       propItem.describe += model.describe;
       propItem.property = model.buff;
-      _Global.applyEvent("加道具",[{skill:propItem}]);
+      _Global.applyEvent("加道具", [{ skill: propItem }]);
 
       // let oldV = _Global.YJ3D.YJController.GetUserDataItem("baseData", "armor");
       // let v = oldV + model.buffValue;
@@ -741,7 +744,7 @@ class SceneManager {
 
     //#region 
     this.FireState = function (e) {
-      _Global.applyEvent("提示",'fire',e);
+      _Global.applyEvent("提示", 'fire', e);
     }
 
     //#region 对npc的伤害显示在屏幕上
@@ -752,7 +755,7 @@ class SceneManager {
     this.GetDamageStatistics = function () {
       return damageStatistics;
     }
-    this.UpdateNpcDamageValue = function (fromId,fromName, to, tarteId, type, value, pos, addredius) {
+    this.UpdateNpcDamageValue = function (fromId, fromName, to, tarteId, type, value, pos, addredius) {
       // if ((fromId && _Global.YJ3D.YJPlayer.id != fromId)
       // && (tarteId && _Global.YJ3D.YJPlayer.id != tarteId)) {
       //   return;
@@ -761,14 +764,14 @@ class SceneManager {
 
       let _pos = _Global.YJ3D._YJSceneManager.WorldPosToScreenPos(pos.clone());
       // console.log("伤害和坐标", fromId,fromName,tarteId,to,value, _pos);
-      _Global.applyEvent("伤害跳字",{
-        owner:tarteId, 
-        type, 
+      _Global.applyEvent("伤害跳字", {
+        owner: tarteId,
+        type,
         value,
         pos3d: pos.clone(),
-        pos: _pos, 
+        pos: _pos,
         addredius,
-        isSelf:tarteId==_Global.YJ3D.YJPlayer.id,
+        isSelf: tarteId == _Global.YJ3D.YJPlayer.id,
       });
 
       damageStatistics.push({ fromName, to, value });
@@ -778,10 +781,10 @@ class SceneManager {
 
     //#endregion
     let targetModel = null;
-    this.GetTargetModel  =function(){
+    this.GetTargetModel = function () {
       return targetModel;
     }
-    
+
     this.SetTargetModel = function (transform) {
       _Global.hasTarget = transform != null;
       if (targetModel != null) {
@@ -805,18 +808,18 @@ class SceneManager {
 
       let target = null;
       let isYJNPC = false;
-      if(targetModel.isYJTransform){
+      if (targetModel.isYJTransform) {
         target = targetModel.GetComponent("NPC");
         isYJNPC = true;
-      }else if(targetModel.isYJNPC){
+      } else if (targetModel.isYJNPC) {
         isYJNPC = true;
         target = targetModel;
         targetModel = targetModel.transform;
-      }else{
+      } else {
         target = targetModel;
       }
 
-      
+
       // 相同阵营的不计算
       if (target.GetCamp() != _Global.user.camp) {
         camp = "enmity";
@@ -824,7 +827,7 @@ class SceneManager {
       if (target.GetCamp() == 10001) {
         camp = "friendy";
       }
-      if(isYJNPC){
+      if (isYJNPC) {
 
         let message = targetModel.GetData().message;
         if (message.data.baseData.health == 0) {
@@ -836,39 +839,39 @@ class SceneManager {
         targetModel.AddHandle((data) => {
           if (data.baseData.health == 0) {
             _Global.applyEvent("取消选中角色");
-            
+
             ClearProjector();
             return;
-          }      
-          _Global.applyEvent("选中角色",targetModel.GetComponent("NPC"));
+          }
+          _Global.applyEvent("选中角色", targetModel.GetComponent("NPC"));
         });
-        _Global.applyEvent("选中角色",targetModel.GetComponent("NPC"));
+        // _Global.applyEvent("选中角色", targetModel.GetComponent("NPC"));
         return;
       }
-      
-      let data = targetModel.GetData();
-      console.log(" click player data ",targetModel,data);
-        if (data.baseData.health == 0) {
-          camp = "dead";
-        }
-        let { group, playerHeight } = target.GetBaseModel();
-        _YJProjector.Active(group, playerHeight, camp);
-        // console.log(" 设置目标头像 targetModel ", targetModel);
-        targetModel.AddHandle((data) => {
-          if (data.baseData.health == 0) {
-            _Global.applyEvent("取消选中角色");
-            ClearProjector();
-            return;
-          }      
-          _Global.applyEvent("选中角色",targetModel);
 
-        }); 
-      _Global.applyEvent("选中角色",targetModel);
+      let data = targetModel.GetData();
+      console.log(" click player data ", targetModel, data);
+      if (data.baseData.health == 0) {
+        camp = "dead";
+      }
+      let { group, playerHeight } = target.GetBaseModel();
+      _YJProjector.Active(group, playerHeight, camp);
+      // console.log(" 设置目标头像 targetModel ", targetModel);
+      targetModel.AddHandle((data) => {
+        if (data.baseData.health == 0) {
+          _Global.applyEvent("取消选中角色");
+          ClearProjector();
+          return;
+        }
+        _Global.applyEvent("选中角色", targetModel);
+
+      });
+      // _Global.applyEvent("选中角色", targetModel);
 
 
     }
 
-    this.ClearTarget = function(){
+    this.ClearTarget = function () {
       ClearTarget();
     }
     function ClearTarget() {
@@ -876,13 +879,13 @@ class SceneManager {
       scope.SetTargetModel(null);
       _Global._YJPlayerFireCtrl.SetPlayerEvent("设置npc", null);
       ClearProjector();
-      
+
       if (oldTarget != null) {
         _YJProjector.SetActive(false);
         oldTarget = null;
         ChangeTarget();
       }
-      
+
       if (_this.$parent.$parent.ClickFloor) {
         _this.$parent.$parent.ClickFloor();
       }
@@ -897,13 +900,13 @@ class SceneManager {
           ClearTarget();
         }
       }
-    } 
+    }
 
     this.RightClick = (hitObject, hitPoint) => {
       _Global.applyEvent("右键点击");
 
       console.log(" 右键点击 ", hitObject);
-      if(hitObject == null){
+      if (hitObject == null) {
         // 点击空白位置 
         ClearTarget();
         return;
@@ -936,12 +939,12 @@ class SceneManager {
           // 点击其他角色
           this.SetTargetModel(hitObject.owner);
 
-            // if (hitObject.owner.GetCamp() != _Global.user.camp) {
-            //   // console.log(" 选中玩家 000 ",message.data.baseData);
-            //   //进入战斗状态
-            //   if (hitObject.owner.GetBaseData().health > 0) {
-            //   }
-            // }
+          // if (hitObject.owner.GetCamp() != _Global.user.camp) {
+          //   // console.log(" 选中玩家 000 ",message.data.baseData);
+          //   //进入战斗状态
+          //   if (hitObject.owner.GetBaseData().health > 0) {
+          //   }
+          // }
           _Global._YJPlayerFireCtrl.SetPlayerEvent("设置npc", hitObject.owner);
 
         }
@@ -984,15 +987,15 @@ class SceneManager {
       player.AddHandle((baseData) => {
         if (baseData.health == 0) {
           _Global.applyEvent("取消选中角色");
-          
+
           ClearProjector();
           return;
         }
-        data.baseData = baseData;      
-        _Global.applyEvent("选中角色",player);
+        data.baseData = baseData;
+        _Global.applyEvent("选中角色", player);
 
-      }); 
-      _Global.applyEvent("选中角色",player);
+      });
+      _Global.applyEvent("选中角色", player);
 
       // 点击npc，播放其音效
       // console.log(owner);
@@ -1059,20 +1062,19 @@ class SceneManager {
       console.log("点击模型 ", hitObject);
 
       _Global.applyEvent("点击三维页");
-      if(hitObject == null){
+      if (hitObject == null) {
         return;
-      }
-      // console.log("点击模型.transform ", hitObject.transform);
+      } 
       if (hitObject.transform && hitObject.transform.GetActive && hitObject.transform.GetActive()) {
         this.ClickModelTransform(hitObject.transform);
         return;
-      } 
+      }
       let modelType = hitObject.tag;
       if (modelType == undefined) {
         EventHandler("点击空");
         return;
       }
-      console.log("点击物体 ", modelType);      
+      console.log("点击物体 ", modelType);
       if (modelType == "player") {
         this.SetTargetModel(hitObject.transform);
         _Global._YJPlayerFireCtrl.SetPlayerEvent("选中npc", hitObject.transform);
@@ -1140,8 +1142,8 @@ class SceneManager {
         return;
       }
 
-      if ( hoverObject.transform && hoverObject.transform.GetActive && hoverObject.transform.GetActive() && hoverObject.transform.GetData) {
-        if(oldHoverObj == hoverObject.transform){
+      if (hoverObject.transform && hoverObject.transform.GetActive && hoverObject.transform.GetActive() && hoverObject.transform.GetData) {
+        if (oldHoverObj == hoverObject.transform) {
           return;
         }
         oldHoverObj = hoverObject.transform;
@@ -1168,16 +1170,16 @@ class SceneManager {
               message.data.baseData.camp == 10001
               && message.data.baseData.health != 0
             ) {
-              if(message.data.eventData){
+              if (message.data.eventData) {
                 let npc = hoverObject.transform.GetComponent("NPC");
-                let {npcType,state} =  npc.GetEventState();
+                let { npcType, state } = npc.GetEventState();
                 if (npcType == "task") {
-                  _Global.ReportTo3D("切换光标",state==0?"可接任务":(state==1?"任务进行中":"任务已完成"));
+                  _Global.ReportTo3D("切换光标", state == 0 ? "可接任务" : (state == 1 ? "任务进行中" : "任务已完成"));
                 }
-                if (npcType == "shop"){
+                if (npcType == "shop") {
                   _Global.ReportTo3D("切换光标", "商人");
                 }
-              } 
+              }
             }
 
           }
@@ -1186,7 +1188,7 @@ class SceneManager {
       }
       oldHoverObj = null;
       _Global.ReportTo3D("切换光标", "正常");
- 
+
     }
     this.CreateHotContent = (modelData, owner) => {
       if (modelData.id.includes("chair")) {
@@ -1306,7 +1308,7 @@ class SceneManager {
       //   group.position.add(group.getWorldDirection(new THREE.Vector3()).multiplyScalar(-0.05));
       //   console.log(group.position);
       // }, 100);
-      return; 
+      return;
       console.log(" =======场景加载完成 ");
       return;
     }

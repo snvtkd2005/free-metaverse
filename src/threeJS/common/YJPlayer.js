@@ -34,7 +34,9 @@ class YJPlayer {
     }
     var namePosTrans = null;
     let nickName = "nickName";
-
+    this.SetNickName = function(v){
+      nickName = v;
+    }
     let avatar = null;
     this.GetAvatar = function () {
       return avatar;
@@ -111,6 +113,10 @@ class YJPlayer {
     this.GetavatarData = function () {
       return avatarData;
     }
+    this.GetMessage = function () {
+      return {data:avatarData} ;
+    }
+    
     // 飞行坐骑
     let mountAvatar = null;
     let avatarId = 0;
@@ -288,8 +294,7 @@ class YJPlayer {
             return;
           }
         }
-      }
-
+      } 
       GetAnimData(id,()=>{
         LoadAvatar(modelPath, playerHeight, animationsData,callback);
       });
@@ -351,6 +356,10 @@ class YJPlayer {
       scope.AddComponent("MeshRenderer", _YJMeshRenderer);
       _YJMeshRenderer.load(modelPath, (_scope) => {
         loadMeshCompleted(_scope.GetModel());
+        
+        if (controllerCallback) {
+          controllerCallback(group, playerGroup);
+        }
         _YJAnimator = new YJAnimator(_scope.GetModel(), _scope.GetAnimations(),null,scope,animationsData);
         scope.AddComponent("Animator", _YJAnimator);
         avatar = _YJAnimator;
@@ -381,12 +390,13 @@ class YJPlayer {
       SetRotaArray(playerObj, rotation);
       // console.log(" 加载模型完成 " + playerObj.name);
       if (local) {
-        if (controllerCallback) {
-          controllerCallback(group, playerGroup);
-        }
+        // if (controllerCallback) {
+        //   controllerCallback(group, playerGroup);
+        // }
         console.log("创建 本地角色 == > " + playerName, playerHeight, group,
         avatarData.animationsData);
         _Global.YJ3D.YJController.SetTargetHeight(playerHeight);
+        UpdateNameTransHeight();
 
       } else {
         console.log("创建角色镜像 == > " + playerName);
@@ -438,9 +448,13 @@ class YJPlayer {
     this.GetAvatarId = function () {
       return avatarId;
     }
-    this.ChangeAvatar = function (id, isLocal,callback) {
+    this.ChangeAvatar = function (id,callback) {
       if (playerObj != null) {
         clearGroup(group);
+      }
+      createNameTimes = 0;
+      if(_Global._YJPlayerNameManager){
+        _Global._YJPlayerNameManager.RemoveNameTransById(scope.id); 
       }
       GetAnimData(id, () => { 
         _YJMeshRenderer.load( modelPath, (_scope) => {
@@ -483,9 +497,9 @@ class YJPlayer {
           UpdateNameTransHeight();
 
           if (isLocal) {
-            if (controllerCallback) {
-              controllerCallback();
-            }
+            // if (controllerCallback) {
+            //   controllerCallback();
+            // }
 
             _Global.YJ3D.YJController.SetTargetHeight(playerHeight);
           }
@@ -528,12 +542,13 @@ class YJPlayer {
     }
     // 模糊获取骨骼
     this.GetBoneVague = function (boneName, callback) {
-      // console.log("从模型中查找bone ", playerObj,boneName);
+      // console.log("call查找bone ", playerObj,boneName);
       doonce = 0;
       playerObj.traverse(function (item) {
         if (doonce > 0) { return; }
         // if (item.type == "Bone" && item.name == (boneName)) 
         if (item.type == "Bone" && item.name.includes(boneName)) {
+          // console.log("查找bone ", playerObj,boneName);
           if (callback) {
             callback(item);
           }
@@ -560,7 +575,7 @@ class YJPlayer {
       if (!_Global.hasAvatar && this.isLocal) {
         return;
       }
-
+      createNameTimes = 0;
       nickName = e;
       hasName = true;
       CreateNameTransFn();
@@ -790,7 +805,7 @@ class YJPlayer {
 
 
     function UpdateNameTransHeight() {
-      namePosTrans.position.set(0, (playerHeight + 0.3), 0); //原点位置
+      // namePosTrans.position.set(0, (playerHeight + 0.3), 0); //原点位置
     }
     this.GetPlayerGroup = function () {
       return playerGroup;
@@ -1441,9 +1456,7 @@ class YJPlayer {
       if (oldPlayerPos.distanceTo(pos) > 0.1) {
         this.applyEvent("pos", pos.clone());
         oldPlayerPos = pos.clone();
-      }
-      // this.applyEvent("pos", this.GetPlayerWorldPos());
-      // this.applyEvent("pos", playerGroup.getWorldPosition(new THREE.Vector3()));
+      } 
 
       if (!local) {
         LerpMovePlayer(); 

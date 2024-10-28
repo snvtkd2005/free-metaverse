@@ -1959,7 +1959,7 @@ class YJSceneManager {
     let colliderMat = null;
     function addListenerCombKey() {
       _Global.addEventListener("keycodeDown",(key) => {
-        console.log("按下按键 ",key);
+        // console.log("按下按键 ",key);
         if (key == "ShiftLeft+T") {
           hotPointTriggerVisible = !hotPointTriggerVisible;
           for (let i = hotPointJS.length - 1; i >= 0; i--) {

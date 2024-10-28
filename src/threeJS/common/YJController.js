@@ -1286,7 +1286,9 @@ class YJController {
           break;
 
       }
-
+      if (moveForward || moveLeft || moveRight || moveBackward) {
+        RotaYJAmmoToCameraForward();
+      }
       if (_YJAmmo == undefined) { return; }
 
       _YJAmmo.onKeyDown(event);
@@ -1585,8 +1587,7 @@ class YJController {
       return !(onlyRotaView && _YJAmmoPlayer.parent != scene);
     }
     function MoveYJAmmo(x, y, inRun) {
-      if (_YJAmmo == undefined) { return; }
-
+      if (_YJAmmo == undefined) { return; } 
       //当在限定角度，且座位其他物体的子物体时，则不可移动。
       if (!CheckCanMoving()) {
         return;
@@ -3464,7 +3465,7 @@ class YJController {
 
     let rotaViewDoonce = 0;
     // 移动时，让角色朝相机面向的方向移动.弃用，移动朝向用摄像机判断
-    function RotaYJAmmoToCameraForward() {
+    function RotaYJAmmoToCameraForward() { 
       if (setting.firstPerson) return;
       CancelOnlyRotaView();
 

@@ -11,6 +11,16 @@ class YJEquip {
         this.GetEquipList = function () {
             return equipList;
         }
+        this.Clear = function () {
+            for (let i = equipList.length - 1; i >= 0; i--) {
+                equipList.splice(i, 1);
+            }
+        }
+        this.UpdateData = function(){
+            data = owner.GetData();
+            // console.log(owner.GetNickName() + " in equip 角色数据 ", data);
+        }
+        
         let equipModelList = [];
 
         let weaponModel = null;
@@ -255,7 +265,7 @@ class YJEquip {
 
         }
         this.addEquip = function (equip) {
-            if( equip.assetId == undefined){
+            if (equip.assetId == undefined) {
                 console.error(owner.GetNickName() + "添加装备 00 ", equip, equipList);
                 return;
             }
@@ -285,16 +295,26 @@ class YJEquip {
             // }
             this.addEquip({ assetId: item.folderBase });
         }
-        this.ChangeEquip = function (type, data,callback) {
+        this.ChangeEquip = function (type, data, callback) {
             // console.error(" in equip changeequip ",data);
             type = data.message.pointType;
             if (type == "weapon") {
                 this.RemoveWeapon();
+
+                for (let i = equipList.length - 1; i >= 0; i--) {
+                    const element = equipList[i];
+                    if (element.pointType == type) {
+                        equipList.splice(i, 1);
+                    }
+                }
+
                 weaponData = data.message.data;
                 if (isLocal) {
                     owner.GetSkill().ChangeBaseSkillByWeapon(weaponData);
                 }
-                owner.SetWeaponData(weaponData);
+                if(owner.SetWeaponData){
+                    owner.SetWeaponData(weaponData);
+                }
                 let boneName = GetRealyBoneName(weaponData.boneName);
                 let part = data.message.data.pickType;
                 if (isLocal) {
@@ -308,7 +328,7 @@ class YJEquip {
                         name: data.name,
                         // 品质
                         qualityType: data.message.data.qualityType,
-                        weaponType:data.message.data.weaponType,
+                        weaponType: data.message.data.weaponType,
                         // 部位，唯一
                         part: data.message.data.pickType,
                         // 武器或装备
@@ -411,7 +431,7 @@ class YJEquip {
                 }
                 // console.log(owner.GetNickName() + "添加装备", equipList);
                 addEquip(data.message.data.partType, data.modelPath);
-            } 
+            }
         }
         this.RemoveEquip = function (part) {
 
@@ -459,7 +479,7 @@ class YJEquip {
                 owner.ChangeAnimDirect("idle");
             }
             if (isLocal) {
-                owner.applyEvent('更新装备', equipList,equipModelList);
+                owner.applyEvent('更新装备', equipList, equipModelList);
                 // console.log('更新装备', equipList,equipModelList);
             }
 
@@ -497,10 +517,10 @@ class YJEquip {
                     let rotaV3 = [Math.PI / 2, 0, 0];
                     // let scale =  [1,1,1];
                     let scaleV = 0.5;
-                    if(part.includes("shoulder")){
+                    if (part.includes("shoulder")) {
                         scaleV = 0.25;
                     }
-                    let scale = [scaleV, scaleV,scaleV];
+                    let scale = [scaleV, scaleV, scaleV];
                     if (mirror) {
                         scale = [scaleV, scaleV, -scaleV];
                     }

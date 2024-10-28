@@ -95,7 +95,6 @@ class YJGame_mainCtrl {
         _Global.applyEvent("属性改变", baseData);
       });
 
-
       _Global.addEventListener("玩家改变阵营", (playerId,camp) => { 
         console.log("玩家改变阵营  "+camp );
         // 把主播玩家阵营改变,并同步
@@ -116,19 +115,28 @@ class YJGame_mainCtrl {
       });
 
 
-      // 是否启用倒计时
+      // 切换操作方式
+      changeCtrlMode(_Global.GameSetting.control.playerCtrl[1].value);
+    }
+    function getValueInGameSetting(v,v1,v2){
+      if(v1){
+        _Global.GameSetting[v1][v2].control.playerCtrl
+      }
 
     }
     function changeCtrlMode(e) {
       if (e == 'wow') {
         _Global.YJ3D.YJController.enableRotate = true;
         _Global.YJ3D.YJController.enablePan = true;
+        _Global.YJ3D.YJController.SetCameraOffsetY(0);
+        _Global.YJ3D.YJController.ChangeCtrlState();
       }
       if (e == 'overlook') {
         _Global.YJ3D.YJController.enableRotate = false;
         _Global.YJ3D.YJController.enablePan = false;
         //视角高度
-        _Global.YJ3D.YJController.SetCameraOffset({x:0,y:15,z:10});
+        _Global.YJ3D.YJController.SetCameraOffset({x:0,y:15,z:15});
+        _Global.YJ3D.YJController.SetCameraOffsetY(-1);
         _Global.YJ3D.YJController.ChangeCtrlState();
         
       }

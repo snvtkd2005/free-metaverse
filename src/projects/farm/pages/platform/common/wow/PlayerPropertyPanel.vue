@@ -353,8 +353,8 @@ export default {
         { title: "护甲", value: 0 },
       ],
       spellProperty: [
-        { title: "攻击力加成", value: 0 },
-        { title: "治疗加成", value: 0 },
+        { title: "攻击力", value: 0 },
+        { title: "治疗", value: 0 },
         { title: "命中等级", value: 0 },
         { title: "暴击率", value: 0 },
         { title: "急速等级", value: 0 },
@@ -393,18 +393,28 @@ export default {
           console.log(" in 角色面板 ", targetModel, data);
           this.playerName = targetModel.GetNickName();
           this.playerImg = this.$uploadUrl + data.avatarData.id + "/thumb.png";
-
           this.updatePanelProperty(data.baseData);
-
           //装备
-          // console.log(" in 角色面板 装备 ",targetModel.GetEquip().GetEquipList());
           this.updatePanelByEquip(targetModel.GetEquip().GetEquipList());
           targetModel.addEventListener("更新装备", (equipList) => {
+            this.updatePanelByEquip(equipList);
+          });
+        });
+
+      }
+      
+      _Global.addEventListener("编辑模式刷新主角装备", () => {
+          this.playerName = _Global.user.name;
+          this.playerImg = this.$uploadUrl + _Global.user.avatarId + "/thumb.png";
+          _Global.applyEvent("主角头像",_Global.user.avatarId + "/thumb.png");
+          _Global.applyEvent("主角姓名",this.playerName);
+          //装备 
+          this.updatePanelByEquip(_Global._YJPlayerFireCtrl.GetEquip().GetEquipList());
+          _Global._YJPlayerFireCtrl.addEventListener("更新装备", (equipList) => {
             // console.log(" in 角色面板 更新装备 ",equipList);
             this.updatePanelByEquip(equipList);
           });
         });
-      }
     }, 1000);
 
     for (let i = 0; i < this.skillList.length; i++) {

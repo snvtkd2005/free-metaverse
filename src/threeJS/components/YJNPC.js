@@ -951,9 +951,9 @@ class YJNPC {
         baseSkillItem.level = 1;
 
         baseSkillItem.cCD = baseSkillItem.trigger.value;
-        baseSkillItem.CD = baseSkillItem.trigger.value;
-        baseSkillItem.canUse = false;
+        baseSkillItem.CD = baseSkillItem.trigger.value; 
         baseSkillItem.effects[0].value = -baseData.strength;
+        baseSkillItem.canUse = false; 
         skillList.push(baseSkillItem);
         // if (onlyLog()) {
         //   console.error(scope.GetNickName() + " 初始化基础攻击 ", JSON.stringify(weaponData));

@@ -453,6 +453,8 @@ class YJSkill {
                             }
                         }
                         baseData.basicProperty.armor += value;
+                        
+                        keepingSkillList.push({ type, controlId, value, skillName });
                         setTimeout(() => {
                             baseData.basicProperty.armor -= value;
                             for (let i = keepingSkillList.length - 1; i >= 0; i--) {
@@ -466,8 +468,7 @@ class YJSkill {
                             }
                         }, skillItem.CD * 900);
                     }
-
-                    keepingSkillList.push({ type, controlId, value, skillName });
+                    return;
                 }
                 if (controlId == "maxHealth") {
                     if (value > 0) {
@@ -725,6 +726,7 @@ class YJSkill {
         }
         function skillFn(skillItem, index = 0) {
             let targetType = skillItem.target.type;
+            // console.error(owner.GetNickName()+ "",skillItem.effects);
             let effect = skillItem.effects[index];
             if (skillItem.effects.length > (index + 1)) {
                 skillFn(skillItem,index + 1);

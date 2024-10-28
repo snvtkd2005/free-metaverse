@@ -1,6 +1,6 @@
 
 <template>
-  <div class="w-full h-full absolute left-0 top-0 pointer-events-none">
+  <div class="w-full h-full absolute z-50 left-0 top-0 pointer-events-none">
     <div
       v-show="!displayCard"
       class="absolute left-0 top-0 w-full h-full flex flex-col"
@@ -256,14 +256,17 @@ export default {
   created() {},
   mounted() {
     // new Interface(this, true);
-    if(_Global.isMobile){
+    if(_Global.isMobile && !_Global.setting.inEditor){
       this.hasCuror = false;
     }
     _Global.addEventListener("是否启用虚拟摇杆", (b) => {
-      if(_Global.isMobile){
+      if(_Global.isMobile && !_Global.setting.inEditor){
         this.hasCuror = false;
       }
     });
+    if(_Global.setting.inEditor){
+      this.hasCuror = false;
+    }
 
     if (this.newDiv == null) {
       this.newDiv = document.createElement("div");
@@ -418,7 +421,7 @@ export default {
 
   methods: {
     cancelDrag(e) {
-      console.log(e);
+      // console.log(e);
       if (_Global.inDragAction) {
         this.$refs.ActionPanelVue.cancelDrag(e);
       }

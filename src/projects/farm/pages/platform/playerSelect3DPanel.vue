@@ -22,10 +22,12 @@ export default {
     };
   },
   created() {
-    this._YJ3dScene = null;
-    new Interface(this, false);
   },
   mounted() { 
+    this._YJ3dScene = null;
+    if(false){
+      new Interface(this, false);
+    }
   },
   methods: {
     LoadModel(modelPath){
@@ -50,10 +52,10 @@ export default {
       this._YJ3dScene.NeedChangeSkin();
     },
     GetAllAnim(callback){
-      return this._YJ3dScene.CreateOrLoadPlayerAnimData().GetAllAnim(this.avatarData,callback);
+      return _Global._YJPlayerAnimData.GetAllAnim(this.avatarData,callback);
     },
     GetAvatarData(id) {
-      return this._YJ3dScene.CreateOrLoadPlayerAnimData().GetAvatarDataById(id);
+      return _Global._YJPlayerAnimData.GetAvatarDataById(id);
     },
     SelectAvatar(selectPlayerId,callback) {
 
@@ -62,7 +64,7 @@ export default {
       }
 
       this._YJ3dScene.NeedChangeSkin(); 
-      this._YJ3dScene.CreateOrLoadPlayerAnimData().GetAvatarDataById(selectPlayerId,(avatarData)=>{
+      _Global._YJPlayerAnimData.GetAvatarDataById(selectPlayerId,(avatarData)=>{
 
         let modelData = {
           name:avatarData.name,
@@ -83,7 +85,7 @@ export default {
       if (this._YJ3dScene == null) {
         this._YJ3dScene = new YJ3dScene_playerSelect(this.$refs.YJ3dscene, this.$parent);
       }
-      this._YJ3dScene.CreateOrLoadPlayerAnimData().AddAvatarData(avatarData);
+      _Global._YJPlayerAnimData.AddAvatarData(avatarData);
     },
     GetFaceModel() {
       this._YJ3dScene.GetFaceModel();

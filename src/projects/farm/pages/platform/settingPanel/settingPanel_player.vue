@@ -403,7 +403,8 @@ export default {
     this.$refs.settingPanel_avatar.initValue(this.settingData);
     this.setSettingItemByProperty("isLoop", this.currentAnimData.isLoop);
 
-    _Global.addEventListener("单品模型加载完成",()=>{
+    _Global.addEventListener("单品模型加载完成",(transform)=>{
+      this.transformJS = transform;
       this.ChangePlayerAnim("idle");
     });
   },
@@ -417,8 +418,7 @@ export default {
     },
     ClickBtnHandler(e) {
       if (e == "混合动作") {
-        let _YJAnimator =
-          _Global.YJ3D._YJSceneManager.GetSingleTransformComponent("Animator");
+        let _YJAnimator = this.transformJS.GetComponent("Animator");
         _YJAnimator.layerBlendPerbone("shooting", "run");
       }
       if (e == "选择可映射角色") {
@@ -441,9 +441,7 @@ export default {
         this.parent.$refs.animPanel.SetVisible(true, animList);
       }
       if (e == "骨骼映射面板") {
-        let bones = _Global.YJ3D._YJSceneManager
-          .GetSingleTransformComponent("MeshRenderer")
-          .GetAllBone();
+        let bones = this.transformJS.GetComponent("MeshRenderer").GetAllBone();
         this.parent.$refs.boneConvertPanel.SetVisible(
           true,
           bones,
@@ -523,8 +521,7 @@ export default {
     // 改变当前上传角色动作
     ChangePlayerAnim(animName) {
       console.log(" 切换动作 ", animName);
-      let _YJAnimator =
-        _Global.YJ3D._YJSceneManager.GetSingleTransformComponent("Animator");
+      let _YJAnimator = this.transformJS.GetComponent("Animator");
       _YJAnimator.ChangeAnim(animName);
     },
     updateName(v) {
@@ -554,8 +551,7 @@ export default {
         // 控制动作
         _Global.YJ3D.YJPlayer.GetAvatar().ChangeAnimIsLoop(this.animName, e);
         //
-        let _YJAnimator =
-          _Global.YJ3D._YJSceneManager.GetSingleTransformComponent("Animator");
+        let _YJAnimator = this.transformJS.GetComponent("Animator");
         _YJAnimator.ChangeAnimIsLoop(this.animName, e);
       }
       let equipPosIndex = -1;
@@ -600,10 +596,7 @@ export default {
         property == "position" ||
         property == "scale"
       ) {
-        let singleTransform =
-          _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
-        singleTransform
-          .GetComponent("MeshRenderer")
+        this.transformJS.GetComponent("MeshRenderer")
           .AddWeapon(
             this.weaponData,
             this.settingData.equipPosList[equipPosIndex],
@@ -640,9 +633,7 @@ export default {
           //npc播放动作
           if (animData.path != "") {
             let _YJAnimator =
-              _Global.YJ3D._YJSceneManager.GetSingleTransformComponent(
-                "Animator"
-              );
+            this.transformJS.GetComponent("Animator");
             _YJAnimator.ChangeAnim(this.animName);
           }
         }
@@ -720,9 +711,7 @@ export default {
             // _Global.YJ3D.YJController.ChangeAnimDirect(this.animName);
 
             let _YJAnimator =
-              _Global.YJ3D._YJSceneManager.GetSingleTransformComponent(
-                "Animator"
-              );
+            this.transformJS.GetComponent("Animator");
             _YJAnimator.ChangeAnim(this.animName);
           }
         }
@@ -757,9 +746,11 @@ export default {
           e != ""
         );
         if (e == "") {
-          let singleTransform =
-            _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
-          singleTransform.GetComponent("MeshRenderer").RemoveWeapon();
+          _Global.SendMsgTo3D("取消编辑");
+          this.Utils.SetSettingItemByProperty(this.setting,"weapon","");
+          this.transformJS.GetComponent("MeshRenderer").RemoveWeapon();
+          this.weaponModel = null;
+
         } else {
           let weaponData = e;
           this.weaponData = e;
@@ -842,10 +833,7 @@ export default {
           }
           console.log("equipPosList ", this.settingData.equipPosList);
           //加载武器并让角色使用
-          let singleTransform =
-            _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
-          singleTransform
-            .GetComponent("MeshRenderer")
+          this.transformJS.GetComponent("MeshRenderer")
             .AddWeapon(
               weaponData,
               equipData,
@@ -920,13 +908,10 @@ export default {
       requestAnimationFrame(this.animate);
       if(_Global.YJ3D._YJSceneManager == undefined){
         return;
-      }
-      let singleTransform =
-        _Global.YJ3D._YJSceneManager.GetSingleModelTransform();
+      } 
 
-      if (singleTransform) {
-        let _YJAnimator =
-          _Global.YJ3D._YJSceneManager.GetSingleTransformComponent("Animator");
+      if (this.transformJS) {
+        let _YJAnimator = this.transformJS.GetComponent("Animator");
         // _YJAnimator.ChangeAnim(this.animName);
 
         let { time, duration } = _YJAnimator.GetCurrentTime();
@@ -958,25 +943,7 @@ export default {
           this.currentAnimData.animName,
           this.animName
         );
-        if (this.weaponModel) {
-          for (let i = 0; i < this.settingData.equipPosList.length; i++) {
-            const item = this.settingData.equipPosList[i];
-            if (
-              item.targetBone == this.boneName &&
-              item.weaponType == this.weaponType
-            ) {
-              item.position = this.v3ToArray(
-                this.weaponModel.position.clone(),
-                1
-              );
-              item.rotation = this.v3ToArray(
-                this.weaponModel.rotation.clone(),
-                1
-              );
-              item.scale = this.v3ToArray(this.weaponModel.scale.clone(), 100);
-            }
-          }
-        }
+
         let has = false;
         for (
           let i = 0;
@@ -1005,6 +972,23 @@ export default {
           );
         }
       }
+      if (this.weaponModel) {
+          for (let i = 0; i < this.settingData.equipPosList.length; i++) {
+            const item = this.settingData.equipPosList[i];
+            if (
+              item.targetBone == this.boneName &&
+              item.weaponType == this.weaponType
+            ) {
+              item.position = this.v3ToArray(this.weaponModel.position.clone(),1);
+              item.rotation = this.v3ToArray(this.weaponModel.rotation.clone(),1);
+              item.scale = this.v3ToArray(this.weaponModel.scale.clone(), 100);
+              
+              this.Utils.SetSettingItemByProperty(this.setting,"scale",item.scale );
+              this.Utils.SetSettingItemByProperty(this.setting,"position",item.position );
+              this.Utils.SetSettingItemByProperty(this.setting,"rotation",item.rotation );
+            }
+          }
+        }
       // 能保存的情况下，才显示保存按钮
       console.log("角色数据 ", this.settingData);
       this.saveFn();

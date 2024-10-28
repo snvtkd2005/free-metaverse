@@ -20,7 +20,21 @@ class YJPlayerAnimData {
         _Global.Webworker = _YJLoadAnimation;
       }
     }
-
+    function loadAssset(url, callback) {
+      _Global.Webworker.loadAssset(url,(data)=>{
+        if (callback) {
+          callback(data);
+        }
+      });
+      return;
+      // const res = await _this.$axios.get(url);
+      // if (callback) {
+      //   callback(res.data);
+      // }
+    }
+    this.LoadAssset = function (path, callback) {
+      loadAssset(path, callback);
+    }
 
     this.GetAllAvatar = function () {
       return avatarDataList;
@@ -37,6 +51,7 @@ class YJPlayerAnimData {
     }
     this.GetAvatarDataById = function (id, callback) {
 
+      // 先查找已加载的角色列表，如果已加载则返回
       for (let i = 0; i < avatarDataList.length; i++) {
         if (avatarDataList[i].id+"" == id+"") {
           if (callback) {
@@ -46,10 +61,11 @@ class YJPlayerAnimData {
           return;
         }
       }
-        console.log(" 查找角色信息 ====== " ,_Global.url.uploadUrl);
+      console.log(" 查找角色信息 ====== " ,_Global.url.uploadUrl);
 
       let path = (_Global.url.uploadUrl + id + "/data.txt?time=" + new Date().getTime());
-      _Global.YJ3D._YJSceneManager.LoadAssset(path, (data) => {
+      scope.LoadAssset(path, (data) => {
+        // 已加载的角色数据保存到本地
         this.AddAvatarData(data.message.data);
         if (callback) {
           callback(data.message.data);
@@ -313,7 +329,7 @@ class YJPlayerAnimData {
     }
  
     this.loadByAnimFile = function (path, animName, callback) {
-      _Global.YJ3D._YJSceneManager.LoadAssset(path, (data) => {
+      scope.LoadAssset(path, (data) => {
         // console.log(" 读取扩展动作 ", path, data);
         if (callback) {
           callback(createAnimationClip_mmd2mixamo(animName, data));
@@ -577,58 +593,13 @@ class YJPlayerAnimData {
  
 
     //#region 根据武器类型、角色状态得到动作名
-
-    let animListData = [
-      { state: "普通攻击", pickType: "twoHand", weaponType: "gun", animName: "two hand gun attack" },
-      { state: "普通攻击", pickType: "twoHand", weaponType: "sword", animName: "two hand sword attack" },
-      { state: "普通攻击", pickType: "mainHand", weaponType: "arch", animName: "one hand bow attack" },
-
-      { state: "准备战斗", pickType: "twoHand", weaponType: "gun", animName: "two hand gun before attack" },
-      { state: "准备战斗", pickType: "twoHand", weaponType: "sword", animName: "two hand sword before attack" },
-      { state: "准备战斗", pickType: "mainHand", weaponType: "arch", animName: "one hand bow before attack", animName2: "one hand bow draw attack" },
-
-      { state: "受伤", pickType: "twoHand", weaponType: "gun", animName: "" },
-      { state: "受伤", pickType: "twoHand", weaponType: "sword", animName: "two hand sword hurt" },
-      { state: "受伤", pickType: "mainHand", weaponType: "arch", animName: "two hand bow hurt" },
-
-
-      { state: "移动", pickType: "twoHand", weaponType: "gun", animName: "two hand gun run" },
-      { state: "移动", pickType: "twoHand", weaponType: "sword", animName: "two hand sword run" },
-      { state: "移动", pickType: "oneHand", weaponType: "arch", animName: "one hand bow run" },
-      { state: "移动", pickType: "mainHand", weaponType: "arch", animName: "one hand bow run" },
-
-
-      { state: "停止移动", pickType: "twoHand", weaponType: "gun", animName: "two hand gun idle" },
-      { state: "停止移动", pickType: "twoHand", weaponType: "sword", animName: "two hand sword idle" },
-      { state: "停止移动", pickType: "oneHand", weaponType: "arch", animName: "one hand bow idle" },
-      { state: "停止移动", pickType: "mainHand", weaponType: "arch", animName: "one hand bow idle" },
-
-      { state: "行走", pickType: "twoHand", weaponType: "gun", animName: "two hand gun walk" },
-      { state: "行走", pickType: "twoHand", weaponType: "sword", animName: "two hand sword walk" },
-      { state: "行走", pickType: "oneHand", weaponType: "arch", animName: "one hand bow walk" },
-      { state: "行走", pickType: "mainHand", weaponType: "arch", animName: "one hand bow walk" },
-
-    ]
-
-
-    function GetAnimName(state, weaponData) {
-      let { pickType, weaponType } = weaponData;
-      for (let i = 0; i < animListData.length; i++) {
-        const element = animListData[i];
-        if (element.state == state && element.pickType == pickType && element.weaponType == weaponType) {
-          return element.animName;
-        }
-      }
-      return "";
-    }
     this.GetAnimNameByPlayStateAndWeapon = function (e, weaponData) {
       let animName = "";
       let animNameFullback = ""; //没有动作时的回滚动作
       switch (e) {
         case "普通攻击":
           animName = "fight attack"; //空手状态 攻击状态 拳击动作 
-          if (weaponData) {
-            // let _animName = GetAnimName(e, weaponData);
+          if (weaponData) { 
             let _animName = weaponData.animNameAttack;
             if (_animName != undefined && _animName != "") {
               animName = _animName;
@@ -643,8 +614,7 @@ class YJPlayerAnimData {
         case "准备战斗":
           animName = "fight idle"; //空手状态 战斗准备状态
           animNameFullback = "idle";
-          if (weaponData) {
-            // let _animName = GetAnimName(e, weaponData);
+          if (weaponData) { 
             let _animName = weaponData.animNameReady;
             if (_animName != undefined && _animName != "") {
               animName = _animName;
@@ -654,9 +624,9 @@ class YJPlayerAnimData {
           break;
         case "受伤":
           animName = "fight hurt"; //空手状态 受伤 
-          if (weaponData) {
-
-            let _animName = GetAnimName(e, weaponData);
+            animNameFullback = "idle";
+            if (weaponData) {
+            let _animName = weaponData.animNameReady; 
             if (_animName != "") {
               animName = _animName;
             }
@@ -680,8 +650,7 @@ class YJPlayerAnimData {
           animName = "run";
           animNameFullback = "run";
 
-          if (weaponData) {
-            // let _animName = GetAnimName(e, weaponData);
+          if (weaponData) { 
             let _animName = weaponData.animNameRun;
             if (_animName != undefined && _animName != "") {
               animName = _animName;
@@ -691,8 +660,7 @@ class YJPlayerAnimData {
         case "停止移动":
           animName = "idle";
           animNameFullback = "idle";
-          if (weaponData) {
-            // let _animName = GetAnimName(e, weaponData);
+          if (weaponData) { 
             let _animName = weaponData.animNameIdle;
             if (_animName != undefined && _animName != "") {
               animName = _animName;
@@ -702,8 +670,7 @@ class YJPlayerAnimData {
         case "战斗结束":
           animName = "idle";
           animNameFullback = "idle";
-          if (weaponData) {
-            // let _animName = GetAnimName(e, weaponData);
+          if (weaponData) { 
             let _animName = weaponData.animNameIdle;
             if (_animName != undefined && _animName != "") {
               animName = _animName;
@@ -714,8 +681,7 @@ class YJPlayerAnimData {
         case "行走":
           animName = "walk";
           animNameFullback = "walk";
-          if (weaponData) {
-            // let _animName = GetAnimName(e, weaponData);
+          if (weaponData) { 
             let _animName = weaponData.animNameWalk;
             if (_animName != undefined && _animName != "") {
               animName = _animName;

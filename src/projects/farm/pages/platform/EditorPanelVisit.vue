@@ -38,8 +38,17 @@
         ref="loadingPanel"
       />
 
+      <!-- 角色选择框 -->
+      <div  class="absolute left-0 top-0 w-full h-full   pointer-events-none flex">
+        <div class=" w-1/2 h-1/2 mx-auto self-center   ">
+          <playerSelectPanel  ref="playerSelectPanel" />
+        </div>
+      </div>
+
       <!-- HUD -->
-      <HUD v-if="hasHUD" ref="HUD" />
+      <div class=" absolute z-50 left-0 top-0 w-full h-full pointer-events-none">
+        <HUD v-if="hasHUD"  ref="HUD" />
+      </div>
       <div class="absolute left-0 top-0 w-full h-full pointer-events-none">
         <systemLogPanel ref="systemLogPanel" />
       </div>
@@ -76,6 +85,8 @@
           </div>
         </div>
       </div>
+      
+      
 
       <div
         v-if="false"
@@ -128,6 +139,7 @@ import YJmetaBase from "./YJmetaBase.vue";
 
 import modelPanel from "./panels/modelPanel.vue";
 import settingPanel from "./settingPanel/settingPanel.vue";
+import playerSelectPanel from "./playerSelectPanel.vue";
 
 // 加载进度页
 import loadingPanel from "./loadingPanel2.vue";
@@ -158,6 +170,7 @@ export default {
     settingPanel,
     HUD,
     systemLogPanel,
+    playerSelectPanel,
   },
   data() {
     return {
@@ -397,53 +410,27 @@ export default {
     },
     Enter() {
       let avatarId = PlayerAnimData.defaultUser.avatarId;
-
       if (localStorage.getItem("avatarId")) {
         avatarId = localStorage.getItem("avatarId");
+      }
+      let userName = "aa";
+      if (localStorage.getItem("userName")) {
+        userName = localStorage.getItem("userName");
       }
 
       // 如果场景限制角色，则使用场景限制角色
       if (this.sceneData.avatarList && this.sceneData.avatarList.length > 0) {
-        avatarId =
-          this.sceneData.avatarList[
+        avatarId = this.sceneData.avatarList[
             this.Utils.RandomInt(0, this.sceneData.avatarList.length - 1)
           ].folderBase;
-      }
-
-      this.userName = "aa";
-      if (localStorage.getItem("userName")) {
-        this.userName = localStorage.getItem("userName");
-      }
-
-      this.avatarId = avatarId;
-
-      this.hasPlayerSelectPanel = false;
-      this.inLoadCompleted = true;
-      this.userData = {
-        userName: this.userName,
-        roomName: this.sceneData.roomName,
-        platform: this.sceneData.platform,
-        avatarId: avatarId,
-      };
-
-      this.$refs.YJmetaBase.ClickSelectPlayerOK(this.userData);
-      _Global.user.name = (this.userName);
-
-
-      //场景设置
-      this._SceneManager = new SceneManager(
-        _Global.YJ3D.scene,
-        _Global.YJ3D.renderer,
-        _Global.YJ3D.camera,
-        this.$refs.YJmetaBase,
-        _Global.YJ3D._YJSceneManager.GetmodelParent(),
-        this,
-        () => {
-          // if (callback) {
-          //   callback();
-          // }
-        }
-      );
+        
+          //两个或以上角色的，弹出角色选择框
+          if(this.sceneData.avatarList.length > 1){
+            this.$refs.playerSelectPanel.init(this.sceneData.avatarList);
+            // return;
+          }
+      }  
+      this.ClickSelectPlayerOK(avatarId,userName); 
     },
 
     async RequestGetAllSceneData() {
@@ -639,35 +626,58 @@ export default {
       }
     },
 
-    ChangeAvatar(playerName, callback) {
-      if (this.$refs.gameUI) {
-        this.$refs.gameUI.ChangeAvatar(
-          this.$refs.YJmetaBase.GetAvatarData(playerName),
-          callback
-        );
-      }
+    ChangeAvatar(avatarItem,userName) { 
+      // 改变角色，改变阵营
+      _Global.user.avatarId = avatarItem.folderBase;
+      _Global.user.name = userName;
+      _Global.user.camp = avatarItem.camp;
+
+      _Global._YJPlayerFireCtrl.GetEquip().Clear();
+      //改变角色avatar
+      let _YJPlayer = _Global.YJ3D.YJPlayer;
+      _YJPlayer.camp = _Global.user.camp;
+      _YJPlayer.SetNickName(userName);  
+      _YJPlayer.ResetName();  
+      
+      _YJPlayer.ChangeAvatar(avatarItem.folderBase,()=>{
+        _YJPlayer.ChangeAnimDirect("idle");
+        _YJPlayer.applyEvent("pos", _YJPlayer.GetWorldPos().clone());
+        //清空角色面板上的icon
+        //改变角色上的装备
+        _Global._YJPlayerFireCtrl.GetEquip().UpdateData();
+        let equipList = avatarItem.equipList;
+        for (let i = 0;equipList && i < equipList.length; i++) {
+          _Global._YJPlayerFireCtrl.GetEquip().addEquip({ assetId:  equipList[i] });
+        } 
+        _Global.applyEvent("编辑模式刷新主角装备");
+
+      });
     },
     GetUseId() {
       return _Global.YJClient.GetUseId();
-    },
+    }, 
     //由角色选择界面传入 角色类型、用户名
-    ClickSelectPlayerOK(selectPlayerName, userName) {
+    ClickSelectPlayerOK(avatarId, userName) {
       this.userName = userName;
       localStorage.setItem("username", this.userName);
-      this.avatarId = selectPlayerName;
+      this.avatarId = avatarId;
 
       this.hasPlayerSelectPanel = false;
       this.inLoadCompleted = true;
-      this.userData = {
-        userName: userName,
+      this.userData = {        
+        userName: this.userName,
         roomName: this.sceneData.roomName,
         platform: this.sceneData.platform,
-        modelType: selectPlayerName,
+        avatarId: avatarId,
       };
 
       if (this.$refs.scenePanel) {
         this.$refs.scenePanel.DisplayLoading();
       }
+
+      this.$refs.YJmetaBase.ClickSelectPlayerOK(this.userData);
+      _Global.user.name = (this.userName);
+      _Global.user.avatarId = (this.avatarId);
 
       //场景设置
       this._SceneManager = new SceneManager(
@@ -683,24 +693,15 @@ export default {
           // }
         }
       );
+      // var that = this;
 
-      // console.log(userData);
-
-      this.$refs.YJmetaBase.ClickSelectPlayerOK(this.userData);
- 
-      _Global.user.name = userName;
-
-      console.log("场景加载完成------------");
-
-      var that = this;
-
-      window.onfocus = function () {
-        // console.log("激活焦点");
-      };
-      window.onblur = function () {
-        // console.log("失去焦点");
-        that.$refs.YJmetaBase.ThreejsHumanChat.YJController.onblur();
-      };
+      // window.onfocus = function () {
+      //   // console.log("激活焦点");
+      // };
+      // window.onblur = function () {
+      //   // console.log("失去焦点");
+      //   that.$refs.YJmetaBase.ThreejsHumanChat.YJController.onblur();
+      // };
     },
 
     SetTriggerOverlap(b, id, owner) {
@@ -747,6 +748,22 @@ export default {
       this.Interface.load3dComplete();
     },
 
+    OpenThreejs() {
+      this.inThreejs = true;
+      if (this.$refs.loadingPanel) {
+        this.$refs.loadingPanel.DisplayLoading(false);
+      }
+      for (let i = 0; i < this.sceneData.avatarList.length; i++) {
+        const element = this.sceneData.avatarList[i];
+        if(element.folderBase == _Global.user.avatarId){
+          //角色装备
+          let equipList = element.equipList;
+          for (let i = 0; equipList && i < equipList.length; i++) {
+            _Global._YJPlayerFireCtrl.GetEquip().addEquip({ assetId:  equipList[i] });
+          } 
+        }
+      }
+    },
     ClickHandler(t, msg) {
       if (t == "点击投影2d") {
         if (msg.title == "jump") {
@@ -858,12 +875,6 @@ export default {
     GetMinMapData() {
       let minMapData = this.sceneData.minMapData;
       return minMapData;
-    },
-    OpenThreejs() {
-      this.inThreejs = true;
-      if (this.$refs.loadingPanel) {
-        this.$refs.loadingPanel.DisplayLoading(false);
-      }
     },
     ClickNiaokan() {
       _Global.YJ3D.YJController.ResetToNiaokanView();

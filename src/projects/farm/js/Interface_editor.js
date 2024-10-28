@@ -33,6 +33,7 @@ class Interface {
       camp: 1000,
       id:"YJPlayer",
       name:"",
+      avatarId:0,
       currentTaskList:[],
       canCompletedTaskList:[],
       completedTaskList:[],

@@ -57,10 +57,25 @@
           </div>
         </div>
         <div class=" flex flex-wrap gap-2">
-          <div v-for="(item, i) in avatarList" :key="i" class=" w-auto h-auto relative flex ">
+          <div v-for="(item, i) in avatarList" :key="i" class=" w-auto h-auto relative flex gap-2 ">
             <div @click="ClickHandler('修改角色', item, i)" class=" w-10 h-10 bg-black cursor-pointer ">
               <img v-if="item.icon" class=" w-full h-full" :src="$uploadUrl + item.icon" />
             </div>
+            
+            <div class="w-24 h-10  rounded-md text-white" >
+                        <YJinput_drop 
+                          :value="item.camp"
+                          :options="GameSettingData['campType']"
+                          :callback="(e)=>{item.camp=e;}"
+                        />
+                      </div> 
+                      <div class="w-20 h-10 text-black">
+          <YJinput_textarea
+            class="w-full h-full text-xs"
+            :value="item.tip" 
+            :callback="(e)=>{item.tip=e;}"
+          />
+        </div>
             <div class=" ml-2 flex  h-6 p-1 text-sm bg-white text-black  cursor-pointer"
               @click="ClickHandler('删除角色', item, i)">
               <div class=" self-center">-</div>
@@ -163,6 +178,8 @@ import YJinput_toggle from "../components/YJinput_toggle.vue";
 import YJinput_color from "../components/YJinput_color.vue";
 import YJinput_range from "../components/YJinput_range.vue";
 import YJinput_upload from "../components/YJinput_upload.vue";
+import YJinput_drop from '../components/YJinput_drop.vue';
+import YJinput_textarea from '../components/YJinput_textarea.vue';
 
 import YJinputCtrl from "../components/YJinputCtrl.vue";
 
@@ -170,6 +187,7 @@ import skillItemEditorPanel from "../panels/skillItemEditorPanel.vue";
 import propItemEditorPanel from "../panels/propItemEditorPanel.vue";
 
 import { GetAllHDR, RequestMetaWorld } from "../../../js/uploadThreejs.js";
+import GameSettingData from "../../../data/platform/GameSettingData";
 
 export default {
   name: "settingpanel",
@@ -178,7 +196,7 @@ export default {
     YJinput_toggle,
     YJinput_color,
     YJinput_range,
-    YJinput_upload,
+    YJinput_upload,YJinput_drop,YJinput_textarea,
     YJinputCtrl,
     skillItemEditorPanel,
     propItemEditorPanel,
@@ -261,6 +279,7 @@ export default {
       folderBase:"",
       // metaWorldCoordinate: [{ x: 0, y: 0, vaild: true }],
       metaWorldCoordinate: [],
+      GameSettingData:{},
     };
   },
   created() {
@@ -268,6 +287,7 @@ export default {
     this.parent = this.$parent.$parent;
   },
   mounted() {
+    this.GameSettingData = GameSettingData;
 
     setTimeout(() => {
       this.thumbName =    "thumb.jpg";
@@ -285,6 +305,15 @@ export default {
         this.sceneData.skillList = [];
       }
       this.avatarList = this.sceneData.avatarList;
+      for (let i = 0; i < this.avatarList.length; i++) {
+        const element = this.avatarList[i];
+        if(element.camp==undefined){
+          element.camp = 1000;
+        }
+        if(element.tip==undefined){
+          element.tip = "";
+        }
+      }
       this.skillList = this.sceneData.skillList;
       _Global.skillList = this.skillList;
 
@@ -326,19 +355,54 @@ export default {
         return;
       }
       if (modelType == "角色模型") {
-        this.avatarList.push({ folderBase: item.folderBase, icon: item.icon });
+        this.avatarList.push({ folderBase: item.folderBase, icon: item.icon,camp:1000,tip:"" });
+        return;
+      } 
+      if (modelType == "NPC模型") {
+        this.avatarList.push({ folderBase: item.folderBase, icon: item.icon,camp:1000,tip:"" });
         return;
       }
-
     },
     ClickHandler(e, item, i) {
       if (e == "添加角色") {
+        // this.parent.$refs.modelSelectPanel.Init("NPC模型");
         this.parent.$refs.modelSelectPanel.Init("角色模型");
       }
       if (e == "删除角色") {
         this.avatarList.splice(i, 1);
       }
+      if (e == "修改角色") {
+         
+        if(_Global.user.avatarId == item.folderBase){
+          //弹出角色框
+          _Global.applyEvent("界面开关","player",true);
+          _Global.applyEvent("编辑模式刷新主角装备");
+          //把装备icon显示在角色面板
+          return;
+        }
+        
+        console.log(e,item);
+        _Global.user.avatarId = item.folderBase;
 
+        _Global._YJPlayerFireCtrl.GetEquip().Clear();
+        //改变角色avatar
+        let _YJPlayer = _Global.YJ3D.YJPlayer;
+        _YJPlayer.ChangeAvatar(item.folderBase,()=>{
+          _YJPlayer.ChangeAnimDirect("idle");
+          _YJPlayer.applyEvent("pos", _YJPlayer.GetWorldPos().clone());
+          //清空角色面板上的icon
+          //改变角色上的装备
+          _Global._YJPlayerFireCtrl.GetEquip().UpdateData();
+          let equipList = item.equipList;
+          for (let i = 0;equipList && i < equipList.length; i++) {
+            _Global._YJPlayerFireCtrl.GetEquip().addEquip({ assetId:  equipList[i] });
+          } 
+          _Global.applyEvent("编辑模式刷新主角装备");
+
+        });
+
+      }
+      
 
       if (e == "添加技能") {
         this.parent.$refs.skillSelectPanel.SetVisible(true);

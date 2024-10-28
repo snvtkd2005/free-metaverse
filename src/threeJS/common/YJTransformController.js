@@ -223,7 +223,11 @@ class YJTransformController {
       });
       selectMesh = null;
       transformController.visible = false;
-      _Global.SetEnableGravity(true);
+      if(_Global.freeView){
+
+      }else{
+        _Global.SetEnableGravity(true);
+      }
 
     }
     InitTransformController();

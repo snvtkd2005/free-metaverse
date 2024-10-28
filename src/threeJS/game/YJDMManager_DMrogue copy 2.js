@@ -668,9 +668,7 @@ class YJDMManager_DMrogue {
         _Global._YJNPCManager.GetNpcComponentById(npcId).LogFire();
       })
 
-
-      _Global._YJPlayerFireCtrl.GetEquip().addEquip({ assetId: 1692787200597 }, () => {
-      });
+ 
       _Global.YJ3D.YJController.ChangeAnimDirect("idle", "idle");
  
       autoFire();

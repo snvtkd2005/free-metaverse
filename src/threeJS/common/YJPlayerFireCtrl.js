@@ -121,8 +121,8 @@ class YJPlayerFireCtrl {
 					element.fn(v, v2, v3);
 				}
 			}
-			
-			if(e=="更新武器"){
+
+			if (e == "更新武器") {
 				setTimeout(() => {
 					updateWeapon();
 				}, 1000);
@@ -211,7 +211,7 @@ class YJPlayerFireCtrl {
 			_Global.applyEvent("设置技能进度条", skillCastTime, skillName, reverse);
 		}
 		this.LookatTarget = function (targetModel) {
-			if(targetModel==null){return;}
+			if (targetModel == null) { return; }
 			YJController.PlayerLookatPos(targetModel.GetWorldPos());
 		}
 		this.UseSkill = function (skillItem) {
@@ -254,7 +254,6 @@ class YJPlayerFireCtrl {
 		}
 		this.GetData = function () {
 			let avatarData = _YJPlayer.GetavatarData();
-
 			return {
 				avatarData: avatarData,
 			};
@@ -325,30 +324,31 @@ class YJPlayerFireCtrl {
 		this.GetShootingStartPos = function () {
 			return GetShootingStartPosFn();
 		}
-		this.GetFirePosRef = function(){
+		this.GetFirePosRef = function () {
 			return firePosRef;
 		}
-		function updateWeapon(){
+		function updateWeapon() {
 			let weaponModel = _YJEquip.getWeaponModel();
 			// console.log("更新武器 ",weaponModel);
 			if (weaponModel) {
 
-				var { _fire,_weaponData } = GetSkillDataByWeapon(weaponData);
+				var { _fire, _weaponData } = GetSkillDataByWeapon(weaponData);
 				// 基础攻击攻击力等于武器攻击力
 				let baseSkillItem = _YJSkill.GetBaseSkill();
+				if (baseSkillItem == null) { return; }
 				baseSkillItem.effects[0].value = -_weaponData.strength;
 				if (_fire.pos && _fire.pos.length == 3) {
 					// 特效发射的起始位置在武器上设置
 					weaponModel.add(firePosRef);
-					firePosRef.rotation.set(0,0,0);
-					firePosRef.position.set(0,0,0);
+					firePosRef.rotation.set(0, 0, 0);
+					firePosRef.position.set(0, 0, 0);
 					let pos1 = firePosRef.position.clone();
 					pos1.x += _fire.pos[0] * 1;
 					pos1.y += _fire.pos[1] * 1;
 					pos1.z += _fire.pos[2] * 1;
 					firePosRef.position.copy(pos1);
-					if(_fire.rotaV3){
-						firePosRef.rotation.set(_fire.rotaV3[0],_fire.rotaV3[1],_fire.rotaV3[2]);
+					if (_fire.rotaV3) {
+						firePosRef.rotation.set(_fire.rotaV3[0], _fire.rotaV3[1], _fire.rotaV3[2]);
 					}
 
 					// let axse = new THREE.AxesHelper(1);
@@ -619,7 +619,7 @@ class YJPlayerFireCtrl {
 		this.SetState = function (e, v) {
 			state[e] = v;
 		}
-		this.GetIsMoving = function(){
+		this.GetIsMoving = function () {
 			return state.isMoving;
 		}
 		// 是否有效攻击距离
@@ -672,7 +672,7 @@ class YJPlayerFireCtrl {
 			let dis = playerPos.distanceTo(npcPos);
 			let b = inVaildArea(dis);
 			if (!b) {
-				scope.MyFireState("太远了"); 
+				scope.MyFireState("太远了");
 				// console.log("dis ",dis," vaildAttackDis ",vaildAttackDis);
 				state.canAttack = false;
 				cantAttackType = CantAttackType.tofar;
@@ -699,14 +699,14 @@ class YJPlayerFireCtrl {
 		function CheckState() {
 
 
-			if(targetModel != null){
+			if (targetModel != null) {
 				let pos = targetModel.GetWorldPos();
-				if(pos.distanceTo(targetModelOldPos)>=0.1){
+				if (pos.distanceTo(targetModelOldPos) >= 0.1) {
 					if (_YJSkill) {
 						_YJSkill.CheckSkillInVaildDis(scope.GetWorldPos());
 					}
 					targetModelOldPos = pos.clone();
-				} 
+				}
 			}
 			return;
 			if (playerState == PLAYERSTATE.ATTACK) {
@@ -829,14 +829,14 @@ class YJPlayerFireCtrl {
 				}
 
 			}
-			if(e=="施法移动中断"){
+			if (e == "施法移动中断") {
 				if (!_YJSkill.GetSkillCanMovingCast()) {
 					_Global.ReportTo3D("设置技能进度条", "中断");
 					_Global._YJAudioManager.stopAudio(readyskillAudioName);
 				}
 				scope.applyEvent("施法移动中断");
 			}
-			
+
 			if (e == "进入战斗" || e == "设置目标") {
 
 				// if (hyperplasiaTrans.length > 0) {
@@ -993,14 +993,14 @@ class YJPlayerFireCtrl {
 					state.canAttack = false;
 					GetAnimNameByPlayStateAndWeapon(e, weaponData);
 					EventHandler("中断技能");
-					if(!canMove){return;}
+					if (!canMove) { return; }
 
 					break;
 				case "取消跳跃":
 					GetAnimNameByPlayStateAndWeapon("停止移动", weaponData);
 					break;
 				case "移动":
-					if(!canMove){return;}
+					if (!canMove) { return; }
 
 					state.isMoving = true;
 					// console.log(" 移动 000000000000000 ",state.canMoveAttack);
@@ -1060,7 +1060,7 @@ class YJPlayerFireCtrl {
 			// console.log(" 玩家动作 ",weaponData, e,animName);
 
 			YJController.SetPlayerAnimName(animName, animNameFullback);
-			// console.log(" 玩家动作 ", animName);
+			// console.log(" 玩家动作 ", animName,animNameFullback);
 		}
 		this.ChangeAnim = function (v, vb) {
 			YJController.SetPlayerAnimName(v, vb);
@@ -1140,7 +1140,7 @@ class YJPlayerFireCtrl {
 		this.GetProperty = function () {
 			return _YJPlayerProperty;
 		}
-		
+
 		this.GetYJPlayer = function () {
 			return _YJPlayer;
 		}
@@ -1204,7 +1204,7 @@ class YJPlayerFireCtrl {
 						}
 					}
 				}
-				 
+
 
 			});
 			setTimeout(() => {
@@ -1239,10 +1239,29 @@ class YJPlayerFireCtrl {
 					baseSkillItem.animNameReady = ready.animName;
 					baseSkillItem.animName = fire.animName;
 					baseSkillItem.vaildDis = v;
-					baseSkillItem.effects[0].value = -strength; 
+					let effects = [
+						{
+							name: "直接伤害",
+							runType: "immediately", //执行类型
+							type: "basicProperty",
+							controlId: "health", //控制id 1=冰霜新星
+							value: -10,
+							time: 0,
+							duration: 0,
+							describe: "生命值减少10点",
+							icon: "",
+						}
+					];
+					effects[0].value = -strength;
+					baseSkillItem.effects = effects;
 					baseSkillItem.trigger.value = a;
-					baseSkillItem.cCD = baseSkillItem.trigger.value;
-					baseSkillItem.CD = baseSkillItem.trigger.value;
+					if (weaponData) {
+						baseSkillItem.cCD = 0.1;
+						baseSkillItem.CD = 0.1;
+					} else {
+						baseSkillItem.cCD = baseSkillItem.trigger.value;
+						baseSkillItem.CD = baseSkillItem.trigger.value;
+					}
 					baseSkillItem.canUse = false;
 					baseSkillItem.auto = false;
 					baseSkillItem.hasTarget = false;
@@ -1261,7 +1280,7 @@ class YJPlayerFireCtrl {
 				_Global.applyEvent('主角头像', avatarData.id + "/thumb.png");
 			}
 			UpdateData();
-			_Global.addEventListener("设置玩家状态",(msg)=>{
+			_Global.addEventListener("设置玩家状态", (msg) => {
 				scope.OnPlayerState(msg);
 			})
 

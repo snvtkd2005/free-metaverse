@@ -390,12 +390,6 @@ class YJDMManager_GameBase {
         _Global._YJPlayerFireCtrl.SetPlayerState("normal");
       }) 
 
-      // 给角色装备武器
-      _Global._YJPlayerFireCtrl.GetEquip().addEquip({ assetId: 1692787200597 });
-      // _Global._YJPlayerFireCtrl.GetEquip().addEquip({ assetId: 1709558796473 });
-      // _Global._YJPlayerFireCtrl.GetEquip().addEquip({ assetId: 1709594878614 });
-
-
       _Global.YJ3D.YJController.ChangeAnimDirect("idle", "idle");
 
       // _Global.LogFireById(1711340121297)

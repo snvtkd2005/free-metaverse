@@ -9,6 +9,7 @@ import * as THREE from "three";
 import { YJController } from "./YJController.js";
 import { YJPlayerAnimData } from "./YJPlayerAnimData";
 import { YJPlayer } from "./YJPlayer.js";
+import { YJEquip } from '../components/YJEquip'; 
 import { YJSceneManager } from "./YJSceneManagerSimple";
 // import { YJ3dScene_margeTexture } from "./YJ3dScene_margeTexture.js";
 
@@ -16,8 +17,12 @@ import { YJSceneManager } from "./YJSceneManagerSimple";
 class YJ3dScene_playerSelect {
   constructor(container, _this) {
     let scope = this;
-    let _YJPlayer = null
-    let _YJPlayerAnimData = null
+    let _YJPlayer = null;
+    let _YJEquip = null;
+		this.GetEquip = function () {
+			return _YJEquip;
+		}
+    let _YJPlayerAnimData = null;
     let _YJSceneManager = null;
     this.CreateOrLoadPlayerAnimData = function () {
       if (_YJPlayerAnimData != null) {
@@ -50,7 +55,10 @@ class YJ3dScene_playerSelect {
 
     function Init() {
 
-      _Global.YJ3D = scope;
+      _Global.YJ3DSelect = scope;
+      if(_Global.YJ3D == undefined){
+        _Global.YJ3D = {}; 
+      }
       scope.CreateOrLoadPlayerAnimData();
 
       scene = new THREE.Scene(); // 场景
@@ -122,22 +130,21 @@ class YJ3dScene_playerSelect {
       group = new THREE.Group();
       scene.add(group);
 
-      playerGroup = new THREE.Group();
+      playerGroup = new THREE.Group(); 
       scene.add(playerGroup);
       let playerParent = _YJController.GetPlayerParent();
       playerGroup.add(playerParent);
-      _YJController.SetAmmoPlayer(playerGroup);
+      _YJController.SetAmmoPlayer(group);
 
-      _YJController.SetCameraOffset(new THREE.Vector3(0, 0, -1.5));
-      _YJController.SetCameraOffsetY(0.5);
-      // _YJController.SetCameraOffset(new THREE.Vector3(0, 0, -3.5));
-      // _YJController.SetCameraOffsetY(0.9);
+      _YJController.SetCameraOffset(new THREE.Vector3(0, 0, 1.5));
+      _YJController.SetCameraOffsetY(0.5); 
 
       _YJController.ChangeCtrlState();
 
       // 强制横屏
       _YJController.SetforcedLandscape(width > height);
-
+ 
+      // let targetRota = new THREE.Vector3(0, 0, 0); //4
       let targetRota = new THREE.Vector3(0, -Math.PI / 2, 0); //4
       _YJController.SetTargetRota(targetRota);
 
@@ -149,6 +156,8 @@ class YJ3dScene_playerSelect {
       setInterval(() => {
         UpdateCheckWindowResize();
       }, 20);
+
+
     }
 
     let hasCar = false;
@@ -332,8 +341,10 @@ class YJ3dScene_playerSelect {
       _YJController.wheelMax = -0.01;
       //设置角色移动速度
       // _YJController.SetMoveSpeed(0.1);
-      _Global.YJ3D.YJController = _YJController;
-
+      _Global.YJ3DSelect.YJController = _YJController;
+      if(_Global.YJ3D.YJController == undefined){
+        _Global.YJ3D.YJController = _YJController;
+      }
     }
 
     function InitSceneManager() {
@@ -344,8 +355,11 @@ class YJ3dScene_playerSelect {
         camera,
         _this
       );
-      _Global.YJ3D._YJSceneManager = _YJSceneManager;
+      _Global.YJ3DSelect._YJSceneManager = _YJSceneManager;
 
+      if(_Global.YJ3D._YJSceneManager == undefined){
+        _Global.YJ3D._YJSceneManager = _YJSceneManager;
+      }
     }
 
     let avatar = null;
@@ -354,10 +368,10 @@ class YJ3dScene_playerSelect {
       // _YJ3dScene_margeTexture.margeTexture(sourceTex, addTex, callback); 
     }
     this.ChangeSkinCompleted = function () {
-      group.visible = true;
+      playerGroup.visible = true;
     }
     this.NeedChangeSkin = function () {
-      group.visible = false;
+      playerGroup.visible = false;
     }
 
     function SetViewHeight() {
@@ -389,6 +403,18 @@ class YJ3dScene_playerSelect {
     this.GetavatarData = function () {
       return avatarData;
     }
+    
+		this.GetData = function () { 
+			return {
+				avatarData: avatarData,
+			}; 
+		}
+		this.applyEvent = function (e, v, v2, v3) { 
+		}
+    
+		this.GetBoneVague = function (boneName, callback) {
+			_YJPlayer.GetBoneVague(boneName, callback);
+		}
     // 此函数用来做npc
     this.ChangeAvatarByCustom = function (_avatarData, callback) {
 
@@ -405,14 +431,14 @@ class YJ3dScene_playerSelect {
       let modelScale = avatarData.modelScale;
       let rotation = avatarData.rotation;
 
-      // console.log(" 准备加载角色 ", avatarData);
+      console.error(" 角色选择页 准备加载角色 ", avatarData);
       SetViewHeight();
 
       if (_YJPlayer == null) {
 
-        _YJPlayer = new YJPlayer(scene, true);
+        _YJPlayer = new YJPlayer(playerGroup, true);
         avatar = _YJPlayer;
-        _YJPlayer.CreateNameTrans(_Global.user.name);
+        _YJPlayer.CreateNameTrans(playerName);
 
         _YJPlayer.LoadPlayer(avatarId, () => {
 
@@ -422,21 +448,29 @@ class YJ3dScene_playerSelect {
           }
         });
 
-        _Global.YJ3D.YJPlayer = _YJPlayer;
+        _Global.YJ3DSelect.YJPlayer = _YJPlayer;
 
         _YJController.SetPlayer(_YJPlayer);
+
+        if (_YJEquip == null) {
+          _YJEquip = new YJEquip(scope, false);
+        }
+        
       } else {
-        _YJPlayer.ChangeAvatar(avatarId, true, () => {
-          group.visible = true;
+        _YJPlayer.ChangeAvatar(avatarId, () => {
           _YJPlayer.ChangeAnimDirect("idle");
           if (callback) {
             callback(_YJPlayer);
           }
+          // setTimeout(() => {
+          //   group.visible = true;
+          // }, 1000);
         });
 
       } 
 
     }
+
 
 
     // 角色注释点参考物体
@@ -500,8 +534,9 @@ class YJ3dScene_playerSelect {
       if (timeStamp > singleFrameTime) {
         renderer.render(scene, camera);
         _YJController.update();
-        _YJPlayer._update();
-
+        if(_YJPlayer){
+          _YJPlayer._update();
+        }
         // 剩余的时间合并进入下次的判断计算 这里使用取余数是因为 当页页面失去焦点又重新获得焦点的时候，delta数值会非常大， 这个时候就需要
         timeStamp = timeStamp % singleFrameTime;
       }

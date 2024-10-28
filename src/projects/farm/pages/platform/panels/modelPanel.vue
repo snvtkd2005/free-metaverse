@@ -196,12 +196,19 @@ export default {
     },
     // 点击UI创建模型
     ChangeSceneByUI(item) {
-      // console.log("切换模型 ",item);
+      console.log("点击UI创建模型 ",item);
 
       if (this.selectModelItem.name != "") {
         if (this.selectModelItem.name == item.name) {
           return;
         }
+      }
+
+      // 如果角色面板打开时，且选择的是武器或装备，则记录到设置中
+      if(_Global.panelState.player && (item.modelType=="武器模型" || item.modelType=="装备模型" )){
+        // 把装备添加到角色上
+        _Global._YJPlayerFireCtrl.GetEquip().addEquip({ assetId: item.folderBase });
+        return;
       }
 
       this.SelectModelFn(item);

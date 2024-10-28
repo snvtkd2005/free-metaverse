@@ -100,83 +100,85 @@ class YJMeshRenderer {
       });
     }
 
-    // let equipList = [];
-    // // 移除武器
-    // this.RemoveWeapon = function () {
-    //   for (let i = equipList.length - 1; i >= 0; i--) {
-    //     const item = equipList[i];
-    //     item.equipModel.parent.remove(item.equipModel);
-    //     equipList.splice(i, 1);
-    //   }
-    // }
-    // this.EditorWeapon = function (msg) {
+    //#region 只在单品模型编辑模式
+    let equipList = [];
+    // 移除武器
+    this.RemoveWeapon = function () {
+      for (let i = equipList.length - 1; i >= 0; i--) {
+        const item = equipList[i];
+        item.equipModel.parent.remove(item.equipModel);
+        equipList.splice(i, 1);
+      }
+    }
+    this.EditorWeapon = function (msg) {
 
-    // }
+    }
 
-    // this.AddWeapon = function (weaponData, equipData, boneList, callback) {
-    //   let data = weaponData.message.data;
-    //   let realyBoneName = "";
-    //   let realyPos = equipData.position;
-    //   let realyRota = equipData.rotation;
-    //   let realyScale = equipData.scale;
+    this.AddWeapon = function (weaponData, equipData, boneList, callback) {
+      let data = weaponData.message.data;
+      let realyBoneName = "";
+      let realyPos = equipData.position;
+      let realyRota = equipData.rotation;
+      let realyScale = equipData.scale;
 
-    //   for (let i = 0; i < boneList.length; i++) {
-    //     const item = boneList[i];
-    //     if (item.targetBone == equipData.targetBone) {
-    //       realyBoneName = item.boneName;
-    //     }
-    //   }
+      for (let i = 0; i < boneList.length; i++) {
+        const item = boneList[i];
+        if (item.targetBone == equipData.targetBone) {
+          realyBoneName = item.boneName;
+        }
+      }
 
-    //   for (let i = 0; i < equipList.length; i++) {
-    //     const item = equipList[i];
-    //     if (item.boneName == realyBoneName && item.weaponType == data.weaponType) {
-    //       let pos = realyPos;
-    //       let rotaV3 = realyRota;
-    //       let scale = realyScale;
-    //       item.equipModel.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
-    //       item.equipModel.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
-    //       item.equipModel.scale.set(100 * scale[0], 100 * scale[1], 100 * scale[2]);
-    //       return;
-    //     }
-    //   }
+      for (let i = 0; i < equipList.length; i++) {
+        const item = equipList[i];
+        if (item.boneName == realyBoneName && item.weaponType == data.weaponType) {
+          let pos = realyPos;
+          let rotaV3 = realyRota;
+          let scale = realyScale;
+          item.equipModel.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
+          item.equipModel.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
+          item.equipModel.scale.set(100 * scale[0], 100 * scale[1], 100 * scale[2]);
+          return;
+        }
+      }
 
-    //   //加载武器
-    //   _Global.YJ3D._YJSceneManager.DirectLoadMesh(_Global.url.uploadUrl + weaponData.modelPath, (meshAndMats) => {
-    //     scope.GetBoneVague(realyBoneName, (bone) => {
+      //加载武器
+      _Global.YJ3D._YJSceneManager.DirectLoadMesh(_Global.url.uploadUrl + weaponData.modelPath, (meshAndMats) => {
+        scope.GetBoneVague(realyBoneName, (bone) => {
 
-    //       // let _weaponModel = (meshAndMats.mesh).scene;
-    //       // let weaponModel = (meshAndMats.mesh).scene;
-    //       // console.log("weaponModel ",weaponModel);
+          // let _weaponModel = (meshAndMats.mesh).scene;
+          // let weaponModel = (meshAndMats.mesh).scene;
+          // console.log("weaponModel ",weaponModel);
 
-    //       let _weaponModel = (meshAndMats.mesh).scene;
-    //       let model = new THREE.Group();
-    //       model.add(_weaponModel);
-    //       _weaponModel.position.set(0, 0, 0);
-    //       _weaponModel.rotation.set(0, 0, 0);
-    //       if (weaponData.modelPath.includes(".fbx")) {
-    //         _weaponModel.scale.set(0.01, 0.01, 0.01);
-    //       } else {
-    //         _weaponModel.scale.set(1, 1, 1);
-    //       }
+          let _weaponModel = (meshAndMats.mesh).scene;
+          let model = new THREE.Group();
+          model.add(_weaponModel);
+          _weaponModel.position.set(0, 0, 0);
+          _weaponModel.rotation.set(0, 0, 0);
+          if (weaponData.modelPath.includes(".fbx")) {
+            _weaponModel.scale.set(0.01, 0.01, 0.01);
+          } else {
+            _weaponModel.scale.set(1, 1, 1);
+          }
 
-    //       // console.log(" 找到骨骼并拾取武器",bone,weaponModel);
-    //       bone.attach(model);
-    //       bone.weaponModel = model;
-    //       let pos = realyPos;
-    //       let rotaV3 = realyRota;
-    //       let scale = realyScale;
-    //       model.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
-    //       model.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
-    //       model.scale.set(100 * scale[0], 100 * scale[1], 100 * scale[2]);
-    //       equipList.push({ boneName: realyBoneName, weaponType: data.weaponType, equipModel: model });
+          // console.log(" 找到骨骼并拾取武器",bone,weaponModel);
+          bone.attach(model);
+          bone.weaponModel = model;
+          let pos = realyPos;
+          let rotaV3 = realyRota;
+          let scale = realyScale;
+          model.position.set(1 * pos[0], 1 * pos[1], 1 * pos[2]);
+          model.rotation.set(rotaV3[0], rotaV3[1], rotaV3[2]);
+          model.scale.set(100 * scale[0], 100 * scale[1], 100 * scale[2]);
+          equipList.push({ boneName: realyBoneName, weaponType: data.weaponType, equipModel: model });
 
-    //       if (callback) {
-    //         callback(model);
-    //       }
+          if (callback) {
+            callback(model);
+          }
 
-    //     });
-    //   });
-    // }
+        });
+      });
+    }
+    //#endregion
 
 
     //#region 模型局部坐标系中的transform值
@@ -228,7 +230,7 @@ class YJMeshRenderer {
       //   }
       // );
     }
-    //加载热点的obj 模型
+    //加载模型
     function loadFbx(modelPath, callback, errorback) {
 
 

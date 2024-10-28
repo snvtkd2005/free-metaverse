@@ -153,10 +153,7 @@ class YJGame_roguelike {
           inLongPress = true;
 
         });
-
-        _Global._YJPlayerFireCtrl.GetEquip().addEquip(roguelikeGameData.weaponList[0], () => {
-          _Global._YJPlayerFireCtrl.SetPlayerState("normal");
-        });
+ 
 
         autoFire();
  

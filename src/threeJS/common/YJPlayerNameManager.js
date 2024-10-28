@@ -288,21 +288,38 @@ class YJPlayerNameManager {
         // console.log("nickNameMerged ",nickNameMerged);
 
     }
+    this.RemoveNameTransById = function(id){
+      for (let i = playerList.length - 1; i >= 0; i--) {
+        if (playerList[i].id == id) {
+          let nickName = playerList[i].nickName;
+          for (let ii = nickNameMerged.length - 1; ii >= 0; ii--) {
+            if (nickNameMerged[ii].nickName == nickName) {
+              nickNameMerged[ii].mergedJS.removePoint(id);
+              break;
+            }
+          }
+          nameTransBase.remove(playerList[i].group);
+          playerList.splice(i, 1);
+          return;
+        }
+      }
+    }
+
     this.CreateNameTrans = function (npc, id, nickName, playerHeight, modelScale, nameScale, color, callback) {
       // return;
-      // for (let i = 0; i < playerList.length; i++) {
-      //   if(playerList[i].id == id){
-      //     console.log(" id 重复 ",id,nickName,playerList[i].nickName);
-      //     return;
-      //   }  
-      // }
+      for (let i = 0; i < playerList.length; i++) {
+        if(playerList[i].id == id){
+          // playerList[i].height = modelScale * (playerHeight + 0.3);
+          // console.log(" id 重复 ",id,nickName,playerList[i].nickName);
+          return;
+        }  
+      }
       let player = {};
 
       let group = new THREE.Group();
       // group.add(new THREE.AxesHelper(10));
       nameTransBase.add(group);
       player.group = group;
-      playerList.push({ id, nickName, player });
 
       // if (npc.transform) {
       //   group.visible = npc.transform.GetActive();
@@ -323,11 +340,12 @@ class YJPlayerNameManager {
       let height = modelScale * (playerHeight + 0.3);
       pos.y += height;
       group.position.copy(pos);
-
+      let item = { id, nickName, player,height,group };
+      playerList.push(item);
 
       npc.addEventListener("pos", (pos) => {
         pos = npc.GetWorldPos();
-        pos.y +=  modelScale * (playerHeight + 0.3);
+        pos.y +=  item.height;
         group.position.set(pos.x, pos.y, pos.z);
       });
 

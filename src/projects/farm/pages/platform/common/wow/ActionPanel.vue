@@ -226,7 +226,7 @@
           </div>
 
           <!-- 经验条 -->
-          <div class="absolute -z-10 left-0 bottom-10 flex w-full h-3">
+          <div class="absolute -z-10 left-0 bottom-10 flex w-full h-4">
             <div
               class="w-5/6 transform mx-auto relative h-full"
               style="width: 1024px"
@@ -236,7 +236,7 @@
                 :style="'width: ' + (stats.exp / stats.needExp) * 100 + '%'"
               ></div>
               <!-- 经验条文字 -->
-              <div class="absolute left-0 top-0 w-full flex h-full">
+              <div class="absolute left-0 top-0 w-full flex md:hidden h-full">
                 <div class="pl-2 text-xs mx-auto truncate">
                   {{ stats.exp }}/{{ stats.needExp }}
                 </div>
@@ -336,9 +336,9 @@
 
     <!-- 经验条 -->
     <div
-      class="absolute left-0 bottom-16 w-full h-3 mx-auto transform origin-bottom md:scale-100 flex"
+      class="absolute left-0 bottom-16 w-full h-4 mx-auto transform origin-bottom md:scale-100 flex"
     >
-      <div class="mx-auto flex w-1/2 h-3">
+      <div class="mx-auto flex w-1/2 h-4">
         <div
           class="w-5/6 transform mx-auto relative h-full border border-opacity-20"
           style="width: 1024px"
@@ -348,7 +348,7 @@
             :style="'width: ' + (stats.exp / stats.needExp) * 100 + '%'"
           ></div>
           <!-- 经验条文字 -->
-          <div class="absolute left-0 top-0 w-full flex h-full">
+          <div class="absolute left-0 -top-px w-full flex h-full">
             <div class="pl-2 text-xs mx-auto truncate">
               {{ stats.exp }}/{{ stats.needExp }}
             </div>

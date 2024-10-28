@@ -1983,9 +1983,10 @@ class YJAmmo {
 
       } else {
 
+        dir = _Global.YJ3D.YJController.GetPlayerWorldDire(); 
 
-        camera.getWorldDirection(dir);
-        camera.children[0].getWorldDirection(dirChild);
+        // camera.getWorldDirection(dir);
+        // camera.children[0].getWorldDirection(dirChild);
 
         if (!inJumping) {
         }
